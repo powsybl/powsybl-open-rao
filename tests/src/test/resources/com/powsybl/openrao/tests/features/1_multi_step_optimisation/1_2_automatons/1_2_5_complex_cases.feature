@@ -13,8 +13,8 @@ Feature: 1.2.5: Complex automaton simulator cases
     - The previous automaton activation solved the constraint so closing FR1-FR2-4 is not triggered
     - The two PSTs are triggered as their respective monitored lines are overloaded
     - Finally, FR5-FR6-2 is closed as FR5-FR6-1 is closed is still overloaded
-    Given network file is "epic15/TestCase8Nodes_15_11_6_1.uct"
-    Given crac file is "epic15/crac_15_11_6_1.json"
+    Given network file is "1_multi_step_optimisation/1_2_automatons/TestCase8Nodes_1_2_5_1.uct"
+    Given crac file is "1_multi_step_optimisation/1_2_automatons/crac_1_2_5_1_1.json"
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"

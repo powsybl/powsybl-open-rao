@@ -9,7 +9,7 @@ Feature: 5.1.2.3: Linear RAO with loopflow limitation
   @fast @rao @dc @preventive-only @max-min-margin
   Scenario: 5.1.2.3.1: linear RAO without LF limitation
     Given network file is "common/TestCase12Nodes.uct"
-    Given crac file is "epic7/crac_lf_rao_1.json"
+    Given crac file is "common/crac_2_2_1_8_1_crac_lf_rao_1.json"
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
@@ -21,9 +21,9 @@ Feature: 5.1.2.3: Linear RAO with loopflow limitation
   @fast @rao @dc @preventive-only @loopflow @max-min-margin
   Scenario: 5.1.2.3.2: linear RAO with LF limited by predefined threshold (10% of Fmax)
     Given network file is "common/TestCase12Nodes.uct"
-    Given crac file is "epic7/crac_lf_rao_1.json"
+    Given crac file is "common/crac_2_2_1_8_1_crac_lf_rao_1.json"
     Given loopflow glsk file is "common/glsk_lots_of_lf_12nodes.xml"
-    Given configuration file is "epic7/RaoParameters_maxMargin_mw_dc_lf_false_10_100.json"
+    Given configuration file is "5_special_features/5_1_loopflow/RaoParameters_maxMargin_mw_dc_lf_false_10_100.json"
     When I launch loopflow rao with default loopflow limit as 10.0 percent of pmax
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -46,9 +46,9 @@ Feature: 5.1.2.3: Linear RAO with loopflow limitation
   @fast @rao @dc @preventive-only @loopflow @max-min-margin
   Scenario: 5.1.2.3.3: linear RAO with LF limited by initial value
     Given network file is "common/TestCase12Nodes.uct"
-    Given crac file is "epic7/crac_lf_rao_1.json"
+    Given crac file is "common/crac_2_2_1_8_1_crac_lf_rao_1.json"
     Given loopflow glsk file is "common/glsk_lots_of_lf_12nodes.xml"
-    Given configuration file is "epic7/RaoParameters_maxMargin_mw_dc_lf_false_10_100.json"
+    Given configuration file is "5_special_features/5_1_loopflow/RaoParameters_maxMargin_mw_dc_lf_false_10_100.json"
     When I launch loopflow rao with default loopflow limit as 5.0 percent of pmax
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"

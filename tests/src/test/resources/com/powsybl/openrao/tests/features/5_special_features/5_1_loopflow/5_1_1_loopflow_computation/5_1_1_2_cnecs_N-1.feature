@@ -9,7 +9,7 @@ Feature: 5.1.1.2: Compute loop-flows for N-1 Cnecs
   @fast @loopflow-computation @ac @loopflow
   Scenario: 5.1.1.2.1 : loop-flow computation on 12 nodes network on N and N-1 states
     Given network file is "common/TestCase12Nodes.uct"
-    Given crac file is "epic7/crac_lf_2.json"
+    Given crac file is "5_special_features/5_1_loopflow/5_1_1_loopflow_computation/crac_5_1_1_2_1_crac_lf_2.json"
     Given loopflow glsk file is "common/glsk_lots_of_lf_12nodes.xml"
     When I launch loopflow_computation with OpenLoadFlow at "2019-01-08 21:30"
 

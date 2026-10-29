@@ -8,8 +8,8 @@ Feature: 0.1.1.6: Management of FRM during computation
 
   @fast @rao @ac @preventive-only @secure-flow
   Scenario: 0.1.1.6.1: case without FRM
-    Given network file is "epic2/US2-3-case1-standard.uct" for CORE CC
-    Given crac file is "epic8/12nodes_pst_topo_frm_cbcora_null_frm.xml"
+    Given network file is "common/TestCase12Nodes_standard.uct" for CORE CC
+    Given crac file is "0_import_export/0_1_import/0_1_1_cnec/12nodes_pst_topo_frm_cbcora_null_frm.xml"
     Given configuration file is "common/RaoParameters_default.json"
     When I launch rao at "2019-01-08 12:00"
     Then the execution details should be "The RAO only went through first preventive"
@@ -21,8 +21,8 @@ Feature: 0.1.1.6: Management of FRM during computation
   @fast @rao @ac @preventive-only @secure-flow
   Scenario: 0.1.1.6.2: case with a FRM of 50 MW
   Same as 0.1.1.6.1, but the margin of the CNEC is decreased by the value of the FRM.
-    Given network file is "epic2/US2-3-case1-standard.uct" for CORE CC
-    Given crac file is "epic8/12nodes_pst_topo_frm_cbcora.xml"
+    Given network file is "common/TestCase12Nodes_standard.uct" for CORE CC
+    Given crac file is "0_import_export/0_1_import/12nodes_pst_topo_frm_cbcora.xml"
     Given configuration file is "common/RaoParameters_default.json"
     When I launch rao at "2019-01-08 12:00"
     Then the execution details should be "The RAO only went through first preventive"

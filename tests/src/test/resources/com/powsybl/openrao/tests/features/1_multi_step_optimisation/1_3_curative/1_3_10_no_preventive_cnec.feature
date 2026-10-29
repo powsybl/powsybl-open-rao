@@ -28,7 +28,7 @@ Feature: 1.3.10: Solve a RAO when no preventive CNEC is defined.
   The second preventive doesn't really improve the first preventive, we just get the same result.
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "1_multi_step_optimisation/1_3_curative/crac_1_3_10_1.json"
-    Given configuration file is "epic20/RaoParameters_maxMargin_ampere_second_preventive.json"
+    Given configuration file is "common/RaoParameters_maxMargin_ampere_second_preventive.json"
     When I launch rao
     Then the execution details should be "Second preventive improved first preventive results"
     Then its security status should be "SECURED"
@@ -92,7 +92,7 @@ Feature: 1.3.10: Solve a RAO when no preventive CNEC is defined.
   preventive remedial actions available that can be used in second preventive.
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "1_multi_step_optimisation/1_3_curative/crac_1_3_10_5.json"
-    Given configuration file is "epic20/RaoParameters_maxMargin_ampere_second_preventive.json"
+    Given configuration file is "common/RaoParameters_maxMargin_ampere_second_preventive.json"
     When I launch rao
     Then the execution details should be "Second preventive improved first preventive results"
     Then its security status should be "SECURED"

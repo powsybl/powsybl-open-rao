@@ -10,9 +10,9 @@ Feature: 1.4.5: Second Preventive improvements
 
   @fast @rao @dc @second-preventive @max-min-margin
   Scenario: 1.4.5.1: Fix PST CRA setpoints in global 2nd preventive
-    Given network file is "epic20/TestCase12Nodes_20_6_1.uct"
-    Given crac file is "epic20/crac_ep20us6case1.json"
-    Given configuration file is "epic20/RaoParameters_20_6_1.json"
+    Given network file is "1_multi_step_optimisation/1_4_second_preventive_rao/TestCase12Nodes_1_4_5_1.uct"
+    Given crac file is "1_multi_step_optimisation/1_4_second_preventive_rao/crac_1_4_5_1_crac_ep20us6case1.json"
+    Given configuration file is "1_multi_step_optimisation/1_4_second_preventive_rao/RaoParameters_1_4_5_1.json"
     When I launch rao
     Then the execution details should be "Second preventive improved first preventive results"
     Then its security status should be "UNSECURED"
@@ -22,9 +22,9 @@ Feature: 1.4.5: Second Preventive improvements
 
   @fast @rao @dc @second-preventive @max-min-margin
   Scenario: 1.4.5.2: Fallback to first preventive after 2nd preventive
-    Given network file is "epic20/TestCase12Nodes_20_6_2.uct"
-    Given crac file is "epic20/crac_ep20us6case2.json"
-    Given configuration file is "epic20/RaoParameters_20_6_2.json"
+    Given network file is "1_multi_step_optimisation/1_4_second_preventive_rao/TestCase12Nodes_1_4_5_2.uct"
+    Given crac file is "1_multi_step_optimisation/1_4_second_preventive_rao/crac_1_4_5_2_crac_ep20us6case2.json"
+    Given configuration file is "1_multi_step_optimisation/1_4_second_preventive_rao/RaoParameters_1_4_5_2.json"
     When I launch rao
     Then the execution details should be "Second preventive fell back to first preventive results"
     Then its security status should be "SECURED"

@@ -10,7 +10,7 @@ Feature: 5.2.1: Handle MNECs in linear RAO
   Scenario: 5.2.1.1: reference run, no MNEC
   The flow on CNEC "NNL2AA1  NNL3AA1  1 - preventive" is increased because the CNEC is not limiting.
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
-    Given crac file is "epic11/ls_mnec_linearRao_ref.json"
+    Given crac file is "5_special_features/5_2_mnec/ls_mnec_linearRao_ref.json"
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
@@ -28,7 +28,7 @@ Feature: 5.2.1: Handle MNECs in linear RAO
   Unlike in the previous US, the flow of the MNEC cannot be increased above 900 MW, so the tap of the PST range action
   is adapted. The margin of the MNEC was positive initially, it must remain positive.
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
-    Given crac file is "epic11/ls_mnec_linearRao_1_2.json"
+    Given crac file is "5_special_features/5_2_mnec/ls_mnec_linearRao_1_2.json"
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
@@ -46,7 +46,7 @@ Feature: 5.2.1: Handle MNECs in linear RAO
   As the initial flow is 833 MW, the MNEC is overloaded. Its flow cannot be decreased "too much" by the RAO. The maximum
   decrease is set at 50 MW by the parameter "acceptable-margin-decrease" in "mnec-parameters".
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
-    Given crac file is "epic11/ls_mnec_linearRao_1_3.json"
+    Given crac file is "5_special_features/5_2_mnec/ls_mnec_linearRao_1_3.json"
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
@@ -65,7 +65,7 @@ Feature: 5.2.1: Handle MNECs in linear RAO
   if the margin becomes negative. The maximum decrease is set at 50 MW by the parameter "acceptable-margin-decrease"
   in "mnec-parameters".
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
-    Given crac file is "epic11/ls_mnec_linearRao_1_4.json"
+    Given crac file is "5_special_features/5_2_mnec/ls_mnec_linearRao_1_4.json"
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"

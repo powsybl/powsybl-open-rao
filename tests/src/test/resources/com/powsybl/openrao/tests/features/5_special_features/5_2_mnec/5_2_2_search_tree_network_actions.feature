@@ -9,7 +9,7 @@ Feature: 5.2.2: Handle MNECs in search tree with only network actions
   @fast @rao @ac @preventive-only @max-min-margin
   Scenario: 5.2.2.1: reference run, no MNEC
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
-    Given crac file is "epic11/ls_mnec_networkAction_ref.json"
+    Given crac file is "5_special_features/5_2_mnec/ls_mnec_networkAction_ref.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere_ac.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
@@ -23,8 +23,8 @@ Feature: 5.2.2: Handle MNECs in search tree with only network actions
   @fast @rao @ac @preventive-only @mnec @max-min-margin
   Scenario: 5.2.2.2: margin on MNEC should stay positive (initial margin > 180MW)
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
-    Given crac file is "epic11/ls_mnec_networkAction_3_2.json"
-    Given configuration file is "epic11/RaoParameters_maxMargin_ampere_ac_mnecDimin260.json"
+    Given crac file is "5_special_features/5_2_mnec/ls_mnec_networkAction_3_2.json"
+    Given configuration file is "5_special_features/5_2_mnec/RaoParameters_maxMargin_ampere_ac_mnecDimin260.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "UNSECURED"
@@ -38,8 +38,8 @@ Feature: 5.2.2: Handle MNECs in search tree with only network actions
   @fast @rao @mock @ac @preventive-only @mnec
   Scenario: 5.2.2.3: margin on MNEC should stay above initial value - 260 A
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
-    Given crac file is "epic11/ls_mnec_networkAction_3_3.json"
-    Given configuration file is "epic11/RaoParameters_maxMargin_ampere_ac_mnecDimin260.json"
+    Given crac file is "5_special_features/5_2_mnec/ls_mnec_networkAction_3_3.json"
+    Given configuration file is "5_special_features/5_2_mnec/RaoParameters_maxMargin_ampere_ac_mnecDimin260.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "UNSECURED"

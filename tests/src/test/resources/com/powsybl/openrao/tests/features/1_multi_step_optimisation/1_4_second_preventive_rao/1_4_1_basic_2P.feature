@@ -10,8 +10,8 @@ Feature: 1.4.1: enable second optimization of the preventive perimeter
   @fast @rao @ac @second-preventive @max-min-margin
   Scenario: 1.4.1.1.1: Preventive network actions only
     Given network file is "common/TestCase16Nodes.uct"
-    Given crac file is "epic20/second_preventive_ls_1.json"
-    Given configuration file is "epic20/RaoParameters_maxMargin_ampere_second_preventive.json"
+    Given crac file is "1_multi_step_optimisation/1_4_second_preventive_rao/second_preventive_ls_1.json"
+    Given configuration file is "common/RaoParameters_maxMargin_ampere_second_preventive.json"
     When I launch rao
 #    Then I export rao reports to "reports/reports_1_4_1_1_1.txt"
     Then the worst margin is 321 A
@@ -27,8 +27,8 @@ Feature: 1.4.1: enable second optimization of the preventive perimeter
   @fast @rao @ac @second-preventive @max-min-margin
   Scenario: 1.4.1.1.2: Same case as 1.4.1.1 with a limitation of 2 RAs in preventive
     Given network file is "common/TestCase16Nodes.uct"
-    Given crac file is "epic20/second_preventive_ls_1_2.json"
-    Given configuration file is "epic20/RaoParameters_maxMargin_ampere_second_preventive.json"
+    Given crac file is "1_multi_step_optimisation/1_4_second_preventive_rao/second_preventive_ls_1_2.json"
+    Given configuration file is "common/RaoParameters_maxMargin_ampere_second_preventive.json"
     When I launch rao
     Then the execution details should be "Second preventive improved first preventive results"
     Then its security status should be "SECURED"
@@ -42,8 +42,8 @@ Feature: 1.4.1: enable second optimization of the preventive perimeter
   @fast @rao @ac @second-preventive @max-min-margin
   Scenario: 1.4.1.1.3: Same case as 1.4.1.1.1 with pst_fr available in curative
     Given network file is "common/TestCase16Nodes.uct"
-    Given crac file is "epic20/second_preventive_ls_1_3.json"
-    Given configuration file is "epic20/RaoParameters_maxMargin_ampere_second_preventive.json"
+    Given crac file is "1_multi_step_optimisation/1_4_second_preventive_rao/second_preventive_ls_1_3.json"
+    Given configuration file is "common/RaoParameters_maxMargin_ampere_second_preventive.json"
     When I launch rao
     Then the execution details should be "Second preventive improved first preventive results"
     Then its security status should be "SECURED"
@@ -58,8 +58,8 @@ Feature: 1.4.1: enable second optimization of the preventive perimeter
   Scenario: 1.4.1.1.4: Pst_fr limits relative to previous instant are the most impacting w.r.t relative to initial network
     # 2P is now always global, pst_fr is always optimized
     Given network file is "common/TestCase16Nodes.uct"
-    Given crac file is "epic20/second_preventive_ls_1_4.json"
-    Given configuration file is "epic20/RaoParameters_maxMargin_ampere_second_preventive.json"
+    Given crac file is "1_multi_step_optimisation/1_4_second_preventive_rao/second_preventive_ls_1_4.json"
+    Given configuration file is "common/RaoParameters_maxMargin_ampere_second_preventive.json"
     When I launch rao
     Then the execution details should be "Second preventive improved first preventive results"
     Then its security status should be "SECURED"
@@ -75,8 +75,8 @@ Feature: 1.4.1: enable second optimization of the preventive perimeter
   @fast @rao @ac @second-preventive @max-min-margin
   Scenario: 1.4.1.2: Preventive and curative network actions 1/3
     Given network file is "common/TestCase16Nodes.uct"
-    Given crac file is "epic13/SL_ep13us3case1.json"
-    Given configuration file is "epic20/RaoParameters_maxMargin_ampere_second_preventive.json"
+    Given crac file is "1_multi_step_optimisation/crac_1_3_3_1.json"
+    Given configuration file is "common/RaoParameters_maxMargin_ampere_second_preventive.json"
     When I launch rao
     Then 2 remedial actions are used in preventive
     Then the tap of PstRangeAction "pst_fr" should be 4 in preventive
@@ -93,8 +93,8 @@ Feature: 1.4.1: enable second optimization of the preventive perimeter
   @fast @rao @ac @second-preventive @max-min-margin
   Scenario: 1.4.1.3: Preventive and curative network actions 2/3
     Given network file is "common/TestCase16Nodes.uct"
-    Given crac file is "epic13/SL_ep13us4case2.json"
-    Given configuration file is "epic20/RaoParameters_maxMargin_ampere_second_preventive.json"
+    Given crac file is "1_multi_step_optimisation/crac_1_3_4_2.json"
+    Given configuration file is "common/RaoParameters_maxMargin_ampere_second_preventive.json"
     When I launch rao
     Then 1 remedial actions are used in preventive
     Then the tap of PstRangeAction "pst_be" should be -16 in preventive
@@ -110,8 +110,8 @@ Feature: 1.4.1: enable second optimization of the preventive perimeter
   @fast @rao @ac @second-preventive @max-min-margin
   Scenario: 1.4.1.4: Preventive and curative network actions 3/3
     Given network file is "common/TestCase16Nodes.uct"
-    Given crac file is "epic13/SL_ep13us4case4.json"
-    Given configuration file is "epic20/RaoParameters_maxMargin_ampere_second_preventive.json"
+    Given crac file is "1_multi_step_optimisation/crac_1_3_4_4.json"
+    Given configuration file is "common/RaoParameters_maxMargin_ampere_second_preventive.json"
     When I launch rao
     Then 1 remedial actions are used in preventive
     Then the tap of PstRangeAction "pst_be" should be -16 in preventive
@@ -127,8 +127,8 @@ Feature: 1.4.1: enable second optimization of the preventive perimeter
   @fast @rao @ac @second-preventive @max-min-margin
   Scenario: 1.4.1.5: Duplicated RA on the same PST, one being a PRA and the other one being a CRA
     Given network file is "common/TestCase16Nodes.uct"
-    Given crac file is "epic20/crac_ep20us1case1_5.json"
-    Given configuration file is "epic20/RaoParameters_maxMargin_ampere_second_preventive.json"
+    Given crac file is "1_multi_step_optimisation/1_4_second_preventive_rao/crac_1_4_1_5_crac_ep20us1case1_5.json"
+    Given configuration file is "common/RaoParameters_maxMargin_ampere_second_preventive.json"
     When I launch rao
     Then 1 remedial actions are used in preventive
     Then the remedial action "pst_fr_pra" is used in preventive
@@ -147,8 +147,8 @@ Feature: 1.4.1: enable second optimization of the preventive perimeter
   @fast @rao @ac @second-preventive @max-min-margin
   Scenario: 1.4.1.6: Same test as 1.4.1.5. The CRA has a non relevant relative to previous instant range
     Given network file is "common/TestCase16Nodes.uct"
-    Given crac file is "epic20/crac_ep20us1case1_6.json"
-    Given configuration file is "epic20/RaoParameters_maxMargin_ampere_second_preventive.json"
+    Given crac file is "1_multi_step_optimisation/1_4_second_preventive_rao/crac_1_4_1_6_crac_ep20us1case1_6.json"
+    Given configuration file is "common/RaoParameters_maxMargin_ampere_second_preventive.json"
     When I launch rao
     Then 1 remedial actions are used in preventive
     Then the remedial action "pst_fr_pra" is used in preventive
@@ -167,9 +167,9 @@ Feature: 1.4.1: enable second optimization of the preventive perimeter
 
   @fast @rao @ac @second-preventive @max-min-margin
   Scenario: 1.4.1.7: Test case with a CBCORA file
-    Given network file is "epic13/TestCase16Nodes_with_different_imax.uct"
-    Given crac file is "epic13/CBCORA_ep13us3case10.xml"
-    Given configuration file is "epic20/RaoParameters_maxMargin_ampere_second_preventive.json"
+    Given network file is "common/TestCase16Nodes_with_different_imax.uct"
+    Given crac file is "common/cbcora_2_6_3_11.xml"
+    Given configuration file is "common/RaoParameters_maxMargin_ampere_second_preventive.json"
     When I launch rao at "2019-01-08 12:00"
     Then 2 remedial actions are used in preventive
     Then the remedial action "close_de3_de4" is used in preventive

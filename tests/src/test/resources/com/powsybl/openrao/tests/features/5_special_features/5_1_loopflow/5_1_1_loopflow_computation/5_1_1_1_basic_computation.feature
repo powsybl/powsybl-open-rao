@@ -9,7 +9,7 @@ Feature: 5.1.1.1: Loopflow computation (not within the RAO)
   @fast @rao @dc @preventive-only @secure-flow
   Scenario: 5.1.1.1.1: optimise network action without loop flow limitation
     Given network file is "common/TestCase12Nodes.uct"
-    Given crac file is "epic7/crac_lf_rao_2.json"
+    Given crac file is "5_special_features/5_1_loopflow/5_1_1_loopflow_computation/crac_5_1_1_1_1_crac_lf_rao_2.json"
     Given configuration file is "common/RaoParameters_posMargin_megawatt_dc.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
@@ -20,7 +20,7 @@ Feature: 5.1.1.1: Loopflow computation (not within the RAO)
   @fast @loopflow-computation @dc @loopflow
   Scenario: 5.1.1.1.2: loopflow computation on 12 nodes network with proportional GLSKs
     Given network file is "common/TestCase12Nodes.uct"
-    Given crac file is "epic7/crac_lf.json"
+    Given crac file is "5_special_features/5_1_loopflow/5_1_1_loopflow_computation/crac_5_1_1_1_2_crac_lf.json"
     Given loopflow glsk file is "common/glsk_proportional_12nodes.xml"
     When I launch loopflow_computation with OpenLoadFlow
     Then the loopflow on cnec "DDE2AA1  NNL3AA1  1 - preventive" after loopflow computation should be -124.0 MW
@@ -42,7 +42,7 @@ Feature: 5.1.1.1: Loopflow computation (not within the RAO)
   @fast @loopflow-computation @dc @loopflow
   Scenario: 5.1.1.1.3: loopflow computation on 12 nodes network with proportional GLSKs
     Given network file is "common/TestCase12Nodes.uct"
-    Given crac file is "epic7/crac_lf.json"
+    Given crac file is "5_special_features/5_1_loopflow/5_1_1_loopflow_computation/crac_5_1_1_1_2_crac_lf.json"
     Given loopflow glsk file is "common/glsk_lots_of_lf_12nodes.xml"
     When I launch loopflow_computation with OpenLoadFlow
     Then the loopflow on cnec "DDE2AA1  NNL3AA1  1 - preventive" after loopflow computation should be -391.0 MW

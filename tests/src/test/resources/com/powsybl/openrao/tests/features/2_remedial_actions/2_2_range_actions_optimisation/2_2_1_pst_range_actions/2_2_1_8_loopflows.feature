@@ -9,9 +9,9 @@ Feature: 2.2.1.8: MIP range action optimisation and loopflows
   @fast @rao @ac @preventive-only @loopflow @max-min-margin
   Scenario: 2.2.1.8.1: Non MIP range action optimization cannot respect loopflows
     Given network file is "common/TestCase12Nodes.uct"
-    Given crac file is "epic7/crac_lf_rao_1.json"
+    Given crac file is "common/crac_2_2_1_8_1_crac_lf_rao_1.json"
     Given loopflow glsk file is "common/glsk_lots_of_lf_12nodes.xml"
-    Given configuration file is "epic91/RaoParameters_maxMargin_mw_dc_lf_false_3_100.json"
+    Given configuration file is "2_remedial_actions/2_2_range_actions_optimisation/2_2_1_pst_range_actions/RaoParameters_maxMargin_mw_dc_lf_false_3_100.json"
     When I launch loopflow rao with default loopflow limit as 9.0 percent of pmax
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -23,9 +23,9 @@ Feature: 2.2.1.8: MIP range action optimisation and loopflows
   @fast @rao @ac @preventive-only @loopflow @max-min-margin
   Scenario: 2.2.1.8.2: MIP range action optimization respects loopflows
     Given network file is "common/TestCase12Nodes.uct"
-    Given crac file is "epic7/crac_lf_rao_1.json"
+    Given crac file is "common/crac_2_2_1_8_1_crac_lf_rao_1.json"
     Given loopflow glsk file is "common/glsk_lots_of_lf_12nodes.xml"
-    Given configuration file is "epic91/RaoParameters_maxMargin_mw_dc_lf_false_3_100_mip.json"
+    Given configuration file is "2_remedial_actions/2_2_range_actions_optimisation/2_2_1_pst_range_actions/RaoParameters_maxMargin_mw_dc_lf_false_3_100_mip.json"
     When I launch loopflow rao with default loopflow limit as 9.0 percent of pmax
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -36,8 +36,8 @@ Feature: 2.2.1.8: MIP range action optimisation and loopflows
 
   @fast @rao @ac @preventive-only @search-tree-rao @max-min-margin
   Scenario: 2.2.1.8.3: MIP with slightly different aligned PSTs
-    Given network file is "epic91/TestCase16Nodes_alignedPsts.uct"
-    Given crac file is "epic91/CBCORA_alignedPsts.xml"
+    Given network file is "2_remedial_actions/2_2_range_actions_optimisation/2_2_1_pst_range_actions/TestCase16Nodes_alignedPsts.uct"
+    Given crac file is "2_remedial_actions/2_2_range_actions_optimisation/2_2_1_pst_range_actions/cbcora_2_2_1_8_3_CBCORA_alignedPsts.xml"
     Given configuration file is "common/RaoParameters_maxMargin_ampere_mip.json"
     When I launch rao at "2019-01-08 12:00"
     Then the execution details should be "The RAO only went through first preventive"

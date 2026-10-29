@@ -9,7 +9,7 @@ Feature: 0.1.1.1: Import of a CNEC optimized in a single direction
   @fast @crac @no-computation
   Scenario: 0.1.1.1.1
   No threshold with a PERCENT_IMAX unit is defined in the CRAC so no iMax was imported.
-    Given crac file is "epic3/SL_ep3us1_all_dir.json"
+    Given crac file is "0_import_export/0_1_import/0_1_1_cnec/crac_0_1_1_1_1_all_dir.json"
     Given network file is "common/TestCase12Nodes.uct"
     When I import crac
     Then it should have the following flow CNECs:

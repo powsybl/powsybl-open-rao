@@ -8,9 +8,9 @@ Feature: 0.1.3.2: Import HVDC Range Actions
 
   @fast @crac
   Scenario: 0.1.3.2.1: Import HVDC automaton from CIM CRAC
-    Given network file is "epic21/TestCase16NodesWith2Hvdc.xiidm"
-    Given crac file is "epic21/CIM_21_6_1.xml"
-    Given crac creation parameters file is "epic21/CimCracCreationParameters_21_6_1.json"
+    Given network file is "0_import_export/0_1_import/0_1_3_remedial_actions/TestCase16NodesWith2Hvdc.xiidm"
+    Given crac file is "0_import_export/0_1_import/0_1_3_remedial_actions/cim_0_1_3_2_1.xml"
+    Given crac creation parameters file is "0_import_export/0_1_import/0_1_3_remedial_actions/CimCracCreationParameters_0_1_3_2_1.json"
     When I import crac
     Then its name should be "CORESO-20210402-SWECCD2-F011"
     Then its id should be "CORESO-20210402-SWECCD2-F011"
@@ -30,9 +30,9 @@ Feature: 0.1.3.2: Import HVDC Range Actions
 
   @fast @crac
   Scenario: 0.1.3.2.2: Import on flow constraint in country with country from CIM CRAC
-    Given network file is "epic21/TestCase16NodesWith2Hvdc.xiidm"
-    Given crac file is "epic21/CIM_21_6_2.xml"
-    Given crac creation parameters file is "epic21/CimCracCreationParameters_21_6_1.json"
+    Given network file is "0_import_export/0_1_import/0_1_3_remedial_actions/TestCase16NodesWith2Hvdc.xiidm"
+    Given crac file is "0_import_export/0_1_import/0_1_3_remedial_actions/cim_0_1_3_2_2.xml"
+    Given crac creation parameters file is "0_import_export/0_1_import/0_1_3_remedial_actions/CimCracCreationParameters_0_1_3_2_1.json"
     When I import crac
     Then its name should be "CORESO-20210402-SWECCD2-F011"
     Then its id should be "CORESO-20210402-SWECCD2-F011"

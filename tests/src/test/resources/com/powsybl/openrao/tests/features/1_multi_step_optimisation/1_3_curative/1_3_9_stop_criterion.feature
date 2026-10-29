@@ -10,8 +10,8 @@ Feature: 1.3.9: Curative RAO stop criterion
   @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: 1.3.9.1: Skip curative RAO
     Given network file is "common/TestCase16Nodes.uct"
-    Given crac file is "epic13/SL_ep13us11case1.json"
-    Given configuration file is "epic13/RaoParameters_stop_curative_at_preventive.json"
+    Given crac file is "1_multi_step_optimisation/1_3_curative/crac_1_3_9_1.json"
+    Given configuration file is "1_multi_step_optimisation/1_3_curative/RaoParameters_stop_curative_at_preventive.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -23,8 +23,8 @@ Feature: 1.3.9: Curative RAO stop criterion
   @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: 1.3.9.2: Stop curative RAO after root leaf optimization
     Given network file is "common/TestCase16Nodes.uct"
-    Given crac file is "epic13/SL_ep13us11case1.json"
-    Given configuration file is "epic13/RaoParameters_best_preventive_by_500.json"
+    Given crac file is "1_multi_step_optimisation/1_3_curative/crac_1_3_9_1.json"
+    Given configuration file is "1_multi_step_optimisation/1_3_curative/RaoParameters_best_preventive_by_500.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -38,8 +38,8 @@ Feature: 1.3.9: Curative RAO stop criterion
   @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: 1.3.9.3: Stop curative RAO after reaching set difference with preventive
     Given network file is "common/TestCase16Nodes.uct"
-    Given crac file is "epic13/SL_ep13us11case3.json"
-    Given configuration file is "epic13/RaoParameters_best_preventive_by_628.json"
+    Given crac file is "1_multi_step_optimisation/1_3_curative/crac_1_3_9_3.json"
+    Given configuration file is "1_multi_step_optimisation/1_3_curative/RaoParameters_best_preventive_by_628.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -59,8 +59,8 @@ Feature: 1.3.9: Curative RAO stop criterion
   @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: 1.3.9.4: Stop curative RAO after making perimeters secure
     Given network file is "common/TestCase16Nodes.uct"
-    Given crac file is "epic13/SL_ep13us11case4.json"
-    Given configuration file is "epic13/RaoParameters_best_preventive_by_300_secure.json"
+    Given crac file is "1_multi_step_optimisation/1_3_curative/crac_1_3_9_4.json"
+    Given configuration file is "1_multi_step_optimisation/1_3_curative/RaoParameters_best_preventive_by_300_secure.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "UNSECURED"

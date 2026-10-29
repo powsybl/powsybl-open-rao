@@ -1,8 +1,0 @@
-{
-  "crac-factory": "CracImplFactory",
-  "extensions": {
-    "CimCracCreatorParameters": {
-      "timestamp": "2021-04-02T05:00Z"
-    }
-  }
-}

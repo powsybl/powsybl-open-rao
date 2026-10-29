@@ -10,7 +10,7 @@ Feature: 2.2.1.1: Optimize PST tap within given ranges
   Scenario: 2.2.1.1.1: Optimization monitoring only the PST
   Basic case, the only RA is a PST range action - the CNECs are only defined for one network element.
     Given network file is "common/TestCase12Nodes.uct"
-    Given crac file is "epic2/SL_ep2us2case1.json"
+    Given crac file is "common/crac_2_2_1_1_1.json"
     Given configuration file is "common/RaoParameters_posMargin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
@@ -25,7 +25,7 @@ Feature: 2.2.1.1: Optimize PST tap within given ranges
   Scenario: 2.2.1.1.2: Trade-off between various constraints
   Same as 2.2.1.1.1, except that CNECs are defined on two additional network elements.
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
-    Given crac file is "epic2/SL_ep2us2case2.json"
+    Given crac file is "2_remedial_actions/2_2_range_actions_optimisation/2_2_1_pst_range_actions/crac_2_2_1_1_2.json"
     Given configuration file is "common/RaoParameters_posMargin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
@@ -40,7 +40,7 @@ Feature: 2.2.1.1: Optimize PST tap within given ranges
   Scenario: 2.2.1.1.3: Unsecure solution
   Same as 2.2.1.1.2, except that the CNEC thresholds are more restrictive.
     Given network file is "common/TestCase12Nodes.uct"
-    Given crac file is "epic2/SL_ep2us2case3.json"
+    Given crac file is "2_remedial_actions/2_2_range_actions_optimisation/2_2_1_pst_range_actions/crac_2_2_1_1_3.json"
     Given configuration file is "common/RaoParameters_posMargin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
@@ -56,7 +56,7 @@ Feature: 2.2.1.1: Optimize PST tap within given ranges
   Same as the previous cases, except that the max value of the absolute range of the RA is restricted from 16 to 3,
     and a relativeToInitialNetwork range is added (0 to 10).
     Given network file is "common/TestCase12Nodes.uct"
-    Given crac file is "epic2/SL_ep2us2case4.json"
+    Given crac file is "2_remedial_actions/2_2_range_actions_optimisation/2_2_1_pst_range_actions/crac_2_2_1_1_4.json"
     Given configuration file is "common/RaoParameters_posMargin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
@@ -71,7 +71,7 @@ Feature: 2.2.1.1: Optimize PST tap within given ranges
   Scenario: 2.2.1.1.5: Handle 2 PSTs
   Two preventive range actions are available (on two different PSTs).
     Given network file is "common/TestCase12Nodes2PSTs.uct"
-    Given crac file is "epic2/SL_ep2us2case5.json"
+    Given crac file is "2_remedial_actions/2_2_range_actions_optimisation/2_2_1_pst_range_actions/crac_2_2_1_1_5.json"
     Given configuration file is "common/RaoParameters_posMargin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"

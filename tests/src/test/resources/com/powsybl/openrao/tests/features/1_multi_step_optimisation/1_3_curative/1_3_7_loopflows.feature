@@ -9,7 +9,7 @@ Feature: 1.3.7: Cross-validation Curative and Loop-flows
   @fast @rao @dc @preventive-only @loopflow @max-min-margin
   Scenario: 1.3.7.1 : RAO with loop-flows in preventive perimeter limited by their threshold
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
-    Given crac file is "epic13/CBCORA_ep13us7case1.xml"
+    Given crac file is "1_multi_step_optimisation/1_3_curative/cbcora_1_3_7_1.xml"
     Given loopflow glsk file is "common/glsk_lots_of_lf_12nodes.xml"
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc_withLoopFlows.json"
     When I launch rao at "2019-01-08 12:00"
@@ -30,7 +30,7 @@ Feature: 1.3.7: Cross-validation Curative and Loop-flows
   @fast @rao @dc @preventive-only @loopflow @max-min-margin
   Scenario: 1.3.7.2 : RAO with loop-flows in preventive perimeter limited by their initial value
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
-    Given crac file is "epic13/CBCORA_ep13us7case2.xml"
+    Given crac file is "1_multi_step_optimisation/1_3_curative/cbcora_1_3_7_2.xml"
     Given loopflow glsk file is "common/glsk_lots_of_lf_12nodes.xml"
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc_withLoopFlows.json"
     When I launch rao at "2019-01-08 12:00"
@@ -69,7 +69,7 @@ Feature: 1.3.7: Cross-validation Curative and Loop-flows
   @fast @rao @dc @contingency-scenarios @loopflow @max-min-margin
   Scenario: 1.3.7.3 : Curative RAO with loop-flows with non constraining thresholds
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
-    Given crac file is "epic13/CBCORA_ep13us7case3.xml"
+    Given crac file is "1_multi_step_optimisation/1_3_curative/cbcora_1_3_7_3.xml"
     Given loopflow glsk file is "common/glsk_proportional_12nodes.xml"
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc_withLoopFlows.json"
     When I launch rao at "2019-01-08 12:00"
@@ -95,7 +95,7 @@ Feature: 1.3.7: Cross-validation Curative and Loop-flows
   @fast @rao @dc @contingency-scenarios @loopflow @max-min-margin
   Scenario: 1.3.7.4 : Curative RAO with loop-flows with constraining thresholds in curative
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
-    Given crac file is "epic13/CBCORA_ep13us7case4.xml"
+    Given crac file is "1_multi_step_optimisation/1_3_curative/cbcora_1_3_7_4.xml"
     Given loopflow glsk file is "common/glsk_proportional_12nodes.xml"
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc_withLoopFlows.json"
     When I launch rao at "2019-01-08 12:00"
@@ -121,7 +121,7 @@ Feature: 1.3.7: Cross-validation Curative and Loop-flows
   @fast @rao @dc @contingency-scenarios @loopflow @max-min-margin
   Scenario: 1.3.7.5 : Curative RAO with loop-flows with constraining initial values in curative
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
-    Given crac file is "epic13/CBCORA_ep13us7case5.xml"
+    Given crac file is "1_multi_step_optimisation/1_3_curative/cbcora_1_3_7_5.xml"
     Given loopflow glsk file is "common/glsk_proportional_12nodes.xml"
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc_withLoopFlows.json"
     When I launch rao at "2019-01-08 12:00"
@@ -146,9 +146,9 @@ Feature: 1.3.7: Cross-validation Curative and Loop-flows
   @fast @rao @dc @contingency-scenarios @loopflow @max-min-margin
   Scenario: 1.3.7.6 : Curative RAO with FIXED_PTDF loop-flow-approximation
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
-    Given crac file is "epic13/CBCORA_ep13us7case4.xml"
+    Given crac file is "1_multi_step_optimisation/1_3_curative/cbcora_1_3_7_4.xml"
     Given loopflow glsk file is "common/glsk_proportional_12nodes.xml"
-    Given configuration file is "epic13/RaoParameters_ep13us7case6.json"
+    Given configuration file is "1_multi_step_optimisation/1_3_curative/RaoParameters_1_3_7_6.json"
     When I launch rao at "2019-01-08 12:00"
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"

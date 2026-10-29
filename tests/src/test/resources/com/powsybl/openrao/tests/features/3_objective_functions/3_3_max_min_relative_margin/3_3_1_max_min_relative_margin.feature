@@ -9,8 +9,8 @@ Feature: 3.3.1: Linear RAO with relative margin
   @fast @rao @ac @preventive-only @relative @max-min-relative-margin
   Scenario: 3.3.1.1: Unsecured case
     Given network file is "common/TestCase12Nodes.uct"
-    Given crac file is "epic10/ls_relative_margin_unsecure.json"
-    Given configuration file is "epic10/RaoParameters_relMargin_megawatt.json"
+    Given crac file is "3_objective_functions/3_3_max_min_relative_margin/ls_relative_margin_unsecure.json"
+    Given configuration file is "common/RaoParameters_relMargin_megawatt.json"
     Given loopflow glsk file is "common/glsk_proportional_12nodes.xml"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
@@ -24,8 +24,8 @@ Feature: 3.3.1: Linear RAO with relative margin
   @fast @rao @ac @preventive-only @max-min-relative-margin
   Scenario: 3.3.1.2: Secured case
     Given network file is "common/TestCase12Nodes.uct"
-    Given crac file is "epic10/ls_relative_margin.json"
-    Given configuration file is "epic10/RaoParameters_relMargin_megawatt.json"
+    Given crac file is "3_objective_functions/3_3_max_min_relative_margin/ls_relative_margin.json"
+    Given configuration file is "common/RaoParameters_relMargin_megawatt.json"
     Given loopflow glsk file is "common/glsk_proportional_12nodes.xml"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
@@ -40,8 +40,8 @@ Feature: 3.3.1: Linear RAO with relative margin
   @fast @rao @ac @preventive-only @max-min-relative-margin
   Scenario: 3.3.1.3: Secured case with open monitored branch
     Given network file is "common/TestCase12NodesWithOpenBranch.uct"
-    Given crac file is "epic10/ls_relative_margin_with_open_branch.json"
-    Given configuration file is "epic10/RaoParameters_relMargin_megawatt.json"
+    Given crac file is "3_objective_functions/3_3_max_min_relative_margin/ls_relative_margin_with_open_branch.json"
+    Given configuration file is "common/RaoParameters_relMargin_megawatt.json"
     Given loopflow glsk file is "common/glsk_proportional_12nodes.xml"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"

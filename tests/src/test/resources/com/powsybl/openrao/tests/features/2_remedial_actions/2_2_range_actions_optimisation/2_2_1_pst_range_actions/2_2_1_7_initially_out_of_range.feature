@@ -9,7 +9,7 @@ Feature: 2.2.1.7: PST initially out of range
   @fast @rao @dc @preventive-only @max-min-margin
   Scenario: 2.2.1.7.1: initial PST tap outside of Range
     Given network file is "common/TestCase16Nodes.uct" for CORE CC
-    Given crac file is "epic91/cbcora_ep91us3case1.xml"
+    Given crac file is "2_remedial_actions/2_2_range_actions_optimisation/2_2_1_pst_range_actions/cbcora_2_2_1_7_1.xml"
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
     When I launch rao at "2019-01-08 12:00"
     Then the execution details should be "The RAO only went through first preventive"
@@ -27,7 +27,7 @@ Feature: 2.2.1.7: PST initially out of range
   @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: 2.2.1.7.2: PST tap outside of Range at the start of the curative RAO
     Given network file is "common/TestCase16Nodes.uct" for CORE CC
-    Given crac file is "epic91/cbcora_ep91us3case2.xml"
+    Given crac file is "2_remedial_actions/2_2_range_actions_optimisation/2_2_1_pst_range_actions/cbcora_2_2_1_7_2.xml"
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
     When I launch rao at "2019-01-08 12:00"
     Then the execution details should be "The RAO only went through first preventive"

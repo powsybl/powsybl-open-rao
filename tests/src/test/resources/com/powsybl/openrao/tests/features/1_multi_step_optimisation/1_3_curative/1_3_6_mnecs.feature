@@ -9,7 +9,7 @@ Feature: 1.3.6: Cross validation curative optimization and MNECs
   @fast @rao @ac @contingency-scenarios @mnec @max-min-margin
   Scenario: 1.3.6.1: Simple case with a mix of preventive and curative remedial actions and a MNEC in preventive limited by threshold
     Given network file is "common/TestCase16Nodes.uct" for CORE CC
-    Given crac file is "epic13/SL_ep13us2case5_with_mnec.json"
+    Given crac file is "1_multi_step_optimisation/1_3_curative/crac_1_3_6_1_with_mnec.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
@@ -31,8 +31,8 @@ Feature: 1.3.6: Cross validation curative optimization and MNECs
   @fast @rao @ac @contingency-scenarios @mnec @max-min-margin
   Scenario: 1.3.6.2: CBCORA - Curative MNECs should have a positive margin
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
-    Given crac file is "epic13/MergedCB_ep13us6case2.xml"
-    Given configuration file is "epic13/RaoParameters_13_6_2.json"
+    Given crac file is "1_multi_step_optimisation/1_3_curative/MergedCB_ep13us6case2.xml"
+    Given configuration file is "1_multi_step_optimisation/1_3_curative/RaoParameters_1_3_6_2.json"
     When I launch rao at "2019-01-08 12:00"
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "UNSECURED"
@@ -51,9 +51,9 @@ Feature: 1.3.6: Cross validation curative optimization and MNECs
 
   @fast @rao @ac @contingency-scenarios @mnec @max-min-margin
   Scenario: 1.3.6.3: CBCORA - Curative MNECs limited by their initial margin - CRAs only
-    Given network file is "epic13/TestCase12NodesDifferentPstTap.uct" for CORE CC
-    Given crac file is "epic13/MergedCB_ep13us6case3.xml"
-    Given configuration file is "epic11/RaoParameters_maxMargin_ampere_ac_mnecDimin30.json"
+    Given network file is "common/TestCase12NodesDifferentPstTap.uct" for CORE CC
+    Given crac file is "1_multi_step_optimisation/1_3_curative/MergedCB_ep13us6case3.xml"
+    Given configuration file is "common/RaoParameters_maxMargin_ampere_ac_mnecDimin30.json"
     When I launch rao at "2019-01-08 12:00"
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "UNSECURED"
@@ -66,9 +66,9 @@ Feature: 1.3.6: Cross validation curative optimization and MNECs
 
   @fast @rao @ac @contingency-scenarios @mnec @max-min-margin
   Scenario: 1.3.6.4: CBCORA - Curative MNECs limited by their initial margin - PRAs and CRAs
-    Given network file is "epic13/TestCase12NodesDifferentPstTap.uct" for CORE CC
-    Given crac file is "epic13/MergedCB_ep13us6case4.xml"
-    Given configuration file is "epic11/RaoParameters_maxMargin_ampere_ac_mnecDimin30.json"
+    Given network file is "common/TestCase12NodesDifferentPstTap.uct" for CORE CC
+    Given crac file is "common/MergedCB_ep13us6case4.xml"
+    Given configuration file is "common/RaoParameters_maxMargin_ampere_ac_mnecDimin30.json"
     When I launch rao at "2019-01-08 12:00"
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "UNSECURED"
@@ -87,7 +87,7 @@ Feature: 1.3.6: Cross validation curative optimization and MNECs
   @fast @rao @ac @contingency-scenarios @mnec @max-min-margin
   Scenario: 1.3.6.5: Simple case with a mix of preventive and curative remedial actions and a MNEC in preventive limited by threshold
     Given network file is "common/TestCase16Nodes.uct" for CORE CC
-    Given crac file is "epic13/SL_ep13us2case5_with_mnec.json"
+    Given crac file is "1_multi_step_optimisation/1_3_curative/crac_1_3_6_1_with_mnec.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
@@ -108,7 +108,7 @@ Feature: 1.3.6: Cross validation curative optimization and MNECs
   @fast @rao @ac @contingency-scenarios @mnec @max-min-margin
   Scenario: 1.3.6.6: Simple case with a mix of preventive and curative remedial actions and MNECs in preventive and curative limited by threshold
     Given network file is "common/TestCase16Nodes.uct" for CORE CC
-    Given crac file is "epic13/SL_ep13us2case6_with_mnec_curative.json"
+    Given crac file is "1_multi_step_optimisation/1_3_curative/crac_1_3_6_6_with_mnec_curative.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
@@ -131,7 +131,7 @@ Feature: 1.3.6: Cross validation curative optimization and MNECs
   @fast @rao @ac @contingency-scenarios @mnec @max-min-margin
   Scenario: 1.3.6.7: Simple case with a mix of preventive and curative remedial actions and MNECs in preventive and curative limited by initial value
     Given network file is "common/TestCase16Nodes.uct" for CORE CC
-    Given crac file is "epic13/SL_ep13us2case7_with_mnec_curative_initial.json"
+    Given crac file is "1_multi_step_optimisation/1_3_curative/crac_1_3_6_7_with_mnec_curative_initial.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere_mip.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
@@ -157,8 +157,8 @@ Feature: 1.3.6: Cross validation curative optimization and MNECs
   @fast @rao @ac @contingency-scenarios @mnec @max-min-margin
   Scenario: 1.3.6.8: Curative perimeter with pure MNECs only
     Given network file is "common/TestCase16Nodes.uct" for CORE CC
-    Given crac file is "epic13/MergedCB_ep13us6case8.xml"
-    Given configuration file is "epic13/RaoParameters_ep13us6case8.json"
+    Given crac file is "1_multi_step_optimisation/1_3_curative/MergedCB_ep13us6case8.xml"
+    Given configuration file is "1_multi_step_optimisation/1_3_curative/RaoParameters_1_3_6_8.json"
     When I launch rao at "2019-01-08 12:00"
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -182,8 +182,8 @@ Feature: 1.3.6: Cross validation curative optimization and MNECs
   @fast @rao @ac @contingency-scenarios @mnec @max-min-margin
   Scenario: 1.3.6.11: Curative with pure MNECs only - PST CRA should remove MNEC constraint
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
-    Given crac file is "epic13/CBCORA_ep13us6case11.xml"
-    Given configuration file is "epic13/RaoParameters_13_6_11.json"
+    Given crac file is "1_multi_step_optimisation/1_3_curative/cbcora_1_3_6_11.xml"
+    Given configuration file is "1_multi_step_optimisation/1_3_curative/RaoParameters_1_3_6_11.json"
     When I launch rao at "2019-01-08 12:00"
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"

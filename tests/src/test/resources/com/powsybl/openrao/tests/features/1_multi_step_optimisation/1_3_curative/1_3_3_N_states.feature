@@ -9,7 +9,7 @@ Feature: 1.3.3: Solve a RAO for N compounds states
   @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: 1.3.3.1: Simple case with preventive, outage and curative states
     Given network file is "common/TestCase16Nodes.uct"
-    Given crac file is "epic13/SL_ep13us3case1.json"
+    Given crac file is "1_multi_step_optimisation/crac_1_3_3_1.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
@@ -31,8 +31,8 @@ Feature: 1.3.3: Solve a RAO for N compounds states
   @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: 1.3.3.2: Simple case, with 2 curative states
     Given network file is "common/TestCase16Nodes.uct"
-    Given crac file is "epic13/SL_ep13us3case2.json"
-    Given configuration file is "epic13/RaoParameters_maxMargin_ampere_absolute_threshold.json"
+    Given crac file is "1_multi_step_optimisation/1_3_curative/crac_1_3_3_2.json"
+    Given configuration file is "common/RaoParameters_maxMargin_ampere_absolute_threshold.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -56,8 +56,8 @@ Feature: 1.3.3: Solve a RAO for N compounds states
   @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: 1.3.3.3: Simple case, with 2 curative states and on-contingency remedial actions
     Given network file is "common/TestCase16Nodes.uct"
-    Given crac file is "epic13/SL_ep13us3case3.json"
-    Given configuration file is "epic13/RaoParameters_maxMargin_ampere_absolute_threshold.json"
+    Given crac file is "1_multi_step_optimisation/1_3_curative/crac_1_3_3_3.json"
+    Given configuration file is "common/RaoParameters_maxMargin_ampere_absolute_threshold.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -80,8 +80,8 @@ Feature: 1.3.3: Solve a RAO for N compounds states
   @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: 1.3.3.4: Complex case, with several outage/curative states, and on-contingency remedial actions
     Given network file is "common/TestCase16Nodes.uct"
-    Given crac file is "epic13/SL_ep13us3case4.json"
-    Given configuration file is "epic13/RaoParameters_maxMargin_ampere_absolute_threshold.json"
+    Given crac file is "1_multi_step_optimisation/1_3_curative/crac_1_3_3_4.json"
+    Given configuration file is "common/RaoParameters_maxMargin_ampere_absolute_threshold.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "UNSECURED"
@@ -102,7 +102,7 @@ Feature: 1.3.3: Solve a RAO for N compounds states
   @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: 1.3.3.5: Simple case, with two curative states, including one without CRA
     Given network file is "common/TestCase16Nodes.uct"
-    Given crac file is "epic13/SL_ep13us3case5.json"
+    Given crac file is "1_multi_step_optimisation/1_3_curative/crac_1_3_3_5.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
@@ -127,7 +127,7 @@ Feature: 1.3.3: Solve a RAO for N compounds states
   @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: 1.3.3.6: Simple case, with two outage + curative states, including one without CRA
     Given network file is "common/TestCase16Nodes.uct"
-    Given crac file is "epic13/SL_ep13us3case6.json"
+    Given crac file is "1_multi_step_optimisation/1_3_curative/crac_1_3_3_6.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
@@ -149,7 +149,7 @@ Feature: 1.3.3: Solve a RAO for N compounds states
   @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: 1.3.3.7: Simple case, with one outage and one curative state, but on two different contingencies
     Given network file is "common/TestCase16Nodes.uct"
-    Given crac file is "epic13/SL_ep13us3case7.json"
+    Given crac file is "1_multi_step_optimisation/1_3_curative/crac_1_3_3_7.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
@@ -168,7 +168,7 @@ Feature: 1.3.3: Solve a RAO for N compounds states
   @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: 1.3.3.8: Complex case, with several curative / outage states, and some curative states without CRA
     Given network file is "common/TestCase16Nodes.uct"
-    Given crac file is "epic13/SL_ep13us3case8.json"
+    Given crac file is "1_multi_step_optimisation/1_3_curative/crac_1_3_3_8.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
@@ -192,8 +192,8 @@ Feature: 1.3.3: Solve a RAO for N compounds states
   @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: 1.3.3.9: Test case with no RA in the preventive perimeter
     Given network file is "common/TestCase16Nodes.uct"
-    Given crac file is "epic13/SL_ep13us3case9.json"
-    Given configuration file is "epic13/RaoParameters_maxMargin_ampere_absolute_threshold_12.json"
+    Given crac file is "1_multi_step_optimisation/1_3_curative/crac_1_3_3_9.json"
+    Given configuration file is "1_multi_step_optimisation/1_3_curative/RaoParameters_maxMargin_ampere_absolute_threshold_12.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -208,8 +208,8 @@ Feature: 1.3.3: Solve a RAO for N compounds states
 
   @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: 1.3.3.10: Test case with a CBCORA file
-    Given network file is "epic13/TestCase16Nodes_with_different_imax.uct"
-    Given crac file is "epic13/CBCORA_ep13us3case10.xml"
+    Given network file is "common/TestCase16Nodes_with_different_imax.uct"
+    Given crac file is "common/cbcora_2_6_3_11.xml"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao at "2019-01-08 12:00"
     Then the execution details should be "The RAO only went through first preventive"

@@ -8,9 +8,9 @@ Feature: 2.2.3.1: Injection setpoint with absolute and relative target
 
   @fast @rao @ac @preventive-only @max-min-margin
   Scenario: 2.2.3.1.1: Preventive search tree RAO with absolute injectionSetpoint preventive RA
-    Given network file is "epic15/TestCase12NodesWith2OpenLines.uct"
-    Given crac file is "epic15/cse_crac_1_preventive_ra.xml"
-    Given configuration file is "epic15/RaoParameters_ep15us7-2.json"
+    Given network file is "2_remedial_actions/2_2_range_actions_optimisation/2_2_3_injection_range_actions/TestCase12NodesWith2OpenLines.uct"
+    Given crac file is "2_remedial_actions/2_2_range_actions_optimisation/2_2_3_injection_range_actions/cse_2_2_3_1_1_cse_crac_1_preventive_ra.xml"
+    Given configuration file is "2_remedial_actions/2_2_range_actions_optimisation/2_2_3_injection_range_actions/RaoParameters_2_2_3_1_2.json"
     When I launch rao at "2021-04-30 22:30"
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -20,8 +20,8 @@ Feature: 2.2.3.1: Injection setpoint with absolute and relative target
   @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: 2.2.3.1.2: Curative search tree RAO with absolute injectionSetpoint curative RA
     Given network file is "common/TestCase12Nodes.uct"
-    Given crac file is "epic15/cse_crac_1_curative_ra.xml"
-    Given configuration file is "epic15/RaoParameters_ep15us7-2.json"
+    Given crac file is "2_remedial_actions/2_2_range_actions_optimisation/2_2_3_injection_range_actions/cse_2_2_3_1_2_cse_crac_1_curative_ra.xml"
+    Given configuration file is "2_remedial_actions/2_2_range_actions_optimisation/2_2_3_injection_range_actions/RaoParameters_2_2_3_1_2.json"
     When I launch rao at "2021-04-30 22:30"
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"

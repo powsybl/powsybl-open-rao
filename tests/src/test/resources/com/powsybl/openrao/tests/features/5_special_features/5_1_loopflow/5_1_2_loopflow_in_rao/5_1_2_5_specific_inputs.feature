@@ -10,9 +10,9 @@ Feature: 5.1.2.5: Additional tests with CBCORA input files and FRM
   @fast @rao @dc @preventive-only @loopflow @max-min-margin
   Scenario: 5.1.2.5.1 : Replication of test case 5.1.2.4.3, using a CBCORA file as input instead of a SL
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
-    Given crac file is "epic7/crac_lf_rao_3_cbcora.xml"
+    Given crac file is "5_special_features/5_1_loopflow/crac_5_1_1_3_2_crac_lf_rao_3_cbcora.xml"
     Given loopflow glsk file is "common/glsk_lots_of_lf_12nodes.xml"
-    Given configuration file is "epic7/RaoParameters_maxMargin_mw_dc_lf_false_5_100_update_ptdf.json"
+    Given configuration file is "5_special_features/5_1_loopflow/RaoParameters_maxMargin_mw_dc_lf_false_5_100_update_ptdf.json"
 
     When I launch loopflow rao at "2019-01-08 00:00" with default loopflow limit as 0.0 percent of pmax
 
@@ -41,9 +41,9 @@ Feature: 5.1.2.5: Additional tests with CBCORA input files and FRM
   @fast @rao @dc @preventive-only @loopflow @max-min-margin
   Scenario: 5.1.2.5.2 : Loop-flow limitation with FRM
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
-    Given crac file is "epic7/crac_lf_rao_3_with_frm_cbcora.xml"
+    Given crac file is "5_special_features/5_1_loopflow/crac_5_1_1_3_3_crac_lf_rao_3_with_frm_cbcora.xml"
     Given loopflow glsk file is "common/glsk_lots_of_lf_12nodes.xml"
-    Given configuration file is "epic7/RaoParameters_maxMargin_mw_dc_lf_false_5_100_update_ptdf.json"
+    Given configuration file is "5_special_features/5_1_loopflow/RaoParameters_maxMargin_mw_dc_lf_false_5_100_update_ptdf.json"
 
     When I launch loopflow rao at "2019-01-08 12:00" with default loopflow limit as 0.0 percent of pmax
 

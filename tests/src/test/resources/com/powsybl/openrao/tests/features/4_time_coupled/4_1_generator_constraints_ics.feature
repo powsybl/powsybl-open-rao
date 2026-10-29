@@ -27,11 +27,11 @@ Feature: 4.1: Time-coupled generator constraints with MARMOT with ICS files
     Redispatching actions are only necessary at 01:30.
     They're applied as soon as 00:30 because of upward gradient on BBE1AA1
     They're applied at 02:30 because of upward gradient on DDE1AA1
-    Given network files are in folder "epic93/TestCases_93_2_1"
-    Given crac file is "epic93/cbcora_93_2_1.xml"
-    Given ics static file is "epic93/static_93_2_1.csv"
-    Given ics series file is "epic93/series_93_2_1.csv"
-    Given configuration file is "epic93/RaoParameters_minCost_megawatt_dc.json"
+    Given network files are in folder "4_time_coupled/TestCases_4_1_1"
+    Given crac file is "4_time_coupled/cbcora_4_1_1.xml"
+    Given ics static file is "4_time_coupled/static_4_1_1_static_93_2_1.csv"
+    Given ics series file is "4_time_coupled/series_4_1_1_series_93_2_1.csv"
+    Given configuration file is "common/RaoParameters_minCost_megawatt_dc.json"
     Given time-coupled rao inputs for CORE are:
       | Timestamp        | Network          |
       | 2019-01-08 00:30 | 12Nodes_0030.uct |
@@ -72,11 +72,11 @@ Feature: 4.1: Time-coupled generator constraints with MARMOT with ICS files
   Scenario: 4.1.2: Topological action and redispatching solve overload
     At 01:30, MNEC is overloaded. During topological optimization, 2 runs of FastRAO are performed to resolve MNEC constraint,
     resulting in the application of topological action PRA_topo 1 at 01:30.
-    Given network files are in folder "epic93/TestCases_93_2_2"
-    Given crac file is "epic93/cbcora_93_2_2.xml"
-    Given ics static file is "epic93/static_93_2_1.csv"
-    Given ics series file is "epic93/series_93_2_1.csv"
-    Given configuration file is "epic93/RaoParameters_minCost_megawatt_dc.json"
+    Given network files are in folder "4_time_coupled/TestCases_4_1_2"
+    Given crac file is "common/cbcora_3_4_13.xml"
+    Given ics static file is "4_time_coupled/static_4_1_1_static_93_2_1.csv"
+    Given ics series file is "4_time_coupled/series_4_1_1_series_93_2_1.csv"
+    Given configuration file is "common/RaoParameters_minCost_megawatt_dc.json"
     Given time-coupled rao inputs for CORE are:
       | Timestamp        | Network          |
       | 2019-01-08 00:30 | 12Nodes_0030.uct |
@@ -102,11 +102,11 @@ Feature: 4.1: Time-coupled generator constraints with MARMOT with ICS files
 
   @fast @rao @dc @redispatching @marmot @costly
   Scenario: 4.1.3: PST and redispatching solve overload
-    Given network files are in folder "epic93/TestCases_93_2_1"
-    Given crac file is "epic93/cbcora_93_2_3.xml"
-    Given ics static file is "epic93/static_93_2_1.csv"
-    Given ics series file is "epic93/series_93_2_1.csv"
-    Given configuration file is "epic93/RaoParameters_minCost_megawatt_dc.json"
+    Given network files are in folder "4_time_coupled/TestCases_4_1_1"
+    Given crac file is "4_time_coupled/cbcora_4_1_3.xml"
+    Given ics static file is "4_time_coupled/static_4_1_1_static_93_2_1.csv"
+    Given ics series file is "4_time_coupled/series_4_1_1_series_93_2_1.csv"
+    Given configuration file is "common/RaoParameters_minCost_megawatt_dc.json"
     Given time-coupled rao inputs for CORE are:
       | Timestamp        | Network          |
       | 2019-01-08 00:30 | 12Nodes_0030.uct |
@@ -135,11 +135,11 @@ Feature: 4.1: Time-coupled generator constraints with MARMOT with ICS files
     Curative topo action and redispatching actions solved 01:30 overload during topological optimization, and 
     were applied during sensi computation in global range actions optimization.
     Here, global range actions optimization doesn't change results.
-    Given network files are in folder "epic93/TestCases_93_2_4"
-    Given crac file is "epic93/cbcora_93_2_4.xml"
-    Given ics static file is "epic93/static_93_2_1.csv"
-    Given ics series file is "epic93/series_93_2_1.csv"
-    Given configuration file is "epic93/RaoParameters_minCost_megawatt_dc.json"
+    Given network files are in folder "4_time_coupled/TestCases_4_1_4"
+    Given crac file is "4_time_coupled/cbcora_4_1_4.xml"
+    Given ics static file is "4_time_coupled/static_4_1_1_static_93_2_1.csv"
+    Given ics series file is "4_time_coupled/series_4_1_1_series_93_2_1.csv"
+    Given configuration file is "common/RaoParameters_minCost_megawatt_dc.json"
     Given time-coupled rao inputs for CORE are:
       | Timestamp        | Network          |
       | 2019-01-08 00:30 | 12Nodes_0030.uct |
@@ -169,11 +169,11 @@ Feature: 4.1: Time-coupled generator constraints with MARMOT with ICS files
     Similar to 4.1.3, but PST is curative. Overload is on curative cnec.
     Topological optimization finds a different result for redispatching: redispatching is optimized in basecase, before
     curative PST is optimized, whereas in global optimization curative PST is applied in sensi computations.
-    Given network files are in folder "epic93/TestCases_93_2_4"
-    Given crac file is "epic93/cbcora_93_2_4-b.xml"
-    Given ics static file is "epic93/static_93_2_1.csv"
-    Given ics series file is "epic93/series_93_2_1.csv"
-    Given configuration file is "epic93/RaoParameters_minCost_megawatt_dc.json"
+    Given network files are in folder "4_time_coupled/TestCases_4_1_4"
+    Given crac file is "4_time_coupled/cbcora_4_1_4_b.xml"
+    Given ics static file is "4_time_coupled/static_4_1_1_static_93_2_1.csv"
+    Given ics series file is "4_time_coupled/series_4_1_1_series_93_2_1.csv"
+    Given configuration file is "common/RaoParameters_minCost_megawatt_dc.json"
     Given time-coupled rao inputs for CORE are:
       | Timestamp        | Network          |
       | 2019-01-08 00:30 | 12Nodes_0030.uct |
@@ -206,11 +206,11 @@ Feature: 4.1: Time-coupled generator constraints with MARMOT with ICS files
     Nevertheless these redispatching actions have gradient constraints; upon entering global optimization, topological optimization
     solution is no longer viable. First MIP iteration creates constraints on MNEC at 00:30. 
     Since MNEC was only previously limiting at 01:30, it was not yet considered in MIP's considered cnecs, and MIP performs 2 iterations. 
-    Given network files are in folder "epic93/TestCases_93_2_5"
-    Given crac file is "epic93/cbcora_93_2_5.xml"
-    Given ics static file is "epic93/static_93_2_5.csv"
-    Given ics series file is "epic93/series_93_2_5.csv"
-    Given configuration file is "epic93/RaoParameters_minCost_megawatt_dc.json"
+    Given network files are in folder "4_time_coupled/TestCases_4_1_5"
+    Given crac file is "4_time_coupled/cbcora_4_1_5.xml"
+    Given ics static file is "4_time_coupled/static_4_1_5_static_93_2_5.csv"
+    Given ics series file is "4_time_coupled/series_4_1_5_series_93_2_5.csv"
+    Given configuration file is "common/RaoParameters_minCost_megawatt_dc.json"
     Given time-coupled rao inputs for CORE are:
       | Timestamp        | Network          |
       | 2019-01-08 00:30 | 12Nodes_0030.uct |
@@ -240,11 +240,11 @@ Feature: 4.1: Time-coupled generator constraints with MARMOT with ICS files
   @fast @rao @dc @redispatching @marmot @costly
   Scenario: 4.1.6: Inconsistent data : BE generator's program shuts down even though shutDown is not allowed,
     FR generator's program starts up even though startUp is not allowed.
-    Given network files are in folder "epic93/TestCases_93_2_6"
-    Given crac file is "epic93/cbcora_93_2_6.xml"
-    Given ics static file is "epic93/static_93_2_6.csv"
-    Given ics series file is "epic93/series_93_2_7.csv"
-    Given configuration file is "epic93/RaoParameters_minCost_megawatt_dc.json"
+    Given network files are in folder "4_time_coupled/TestCases_4_1_6"
+    Given crac file is "4_time_coupled/cbcora_4_1_6.xml"
+    Given ics static file is "4_time_coupled/static_4_1_6_static_93_2_6.csv"
+    Given ics series file is "4_time_coupled/series_4_1_6_series_93_2_7.csv"
+    Given configuration file is "common/RaoParameters_minCost_megawatt_dc.json"
     Given time-coupled rao inputs for CORE are:
       | Timestamp        | Network         |
       | 2019-01-08 00:30 | 2Nodes_0030.uct |

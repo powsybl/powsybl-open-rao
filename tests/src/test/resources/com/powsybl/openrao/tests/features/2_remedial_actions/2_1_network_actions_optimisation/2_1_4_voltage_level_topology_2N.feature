@@ -8,9 +8,9 @@ Feature: 2.1.4: Modify voltage level topology as remedial action (2 nodes case)
 
   @fast @crac
   Scenario: 2.1.4.1: Import succeeds on basic well defined case
-    Given network file is "epic15/TestCase12Nodes_forCSE.uct"
-    Given crac file is "epic15/cseCrac_ep15us10-1case1.xml"
-    Given crac creation parameters file is "epic15/CseCracCreationParameters_15_10_1_1.json"
+    Given network file is "2_remedial_actions/2_1_network_actions_optimisation/TestCase12Nodes_forCSE.uct"
+    Given crac file is "2_remedial_actions/2_1_network_actions_optimisation/cseCrac_ep15us10-1case1.xml"
+    Given crac creation parameters file is "2_remedial_actions/2_1_network_actions_optimisation/CseCracCreationParameters_2_1_4_1.json"
     When I import crac
     Then it should have the following network actions:
       | NetworkActionId | NetworkActionName | ElementaryActions | ElementaryActionType | NetworkElementId                        | Action/Setpoint |
@@ -24,9 +24,9 @@ Feature: 2.1.4: Modify voltage level topology as remedial action (2 nodes case)
 
   @fast @crac
   Scenario: 2.1.4.2: Import succeed when some lines are already on final node
-    Given network file is "epic15/TestCase12Nodes_forCSE.uct"
-    Given crac file is "epic15/cseCrac_ep15us10-1case2.xml"
-    Given crac creation parameters file is "epic15/CseCracCreationParameters_15_10_1_2.json"
+    Given network file is "2_remedial_actions/2_1_network_actions_optimisation/TestCase12Nodes_forCSE.uct"
+    Given crac file is "2_remedial_actions/2_1_network_actions_optimisation/cseCrac_ep15us10-1case2.xml"
+    Given crac creation parameters file is "2_remedial_actions/2_1_network_actions_optimisation/CseCracCreationParameters_2_1_4_2.json"
     When I import crac
     Then it should have the following network actions:
       | NetworkActionId | NetworkActionName | ElementaryActions | ElementaryActionType | NetworkElementId                        | Action/Setpoint |
@@ -40,27 +40,27 @@ Feature: 2.1.4: Modify voltage level topology as remedial action (2 nodes case)
 
   @fast @crac
   Scenario: 2.1.4.3: Wrong import with missing switch in the network
-    Given network file is "epic15/TestCase12Nodes_forCSE.uct"
-    Given crac file is "epic15/cseCrac_ep15us10-1case1.xml"
-    Given crac creation parameters file is "epic15/CseCracCreationParameters_15_10_1_3.json"
+    Given network file is "2_remedial_actions/2_1_network_actions_optimisation/TestCase12Nodes_forCSE.uct"
+    Given crac file is "2_remedial_actions/2_1_network_actions_optimisation/cseCrac_ep15us10-1case1.xml"
+    Given crac creation parameters file is "2_remedial_actions/2_1_network_actions_optimisation/CseCracCreationParameters_2_1_4_3.json"
     When I import crac
     Then it should have 0 network actions
     Then the native remedial action "Bus bar ok test" should not be imported because of "ELEMENT_NOT_FOUND_IN_NETWORK"
 
   @fast @crac
   Scenario: 2.1.4.4: Wrong import with missing creation parameter
-    Given network file is "epic15/TestCase12Nodes_forCSE.uct"
-    Given crac file is "epic15/cseCrac_ep15us10-1case1.xml"
-    Given crac creation parameters file is "epic15/CseCracCreationParameters_15_10_1_4.json"
+    Given network file is "2_remedial_actions/2_1_network_actions_optimisation/TestCase12Nodes_forCSE.uct"
+    Given crac file is "2_remedial_actions/2_1_network_actions_optimisation/cseCrac_ep15us10-1case1.xml"
+    Given crac creation parameters file is "2_remedial_actions/2_1_network_actions_optimisation/CseCracCreationParameters_2_1_4_4.json"
     When I import crac
     Then it should have 0 network actions
     Then the native remedial action "Bus bar ok test" should not be imported because of "INCOMPLETE_DATA"
 
   @fast @crac
   Scenario: 2.1.4.5: Import succeed when some lines are already on final node
-    Given network file is "epic15/TestCase12Nodes_forCSE_3nodes.uct"
-    Given crac file is "epic15/cseCrac_ep15us10-1case5.xml"
-    Given crac creation parameters file is "epic15/CseCracCreationParameters_15_10_1_5.json"
+    Given network file is "2_remedial_actions/2_1_network_actions_optimisation/TestCase12Nodes_forCSE_3nodes.uct"
+    Given crac file is "2_remedial_actions/2_1_network_actions_optimisation/cseCrac_ep15us10-1case5.xml"
+    Given crac creation parameters file is "2_remedial_actions/2_1_network_actions_optimisation/CseCracCreationParameters_2_1_4_5.json"
     When I import crac
     Then it should have the following network actions:
       | NetworkActionId | NetworkActionName | ElementaryActions | ElementaryActionType | NetworkElementId                        | Action/Setpoint |
@@ -73,9 +73,9 @@ Feature: 2.1.4: Modify voltage level topology as remedial action (2 nodes case)
 
   @fast @rao @dc @contingency-scenarios @max-min-margin
   Scenario: 2.1.4.6: bus bar change in RAO
-    Given network file is "epic15/TestCase12Nodes_forCSE_3nodes.uct"
-    Given crac file is "epic15/cseCrac_ep15us10-1case6.xml"
-    Given crac creation parameters file is "epic15/CseCracCreationParameters_15_10_1_6.json"
+    Given network file is "2_remedial_actions/2_1_network_actions_optimisation/TestCase12Nodes_forCSE_3nodes.uct"
+    Given crac file is "2_remedial_actions/2_1_network_actions_optimisation/cseCrac_ep15us10-1case6.xml"
+    Given crac creation parameters file is "2_remedial_actions/2_1_network_actions_optimisation/CseCracCreationParameters_2_1_4_6.json"
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"

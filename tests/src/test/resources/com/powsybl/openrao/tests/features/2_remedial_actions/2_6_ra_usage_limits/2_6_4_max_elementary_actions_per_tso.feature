@@ -9,9 +9,9 @@ Feature: 2.6.4: Handle maximum number of elementary actions per TSO
 
   @fast @rao @preventive-only @max-min-margin
   Scenario: 2.6.4.1: Limit taps on PST with a maximum number of 3 elementary actions
-    Given network file is "epic19/small-network-2P.uct"
-    Given crac file is "epic19/small-crac-with-max-3-elementary-actions-pst.json"
-    Given configuration file is "epic19/RaoParameters_dc_discrete.json"
+    Given network file is "2_remedial_actions/2_6_ra_usage_limits/small-network-2P.uct"
+    Given crac file is "2_remedial_actions/2_6_ra_usage_limits/small-crac-with-max-3-elementary-actions-pst.json"
+    Given configuration file is "2_remedial_actions/2_6_ra_usage_limits/RaoParameters_dc_discrete.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -26,9 +26,9 @@ Feature: 2.6.4: Handle maximum number of elementary actions per TSO
 
   @fast @rao @preventive-only @max-min-margin
   Scenario: 2.6.4.2: Limit taps on PST with a maximum number of 7 elementary actions
-    Given network file is "epic19/small-network-2P.uct"
-    Given crac file is "epic19/small-crac-with-max-7-elementary-actions-pst.json"
-    Given configuration file is "epic19/RaoParameters_dc_discrete.json"
+    Given network file is "2_remedial_actions/2_6_ra_usage_limits/small-network-2P.uct"
+    Given crac file is "2_remedial_actions/2_6_ra_usage_limits/small-crac-with-max-7-elementary-actions-pst.json"
+    Given configuration file is "2_remedial_actions/2_6_ra_usage_limits/RaoParameters_dc_discrete.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -43,9 +43,9 @@ Feature: 2.6.4: Handle maximum number of elementary actions per TSO
 
   @fast @rao @preventive-only @max-min-margin
   Scenario: 2.6.4.3: Select less efficient network action because it has less elementary actions
-    Given network file is "epic19/small-network-2P-open-twin-lines.uct"
-    Given crac file is "epic19/small-crac-with-max-1-elementary-action-topo.json"
-    Given configuration file is "epic19/RaoParameters_dc_discrete.json"
+    Given network file is "2_remedial_actions/2_6_ra_usage_limits/small-network-2P-open-twin-lines.uct"
+    Given crac file is "2_remedial_actions/2_6_ra_usage_limits/small-crac-with-max-1-elementary-action-topo.json"
+    Given configuration file is "2_remedial_actions/2_6_ra_usage_limits/RaoParameters_dc_discrete.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -59,9 +59,9 @@ Feature: 2.6.4: Handle maximum number of elementary actions per TSO
 
   @fast @rao @preventive-only @multi-curative @max-min-margin
   Scenario: 2.6.4.4: Limit elementary actions with PSTs and 3 curative instants
-    Given network file is "epic19/small-network-2P-open-twin-lines.uct"
-    Given crac file is "epic19/small-crac-with-max-elementary-actions-pst-3-curative-instants.json"
-    Given configuration file is "epic19/RaoParameters_dc_discrete.json"
+    Given network file is "2_remedial_actions/2_6_ra_usage_limits/small-network-2P-open-twin-lines.uct"
+    Given crac file is "2_remedial_actions/2_6_ra_usage_limits/small-crac-with-max-elementary-actions-pst-3-curative-instants.json"
+    Given configuration file is "2_remedial_actions/2_6_ra_usage_limits/RaoParameters_dc_discrete.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -80,9 +80,9 @@ Feature: 2.6.4: Handle maximum number of elementary actions per TSO
 
   @fast @rao @preventive-only @max-min-margin
   Scenario: 2.6.4.5: Limit elementary actions with topos and PSTs
-    Given network file is "epic19/small-network-2P-open-twin-lines.uct"
-    Given crac file is "epic19/small-crac-with-max-3-elementary-actions-topo-and-pst.json"
-    Given configuration file is "epic19/RaoParameters_dc_discrete.json"
+    Given network file is "2_remedial_actions/2_6_ra_usage_limits/small-network-2P-open-twin-lines.uct"
+    Given crac file is "2_remedial_actions/2_6_ra_usage_limits/small-crac-with-max-3-elementary-actions-topo-and-pst.json"
+    Given configuration file is "2_remedial_actions/2_6_ra_usage_limits/RaoParameters_dc_discrete.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -101,9 +101,9 @@ Feature: 2.6.4: Handle maximum number of elementary actions per TSO
 
   @fast @rao @preventive-only @max-min-margin
   Scenario: 2.6.4.6: Limit elementary actions with PST also used in preventive
-    Given network file is "epic19/small-network-2P-open-twin-lines.uct"
-    Given crac file is "epic19/small-crac-with-max-3-elementary-actions-pst-in-curative.json"
-    Given configuration file is "epic19/RaoParameters_dc_discrete.json"
+    Given network file is "2_remedial_actions/2_6_ra_usage_limits/small-network-2P-open-twin-lines.uct"
+    Given crac file is "2_remedial_actions/2_6_ra_usage_limits/small-crac-with-max-3-elementary-actions-pst-in-curative.json"
+    Given configuration file is "2_remedial_actions/2_6_ra_usage_limits/RaoParameters_dc_discrete.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -119,9 +119,9 @@ Feature: 2.6.4: Handle maximum number of elementary actions per TSO
 
   @fast @rao @preventive-only @multi-curative @max-min-margin
   Scenario: 2.6.4.7: Limit elementary actions with PST and topology actions in multi-curative situation
-    Given network file is "epic19/small-network-2P-open-twin-lines.uct"
-    Given crac file is "epic19/small-crac-with-max-elementary-actions-topo-and-pst-2-curative-instants.json"
-    Given configuration file is "epic19/RaoParameters_dc_discrete.json"
+    Given network file is "2_remedial_actions/2_6_ra_usage_limits/small-network-2P-open-twin-lines.uct"
+    Given crac file is "2_remedial_actions/2_6_ra_usage_limits/small-crac-with-max-elementary-actions-topo-and-pst-2-curative-instants.json"
+    Given configuration file is "2_remedial_actions/2_6_ra_usage_limits/RaoParameters_dc_discrete.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -135,9 +135,9 @@ Feature: 2.6.4: Handle maximum number of elementary actions per TSO
 
   @fast @rao @preventive-only @max-min-margin
   Scenario: 2.6.4.8: Limit elementary actions for multiple TSOs
-    Given network file is "epic19/small-network-2P.uct"
-    Given crac file is "epic19/small-crac-with-max-elementary-actions-multiple-tsos.json"
-    Given configuration file is "epic19/RaoParameters_dc_discrete.json"
+    Given network file is "2_remedial_actions/2_6_ra_usage_limits/small-network-2P.uct"
+    Given crac file is "2_remedial_actions/2_6_ra_usage_limits/small-crac-with-max-elementary-actions-multiple-tsos.json"
+    Given configuration file is "2_remedial_actions/2_6_ra_usage_limits/RaoParameters_dc_discrete.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -150,9 +150,9 @@ Feature: 2.6.4: Handle maximum number of elementary actions per TSO
 
   @fast @rao @second-preventive @max-min-margin
   Scenario: 2.6.4.9: Same case with global optimization: should have the same results
-    Given network file is "epic19/small-network-2P.uct"
-    Given crac file is "epic19/SL_ep19us11case9.json"
-    Given configuration file is "epic19/RaoParameters_19_11_9.json"
+    Given network file is "2_remedial_actions/2_6_ra_usage_limits/small-network-2P.uct"
+    Given crac file is "2_remedial_actions/2_6_ra_usage_limits/crac_2_6_4_9.json"
+    Given configuration file is "2_remedial_actions/2_6_ra_usage_limits/RaoParameters_2_6_4_9.json"
     When I launch rao
     Then the execution details should be "Second preventive improved first preventive results"
     Then its security status should be "UNSECURED"

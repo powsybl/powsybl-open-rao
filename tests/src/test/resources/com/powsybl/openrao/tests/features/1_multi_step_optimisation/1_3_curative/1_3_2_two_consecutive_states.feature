@@ -12,7 +12,7 @@ Feature: 1.3.2: Solve a RAO for two consecutive states (preventive THEN curative
     If we impose the usage of close_fr1_fr5, it would then only add pst_be and generate a minimum margin of 999 A
     #
     Given network file is "common/TestCase16Nodes.uct"
-    Given crac file is "epic13/SL_ep13us2case1.json"
+    Given crac file is "1_multi_step_optimisation/1_3_curative/crac_1_3_2_1.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
@@ -28,7 +28,7 @@ Feature: 1.3.2: Solve a RAO for two consecutive states (preventive THEN curative
   @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: 1.3.2.2: Simple case with curative remedial actions only
     Given network file is "common/TestCase16Nodes.uct"
-    Given crac file is "epic19/SL_ep19us6basecase.json"
+    Given crac file is "1_multi_step_optimisation/1_3_curative/crac_1_3_2_2_basecase.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
@@ -44,7 +44,7 @@ Feature: 1.3.2: Solve a RAO for two consecutive states (preventive THEN curative
   @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: 1.3.2.3: Simple case with a mix of preventive and curative remedial actions
     Given network file is "common/TestCase16Nodes.uct"
-    Given crac file is "epic13/SL_ep13us2case3.json"
+    Given crac file is "1_multi_step_optimisation/1_3_curative/crac_1_3_2_3.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
@@ -65,7 +65,7 @@ Feature: 1.3.2: Solve a RAO for two consecutive states (preventive THEN curative
   @fast @rao @ac @preventive-only @max-min-margin
   Scenario: 1.3.2.4: Complex case with preventive remedial actions only
     Given network file is "common/TestCase16Nodes.uct"
-    Given crac file is "epic13/SL_ep13us2case4.json"
+    Given crac file is "1_multi_step_optimisation/1_3_curative/crac_1_3_2_4.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
@@ -86,7 +86,7 @@ Feature: 1.3.2: Solve a RAO for two consecutive states (preventive THEN curative
   @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: 1.3.2.5: Complex case with curative remedial actions only
     Given network file is "common/TestCase16Nodes.uct"
-    Given crac file is "epic13/SL_ep13us2case5.json"
+    Given crac file is "1_multi_step_optimisation/1_3_curative/crac_1_3_2_5.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
@@ -106,7 +106,7 @@ Feature: 1.3.2: Solve a RAO for two consecutive states (preventive THEN curative
   @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: 1.3.2.6: Complex case with a mix of preventive and curative remedial actions (1/3)
     Given network file is "common/TestCase16Nodes.uct" for CORE CC
-    Given crac file is "epic13/SL_ep13us2case6.json"
+    Given crac file is "1_multi_step_optimisation/1_3_curative/crac_1_3_2_6.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
@@ -130,8 +130,8 @@ Feature: 1.3.2: Solve a RAO for two consecutive states (preventive THEN curative
   @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: 1.3.2.7: Complex case with a mix of preventive and curative remedial actions (2/3)
     Given network file is "common/TestCase16Nodes.uct"
-    Given crac file is "epic13/SL_ep13us2case6.json"
-    Given configuration file is "epic13/RaoParameters_maxMargin_ampere_absolute_threshold.json"
+    Given crac file is "1_multi_step_optimisation/1_3_curative/crac_1_3_2_6.json"
+    Given configuration file is "common/RaoParameters_maxMargin_ampere_absolute_threshold.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -152,7 +152,7 @@ Feature: 1.3.2: Solve a RAO for two consecutive states (preventive THEN curative
   @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: 1.3.2.8: Complex case with a mix of preventive and curative remedial actions (3/3)
     Given network file is "common/TestCase16Nodes.uct" for CORE CC
-    Given crac file is "epic13/SL_ep13us2case7.json"
+    Given crac file is "1_multi_step_optimisation/1_3_curative/crac_1_3_2_8.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"

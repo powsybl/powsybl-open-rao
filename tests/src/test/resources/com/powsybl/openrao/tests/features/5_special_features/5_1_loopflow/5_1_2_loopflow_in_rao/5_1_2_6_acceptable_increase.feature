@@ -10,9 +10,9 @@ Feature: 5.1.2.6: Loop-flow acceptable augmentation parameter
   Scenario: 5.1.2.6.1 : Test case with a loop-flow acceptable augmentation parameter of 40 MW
   Same case as 5.1.2.5.1 but with the new parameter, giving a better margin.
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
-    Given crac file is "epic7/crac_lf_rao_3_cbcora.xml"
+    Given crac file is "5_special_features/5_1_loopflow/crac_5_1_1_3_2_crac_lf_rao_3_cbcora.xml"
     Given loopflow glsk file is "common/glsk_lots_of_lf_12nodes.xml"
-    Given configuration file is "epic7/RaoParameters_maxMargin_mw_dc_lf_false_5_100_lfAugmentation.json"
+    Given configuration file is "5_special_features/5_1_loopflow/5_1_2_loopflow_in_rao/RaoParameters_maxMargin_mw_dc_lf_false_5_100_lfAugmentation.json"
     When I launch loopflow rao at "2019-01-08 12:00" with default loopflow limit as 0 percent of pmax
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "UNSECURED"

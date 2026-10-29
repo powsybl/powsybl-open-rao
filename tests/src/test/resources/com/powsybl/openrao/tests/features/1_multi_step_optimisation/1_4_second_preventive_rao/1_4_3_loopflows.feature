@@ -10,9 +10,9 @@ Feature: 1.4.3: Handle loopflows in second preventive optimization
   @fast @rao @dc @second-preventive @loopflow @max-min-margin
   Scenario: 1.4.3.1: LF constraint in curative is solved by 2P
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
-    Given crac file is "epic20/CBCORA_ep20us2case1.xml"
+    Given crac file is "1_multi_step_optimisation/1_4_second_preventive_rao/cbcora_1_4_3_1.xml"
     Given loopflow glsk file is "common/glsk_proportional_12nodes.xml"
-    Given configuration file is "epic20/RaoParameters_maxMargin_MW_DC_withLF_with2P.json"
+    Given configuration file is "1_multi_step_optimisation/1_4_second_preventive_rao/RaoParameters_maxMargin_MW_DC_withLF_with2P.json"
     When I launch rao at "2019-01-08 12:00"
     Then the execution details should be "Second preventive improved first preventive results"
     Then its security status should be "SECURED"
@@ -29,9 +29,9 @@ Feature: 1.4.3: Handle loopflows in second preventive optimization
     loopflow after CRA as 1.4.3.1's initial loopflow.
     #
     Given network file is "common/TestCase12NodesDoubledPstLine.uct" for CORE CC
-    Given crac file is "epic20/CBCORA_ep20us2case2.xml"
+    Given crac file is "1_multi_step_optimisation/1_4_second_preventive_rao/cbcora_1_4_3_2.xml"
     Given loopflow glsk file is "common/glsk_proportional_12nodes.xml"
-    Given configuration file is "epic20/RaoParameters_maxMargin_MW_DC_withLF_with2P.json"
+    Given configuration file is "1_multi_step_optimisation/1_4_second_preventive_rao/RaoParameters_maxMargin_MW_DC_withLF_with2P.json"
     When I launch rao at "2019-01-08 12:00"
     Then the execution details should be "Second preventive improved first preventive results"
     Then its security status should be "SECURED"
@@ -46,9 +46,9 @@ Feature: 1.4.3: Handle loopflows in second preventive optimization
   @fast @rao @dc @second-preventive @loopflow @max-min-margin
   Scenario: 1.4.3.3: LF constraint avoided on preventive CNEC in 2P
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
-    Given crac file is "epic20/CBCORA_ep20us2case3.xml"
+    Given crac file is "1_multi_step_optimisation/1_4_second_preventive_rao/cbcora_1_4_3_3.xml"
     Given loopflow glsk file is "common/glsk_proportional_12nodes.xml"
-    Given configuration file is "epic20/RaoParameters_maxMargin_MW_DC_withLF_with2P.json"
+    Given configuration file is "1_multi_step_optimisation/1_4_second_preventive_rao/RaoParameters_maxMargin_MW_DC_withLF_with2P.json"
     When I launch rao at "2019-01-08 12:00"
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"

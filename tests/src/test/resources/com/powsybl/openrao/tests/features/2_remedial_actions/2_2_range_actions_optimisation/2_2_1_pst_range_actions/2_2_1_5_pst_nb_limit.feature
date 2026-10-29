@@ -9,7 +9,7 @@ Feature: 2.2.1.5: Limit number of PSTs with a constraint directly in the optimis
   @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: 2.2.1.5.1: One PST and no topo (copy of 2.6.2.3 with MIP for PSTs)
     Given network file is "common/TestCase16Nodes.uct"
-    Given crac file is "epic19/SL_ep19us10case1.json"
+    Given crac file is "2_remedial_actions/2_2_range_actions_optimisation/2_2_1_pst_range_actions/crac_2_2_1_5_1.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere_mip.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
@@ -23,7 +23,7 @@ Feature: 2.2.1.5: Limit number of PSTs with a constraint directly in the optimis
   @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: 2.2.1.5.2: No PST and one topo (copy of 2.6.2.4 with MIP for PSTs)
     Given network file is "common/TestCase16Nodes.uct"
-    Given crac file is "epic19/SL_ep19us10case2.json"
+    Given crac file is "2_remedial_actions/crac_2_6_2_3.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere_mip.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
@@ -35,7 +35,7 @@ Feature: 2.2.1.5: Limit number of PSTs with a constraint directly in the optimis
   @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: 2.2.1.5.3: One PST and one topo, one CRA, chose PST (copy of 2.6.2.5 with MIP for PSTs)
     Given network file is "common/TestCase16Nodes.uct"
-    Given crac file is "epic19/SL_ep19us10case3.json"
+    Given crac file is "2_remedial_actions/2_2_range_actions_optimisation/2_2_1_pst_range_actions/crac_2_2_1_5_3.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere_mip.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
@@ -49,7 +49,7 @@ Feature: 2.2.1.5: Limit number of PSTs with a constraint directly in the optimis
   @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: 2.2.1.5.4: Two allowed CRAs (copy of 2.6.3.2 with MIP for PSTs)
     Given network file is "common/TestCase16Nodes.uct"
-    Given crac file is "epic19/SL_ep19us10case4.json"
+    Given crac file is "2_remedial_actions/2_2_range_actions_optimisation/2_2_1_pst_range_actions/crac_2_2_1_5_4.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere_mip.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
@@ -64,7 +64,7 @@ Feature: 2.2.1.5: Limit number of PSTs with a constraint directly in the optimis
   @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: 2.2.1.5.5: One allowed CRA (copy of 2.6.3.3 with MIP for PSTs)
     Given network file is "common/TestCase16Nodes.uct"
-    Given crac file is "epic19/SL_ep19us5case3.json"
+    Given crac file is "2_remedial_actions/crac_2_6_3_3.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere_mip.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
@@ -76,7 +76,7 @@ Feature: 2.2.1.5: Limit number of PSTs with a constraint directly in the optimis
   @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: 2.2.1.5.6: One allowed CRA, BE PST not allowed (copy of 2.6.3.4 with MIP for PSTs)
     Given network file is "common/TestCase16Nodes.uct"
-    Given crac file is "epic19/SL_ep19us10case6.json"
+    Given crac file is "2_remedial_actions/2_2_range_actions_optimisation/2_2_1_pst_range_actions/crac_2_2_1_5_6.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere_mip.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
@@ -90,7 +90,7 @@ Feature: 2.2.1.5: Limit number of PSTs with a constraint directly in the optimis
   @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: 2.2.1.5.7: One allowed TSO - BE PST not allowed
     Given network file is "common/TestCase16Nodes.uct"
-    Given crac file is "epic19/SL_ep19us10case9.json"
+    Given crac file is "2_remedial_actions/2_2_range_actions_optimisation/2_2_1_pst_range_actions/crac_2_2_1_5_7.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere_mip.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
@@ -103,10 +103,10 @@ Feature: 2.2.1.5: Limit number of PSTs with a constraint directly in the optimis
 
   @fast @rao @dc @contingency-scenarios @hvdc @max-min-margin
   Scenario: 2.2.1.5.8: UCTE HVDC as InjectionRangeAction and PST filtering (copy of 2.2.2.2.8 with MIP for PSTs)
-    Given network file is "epic15/TestCase16NodesWithUcteHvdc.uct"
-    Given crac file is "epic15/cseCrac_ep15us12-5case8.xml"
-    Given configuration file is "epic19/RaoParameters_19_10_10&11.json"
-    Given crac creation parameters file is "epic19/us19_10_10&11.json"
+    Given network file is "common/TestCase16NodesWithUcteHvdc.uct"
+    Given crac file is "2_remedial_actions/2_2_range_actions_optimisation/cseCrac_ep15us12-5case8.xml"
+    Given configuration file is "2_remedial_actions/2_2_range_actions_optimisation/2_2_1_pst_range_actions/RaoParameters_2_2_1_5_10&11.json"
+    Given crac creation parameters file is "2_remedial_actions/2_2_range_actions_optimisation/2_2_1_pst_range_actions/CracCreationParameters_2_2_1_5_8&11.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -116,10 +116,10 @@ Feature: 2.2.1.5: Limit number of PSTs with a constraint directly in the optimis
 
   @fast @rao @dc @contingency-scenarios @hvdc @max-min-margin
   Scenario: 2.2.1.5.9: max-curative-ra : choose a PST over a HVDC
-    Given network file is "epic15/TestCase16NodesWithUcteHvdc.uct"
-    Given crac file is "epic19/cseCrac_ep19us10case11.xml"
-    Given configuration file is "epic19/RaoParameters_19_10_10&11.json"
-    Given crac creation parameters file is "epic19/us19_10_10&11.json"
+    Given network file is "common/TestCase16NodesWithUcteHvdc.uct"
+    Given crac file is "2_remedial_actions/2_2_range_actions_optimisation/2_2_1_pst_range_actions/cseCrac_ep19us10case11.xml"
+    Given configuration file is "2_remedial_actions/2_2_range_actions_optimisation/2_2_1_pst_range_actions/RaoParameters_2_2_1_5_10&11.json"
+    Given crac creation parameters file is "2_remedial_actions/2_2_range_actions_optimisation/2_2_1_pst_range_actions/CracCreationParameters_2_2_1_5_8&11.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -131,8 +131,8 @@ Feature: 2.2.1.5: Limit number of PSTs with a constraint directly in the optimis
 
   @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: 2.2.1.5.10: Reference case w/o PRA limitations : 1 topo and 2 PST
-    Given network file is "epic19/TestCase16Nodes_with_contingency.uct"
-    Given crac file is "epic19/SL_ep19us10_ra_limits_ref.json"
+    Given network file is "2_remedial_actions/2_2_range_actions_optimisation/2_2_1_pst_range_actions/TestCase16Nodes_with_contingency.uct"
+    Given crac file is "2_remedial_actions/2_2_range_actions_optimisation/2_2_1_pst_range_actions/crac_2_2_1_5_10_ra_limits_ref.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere_mip.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
@@ -145,8 +145,8 @@ Feature: 2.2.1.5: Limit number of PSTs with a constraint directly in the optimis
 
   @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: 2.2.1.5.11: Same case with PRA limitations: 2 RAs and only 1 Topo
-    Given network file is "epic19/TestCase16Nodes_with_contingency.uct"
-    Given crac file is "epic19/SL_ep19us10_ra_limits_1.json"
+    Given network file is "2_remedial_actions/2_2_range_actions_optimisation/2_2_1_pst_range_actions/TestCase16Nodes_with_contingency.uct"
+    Given crac file is "2_remedial_actions/2_2_range_actions_optimisation/2_2_1_pst_range_actions/crac_2_2_1_5_11_ra_limits_1.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere_mip.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
@@ -159,8 +159,8 @@ Feature: 2.2.1.5: Limit number of PSTs with a constraint directly in the optimis
 
   @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: 2.2.1.5.12: Same case with PRA limitations: 1 PST and 0 Topo
-    Given network file is "epic19/TestCase16Nodes_with_contingency.uct"
-    Given crac file is "epic19/SL_ep19us10_ra_limits_2.json"
+    Given network file is "2_remedial_actions/2_2_range_actions_optimisation/2_2_1_pst_range_actions/TestCase16Nodes_with_contingency.uct"
+    Given crac file is "2_remedial_actions/2_2_range_actions_optimisation/2_2_1_pst_range_actions/crac_2_2_1_5_12_ra_limits_2.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere_mip.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
