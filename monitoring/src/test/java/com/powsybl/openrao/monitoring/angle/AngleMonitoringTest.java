@@ -52,14 +52,22 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Paths;
 import java.time.OffsetDateTime;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Properties;
+import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
-import static com.powsybl.openrao.util.RaoResultHelper.isSecure;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -90,6 +98,7 @@ class AngleMonitoringTest {
         loadFlowParameters = new LoadFlowParameters();
         loadFlowParameters.setDc(false);
         raoResult = Mockito.mock(RaoResult.class);
+        when(raoResult.isSecure(PhysicalParameter.VOLTAGE)).thenReturn(true);
         when(raoResult.getActivatedNetworkActionsDuringState(any())).thenReturn(Collections.emptySet());
         when(raoResult.getActivatedRangeActionsDuringState(any())).thenReturn(Collections.emptySet());
     }
@@ -394,7 +403,7 @@ class AngleMonitoringTest {
 
         RaoResult raoResultWithAngleMonitoring = runAngleMonitoringAndUpdateRaoResult(scalableZonalData);
         // Status checks
-        assertFalse(isSecure(raoResultWithAngleMonitoring, crac, false, Unit.AMPERE, PhysicalParameter.ANGLE));
+        assertFalse(raoResultWithAngleMonitoring.isSecure(PhysicalParameter.ANGLE));
         // Applied cras
         State state = crac.getState("Co-1", curativeInstant);
         assertEquals(1, raoResultWithAngleMonitoring.getActivatedNetworkActionsDuringState(state).size());
@@ -467,9 +476,9 @@ class AngleMonitoringTest {
         assertEquals(Set.of(naL1Cur), raoResultWithAngleMonitoring.getActivatedNetworkActionsDuringState(crac.getState("coL1", crac.getInstant(CURATIVE_INSTANT_ID))));
         assertTrue(raoResultWithAngleMonitoring.isActivatedDuringState(crac.getState("coL1", crac.getInstant(CURATIVE_INSTANT_ID)), naL1Cur));
         assertEquals(ComputationStatus.DEFAULT, raoResultWithAngleMonitoring.getComputationStatus());
-        assertTrue(isSecure(raoResultWithAngleMonitoring, crac, false, Unit.AMPERE, PhysicalParameter.VOLTAGE));
-        assertFalse(isSecure(raoResultWithAngleMonitoring, crac, false, Unit.AMPERE, PhysicalParameter.ANGLE));
-        assertFalse(isSecure(raoResultWithAngleMonitoring, crac, false, Unit.AMPERE, PhysicalParameter.FLOW, PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE));
+        assertTrue(raoResultWithAngleMonitoring.isSecure(PhysicalParameter.VOLTAGE));
+        assertFalse(raoResultWithAngleMonitoring.isSecure(PhysicalParameter.ANGLE));
+        assertFalse(raoResultWithAngleMonitoring.isSecure(PhysicalParameter.FLOW, PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE));
     }
 
     @Test
@@ -502,7 +511,7 @@ class AngleMonitoringTest {
         // Loadflow is expected to be run 3 times: 2+3=5
         assertEquals(5, referenceValue.get());
         assertTrue(latch.await(5, TimeUnit.SECONDS));
-        assertFalse(isSecure(raoResultWithAngleMonitoring, crac, false, Unit.AMPERE, PhysicalParameter.FLOW, PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE));
+        assertFalse(raoResultWithAngleMonitoring.isSecure(PhysicalParameter.FLOW, PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE));
     }
 
     private static List<Arguments> sameElementSetpointCases() {

@@ -66,4 +66,36 @@ public class RaoResultWithAngleMonitoringTest {
         when(angleCnecNotMonitored.getId()).thenReturn("angleCnecNotMonitored");
         assertFalse(raoResultWithAngleMonitoring.getCnecResult(cnecInstant, angleCnecNotMonitored).isPresent());
     }
+
+    @Test
+    void testIsSecure() {
+        RaoResult raoResult = Mockito.mock(RaoResult.class);
+        MonitoringResult angleMonitoringResult = Mockito.mock(MonitoringResult.class);
+        RaoResultWithAngleMonitoring raoResultWithAngleMonitoring = new RaoResultWithAngleMonitoring(raoResult, angleMonitoringResult);
+
+        // all secure
+        when(angleMonitoringResult.getStatus()).thenReturn(Cnec.SecurityStatus.SECURE);
+        when(raoResult.isSecure(PhysicalParameter.FLOW)).thenReturn(true);
+        when(raoResult.isSecure(PhysicalParameter.VOLTAGE)).thenReturn(true);
+        when(raoResult.isSecure(PhysicalParameter.FLOW, PhysicalParameter.VOLTAGE)).thenReturn(true);
+        assertTrue(raoResultWithAngleMonitoring.isSecure(PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE));
+        assertTrue(raoResultWithAngleMonitoring.isSecure(PhysicalParameter.ANGLE, PhysicalParameter.FLOW));
+        assertTrue(raoResultWithAngleMonitoring.isSecure(PhysicalParameter.FLOW, PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE));
+
+        // unsecure flow
+        when(raoResult.isSecure(PhysicalParameter.FLOW)).thenReturn(false);
+        when(raoResult.isSecure(PhysicalParameter.FLOW, PhysicalParameter.VOLTAGE)).thenReturn(false);
+        assertTrue(raoResultWithAngleMonitoring.isSecure(PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE));
+        assertFalse(raoResultWithAngleMonitoring.isSecure(PhysicalParameter.ANGLE, PhysicalParameter.FLOW));
+        assertFalse(raoResultWithAngleMonitoring.isSecure(PhysicalParameter.FLOW, PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE));
+
+        // unsecure angle
+        when(angleMonitoringResult.getStatus()).thenReturn(Cnec.SecurityStatus.HIGH_CONSTRAINT);
+        when(raoResult.isSecure(PhysicalParameter.FLOW)).thenReturn(true);
+        when(raoResult.isSecure(PhysicalParameter.VOLTAGE)).thenReturn(true);
+        when(raoResult.isSecure(PhysicalParameter.FLOW, PhysicalParameter.VOLTAGE)).thenReturn(true);
+        assertFalse(raoResultWithAngleMonitoring.isSecure(PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE));
+        assertFalse(raoResultWithAngleMonitoring.isSecure(PhysicalParameter.ANGLE, PhysicalParameter.FLOW));
+        assertFalse(raoResultWithAngleMonitoring.isSecure(PhysicalParameter.FLOW, PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE));
+    }
 }

@@ -9,7 +9,6 @@ package com.powsybl.openrao.data.raoresult.io.cne.swe;
 
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.PhysicalParameter;
-import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.io.cim.craccreator.CimCracCreationContext;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
@@ -42,7 +41,6 @@ import static com.powsybl.openrao.data.raoresult.io.cne.swe.SweCneClassCreator.n
 import static com.powsybl.openrao.data.raoresult.io.cne.swe.SweCneClassCreator.newPoint;
 import static com.powsybl.openrao.data.raoresult.io.cne.swe.SweCneClassCreator.newTimeSeries;
 import static com.powsybl.openrao.data.raoresult.io.cne.swe.SweCneUtil.createPartyIDString;
-import static com.powsybl.openrao.util.RaoResultHelper.*;
 
 /**
  * Fills the classes that constitute the CNE file structure
@@ -124,10 +122,10 @@ public class SweCne {
         boolean isFailure = sweCneHelper.isAnyContingencyInFailure() || raoResult.getComputationStatus() == ComputationStatus.FAILURE;
         boolean isUnsecure;
         try {
-            isUnsecure = !isSecure(raoResult, cracCreationContext.getCrac(), false, Unit.AMPERE, PhysicalParameter.FLOW, PhysicalParameter.ANGLE);
+            isUnsecure = !raoResult.isSecure(PhysicalParameter.FLOW, PhysicalParameter.ANGLE);
         } catch (OpenRaoException e) {
             // Sometimes we run this method without running angle monitoring. In that case, simply ignore AngleCnecs
-            isUnsecure = !isSecure(raoResult, cracCreationContext.getCrac(), false, Unit.AMPERE, PhysicalParameter.FLOW);
+            isUnsecure = !raoResult.isSecure(PhysicalParameter.FLOW);
         }
         if (isFailure) {
             reason.setCode(RAO_FAILURE_CODE);
