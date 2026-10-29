@@ -3,7 +3,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-Feature: 4.5 : Time-coupled PST tap gradient constraints
+Feature: 4.5.1: Time-coupled PST tap gradient constraints
 
   Presentation of the US
   ----------------------
@@ -12,7 +12,7 @@ Feature: 4.5 : Time-coupled PST tap gradient constraints
   ----------------------
 
   @fast @rao @dc @marmot
-  Scenario: 4.5.1: No constraint
+  Scenario: 4.5.1.1: No constraint
     Reference scenario, with no time-coupled constraints. Each timestamp moves the PST as much as they need.
     The network is a 2 Node network with one PST available. The timestamps only differ by the CNEC thresholds.
     Given configuration file is "4_time_coupled/4_5_pst_constraints/RaoParameters_minCost_megawatt_dc.json"
@@ -34,7 +34,7 @@ Feature: 4.5 : Time-coupled PST tap gradient constraints
     Then the preventive tap of PstRangeAction "pst_be_fr" at timestamp "2026-03-25 21:30" should be 3
 
   @fast @rao @dc @marmot
-  Scenario: 4.5.2: Tap gradient over three timestamps
+  Scenario: 4.5.1.2: Tap gradient over three timestamps
   Same scenario as previous one. The PSTs are constrained with a -/+ 1 tap/h gradient
   constraints. The network is secure at 19:30 and 20:30, then overloaded at 21:30 where the PST must be at 3
   in order to solve it. The MIP starts moving the PST one tap at a time for it to reach 3 by 21:30.
@@ -57,7 +57,7 @@ Feature: 4.5 : Time-coupled PST tap gradient constraints
     Then the preventive tap of PstRangeAction "pst_be_fr" at timestamp "2026-03-25 21:30" should be 3
 
   @fast @rao @dc @marmot
-  Scenario: 4.5.3: Tap gradient with 30 minute gaps between timestamps
+  Scenario: 4.5.1.3: Tap gradient with 30 minute gaps between timestamps
   Same case as before with a constraint of +/-2 tap/h with the timestamps at 30 minutes apart instead of 1 hour.
     Given configuration file is "4_time_coupled/4_5_pst_constraints/RaoParameters_minCost_megawatt_dc.json"
     Given time-coupled constraints are in file "4_time_coupled/time-coupled-pst-constraints-with-two-taps-per-hour.json" and rao inputs are:

@@ -3,14 +3,14 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-Feature: 4.5: Test to illustrate min-off and min-on time constraint
+Feature: 4.5.3: Test to illustrate min-off and min-on time constraint
 
 In the following test, ideally we would need (see Scenario: 4.2.6: No generator constraints):
 From 00:30 to 03:30, 3000 MW of redispatching
 From 08:30 to 15:30, 1100 MW of redispatching
 From 20:30 to 23:30, 3000 MW of redispatching
 
-  Scenario: 4.5.1: Min-off time is the only constraint
+  Scenario: 4.5.3.1: Min-off time is the only constraint
   Min-off time = 6h
   The generator starts at 10h30 instead of 8h30 -> 2200MW overload
   The generator stops at 13h30 instead of 15h30 -> 2200MW overload
@@ -140,10 +140,10 @@ From 20:30 to 23:30, 3000 MW of redispatching
     Then the preventive power of load "FFR1AA1 _load" at timestamp "2025-11-04 23:30" is 3000.0 MW
     Then the total cost for all timestamps is 1860120.0
 
-  Scenario: 4.5.2: Min-off time + lag time + lead time
+  Scenario: 4.5.3.2: Min-off time + lag time + lead time
     Min-off time = 1h, lagTime = 2.5 and leadTime = 2.25.
     Between a stop and a restart of the generator, we need to wait at least 5.75h -> 6h.
-    We end up in the same situation as 4.5.1. The generator stays off for more than minOffTime because of the lead and lag time constraints.
+    We end up in the same situation as 4.5.3.1. The generator stays off for more than minOffTime because of the lead and lag time constraints.
     Given configuration file is "4_time_coupled/RaoParameters_minCost_megawatt_dc_0_shift_penalty_100.json"
     Given time-coupled constraints are in file "4_time_coupled/time-coupled-constraints-4_5_2.json" and rao inputs are:
       | Timestamp        | Network                      | CRAC                                   |
@@ -270,7 +270,7 @@ From 20:30 to 23:30, 3000 MW of redispatching
     Then the preventive power of load "FFR1AA1 _load" at timestamp "2025-11-04 23:30" is 3000.0 MW
     Then the total cost for all timestamps is 1860120.0
 
-  Scenario: 4.5.3: Min-on time
+  Scenario: 4.5.3.3: Min-on time
     Min-on Time = 9h
     The generator must stay on for 9h after being turned on.
     -> the generator needs to stay on one timestamp longer than necessary at Pmin. The generator stays on between 7:30 and 15:30 instead of 8:30 and 15:30.
@@ -402,7 +402,7 @@ From 20:30 to 23:30, 3000 MW of redispatching
     Then the preventive power of load "FFR1AA1 _load" at timestamp "2025-11-04 23:30" is 3000.0 MW
     Then the total cost for all timestamps is 1690170.0
 
-  Scenario: 4.5.4: Min-on time + Min-off time + leadTime + lagtime
+  Scenario: 4.5.3.4: Min-on time + Min-off time + leadTime + lagtime
     leadTime + lagTime + minOffTime = 6.2h -> the generator needs to stay off for at least 7h
     min-on time = 6h -> once started up, the generator need to stay on for at least 6h
 
