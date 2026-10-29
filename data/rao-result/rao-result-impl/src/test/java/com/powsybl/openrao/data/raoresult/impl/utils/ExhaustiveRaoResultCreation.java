@@ -209,9 +209,9 @@ public final class ExhaustiveRaoResultCreation {
         irar.addActivationForState(crac.getState("contingency1Id", curativeInstant), -300);
 
         // security status
-        raoResult.setSecurityStatus(true, PhysicalParameter.FLOW);
-        raoResult.setSecurityStatus(false, PhysicalParameter.ANGLE);
-        raoResult.setSecurityStatus(true, PhysicalParameter.VOLTAGE);
+        raoResult.setSecurityStatus(PhysicalParameter.FLOW, true);
+        raoResult.setSecurityStatus(PhysicalParameter.ANGLE, false);
+        raoResult.setSecurityStatus(PhysicalParameter.VOLTAGE, true);
 
         return raoResult;
     }

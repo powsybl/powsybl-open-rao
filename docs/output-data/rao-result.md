@@ -122,8 +122,8 @@ Example:
 
 ### Security status
 
-This field contains the security status of the network for a given physical parameters among: `FLOW`, `ANGLE` and 
-`VOLTAGE`.
+This field contains the security status of the network **after RAO** for a given physical parameters among: `FLOW`,
+`ANGLE` and `VOLTAGE`.
 
 > **Important notes:**
 > - At least one physical parameter among `FLOW`, `ANGLE` and `VOLTAGE` must be provided;

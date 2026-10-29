@@ -395,8 +395,8 @@ public final class RaoUtil {
     public static boolean computeSecurityStatus(Set<FlowCnec> flowCnecs, FlowResult flowResult, Unit flowUnit, Set<String> operatorsNotSharingCras) {
         return flowCnecs.stream()
             .filter(FlowCnec::isOptimized) // ignore MNECs
-            .filter(flowCnec -> !flowCnec.getState().getInstant().isCurative()
-                || !operatorsNotSharingCras.contains(flowCnec.getOperator()))
+            .filter(flowCnec -> !operatorsNotSharingCras.contains(flowCnec.getOperator())
+                || !flowCnec.getState().getInstant().isCurative())
             .allMatch(flowCnec -> flowResult.getMargin(flowCnec, flowUnit) >= 0);
     }
 

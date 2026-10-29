@@ -126,7 +126,7 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractExtendable<RaoR
         Set<String> contingenciesToExclude = getContingenciesToExclude(stateTree);
         excludeContingencies(contingenciesToExclude);
         excludeDuplicateCnecs();
-        computeFlowSecurityStatus(contingenciesToExclude, stateTree.getOperatorsNotSharingCras());
+        this.isFlowSecure = computeFlowSecurityStatus(contingenciesToExclude, stateTree.getOperatorsNotSharingCras());
     }
 
     private OptimizationResult generatePreventiveAndOutageOnlyResult(final ReportNode reportNode) {
@@ -294,7 +294,7 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractExtendable<RaoR
         });
     }
 
-    private void computeFlowSecurityStatus(Set<String> contingenciesToExclude, Set<String> operatorsNotSharingCras) {
+    private boolean computeFlowSecurityStatus(Set<String> contingenciesToExclude, Set<String> operatorsNotSharingCras) {
         Unit flowUnit = RaoUtil.getFlowUnit(raoParameters);
         Set<FlowCnec> preventiveAndOutageCnecs = new HashSet<>(crac.getFlowCnecs(crac.getPreventiveState()));
         crac.getStates(crac.getOutageInstant())
@@ -305,8 +305,7 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractExtendable<RaoR
         boolean preventiveAndOutageStatus = RaoUtil.computeSecurityStatus(
             preventiveAndOutageCnecs, finalPreventivePerimeterResult.prePerimeterResultForAllFollowingStates(), flowUnit, Set.of());
         if (!preventiveAndOutageStatus) {
-            this.isFlowSecure = false;
-            return;
+            return false;
         }
 
         Set<State> postOutageStates = crac.getStates().stream()
@@ -317,12 +316,11 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractExtendable<RaoR
             boolean stateSecurityStatus = RaoUtil.computeSecurityStatus(
                 crac.getFlowCnecs(state), postContingencyResults.get(state).prePerimeterResultForAllFollowingStates(), flowUnit, operatorsNotSharingCras);
             if (!stateSecurityStatus) {
-                this.isFlowSecure = false;
-                return;
+                return false;
             }
         }
 
-        this.isFlowSecure = true;
+        return true;
     }
 
     @Override

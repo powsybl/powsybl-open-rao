@@ -154,9 +154,7 @@ public class RaoResultImpl extends AbstractExtendable<RaoResult> implements RaoR
     }
 
     public FlowCnecResult getAndCreateIfAbsentFlowCnecResult(FlowCnec flowCnec) {
-        if (!flowCnecResults.containsKey(flowCnec)) {
-            flowCnecResults.put(flowCnec, new FlowCnecResult());
-        }
+        flowCnecResults.putIfAbsent(flowCnec, new FlowCnecResult());
         return flowCnecResults.get(flowCnec);
     }
 
@@ -213,7 +211,7 @@ public class RaoResultImpl extends AbstractExtendable<RaoResult> implements RaoR
         return networkActionResults.get(networkAction);
     }
 
-    public void setSecurityStatus(boolean status, PhysicalParameter physicalParameter) {
+    public void setSecurityStatus(PhysicalParameter physicalParameter, boolean status) {
         securityStatusPerPhysicalParameter.put(physicalParameter, status);
     }
 

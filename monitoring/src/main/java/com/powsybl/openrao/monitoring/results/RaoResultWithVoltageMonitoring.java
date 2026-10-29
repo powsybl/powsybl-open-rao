@@ -26,7 +26,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 /**
@@ -134,13 +133,13 @@ public class RaoResultWithVoltageMonitoring extends RaoResultClone {
             throw new OpenRaoException("At least one physical parameter must be provided.");
         }
 
-        AtomicBoolean isSecure = new AtomicBoolean(true);
+        boolean isSecure = true;
         if (parameters.remove(PhysicalParameter.VOLTAGE)) {
-            isSecure.set(voltageMonitoringResult.getStatus() == Cnec.SecurityStatus.SECURE);
+            isSecure = voltageMonitoringResult.getStatus() == Cnec.SecurityStatus.SECURE;
         }
         if (parameters.isEmpty()) {
-            return isSecure.get();
+            return isSecure;
         }
-        return isSecure.get() && raoResult.isSecure(parameters.toArray(PhysicalParameter[]::new));
+        return isSecure && raoResult.isSecure(parameters.toArray(PhysicalParameter[]::new));
     }
 }

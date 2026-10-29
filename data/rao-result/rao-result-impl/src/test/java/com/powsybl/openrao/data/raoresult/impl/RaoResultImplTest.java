@@ -454,9 +454,9 @@ class RaoResultImplTest {
     void testIsSecure() {
         setUp();
 
-        raoResult.setSecurityStatus(true, PhysicalParameter.FLOW);
-        raoResult.setSecurityStatus(false, PhysicalParameter.ANGLE);
-        raoResult.setSecurityStatus(true, PhysicalParameter.VOLTAGE);
+        raoResult.setSecurityStatus(PhysicalParameter.FLOW, true);
+        raoResult.setSecurityStatus(PhysicalParameter.ANGLE, false);
+        raoResult.setSecurityStatus(PhysicalParameter.VOLTAGE, true);
 
         assertTrue(raoResult.isSecure(PhysicalParameter.FLOW));
         assertFalse(raoResult.isSecure(PhysicalParameter.ANGLE));

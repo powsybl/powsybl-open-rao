@@ -277,7 +277,7 @@ public final class RaoResultJsonConstants {
     public static void deserializeSecurityStatus(RaoResultImpl raoResult, JsonParser jsonParser) throws IOException {
         while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
             jsonParser.nextToken();
-            raoResult.setSecurityStatus(jsonParser.getBooleanValue(), PhysicalParameter.valueOf(jsonParser.currentName().toUpperCase()));
+            raoResult.setSecurityStatus(PhysicalParameter.valueOf(jsonParser.currentName().toUpperCase()), jsonParser.getBooleanValue());
         }
     }
 
