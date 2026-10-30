@@ -87,7 +87,7 @@ public final class VoltageCnecArrayDeserializer {
                         break;
                     case THRESHOLDS:
                         jsonParser.nextToken();
-                        VoltageThresholdArrayDeserializer.deserialize(jsonParser, voltageCnecAdder);
+                        VoltageThresholdArrayDeserializer.deserialize(jsonParser, voltageCnecAdder, version);
                         break;
                     case EXTENSIONS:
                         jsonParser.nextToken();

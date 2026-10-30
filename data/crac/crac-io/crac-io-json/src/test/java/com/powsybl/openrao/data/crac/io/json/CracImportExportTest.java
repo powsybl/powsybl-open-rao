@@ -49,6 +49,8 @@ import com.powsybl.openrao.data.crac.impl.utils.ExhaustiveCracCreation;
 import com.powsybl.openrao.data.crac.impl.utils.NetworkImportsUtil;
 import com.powsybl.openrao.data.crac.io.json.deserializers.CracDeserializer;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.Mockito;
 import org.slf4j.LoggerFactory;
 
@@ -836,6 +838,30 @@ class CracImportExportTest {
         );
 
         assertEquals(0, cracCreationContext.getCreationReport().getReport().size());
-
     }
+
+    @ParameterizedTest
+    @CsvSource({
+        "crac_angle_two_max.json, Max",
+        "crac_voltage_two_max.json, Max",
+        "crac_angle_two_min.json, Min",
+        "crac_voltage_two_min.json, Min"
+    })
+    void testSameLimitTwiceCnec(String cracFile, String bound) {
+        CracCreationContext cracCreationContext = new JsonImport().importData(
+            CracImportExportTest.class.getResourceAsStream("/" + cracFile),
+            new CracCreationParameters(),
+            Network.read(
+                "3Nodes_FFR3AA1_disconnected.xiidm",
+                getClass().getResourceAsStream("/3Nodes_FFR3AA1_disconnected.xiidm")
+            )
+        );
+
+        assertEquals(1, cracCreationContext.getCreationReport().getReport().size());
+        assertEquals(
+            "[ERROR] " + bound + " threshold can only be defined once since CRAC v2.13",
+            cracCreationContext.getCreationReport().getReport().get(0)
+        );
+    }
+
 }
