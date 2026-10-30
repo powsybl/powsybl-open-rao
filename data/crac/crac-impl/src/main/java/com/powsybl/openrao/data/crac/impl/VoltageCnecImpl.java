@@ -7,10 +7,7 @@
 
 package com.powsybl.openrao.data.crac.impl;
 
-import com.powsybl.iidm.network.Bus;
-import com.powsybl.iidm.network.BusbarSection;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.network.*;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
@@ -27,7 +24,9 @@ import java.util.stream.Collectors;
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
 public class VoltageCnecImpl extends AbstractCnec<VoltageCnec> implements VoltageCnec {
-    private final Set<Threshold> thresholds;
+
+    // min, max
+    private double[] boundValues = {Double.NaN, Double.NaN};
 
     VoltageCnecImpl(String id,
                     String name,
@@ -40,7 +39,8 @@ public class VoltageCnecImpl extends AbstractCnec<VoltageCnec> implements Voltag
                     Set<Threshold> thresholds,
                     double reliabilityMargin) {
         super(id, name, Set.of(networkElementId), operator, border, state, optimized, monitored, reliabilityMargin);
-        this.thresholds = thresholds;
+        computeUpperBound(thresholds);
+        computeLowerBound(thresholds);
     }
 
     @Override
@@ -49,13 +49,18 @@ public class VoltageCnecImpl extends AbstractCnec<VoltageCnec> implements Voltag
     }
 
     @Override
-    public Set<Threshold> getThresholds() {
-        return thresholds;
+    public Optional<Double> getLowerBound(Unit requestedUnit) {
+        requestedUnit.checkPhysicalParameter(getPhysicalParameter());
+        return Double.isNaN(boundValues[0]) ? Optional.empty() : Optional.of(boundValues[0]);
     }
 
     @Override
-    public Optional<Double> getLowerBound(Unit requestedUnit) {
+    public Optional<Double> getUpperBound(Unit requestedUnit) {
         requestedUnit.checkPhysicalParameter(getPhysicalParameter());
+        return Double.isNaN(boundValues[1]) ? Optional.empty() : Optional.of(boundValues[1]);
+    }
+
+    private void computeLowerBound(Set<Threshold> thresholds) {
         Set<Threshold> limitingThresholds = thresholds.stream()
             .filter(Threshold::limitsByMin)
             .collect(Collectors.toSet());
@@ -68,14 +73,11 @@ public class VoltageCnecImpl extends AbstractCnec<VoltageCnec> implements Voltag
                     lowerBound = currentBound;
                 }
             }
-            return Optional.of(lowerBound);
+            boundValues[0] = lowerBound;
         }
-        return Optional.empty();
     }
 
-    @Override
-    public Optional<Double> getUpperBound(Unit requestedUnit) {
-        requestedUnit.checkPhysicalParameter(getPhysicalParameter());
+    public void computeUpperBound(Set<Threshold> thresholds) {
         Set<Threshold> limitingThresholds = thresholds.stream()
             .filter(Threshold::limitsByMax)
             .collect(Collectors.toSet());
@@ -87,9 +89,8 @@ public class VoltageCnecImpl extends AbstractCnec<VoltageCnec> implements Voltag
                     upperBound = currentBound;
                 }
             }
-            return Optional.of(upperBound);
+            boundValues[1] = upperBound;
         }
-        return Optional.empty();
     }
 
     @Override
@@ -172,13 +173,15 @@ public class VoltageCnecImpl extends AbstractCnec<VoltageCnec> implements Voltag
         }
         VoltageCnecImpl cnec = (VoltageCnecImpl) o;
         return super.equals(cnec)
-            && thresholds.equals(cnec.getThresholds());
+            && getLowerBound(Unit.KILOVOLT) == cnec.getLowerBound(Unit.KILOVOLT)
+            && getUpperBound(Unit.KILOVOLT) == cnec.getUpperBound(Unit.KILOVOLT);
     }
 
     @Override
     public int hashCode() {
         int hashCode = super.hashCode();
-        hashCode = 31 * hashCode + thresholds.hashCode();
+        hashCode = 31 * hashCode + boundValues.hashCode();
         return hashCode;
     }
+
 }

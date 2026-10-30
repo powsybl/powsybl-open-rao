@@ -378,9 +378,9 @@ public class CracImportSteps {
                     throw new OpenRaoException("Contingency should be defined");
                 }
             }
-            assertEquals(1, voltageCnec.getThresholds().size());
-            assertEquals(Optional.ofNullable(min), voltageCnec.getThresholds().iterator().next().min());
-            assertEquals(Optional.ofNullable(max), voltageCnec.getThresholds().iterator().next().max());
+
+            assertEquals(min, voltageCnec.getLowerBound(Unit.KILOVOLT).orElse(null));
+            assertEquals(max, voltageCnec.getUpperBound(Unit.KILOVOLT).orElse(null));
         }
     }
 

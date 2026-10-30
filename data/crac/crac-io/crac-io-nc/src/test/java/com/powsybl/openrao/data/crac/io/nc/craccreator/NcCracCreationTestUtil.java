@@ -36,7 +36,6 @@ import com.powsybl.openrao.data.crac.api.networkaction.ActionType;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.parameters.CracCreationParameters;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
-import com.powsybl.openrao.data.crac.api.threshold.Threshold;
 import com.powsybl.openrao.data.crac.api.usagerule.OnConstraint;
 import com.powsybl.openrao.data.crac.api.usagerule.OnContingencyState;
 import com.powsybl.openrao.data.crac.api.usagerule.OnInstant;
@@ -199,9 +198,8 @@ public final class NcCracCreationTestUtil {
         assertEquals(expectedImportingNetworkElementId, angleCnec.getImportingNetworkElementId());
         assertEquals(expectedExportingNetworkElementId, angleCnec.getExportingNetworkElementId());
 
-        Threshold threshold = angleCnec.getThresholds().stream().toList().iterator().next();
-        assertEquals(expectedThresholdMax, threshold.max().orElse(null));
-        assertEquals(expectedThresholdMin, threshold.min().orElse(null));
+        assertEquals(expectedThresholdMax, angleCnec.getUpperBound(Unit.DEGREE).orElse(null));
+        assertEquals(expectedThresholdMin, angleCnec.getLowerBound(Unit.DEGREE).orElse(null));
     }
 
     public static void assertVoltageCnecEquality(VoltageCnec voltageCnec,
@@ -223,9 +221,8 @@ public final class NcCracCreationTestUtil {
             expectedBorder
         );
 
-        Threshold threshold = voltageCnec.getThresholds().stream().toList().iterator().next();
-        assertEquals(expectedThresholdMax, threshold.max().orElse(null));
-        assertEquals(expectedThresholdMin, threshold.min().orElse(null));
+        assertEquals(expectedThresholdMin, voltageCnec.getLowerBound(Unit.KILOVOLT).orElse(null));
+        assertEquals(expectedThresholdMax, voltageCnec.getUpperBound(Unit.KILOVOLT).orElse(null));
     }
 
     public static void assertNetworkActionImported(NcCracCreationContext cracCreationContext,

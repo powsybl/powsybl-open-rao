@@ -11,13 +11,12 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.contingency.Contingency;
+import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.cnec.AngleCnec;
-import com.powsybl.openrao.data.crac.api.threshold.Threshold;
 import com.powsybl.openrao.data.crac.io.json.ExtensionsHandler;
 import com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.Optional;
 
 /**
@@ -52,12 +51,17 @@ public class AngleCnecSerializer<I extends AngleCnec> extends AbstractJsonSerial
 
     private void serializeThresholds(AngleCnec angleCnec, JsonGenerator gen) throws IOException {
         gen.writeArrayFieldStart(JsonSerializationConstants.THRESHOLDS);
-        List<Threshold> sortedListOfThresholds = angleCnec.getThresholds().stream()
-            .sorted(new JsonSerializationConstants.ThresholdComparator())
-            .toList();
-        for (Threshold threshold : sortedListOfThresholds) {
-            gen.writeObject(threshold);
+        gen.writeStartObject();
+        gen.writeStringField(JsonSerializationConstants.UNIT, JsonSerializationConstants.serializeUnit(Unit.DEGREE));
+        Optional<Double> min = angleCnec.getLowerBound(Unit.DEGREE);
+        if (min.isPresent()) {
+            gen.writeNumberField(JsonSerializationConstants.MIN, min.get() - angleCnec.getReliabilityMargin());
         }
+        Optional<Double> max = angleCnec.getUpperBound(Unit.DEGREE);
+        if (max.isPresent()) {
+            gen.writeNumberField(JsonSerializationConstants.MAX, max.get() + angleCnec.getReliabilityMargin());
+        }
+        gen.writeEndObject();
         gen.writeEndArray();
     }
 }

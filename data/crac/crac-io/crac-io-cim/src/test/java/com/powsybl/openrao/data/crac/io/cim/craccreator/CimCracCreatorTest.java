@@ -268,9 +268,9 @@ class CimCracCreatorTest {
         importedAngleCnecNetworkElements.add(importedCrac.getAngleCnec(id).getExportingNetworkElementId());
         assertEquals(networkElementIds, importedAngleCnecNetworkElements);
         assertEquals(contingencyId, angleCnecCreationContext.getContingencyId());
-        assertEquals(1, importedCrac.getAngleCnec(id).getThresholds().size());
-        assertEquals(max, importedCrac.getAngleCnec(id).getThresholds().iterator().next().max().orElseThrow());
-        assertTrue(importedCrac.getAngleCnec(id).getThresholds().iterator().next().min().isEmpty());
+        assertTrue(importedCrac.getAngleCnec(id).getUpperBound(Unit.DEGREE).isPresent());
+        assertFalse(importedCrac.getAngleCnec(id).getLowerBound(Unit.DEGREE).isPresent());
+        assertEquals(max, importedCrac.getAngleCnec(id).getUpperBound(Unit.DEGREE).get());
     }
 
     private void assertAngleCnecNotImported(String id, ImportStatus importStatus) {
