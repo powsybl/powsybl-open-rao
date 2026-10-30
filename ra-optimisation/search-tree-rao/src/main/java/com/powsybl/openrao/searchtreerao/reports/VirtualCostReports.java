@@ -102,8 +102,8 @@ public final class VirtualCostReports {
             final TwoSides limitingSide = leaf.getMargin(flowCnec, TwoSides.ONE, unit) < leaf.getMargin(flowCnec, TwoSides.TWO, unit) ? TwoSides.ONE : TwoSides.TWO;
             final double flow = leaf.getFlow(flowCnec, limitingSide, unit);
             final Double limitingThreshold = flow >= 0
-                ? flowCnec.getUpperBound(limitingSide, unit).orElse(flowCnec.getLowerBound(limitingSide, unit).orElse(Double.NaN))
-                : flowCnec.getLowerBound(limitingSide, unit).orElse(flowCnec.getUpperBound(limitingSide, unit).orElse(Double.NaN));
+                ? flowCnec.safeGetUpperBound(limitingSide, unit).orElse(flowCnec.safeGetLowerBound(limitingSide, unit).orElse(Double.NaN))
+                : flowCnec.safeGetLowerBound(limitingSide, unit).orElse(flowCnec.safeGetUpperBound(limitingSide, unit).orElse(Double.NaN));
 
             final VirtualCostlyElementRecord element = new VirtualCostlyElementRecord(leaf.getIdentifier(),
                 virtualCostName,

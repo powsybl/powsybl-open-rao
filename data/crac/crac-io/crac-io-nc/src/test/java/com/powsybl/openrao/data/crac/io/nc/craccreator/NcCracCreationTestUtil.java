@@ -25,6 +25,7 @@ import com.powsybl.iidm.network.ImportConfig;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.cnec.AngleCnec;
@@ -35,7 +36,6 @@ import com.powsybl.openrao.data.crac.api.networkaction.ActionType;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.parameters.CracCreationParameters;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
-import com.powsybl.openrao.data.crac.api.threshold.BranchThreshold;
 import com.powsybl.openrao.data.crac.api.threshold.Threshold;
 import com.powsybl.openrao.data.crac.api.usagerule.OnConstraint;
 import com.powsybl.openrao.data.crac.api.usagerule.OnContingencyState;
@@ -50,8 +50,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Paths;
 import java.time.OffsetDateTime;
-import java.util.Comparator;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
@@ -165,12 +163,16 @@ public final class NcCracCreationTestUtil {
             expectedBorder
         );
 
-        List<BranchThreshold> thresholds = flowCnec.getThresholds().stream().sorted(Comparator.comparing(BranchThreshold::getSide)).toList();
-        for (BranchThreshold threshold : thresholds) {
-            TwoSides side = threshold.getSide();
-            assertEquals(side == TwoSides.ONE ? expectedThresholdMaxLeft : expectedThresholdMaxRight, threshold.max().orElse(null));
-            assertEquals(side == TwoSides.ONE ? expectedThresholdMinLeft : expectedThresholdMinRight, threshold.min().orElse(null));
-        }
+        expectedThresholdSides.forEach(side -> {
+            Double expectedMax = side == TwoSides.ONE ? expectedThresholdMaxLeft : expectedThresholdMaxRight;
+            Double expectedMin = side == TwoSides.ONE ? expectedThresholdMinLeft : expectedThresholdMinRight;
+            if (expectedMax != null) {
+                assertEquals(side == TwoSides.ONE ? expectedThresholdMaxLeft : expectedThresholdMaxRight, flowCnec.getUpperBound(side, Unit.AMPERE).get());
+            }
+            if (expectedMin != null) {
+                assertEquals(side == TwoSides.ONE ? expectedThresholdMinLeft : expectedThresholdMinRight, flowCnec.getLowerBound(side, Unit.AMPERE).get());
+            }
+        });
 
         assertEquals(expectedThresholdSides, flowCnec.getMonitoredSides());
     }

@@ -701,9 +701,9 @@ public class RaoSteps {
         TwoSides side = cnec.getMonitoredSides().iterator().next();
         Double bound = null;
         if ("upper".equalsIgnoreCase(upperOrLower)) {
-            bound = crac.getFlowCnec(cnecId).getUpperBound(side, unit).orElseThrow();
+            bound = crac.getFlowCnec(cnecId).safeGetUpperBound(side, unit).orElseThrow();
         } else if ("lower".equalsIgnoreCase(upperOrLower)) {
-            bound = crac.getFlowCnec(cnecId).getLowerBound(side, unit).orElseThrow();
+            bound = crac.getFlowCnec(cnecId).safeGetLowerBound(side, unit).orElseThrow();
         }
         assertEquals(expectedBound, bound, flowAmpereTolerance(expectedBound));
     }

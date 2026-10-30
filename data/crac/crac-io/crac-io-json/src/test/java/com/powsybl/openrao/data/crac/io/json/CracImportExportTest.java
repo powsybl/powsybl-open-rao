@@ -40,7 +40,6 @@ import com.powsybl.openrao.data.crac.api.range.StandardRange;
 import com.powsybl.openrao.data.crac.api.range.TapRange;
 import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
-import com.powsybl.openrao.data.crac.api.threshold.BranchThreshold;
 import com.powsybl.openrao.data.crac.api.usagerule.OnConstraint;
 import com.powsybl.openrao.data.crac.api.usagerule.OnContingencyState;
 import com.powsybl.openrao.data.crac.api.usagerule.OnFlowConstraintInCountry;
@@ -655,14 +654,28 @@ class CracImportExportTest {
         assertEquals(400., crac.getFlowCnec("cnec1prevId").getNominalVoltage(TwoSides.ONE), 1e-3);
         assertEquals(400., crac.getFlowCnec("cnec1prevId").getNominalVoltage(TwoSides.TWO), 1e-3);
 
-        // check threshold
-        assertEquals(1, crac.getFlowCnec("cnec4prevId").getThresholds().size());
-        BranchThreshold threshold = crac.getFlowCnec("cnec4prevId").getThresholds().iterator().next();
-        assertEquals(Unit.MEGAWATT, threshold.getUnit());
-        assertEquals(TwoSides.ONE, threshold.getSide());
-        assertTrue(threshold.min().isEmpty());
-        assertEquals(500., threshold.max().orElse(0.0), 1e-3);
-        assertEquals(2, crac.getFlowCnec("cnec2prevId").getThresholds().size());
+        // check bound
+        FlowCnec flowCnec1 = crac.getFlowCnec("cnec4prevId");
+        assertTrue(flowCnec1.getLowerBound(TwoSides.ONE, Unit.MEGAWATT).isEmpty());
+        assertTrue(flowCnec1.getLowerBound(TwoSides.TWO, Unit.MEGAWATT).isEmpty());
+        assertEquals(500., flowCnec1.getUpperBound(TwoSides.ONE, Unit.MEGAWATT).get());
+        assertTrue(flowCnec1.getUpperBound(TwoSides.TWO, Unit.MEGAWATT).isEmpty());
+
+        assertTrue(flowCnec1.getUpperBound(TwoSides.TWO, Unit.AMPERE).isEmpty());
+        assertTrue(flowCnec1.getUpperBound(TwoSides.ONE, Unit.AMPERE).isEmpty());
+        assertTrue(flowCnec1.getLowerBound(TwoSides.ONE, Unit.AMPERE).isEmpty());
+        assertTrue(flowCnec1.getLowerBound(TwoSides.TWO, Unit.AMPERE).isEmpty());
+
+        FlowCnec flowCnec2 = crac.getFlowCnec("cnec2prevId");
+        assertTrue(flowCnec2.getLowerBound(TwoSides.ONE, Unit.MEGAWATT).isEmpty());
+        assertTrue(flowCnec2.getLowerBound(TwoSides.TWO, Unit.MEGAWATT).isEmpty());
+        assertTrue(flowCnec2.getUpperBound(TwoSides.ONE, Unit.MEGAWATT).isEmpty());
+        assertTrue(flowCnec2.getUpperBound(TwoSides.TWO, Unit.MEGAWATT).isEmpty());
+
+        assertTrue(flowCnec2.getUpperBound(TwoSides.ONE, Unit.AMPERE).isEmpty());
+        assertEquals(1200., flowCnec2.getUpperBound(TwoSides.TWO, Unit.AMPERE).get());
+        assertEquals(-600., flowCnec2.getLowerBound(TwoSides.ONE, Unit.AMPERE).get());
+        assertEquals(-800., flowCnec2.getLowerBound(TwoSides.TWO, Unit.AMPERE).get());
     }
 
     @Test

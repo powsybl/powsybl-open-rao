@@ -32,7 +32,6 @@ import com.powsybl.openrao.data.crac.api.parameters.RangeActionGroup;
 import com.powsybl.openrao.data.crac.api.range.RangeType;
 import com.powsybl.openrao.data.crac.api.rangeaction.HvdcRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
-import com.powsybl.openrao.data.crac.api.threshold.BranchThreshold;
 import com.powsybl.openrao.data.crac.api.usagerule.OnConstraint;
 import com.powsybl.openrao.data.crac.api.usagerule.OnContingencyState;
 import com.powsybl.openrao.data.crac.api.usagerule.OnFlowConstraintInCountry;
@@ -356,32 +355,41 @@ class CimCracCreatorTest {
     }
 
     private void assertHasOneThreshold(String cnecId, TwoSides side, Unit unit, double min, double max) {
-        assertEquals(1, importedCrac.getFlowCnec(cnecId).getThresholds().size());
+        checkNumberOfBound(importedCrac.getFlowCnec(cnecId), 2);
         checkThresholdOneSide(cnecId, unit, side, min, max);
     }
 
     private void assertHasTwoIdenticalThresholds(String cnecId, Unit unit, double min, double max) {
-        FlowCnec cnec = importedCrac.getFlowCnec(cnecId);
-        assertEquals(2, cnec.getThresholds().size());
+        checkNumberOfBound(importedCrac.getFlowCnec(cnecId), 4);
         checkThresholdOneSide(cnecId, unit, TwoSides.ONE, min, max);
         checkThresholdOneSide(cnecId, unit, TwoSides.TWO, min, max);
     }
 
     private void assertHasTwoDifferentThresholds(String cnecId, Unit unit, double min1, double max1, double min2, double max2) {
-        FlowCnec cnec = importedCrac.getFlowCnec(cnecId);
-        assertEquals(2, cnec.getThresholds().size());
+        checkNumberOfBound(importedCrac.getFlowCnec(cnecId), 4);
         checkThresholdOneSide(cnecId, unit, TwoSides.ONE, min1, max1);
         checkThresholdOneSide(cnecId, unit, TwoSides.TWO, min2, max2);
     }
 
     private void checkThresholdOneSide(String cnecId, Unit unit, TwoSides monitoredSide, double min, double max) {
-        Set<BranchThreshold> thresholds = importedCrac.getFlowCnec(cnecId).getThresholds().stream()
-            .filter(branchThreshold -> branchThreshold.getSide() == monitoredSide && branchThreshold.getUnit() == unit).collect(Collectors.toSet());
-        assertEquals(1, thresholds.size());
-        thresholds.forEach(branchThreshold -> {
-            assertEquals(min, branchThreshold.min().orElse(Double.NaN), 0.01);
-            assertEquals(max, branchThreshold.max().orElse(Double.NaN), 0.01);
-        });
+        FlowCnec cnec = importedCrac.getFlowCnec(cnecId);
+        assertEquals(min, cnec.getLowerBound(monitoredSide, unit).get(), DOUBLE_TOLERANCE);
+        assertEquals(max, cnec.getUpperBound(monitoredSide, unit).get(), DOUBLE_TOLERANCE);
+    }
+
+    private void checkNumberOfBound(FlowCnec cnec, int expectedCount) {
+        int count = 0;
+        for (Unit unit : Set.of(Unit.AMPERE, Unit.MEGAWATT)) {
+            for (TwoSides side : Set.of(TwoSides.ONE, TwoSides.TWO)) {
+                if (cnec.getUpperBound(side, unit).isPresent()) {
+                    count++;
+                }
+                if (cnec.getLowerBound(side, unit).isPresent()) {
+                    count++;
+                }
+            }
+        }
+        assertEquals(expectedCount, count);
     }
 
     @Test
@@ -1108,7 +1116,7 @@ class CimCracCreatorTest {
         cracCreationParameters.setDefaultMonitoredLineSide(CracCreationParameters.MonitoredLineSide.MONITOR_LINES_ON_BOTH_SIDES);
         cracCreationParameters.getExtension(CimCracCreationParameters.class).setTimestamp(OffsetDateTime.parse("2021-04-02T20:00Z"));
         setUp("/cracs/CIM_21_5_2.xml", baseNetwork, cracCreationParameters);
-        assertHasTwoDifferentThresholds("OJLJJ_5_400_220 - preventive", Unit.AMPERE, -1. * 938.19, 1. * 938.19, -1 * 3411.62, 1 * 3411.62);
+        assertHasTwoDifferentThresholds("OJLJJ_5_400_220 - preventive", Unit.AMPERE, -1. * 938.1946, 1. * 938.1946, -1 * 3411.617, 1 * 3411.617);
         assertHasTwoIdenticalThresholds("OJLJJ_5_400_220 - CO_2 - outage", Unit.MEGAWATT, -1000., 1000.);
         assertHasTwoIdenticalThresholds("OJLJJ_5_400_220 - CO_3 - outage", Unit.MEGAWATT, -1000., 1000.);
         assertHasOneThreshold("OJLJJ_5_400_220 - CO_2 - curative", TwoSides.TWO, Unit.AMPERE, -2000., 2000.);
@@ -1117,7 +1125,7 @@ class CimCracCreatorTest {
         cracCreationParameters.setDefaultMonitoredLineSide(CracCreationParameters.MonitoredLineSide.MONITOR_LINES_ON_SIDE_ONE);
         cracCreationParameters.getExtension(CimCracCreationParameters.class).setTimestamp(OffsetDateTime.parse("2021-04-02T03:00Z"));
         setUp("/cracs/CIM_21_5_2.xml", baseNetwork, cracCreationParameters);
-        assertHasOneThreshold("OJLJJ_5_400_220 - preventive", TwoSides.ONE, Unit.AMPERE, -1. * 938.19, 1. * 938.19);
+        assertHasOneThreshold("OJLJJ_5_400_220 - preventive", TwoSides.ONE, Unit.AMPERE, -1. * 938.1946, 1. * 938.1946);
         assertHasOneThreshold("OJLJJ_5_400_220 - CO_2 - outage", TwoSides.ONE, Unit.MEGAWATT, -1000., 1000.);
         assertHasOneThreshold("OJLJJ_5_400_220 - CO_3 - outage", TwoSides.ONE, Unit.MEGAWATT, -1000., 1000.);
         assertHasOneThreshold("OJLJJ_5_400_220 - CO_2 - curative", TwoSides.TWO, Unit.AMPERE, -2000., 2000.);
@@ -1126,7 +1134,7 @@ class CimCracCreatorTest {
         cracCreationParameters.setDefaultMonitoredLineSide(CracCreationParameters.MonitoredLineSide.MONITOR_LINES_ON_SIDE_TWO);
         cracCreationParameters.getExtension(CimCracCreationParameters.class).setTimestamp(OffsetDateTime.parse("2021-04-02T05:00Z"));
         setUp("/cracs/CIM_21_5_2.xml", baseNetwork, cracCreationParameters);
-        assertHasOneThreshold("OJLJJ_5_400_220 - preventive", TwoSides.TWO, Unit.AMPERE, -1. * 3411.62, 1. * 3411.62);
+        assertHasOneThreshold("OJLJJ_5_400_220 - preventive", TwoSides.TWO, Unit.AMPERE, -1. * 3411.617, 1. * 3411.617);
         assertHasOneThreshold("OJLJJ_5_400_220 - CO_2 - outage", TwoSides.TWO, Unit.MEGAWATT, -1000., 1000.);
         assertHasOneThreshold("OJLJJ_5_400_220 - CO_3 - outage", TwoSides.TWO, Unit.MEGAWATT, -1000., 1000.);
         assertHasOneThreshold("OJLJJ_5_400_220 - CO_2 - curative", TwoSides.TWO, Unit.AMPERE, -2000., 2000.);
@@ -1148,7 +1156,12 @@ class CimCracCreatorTest {
         assertEquals(flowCnec.getIMax(TwoSides.TWO).get(), duplicate.getIMax(TwoSides.TWO).get(), 1e-6);
         assertEquals(flowCnec.getNominalVoltage(TwoSides.ONE), duplicate.getNominalVoltage(TwoSides.ONE), 1e-6);
         assertEquals(flowCnec.getNominalVoltage(TwoSides.TWO), duplicate.getNominalVoltage(TwoSides.TWO), 1e-6);
-        assertEquals(flowCnec.getThresholds(), duplicate.getThresholds());
+        for (Unit unit : Set.of(Unit.MEGAWATT, Unit.AMPERE)) {
+            for (TwoSides side : Set.of(TwoSides.ONE, TwoSides.TWO)) {
+                assertEquals(flowCnec.getLowerBound(side, unit), duplicate.getLowerBound(side, unit));
+                assertEquals(flowCnec.getUpperBound(side, unit), duplicate.getUpperBound(side, unit));
+            }
+        }
         assertTrue(cracCreationContext.getCreationReport().getReport().contains(
             String.format("[ADDED] CNEC \"%s\" has no associated automaton. It will be cloned on the OUTAGE instant in order to be secured during preventive RAO.", flowCnecId)
         ));

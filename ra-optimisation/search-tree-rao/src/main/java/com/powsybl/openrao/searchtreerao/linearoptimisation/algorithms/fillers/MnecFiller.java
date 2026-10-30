@@ -102,7 +102,7 @@ public class MnecFiller implements ProblemFiller {
                     Optional.ofNullable(timestamp)
                 );
 
-                Optional<Double> maxFlow = mnec.getUpperBound(side, unit);
+                Optional<Double> maxFlow = mnec.safeGetUpperBound(side, unit);
                 if (maxFlow.isPresent()) {
                     double ub = Math.max(
                         maxFlow.get(),
@@ -120,7 +120,7 @@ public class MnecFiller implements ProblemFiller {
                     maxConstraint.setCoefficient(mnecViolationVariable, -1);
                 }
 
-                Optional<Double> minFlow = mnec.getLowerBound(side, unit);
+                Optional<Double> minFlow = mnec.safeGetLowerBound(side, unit);
                 if (minFlow.isPresent()) {
                     double lb = Math.min(
                         minFlow.get(),

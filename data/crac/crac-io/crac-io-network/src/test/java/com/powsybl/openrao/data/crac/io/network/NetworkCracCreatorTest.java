@@ -22,7 +22,6 @@ import com.powsybl.openrao.data.crac.api.range.RangeType;
 import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.VariationDirection;
-import com.powsybl.openrao.data.crac.api.threshold.BranchThreshold;
 import com.powsybl.openrao.data.crac.api.usagerule.OnInstant;
 import com.powsybl.openrao.data.crac.api.usagerule.UsageRule;
 import com.powsybl.openrao.data.crac.io.commons.iidm.IidmPstHelper;
@@ -119,11 +118,12 @@ class NetworkCracCreatorTest {
         assertNotNull(cnec);
         assertEquals(neId, cnec.getNetworkElementId());
         assertEquals(instantKind, cnec.getState().getInstant().getKind());
-        for (BranchThreshold t : cnec.getThresholds()) {
-            double expectedValue = t.getSide().equals(TwoSides.ONE) ? thresholdValue1 : thresholdValue2;
-            assertEquals(thresholdUnit, t.getUnit());
-            assertEquals(-expectedValue, t.min().orElseThrow(), 1e-3);
-            assertEquals(expectedValue, t.max().orElseThrow(), 1e-3);
+        for (TwoSides side : Set.of(TwoSides.ONE, TwoSides.TWO)) {
+            double expectedValue = side.equals(TwoSides.ONE) ? thresholdValue1 : thresholdValue2;
+            if (!Double.isNaN(expectedValue)) {
+                assertEquals(-expectedValue, cnec.getLowerBound(side, thresholdUnit).get(), 1e-3);
+                assertEquals(expectedValue, cnec.getUpperBound(side, thresholdUnit).get(), 1e-3);
+            }
         }
     }
 
@@ -137,10 +137,9 @@ class NetworkCracCreatorTest {
         assertNotNull(crac);
         assertEquals(5, crac.getContingencies().size());
         assertEquals(42, crac.getFlowCnecs().size());
-
-        checkCnec("BBE2AA1  BBE3AA1  1_preventive", "BBE2AA1  BBE3AA1  1", InstantKind.PREVENTIVE, Unit.AMPERE, 0.95 * 5000);
-        checkCnec("BBE2AA1  BBE3AA1  1_CO_NNL1AA1  NNL2AA1  1_outage", "BBE2AA1  BBE3AA1  1", InstantKind.OUTAGE, Unit.AMPERE, 1.3 * 5000);
-        checkCnec("BBE2AA1  BBE3AA1  1_CO_NNL1AA1  NNL2AA1  1_curative", "BBE2AA1  BBE3AA1  1", InstantKind.CURATIVE, Unit.AMPERE, 1.1 * 5000);
+        checkCnec("BBE2AA1  BBE3AA1  1_preventive", "BBE2AA1  BBE3AA1  1", InstantKind.PREVENTIVE, Unit.AMPERE, Double.NaN, 0.95 * 5000);
+        checkCnec("BBE2AA1  BBE3AA1  1_CO_NNL1AA1  NNL2AA1  1_outage", "BBE2AA1  BBE3AA1  1", InstantKind.OUTAGE, Unit.AMPERE, Double.NaN, 1.3 * 5000);
+        checkCnec("BBE2AA1  BBE3AA1  1_CO_NNL1AA1  NNL2AA1  1_curative", "BBE2AA1  BBE3AA1  1", InstantKind.CURATIVE, Unit.AMPERE, Double.NaN, 1.1 * 5000);
 
         checkCnec("NNL2AA1  BBE3AA1  1_preventive", "NNL2AA1  BBE3AA1  1", InstantKind.PREVENTIVE, Unit.AMPERE, 0.95 * 5000);
         checkCnec("NNL2AA1  BBE3AA1  1_CO_DDE2AA1  NNL3AA1  1_outage", "NNL2AA1  BBE3AA1  1", InstantKind.OUTAGE, Unit.AMPERE, 1.3 * 5000);

@@ -131,8 +131,8 @@ public class UnoptimizedCnecFiller implements ProblemFiller {
 
                 Optional<Double> minFlow;
                 Optional<Double> maxFlow;
-                minFlow = cnec.getLowerBound(side, unit);
-                maxFlow = cnec.getUpperBound(side, unit);
+                minFlow = cnec.safeGetLowerBound(side, unit);
+                maxFlow = cnec.safeGetUpperBound(side, unit);
 
                 if (minFlow.isPresent()) {
                     OpenRaoMPConstraint decreaseMinmumThresholdMargin = linearProblem.addDontOptimizeCnecConstraint(

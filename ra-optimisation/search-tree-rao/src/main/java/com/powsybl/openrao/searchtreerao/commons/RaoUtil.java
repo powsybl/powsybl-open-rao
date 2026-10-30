@@ -12,6 +12,7 @@ import com.powsybl.computation.ComputationManager;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControl;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
@@ -245,8 +246,10 @@ public final class RaoUtil {
         Crac crac = raoInput.getCrac();
         if (!getSensitivityWithLoadFlowParameters(raoParameters).getLoadFlowParameters().isDc()) {
             crac.getFlowCnecs().forEach(flowCnec -> {
-                if (flowCnec.getThresholds().stream().anyMatch(branchThreshold -> branchThreshold.getUnit().equals(Unit.MEGAWATT))) {
-                    CommonReports.reportThresholdForFlowCnecDefinedInMwButLoadflowComputationIsInAc(reportNode, flowCnec.getId());
+                for (TwoSides side : Set.of(TwoSides.ONE, TwoSides.TWO)) {
+                    if (flowCnec.getLowerBound(side, Unit.MEGAWATT).isPresent() || flowCnec.getUpperBound(side, Unit.MEGAWATT).isPresent()) {
+                        CommonReports.reportThresholdForFlowCnecDefinedInMwButLoadflowComputationIsInAc(reportNode, flowCnec.getId());
+                    }
                 }
             });
         }
@@ -338,7 +341,7 @@ public final class RaoUtil {
         return flowCnecs.stream().filter(Cnec::isOptimized)
             .map(flowCnec ->
                 flowCnec.getMonitoredSides().stream().map(side ->
-                    Math.max(Math.abs(flowCnec.getUpperBound(side, unit).orElse(0.)), Math.abs(flowCnec.getLowerBound(side, unit).orElse(0.)))).max(Double::compare).orElse(0.))
+                    Math.max(Math.abs(flowCnec.safeGetUpperBound(side, unit).orElse(0.)), Math.abs(flowCnec.safeGetLowerBound(side, unit).orElse(0.)))).max(Double::compare).orElse(0.))
             .max(Double::compare)
             .orElse(0.);
     }

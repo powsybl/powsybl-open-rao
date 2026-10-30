@@ -106,12 +106,12 @@ public class LoopFlowThresholdImpl extends AbstractExtension<FlowCnec> implement
 
     private double getCnecFmaxWithoutFrmInA() {
         double minUpperBound = Math.min(
-            getExtendable().getUpperBound(TwoSides.ONE, Unit.AMPERE).orElse(Double.POSITIVE_INFINITY),
-            getExtendable().getUpperBound(TwoSides.TWO, Unit.AMPERE).orElse(Double.POSITIVE_INFINITY)
+            getExtendable().safeGetUpperBound(TwoSides.ONE, Unit.AMPERE).orElse(Double.POSITIVE_INFINITY),
+            getExtendable().safeGetUpperBound(TwoSides.TWO, Unit.AMPERE).orElse(Double.POSITIVE_INFINITY)
         );
         double maxLowerBound = Math.max(
-            getExtendable().getLowerBound(TwoSides.ONE, Unit.AMPERE).orElse(Double.NEGATIVE_INFINITY),
-            getExtendable().getLowerBound(TwoSides.TWO, Unit.AMPERE).orElse(Double.NEGATIVE_INFINITY)
+            getExtendable().safeGetLowerBound(TwoSides.ONE, Unit.AMPERE).orElse(Double.NEGATIVE_INFINITY),
+            getExtendable().safeGetLowerBound(TwoSides.TWO, Unit.AMPERE).orElse(Double.NEGATIVE_INFINITY)
         );
         return Math.min(minUpperBound, -maxLowerBound)
             + convertMWToA(getExtendable().getReliabilityMargin(), getExtendable().getNominalVoltage(TwoSides.ONE));
