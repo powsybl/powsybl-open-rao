@@ -40,11 +40,11 @@
       "thresholds": [
         {
           "unit": "kilovolt",
-          "min": 340.0,
           "max": 350.0
         },
         {
           "unit": "kilovolt",
+          "min": 340.0,
           "max": 350.0
         }
       ]

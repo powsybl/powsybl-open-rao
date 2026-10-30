@@ -33,6 +33,7 @@
     "reliabilityMargin" : 0.0,
     "thresholds" : [ {
       "unit" : "degree",
+      "max" : 200.0,
       "min" : 3.0
     }, {
       "unit" : "degree",

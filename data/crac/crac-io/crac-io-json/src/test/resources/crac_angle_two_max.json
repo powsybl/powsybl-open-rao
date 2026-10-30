@@ -36,7 +36,8 @@
       "max" : 3.0
     }, {
       "unit" : "degree",
-      "max" : 3.0
+      "max" : 3.0,
+      "min" : 0.0
     } ]
   } ],
   "voltageCnecs" : [ ],
