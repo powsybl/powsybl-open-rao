@@ -39,7 +39,8 @@ public class OpenRaoMPSolver {
     private static final Map<SearchTreeRaoRangeActionsOptimizationParameters.Solver, Double> SOLVER_INFINITY = Map.of(
         SearchTreeRaoRangeActionsOptimizationParameters.Solver.CBC, Double.POSITIVE_INFINITY,
         SearchTreeRaoRangeActionsOptimizationParameters.Solver.SCIP, 1E20,
-        SearchTreeRaoRangeActionsOptimizationParameters.Solver.XPRESS, 1E20
+        SearchTreeRaoRangeActionsOptimizationParameters.Solver.XPRESS, 1E20,
+        SearchTreeRaoRangeActionsOptimizationParameters.Solver.GUROBI, Double.POSITIVE_INFINITY
     );
 
     private final SearchTreeRaoRangeActionsOptimizationParameters.Solver solver;
@@ -76,12 +77,13 @@ public class OpenRaoMPSolver {
         return solver;
     }
 
-    private MPSolver.OptimizationProblemType getOrToolsProblemType(SearchTreeRaoRangeActionsOptimizationParameters.Solver solver) {
+    static MPSolver.OptimizationProblemType getOrToolsProblemType(SearchTreeRaoRangeActionsOptimizationParameters.Solver solver) {
         Objects.requireNonNull(solver);
         return switch (solver) {
             case CBC -> MPSolver.OptimizationProblemType.CBC_MIXED_INTEGER_PROGRAMMING;
             case SCIP -> MPSolver.OptimizationProblemType.SCIP_MIXED_INTEGER_PROGRAMMING;
             case XPRESS -> MPSolver.OptimizationProblemType.XPRESS_MIXED_INTEGER_PROGRAMMING;
+            case GUROBI -> MPSolver.OptimizationProblemType.GUROBI_MIXED_INTEGER_PROGRAMMING;
             default -> throw new OpenRaoException(String.format("unknown solver %s in RAO parameters", solver));
         };
     }
@@ -244,9 +246,13 @@ public class OpenRaoMPSolver {
     }
 
     public double infinity() {
-        return SOLVER_INFINITY.get(solver) * 1000;
+        return getSolverInfinity(solver) * 1000;
         // we must use something greater than the solver's infinity, in case we subtract things from it, it should
         // stay greater than infinity
         // TODO: replace with mpsSolver.solverInfinity() * 1000 when made available
+    }
+
+    static double getSolverInfinity(SearchTreeRaoRangeActionsOptimizationParameters.Solver solver) {
+        return SOLVER_INFINITY.get(Objects.requireNonNull(solver));
     }
 }
