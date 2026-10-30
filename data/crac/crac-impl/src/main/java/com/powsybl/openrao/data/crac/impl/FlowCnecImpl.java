@@ -157,33 +157,26 @@ public class FlowCnecImpl extends AbstractCnec<FlowCnec> implements FlowCnec {
             .filter(Threshold::limitsByMin)
             .filter(branchThreshold -> branchThreshold.getSide().equals(side))
             .collect(Collectors.toSet());
-
         if (!limitingThresholds.isEmpty()) {
             double lowerBound = Double.NEGATIVE_INFINITY;
+            Unit lowerBoundInitialUnit = null;
             for (BranchThreshold threshold : limitingThresholds) {
                 double currentBound = getRawBound(threshold, threshold.min().orElseThrow());
                 Unit initialUnit = threshold.getUnit();
                 if (initialUnit.equals(Unit.PERCENT_IMAX)) {
                     initialUnit = Unit.AMPERE;
                 }
-
-                double flowUnitMultiplier = getFlowUnitMultiplier(getNominalVoltage(threshold.getSide()), initialUnit, requestedUnit);
-                if (flowUnitMultiplier == 1) {
-                    boundProvided[getIndex(side, requestedUnit, Bound.LOWER)] = true;
-                }
                 currentBound = currentBound * getFlowUnitMultiplier(getNominalVoltage(threshold.getSide()), initialUnit, requestedUnit);
                 currentBound += reliabilityMargin * getFlowUnitMultiplier(getNominalVoltage(side), Unit.MEGAWATT, requestedUnit);
                 if (currentBound > lowerBound) {
                     lowerBound = currentBound;
+                    lowerBoundInitialUnit = initialUnit;
                 }
             }
-
-            if (lowerBound != Double.NEGATIVE_INFINITY) {
-                boundValues[getIndex(side, requestedUnit, Bound.LOWER)] = lowerBound;
+            boundValues[getIndex(side, requestedUnit, Bound.LOWER)] = lowerBound;
+            if (lowerBoundInitialUnit == requestedUnit) {
+                boundProvided[getIndex(side, requestedUnit, Bound.LOWER)] = true;
             }
-
-        } else {
-            boundValues[getIndex(side, requestedUnit, Bound.LOWER)] = Double.NaN;
         }
     }
 
@@ -207,27 +200,24 @@ public class FlowCnecImpl extends AbstractCnec<FlowCnec> implements FlowCnec {
             .collect(Collectors.toSet());
         if (!limitingThresholds.isEmpty()) {
             double upperBound = Double.POSITIVE_INFINITY;
+            Unit upperBoundInitialUnit = null;
             for (BranchThreshold threshold : limitingThresholds) {
                 double currentBound = getRawBound(threshold, threshold.max().orElseThrow());
                 Unit initialUnit = threshold.getUnit();
                 if (initialUnit.equals(Unit.PERCENT_IMAX)) {
                     initialUnit = Unit.AMPERE;
                 }
-                double flowUnitMultiplier = getFlowUnitMultiplier(getNominalVoltage(threshold.getSide()), initialUnit, requestedUnit);
-                if (flowUnitMultiplier == 1) {
-                    boundProvided[getIndex(side, requestedUnit, Bound.UPPER)] = true;
-                }
-                currentBound = currentBound * flowUnitMultiplier;
+                currentBound = currentBound * getFlowUnitMultiplier(getNominalVoltage(threshold.getSide()), initialUnit, requestedUnit);
                 currentBound -= reliabilityMargin * getFlowUnitMultiplier(getNominalVoltage(side), Unit.MEGAWATT, requestedUnit);
                 if (currentBound < upperBound) {
                     upperBound = currentBound;
+                    upperBoundInitialUnit = initialUnit;
                 }
             }
-            if (upperBound != Double.POSITIVE_INFINITY) {
-                boundValues[getIndex(side, requestedUnit, Bound.UPPER)] = upperBound;
+            boundValues[getIndex(side, requestedUnit, Bound.UPPER)] = upperBound;
+            if (upperBoundInitialUnit == requestedUnit) {
+                boundProvided[getIndex(side, requestedUnit, Bound.UPPER)] = true;
             }
-        } else {
-            boundValues[getIndex(side, requestedUnit, Bound.UPPER)] = Double.NaN;
         }
     }
 

@@ -736,9 +736,10 @@ class FlowCnecImplTest {
             .withNominalVoltage(220.)
             .add();
 
-        // Since the BranchThreshold max in MEGAWATT is not 500. because the upper bound on side ONE = min(500., 38.1)
+        // The upper bound on side ONE = min(500., 38.1) -> the threshold in AMPERE is one that is kept.
+        // The bound in MEGAWATT is converted from the one in AMPERE
         assertEquals(
-            Set.of(new BranchThresholdImpl(ONE, MEGAWATT, null, 100. * 220. * Math.sqrt(3) / 1000), new BranchThresholdImpl(ONE, AMPERE, null, 100.)),
+            Set.of(new BranchThresholdImpl(ONE, AMPERE, null, 100.)),
             cnec2.getThresholds());
     }
 
