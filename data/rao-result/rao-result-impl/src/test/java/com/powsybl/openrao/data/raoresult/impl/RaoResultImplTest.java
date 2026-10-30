@@ -58,8 +58,9 @@ class RaoResultImplTest {
 
         raoResult = new RaoResultImpl(crac);
 
-        Metadata metadata = new Metadata();
-        metadata.setExecutionDetails("The RAO only went through first preventive");
+        Metadata metadata = Metadata.build()
+            .addExecutionDetails("The RAO only went through first preventive")
+            .build();
         raoResult.addExtension(Metadata.class, metadata);
 
         raoResult.getAndCreateIfAbsentNetworkActionResult(na).addActivationForState(crac.getState("Contingency FR1 FR3", autoInstant));
@@ -69,16 +70,16 @@ class RaoResultImplTest {
         pstRangeActionResult.setInitialSetpoint(2.3); // tap = 6
         pstRangeActionResult.addActivationForState(crac.getPreventiveState(), -3.1); // tap = -8
 
-        CostResult costResult = new CostResult();
-        costResult.addFunctionalCostResult(null, 100.0);
-        costResult.addVirtualCostResult(null, "loopFlow", 0.0);
-        costResult.addVirtualCostResult(null, "MNEC", 0.0);
+        CostResult.CostResultBuilder costResultBuilder = CostResult.build();
+        costResultBuilder.addFunctionalCostResult(null, 100.0);
+        costResultBuilder.addVirtualCostResult(null, "loopFlow", 0.0);
+        costResultBuilder.addVirtualCostResult(null, "MNEC", 0.0);
 
-        costResult.addFunctionalCostResult(crac.getInstant(CURATIVE_INSTANT_ID), -50.0);
-        costResult.addVirtualCostResult(crac.getInstant(CURATIVE_INSTANT_ID), "loopFlow", 10.0);
-        costResult.addVirtualCostResult(crac.getInstant(CURATIVE_INSTANT_ID), "MNEC", 2.0);
+        costResultBuilder.addFunctionalCostResult(crac.getInstant(CURATIVE_INSTANT_ID), -50.0);
+        costResultBuilder.addVirtualCostResult(crac.getInstant(CURATIVE_INSTANT_ID), "loopFlow", 10.0);
+        costResultBuilder.addVirtualCostResult(crac.getInstant(CURATIVE_INSTANT_ID), "MNEC", 2.0);
 
-        raoResult.addExtension(CostResult.class, costResult);
+        raoResult.addExtension(CostResult.class, costResultBuilder.build());
     }
 
     @Test

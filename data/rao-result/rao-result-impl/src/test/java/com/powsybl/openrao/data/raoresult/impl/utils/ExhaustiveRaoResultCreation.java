@@ -51,37 +51,37 @@ public final class ExhaustiveRaoResultCreation {
     public static RaoResult create(Crac crac) {
         RaoResultImpl raoResult = new RaoResultImpl(crac);
 
-        Metadata metadata = new Metadata();
-        metadata.setExecutionDetails("The RAO only went through first preventive and went through voltage monitoring and went through angle monitoring");
-        raoResult.addExtension(Metadata.class, metadata);
+        Metadata.MetadataBuilder metadataBuilder = Metadata.build();
+        metadataBuilder.addExecutionDetails("The RAO only went through first preventive and went through voltage monitoring and went through angle monitoring");
+        raoResult.addExtension(Metadata.class, metadataBuilder.build());
 
         // --------------------
         // --- Cost results ---
         // --------------------
 
-        CostResult costResult = new CostResult();
+        CostResult.CostResultBuilder costResultBuilder = CostResult.build();
 
         // CostResult at initial state
-        costResult.addFunctionalCostResult(null, 100.0);
-        costResult.addVirtualCostResult(null, "loopFlow", 0.0);
-        costResult.addVirtualCostResult(null, "MNEC", 0.0);
+        costResultBuilder.addFunctionalCostResult(null, 100.0);
+        costResultBuilder.addVirtualCostResult(null, "loopFlow", 0.0);
+        costResultBuilder.addVirtualCostResult(null, "MNEC", 0.0);
 
         // CostResult after PRA
-        costResult.addFunctionalCostResult(crac.getPreventiveInstant(), 80.0);
-        costResult.addVirtualCostResult(crac.getPreventiveInstant(), "loopFlow", 0.0);
-        costResult.addVirtualCostResult(crac.getPreventiveInstant(), "MNEC", 0.0);
+        costResultBuilder.addFunctionalCostResult(crac.getPreventiveInstant(), 80.0);
+        costResultBuilder.addVirtualCostResult(crac.getPreventiveInstant(), "loopFlow", 0.0);
+        costResultBuilder.addVirtualCostResult(crac.getPreventiveInstant(), "MNEC", 0.0);
 
         // CostResult after ARA
-        costResult.addFunctionalCostResult(crac.getInstant("auto"), -20.0);
-        costResult.addVirtualCostResult(crac.getInstant("auto"), "loopFlow", 15.0);
-        costResult.addVirtualCostResult(crac.getInstant("auto"), "MNEC", 20.0);
+        costResultBuilder.addFunctionalCostResult(crac.getInstant("auto"), -20.0);
+        costResultBuilder.addVirtualCostResult(crac.getInstant("auto"), "loopFlow", 15.0);
+        costResultBuilder.addVirtualCostResult(crac.getInstant("auto"), "MNEC", 20.0);
 
         // CostResult after CRA
-        costResult.addFunctionalCostResult(crac.getInstant("curative"), -50.0);
-        costResult.addVirtualCostResult(crac.getInstant("curative"), "loopFlow", 10.0);
-        costResult.addVirtualCostResult(crac.getInstant("curative"), "MNEC", 2.0);
+        costResultBuilder.addFunctionalCostResult(crac.getInstant("curative"), -50.0);
+        costResultBuilder.addVirtualCostResult(crac.getInstant("curative"), "loopFlow", 10.0);
+        costResultBuilder.addVirtualCostResult(crac.getInstant("curative"), "MNEC", 2.0);
 
-        raoResult.addExtension(CostResult.class, costResult);
+        raoResult.addExtension(CostResult.class, costResultBuilder.build());
 
         // ------------------------
         // --- FlowCnec results ---
@@ -110,17 +110,17 @@ public final class ExhaustiveRaoResultCreation {
         }
         raoResult.addExtension(FlowResult.class, flowResultBuilder.build());
 
-        AngleResult angleResult = new AngleResult();
+        AngleResult.AngleResultBuilder angleResultBuilder = AngleResult.build();
         for (AngleCnec cnec : crac.getAngleCnecs()) {
-            fillAngleCnecResult(angleResult, cnec, crac);
+            fillAngleCnecResult(angleResultBuilder, cnec, crac);
         }
-        raoResult.addExtension(AngleResult.class, angleResult);
+        raoResult.addExtension(AngleResult.class, angleResultBuilder.build());
 
-        VoltageResult voltageResult = new VoltageResult();
+        VoltageResult.VoltageResultBuilder voltageResultBuilder = VoltageResult.build();
         for (VoltageCnec cnec : crac.getVoltageCnecs()) {
-            fillVoltageCnecResult(voltageResult, cnec, crac);
+            fillVoltageCnecResult(voltageResultBuilder, cnec, crac);
         }
-        raoResult.addExtension(VoltageResult.class, voltageResult);
+        raoResult.addExtension(VoltageResult.class, voltageResultBuilder.build());
 
         // -----------------------------
         // --- NetworkAction results ---
@@ -229,33 +229,33 @@ public final class ExhaustiveRaoResultCreation {
         }
     }
 
-    private static void fillAngleCnecResult(AngleResult angleResult, AngleCnec cnec, Crac crac) {
+    private static void fillAngleCnecResult(AngleResult.AngleResultBuilder angleResultBuilder, AngleCnec cnec, Crac crac) {
 
         double x = 3000;
 
-        angleResult.addMeasurement(x + 100 + 35, null, cnec, DEGREE);
-        angleResult.addMeasurement(x + 200 + 35, crac.getInstant("preventive"), cnec, DEGREE);
+        angleResultBuilder.addMeasurement(x + 100 + 35, null, cnec, DEGREE)
+            .addMeasurement(x + 200 + 35, crac.getInstant("preventive"), cnec, DEGREE);
 
         if (cnec.getState().getInstant().isAuto() || cnec.getState().getInstant().isCurative()) {
-            angleResult.addMeasurement(x + 300 + 35, crac.getInstant("auto"), cnec, DEGREE);
+            angleResultBuilder.addMeasurement(x + 300 + 35, crac.getInstant("auto"), cnec, DEGREE);
         }
         if (cnec.getState().getInstant().isCurative()) {
-            angleResult.addMeasurement(x + 400 + 35, crac.getInstant("curative"), cnec, DEGREE);
+            angleResultBuilder.addMeasurement(x + 400 + 35, crac.getInstant("curative"), cnec, DEGREE);
         }
     }
 
-    private static void fillVoltageCnecResult(VoltageResult voltageResult, VoltageCnec cnec, Crac crac) {
+    private static void fillVoltageCnecResult(VoltageResult.VoltageResultBuilder voltageResultBuilder, VoltageCnec cnec, Crac crac) {
 
         double x = 4000;
 
-        voltageResult.addMeasurement(x + 100 + 46, x + 100 + 56, null, cnec, KILOVOLT);
-        voltageResult.addMeasurement(x + 200 + 46, x + 200 + 56, crac.getInstant("preventive"), cnec, KILOVOLT);
+        voltageResultBuilder.addMeasurement(x + 100 + 46, x + 100 + 56, null, cnec, KILOVOLT)
+            .addMeasurement(x + 200 + 46, x + 200 + 56, crac.getInstant("preventive"), cnec, KILOVOLT);
 
         if (cnec.getState().getInstant().isAuto() || cnec.getState().getInstant().isCurative()) {
-            voltageResult.addMeasurement(x + 300 + 46, x + 300 + 56, crac.getInstant("auto"), cnec, KILOVOLT);
+            voltageResultBuilder.addMeasurement(x + 300 + 46, x + 300 + 56, crac.getInstant("auto"), cnec, KILOVOLT);
         }
         if (cnec.getState().getInstant().isCurative()) {
-            voltageResult.addMeasurement(x + 400 + 46, x + 400 + 56, crac.getInstant("curative"), cnec, KILOVOLT);
+            voltageResultBuilder.addMeasurement(x + 400 + 46, x + 400 + 56, crac.getInstant("curative"), cnec, KILOVOLT);
         }
     }
 

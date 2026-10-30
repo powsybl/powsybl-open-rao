@@ -220,7 +220,7 @@ public class FlowResult extends AbstractExtension<RaoResult> {
 
         @Override
         public int hashCode() {
-            return Objects.hash(flowCnec) * 31;
+            return Objects.hash(flowCnec);
         }
     }
 

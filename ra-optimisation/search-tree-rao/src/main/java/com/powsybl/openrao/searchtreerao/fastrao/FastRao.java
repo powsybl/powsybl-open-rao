@@ -423,30 +423,20 @@ public class FastRao implements RaoProvider {
 
     }
 
-    private static CostResult duplicateCostResult(CostResult costResult, Crac crac) {
-        CostResult costResultCopy = new CostResult();
-        copyCostResultsForInstant(costResult, costResultCopy, null);
-        crac.getSortedInstants()
-            .stream()
-            .filter(instant -> !instant.isOutage())
-            .forEach(instant -> copyCostResultsForInstant(costResult, costResultCopy, instant));
-        return costResultCopy;
-    }
-
     private static Metadata regenerateMetadata(Metadata metadata,
                                                Crac crac,
                                                PrePerimeterResult postPraSensi,
                                                PrePerimeterResult postAraSensi,
                                                PrePerimeterResult postCraSensi) {
-        Metadata metadataCopy = new Metadata();
-        metadata.getExecutionDetails().ifPresent(metadataCopy::setExecutionDetails);
+        Metadata.MetadataBuilder metadataBuilder = Metadata.build();
+        metadata.getExecutionDetails().ifPresent(metadataBuilder::addExecutionDetails);
         for (State state : crac.getStates()) {
             ComputationStatus computationStatus = getAppropriateResult(state, postPraSensi, postAraSensi, postCraSensi).getComputationStatus(state);
             if (computationStatus != ComputationStatus.DEFAULT) {
-                metadataCopy.setComputationStatus(state, computationStatus);
+                metadataBuilder.addComputationStatus(state, computationStatus);
             }
         }
-        return metadataCopy;
+        return metadataBuilder.build();
     }
 
     private static PrePerimeterResult getAppropriateResult(State state,
@@ -458,16 +448,6 @@ public class FastRao implements RaoProvider {
             case AUTO -> postAraSensi;
             case CURATIVE -> postCraSensi;
         };
-    }
-
-    private static void copyCostResultsForInstant(CostResult costResult, CostResult costResultCopy, com.powsybl.openrao.data.crac.api.Instant instant) {
-        costResultCopy.addFunctionalCostResult(instant, costResult.getFunctionalCost(instant));
-        costResult.getVirtualCostNames().forEach(
-            virtualCostName -> costResultCopy.addVirtualCostResult(
-                instant,
-                virtualCostName,
-                costResult.getVirtualCost(instant, virtualCostName)
-            ));
     }
 
     private static CompletableFuture<PostPerimeterResult> runPostPerimeterAnalysis(

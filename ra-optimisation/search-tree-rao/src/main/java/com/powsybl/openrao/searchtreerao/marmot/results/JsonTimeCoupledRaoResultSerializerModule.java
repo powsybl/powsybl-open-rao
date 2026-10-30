@@ -8,10 +8,8 @@
 package com.powsybl.openrao.searchtreerao.marmot.results;
 
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.powsybl.openrao.data.crac.api.Instant;
+import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.raoresult.api.TimeCoupledRaoResult;
-
-import java.util.List;
 
 /**
  * @author Roxane Chen {@literal <roxane.chen at rte-france.com>}
@@ -19,8 +17,8 @@ import java.util.List;
  */
 public class JsonTimeCoupledRaoResultSerializerModule extends SimpleModule {
 
-    public JsonTimeCoupledRaoResultSerializerModule(String individualRaoResultFilenameTemplate, List<Instant> instants) {
+    public JsonTimeCoupledRaoResultSerializerModule(String individualRaoResultFilenameTemplate, Crac crac) {
         super();
-        this.addSerializer(TimeCoupledRaoResult.class, new JsonTimeCoupledRaoResultSerializer(individualRaoResultFilenameTemplate, instants));
+        this.addSerializer(TimeCoupledRaoResult.class, new JsonTimeCoupledRaoResultSerializer(individualRaoResultFilenameTemplate, crac));
     }
 }

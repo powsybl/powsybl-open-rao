@@ -29,7 +29,6 @@ import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -42,13 +41,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class JsonTimeCoupledRaoResultSerializerTest {
     private TimeCoupledRaoResult timeCoupledRaoResult;
     private Instant preventiveInstant;
+    private Crac crac1;
 
     @BeforeEach
     void setUp() throws IOException {
         Network network1 = Network.read("/network/3Nodes.uct", JsonTimeCoupledRaoResultSerializerTest.class.getResourceAsStream("/network/3Nodes.uct"));
         Network network2 = Network.read("/network/3Nodes.uct", JsonTimeCoupledRaoResultSerializerTest.class.getResourceAsStream("/network/3Nodes.uct"));
         Network network3 = Network.read("/network/3Nodes.uct", JsonTimeCoupledRaoResultSerializerTest.class.getResourceAsStream("/network/3Nodes.uct"));
-        Crac crac1 = Crac.read("/crac/crac-redispatching-202502141040.json", JsonTimeCoupledRaoResultSerializerTest.class.getResourceAsStream("/crac/crac-redispatching-202502141040.json"), network1);
+        crac1 = Crac.read("/crac/crac-redispatching-202502141040.json", JsonTimeCoupledRaoResultSerializerTest.class.getResourceAsStream("/crac/crac-redispatching-202502141040.json"), network1);
         Crac crac2 = Crac.read("/crac/crac-redispatching-202502141140.json", JsonTimeCoupledRaoResultSerializerTest.class.getResourceAsStream("/crac/crac-redispatching-202502141140.json"), network2);
         Crac crac3 = Crac.read("/crac/crac-redispatching-202502141240.json", JsonTimeCoupledRaoResultSerializerTest.class.getResourceAsStream("/crac/crac-redispatching-202502141240.json"), network3);
         preventiveInstant = crac1.getPreventiveInstant();
@@ -79,14 +79,14 @@ class JsonTimeCoupledRaoResultSerializerTest {
             ))
         );
 
-        CostResult costResult = new CostResult();
-        costResult.addFunctionalCostResult(null, 0.0);
-        costResult.addVirtualCostResult(null, "min-margin-violation-evaluator", 3333333.33);
-        costResult.addVirtualCostResult(null, "sensitivity-failure-cost", 0.0);
-        costResult.addFunctionalCostResult(preventiveInstant, 65030.00);
-        costResult.addVirtualCostResult(preventiveInstant, "min-margin-violation-evaluator", 0.0);
-        costResult.addVirtualCostResult(preventiveInstant, "sensitivity-failure-cost", 0.0);
-        timeCoupledRaoResult.addExtension(CostResult.class, costResult);
+        CostResult.CostResultBuilder costResult = CostResult.build()
+            .addFunctionalCostResult(null, 0.0)
+            .addVirtualCostResult(null, "min-margin-violation-evaluator", 3333333.33)
+            .addVirtualCostResult(null, "sensitivity-failure-cost", 0.0)
+            .addFunctionalCostResult(preventiveInstant, 65030.00)
+            .addVirtualCostResult(preventiveInstant, "min-margin-violation-evaluator", 0.0)
+            .addVirtualCostResult(preventiveInstant, "sensitivity-failure-cost", 0.0);
+        timeCoupledRaoResult.addExtension(CostResult.class, costResult.build());
     }
 
     @Test
@@ -94,7 +94,7 @@ class JsonTimeCoupledRaoResultSerializerTest {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         try {
             ObjectMapper objectMapper = JsonUtil.createObjectMapper();
-            SimpleModule module = new JsonTimeCoupledRaoResultSerializerModule("'raoResult_'yyyyMMddHHmm'.json'", List.of(preventiveInstant));
+            SimpleModule module = new JsonTimeCoupledRaoResultSerializerModule("'raoResult_'yyyyMMddHHmm'.json'", crac1);
             objectMapper.registerModule(module);
             ObjectWriter writer = objectMapper.writerWithDefaultPrettyPrinter();
             writer.writeValue(byteArrayOutputStream, timeCoupledRaoResult);

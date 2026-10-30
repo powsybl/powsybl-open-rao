@@ -315,18 +315,18 @@ public class CastorFullOptimization {
                 flowUnit
             );
             State preventiveState = crac.getPreventiveState();
-            Metadata metadata = new Metadata();
-            metadata.setExecutionDetails(executionDetails);
+            Metadata.MetadataBuilder metadataBuilder = Metadata.build();
+            metadataBuilder.addExecutionDetails(executionDetails);
             if (finalSecondPreventiveResult.prePerimeterResultForAllFollowingStates().getComputationStatus(preventiveState) != ComputationStatus.DEFAULT) {
-                metadata.setComputationStatus(preventiveState, finalSecondPreventiveResult.prePerimeterResultForAllFollowingStates().getComputationStatus(preventiveState));
+                metadataBuilder.addComputationStatus(preventiveState, finalSecondPreventiveResult.prePerimeterResultForAllFollowingStates().getComputationStatus(preventiveState));
             }
             final Map<State, PostPerimeterResult> finalPostOutageResults = new HashMap<>(finalPostContingencyResults);
             crac.getStates()
                 .stream()
                 .filter(finalPostOutageResults::containsKey)
                 .filter(state -> finalPostOutageResults.get(state).prePerimeterResultForAllFollowingStates().getComputationStatus(state) != ComputationStatus.DEFAULT)
-                .forEach(state -> metadata.setComputationStatus(state, finalPostOutageResults.get(state).prePerimeterResultForAllFollowingStates().getComputationStatus(state)));
-            mergedRaoResults.addExtension(Metadata.class, metadata);
+                .forEach(state -> metadataBuilder.addComputationStatus(state, finalPostOutageResults.get(state).prePerimeterResultForAllFollowingStates().getComputationStatus(state)));
+            mergedRaoResults.addExtension(Metadata.class, metadataBuilder.build());
             return postCheckResults(mergedRaoResults, initialOutput, raoParameters.getObjectiveFunctionParameters(), true, optimizationReportNode, finalCostResult,
                 finalFlowResult, flowUnit, secondPreventiveRan);
         } catch (Exception e) {

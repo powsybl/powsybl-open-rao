@@ -793,20 +793,20 @@ public class Marmot implements TimeCoupledRaoProvider {
     private static CostResult createCastorCostResultExtension(ObjectiveFunctionResult initialOptimizationResult,
                                                               ObjectiveFunctionResult finalLinearOptimizationResult,
                                                               List<Instant> instants) {
-        CostResult costResult = new CostResult();
-        addCostsForInstant(costResult, initialOptimizationResult, null);
+        CostResult.CostResultBuilder costResultBuilder = CostResult.build();
+        addCostsForInstant(costResultBuilder, initialOptimizationResult, null);
         instants.stream()
             .filter(instant -> !instant.isOutage())
-            .forEach(instant -> addCostsForInstant(costResult, finalLinearOptimizationResult, instant));
-        return costResult;
+            .forEach(instant -> addCostsForInstant(costResultBuilder, finalLinearOptimizationResult, instant));
+        return costResultBuilder.build();
     }
 
-    private static void addCostsForInstant(CostResult costResult,
+    private static void addCostsForInstant(CostResult.CostResultBuilder costResultBuilder,
                                            ObjectiveFunctionResult objectiveFunctionResult,
                                            Instant optimizedInstant) {
-        costResult.addFunctionalCostResult(optimizedInstant, objectiveFunctionResult.getFunctionalCost());
+        costResultBuilder.addFunctionalCostResult(optimizedInstant, objectiveFunctionResult.getFunctionalCost());
         objectiveFunctionResult.getVirtualCostNames()
-            .forEach(virtualCostName -> costResult.addVirtualCostResult(
+            .forEach(virtualCostName -> costResultBuilder.addVirtualCostResult(
                 optimizedInstant,
                 virtualCostName,
                 objectiveFunctionResult.getVirtualCost(virtualCostName))
@@ -839,17 +839,17 @@ public class Marmot implements TimeCoupledRaoProvider {
     }
 
     private static Metadata getMetadataExtension(TemporalData<Crac> cracs, FlowResult globalFlowResult) {
-        Metadata metadata = new Metadata();
-        metadata.setExecutionDetails("RAO went through independent topological optimizations and global time-coupled linear optimization.");
+        Metadata.MetadataBuilder metadataBuilder = Metadata.build();
+        metadataBuilder.addExecutionDetails("RAO went through independent topological optimizations and global time-coupled linear optimization.");
         for (OffsetDateTime timestamp : cracs.getTimestamps()) {
             for (State state : cracs.getData(timestamp).orElseThrow().getStates()) {
                 ComputationStatus computationStatus = globalFlowResult.getComputationStatus(state);
                 if (computationStatus != ComputationStatus.DEFAULT) {
-                    metadata.setComputationStatus(state, computationStatus);
+                    metadataBuilder.addComputationStatus(state, computationStatus);
                 }
             }
         }
-        return metadata;
+        return metadataBuilder.build();
     }
 
     private static ObjectiveFunction buildGlobalObjectiveFunction(TemporalData<Crac> cracs, FlowResult globalInitialFlowResult, RaoParameters raoParameters) {

@@ -11,7 +11,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.powsybl.commons.json.JsonUtil;
-import com.powsybl.openrao.data.crac.api.Instant;
+import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.TimeCoupledRaoResult;
@@ -22,7 +22,6 @@ import com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonUtils;
 import java.io.IOException;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
 
 import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.COMPUTATION_STATUS;
 import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.serializeStatus;
@@ -40,11 +39,11 @@ public class JsonTimeCoupledRaoResultSerializer extends JsonSerializer<TimeCoupl
     private static final DateTimeFormatter FIELD_NAME_DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
     private final String individualRaoResultFilenameTemplate;
-    private final List<Instant> instants;
+    private final Crac crac;
 
-    public JsonTimeCoupledRaoResultSerializer(String individualRaoResultFilenameTemplate, List<Instant> instants) {
+    public JsonTimeCoupledRaoResultSerializer(String individualRaoResultFilenameTemplate, Crac crac) {
         this.individualRaoResultFilenameTemplate = individualRaoResultFilenameTemplate;
-        this.instants = instants;
+        this.crac = crac;
     }
 
     @Override
@@ -61,6 +60,9 @@ public class JsonTimeCoupledRaoResultSerializer extends JsonSerializer<TimeCoupl
         jsonGenerator.writeStringField(COMPUTATION_STATUS, serializeStatus(computationStatus));
 
         serializeRaoResultPerTimestamp(timeCoupledRaoResult, jsonGenerator, individualRaoResultFilenameTemplate);
+
+        // write extensions
+        serializerProvider.setAttribute("crac", crac);
         JsonUtil.writeExtensions(timeCoupledRaoResult, jsonGenerator, serializerProvider, RaoResultJsonUtils.getExtensionSerializers());
 
         jsonGenerator.writeEndObject();

@@ -37,7 +37,7 @@ public class JsonFlowResult implements RaoResultJsonUtils.ExtensionSerializer<Fl
     public void serialize(FlowResult flowResult, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         Crac crac = (Crac) serializerProvider.getAttribute("crac");
         if (crac == null) {
-            OpenRaoLoggerProvider.BUSINESS_WARNS.warn("FlowResult cannot be serialized because the serializerProvider does not contain a 'crac` attribute.");
+            OpenRaoLoggerProvider.BUSINESS_WARNS.warn("FlowResult cannot be serialized because the serializerProvider does not contain a 'crac' attribute.");
             return;
         }
         Set<Unit> flowUnits = (Set<Unit>) serializerProvider.getAttribute("flowUnits");
@@ -63,6 +63,9 @@ public class JsonFlowResult implements RaoResultJsonUtils.ExtensionSerializer<Fl
     @Override
     public FlowResult deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
         Crac crac = (Crac) deserializationContext.getAttribute("crac");
+        if (crac == null) {
+            throw new OpenRaoException("FlowResult cannot be deserialized because the deserializationContext does not contain a 'crac' attribute.");
+        }
         FlowResult.FlowResultBuilder flowResultBuilder = FlowResult.build();
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             FlowCnec flowCnec = null;
@@ -138,12 +141,6 @@ public class JsonFlowResult implements RaoResultJsonUtils.ExtensionSerializer<Fl
         double commercialFlow = flowResult.getCommercialFlow(instant, flowCnec, side, unit);
         if (!Double.isNaN(commercialFlow)) {
             jsonGenerator.writeNumberField("commercialFlow", commercialFlow);
-        }
-
-        // serialize loop flow -> TODO remove
-        double loopFlow = flowResult.getLoopFlow(instant, flowCnec, side, unit);
-        if (!Double.isNaN(loopFlow)) {
-            jsonGenerator.writeNumberField("loopFlow", loopFlow);
         }
 
         // serialize PTDF zonal sum -> TODO: kept here to mimic RAO Result, might have a better place
@@ -223,7 +220,6 @@ public class JsonFlowResult implements RaoResultJsonUtils.ExtensionSerializer<Fl
                     jsonParser.nextToken();
                     flowResultBuilder.addCommercialFlowMeasurement(jsonParser.getDoubleValue(), instant, flowCnec, side, unit);
                 }
-                case "loopFlow" -> jsonParser.nextToken();
                 case "zonalPtdfSum" -> {
                     if (unit != Unit.MEGAWATT) {
                         throw new OpenRaoException("Zonal PTDF sum only defined for measurements in MW.");
