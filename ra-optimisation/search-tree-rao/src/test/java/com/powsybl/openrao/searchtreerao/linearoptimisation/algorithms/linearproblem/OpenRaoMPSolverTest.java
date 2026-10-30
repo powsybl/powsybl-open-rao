@@ -307,6 +307,24 @@ class OpenRaoMPSolverTest {
     }
 
     @Test
+    void testGurobiInfinity() {
+        // can't instantiate a GUROBI solver because we need the link to the library and a licence
+        assertEquals(Double.POSITIVE_INFINITY, OpenRaoMPSolver.getSolverInfinity(SearchTreeRaoRangeActionsOptimizationParameters.Solver.GUROBI));
+    }
+
+    @Test
+    void testOrToolsProblemType() {
+        assertEquals(MPSolver.OptimizationProblemType.CBC_MIXED_INTEGER_PROGRAMMING,
+                OpenRaoMPSolver.getOrToolsProblemType(SearchTreeRaoRangeActionsOptimizationParameters.Solver.CBC));
+        assertEquals(MPSolver.OptimizationProblemType.SCIP_MIXED_INTEGER_PROGRAMMING,
+                OpenRaoMPSolver.getOrToolsProblemType(SearchTreeRaoRangeActionsOptimizationParameters.Solver.SCIP));
+        assertEquals(MPSolver.OptimizationProblemType.XPRESS_MIXED_INTEGER_PROGRAMMING,
+                OpenRaoMPSolver.getOrToolsProblemType(SearchTreeRaoRangeActionsOptimizationParameters.Solver.XPRESS));
+        assertEquals(MPSolver.OptimizationProblemType.GUROBI_MIXED_INTEGER_PROGRAMMING,
+                OpenRaoMPSolver.getOrToolsProblemType(SearchTreeRaoRangeActionsOptimizationParameters.Solver.GUROBI));
+    }
+
+    @Test
     void testRoundSmallValues() {
         assertEquals(1e-5, OpenRaoMPSolver.roundDouble(1e-5), 1e-12);
         assertEquals(1e-6, OpenRaoMPSolver.roundDouble(1e-6), 1e-12);
