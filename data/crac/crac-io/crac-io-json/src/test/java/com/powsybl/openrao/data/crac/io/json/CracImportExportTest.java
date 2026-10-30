@@ -645,8 +645,9 @@ class CracImportExportTest {
         assertEquals("operator4", crac.getFlowCnec("cnec4prevId").getOperator());
 
         // check iMax and nominal voltage
-        assertEquals(2000., crac.getFlowCnec("cnec2prevId").getIMax(TwoSides.ONE).get(), 1e-3);
-        assertEquals(2000., crac.getFlowCnec("cnec2prevId").getIMax(TwoSides.TWO).get(), 1e-3);
+        // iMax is never added to FlowCnec object from Crac JSON deserialization
+        assertTrue(crac.getFlowCnec("cnec2prevId").getIMax(TwoSides.ONE).isEmpty());
+        assertTrue(crac.getFlowCnec("cnec2prevId").getIMax(TwoSides.TWO).isEmpty());
         assertEquals(400., crac.getFlowCnec("cnec2prevId").getNominalVoltage(TwoSides.ONE), 1e-3);
         assertEquals(400., crac.getFlowCnec("cnec2prevId").getNominalVoltage(TwoSides.TWO), 1e-3);
         assertTrue(crac.getFlowCnec("cnec1prevId").getIMax(TwoSides.ONE).isEmpty());
@@ -661,7 +662,7 @@ class CracImportExportTest {
         assertEquals(TwoSides.ONE, threshold.getSide());
         assertTrue(threshold.min().isEmpty());
         assertEquals(500., threshold.max().orElse(0.0), 1e-3);
-        assertEquals(4, crac.getFlowCnec("cnec2prevId").getThresholds().size());
+        assertEquals(2, crac.getFlowCnec("cnec2prevId").getThresholds().size());
     }
 
     @Test
@@ -766,5 +767,62 @@ class CracImportExportTest {
             network
         );
         assertNotNull(crac.getPreventiveState());
+    }
+
+    @Test
+    void testPercentImaxThreshold() {
+        CracCreationContext cracCreationContext = new JsonImport().importData(
+            CracImportExportTest.class.getResourceAsStream("/crac_percent_imax_threshold.json"),
+            new CracCreationParameters(),
+            Network.read(
+                "3Nodes_FFR3AA1_disconnected.xiidm",
+                getClass().getResourceAsStream("/3Nodes_FFR3AA1_disconnected.xiidm")
+            )
+        );
+        assertEquals(1, cracCreationContext.getCreationReport().getReport().size());
+        assertEquals("[ERROR] PERCENT_IMAX thresholds are no longer supported in CRAC JSON format since CRAC version 2.13",
+            cracCreationContext.getCreationReport().getReport().get(0));
+    }
+
+    @Test
+    void testTwoThresholdOnSameSide() {
+        // Check that two min thresholds (one in megawatt, one in ampere) defined on same side is not allowed
+        CracCreationContext cracCreationContext = new JsonImport().importData(
+            CracImportExportTest.class.getResourceAsStream("/crac_two_min_side_one.json"),
+            new CracCreationParameters(),
+            Network.read(
+                "3Nodes_FFR3AA1_disconnected.xiidm",
+                getClass().getResourceAsStream("/3Nodes_FFR3AA1_disconnected.xiidm")
+            )
+        );
+        assertEquals(1, cracCreationContext.getCreationReport().getReport().size());
+        assertEquals("[ERROR] Min threshold can only be defined once for side ONE since CRAC v2.13",
+            cracCreationContext.getCreationReport().getReport().get(0));
+
+        // Check that two max thresholds (one in megawatt, one in ampere) defined on same side is not allowed
+        cracCreationContext = new JsonImport().importData(
+            CracImportExportTest.class.getResourceAsStream("/crac_two_max_side_two.json"),
+            new CracCreationParameters(),
+            Network.read(
+                "3Nodes_FFR3AA1_disconnected.xiidm",
+                getClass().getResourceAsStream("/3Nodes_FFR3AA1_disconnected.xiidm")
+            )
+        );
+        assertEquals(1, cracCreationContext.getCreationReport().getReport().size());
+        assertEquals("[ERROR] Max threshold can only be defined once for side TWO since CRAC v2.13",
+            cracCreationContext.getCreationReport().getReport().get(0));
+
+        // Check that two thresholds (one max in megawatt, one min in ampere) defined on same side is allowed
+        cracCreationContext = new JsonImport().importData(
+            CracImportExportTest.class.getResourceAsStream("/crac_min_max_same_side_diff_unit.json"),
+            new CracCreationParameters(),
+            Network.read(
+                "3Nodes_FFR3AA1_disconnected.xiidm",
+                getClass().getResourceAsStream("/3Nodes_FFR3AA1_disconnected.xiidm")
+            )
+        );
+
+        assertEquals(0, cracCreationContext.getCreationReport().getReport().size());
+
     }
 }

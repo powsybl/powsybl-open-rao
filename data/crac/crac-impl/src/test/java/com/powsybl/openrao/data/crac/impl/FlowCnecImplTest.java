@@ -705,4 +705,96 @@ class FlowCnecImplTest {
         network.getGenerator("BBE2AA1 _generator").getTerminal().disconnect();
         assertFalse(cnec3.isConnected(network));
     }
+
+    @Test
+    void testGetThresholds() {
+        FlowCnec cnec1 = crac.newFlowCnec()
+            .withId("cnec-id-1")
+            .withNetworkElement("BBE1AA1  BBE2AA1  1")
+            .withInstant(PREVENTIVE_INSTANT_ID)
+            .newThreshold().withUnit(MEGAWATT).withMax(500.).withSide(TwoSides.ONE).add()
+            .newThreshold().withUnit(MEGAWATT).withMax(200.).withSide(TwoSides.ONE).add()
+            .newThreshold().withUnit(MEGAWATT).withMin(-100.).withMax(200.).withSide(TwoSides.ONE).add()
+            .newThreshold().withUnit(MEGAWATT).withMax(200.).withSide(TwoSides.TWO).add()
+            .newThreshold().withUnit(AMPERE).withMin(-200.).withSide(TwoSides.TWO).add()
+            .withNominalVoltage(220.)
+            .add();
+        // no min in the BranchTheshold in MEGAWATT for side TWO because the min of the side TWO was declared in AMPERE.
+        assertEquals(
+            Set.of(new BranchThresholdImpl(ONE, MEGAWATT, -100., 200.0), new BranchThresholdImpl(TWO, MEGAWATT, null, 200.0), new BranchThresholdImpl(TWO, AMPERE, -200., null)),
+            cnec1.getThresholds());
+
+        assertEquals(-76.21, cnec1.getLowerBound(TWO, MEGAWATT).get(), 0.01); //the lowerbound in MEGAWATT is computed from the lower bound in AMPERE.
+
+        // the max of side ONE is declared in both MEGAWATT and AMPERE
+        FlowCnec cnec2 = crac.newFlowCnec()
+            .withId("cnec-id-2")
+            .withNetworkElement("BBE1AA1  BBE2AA1  1")
+            .withInstant(PREVENTIVE_INSTANT_ID)
+            .newThreshold().withUnit(MEGAWATT).withMax(500.).withSide(TwoSides.ONE).add()
+            .newThreshold().withUnit(AMPERE).withMax(100.).withSide(TwoSides.ONE).add()
+            .withNominalVoltage(220.)
+            .add();
+
+        // The upper bound on side ONE = min(500., 38.1) -> the threshold in AMPERE is one that is kept.
+        // The bound in MEGAWATT is converted from the one in AMPERE
+        assertEquals(
+            Set.of(new BranchThresholdImpl(ONE, AMPERE, null, 100.)),
+            cnec2.getThresholds());
+    }
+
+    @Test
+    void testGetThresholdsWithFRM() {
+        // The bounds take into account the FRM but not the thresholds
+        FlowCnec cnec = initPreventiveCnecAdder()
+            .newThreshold().withUnit(MEGAWATT).withMax(500.).withMin(-100.).withSide(TwoSides.ONE).add()
+            .newThreshold().withUnit(AMPERE).withMax(300.).withMin(-200.).withSide(TwoSides.TWO).add()
+            .withNominalVoltage(220.)
+            .withReliabilityMargin(100)
+            .add();
+
+        assertEquals(
+            Set.of(new BranchThresholdImpl(ONE, MEGAWATT, -100., 500.), new BranchThresholdImpl(TWO, AMPERE, -200., 300.)),
+            cnec.getThresholds());
+        assertEquals(400., cnec.getUpperBound(ONE, MEGAWATT).get());
+        assertEquals(300. - 100 / (220. * Math.sqrt(3) / 1000), cnec.getUpperBound(TWO, AMPERE).get());
+        assertEquals(0., cnec.getLowerBound(ONE, MEGAWATT).get());
+        assertEquals(-200 + 100 / (220. * Math.sqrt(3) / 1000), cnec.getLowerBound(TWO, AMPERE).get());
+    }
+
+    @Test
+    void testGetMonitoredSides() {
+        FlowCnec cnec = crac.newFlowCnec()
+            .withId("cnec-id")
+            .withNetworkElement("BBE1AA1  BBE2AA1  1")
+            .withInstant(PREVENTIVE_INSTANT_ID)
+            .newThreshold().withUnit(MEGAWATT).withMax(500.).withSide(TwoSides.ONE).add()
+            .newThreshold().withUnit(AMPERE).withMax(500.).withSide(TwoSides.ONE).add()
+            .withNominalVoltage(220.)
+            .add();
+
+        assertEquals(Set.of(ONE), cnec.getMonitoredSides());
+
+        FlowCnec cnec2 = crac.newFlowCnec()
+            .withId("cnec-id-2")
+            .withNetworkElement("BBE1AA1  BBE2AA1  1")
+            .withInstant(PREVENTIVE_INSTANT_ID)
+            .newThreshold().withUnit(MEGAWATT).withMax(500.).withSide(TwoSides.TWO).add()
+            .newThreshold().withUnit(AMPERE).withMax(500.).withSide(TwoSides.TWO).add()
+            .withNominalVoltage(220.)
+            .add();
+
+        assertEquals(Set.of(TWO), cnec2.getMonitoredSides());
+
+        FlowCnec cnec3 = crac.newFlowCnec()
+            .withId("cnec-id-3")
+            .withNetworkElement("BBE1AA1  BBE2AA1  1")
+            .withInstant(PREVENTIVE_INSTANT_ID)
+            .newThreshold().withUnit(MEGAWATT).withMax(500.).withSide(TwoSides.TWO).add()
+            .newThreshold().withUnit(AMPERE).withMin(500.).withSide(TwoSides.ONE).add()
+            .withNominalVoltage(220.)
+            .add();
+
+        assertEquals(Set.of(ONE, TWO), cnec3.getMonitoredSides());
+    }
 }
