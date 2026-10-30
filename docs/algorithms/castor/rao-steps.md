@@ -181,18 +181,87 @@ included in its previous instant's perimeter.
 
 ## Second preventive RAO
 
-Given the sequential nature of CASTOR's search-tree algorithm, some constraints on curative CNECs that cannot be solved
-by curative remedial actions are not seen by the preventive RAO.  
-After the curative RAO is complete, the user has the possibility
-to [run a second preventive RAO](../../parameters/implementation-specific-parameters.md#second-preventive-rao-parameters).  
-The differences with the first preventive RAO are that, in this run:
+### Overview and Motivation
 
-- **all CNECs** are optimized, whatever their state;
-- **automatic remedial actions** that were selected in the automaton perimeter are supposed activated, in order for
-  the preventive RAO to focus on constraints that cannot be solved by automatons;
-- **curative remedial actions** that were selected in the curative perimeter are supposed activated*, in order for
-  the preventive RAO to focus on constraints that cannot be solved by curative actions.
+Because CASTOR optimizes perimeters sequentially and greedily (First Preventive $\rightarrow$ Automatons $\rightarrow$ Curative perimeters):
+1. Preventive optimization only considers the preventive perimeter (PATL in N-state, TATL in post-contingency states), unless a curative CNEC has no available curative remedial actions at all (in which case its preventive limit is tightened, see [Extension of the preventive perimeter](#extension-of-the-preventive-perimeter-to-the-curative-situation)).
+2. Consequently, preventive decisions may degrade curative CNEC margins or create curative overloads that cannot be fully relieved by available curative remedial actions (e.g. because curative range actions reach their bounds or curative network actions are insufficient).
 
-_* Curative range actions (for all curative instants) are re-optimized during second preventive RAO.
+To address these situations, CASTOR can execute a **second preventive RAO** after the curative optimization phase has finished.
 
-![PATL vs TATL](../../_static/img/rao_steps.png){.forced-white-background}
+![Global RAO Sequence](../../_static/img/rao_steps.png){.forced-white-background}
+
+### Detailed Workflow of the Second Preventive Phase
+
+When triggered, the second preventive phase executes the following sequence:
+
+```text
+[1st Preventive RAO] ──► [1st Automaton Simulation] ──► [Curative RAO]
+                                                             │
+                                                             ▼
+                                                [Check Execution Condition]
+                                                (Cost increase / Unsecure /
+                                                 Time budget check)
+                                                             │
+                                   ┌─────────────────────────┴────────────────────────┐
+                                   │ Triggered                                        │ Skipped
+                                   ▼                                                  ▼
+                     [Pre-2P Sensitivity Analysis]                           [Keep 1st RAO results]
+                     (with ARAs and Network CRAs)
+                                   │
+                                   ▼
+                   [Second Preventive Optimization]
+                   - Global Perimeter (all CNECs)
+                   - PRAs optimized (topo + range)
+                   - Curative range actions re-optimized
+                   - Network CRAs fixed
+                                   │
+                                   ▼
+                     [2nd Automaton Simulation]
+                     (re-simulates ARAs on top of new PRAs)
+                                   │
+                                   ▼
+                 [Post-Curative Sensitivity Analysis]
+                 (reconstructs final curative state)
+                                   │
+                                   ▼
+                     [Arbitration & Fallback Check]
+                     - If 2P cost <= 1P cost: Keep 2P
+                     - If 2P failed or worse: Fallback to 1P
+                     - If final cost > initial: Fallback to initial
+```
+
+1. **Execution condition and time budget evaluation**:
+   CASTOR evaluates whether the second preventive RAO should run based on the configured [execution condition](../../parameters/implementation-specific-parameters.md#second-preventive-rao-parameters) (`DISABLED`, `COST_INCREASE`, or `POSSIBLE_CURATIVE_IMPROVEMENT`).
+   Additionally:
+   - **Time budget guardrail**: If `targetEndInstant` is configured and the remaining execution time is less than the time taken by the first preventive RAO (`estimatedPreventiveRaoTimeInSeconds`), the second preventive RAO is skipped to avoid timeout.
+   - **Preventive security check (`SECURE_FLOW`)**: If the first preventive RAO could not find a secure solution (functional cost $> 0$), the second preventive RAO is cancelled to save computation time unless `enforce-curative-security` is enabled.
+
+2. **Network reset and pre-2P sensitivity computation**:
+   - The network is reset to its initial basecase state (variant `SECOND_PREVENTIVE_SCENARIO_BEFORE_OPT`).
+   - Network actions found during the curative phase (network CRAs) as well as automatic actions (ARAs) are applied per contingency.
+   - A systematic sensitivity analysis is executed. If this sensitivity computation fails (divergence), the second preventive phase is aborted and falls back to the first preventive results.
+
+3. **Global perimeter optimization**:
+   The second preventive Search Tree runs on a **Global Optimization Perimeter** (`GlobalOptimizationPerimeter`):
+   - **All CNECs** across all states (preventive, automatic, and curative) are optimized simultaneously in the objective function.
+   - **Preventive remedial actions** (both network and range actions) are optimized.
+   - **Curative range actions** are co-optimized as variables in the linear programming problem.
+   - **Curative network actions** remain fixed to those selected during the first curative phase.
+   - **Hinting**: If `hint-from-first-preventive-rao` is set to `true`, the optimal combination of network actions from the first preventive RAO is evaluated as a predefined hint at search depth 1.
+
+4. **Second automaton simulation**:
+   Because preventive actions have been modified, power flows in post-contingency states change. CASTOR re-runs the automatic remedial actions simulation (both network and range automatons) on top of the newly chosen preventive actions.
+
+5. **Curative state reconstruction and post-CRA sensitivity analysis**:
+   Curative states are reconstructed by combining:
+   - Network CRAs from the curative phase.
+   - Curative range action setpoints resulting from the second preventive co-optimization.
+   - Updated automatic remedial actions from the second automaton simulation.
+   A final systematic sensitivity analysis verifies the physical viability across all contingencies.
+
+6. **Arbitration and fallback**:
+   CASTOR compares the total cost at the final instant between the first RAO run and the second preventive run:
+   - **Improved results**: If $Cost_{2P} \le Cost_{1P}$ (and sensitivity analyses converged), the 2nd preventive results are retained (`Second preventive improved first preventive results`).
+   - **Fallback to 1st preventive**: If the 2nd preventive run failed or resulted in a higher cost ($Cost_{2P} > Cost_{1P}$), CASTOR discards the second preventive results and restores the first preventive outcome (`Second preventive fell back to first preventive results`).
+   - **Fallback to initial state**: If post-checks indicate that the final cost remains higher than the initial unoptimized network cost (and cost increase handling is active), CASTOR reverts to the initial unoptimized state (`Second preventive fell back to initial situation`).
