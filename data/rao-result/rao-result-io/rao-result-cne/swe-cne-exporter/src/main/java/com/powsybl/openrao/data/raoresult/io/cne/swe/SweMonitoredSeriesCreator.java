@@ -121,17 +121,17 @@ public class SweMonitoredSeriesCreator {
             if (Double.isNaN(flowOnSide)) {
                 continue;
             }
-            double marginOnLowerBound = flowOnSide - cnec.getLowerBound(side, Unit.AMPERE).orElse(Double.NEGATIVE_INFINITY);
+            double marginOnLowerBound = flowOnSide - cnec.safeGetLowerBound(side, Unit.AMPERE).orElse(Double.NEGATIVE_INFINITY);
             if (marginOnLowerBound < margin) {
                 margin = marginOnLowerBound;
                 flow = flowOnSide;
-                threshold = cnec.getLowerBound(side, Unit.AMPERE).orElse(Double.NEGATIVE_INFINITY);
+                threshold = cnec.safeGetLowerBound(side, Unit.AMPERE).orElse(Double.NEGATIVE_INFINITY);
             }
-            double marginOnUpperBound = cnec.getUpperBound(side, Unit.AMPERE).orElse(Double.POSITIVE_INFINITY) - flowOnSide;
+            double marginOnUpperBound = cnec.safeGetUpperBound(side, Unit.AMPERE).orElse(Double.POSITIVE_INFINITY) - flowOnSide;
             if (marginOnUpperBound < margin) {
                 margin = marginOnUpperBound;
                 flow = flowOnSide;
-                threshold = cnec.getUpperBound(side, Unit.AMPERE).orElse(Double.POSITIVE_INFINITY);
+                threshold = cnec.safeGetUpperBound(side, Unit.AMPERE).orElse(Double.POSITIVE_INFINITY);
             }
         }
         return Pair.of(

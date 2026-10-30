@@ -16,6 +16,8 @@ import com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants;
 
 import java.io.IOException;
 
+import static com.powsybl.openrao.data.crac.io.json.deserializers.VoltageThresholdArrayDeserializer.checkForDuplicateThresholds;
+
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
@@ -24,9 +26,16 @@ public final class AngleThresholdArrayDeserializer {
     private AngleThresholdArrayDeserializer() {
     }
 
-    public static void deserialize(JsonParser jsonParser, AngleCnecAdder ownerAdder) throws IOException {
+    public static void deserialize(JsonParser jsonParser, AngleCnecAdder ownerAdder, String version) throws IOException {
+
+        boolean hasMin = false;
+        boolean hasMax = false;
+
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             AngleThresholdAdder angleThresholdAdder = ownerAdder.newThreshold();
+            boolean currentHasMin = false;
+            boolean currentHasMax = false;
+
             while (!jsonParser.nextToken().isStructEnd()) {
                 switch (jsonParser.currentName()) {
                     case JsonSerializationConstants.UNIT:
@@ -35,15 +44,25 @@ public final class AngleThresholdArrayDeserializer {
                     case JsonSerializationConstants.MIN:
                         jsonParser.nextToken();
                         angleThresholdAdder.withMin(jsonParser.getDoubleValue());
+                        currentHasMin = true;
                         break;
                     case JsonSerializationConstants.MAX:
                         jsonParser.nextToken();
                         angleThresholdAdder.withMax(jsonParser.getDoubleValue());
+                        currentHasMax = true;
                         break;
                     default:
                         throw new OpenRaoException("Unexpected field in Threshold: " + jsonParser.currentName());
                 }
             }
+
+            if (JsonSerializationConstants.getPrimaryVersionNumber(version) > 2
+                || JsonSerializationConstants.getSubVersionNumber(version) > 12) {
+                checkForDuplicateThresholds(hasMin, hasMax, currentHasMin, currentHasMax);
+                hasMin = hasMin || currentHasMin;
+                hasMax = hasMax || currentHasMax;
+            }
+
             angleThresholdAdder.add();
         }
     }

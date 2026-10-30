@@ -155,14 +155,14 @@ class RaoUtilTest {
         Mockito.when(cnecB.isOptimized()).thenReturn(true);
         Mockito.when(cnecC.isOptimized()).thenReturn(true);
         Mockito.when(cnecD.isOptimized()).thenReturn(false);
-        Mockito.when(cnecA.getUpperBound(TwoSides.ONE, Unit.MEGAWATT)).thenReturn(Optional.of(1000.));
-        Mockito.when(cnecA.getLowerBound(TwoSides.ONE, Unit.MEGAWATT)).thenReturn(Optional.empty());
-        Mockito.when(cnecB.getUpperBound(TwoSides.ONE, Unit.MEGAWATT)).thenReturn(Optional.empty());
-        Mockito.when(cnecB.getLowerBound(TwoSides.ONE, Unit.MEGAWATT)).thenReturn(Optional.of(-1500.));
-        Mockito.when(cnecC.getUpperBound(TwoSides.ONE, Unit.MEGAWATT)).thenReturn(Optional.empty());
-        Mockito.when(cnecC.getLowerBound(TwoSides.ONE, Unit.MEGAWATT)).thenReturn(Optional.empty());
-        Mockito.when(cnecD.getUpperBound(TwoSides.ONE, Unit.MEGAWATT)).thenReturn(Optional.of(-16000.));
-        Mockito.when(cnecD.getLowerBound(TwoSides.ONE, Unit.MEGAWATT)).thenReturn(Optional.of(-16000.));
+        Mockito.when(cnecA.safeGetUpperBound(TwoSides.ONE, Unit.MEGAWATT)).thenReturn(Optional.of(1000.));
+        Mockito.when(cnecA.safeGetLowerBound(TwoSides.ONE, Unit.MEGAWATT)).thenReturn(Optional.empty());
+        Mockito.when(cnecB.safeGetUpperBound(TwoSides.ONE, Unit.MEGAWATT)).thenReturn(Optional.empty());
+        Mockito.when(cnecB.safeGetLowerBound(TwoSides.ONE, Unit.MEGAWATT)).thenReturn(Optional.of(-1500.));
+        Mockito.when(cnecC.safeGetUpperBound(TwoSides.ONE, Unit.MEGAWATT)).thenReturn(Optional.empty());
+        Mockito.when(cnecC.safeGetLowerBound(TwoSides.ONE, Unit.MEGAWATT)).thenReturn(Optional.empty());
+        Mockito.when(cnecD.safeGetUpperBound(TwoSides.ONE, Unit.MEGAWATT)).thenReturn(Optional.of(-16000.));
+        Mockito.when(cnecD.safeGetLowerBound(TwoSides.ONE, Unit.MEGAWATT)).thenReturn(Optional.of(-16000.));
         Set.of(cnecA, cnecB, cnecC, cnecD).forEach(cnec -> when(cnec.getMonitoredSides()).thenReturn(Set.of(TwoSides.ONE)));
 
         assertEquals(1000., RaoUtil.getLargestCnecThreshold(Set.of(cnecA), Unit.MEGAWATT), DOUBLE_TOLERANCE);
@@ -434,7 +434,7 @@ class RaoUtilTest {
             .withInstant("prev")
             .withNominalVoltage(200.)
             .newThreshold().withUnit(Unit.MEGAWATT).withMax(1000.).withSide(TwoSides.ONE).add()
-            .newThreshold().withUnit(Unit.AMPERE).withMin(-1000.).withSide(TwoSides.ONE).add()
+            .newThreshold().withUnit(Unit.AMPERE).withMin(1000.).withSide(TwoSides.ONE).add()
             .add();
         cracWIthTresholdInMwWithAc.newFlowCnec()
             .withId("cnecOneAmpThreshold")

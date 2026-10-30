@@ -182,26 +182,18 @@ class CseCracCreatorWithMneTest {
         if (!directionInvertedInNetwork && "DIRECT".equals(direction)
             || directionInvertedInNetwork && "OPPOSITE".equals(direction)) {
             // should have max
-            return flowCnec.getThresholds().stream().anyMatch(threshold -> threshold.getSide().equals(side)
-                    && threshold.max().isPresent() && threshold.max().get().equals(expectedThreshold)
-                    && threshold.getUnit().equals(expectedThresholdUnit)
-            );
+            return flowCnec.getUpperBound(side, expectedThresholdUnit).get() == expectedThreshold;
+
         }
         if (directionInvertedInNetwork && "DIRECT".equals(direction)
             || !directionInvertedInNetwork && "OPPOSITE".equals(direction)) {
             // should have min
-            return flowCnec.getThresholds().stream().anyMatch(threshold -> threshold.getSide().equals(side)
-                    && threshold.min().isPresent() && threshold.min().get().equals(-expectedThreshold)
-                    && threshold.getUnit().equals(expectedThresholdUnit)
-            );
+            return flowCnec.getLowerBound(side, expectedThresholdUnit).get() == -expectedThreshold;
         }
         // should have min and max
-        return flowCnec.getThresholds().stream().anyMatch(threshold ->
-                threshold.getSide().equals(side)
-                        && threshold.max().isPresent() && threshold.max().get().equals(expectedThreshold)
-                        && threshold.min().isPresent() && threshold.min().get().equals(-expectedThreshold)
-                        && threshold.getUnit().equals(expectedThresholdUnit)
-        );
+        return flowCnec.getLowerBound(side, expectedThresholdUnit).get() == -expectedThreshold &&
+            flowCnec.getUpperBound(side, expectedThresholdUnit).get() == expectedThreshold;
+
     }
 
     public void assertAllMneCorrectlyImportedInCrac() {

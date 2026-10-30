@@ -129,8 +129,8 @@ public class MaxMinRelativeMarginFiller extends MaxMinMarginFiller {
         double relMarginCoef = Double.isNaN(flowResult.getPtdfZonalSum(cnec, side)) ?
             ptdfSumLowerBound : Math.max(flowResult.getPtdfZonalSum(cnec, side), ptdfSumLowerBound);
 
-        Optional<Double> minFlow = cnec.getLowerBound(side, unit);
-        Optional<Double> maxFlow = cnec.getUpperBound(side, unit);
+        Optional<Double> minFlow = cnec.safeGetLowerBound(side, unit);
+        Optional<Double> maxFlow = cnec.safeGetUpperBound(side, unit);
 
         if (minFlow.isPresent()) {
             OpenRaoMPConstraint minimumMarginNegative;

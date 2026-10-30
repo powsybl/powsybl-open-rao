@@ -40,7 +40,6 @@ import com.powsybl.openrao.data.crac.api.range.StandardRange;
 import com.powsybl.openrao.data.crac.api.range.TapRange;
 import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
-import com.powsybl.openrao.data.crac.api.threshold.BranchThreshold;
 import com.powsybl.openrao.data.crac.api.usagerule.OnConstraint;
 import com.powsybl.openrao.data.crac.api.usagerule.OnContingencyState;
 import com.powsybl.openrao.data.crac.api.usagerule.OnFlowConstraintInCountry;
@@ -50,6 +49,8 @@ import com.powsybl.openrao.data.crac.impl.utils.ExhaustiveCracCreation;
 import com.powsybl.openrao.data.crac.impl.utils.NetworkImportsUtil;
 import com.powsybl.openrao.data.crac.io.json.deserializers.CracDeserializer;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.Mockito;
 import org.slf4j.LoggerFactory;
 
@@ -655,14 +656,28 @@ class CracImportExportTest {
         assertEquals(400., crac.getFlowCnec("cnec1prevId").getNominalVoltage(TwoSides.ONE), 1e-3);
         assertEquals(400., crac.getFlowCnec("cnec1prevId").getNominalVoltage(TwoSides.TWO), 1e-3);
 
-        // check threshold
-        assertEquals(1, crac.getFlowCnec("cnec4prevId").getThresholds().size());
-        BranchThreshold threshold = crac.getFlowCnec("cnec4prevId").getThresholds().iterator().next();
-        assertEquals(Unit.MEGAWATT, threshold.getUnit());
-        assertEquals(TwoSides.ONE, threshold.getSide());
-        assertTrue(threshold.min().isEmpty());
-        assertEquals(500., threshold.max().orElse(0.0), 1e-3);
-        assertEquals(2, crac.getFlowCnec("cnec2prevId").getThresholds().size());
+        // check bound
+        FlowCnec flowCnec1 = crac.getFlowCnec("cnec4prevId");
+        assertTrue(flowCnec1.getLowerBound(TwoSides.ONE, Unit.MEGAWATT).isEmpty());
+        assertTrue(flowCnec1.getLowerBound(TwoSides.TWO, Unit.MEGAWATT).isEmpty());
+        assertEquals(500., flowCnec1.getUpperBound(TwoSides.ONE, Unit.MEGAWATT).get());
+        assertTrue(flowCnec1.getUpperBound(TwoSides.TWO, Unit.MEGAWATT).isEmpty());
+
+        assertTrue(flowCnec1.getUpperBound(TwoSides.TWO, Unit.AMPERE).isEmpty());
+        assertTrue(flowCnec1.getUpperBound(TwoSides.ONE, Unit.AMPERE).isEmpty());
+        assertTrue(flowCnec1.getLowerBound(TwoSides.ONE, Unit.AMPERE).isEmpty());
+        assertTrue(flowCnec1.getLowerBound(TwoSides.TWO, Unit.AMPERE).isEmpty());
+
+        FlowCnec flowCnec2 = crac.getFlowCnec("cnec2prevId");
+        assertTrue(flowCnec2.getLowerBound(TwoSides.ONE, Unit.MEGAWATT).isEmpty());
+        assertTrue(flowCnec2.getLowerBound(TwoSides.TWO, Unit.MEGAWATT).isEmpty());
+        assertTrue(flowCnec2.getUpperBound(TwoSides.ONE, Unit.MEGAWATT).isEmpty());
+        assertTrue(flowCnec2.getUpperBound(TwoSides.TWO, Unit.MEGAWATT).isEmpty());
+
+        assertTrue(flowCnec2.getUpperBound(TwoSides.ONE, Unit.AMPERE).isEmpty());
+        assertEquals(1200., flowCnec2.getUpperBound(TwoSides.TWO, Unit.AMPERE).get());
+        assertEquals(-600., flowCnec2.getLowerBound(TwoSides.ONE, Unit.AMPERE).get());
+        assertEquals(-800., flowCnec2.getLowerBound(TwoSides.TWO, Unit.AMPERE).get());
     }
 
     @Test
@@ -823,6 +838,30 @@ class CracImportExportTest {
         );
 
         assertEquals(0, cracCreationContext.getCreationReport().getReport().size());
-
     }
+
+    @ParameterizedTest
+    @CsvSource({
+        "crac_angle_two_max.json, Max",
+        "crac_voltage_two_max.json, Max",
+        "crac_angle_two_min.json, Min",
+        "crac_voltage_two_min.json, Min"
+    })
+    void testSameLimitTwiceCnec(String cracFile, String bound) {
+        CracCreationContext cracCreationContext = new JsonImport().importData(
+            CracImportExportTest.class.getResourceAsStream("/" + cracFile),
+            new CracCreationParameters(),
+            Network.read(
+                "3Nodes_FFR3AA1_disconnected.xiidm",
+                getClass().getResourceAsStream("/3Nodes_FFR3AA1_disconnected.xiidm")
+            )
+        );
+
+        assertEquals(1, cracCreationContext.getCreationReport().getReport().size());
+        assertEquals(
+            "[ERROR] " + bound + " threshold can only be defined once since CRAC v2.13",
+            cracCreationContext.getCreationReport().getReport().get(0)
+        );
+    }
+
 }

@@ -8,10 +8,12 @@
 package com.powsybl.openrao.data.crac.io.fbconstraint;
 
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.CracCreationContext;
 import com.powsybl.openrao.data.crac.api.CracFactory;
+import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.parameters.CracCreationParameters;
 import com.powsybl.openrao.data.crac.io.fbconstraint.parameters.FbConstraintCracCreationParameters;
 import com.powsybl.openrao.data.crac.io.fbconstraint.xsd.CriticalBranchType;
@@ -19,9 +21,10 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.time.OffsetDateTime;
+import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static com.powsybl.openrao.commons.UnitConverter.getFlowUnitMultiplier;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -78,23 +81,31 @@ class CriticalBranchReaderTest {
         Crac crac = creationContext.getCrac();
 
         // No ImaxFactor value, PermanentImaxA = 0 => use ImaxA = 10
-        assertTrue(crac.getFlowCnec("BE_CBCO_000001 - preventive").getThresholds().stream().allMatch(branchThreshold -> branchThreshold.max().get() == 10.0));
-        assertTrue(crac.getFlowCnec("BE_CBCO_000001 - preventive").getThresholds().stream().allMatch(branchThreshold -> branchThreshold.getUnit() == Unit.AMPERE));
+        checkBoundOnBothSide(crac.getFlowCnec("BE_CBCO_000001 - preventive"), Double.NaN, 10.0, Unit.AMPERE);
 
         // permanentImaxFactor is 0, have no value for ImaxFactor, no value for PermanentImaxA => should use imaxA value = 20
         // Same temporaryImaxFactor is 0, have no value for ImaxFactor, no value for TemporaryImaxA => should use imaxA value = 20
-        assertTrue(crac.getFlowCnec("BE_CBCO_000003 - curative").getThresholds().stream().allMatch(branchThreshold -> branchThreshold.max().get() == 20.0));
-        assertTrue(crac.getFlowCnec("BE_CBCO_000003 - curative").getThresholds().stream().allMatch(branchThreshold -> branchThreshold.getUnit() == Unit.AMPERE));
-        assertTrue(crac.getFlowCnec("BE_CBCO_000003 - outage").getThresholds().stream().allMatch(branchThreshold -> branchThreshold.max().get() == 20.0));
-        assertTrue(crac.getFlowCnec("BE_CBCO_000003 - outage").getThresholds().stream().allMatch(branchThreshold -> branchThreshold.getUnit() == Unit.AMPERE));
+        checkBoundOnBothSide(crac.getFlowCnec("BE_CBCO_000003 - curative"), Double.NaN, 20.0, Unit.AMPERE);
+        checkBoundOnBothSide(crac.getFlowCnec("BE_CBCO_000003 - outage"), Double.NaN, 20.0, Unit.AMPERE);
 
         // permanentImaxFactor is 0, but we have a value for imaxFactor = -40 (negative because of direction==opposite)
-        assertTrue(crac.getFlowCnec("BE_CBCO_000004 - curative").getThresholds().stream().allMatch(branchThreshold -> branchThreshold.min().get() == -40 * 5000));
-        assertTrue(crac.getFlowCnec("BE_CBCO_000004 - curative").getThresholds().stream().allMatch(branchThreshold -> branchThreshold.getUnit() == Unit.AMPERE));
+        checkBoundOnBothSide(crac.getFlowCnec("BE_CBCO_000004 - curative"), -40 * 5000, Double.NaN, Unit.AMPERE);
 
         // No thresholds info, the threshold should be set to -1 IMAX_percent (negative because of direction==opposite)
-        assertTrue(crac.getFlowCnec("BE_CBCO_000002 - preventive").getThresholds().stream().allMatch(branchThreshold -> branchThreshold.min().get() == -1 * 5000));
-        assertTrue(crac.getFlowCnec("BE_CBCO_000002 - preventive").getThresholds().stream().allMatch(branchThreshold -> branchThreshold.getUnit() == Unit.AMPERE));
+        checkBoundOnBothSide(crac.getFlowCnec("BE_CBCO_000002 - preventive"), -1 * 5000, Double.NaN, Unit.AMPERE);
+    }
+
+    void checkBoundOnBothSide(FlowCnec cnec, double min, double max, Unit unit) {
+
+        for (TwoSides side : Set.of(TwoSides.ONE, TwoSides.TWO)) {
+            double reliabilityMargin = cnec.getReliabilityMargin() * getFlowUnitMultiplier(cnec.getNominalVoltage(side), Unit.MEGAWATT, unit);
+            if (!Double.isNaN(min)) {
+                assertEquals(min, cnec.getLowerBound(side, unit).get() - reliabilityMargin);
+            }
+            if (!Double.isNaN(max)) {
+                assertEquals(max, cnec.getUpperBound(side, unit).get() + reliabilityMargin);
+            }
+        }
 
     }
 }

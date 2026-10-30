@@ -85,7 +85,7 @@ class VirtualCostReportsTest {
         when(cnec.getNetworkElementId()).thenReturn("ne-id");
         when(cnec.getId()).thenReturn("cnec-id");
         when(cnec.getName()).thenReturn("cnec-name");
-        when(cnec.getUpperBound(TwoSides.ONE, Unit.MEGAWATT)).thenReturn(Optional.of(1000.));
+        when(cnec.safeGetUpperBound(TwoSides.ONE, Unit.MEGAWATT)).thenReturn(Optional.of(1000.));
     }
 
     private void setRootLeaf() {

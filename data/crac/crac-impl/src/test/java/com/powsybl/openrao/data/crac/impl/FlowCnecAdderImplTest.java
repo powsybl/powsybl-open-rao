@@ -201,15 +201,15 @@ class FlowCnecAdderImplTest {
             .withIMax(2000.)
             .add();
 
-        assertEquals(100., cnec.getUpperBound(ONE, Unit.AMPERE).get());
-        assertEquals(-100., cnec.getLowerBound(ONE, Unit.AMPERE).get());
-        assertFalse(cnec.getUpperBound(TWO, Unit.AMPERE).isPresent());
-        assertFalse(cnec.getLowerBound(TWO, Unit.AMPERE).isPresent());
+        assertEquals(100., cnec.safeGetUpperBound(ONE, Unit.AMPERE).get());
+        assertEquals(-100., cnec.safeGetLowerBound(ONE, Unit.AMPERE).get());
+        assertFalse(cnec.safeGetUpperBound(TWO, Unit.AMPERE).isPresent());
+        assertFalse(cnec.safeGetLowerBound(TWO, Unit.AMPERE).isPresent());
 
-        assertEquals(100. * 380. * Math.sqrt(3) / 1000, cnec.getUpperBound(ONE, Unit.MEGAWATT).get());
-        assertEquals(-100. * 380. * Math.sqrt(3) / 1000, cnec.getLowerBound(ONE, Unit.MEGAWATT).get());
-        assertFalse(cnec.getUpperBound(TWO, Unit.MEGAWATT).isPresent());
-        assertFalse(cnec.getLowerBound(TWO, Unit.MEGAWATT).isPresent());
+        assertEquals(100. * 380. * Math.sqrt(3) / 1000, cnec.safeGetUpperBound(ONE, Unit.MEGAWATT).get());
+        assertEquals(-100. * 380. * Math.sqrt(3) / 1000, cnec.safeGetLowerBound(ONE, Unit.MEGAWATT).get());
+        assertFalse(cnec.safeGetUpperBound(TWO, Unit.MEGAWATT).isPresent());
+        assertFalse(cnec.safeGetLowerBound(TWO, Unit.MEGAWATT).isPresent());
 
         assertEquals(Set.of(ONE), cnec.getMonitoredSides());
 
@@ -231,15 +231,15 @@ class FlowCnecAdderImplTest {
             .withIMax(2000.)
             .add();
 
-        assertEquals(100.0, cnec.getUpperBound(TWO, Unit.MEGAWATT).get());
-        assertEquals(-100., cnec.getLowerBound(TWO, Unit.MEGAWATT).get());
-        assertFalse(cnec.getUpperBound(ONE, Unit.MEGAWATT).isPresent());
-        assertFalse(cnec.getLowerBound(ONE, Unit.MEGAWATT).isPresent());
+        assertEquals(100.0, cnec.safeGetUpperBound(TWO, Unit.MEGAWATT).get());
+        assertEquals(-100., cnec.safeGetLowerBound(TWO, Unit.MEGAWATT).get());
+        assertFalse(cnec.safeGetUpperBound(ONE, Unit.MEGAWATT).isPresent());
+        assertFalse(cnec.safeGetLowerBound(ONE, Unit.MEGAWATT).isPresent());
 
-        assertEquals(100.0 * 1000 / (220. * Math.sqrt(3)), cnec.getUpperBound(TWO, Unit.AMPERE).get());
-        assertEquals(-100.0 * 1000 / (220. * Math.sqrt(3)), cnec.getLowerBound(TWO, Unit.AMPERE).get());
-        assertFalse(cnec.getUpperBound(ONE, Unit.AMPERE).isPresent());
-        assertFalse(cnec.getLowerBound(ONE, Unit.AMPERE).isPresent());
+        assertEquals(100.0 * 1000 / (220. * Math.sqrt(3)), cnec.safeGetUpperBound(TWO, Unit.AMPERE).get());
+        assertEquals(-100.0 * 1000 / (220. * Math.sqrt(3)), cnec.safeGetLowerBound(TWO, Unit.AMPERE).get());
+        assertFalse(cnec.safeGetUpperBound(ONE, Unit.AMPERE).isPresent());
+        assertFalse(cnec.safeGetLowerBound(ONE, Unit.AMPERE).isPresent());
 
         assertEquals(Set.of(TWO), cnec.getMonitoredSides());
     }

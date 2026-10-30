@@ -37,7 +37,6 @@ import com.powsybl.openrao.data.crac.api.rangeaction.HvdcRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
-import com.powsybl.openrao.data.crac.api.threshold.BranchThreshold;
 import com.powsybl.openrao.data.crac.api.usagerule.OnConstraint;
 import com.powsybl.openrao.data.crac.api.usagerule.OnContingencyState;
 import com.powsybl.openrao.data.crac.api.usagerule.OnFlowConstraintInCountry;
@@ -288,30 +287,12 @@ public class CracImportSteps {
             TwoSides side = TwoSides.valueOf(expectedThreshold.get("Side"));
             Optional<Double> min = Optional.ofNullable(expectedThreshold.get("Min").equals("None") ? null : Double.parseDouble(expectedThreshold.get("Min")));
             Optional<Double> max = Optional.ofNullable(expectedThreshold.get("Max").equals("None") ? null : Double.parseDouble(expectedThreshold.get("Max")));
-            assertTrue(flowCnec.getThresholds().stream().anyMatch(threshold -> matchThreshold(threshold, expectedUnit, side, min, max)));
-        }
-    }
-
-    private boolean matchThreshold(BranchThreshold threshold, Unit unit, TwoSides side, Optional<Double> min, Optional<Double> max) {
-        if (!unit.equals(threshold.getUnit())) {
-            return false;
-        }
-        if (!side.equals(threshold.getSide())) {
-            return false;
-        }
-        if (min.isPresent()) {
-            if (threshold.min().isEmpty() || Math.abs(min.get() - threshold.min().get()) > DOUBLE_TOLERANCE) {
-                return false;
+            if (min.isPresent()) {
+                assertEquals(min.get(), flowCnec.getLowerBound(side, expectedUnit).get());
             }
-        } else {
-            if (threshold.min().isPresent()) {
-                return false;
+            if (max.isPresent()) {
+                assertEquals(max.get(), flowCnec.getUpperBound(side, expectedUnit).get());
             }
-        }
-        if (max.isPresent()) {
-            return threshold.max().isPresent() && Math.abs(max.get() - threshold.max().get()) < DOUBLE_TOLERANCE;
-        } else {
-            return threshold.max().isEmpty();
         }
     }
 
@@ -397,9 +378,9 @@ public class CracImportSteps {
                     throw new OpenRaoException("Contingency should be defined");
                 }
             }
-            assertEquals(1, voltageCnec.getThresholds().size());
-            assertEquals(Optional.ofNullable(min), voltageCnec.getThresholds().iterator().next().min());
-            assertEquals(Optional.ofNullable(max), voltageCnec.getThresholds().iterator().next().max());
+
+            assertEquals(min, voltageCnec.getLowerBound(Unit.KILOVOLT).orElse(null));
+            assertEquals(max, voltageCnec.getUpperBound(Unit.KILOVOLT).orElse(null));
         }
     }
 

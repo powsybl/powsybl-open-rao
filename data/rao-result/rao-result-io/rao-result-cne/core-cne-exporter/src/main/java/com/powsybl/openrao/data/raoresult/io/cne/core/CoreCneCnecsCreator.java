@@ -323,11 +323,11 @@ public final class CoreCneCnecsCreator {
         double flowUnitMultiplier = getFlowUnitMultiplier(cnec.getNominalVoltage(side), Unit.MEGAWATT, unit);
         double frm = deductFrmFromThreshold ? 0 : cnec.getReliabilityMargin() * flowUnitMultiplier;
         // Only look at fixed thresholds
-        double maxThreshold = cnec.getUpperBound(side, unit).orElse(Double.MAX_VALUE) + frm;
+        double maxThreshold = cnec.safeGetUpperBound(side, unit).orElse(Double.MAX_VALUE) + frm;
         maxThreshold = Double.isNaN(maxThreshold) ? Double.POSITIVE_INFINITY : maxThreshold;
         thresholdToMarginMap.putIfAbsent(maxThreshold, maxThreshold - flow * flowUnitMultiplier);
 
-        double minThreshold = cnec.getLowerBound(side, unit).orElse(-Double.MAX_VALUE) - frm;
+        double minThreshold = cnec.safeGetLowerBound(side, unit).orElse(-Double.MAX_VALUE) - frm;
         minThreshold = Double.isNaN(minThreshold) ? Double.POSITIVE_INFINITY : minThreshold;
         thresholdToMarginMap.putIfAbsent(minThreshold, flow * flowUnitMultiplier - minThreshold);
     }
