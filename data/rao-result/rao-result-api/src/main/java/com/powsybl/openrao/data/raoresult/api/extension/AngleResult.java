@@ -28,7 +28,8 @@ public final class AngleResult extends AbstractExtension<RaoResult> {
     private final Map<AngleCnec, AngleCnecResult> results;
 
     private AngleResult(Map<AngleCnec, AngleCnecResult> results) {
-        this.results = new HashMap<>(results);
+        this.results = new HashMap<>();
+        results.forEach((angleCnec, angleCnecResult) ->  this.results.put(angleCnec, new AngleCnecResult(angleCnecResult)));
     }
 
     @Override
