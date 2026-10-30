@@ -24,17 +24,16 @@ import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.cnec.VoltageCnec;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
-import com.powsybl.openrao.data.raoresult.api.TimeCoupledRaoResult;
 import com.powsybl.openrao.data.raoresult.api.extension.AngleResult;
 import com.powsybl.openrao.data.raoresult.api.extension.FlowResult;
 import com.powsybl.openrao.data.raoresult.api.extension.Metadata;
 import com.powsybl.openrao.data.raoresult.api.extension.VoltageResult;
+import com.powsybl.openrao.data.raoresult.impl.RaoResultImpl;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
+import com.powsybl.openrao.searchtreerao.castor.algorithm.CastorFlowResultExtensionHelper;
 import com.powsybl.openrao.searchtreerao.castor.algorithm.PostPerimeterSensitivityAnalysis;
 import com.powsybl.openrao.searchtreerao.castor.algorithm.PrePerimeterSensitivityAnalysis;
-import com.powsybl.openrao.searchtreerao.castor.algorithm.StateTree;
-import com.powsybl.openrao.searchtreerao.commons.CastorFlowResultExtensionHelper;
 import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
 import com.powsybl.openrao.searchtreerao.commons.ToolProvider;
 import com.powsybl.openrao.searchtreerao.networkpool.AbstractNetworkPool;
@@ -43,7 +42,6 @@ import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
 import com.powsybl.openrao.searchtreerao.result.impl.NetworkActionsResultImpl;
 import com.powsybl.openrao.searchtreerao.result.impl.OptimizationResultImpl;
 import com.powsybl.openrao.searchtreerao.result.impl.PostPerimeterResult;
-import com.powsybl.openrao.searchtreerao.result.impl.PreventiveAndCurativesRaoResultImpl;
 import com.powsybl.openrao.searchtreerao.result.impl.RangeActionActivationResultImpl;
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 
@@ -98,10 +96,10 @@ public final class RaoResultHelper {
      * @param u             The types of CNECs to check (FLOW -> FlowCNECs, ANGLE -> AngleCNECs, VOLTAGE -> VoltageCNECs). 1 to 3 arguments can be provided.
      * @return whether all the CNECs of the given type(s) are secure at the last instant (i.e. after RAO).
      */
-    public static boolean isSecure(TimeCoupledRaoResult raoResult, TemporalData<Crac> cracs, RaoParameters raoParameters, PhysicalParameter... u) {
+    public static boolean isSecure(RaoResult raoResult, TemporalData<Crac> cracs, RaoParameters raoParameters, PhysicalParameter... u) {
 
         for (OffsetDateTime timestamp : cracs.getTimestamps()) {
-            if (!isSecure(raoResult.getIndividualRaoResult(timestamp), cracs.getData(timestamp).orElseThrow(), raoParameters, u)) {
+            if (!isSecure(raoResult, cracs.getData(timestamp).orElseThrow(), raoParameters, u)) {
                 return false;
             }
         }
@@ -307,16 +305,8 @@ public final class RaoResultHelper {
                 Thread.currentThread().interrupt();
             }
 
-            final StateTree stateTree = new StateTree(crac, reportNode);
-            final PreventiveAndCurativesRaoResultImpl mergedRaoResult = new PreventiveAndCurativesRaoResultImpl(
-                stateTree,
-                initialFlowResult,
-                preventivePostPerimeterResult,
-                postMergingContingencyResults,
-                crac,
-                raoParameters,
-                reportNode
-            );
+            final RaoResultImpl mergedRaoResult = new RaoResultImpl(crac);
+            RaoUtil.fillWithActivatedRemedialActions(mergedRaoResult, preventivePostPerimeterResult.optimizationResult(), crac.getPreventiveState(), postMergingContingencyResults);
 
             // add extensions
             mergedRaoResult.addExtension(FlowResult.class, CastorFlowResultExtensionHelper.convertToExtension(

@@ -26,13 +26,20 @@ public final class CastorMetadataHelper {
                                                   PrePerimeterResult prePerimeterResult,
                                                   String executionDetails) {
         Metadata.MetadataBuilder metadataBuilder = Metadata.build();
+        fillFromPrePerimeter(metadataBuilder, crac, prePerimeterResult, executionDetails);
+        raoResult.addExtension(Metadata.class, metadataBuilder.build());
+    }
+
+    public static void fillFromPrePerimeter(Metadata.MetadataBuilder metadataBuilder,
+                                            Crac crac,
+                                            PrePerimeterResult prePerimeterResult,
+                                            String executionDetails) {
         metadataBuilder.addExecutionDetails(executionDetails);
         for (State state : crac.getStates()) {
             if (prePerimeterResult.getComputationStatus(state) != ComputationStatus.DEFAULT) {
                 metadataBuilder.addComputationStatus(state, prePerimeterResult.getComputationStatus(state));
             }
         }
-        raoResult.addExtension(Metadata.class, metadataBuilder.build());
     }
 
     public static void fillAndAddWithGlobalFailure(Crac crac, RaoResult raoResult, String failureReason) {
