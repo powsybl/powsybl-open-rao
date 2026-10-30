@@ -29,7 +29,8 @@ public final class AngleResult extends AbstractExtension<RaoResult> {
 
     private AngleResult(Map<AngleCnec, AngleCnecResult> results) {
         this.results = new HashMap<>();
-        results.forEach((angleCnec, angleCnecResult) ->  this.results.put(angleCnec, new AngleCnecResult(angleCnecResult)));
+        results.forEach((angleCnec, angleCnecResult) ->
+            this.results.put(angleCnec, new AngleCnecResult(angleCnecResult)));
     }
 
     @Override
@@ -87,6 +88,16 @@ public final class AngleResult extends AbstractExtension<RaoResult> {
             this.initialMargin = null;
             this.anglePerInstant = new HashMap<>();
             this.marginPerInstant = new HashMap<>();
+        }
+
+        AngleCnecResult(AngleCnecResult angleCnecResult) {
+            this.angleCnec = angleCnecResult.angleCnec;
+            this.initialAngle = angleCnecResult.initialAngle;
+            this.initialMargin = angleCnecResult.initialMargin;
+            this.anglePerInstant = new HashMap<>();
+            this.anglePerInstant.putAll(angleCnecResult.anglePerInstant);
+            this.marginPerInstant = new HashMap<>();
+            this.marginPerInstant.putAll(angleCnecResult.marginPerInstant);
         }
 
         public Optional<Double> getAngle(Instant instant) {

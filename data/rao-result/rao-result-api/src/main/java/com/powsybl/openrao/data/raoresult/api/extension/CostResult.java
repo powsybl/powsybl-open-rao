@@ -30,7 +30,9 @@ public class CostResult extends AbstractExtension<RaoResult> {
         this.initialCostResult = new ElementaryCostResult();
         this.initialCostResult.functionalCost = initialCostResult.functionalCost;
         this.initialCostResult.virtualCosts.putAll(initialCostResult.virtualCosts);
-        this.costResultPerInstant = new HashMap<>(costResultPerInstant);
+        this.costResultPerInstant = new HashMap<>();
+        costResultPerInstant.forEach((instant, elementaryCostResult) ->
+            this.costResultPerInstant.put(instant, new ElementaryCostResult(elementaryCostResult)));
     }
 
     public CostResult(CostResult costResultToCopy) {
@@ -131,6 +133,12 @@ public class CostResult extends AbstractExtension<RaoResult> {
         private ElementaryCostResult() {
             this.functionalCost = DEFAULT_COST;
             this.virtualCosts = new HashMap<>();
+        }
+
+        ElementaryCostResult(ElementaryCostResult elementaryCostResult) {
+            this.functionalCost = elementaryCostResult.functionalCost;
+            this.virtualCosts = new HashMap<>();
+            this.virtualCosts.putAll(elementaryCostResult.virtualCosts);
         }
 
         private void setFunctionalCost(double functionalCost) {
