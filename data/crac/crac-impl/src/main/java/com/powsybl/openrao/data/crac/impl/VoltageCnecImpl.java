@@ -15,6 +15,7 @@ import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.VoltageCnec;
 import com.powsybl.openrao.data.crac.api.threshold.Threshold;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -180,7 +181,7 @@ public class VoltageCnecImpl extends AbstractCnec<VoltageCnec> implements Voltag
     @Override
     public int hashCode() {
         int hashCode = super.hashCode();
-        hashCode = 31 * hashCode + boundValues.hashCode();
+        hashCode = 31 * hashCode + Arrays.hashCode(boundValues);
         return hashCode;
     }
 

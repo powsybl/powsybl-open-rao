@@ -55,15 +55,8 @@ public class AngleCnecMonitoringResult extends AbstractCnecMonitoringResult<Angl
         if (margin >= 0) {
             return Cnec.SecurityStatus.SECURE;
         }
-        boolean highAngleConstraints = false;
-        if (cnec.getUpperBound(Unit.DEGREE).isPresent()) {
-            highAngleConstraints = angle > cnec.getUpperBound(Unit.DEGREE).get();
-        }
-        boolean lowAngleConstraints = false;
-        if (cnec.getLowerBound(Unit.DEGREE).isPresent()) {
-            lowAngleConstraints = angle < cnec.getLowerBound(Unit.DEGREE).get();
-        }
-
+        boolean highAngleConstraints = angle > cnec.getUpperBound(Unit.DEGREE).orElse(Double.POSITIVE_INFINITY);
+        boolean lowAngleConstraints = angle < cnec.getLowerBound(Unit.DEGREE).orElse(Double.NEGATIVE_INFINITY);
         return getSecurityStatus(highAngleConstraints, lowAngleConstraints);
     }
 

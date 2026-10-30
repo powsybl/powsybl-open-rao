@@ -16,6 +16,7 @@ import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.AngleCnec;
 import com.powsybl.openrao.data.crac.api.threshold.Threshold;
 
+import java.util.Arrays;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -169,7 +170,7 @@ public class AngleCnecImpl extends AbstractCnec<AngleCnec> implements AngleCnec 
     @Override
     public int hashCode() {
         int hashCode = super.hashCode();
-        hashCode = 31 * hashCode + boundValues.hashCode();
+        hashCode = 31 * hashCode + Arrays.hashCode(boundValues);
         hashCode = 31 * hashCode + getExportingNetworkElementId().hashCode();
         hashCode = 31 * hashCode + getImportingNetworkElementId().hashCode();
         return hashCode;
