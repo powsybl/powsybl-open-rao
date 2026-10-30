@@ -34,16 +34,17 @@ The OpenRAO importer only supports NC version `2.4` (see
 ```
 
 Each NC profile is identified by a `dcat:keyword` that states which category of features it bears. To be valid for
-OpenRAO, a profile must have exactly one keyword defined in its header. Besides, OpenRAO currently handles 5 different NC
+OpenRAO, a profile must have exactly one keyword defined in its header. Besides, OpenRAO currently handles 6 different NC
 profiles, the keyword and purpose of which are gathered in the following table:
 
-| Keyword | Full Name                | Purpose                                |
-|---------|--------------------------|----------------------------------------|
-| AE      | Assessed Element         | Definition of CNECs.                   |
-| CO      | Contingency              | Definition of contingencies.           |
-| ER      | Equipment Reliability    | Definition of AngleCNECs' thresholds.  |
-| RA      | Remedial Action          | Definition of remedial actions.        |
-| SSI     | Steady State Instruction | Overriding data for specific instants. |
+| Keyword | Full Name                  | Purpose                                    |
+|---------|----------------------------|--------------------------------------------|
+| AE      | Assessed Element           | Definition of CNECs.                       |
+| CO      | Contingency                | Definition of contingencies.               |
+| ER      | Equipment Reliability      | Definition of AngleCNECs' thresholds.      |
+| RA      | Remedial Action            | Definition of remedial actions.            |
+| SIS     | State Instruction Schedule | Overriding data with daily time schedules. |
+| SSI     | Steady State Instruction   | Overriding data for specific instants.     |
 
 Besides, each NC profile has a period of validity delimited by the `dcat:startDate` and `dcat:endDate` fields (both
 required) in the header. If the time at which the import occurs is outside this time interval, the profile is ignored.
@@ -811,6 +812,177 @@ of sections.
 
 :::
 ::::
+
+### Counter-trade Range Action
+
+A [counter-trade range action](json.md#counter-trade-range-action) is described by a `CountertradeRemedialAction` 
+object. Unlike other remedial actions, it does **not** use a `GridStateAlterationRemedialAction` object as parent, 
+nor does it use `GridStateAlteration` or `StaticPropertyRange` objects. Instead, all the information is contained 
+directly within the `CountertradeRemedialAction` object itself, which inherits from `RemedialAction`.
+
+```xml
+<!-- RA Profile -->
+<rdf:RDF>
+    <md:FullModel rdf:about="urn:uuid:e6b94ef6-e043-4d29-a258-1718d6d2f507">
+        <dcterms:creator>http://energy.referencedata.eu/EIC/10XFR-RTE------Q</dcterms:creator>
+        ...
+    </md:FullModel>
+    ...
+    <nc:CountertradeRemedialAction rdf:ID="_remedial-action">
+        <cim:IdentifiedObject.mRID>remedial-action</cim:IdentifiedObject.mRID>
+        <cim:IdentifiedObject.name>Counter-trade action</cim:IdentifiedObject.name>
+        <cim:IdentifiedObject.description>Example of counter-trade action</cim:IdentifiedObject.description>
+        <nc:RemedialAction.normalAvailable>true</nc:RemedialAction.normalAvailable>
+        <nc:RemedialAction.isManual>true</nc:RemedialAction.isManual>
+        <nc:RemedialAction.kind rdf:resource="http://entsoe.eu/ns/nc#RemedialActionKind.preventive"/>
+        <nc:RemedialAction.timeToImplement>PT10S</nc:RemedialAction.timeToImplement>
+        <nc:RemedialAction.isCrossBorderRelevant>true</nc:RemedialAction.isCrossBorderRelevant>
+        <nc:RemedialAction.RemedialActionSystemOperator 
+                rdf:resource="http://energy.referencedata.eu/EIC/10XFR-RTE------Q"/>
+        <nc:PowerRemedialAction.BiddingZone 
+                rdf:resource="http://energy.referencedata.eu/EIC/10YFR-RTE------C"/>
+        <nc:CountertradeRemedialAction.maxEconomicP>4000</nc:CountertradeRemedialAction.maxEconomicP>
+        <nc:CountertradeRemedialAction.minEconomicP>1500</nc:CountertradeRemedialAction.minEconomicP>
+        <nc:CountertradeRemedialAction.shiftMethod 
+                rdf:resource="http://entsoe.eu/ns/nc#ShiftMethodKind.shared"/>
+        <nc:CountertradeRemedialAction.gLSKStrategy 
+                rdf:resource="http://entsoe.eu/ns/nc#GLSKStrategyKind.proportionalForGenerator"/>
+    </nc:CountertradeRemedialAction>
+    ...
+</rdf:RDF>
+```
+
+The counter-trade remedial action is imported only if the `normalAvailable` field is set to `true`.
+
+> The remedial action can still be imported if `normalAvailable` is set to `false` if the remedial action is also
+> defined in the SSI profile with its field `available` set to `true`.
+
+The availability can also be overridden by the SIS profile, through a `GenericAvailableSchedule` pointing to the
+remedial action and its `AvailabilityTimePoint`s:
+
+```xml
+<rdf:RDF ...>
+    ...
+    <nc:GenericAvailableSchedule rdf:ID="_schedule-1">
+        <cim:IdentifiedObject.mRID>schedule-1</cim:IdentifiedObject.mRID>
+        <nc:BaseTimeSeries.interpolationKind 
+                rdf:resource="http://entsoe.eu/ns/nc#TimeSeriesInterpolationKind.next"/>
+        <nc:GenericAvailableSchedule.RemedialAction rdf:resource="#_counter-trade-remedial-action"/>
+    </nc:GenericAvailableSchedule>
+    <nc:AvailabilityTimePoint rdf:ID="_time-point-1">
+        <nc:AvailabilityTimePoint.GenericAvailableSchedule rdf:resource="#_schedule-1"/>
+        <nc:AvailabilityTimePoint.atTime>2025-01-01T06:00:00Z</nc:AvailabilityTimePoint.atTime>
+        <nc:AvailabilityTimePoint.available>false</nc:AvailabilityTimePoint.available>
+    </nc:AvailabilityTimePoint>
+    ...
+</rdf:RDF>
+```
+
+Only the `next` interpolation kind is supported: the availability is the one of the first `AvailabilityTimePoint` whose
+`atTime` is at or after the import timestamp. If this time point has no `available` field, the availability is not
+overridden. A `GenericAvailableSchedule` whose `interpolationKind` is not `next` is ignored with a warning. If several
+`GenericAvailableSchedule`s with the `next` interpolation kind point to the remedial action, only the one with the
+smallest identifier is read, with a warning. The SIS profile is also ignored for the remedial action, with a warning, if
+its `GenericAvailableSchedule` has no `AvailabilityTimePoint` at or after the import timestamp.
+
+> The availability is overridden in the following order: the SIS profile overrides the `normalAvailable` field of the
+> RA profile, and the SSI profile overrides both.
+
+As for other remedial actions, the `mRID` is used as the remedial action's identifier and the instant of the remedial 
+action is determined by the `kind` which can be either `preventive` or `curative`.
+
+The operator of the counter-trade range action is the TSO identified by the `dcterms:creator` field of the RA profile 
+header. The remedial action is not imported if the creator is missing, does not contain a valid EIC code or is not a 
+supported TSO.
+
+The `RemedialActionSystemOperator` field is optional. If it is provided, it is only checked against the creator: if 
+both EIC codes are different, a warning is logged and the remedial action is still imported with the creator as 
+operator.
+
+> If the remedial action has its `kind` field set to `curative`, the remedial action will be imported for all curative instants at once.
+
+If the remedial action is of kind `curative` and its `isManual` attribute is present and set to `false`, the importer 
+will interpret this remedial action as an automaton. Thus, its [usage rules](#usage-rules) will all be defined for the 
+auto instant.
+
+> Preventive automatons are not supported by OpenRAO so preventive remedial actions with `isManual` set to false will be ignored.
+
+Finally, the `timeToImplement` is converted to a number of seconds and used as the remedial action's speed.
+
+#### Specific fields
+
+The `CountertradeRemedialAction` object has specific fields that define the range and behavior of the counter-trade action:
+
+- **`maxEconomicP`**: The maximum economic net position (in MW) of the bidding zone. It is used to compute the upper 
+  bound of the counter-trade range action (see [range](#range)).
+- **`minEconomicP`**: The minimum economic net position (in MW) of the bidding zone. It is used to compute the lower 
+  bound of the counter-trade range action (see [range](#range)).
+- **`BiddingZone`**: The bidding zone of the counter-trade action. It defines the area of the counter-trade range 
+  action (see [area and connected areas](#area-and-connected-areas)) and the net position its range is relative to 
+  (see [range](#range)).
+- **`shiftMethod`**: (Optional) The method used for shifting power. Can be values like `shared`.
+- **`gLSKStrategy`**: (Optional) The GLSK (Generation and Load Shift Keys) strategy to be applied. Can be values like 
+  `proportionalForGenerator`.
+
+#### Range
+
+The range of the counter-trade range action is relative to the initial net position of the bidding zone's area: its 
+initial setpoint is 0, and a setpoint of X means that the net position of the area is shifted by X MW.
+
+The initial net position is computed from the network (which must carry a load flow result). It has no default value: 
+if no net position can be computed for the area, the remedial action is not imported.
+
+Each bound of the range combines two limits:
+
+- the **economic limit**, computed from the `minEconomicP` and `maxEconomicP` fields of the `CountertradeRemedialAction`;
+- the **physical limit**, given by the `maxRegulatingDown` and `maxRegulatingUp` fields of the SSI profile, which are the 
+  maximum variations (in MW) that the remedial action can physically regulate down and up. These values are read on the 
+  `CountertradeRemedialAction` if it provides any of them, or else on the `RemedialActionGroup` linked to it through an 
+  enabled `RemedialActionDependency`. If both define these values with different values, the remedial action is not 
+  imported.
+
+The bounds are:
+
+- **lower bound** = max(`minEconomicP` - initial net position, -`maxRegulatingDown`)
+- **upper bound** = min(`maxEconomicP` - initial net position, `maxRegulatingUp`)
+
+If only one of the two limits is provided for a bound, it is used alone.
+
+Moreover, the counter-trade cannot change the sign of the net position:
+
+- if the initial net position is positive, initial net position + lower bound cannot be negative;
+- if the initial net position is negative, initial net position + upper bound cannot be positive.
+
+If neither the economic limit nor the physical limit is provided for the lower (resp. upper) bound, the 
+`counter-trading-min-range` (resp. `counter-trading-max-range`) creation parameter is used as is (the sign constraint 
+above is not applied to it). If this parameter is not set either, the remedial action is not imported.
+
+If the resulting lower bound is greater than the upper bound, the remedial action is not imported.
+
+> For instance, with an initial net position of 500 MW, `minEconomicP` = -1000, `maxEconomicP` = 1000, 
+> `maxRegulatingDown` = 3000 and `maxRegulatingUp` = 2000:
+> - lower bound = max(-1000 - 500, -3000) = -1500, limited to -500 so that the net position does not become negative;
+> - upper bound = min(1000 - 500, 2000) = 500.
+>
+> The range of the counter-trade range action is [-500, 500].
+
+#### Area and connected areas
+
+The [counter-trade range action](json.md#counter-trade-range-action) is an exchange between its area and one or more 
+connected areas sharing a border with it.
+
+The area is the country of the `BiddingZone`, whose EIC code is converted to a country code (for instance, 
+`10YFR-RTE------C` gives `FR`). The remedial action is not imported if the `BiddingZone` is missing, does not contain a 
+valid EIC code or does not correspond to a country.
+
+The connected areas are all the areas sharing a border with the area in the network. No border range is defined on 
+them, so the power exchanged with each connected area is not constrained.
+
+> For instance, if France shares borders with Belgium, Germany and Spain in the network, a counter-trade remedial action 
+> with the `BiddingZone` `10YFR-RTE------C` has `FR` as area and `BE`, `DE` and `ES` as connected areas.
+
+> ⚠️ Currently, the area of a counter-trade remedial action must be a country: bidding zones that do not correspond to 
+> a single country (e.g. DE-LU, or the Italian and Nordic bidding zones) are not supported.
 
 ### Usage Rules
 
