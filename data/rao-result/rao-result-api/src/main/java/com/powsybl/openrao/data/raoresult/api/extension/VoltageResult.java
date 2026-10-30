@@ -27,7 +27,9 @@ public final class VoltageResult extends AbstractExtension<RaoResult> {
     private final Map<VoltageCnec, VoltageCnecResult> results;
 
     private VoltageResult(Map<VoltageCnec, VoltageCnecResult> results) {
-        this.results = new HashMap<>(results);
+        this.results = new HashMap<>();
+        results.forEach((voltageCnec, voltageCnecResult) ->
+            this.results.put(voltageCnec, new VoltageCnecResult(voltageCnecResult)));
     }
 
     @Override
@@ -103,6 +105,19 @@ public final class VoltageResult extends AbstractExtension<RaoResult> {
             this.minVoltagePerInstant = new HashMap<>();
             this.maxVoltagePerInstant = new HashMap<>();
             this.marginPerInstant = new HashMap<>();
+        }
+
+        VoltageCnecResult(VoltageCnecResult voltageCnecResult) {
+            this.voltageCnec = voltageCnecResult.voltageCnec;
+            this.initialMinVoltage = voltageCnecResult.initialMinVoltage;
+            this.initialMaxVoltage = voltageCnecResult.initialMaxVoltage;
+            this.initialMargin = voltageCnecResult.initialMargin;
+            this.minVoltagePerInstant = new HashMap<>();
+            this.minVoltagePerInstant.putAll(voltageCnecResult.minVoltagePerInstant);
+            this.maxVoltagePerInstant = new HashMap<>();
+            this.maxVoltagePerInstant.putAll(voltageCnecResult.maxVoltagePerInstant);
+            this.marginPerInstant = new HashMap<>();
+            this.marginPerInstant.putAll(voltageCnecResult.marginPerInstant);
         }
 
         public Optional<Double> getMinVoltage(Instant instant) {
