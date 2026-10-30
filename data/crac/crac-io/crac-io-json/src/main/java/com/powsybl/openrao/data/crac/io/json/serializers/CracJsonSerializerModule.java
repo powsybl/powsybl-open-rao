@@ -31,8 +31,6 @@ import com.powsybl.openrao.data.crac.api.rangeaction.CounterTradeRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.HvdcRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
-import com.powsybl.openrao.data.crac.api.threshold.BranchThreshold;
-import com.powsybl.openrao.data.crac.api.threshold.Threshold;
 import com.powsybl.openrao.data.crac.api.usagerule.OnConstraint;
 import com.powsybl.openrao.data.crac.api.usagerule.OnContingencyState;
 import com.powsybl.openrao.data.crac.api.usagerule.OnFlowConstraintInCountry;
@@ -50,8 +48,6 @@ public class CracJsonSerializerModule extends SimpleModule {
         this.addSerializer(FlowCnec.class, new FlowCnecSerializer<>());
         this.addSerializer(AngleCnec.class, new AngleCnecSerializer<>());
         this.addSerializer(VoltageCnec.class, new VoltageCnecSerializer<>());
-        this.addSerializer(BranchThreshold.class, new BranchThresholdSerializer());
-        this.addSerializer(Threshold.class, new ThresholdSerializer());
         this.addSerializer(PstRangeAction.class, new PstRangeActionSerializer());
         this.addSerializer(HvdcRangeAction.class, new HvdcRangeActionSerializer());
         this.addSerializer(InjectionRangeAction.class, new InjectionRangeActionSerializer());
