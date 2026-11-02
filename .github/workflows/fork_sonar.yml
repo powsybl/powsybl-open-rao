@@ -71,7 +71,7 @@ jobs:
           echo "PR information extracted: $REPO_NAME $HEAD_REF $HEAD_SHA $PR_NUMBER $BASE_REF"
 
       - name: Checkout sources
-        uses: actions/checkout@v4
+        uses: actions/checkout@v1
         with:
           ref: ${{ env.HEAD_REF }}
           repository: ${{ env.REPO_NAME }}
