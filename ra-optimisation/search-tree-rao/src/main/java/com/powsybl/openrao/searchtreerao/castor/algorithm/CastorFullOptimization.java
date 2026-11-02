@@ -21,6 +21,7 @@ import com.powsybl.openrao.raoapi.json.JsonRaoParameters;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters;
+import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
 import com.powsybl.openrao.searchtreerao.commons.ToolProvider;
 import com.powsybl.openrao.searchtreerao.commons.objectivefunction.ObjectiveFunction;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.PreventiveOptimizationPerimeter;
@@ -258,7 +259,7 @@ public class CastorFullOptimization {
         context.setInitialOutput(prePerimeterSensitivityAnalysis.runInitialSensitivityAnalysis(network, optimizationReportNode));
         network.getVariantManager().cloneVariant(network.getVariantManager().getWorkingVariantId(), INITIAL_SCENARIO);
 
-        context.setWorkingInitialOutput(context.initialOutput);
+        context.setWorkingInitialOutput(context.getInitialOutput());
         if (context.useWorkingVars()) {
             network.getVariantManager().setWorkingVariant(WORKING_SCENARIO);
             PrePerimeterSensitivityAnalysis workingprePerimeterSensitivityAnalysis = new PrePerimeterSensitivityAnalysis(
