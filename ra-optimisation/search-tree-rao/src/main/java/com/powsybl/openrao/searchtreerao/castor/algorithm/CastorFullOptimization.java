@@ -600,16 +600,25 @@ public class CastorFullOptimization {
             SearchTreeParameters acSearchTreeParameters = CastorSearchTreeHelper.buildSearchTreeParameters(baseToolProvider.getRaoParameters(),
                 TreeParameters.buildForPreventivePerimeter(baseToolProvider.getRaoParameters()), crac, network,
                 stateTree.getOperatorsNotSharingCras(), reportNode);
-            finalResult = CastorSearchTreeHelper.reoptimizeNetworkActionCombination(network, optPerimeterBase, baseObjectiveFunction, initialResult, initialResult,
-                new AppliedRemedialActions(), baseToolProvider, crac.getOutageInstant(), acSearchTreeParameters, optResult, true, reportNode);
 
-            if (finalResult.getSensitivityStatus() == ComputationStatus.FAILURE) {
-                // the DC-decided combination does not even converge once recomputed in AC (e.g. it creates an
-                // electrical island that is solvable in DC but not in AC): ignore the DC decision and search for a
-                // combination directly in AC, which naturally discards candidates that fail to converge
-                CastorReports.reportPreventiveDcDecisionFailedAcVerification(reportNode, optResult.getActivatedNetworkActions().size());
-                finalResult = CastorSearchTreeHelper.searchNetworkActionCombination(network, optPerimeterBase, baseObjectiveFunction, initialResult, initialResult,
-                    new AppliedRemedialActions(), baseToolProvider, crac.getOutageInstant(), acSearchTreeParameters, true, reportNode);
+            if (optResult.getActivatedNetworkActions().isEmpty() && optResult.getActivatedRangeActions(optPerimeterBase.getMainOptimizationState()).isEmpty()) {
+                // DC decided nothing needs to change: the AC cost of "no remedial action" is already known for free
+                // from the initial sensitivity analysis, no need to spend an extra AC sensitivity analysis call just
+                // to re-verify doing nothing
+                finalResult = new OptimizationResultImpl(initialResult, initialResult, initialResult,
+                    new NetworkActionsResultImpl(Map.of()), new RangeActionActivationResultImpl(initialResult));
+            } else {
+                finalResult = CastorSearchTreeHelper.reoptimizeNetworkActionCombination(network, optPerimeterBase, baseObjectiveFunction, initialResult, initialResult,
+                    new AppliedRemedialActions(), baseToolProvider, crac.getOutageInstant(), acSearchTreeParameters, optResult, true, reportNode);
+
+                if (finalResult.getSensitivityStatus() == ComputationStatus.FAILURE) {
+                    // the DC-decided combination does not even converge once recomputed in AC (e.g. it creates an
+                    // electrical island that is solvable in DC but not in AC): ignore the DC decision and search for a
+                    // combination directly in AC, which naturally discards candidates that fail to converge
+                    CastorReports.reportPreventiveDcDecisionFailedAcVerification(reportNode, optResult.getActivatedNetworkActions().size());
+                    finalResult = CastorSearchTreeHelper.searchNetworkActionCombination(network, optPerimeterBase, baseObjectiveFunction, initialResult, initialResult,
+                        new AppliedRemedialActions(), baseToolProvider, crac.getOutageInstant(), acSearchTreeParameters, true, reportNode);
+                }
             }
         }
         applyRemedialActions(network, finalResult, crac.getPreventiveState());
