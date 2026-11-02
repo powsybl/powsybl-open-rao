@@ -35,6 +35,7 @@ import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
 import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
 import com.powsybl.openrao.searchtreerao.result.impl.CurativeWithSecondPraoResult;
 import com.powsybl.openrao.searchtreerao.result.impl.NetworkActionsResultImpl;
+import com.powsybl.openrao.searchtreerao.result.impl.OptimizationResultImpl;
 import com.powsybl.openrao.searchtreerao.result.impl.PostPerimeterResult;
 import com.powsybl.openrao.searchtreerao.result.impl.PrePerimeterSensitivityResultImpl;
 import com.powsybl.openrao.searchtreerao.result.impl.RangeActionActivationResultImpl;
@@ -458,8 +459,19 @@ public class CastorSecondPreventive {
                     new HashSet<>(),
                     raoParameters,
                     acStatesToOptimize);
-            result = CastorSearchTreeHelper.reoptimizeNetworkActionCombination(network, acOptPerimeter, baseObjectiveFunction, initialOutput, prePerimeterResult,
-                appliedCras, toolProvider, crac.getOutageInstant(), searchTreeParameters, decidedResult, true, secondPreventiveReportNode);
+            if (decidedResult.getActivatedNetworkActions().isEmpty() && decidedResult.getActivatedRangeActions(acOptPerimeter.getMainOptimizationState()).isEmpty()) {
+                // DC decided nothing needs to change: the AC cost of "no remedial action" is already known for free
+                // from the pre-perimeter sensitivity, no need to spend an extra AC sensitivity analysis call just to
+                // re-verify doing nothing
+                RangeActionActivationResultImpl noRaRangeActionsResult = new RangeActionActivationResultImpl(prePerimeterResult);
+                RemedialActionActivationResultImpl noRaActivationResult = new RemedialActionActivationResultImpl(noRaRangeActionsResult, new NetworkActionsResultImpl(Map.of()));
+                result = new OptimizationResultImpl(
+                    baseObjectiveFunction.evaluate(prePerimeterResult, noRaActivationResult, secondPreventiveReportNode),
+                    prePerimeterResult, prePerimeterResult, new NetworkActionsResultImpl(Map.of()), noRaRangeActionsResult);
+            } else {
+                result = CastorSearchTreeHelper.reoptimizeNetworkActionCombination(network, acOptPerimeter, baseObjectiveFunction, initialOutput, prePerimeterResult,
+                    appliedCras, toolProvider, crac.getOutageInstant(), searchTreeParameters, decidedResult, true, secondPreventiveReportNode);
+            }
         }
 
         // apply PRAs
