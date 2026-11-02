@@ -12,6 +12,7 @@ output-data.md
 algorithms.md
 parameters.md
 applications.md
+faq.md
 ```
 
 ![PowSyBl Logo]( _static/logos/logo_lfe_powsybl.svg)
