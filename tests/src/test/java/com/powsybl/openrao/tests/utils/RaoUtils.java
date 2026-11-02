@@ -23,14 +23,17 @@ import com.powsybl.openrao.data.refprog.referenceprogram.ReferenceProgram;
 import com.powsybl.openrao.raoapi.Rao;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
+import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
 import com.powsybl.openrao.tests.steps.CommonTestData;
 import com.powsybl.sensitivity.SensitivityVariableSet;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.Optional;
 import java.util.Properties;
+import java.util.Set;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
@@ -115,12 +118,24 @@ public final class RaoUtils {
         // export RaoResult
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         Properties properties = new Properties();
-        properties.setProperty("rao-result.export.json.flows-in-amperes", "true");
-        properties.setProperty("rao-result.export.json.flows-in-megawatts", "true");
+        getUnitsForExport(CommonTestData.getRaoParameters()).forEach(unit -> addUnitExportProperty(properties, unit));
         raoResult.write("JSON", crac, properties, outputStream);
 
         // import RaoResult
         ByteArrayInputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
         return RaoResult.read(inputStream, crac);
+    }
+
+    private static Set<Unit> getUnitsForExport(RaoParameters raoParameters) {
+        Set<Unit> units = new HashSet<>(Set.of(RaoUtil.getFlowUnit(CommonTestData.getRaoParameters())));
+        // if relative margins, need to export in MW because of zonal PTDF sums only exported in MW
+        if (raoParameters.getObjectiveFunctionParameters().getType().relativePositiveMargins()) {
+            units.add(Unit.MEGAWATT);
+        }
+        return units;
+    }
+
+    private static void addUnitExportProperty(Properties properties, Unit unit) {
+        properties.setProperty("rao-result.export.json.flows-in-" + unit.name().toLowerCase() + "s", "true");
     }
 }

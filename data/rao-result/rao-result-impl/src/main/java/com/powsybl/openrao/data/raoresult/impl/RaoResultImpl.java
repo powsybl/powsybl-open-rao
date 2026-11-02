@@ -9,7 +9,10 @@ package com.powsybl.openrao.data.raoresult.impl;
 
 import com.powsybl.commons.extensions.AbstractExtendable;
 import com.powsybl.iidm.network.TwoSides;
+import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
+import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.State;
@@ -24,7 +27,9 @@ import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.OptimizationStepsExecuted;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 
+import java.util.EnumMap;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -54,6 +59,7 @@ public class RaoResultImpl extends AbstractExtendable<RaoResult> implements RaoR
     private final Map<NetworkAction, NetworkActionResult> networkActionResults = new HashMap<>();
     private final Map<RangeAction<?>, RangeActionResult> rangeActionResults = new HashMap<>();
     private final Map<String, CostResult> costResults = new HashMap<>();
+    private final EnumMap<PhysicalParameter, Boolean> securityStatusPerPhysicalParameter = new EnumMap<>(PhysicalParameter.class);
 
     private String executionDetails = OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY;
 
@@ -206,6 +212,10 @@ public class RaoResultImpl extends AbstractExtendable<RaoResult> implements RaoR
         return networkActionResults.get(networkAction);
     }
 
+    public void setSecurityStatus(PhysicalParameter physicalParameter, boolean status) {
+        securityStatusPerPhysicalParameter.put(physicalParameter, status);
+    }
+
     @Override
     public boolean wasActivatedBeforeState(State state, NetworkAction networkAction) {
         if (state.isPreventive() || state.getContingency().isEmpty()) {
@@ -340,5 +350,20 @@ public class RaoResultImpl extends AbstractExtendable<RaoResult> implements RaoR
     @Override
     public String getExecutionDetails() {
         return executionDetails;
+    }
+
+    @Override
+    public boolean isSecure(PhysicalParameter... physicalParameters) {
+        List<PhysicalParameter> parameters = List.of(physicalParameters);
+        if (parameters.isEmpty()) {
+            throw new OpenRaoException("At least one physical parameter must be provided.");
+        }
+        if (computationStatus == ComputationStatus.FAILURE) {
+            OpenRaoLoggerProvider.BUSINESS_WARNS.warn("RAO failed, security status is unknown. Returning false by default.");
+            return false;
+        }
+        return parameters.stream().allMatch(
+            physicalParameter -> securityStatusPerPhysicalParameter.getOrDefault(physicalParameter, true)
+        );
     }
 }
