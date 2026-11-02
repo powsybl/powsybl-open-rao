@@ -58,6 +58,18 @@ class FlowCnecImplTest {
     }
 
     @Test
+    void testGetNetworkElementIds() {
+        FlowCnec cnec = crac.newFlowCnec()
+            .withId("cnec-id")
+            .withNetworkElement("BBE1AA1  BBE2AA1  1")
+            .withInstant(PREVENTIVE_INSTANT_ID)
+            .newThreshold().withUnit(MEGAWATT).withMax(1000.).withSide(TwoSides.ONE).add()
+            .add();
+        assertEquals("BBE1AA1  BBE2AA1  1", cnec.getNetworkElementId());
+        assertEquals(Set.of("BBE1AA1  BBE2AA1  1"), cnec.getNetworkElementsIds());
+    }
+
+    @Test
     void testGetLocation1() {
         Network network = NetworkImportsUtil.import12NodesNetwork();
 

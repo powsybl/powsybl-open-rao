@@ -29,22 +29,22 @@ public class HvdcRangeActionSensiHandler implements RangeActionSensiHandler {
 
     @Override
     public double getSensitivityOnFlow(FlowCnec cnec, TwoSides side, SystematicSensitivityResult sensitivityResult) {
-        return sensitivityResult.getSensitivityOnFlow(hvdcRangeAction.getNetworkElement().getId(), cnec, side);
+        return sensitivityResult.getSensitivityOnFlow(hvdcRangeAction.getNetworkElementId(), cnec, side);
     }
 
     @Override
     public double getSensitivityOnIntensity(FlowCnec cnec, TwoSides side, SystematicSensitivityResult sensitivityResult) {
-        return sensitivityResult.getSensitivityOnIntensity(hvdcRangeAction.getNetworkElement().getId(), cnec, side);
+        return sensitivityResult.getSensitivityOnIntensity(hvdcRangeAction.getNetworkElementId(), cnec, side);
     }
 
     @Override
     public void checkConsistency(Network network) {
-        Identifiable<?> identifiable = network.getIdentifiable(hvdcRangeAction.getNetworkElement().getId());
+        Identifiable<?> identifiable = network.getIdentifiable(hvdcRangeAction.getNetworkElementId());
         if (!(identifiable instanceof HvdcLine)) {
             throw new OpenRaoException(String.format(
                 "Unable to create sensitivity variable for HvdcRangeAction %s, on element %s",
                 hvdcRangeAction.getId(),
-                hvdcRangeAction.getNetworkElement().getId()
+                hvdcRangeAction.getNetworkElementId()
             ));
         }
     }

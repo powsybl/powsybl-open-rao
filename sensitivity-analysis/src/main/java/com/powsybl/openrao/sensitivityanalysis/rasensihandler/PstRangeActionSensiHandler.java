@@ -29,19 +29,19 @@ public class PstRangeActionSensiHandler implements RangeActionSensiHandler {
 
     @Override
     public double getSensitivityOnFlow(FlowCnec cnec, TwoSides side, SystematicSensitivityResult sensitivityResult) {
-        return sensitivityResult.getSensitivityOnFlow(pstRangeAction.getNetworkElement().getId(), cnec, side);
+        return sensitivityResult.getSensitivityOnFlow(pstRangeAction.getNetworkElementId(), cnec, side);
     }
 
     @Override
     public double getSensitivityOnIntensity(FlowCnec cnec, TwoSides side, SystematicSensitivityResult sensitivityResult) {
-        return sensitivityResult.getSensitivityOnIntensity(pstRangeAction.getNetworkElement().getId(), cnec, side);
+        return sensitivityResult.getSensitivityOnIntensity(pstRangeAction.getNetworkElementId(), cnec, side);
     }
 
     @Override
     public void checkConsistency(Network network) {
-        Identifiable<?> identifiable = network.getIdentifiable(pstRangeAction.getNetworkElement().getId());
+        Identifiable<?> identifiable = network.getIdentifiable(pstRangeAction.getNetworkElementId());
         if (!(identifiable instanceof TwoWindingsTransformer)) {
-            throw new OpenRaoException(String.format("Unable to create sensitivity variable for PstRangeAction %s, on element %s", pstRangeAction.getId(), pstRangeAction.getNetworkElement().getId()));
+            throw new OpenRaoException(String.format("Unable to create sensitivity variable for PstRangeAction %s, on element %s", pstRangeAction.getId(), pstRangeAction.getNetworkElementId()));
         }
     }
 }

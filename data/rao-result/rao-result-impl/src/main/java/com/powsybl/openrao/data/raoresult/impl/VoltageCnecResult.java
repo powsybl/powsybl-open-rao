@@ -21,7 +21,7 @@ public class VoltageCnecResult {
     private final Map<Instant, ElementaryVoltageCnecResult> results;
 
     VoltageCnecResult() {
-        results = new HashMap<>();
+        this.results = new HashMap<>();
     }
 
     public ElementaryVoltageCnecResult getResult(Instant optimizedInstant) {

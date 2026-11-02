@@ -17,7 +17,6 @@ import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.InstantKind;
-import com.powsybl.openrao.data.crac.api.NetworkElement;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.io.cim.craccreator.CimCracCreationContext;
@@ -195,10 +194,7 @@ class SweMonitoredSeriesCreatorTest {
         Mockito.when(cnec.getState()).thenReturn(state);
 
         Mockito.when(cnec.getIMax(TwoSides.ONE)).thenReturn(Optional.of(1000.));
-
-        NetworkElement networkElement = Mockito.mock(NetworkElement.class);
-        Mockito.when(networkElement.getId()).thenReturn(resourceId);
-        Mockito.when(cnec.getNetworkElement()).thenReturn(networkElement);
+        Mockito.when(cnec.getNetworkElementId()).thenReturn(resourceId);
 
         Branch<?> branch = Mockito.mock(Branch.class);
         Terminal terminal1 = Mockito.mock(Terminal.class);

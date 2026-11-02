@@ -63,8 +63,8 @@ class AngleCnecAdderImplTest {
                 .withInstant(OUTAGE_INSTANT_ID)
                 .withContingency(contingency1Id)
                 .withOperator("cnec1Operator")
-                .withExportingNetworkElement("eneId1", "eneName1")
-                .withImportingNetworkElement("ineId1", "ineName1")
+                .withExportingNetworkElement("eneId1")
+                .withImportingNetworkElement("ineId1")
                 .newThreshold().withUnit(Unit.DEGREE).withMax(1000.0).withMin(-1000.0).add()
                 .add();
         cnec2 = crac.newAngleCnec()
@@ -88,8 +88,8 @@ class AngleCnecAdderImplTest {
         assertEquals(contingency1, cnec1.getState().getContingency().orElseThrow());
         assertEquals(outageInstant, cnec1.getState().getInstant());
         assertEquals("cnec1Operator", cnec1.getOperator());
-        assertEquals("eneName1", cnec1.getExportingNetworkElement().getName());
-        assertEquals("ineName1", cnec1.getImportingNetworkElement().getName());
+        assertEquals("eneId1", cnec1.getExportingNetworkElementId());
+        assertEquals("ineId1", cnec1.getImportingNetworkElementId());
         assertEquals(1000.0, cnec1.getUpperBound(Unit.DEGREE).orElseThrow(), DOUBLE_TOLERANCE);
         assertEquals(-1000.0, cnec1.getLowerBound(Unit.DEGREE).orElseThrow(), DOUBLE_TOLERANCE);
 
@@ -99,8 +99,8 @@ class AngleCnecAdderImplTest {
         assertEquals(preventiveInstant, cnec2.getState().getInstant());
         assertEquals("cnec2Operator", cnec2.getOperator());
         assertEquals(Optional.empty(), cnec2.getState().getContingency());
-        assertEquals("eneId2", cnec2.getExportingNetworkElement().getName());
-        assertEquals("ineId2", cnec2.getImportingNetworkElement().getName());
+        assertEquals("eneId2", cnec2.getExportingNetworkElementId());
+        assertEquals("ineId2", cnec2.getImportingNetworkElementId());
         assertEquals(500.0, cnec2.getUpperBound(Unit.DEGREE).orElseThrow(), DOUBLE_TOLERANCE);
         assertFalse(cnec2.getLowerBound(Unit.DEGREE).isPresent());
     }
@@ -117,11 +117,11 @@ class AngleCnecAdderImplTest {
             .withImportingNetworkElement("ineId2") // same as cnec2
             .newThreshold().withUnit(Unit.DEGREE).withMax(500.0).add()
             .add();
-        assertEquals(4, crac.getNetworkElements().size());
-        assertNotNull(crac.getNetworkElement("eneId1"));
-        assertNotNull(crac.getNetworkElement("ineId1"));
-        assertNotNull(crac.getNetworkElement("eneId2"));
-        assertNotNull(crac.getNetworkElement("ineId2"));
+        assertEquals(4, crac.getNetworkElementIds().size());
+        assertTrue(crac.hasNetworkElement("eneId1"));
+        assertTrue(crac.hasNetworkElement("ineId1"));
+        assertTrue(crac.hasNetworkElement("eneId2"));
+        assertTrue(crac.hasNetworkElement("ineId2"));
 
         // Verify states were created
         assertEquals(2, crac.getStates().size());
@@ -208,7 +208,7 @@ class AngleCnecAdderImplTest {
     @Test
     void testNetworkElementNotImportingNotExporting() {
         AngleCnecAdder angleCnecAdder = crac.newAngleCnec();
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> angleCnecAdder.withNetworkElement("neId1", "neName1"));
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> angleCnecAdder.withNetworkElement("neId1"));
         assertEquals("For an angle cnec, use withExportingNetworkElement() and withImportingNetworkElement().", exception.getMessage());
     }
 

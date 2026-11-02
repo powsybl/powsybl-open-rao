@@ -182,15 +182,9 @@ class CseCracCreatorTest {
         //range from network
         assertEquals(-500, importedCrac.getInjectionRangeAction("PRA_HVDC").getRanges().get(1).getMin(), 1e-1);
         assertEquals(800, importedCrac.getInjectionRangeAction("PRA_HVDC").getRanges().get(1).getMax(), 1e-1);
-        assertEquals(2, importedCrac.getInjectionRangeAction("PRA_HVDC").getInjectionDistributionKeys().size());
-        assertEquals(-1., importedCrac.getInjectionRangeAction("PRA_HVDC").getInjectionDistributionKeys().entrySet().stream()
-            .filter(e -> e.getKey().getId().equals("BBE2AA12_generator"))
-            .findAny().orElseThrow()
-            .getValue(), 1e-3);
-        assertEquals(1., importedCrac.getInjectionRangeAction("PRA_HVDC").getInjectionDistributionKeys().entrySet().stream()
-            .filter(e -> e.getKey().getId().equals("FFR3AA12_generator"))
-            .findAny().orElseThrow()
-            .getValue(), 1e-3);
+        assertEquals(2, importedCrac.getInjectionRangeAction("PRA_HVDC").getInjectionDistributionKeysIds().size());
+        assertEquals(-1., importedCrac.getInjectionRangeAction("PRA_HVDC").getInjectionDistributionKeysIds().get("BBE2AA12_generator"), 1e-3);
+        assertEquals(1., importedCrac.getInjectionRangeAction("PRA_HVDC").getInjectionDistributionKeysIds().get("FFR3AA12_generator"), 1e-3);
     }
 
     @Test
@@ -314,9 +308,9 @@ class CseCracCreatorTest {
         ElementaryCreationContext raContext = cracCreationContext.getRemedialActionCreationContext("cra_4");
         assertTrue(raContext.isImported());
         NetworkAction na = cracCreationContext.getCrac().getNetworkAction("cra_4");
-        assertEquals(2, na.getNetworkElements().size());
-        assertTrue(na.getNetworkElements().stream().anyMatch(el -> el.getId().equals("FFR3AA1 _generator")));
-        assertTrue(na.getNetworkElements().stream().anyMatch(el -> el.getId().equals("FFR2AA1 _generator")));
+        assertEquals(2, na.getNetworkElementsIds().size());
+        assertTrue(na.getNetworkElementsIds().contains("FFR3AA1 _generator"));
+        assertTrue(na.getNetworkElementsIds().contains("FFR2AA1 _generator"));
     }
 
     @Test
@@ -496,7 +490,7 @@ class CseCracCreatorTest {
         assertFalse(pstContext.isAltered());
         assertEquals("BBE2AA1  BBE3AA1  1", pstContext.getNativeNetworkElementId());
         PstRangeAction pstRangeAction = importedCrac.getPstRangeAction(pstContext.getCreatedObjectId());
-        assertEquals("BBE2AA1  BBE3AA1  1", pstRangeAction.getNetworkElement().getId());
+        assertEquals("BBE2AA1  BBE3AA1  1", pstRangeAction.getNetworkElementId());
         assertEquals(3, pstRangeAction.getInitialTap());
         assertEquals(RangeType.ABSOLUTE, pstRangeAction.getRanges().get(0).getRangeType());
         assertEquals(-2, pstRangeAction.getRanges().get(0).getMinTap());
@@ -512,7 +506,7 @@ class CseCracCreatorTest {
         assertFalse(pstContext.isAltered());
         assertEquals("BBE3AA1  BBE2AA1  1", pstContext.getNativeNetworkElementId());
         pstRangeAction = importedCrac.getPstRangeAction(pstContext.getCreatedObjectId());
-        assertEquals("BBE2AA1  BBE3AA1  1", pstRangeAction.getNetworkElement().getId());
+        assertEquals("BBE2AA1  BBE3AA1  1", pstRangeAction.getNetworkElementId());
         assertEquals(3, pstRangeAction.getInitialTap());
         assertEquals(RangeType.ABSOLUTE, pstRangeAction.getRanges().get(0).getRangeType());
         assertEquals(-2, pstRangeAction.getRanges().get(0).getMinTap());
@@ -532,15 +526,15 @@ class CseCracCreatorTest {
         assertEquals(1, ra1.getElementaryActions().size());
         assertTrue(ra1.getElementaryActions().iterator().next() instanceof SwitchPair);
         SwitchPair switchPair = (SwitchPair) ra1.getElementaryActions().iterator().next();
-        assertEquals("BBE1AA1X BBE1AA11 1", switchPair.getSwitchToOpen().getId());
-        assertEquals("BBE1AA1X BBE1AA12 1", switchPair.getSwitchToClose().getId());
+        assertEquals("BBE1AA1X BBE1AA11 1", switchPair.getSwitchToOpenId());
+        assertEquals("BBE1AA1X BBE1AA12 1", switchPair.getSwitchToCloseId());
 
         NetworkAction ra2 = importedCrac.getNetworkAction("RA2");
         assertEquals(1, ra2.getElementaryActions().size());
         assertTrue(ra2.getElementaryActions().iterator().next() instanceof SwitchPair);
         switchPair = (SwitchPair) ra2.getElementaryActions().iterator().next();
-        assertEquals("BBE1AA1X BBE1AA12 1", switchPair.getSwitchToOpen().getId());
-        assertEquals("BBE1AA1X BBE1AA11 1", switchPair.getSwitchToClose().getId());
+        assertEquals("BBE1AA1X BBE1AA12 1", switchPair.getSwitchToOpenId());
+        assertEquals("BBE1AA1X BBE1AA11 1", switchPair.getSwitchToCloseId());
     }
 
     @Test

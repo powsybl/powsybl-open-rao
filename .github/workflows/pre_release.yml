@@ -20,9 +20,11 @@ jobs:
 
       - name: Set up Java 21
         if: matrix.jvm == 'java'
-        uses: actions/setup-java@v1
+        uses: actions/setup-java@v5
         with:
-          java-version: 21
+          distribution: 'temurin'
+          java-version: '21'
+          cache: 'maven'
 
       - name: Setup GraalVM
         if: matrix.jvm == 'graalvm'
@@ -33,16 +35,8 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build with Maven
-        if: matrix.os == 'ubuntu-latest'
-        run: mvn --batch-mode -Pjacoco install -DskipCucumberTests=true
+        run: mvn --batch-mode install
 
       - name: Compile Javadoc with Maven
-        run: mvn package
-
-      - name: Build with Maven
-        if: matrix.os != 'ubuntu-latest'
-        run: mvn --batch-mode install -DskipCucumberTests=true
-
-      - name: Run Cucumber Tests
-        run: mvn test -pl tests
-
+        if: matrix.os == 'ubuntu-latest' && matrix.jvm == 'java'
+        run: mvn --batch-mode -Prelease -DskipTests package

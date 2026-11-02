@@ -14,7 +14,6 @@ import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
-import com.powsybl.openrao.data.crac.api.NetworkElement;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.VoltageCnec;
 import com.powsybl.openrao.data.crac.api.threshold.Threshold;
@@ -32,7 +31,7 @@ public class VoltageCnecImpl extends AbstractCnec<VoltageCnec> implements Voltag
 
     VoltageCnecImpl(String id,
                     String name,
-                    NetworkElement networkElement,
+                    String networkElementId,
                     String operator,
                     String border,
                     State state,
@@ -40,13 +39,13 @@ public class VoltageCnecImpl extends AbstractCnec<VoltageCnec> implements Voltag
                     boolean monitored,
                     Set<Threshold> thresholds,
                     double reliabilityMargin) {
-        super(id, name, Set.of(networkElement), operator, border, state, optimized, monitored, reliabilityMargin);
+        super(id, name, Set.of(networkElementId), operator, border, state, optimized, monitored, reliabilityMargin);
         this.thresholds = thresholds;
     }
 
     @Override
-    public NetworkElement getNetworkElement() {
-        return getNetworkElements().iterator().next();
+    public String getNetworkElementId() {
+        return networkElementsIds.iterator().next();
     }
 
     @Override
@@ -101,12 +100,12 @@ public class VoltageCnecImpl extends AbstractCnec<VoltageCnec> implements Voltag
     @Override
     public VoltageCnecValue computeValue(Network network, Unit unit) {
         unit.checkPhysicalParameter(getPhysicalParameter());
-        VoltageLevel voltageLevel = network.getVoltageLevel(getNetworkElement().getId());
+        VoltageLevel voltageLevel = network.getVoltageLevel(getNetworkElementId());
         if (voltageLevel == null) {
-            throw new OpenRaoException("Voltage level is missing on network element " + getNetworkElement().getId());
+            throw new OpenRaoException("Voltage level is missing on network element " + getNetworkElementId());
         }
         Set<Double> voltages = new HashSet<>();
-        BusbarSection busbarSection = network.getBusbarSection(getNetworkElement().getId());
+        BusbarSection busbarSection = network.getBusbarSection(getNetworkElementId());
         if (busbarSection != null) {
             Double busBarVoltages = busbarSection.getV();
             voltages.add(busBarVoltages);

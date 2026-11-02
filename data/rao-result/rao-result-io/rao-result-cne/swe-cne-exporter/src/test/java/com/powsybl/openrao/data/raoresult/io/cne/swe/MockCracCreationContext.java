@@ -9,7 +9,6 @@ package com.powsybl.openrao.data.raoresult.io.cne.swe;
 
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.CracCreationReport;
-import com.powsybl.openrao.data.crac.api.NetworkElement;
 import com.powsybl.openrao.data.crac.api.RemedialAction;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.io.commons.api.ElementaryCreationContext;
@@ -51,7 +50,7 @@ public class MockCracCreationContext implements UcteCracCreationContext {
 
     private void addCnecCreationContext(FlowCnec flowCnec, Crac crac) {
         List<MockCnecCreationContext> cnecsWithSameNe = mockCnecCreationContexts.stream().filter(creationContext ->
-                creationContext.getFlowCnec().getNetworkElements().equals(flowCnec.getNetworkElements())
+                creationContext.getFlowCnec().getNetworkElementsIds().equals(flowCnec.getNetworkElementsIds())
                 && creationContext.getFlowCnec().getState().getContingency().equals(flowCnec.getState().getContingency())
         ).collect(Collectors.toList());
         if (cnecsWithSameNe.isEmpty()) {
@@ -130,7 +129,7 @@ public class MockCracCreationContext implements UcteCracCreationContext {
                     .filter(instant -> instant != flowCnec.getState().getInstant())
                     .forEach(instant -> {
                         FlowCnec otherBranchCnec = crac.getFlowCnecs(crac.getState(flowCnec.getState().getContingency().get().getId(), instant)).stream()
-                            .filter(flowCnec1 -> flowCnec1.getNetworkElements().equals(flowCnec.getNetworkElements()))
+                            .filter(flowCnec1 -> flowCnec1.getNetworkElementsIds().equals(flowCnec.getNetworkElementsIds()))
                             .findFirst()
                             .orElse(flowCnec);
                         map.put(instant.getId(), otherBranchCnec.getId());
@@ -140,7 +139,7 @@ public class MockCracCreationContext implements UcteCracCreationContext {
         }
 
         private NativeBranch getNativeBranch(FlowCnec flowCnec) {
-            String[] split = flowCnec.getNetworkElement().getId().split("[ ]+");
+            String[] split = flowCnec.getNetworkElementId().split("[ ]+");
             String from = split[0];
             String to = split[1];
             String suffix = split[2];
@@ -231,7 +230,7 @@ public class MockCracCreationContext implements UcteCracCreationContext {
             this.remedialAction = remedialAction;
             this.isImported = crac.getRangeAction(remedialAction.getId()) != null || crac.getNetworkAction(remedialAction.getId()) != null;
             this.isInverted = false;
-            this.nativeNetworkElementId = ((NetworkElement) remedialAction.getNetworkElements().iterator().next()).getId();
+            this.nativeNetworkElementId = remedialAction.getNetworkElementsIds().iterator().next();
         }
 
         @Override

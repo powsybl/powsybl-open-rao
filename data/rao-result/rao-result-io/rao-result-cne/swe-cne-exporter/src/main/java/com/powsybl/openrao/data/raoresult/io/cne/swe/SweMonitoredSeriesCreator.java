@@ -175,7 +175,7 @@ public class SweMonitoredSeriesCreator {
         MonitoredRegisteredResource registeredResource = new MonitoredRegisteredResource();
         registeredResource.setMRID(SweCneUtil.createResourceIDString(A02_CODING_SCHEME, monitoredSeriesCreationContext.getNativeResourceId()));
         registeredResource.setName(monitoredSeriesCreationContext.getNativeResourceName());
-        setInOutAggregateNodes(cnec.getNetworkElement().getId(), monitoredSeriesCreationContext.getNativeId(), registeredResource);
+        setInOutAggregateNodes(cnec.getNetworkElementId(), monitoredSeriesCreationContext.getNativeId(), registeredResource);
 
         if (includeMeasurements) {
             Pair<Double, Double> flowAndThreshold = getCnecLimitingFlowAndThreshold(cnec.getState().getInstant(), cnec);

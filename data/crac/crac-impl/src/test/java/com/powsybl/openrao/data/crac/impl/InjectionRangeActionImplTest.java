@@ -16,6 +16,9 @@ import com.powsybl.openrao.data.crac.impl.utils.NetworkImportsUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.Map;
+import java.util.Set;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -45,6 +48,11 @@ class InjectionRangeActionImplTest {
                 .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add()
                 .add();
 
+        assertEquals(
+            Map.of("BBE1AA1 _generator", 1.0, "DDE3AA1 _generator", -1.0),
+            ira.getInjectionDistributionKeysIds()
+        );
+
         // set to 100 MW
         ira.apply(network, 100.);
         assertEquals(100., network.getGenerator("BBE1AA1 _generator").getTargetP(), 1e-3);
@@ -68,6 +76,13 @@ class InjectionRangeActionImplTest {
                 .newRange().withMin(-1000).withMax(1000).add()
                 .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add()
                 .add();
+
+        assertEquals(3, ira.getInjectionDistributionKeysIds().size());
+        assertEquals(0.2, ira.getInjectionDistributionKeysIds().get("BBE3AA1 _load"));
+        assertEquals(0.3, ira.getInjectionDistributionKeysIds().get("FFR2AA1 _generator"));
+        assertEquals(0.5, ira.getInjectionDistributionKeysIds().get("NNL3AA1 _load"));
+
+        assertEquals(Set.of("BBE3AA1 _load", "FFR2AA1 _generator", "NNL3AA1 _load"), ira.getNetworkElementsIds());
 
         // set to 100 MW
         ira.apply(network, 100.);
