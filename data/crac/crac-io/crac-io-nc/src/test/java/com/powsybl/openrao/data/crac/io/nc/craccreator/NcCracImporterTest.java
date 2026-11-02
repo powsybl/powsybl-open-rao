@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.data.crac.io.nc.craccreator;
 
+import com.powsybl.openrao.data.crac.api.parameters.CracCreationParameters;
 import com.powsybl.openrao.data.crac.io.commons.OpenRaoImportException;
 import com.powsybl.openrao.data.crac.io.commons.api.ImportStatus;
 import org.junit.jupiter.api.Test;
@@ -26,9 +27,11 @@ class NcCracImporterTest {
 
     @Test
     void ncp25PackageIsRejected() {
+        NcCracImporter importer = new NcCracImporter();
+        CracCreationParameters parameters = cracCreationDefaultParametersWithSweCsaExtension();
         try (InputStream in = getClass().getResourceAsStream("/profiles/ncp25/NCP25.zip")) {
             OpenRaoImportException exception = assertThrows(OpenRaoImportException.class,
-                () -> new NcCracImporter().importData(in, cracCreationDefaultParametersWithSweCsaExtension(), NETWORK));
+                () -> importer.importData(in, parameters, NETWORK));
             assertEquals(ImportStatus.NOT_YET_HANDLED_BY_OPEN_RAO, exception.getImportStatus());
             assertTrue(exception.getMessage().contains("NCP version 2.5 is not supported"));
             assertTrue(exception.getMessage().contains("CO-v2.5.rdf"));
