@@ -395,7 +395,7 @@ public final class RaoUtil {
     public static boolean computeSecurityStatus(Set<FlowCnec> flowCnecs, FlowResult flowResult, Unit flowUnit, Set<String> operatorsNotSharingCras) {
         return flowCnecs.stream()
             .filter(FlowCnec::isOptimized) // ignore MNECs
-            .filter(flowCnec -> flowCnec.getId().contains("OUTAGE DUPLICATE")) // ignore duplicated CNECs
+            .filter(flowCnec -> !flowCnec.getId().contains("OUTAGE DUPLICATE")) // ignore duplicated CNECs
             .filter(flowCnec -> !cnecBelongsToTsoNotSharingCras(flowCnec, operatorsNotSharingCras)
                 || !flowCnec.getState().getInstant().isCurative())
             .allMatch(flowCnec -> flowResult.getMargin(flowCnec, flowUnit) >= 0);
