@@ -38,6 +38,7 @@ import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParamet
 import com.powsybl.openrao.searchtreerao.castor.algorithm.CastorMetadataHelper;
 import com.powsybl.openrao.searchtreerao.castor.algorithm.PostPerimeterSensitivityAnalysis;
 import com.powsybl.openrao.searchtreerao.castor.algorithm.PrePerimeterSensitivityAnalysis;
+import com.powsybl.openrao.searchtreerao.commons.CastorFlowResultExtensionHelper;
 import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
 import com.powsybl.openrao.searchtreerao.commons.ToolProvider;
 import com.powsybl.openrao.searchtreerao.networkpool.AbstractNetworkPool;
@@ -406,7 +407,14 @@ public class FastRao implements RaoProvider {
         fastRaoResult.addExtension(CostResult.class, new CostResult(raoResult.getExtension(CostResult.class)));
         fastRaoResult.addExtension(
             com.powsybl.openrao.data.raoresult.api.extension.FlowResult.class,
-            new com.powsybl.openrao.data.raoresult.api.extension.FlowResult(raoResult.getExtension(com.powsybl.openrao.data.raoresult.api.extension.FlowResult.class))
+            regenerateFlowResult(
+                initialResult,
+                crac,
+                postPraSensi.get().prePerimeterResultForAllFollowingStates(),
+                postAraSensi.get(),
+                postCraSensi.get(),
+                RaoUtil.getFlowUnit(parameters)
+            )
         );
         fastRaoResult.addExtension(Metadata.class, regenerateMetadata(
             raoResult.getExtension(Metadata.class),
@@ -417,6 +425,34 @@ public class FastRao implements RaoProvider {
         ));
         return Pair.of(fastRaoResult, postCraSensi.get().prePerimeterResultForAllFollowingStates());
 
+    }
+
+    private static com.powsybl.openrao.data.raoresult.api.extension.FlowResult regenerateFlowResult(PrePerimeterResult initialResult,
+                                                                                                    Crac crac,
+                                                                                                    PrePerimeterResult postPraSensi,
+                                                                                                    PostPerimeterResult postAraSensi,
+                                                                                                    PostPerimeterResult postCraSensi,
+                                                                                                    Unit flowUnit) {
+        Map<State, PostPerimeterResult> postContingencyResults = new HashMap<>();
+        for (State state : crac.getStates()) {
+            switch (state.getInstant().getKind()) {
+                case AUTO:
+                    postContingencyResults.put(state, postAraSensi);
+                    break;
+                case CURATIVE:
+                    postContingencyResults.put(state, postCraSensi);
+                    break;
+                default:
+                    break;
+            }
+        }
+        return CastorFlowResultExtensionHelper.convertToExtension(
+            initialResult,
+            postPraSensi,
+            postContingencyResults,
+            crac,
+            flowUnit
+        );
     }
 
     private static Metadata regenerateMetadata(Metadata metadata,
