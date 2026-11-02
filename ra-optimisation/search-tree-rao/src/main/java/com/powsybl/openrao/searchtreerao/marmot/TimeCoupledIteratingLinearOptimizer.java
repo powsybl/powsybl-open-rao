@@ -237,21 +237,25 @@ public final class TimeCoupledIteratingLinearOptimizer {
         if (!isPreventiveMip && !isCurativeMip) {
             throw new OpenRaoException("Main optimization state must be either preventive or curative.");
         }
-        if (isPreventiveMip && !input.synchronizeCurativeRangeActions() && !input.timeCoupledConstraints().getGeneratorConstraints().isEmpty()) {
+        if (isPreventiveMip && !input.synchronizeCurativeRangeActions()) {
             TemporalData<Set<InjectionRangeAction>> preventiveInjectionRangeActions = input.iteratingLinearOptimizerInputs()
                 .map(linearOptimizerInput -> filterPreventiveRangeAction(linearOptimizerInput.optimizationPerimeter().getRangeActions(), InjectionRangeAction.class));
-            problemFillers.add(new GeneratorConstraintsFiller(
-                input.iteratingLinearOptimizerInputs().map(IteratingLinearOptimizerInput::network),
-                mainOptimizationStates,
-                preventiveInjectionRangeActions,
-                input.timeCoupledConstraints().getGeneratorConstraints()
-            ));
-            problemFillers.add(new AdjustmentConstraintsFiller(
-                input.iteratingLinearOptimizerInputs().map(tsInput -> tsInput.optimizationPerimeter().getRangeActions()),
-                mainOptimizationStates,
-                input.timeCoupledConstraints().getAdjustmentConstraints(),
-                input.iteratingLinearOptimizerInputs().map(IteratingLinearOptimizerInput::prePerimeterSetpoints)
-            ));
+            if (!input.timeCoupledConstraints().getGeneratorConstraints().isEmpty()) {
+                problemFillers.add(new GeneratorConstraintsFiller(
+                    input.iteratingLinearOptimizerInputs().map(IteratingLinearOptimizerInput::network),
+                    mainOptimizationStates,
+                    preventiveInjectionRangeActions,
+                    input.timeCoupledConstraints().getGeneratorConstraints()
+                ));
+            }
+            if (!input.timeCoupledConstraints().getAdjustmentConstraints().isEmpty()) {
+                problemFillers.add(new AdjustmentConstraintsFiller(
+                    input.iteratingLinearOptimizerInputs().map(tsInput -> tsInput.optimizationPerimeter().getRangeActions()),
+                    mainOptimizationStates,
+                    input.timeCoupledConstraints().getAdjustmentConstraints(),
+                    input.iteratingLinearOptimizerInputs().map(IteratingLinearOptimizerInput::prePerimeterSetpoints)
+                ));
+            }
         }
 
         Set<PstConstraints> pstConstraints = input.timeCoupledConstraints().getPstConstraints();

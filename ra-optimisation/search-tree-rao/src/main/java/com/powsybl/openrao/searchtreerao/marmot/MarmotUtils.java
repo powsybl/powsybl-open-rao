@@ -208,7 +208,7 @@ public final class MarmotUtils {
                                                       final ReportNode reportNode) {
         Network network = raoInput.getNetwork();
         Crac crac = raoInput.getCrac();
-        network.getVariantManager().setWorkingVariant("InitialState");
+        network.getVariantManager().setWorkingVariant(network instanceof LazyNetwork ? "InitialState" : raoInput.getNetworkVariantId());
         State preventiveState = crac.getPreventiveState();
         Set<NetworkAction> networkActionsToBeApplied = networkActionsResult.getActivatedNetworkActionsPerState().get(preventiveState);
         if (networkActionsToBeApplied.isEmpty()) {
