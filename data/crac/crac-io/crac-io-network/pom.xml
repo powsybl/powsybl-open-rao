@@ -27,10 +27,6 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>open-rao-crac-io-commons</artifactId>
         </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>open-rao-crac-util</artifactId>
-        </dependency>
 
         <!-- Runtime dependencies -->
         <dependency>
