@@ -379,7 +379,7 @@ Example:
 
 ##### Computation status
 
-####### Per state
+###### Per state
 
 ::::{tabs}
 :::{group-tab} JAVA API
