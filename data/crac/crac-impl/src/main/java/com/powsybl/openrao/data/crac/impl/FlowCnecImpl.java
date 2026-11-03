@@ -134,10 +134,16 @@ public class FlowCnecImpl extends AbstractCnec<FlowCnec> implements FlowCnec {
     public Set<TwoSides> getMonitoredSides() {
         // A side is considered monitored if at least one bound was defined on this side
         Set<TwoSides> sides = new TreeSet<>();
-        if (boundProvided[0] || boundProvided[2] || boundProvided[4] || boundProvided[6]) {
+        if (boundProvided[getIndex(TwoSides.ONE, Unit.MEGAWATT, Bound.LOWER)] ||
+            boundProvided[getIndex(TwoSides.ONE, Unit.MEGAWATT, Bound.UPPER)] ||
+            boundProvided[getIndex(TwoSides.ONE, Unit.AMPERE, Bound.LOWER)] ||
+            boundProvided[getIndex(TwoSides.ONE, Unit.AMPERE, Bound.UPPER)]) {
             sides.add(TwoSides.ONE);
         }
-        if (boundProvided[1] || boundProvided[3] || boundProvided[5] || boundProvided[7]) {
+        if (boundProvided[getIndex(TwoSides.TWO, Unit.MEGAWATT, Bound.LOWER)] ||
+            boundProvided[getIndex(TwoSides.TWO, Unit.MEGAWATT, Bound.UPPER)] ||
+            boundProvided[getIndex(TwoSides.TWO, Unit.AMPERE, Bound.LOWER)] ||
+            boundProvided[getIndex(TwoSides.TWO, Unit.AMPERE, Bound.UPPER)]) {
             sides.add(TwoSides.TWO);
         }
         return sides;
