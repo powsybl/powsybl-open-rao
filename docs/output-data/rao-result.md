@@ -504,7 +504,7 @@ The different possible execution details are:
 - **Second preventive improved first preventive results**: the second preventive RAO gave better or similar results than the first one (cost-wise), so its results were kept;
 - **Second preventive fell back to first preventive results**: the second preventive RAO did not improve on the first one, so the first preventive results were kept;
 - **Second preventive fell back to initial situation**: the second preventive RAO did not improve the situation, so the initial situation was kept;
-- **<specific failure reason>**: when the RAO fails, the field contains a message describing the cause of the failure.
+- **`<specific failure reason>`**: when the RAO fails, the field contains a message describing the cause of the failure.
 
 If the RAO went through angle or voltage [monitoring](../algorithms/monitoring.md), said monitoring(s) are appended to the execution details from the first flow RAO.
 
