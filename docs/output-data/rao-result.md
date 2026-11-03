@@ -386,7 +386,7 @@ Example:
 
 ```java
 // src/main/java/com/powsybl/openrao/data/raoresult/api/extension/Metadata.java
-ComputationStatus getComputationStatus();
+ComputationStatus getComputationStatus(State state);
 ```
 
 :::
