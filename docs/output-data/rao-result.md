@@ -79,31 +79,15 @@ state, in the `"remedialActionActivations"` array of the JSON file. Each entry i
 `contingency`, optional `timestamp`) and lists its activated remedial actions with their `setPoint` (standard range
 actions) or `tap` (PST range actions). Network actions only have an `id`. Remedial actions that are not activated do not appear.
 
-```json
-"remedialActionActivations" : [ {
-    "instant" : "preventive",
-    "timestamp" : "2025-02-03T10:12:00Z",
-    "activatedRemedialActions" : [
-      { "id" : "complexNetworkActionId" },
-      { "id" : "hvdcRange1Id", "setPoint" : -1000.0 },
-      { "id" : "pstRange1Id", "tap" : 3 }
-    ]
-  }, {
-    "instant" : "curative",
-    "contingency" : "contingency1Id",
-    "timestamp" : "2025-02-03T10:12:00Z",
-    "activatedRemedialActions" : [ { "id" : "injectionRange1Id", "setPoint" : -300.0 } ]
-  } ]
-```
-
-#### Network actions results
-
-These results contain information about the selection of network actions by the RAO.
-
-> Note that you will need to use [NetworkAction](../input-data/crac/json.md#network-actions) objects from the CRAC for querying the Java API.
+> Note that you will need to use [NetworkAction](../input-data/crac/json.md#network-actions),
+> [RangeAction](../input-data/crac/json.md#range-actions)
+> and [PstRangeAction](../input-data/crac/json.md#pst-range-action)
+> objects from the CRAC for querying the Java API.
 
 ::::{tabs}
 :::{group-tab} JAVA API
+
+**Network actions methods**
 
 ```java
 // query if a network action was already activated before a given state was studied
@@ -119,113 +103,9 @@ Set<NetworkAction> getActivatedNetworkActionsDuringState(State state);
 boolean isActivated(State state, NetworkAction networkAction);
 ```
 
-:::
-:::{group-tab} JSON File
-
-> Network actions that are not selected by the RAO do not appear in the JSON file.
-
-Example:
-
-```json
-"networkActionResults" : [ {
-    "networkActionId" : "complexNetworkActionId",
-    "activatedStates" : [ {
-      "instant" : "preventive"
-    } ]
-  }, {
-    "networkActionId" : "injectionSetpointRaId",
-    "activatedStates" : [ {
-      "instant" : "auto",
-      "contingency" : "contingency2Id"
-    } ]
-  }
-  ...
-```
-
-:::
-::::
-
-#### Standard range actions results
-
-These results contain information about the selection of standard range actions by the RAO.  
-Standard range actions are range actions that have a continuous set-point that can be optimised in a given range.  
-Actually, standard range actions handled by OpenRAO are: **HVDC range actions** and **Injection range actions**.  
-
-> Note that you will need to use [RangeAction](../input-data/crac/json.md#range-actions) objects from the CRAC for querying the Java API.
-
-::::{tabs}
-:::{group-tab} JAVA API
+**Standard range actions methods**
 
 ```java
-// get a range action's set-point before the optimization of a given state
-double getPreOptimizationSetPointOnState(State state, RangeAction<?> rangeAction);
-
-// query if a range action was activated (ie setpoint changed) during the optimization of a given state
-boolean isActivatedDuringState(State state, RangeAction<?> rangeAction);
-
-// get all range actions that were activated by the RAO in a given state
-Set<RangeAction<?>> getActivatedRangeActionsDuringState(State state);
-
-// get a range action's optimal setpoint, that was chosen by the RAO in a given state
-double getOptimizedSetPointOnState(State state, RangeAction<?> rangeAction);
-
-// get all range actions' optimal setpoints, that were chosen by the RAO in a given state
-Map<RangeAction<?>, Double> getOptimizedSetPointsOnState(State state);
-```
-
-:::
-:::{group-tab} JSON File
-
-Example:
-
-```json
-"rangeActionResults" : [ {
-    "rangeActionId" : "hvdcRange1Id",
-    "initialSetpoint" : 0.0,
-    "activatedStates" : [ {
-      "instant" : "preventive",
-      "setpoint" : -1000.0
-    } ]
-  }, {
-    "rangeActionId" : "hvdcRange2Id",
-    "initialSetpoint" : -100.0,
-    "activatedStates" : [ {
-      "instant" : "curative",
-      "contingency" : "contingency1Id",
-      "setpoint" : 100.0
-    }, {
-      "instant" : "curative",
-      "contingency" : "contingency2Id",
-      "setpoint" : 400.0
-    } ]
-  }, {
-    "rangeActionId" : "injectionRange1Id",
-    "initialSetpoint" : 100.0,
-    "activatedStates" : [ {
-      "instant" : "curative",
-      "contingency" : "contingency1Id",
-      "setpoint" : -300.0
-    } ]
-  } ]
-```
-
-:::
-::::
-
-#### PST range actions results
-
-These results contain information about the application of PST range actions by the RAO.  
-PSTs are not standard range actions, because they have integer tap positions; a few extra methods in the API allow
-querying the tap positions. All "set-point" methods of standard range actions also can also be used.    
-
-> Note that you will need to use [PstRangeAction or RangeAction](../input-data/crac/json.md#pst-range-action) objects from the CRAC for querying the Java API.
-
-::::{tabs}
-:::{group-tab} JAVA API
-
-```java
-/* --- Standard RangeAction methods: --- */
-
 // get a range action's setpoint before the optimization of a given state
 double getPreOptimizationSetPointOnState(State state, RangeAction<?> rangeAction);
 
@@ -240,9 +120,11 @@ double getOptimizedSetPointOnState(State state, RangeAction<?> rangeAction);
 
 // get all range actions' optimal setpoints, that were chosen by the RAO in a given state
 Map<RangeAction<?>, Double> getOptimizedSetPointsOnState(State state);
+```
 
-/* --- PST-specific methods: --- */
+**PST-specific methods**
 
+```java
 // get a PST range action's tap position before the optimization of a given state
 int getPreOptimizationTapOnState(State state, PstRangeAction pstRangeAction);
 
@@ -256,29 +138,42 @@ Map<PstRangeAction, Integer> getOptimizedTapsOnState(State state);
 :::
 :::{group-tab} JSON File
 
+- Results are displayed in a _state-to-remedial-actions_ mode.
+- Remedial actions that are not selected by the RAO do not appear in the JSON file.
+
 Example:
 
 ```json
-  "rangeActionResults" : [ {
-    "rangeActionId" : "pstRange1Id",
-    "initialSetpoint" : 0.0,
-    "initialTap" : -3,
-    "activatedStates" : [ {
-      "instant" : "preventive",
-      "tap" : 3,
-      "setpoint" : 3.0
-    } ]
-  }, {
-    "rangeActionId" : "pstRange2Id",
-    "initialSetpoint" : 1.5,
-    "initialTap" : 0,
-    "activatedStates" : [ ]
-  }, {
-    "rangeActionId" : "pstRange3Id",
-    "initialSetpoint" : 1.0,
-    "initialTap" : -1,
-    "activatedStates" : [ ]
-  } ]
+"remedialActionActivations" : [
+  {
+    "instant": "preventive",
+    "timestamp": "2025-02-03T10:12:00Z",
+    "activatedRemedialActions": [
+      {
+        "id": "complexNetworkActionId"
+      },
+      {
+        "id": "hvdcRange1Id",
+        "setPoint": -1000.0
+      },
+      {
+        "id": "pstRange1Id",
+        "tap": 3
+      }
+    ]
+  },
+  {
+    "instant": "curative",
+    "contingency": "contingency1Id",
+    "timestamp": "2025-02-03T10:12:00Z",
+    "activatedRemedialActions": [
+      {
+        "id": "injectionRange1Id",
+        "setPoint": -300.0
+      }
+    ]
+  }
+]
 ```
 
 :::
@@ -331,6 +226,13 @@ VoltageResult voltageResult = raoResult.getExtension(VoltageResult.class);
     "voltage-results" : [ ... ]
   }
 }
+```
+
+By default, extensions are serialized with the RAO Result. To avoid this, extensions can be removed manually before
+exporting the data:
+
+```java
+raoResult.removeExtension(ExtensionType.class);
 ```
 
 #### Metadata
@@ -399,17 +301,13 @@ Example:
   "metadata": {
     "computationStatusMap": [
       {
-        "computationStatus": "default",
-        "instant": "preventive"
-      },
-      {
         "computationStatus": "failure",
         "instant": "curative",
         "contingency": "contingency1Id"
       },
       {
-        "computationStatus": "default",
-        "instant": "auto",
+        "computationStatus": "failure",
+        "instant": "curative",
         "contingency": "contingency2Id"
       }
     ],
@@ -432,7 +330,7 @@ sensitivity / load-flow computation has failed.
 
 > For compactness's sake, only the failed states are exported in the `"computationStatusMap"`.
 
-####### Global
+###### Global
 
 ::::{tabs}
 :::{group-tab} JAVA API
@@ -1312,7 +1210,7 @@ provide extra information about the computations, for example results of interme
 
 ##### FastRAO extensions
 
-####### Critical CNECs result
+###### Critical CNECs result
 
 This extension lists the CNECs that are considered in the last step of [FastRAO](../algorithms/castor/performance.md#fastrao).  
 
