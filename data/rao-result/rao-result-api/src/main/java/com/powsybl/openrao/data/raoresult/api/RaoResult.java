@@ -11,6 +11,7 @@ import com.powsybl.commons.extensions.Extendable;
 import com.powsybl.commons.util.ServiceLoaderCache;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.CracCreationContext;
@@ -36,6 +37,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -601,6 +603,42 @@ public interface RaoResult extends Extendable<RaoResult> {
             throw new OpenRaoException("RaoResult does not contain a Metadata extension.");
         }
         metadata.setExecutionDetails(executionDetails);
+    }
+
+    default boolean isSecure(PhysicalParameter... physicalParameters) {
+        List<PhysicalParameter> parameters = Arrays.asList(physicalParameters);
+        if (parameters.isEmpty()) {
+            throw new OpenRaoException("At least one physical parameter must be provided.");
+        }
+        boolean secure = true;
+        for (PhysicalParameter parameter : parameters) {
+            switch (parameter) {
+                case ANGLE -> {
+                    AngleResult angleResult = getExtension(AngleResult.class);
+                    if (angleResult == null) {
+                        throw new OpenRaoException("RaoResult does not contain an AngleResult extension.");
+                    }
+                    secure = secure && angleResult.isSecure();
+                }
+                case FLOW -> {
+                    FlowResult flowResult = getExtension(FlowResult.class);
+                    if (flowResult == null) {
+                        throw new OpenRaoException("RaoResult does not contain a FlowResult extension.");
+                    }
+                    secure = secure && flowResult.isSecure();
+                }
+                case VOLTAGE -> {
+                    VoltageResult voltageResult = getExtension(VoltageResult.class);
+                    if (voltageResult == null) {
+                        throw new OpenRaoException("RaoResult does not contain a VoltageResult extension.");
+                    }
+                    secure = secure && voltageResult.isSecure();
+                }
+                default -> {
+                }
+            }
+        }
+        return secure;
     }
 
     /**

@@ -86,6 +86,16 @@ public final class VoltageResult extends AbstractExtension<RaoResult> {
         }
     }
 
+    public boolean isSecure() {
+        return results.keySet()
+            .stream()
+            .allMatch(this::hasPositiveMargin);
+    }
+
+    private boolean hasPositiveMargin(VoltageCnec voltageCnec) {
+        return getMargin(voltageCnec.getState().getInstant(), voltageCnec, Unit.KILOVOLT) >= 0;
+    }
+
     // result data model
 
     private static class VoltageCnecResult {

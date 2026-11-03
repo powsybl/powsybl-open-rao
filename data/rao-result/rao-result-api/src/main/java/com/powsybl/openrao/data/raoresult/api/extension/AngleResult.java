@@ -73,6 +73,16 @@ public final class AngleResult extends AbstractExtension<RaoResult> {
         }
     }
 
+    public boolean isSecure() {
+        return results.keySet()
+            .stream()
+            .allMatch(this::hasPositiveMargin);
+    }
+
+    private boolean hasPositiveMargin(AngleCnec angleCnec) {
+        return getMargin(angleCnec.getState().getInstant(), angleCnec, Unit.DEGREE) >= 0;
+    }
+
     // result data model
 
     private static class AngleCnecResult {
