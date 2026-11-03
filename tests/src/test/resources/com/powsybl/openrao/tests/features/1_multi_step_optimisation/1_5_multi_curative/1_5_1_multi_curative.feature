@@ -123,15 +123,14 @@ Feature: 1.5.1: Multi-curative
     Then 1 remedial actions are used after "Contingency DE2 DE3 1" at "curative3"
 
   @fast @rao @ac @multi-curative
-  Scenario: US 91.12.5: Same case as previous one with ra limitations : 0 curative1 RAs, 1 curative2 RAs, 1 curative3 RAs
-  Same case as 91.12.3 and 91.12.4, but this time curative3 is also limited to 1 RAs.
+  Scenario: 1.5.1.4.bis: Same case as previous one with ra limitations : 0 curative1 RAs, 1 curative2 RAs, 1 curative3 RAs
+  Same case as 1.5.1.3 and 1.5.1.4, but this time curative3 is also limited to 1 RAs.
   This should test that the RAO is able to take into account the cumulative effect of the max-ra-usage-limit in multi-curative.
   Since one RA is used in curative2 we reached the limit and since the limit in curative3 is set to 1 no more RAs can be used in curative3.
-  Without the curative3 max-ra-usage-limit, we would have been able to secure the case (see 19.12.3).
+  Without the curative3 max-ra-usage-limit, we would have been able to secure the case (see 1.5.1.3).
     Given network file is "1_multi_step_optimisation/1_5_multi_curative/network_12nodes_3_parallel_lines_disconnected.uct"
     Given crac file is "1_multi_step_optimisation/1_5_multi_curative/crac_1_5_1_5_with_ra_limits.json"
-    Given configuration file is "1_multi_step_optimisation/1_5_multi_curative/rao_parameters_1_5_1_secure.json"
-    When I launch rao
+    Given configuration file is "1_multi_step_optimisation/1_5_multi_curative/rao_parameters_1_5_1_secure.json"    When I launch rao
     Then 0 remedial actions are used after "Contingency DE2 DE3 1" at "curative1"
     Then 1 remedial actions are used after "Contingency DE2 DE3 1" at "curative2"
     Then 0 remedial actions are used after "Contingency DE2 DE3 1" at "curative3"
