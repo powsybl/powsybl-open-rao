@@ -57,7 +57,13 @@ They are not exposed in the RAO result. If you use OpenLoadFlow, they can be dum
 
 Check the **CRAC creation report**: `Crac.readWithContext(...)` returns a `CracCreationContext` whose `getCreationReport()` is a textual report of the elements that were **ignored or modified** during the import, with tagged lines — `[ERROR]`, `[REMOVED]`, `[ADDED]`, `[ALTERED]`, `[WARN]`, `[INFO]` (e.g. `[ERROR]` when a CRAC element references a network element that was not found in the network, `[REMOVED]` when a contingency or CNEC is dropped). Log and check it to make sure the CRAC file is well-defined. Details: [CRAC creation context](input-data/crac/creation-context.md#non-specific-information).
 
-### Do I set my flow CNEC to optimized or monitored?
+### How do I define the CNECs?
+
+**Are all branches of the network processed by the RAO?**
+
+No: only the CNECs defined in the CRAC are processed (depending on their flags, optimized and/or monitored) by the RAO — a branch of the network that is not a CNEC in the CRAC plays no role in the optimization, and its flow is not specifically reported.
+
+**Do I set my flow CNEC to optimized or monitored?**
 
 A FlowCnec carries two independent flags (see [optimized and monitored CNECs](input-data/crac/json.md#optimized-and-monitored-cnecs)), and the four combinations exist:
 
@@ -67,6 +73,10 @@ A FlowCnec carries two independent flags (see [optimized and monitored CNECs](in
 - **optimized = false, monitored = false**: the CNEC plays no role in the optimization at all (no objective function, no MNEC protection); some native importers drop such CNECs at import — check the creation report.
 
 As long as the CNEC is in the CRAC, its flows and margins are computed by the load flows and reported in the [RaoResult](output-data/rao-result.md).
+
+**Where do the CNEC thresholds (PATL, TATL) come from?**
+
+From the CRAC file, not from the network: unless they are mentioned in the CRAC file, OpenRAO does **not** read any threshold from the network — the flow limits of a CNEC are the *thresholds* defined on the CNEC itself in the CRAC (see [Flow limits on a FlowCnec](input-data/crac/json.md#flow-limits-on-a-flowcnec)), and the branch limits that may exist on the IIDM network are ignored by the RAO. The network is only consulted to convert a threshold expressed in ampere or in %Imax (it provides the nominal voltage and the branch's Imax).
 
 ## Curative actions and contingencies
 
