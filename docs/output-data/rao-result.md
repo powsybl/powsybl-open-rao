@@ -740,8 +740,7 @@ Most results are power flow results (like flows and margins), and can be queried
 
 > **Note:** since version 2.0 of the JSON format, only `flow`, `commercialFlow` and `zonalPtdfSum` are written in the
 > `flow-results` extension. Margins, relative margins and loop-flows are computed on the fly by the `FlowResult`
-> extension from these values and the CNECs' thresholds; the `margin`, `relativeMargin` and `loopFlow` fields shown in
-> the examples below are only read from files written with older versions.
+> extension from these values and the CNECs' thresholds (except from files written with older versions; refer to those versions' documentation for more details).
 
 ##### Flow
 
