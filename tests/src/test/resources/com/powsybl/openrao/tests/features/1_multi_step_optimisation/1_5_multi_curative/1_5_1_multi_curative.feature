@@ -130,7 +130,8 @@ Feature: 1.5.1: Multi-curative
   Without the curative3 max-ra-usage-limit, we would have been able to secure the case (see 1.5.1.3).
     Given network file is "1_multi_step_optimisation/1_5_multi_curative/network_12nodes_3_parallel_lines_disconnected.uct"
     Given crac file is "1_multi_step_optimisation/1_5_multi_curative/crac_1_5_1_5_with_ra_limits.json"
-    Given configuration file is "1_multi_step_optimisation/1_5_multi_curative/rao_parameters_1_5_1_secure.json"    When I launch rao
+    Given configuration file is "1_multi_step_optimisation/1_5_multi_curative/rao_parameters_1_5_1_secure.json"
+    When I launch rao
     Then 0 remedial actions are used after "Contingency DE2 DE3 1" at "curative1"
     Then 1 remedial actions are used after "Contingency DE2 DE3 1" at "curative2"
     Then 0 remedial actions are used after "Contingency DE2 DE3 1" at "curative3"
