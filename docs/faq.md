@@ -9,12 +9,16 @@ Answers to practical questions frequently asked by teams building applications o
 It depends on the goal of the application around the RAO (see [`objective-function.type`](parameters/business-parameters.md#type)):
 
 - if your application runs an **iterative search in an external loop** around the RAO — e.g. an NTC calculation, where a dichotomy tests several **border-exchange values** — use `SECURE_FLOW`: each RAO run then provides a clean "secured / not secured" outcome for the search to consume. `SECURE_FLOW` is also the natural choice for a pure capacity validation ("can the network be secured?");
+- if the goal is to **maximize the minimum margin** (flow-based capacity calculation, which takes the cross-border effects into account), use `MAX_MIN_MARGIN`: the search-tree maximizes the minimum margin until convergence, and the best achievable margin is the RAM. `MAX_MIN_RELATIVE_MARGIN` does the same with **relative margins**: the margins are divided by the absolute sum of PTDFs on the commercial borders, but this division only applies **while the minimum margin is positive** (below zero, the objective behaves as the absolute margin);
+- if the goal is to **secure the network at the lowest monetary cost of the remedial actions** ("closed optimization", e.g. the Coordinated Security Analysis, where the congestion costs of costly remedial actions must be shared between TSOs), use `MIN_COST`: the objective is two-fold — first secure the base case and all contingency scenarios (the minimum margin violation is penalized), then, among the securing solutions, minimize the sum of the remedial action costs (activation + variation costs, **declared in the CRAC**). See [optimization of costly remedial actions](algorithms/castor/linear-problem/objective-function-types/costly-optimization.md).
+
+Note: all these objective functions focus on the **worst** CNEC (the minimum margin). There is **no objective function yet that minimizes "the overall overload"** (e.g. the sum of the violations on all CNECs): reducing the total amount of violation is not a supported optimization goal.
 
 The objective function's unit follows the computation mode: AMPERE in AC, MEGAWATT in DC ([objective function parameters](parameters/business-parameters.md#objective-function-parameters)).
 
 ### What is a good starting point for the RAO parameters file?
 
-Start from the [full JSON/YAML examples on the Parameters page](parameters.md#examples) (or the parameters of the [tutorial](getting-started/tutorial.md)) and adapt line by line. Beyond this base, most of the parameter surface (loop-flow parameters, MNEC, relative margins, predefined combinations, second preventive RAO, ...) is "advanced" and should only be activated once the base case is reproduced and understood.
+Start from the [full JSON/YAML examples on the Parameters page](parameters.md#examples) (or the parameters of the [tutorial](getting-started/tutorial.md)) and adapt line by line. The other parameters (loop-flow parameters, MNEC, relative margins, predefined combinations, second preventive RAO, ...) can be introduced once the base case is reproduced and understood.
 
 Note: the RAO parameters JSON version is **strictly checked** by the deserializer — only the current version is accepted.
 
@@ -29,7 +33,7 @@ No — do not confuse two distinct concepts:
 
 ### Does OpenRAO compute the sensitivities internally, or do I have to supply them?
 
-**Internally.** CASTOR performs the sensitivity analysis itself at each step of the search tree and at each linear-optimization iteration, through the PowSyBl sensitivity provider configured in `load-flow-and-sensitivity-computation` (by default, OpenLoadFlow). Users never supply precomputed sensitivities — only the provider and its parameters ([load flow and sensitivity computation parameters](parameters/implementation-specific-parameters.md#load-flow-and-sensitivity-computation-parameters)).
+**Internally.** CASTOR performs the sensitivity analysis itself at each step of the search tree and at each linear-optimization iteration, through the PowSyBl sensitivity provider configured in `load-flow-and-sensitivity-computation` (by default, OpenLoadFlow). Users never supply precomputed sensitivities — only the provider and its parameters ([load flow and sensitivity computation parameters](parameters/implementation-specific-parameters.md#load-flow-and-sensitivity-computation-parameters)). Note that the provider name is exactly `OpenLoadFlow` (no space): that is the value expected for `load-flow-provider` and `sensitivity-provider`.
 
 ### How are sensitivities handled for PSTs versus topological actions (switching, disconnections)?
 
@@ -52,6 +56,17 @@ They are not exposed in the RAO result. If you use OpenLoadFlow, they can be dum
 ### How do I check that my CRAC file was imported correctly?
 
 Check the **CRAC creation report**: `Crac.readWithContext(...)` returns a `CracCreationContext` whose `getCreationReport()` is a textual report of the elements that were **ignored or modified** during the import, with tagged lines — `[ERROR]`, `[REMOVED]`, `[ADDED]`, `[ALTERED]`, `[WARN]`, `[INFO]` (e.g. `[ERROR]` when a CRAC element references a network element that was not found in the network, `[REMOVED]` when a contingency or CNEC is dropped). Log and check it to make sure the CRAC file is well-defined. Details: [CRAC creation context](input-data/crac/creation-context.md#non-specific-information).
+
+### Do I set my flow CNEC to optimized or monitored?
+
+A FlowCnec carries two independent flags (see [optimized and monitored CNECs](input-data/crac/json.md#optimized-and-monitored-cnecs)), and the four combinations exist:
+
+- **optimized = true, monitored = true** (the usual case for a CNEC that must be both computed and secured): the CNEC is part of the objective function — the optimizer works on its margin — and it is also "monitored": if the [MNEC parameters](parameters/implementation-specific-parameters.md#mnec-optional-parameter) are configured, its margin is additionally protected from being degraded by more than `acceptable-margin-decrease`;
+- **optimized = true, monitored = false**: the CNEC is part of the objective function, but it receives no MNEC protection;
+- **optimized = false, monitored = true**: the CNEC is **not** part of the objective function — the RAO is not required to fix its violations — but, with the MNEC parameters configured, the optimizer avoids degrading its margin by more than `acceptable-margin-decrease`. This is the typical setting for elements that must be observed but not secured;
+- **optimized = false, monitored = false**: the CNEC plays no role in the optimization at all (no objective function, no MNEC protection); some native importers drop such CNECs at import — check the creation report.
+
+As long as the CNEC is in the CRAC, its flows and margins are computed by the load flows and reported in the [RaoResult](output-data/rao-result.md).
 
 ## Curative actions and contingencies
 
