@@ -45,7 +45,7 @@
       "type": "array",
       "items": {
         "items": {
-          "$ref": "../flow-cnec/flow-cnec-v2.8.json"
+          "$ref": "../flow-cnec/flow-cnec-v2.13.json"
         }
       }
     },
