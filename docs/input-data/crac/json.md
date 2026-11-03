@@ -328,8 +328,8 @@ a flow in the "opposite" direction.
 >  - For a given CNEC and a given side, and bound (max or min) -> the threshold can only be defined in one unit (the value for the other unit will be deduced by conversion)
 >
 > `FlowCNEC` Objects:
->  - Thresholds using the **PERCENT_IMAX** unit can be defined in a `FlowCNEC` object -> it will always be converted to AMPERE
->  - Several threshold can be defined on the same side and bound
+>  - Thresholds using the **PERCENT_IMAX** unit can be defined in a `FlowCNEC` object -> however note that it will always be converted and exported in AMPERE in the JSON file 
+>  - Several threshold can be defined on the same side and bound -> only one threshold per side and bound will be kept in the JSON CRAC, the smallest max threshold and the largest min threshold will be kept
 
 A FlowCnec has flow limits, called "thresholds" in OpenRAO. These thresholds define the limits between which the power
 flow of the FlowCnec should ideally remain.
