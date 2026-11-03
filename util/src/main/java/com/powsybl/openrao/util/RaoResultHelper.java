@@ -198,7 +198,6 @@ public final class RaoResultHelper {
                 }
             }
         }
-        raoResult.removeExtension(ExtensionType.class);
         return true;
     }
 
