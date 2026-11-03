@@ -527,4 +527,19 @@ public final class JsonSerializationConstants {
             throw new OpenRaoException("From version %s.%s onward, %s is no longer read in the CRAC.".formatted(major, minor, jsonParser.currentName()));
         }
     }
+
+    /**
+     * Determines whether the given version string represents a version that is equal to or greater than the specified major and minor version numbers.
+     *
+     * @param version The version string to parse and compare, typically in the format "major.minor".
+     * @param major The major version number to compare against.
+     * @param minor The minor version number to compare against.
+     * @return true if the given version is equal to or greater than the specified major and minor version numbers, false otherwise.
+     */
+    public static boolean versionIsAtLeast(String version, int major, int minor) {
+        return JsonSerializationConstants.getPrimaryVersionNumber(version) > major ||
+            JsonSerializationConstants.getPrimaryVersionNumber(version) == major && JsonSerializationConstants.getSubVersionNumber(version) >= minor;
+    }
+
+
 }
