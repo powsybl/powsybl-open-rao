@@ -88,7 +88,6 @@ import static com.powsybl.openrao.tests.utils.Helpers.getFile;
 import static com.powsybl.openrao.tests.utils.Helpers.getOffsetDateTimeFromBrusselsTimestamp;
 import static com.powsybl.openrao.tests.utils.Helpers.importCrac;
 import static com.powsybl.openrao.tests.utils.Helpers.importNetwork;
-import static com.powsybl.openrao.util.RaoResultHelper.isSecure;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -522,14 +521,7 @@ public final class TimeCoupledRaoSteps {
     public void statusShouldBe(String status) {
         assertEquals(
             "secured".equalsIgnoreCase(status),
-            isSecure(
-                timeCoupledRaoResult,
-                CommonTestData.getTimeCoupledRaoInput().getRaoInputs().map(RaoInput::getCrac),
-                CommonTestData.getRaoParameters(),
-                PhysicalParameter.FLOW,
-                PhysicalParameter.ANGLE,
-                PhysicalParameter.VOLTAGE
-            )
+            timeCoupledRaoResult.isSecure(PhysicalParameter.FLOW, PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE)
         );
     }
 

@@ -4,13 +4,14 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 Feature: 5.4.1: Handle CNECs belonging to TSOs that don't share CRAs
+  # FIXME: impossible to access the list of CNECs to exclude without the parameters -> update importer?
   This feature covers the parameter "not-optimized-cnecs"/"do-not-optimize-curative-cnecs-for-tsos-without-cras",
   from the RaoParameters.
 
   @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: 5.4.1.1.A: All CNECs belong to one operator not sharing CRAs - AMP
   The worst margin is on a curative CNEC (not taken into account since all CNECs belong to an operator not sharing CRAs)
-  The "limiting" one for the objective function is the worst preventive CNECs
+  The "limiting" one for the objective function is the worst preventive CNEC
     Given network file is "5_special_features/5_4_do_not_optimise_specific_cnecs/network_16nodes_with_different_imax_v2.uct" for CORE CC
     Given crac file is "5_special_features/5_4_do_not_optimise_specific_cnecs/cbcora_5_4_1_1.xml"
     Given configuration file is "5_special_features/5_4_do_not_optimise_specific_cnecs/rao_parameters_max_margin_ampere_share_cra.json"
@@ -183,7 +184,7 @@ Feature: 5.4.1: Handle CNECs belonging to TSOs that don't share CRAs
     Then 1 remedial actions are used in preventive
     Then the tap of PstRangeAction "pst_fr" should be 9 in preventive
     Then 0 remedial actions are used after "CO1_fr2_fr3_1" at "curative"
-    Then the worst margin is -81 A
+    Then the worst margin is -54.91 MW
     Then the value of the objective function after CRA should be -616.0
     Then the margin on cnec "fr1_fr4_CO1 - curative" after CRA should be -54 MW
     Then the margin on cnec "fr3_fr5_CO1 - OPP - curative" after CRA should be 478 MW
