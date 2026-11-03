@@ -61,9 +61,9 @@ Check the **CRAC creation report**: `Crac.readWithContext(...)` returns a `CracC
 
 A FlowCnec carries two independent flags (see [optimized and monitored CNECs](input-data/crac/json.md#optimized-and-monitored-cnecs)), and the four combinations exist:
 
-- **optimized = true, monitored = true** (the usual case for a CNEC that must be both computed and secured): the CNEC is part of the objective function — the optimizer works on its margin — and it is also "monitored": if the [MNEC parameters](parameters/implementation-specific-parameters.md#mnec-optional-parameter) are configured, its margin is additionally protected from being degraded by more than `acceptable-margin-decrease`;
-- **optimized = true, monitored = false**: the CNEC is part of the objective function, but it receives no MNEC protection;
+- **optimized = true, monitored = false** (the usual case for a CNEC that must be secured): the CNEC's margin is part of the objective function, meaning that the optimizer will implement remedial actions that will increase its margin, if it's the worst one;
 - **optimized = false, monitored = true**: the CNEC is **not** part of the objective function — the RAO is not required to fix its violations — but, with the MNEC parameters configured, the optimizer avoids degrading its margin by more than `acceptable-margin-decrease`. This is the typical setting for elements that must be observed but not secured;
+- **optimized = true, monitored = true**: the CNEC is part of the objective function — the optimizer works on its margin — and it is also "monitored": if the [MNEC parameters](parameters/implementation-specific-parameters.md#mnec-optional-parameter) are configured, its margin is additionally protected from being degraded by more than `acceptable-margin-decrease`;
 - **optimized = false, monitored = false**: the CNEC plays no role in the optimization at all (no objective function, no MNEC protection); some native importers drop such CNECs at import — check the creation report.
 
 As long as the CNEC is in the CRAC, its flows and margins are computed by the load flows and reported in the [RaoResult](output-data/rao-result.md).
