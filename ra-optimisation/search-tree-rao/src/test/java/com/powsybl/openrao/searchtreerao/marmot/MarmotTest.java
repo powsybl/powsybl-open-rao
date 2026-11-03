@@ -45,6 +45,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+
+import com.powsybl.openrao.data.crac.api.State;
+import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
+import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
+
+import java.lang.reflect.Method;
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
@@ -690,5 +696,29 @@ class MarmotTest {
         assertEquals(Set.of(crac01.getPstRangeAction("pstFr2Fr3")), timeCoupledRaoResult.getActivatedRangeActionsDuringState(crac01.getState("Contingency FR2 FR3 2", crac01.getLastInstant())));
         assertEquals(Set.of(crac00.getNetworkAction("closeFr2Fr3")), timeCoupledRaoResult.getActivatedNetworkActionsDuringState(crac00.getState("Contingency FR2 FR3 2", crac00.getLastInstant())));
         assertEquals(Set.of(crac01.getNetworkAction("closeFr2Fr3")), timeCoupledRaoResult.getActivatedNetworkActionsDuringState(crac01.getState("Contingency FR2 FR3 2", crac01.getLastInstant())));
+    }
+
+    @Test
+    void testComputeOptimizationPerimetersPerTimestamp() throws Exception {
+        OffsetDateTime timestamp = OffsetDateTime.parse("2025-02-13T00:30Z");
+        Network network = Network.read("/network/3Nodes6Lines.uct", MarmotTest.class.getResourceAsStream("/network/3Nodes6Lines.uct"));
+        Crac crac = Crac.read("crac-2-contingency.json", MarmotTest.class.getResourceAsStream("/crac/crac-2-contingency.json"), network);
+
+        TemporalData<Crac> cracs = new TemporalDataImpl<>(Map.of(timestamp, crac));
+        TemporalData<Set<FlowCnec>> consideredCnecs = new TemporalDataImpl<>(Map.of(timestamp, Set.of(crac.getFlowCnec("preventive-cnec"), crac.getFlowCnec("curative-cnec-1"))));
+
+        Method method = Marmot.class.getDeclaredMethod("computeOptimizationPerimetersPerTimestamp", TemporalData.class, TemporalData.class, int.class);
+        method.setAccessible(true);
+        TemporalData<?> perimeters = (TemporalData<?>) method.invoke(null, cracs, consideredCnecs, 1);
+        OptimizationPerimeter perimeter = (OptimizationPerimeter) perimeters.getData(timestamp).orElseThrow();
+
+        // Curative-2 state and its related range action "PST - curative-2" is ignored because the state has no considered CNEC.
+        State preventive1 = crac.getPreventiveState();
+        State curative1 = crac.getState("contingency-1", crac.getInstant("curative"));
+        assertEquals(preventive1, perimeter.getMainOptimizationState());
+        assertEquals(consideredCnecs.getData(timestamp).orElseThrow(), perimeter.getFlowCnecs());
+        assertEquals(Map.of(preventive1, Set.of(crac.getRangeAction("PST - preventive")),
+            curative1, Set.of(crac.getRangeAction("PST - curative-1"))), perimeter.getRangeActionsPerState());
+        assertEquals(Set.of(preventive1, curative1), perimeter.getRangeActionOptimizationStates());
     }
 }
