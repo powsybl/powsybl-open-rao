@@ -541,5 +541,4 @@ public final class JsonSerializationConstants {
             JsonSerializationConstants.getPrimaryVersionNumber(version) == major && JsonSerializationConstants.getSubVersionNumber(version) >= minor;
     }
 
-
 }
