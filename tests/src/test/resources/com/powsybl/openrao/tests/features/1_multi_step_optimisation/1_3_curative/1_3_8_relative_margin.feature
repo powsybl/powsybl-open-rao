@@ -14,9 +14,9 @@ Feature: 1.3.8: Cross-validation curative and relative margin
     compared to initial case. In curative, remedial actions are the same because the most limiting element has negative margin
     So it remains the same between the two cases.
     #
-    Given network file is "common/TestCase16Nodes.uct"
+    Given network file is "common/network_16nodes.uct"
     Given crac file is "1_multi_step_optimisation/1_3_curative/crac_1_3_2_6.json"
-    Given configuration file is "common/RaoParameters_relMargin_ampere.json"
+    Given configuration file is "common/rao_parameters_rel_margin_ampere.json"
     Given loopflow glsk file is "common/glsk_proportional_16nodes.xml"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
@@ -42,9 +42,9 @@ Feature: 1.3.8: Cross-validation curative and relative margin
   Scenario: 1.3.8.2: Full optimization in absolute margin with positive margin in curative
     # Curative limiting element of previous case has been removed so that limiting element in curative has a positive
     # absolute margin. This case is a reference for the following one.
-    Given network file is "common/TestCase16Nodes.uct"
+    Given network file is "common/network_16nodes.uct"
     Given crac file is "1_multi_step_optimisation/1_3_curative/crac_1_3_8_2.json"
-    Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
+    Given configuration file is "common/rao_parameters_max_margin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -67,9 +67,9 @@ Feature: 1.3.8: Cross-validation curative and relative margin
   Scenario: 1.3.8.3: Full optimization in relative margin with positive margin in curative
     # Optimizations in both preventive and curative are slightly different since due to PTDF factor limiting elements
     # are not the same in both situations.
-    Given network file is "common/TestCase16Nodes.uct"
+    Given network file is "common/network_16nodes.uct"
     Given crac file is "1_multi_step_optimisation/1_3_curative/crac_1_3_8_2.json"
-    Given configuration file is "common/RaoParameters_relMargin_ampere.json"
+    Given configuration file is "common/rao_parameters_rel_margin_ampere.json"
     Given loopflow glsk file is "common/glsk_proportional_16nodes.xml"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"

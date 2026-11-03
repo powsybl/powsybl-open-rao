@@ -8,11 +8,11 @@ Feature: 5.1.2.1: Loopflow PTDF update parameter
 
   @fast @rao @dc @preventive-only @loopflow @max-min-margin
   Scenario: 5.1.2.1.0: RAO with loop-flow in DC with FIXED_PTDF
-    Given network file is "common/TestCase12Nodes.uct" for CORE CC
-    Given crac file is "5_special_features/5_1_loopflow/crac_5_1_1_3_2_crac_lf_rao_3_cbcora.xml"
+    Given network file is "common/network_12nodes.uct" for CORE CC
+    Given crac file is "5_special_features/5_1_loopflow/crac_5_1_1_3_2.xml"
     Given loopflow glsk file is "common/glsk_lots_of_lf_12nodes.xml"
-    Given RefProg file is "5_special_features/5_1_loopflow/5_1_2_loopflow_in_rao/refProg_12nodes_same_as_uct.xml"
-    Given configuration file is "5_special_features/5_1_loopflow/5_1_2_loopflow_in_rao/RaoParameters_maxMargin_mw_dc_lf_false_5_100.json"
+    Given RefProg file is "5_special_features/5_1_loopflow/5_1_2_loopflow_in_rao/ref_prog_12nodes_same_as_uct.xml"
+    Given configuration file is "5_special_features/5_1_loopflow/5_1_2_loopflow_in_rao/rao_parameters_max_margin_mw_dc_lf_false_5_100.json"
     When I launch loopflow rao at "2019-01-08 21:30" with default loopflow limit as 0.0 percent of pmax
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "UNSECURED"
@@ -29,11 +29,11 @@ Feature: 5.1.2.1: Loopflow PTDF update parameter
 
   @fast @rao @dc @preventive-only @loopflow @max-min-margin
   Scenario: 5.1.2.1.1: RAO with loop-flow in DC with UPDATE_PTDF_WITH_TOPO_AND_PST
-    Given network file is "common/TestCase12Nodes.uct" for CORE CC
-    Given crac file is "5_special_features/5_1_loopflow/crac_5_1_1_3_2_crac_lf_rao_3_cbcora.xml"
+    Given network file is "common/network_12nodes.uct" for CORE CC
+    Given crac file is "5_special_features/5_1_loopflow/crac_5_1_1_3_2.xml"
     Given loopflow glsk file is "common/glsk_lots_of_lf_12nodes.xml"
-    Given RefProg file is "5_special_features/5_1_loopflow/5_1_2_loopflow_in_rao/refProg_12nodes_same_as_uct.xml"
-    Given configuration file is "5_special_features/5_1_loopflow/5_1_2_loopflow_in_rao/RaoParameters_maxMargin_mw_dc_lf_accurate_5_100.json"
+    Given RefProg file is "5_special_features/5_1_loopflow/5_1_2_loopflow_in_rao/ref_prog_12nodes_same_as_uct.xml"
+    Given configuration file is "5_special_features/5_1_loopflow/5_1_2_loopflow_in_rao/rao_parameters_max_margin_mw_dc_lf_accurate_5_100.json"
     When I launch loopflow rao at "2019-01-08 21:30" with default loopflow limit as 0.0 percent of pmax
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "UNSECURED"
@@ -55,11 +55,11 @@ Feature: 5.1.2.1: Loopflow PTDF update parameter
 
   @fast @rao @dc @preventive-only @loopflow @max-min-margin
   Scenario: 5.1.2.1.2: RAO with loop-flow in DC with UPDATE_PTDF_WITH_TOPO
-    Given network file is "common/TestCase12Nodes.uct" for CORE CC
-    Given crac file is "5_special_features/5_1_loopflow/crac_5_1_1_3_2_crac_lf_rao_3_cbcora.xml"
+    Given network file is "common/network_12nodes.uct" for CORE CC
+    Given crac file is "5_special_features/5_1_loopflow/crac_5_1_1_3_2.xml"
     Given loopflow glsk file is "common/glsk_lots_of_lf_12nodes.xml"
-    Given RefProg file is "5_special_features/5_1_loopflow/5_1_2_loopflow_in_rao/refProg_12nodes_same_as_uct.xml"
-    Given configuration file is "5_special_features/5_1_loopflow/5_1_2_loopflow_in_rao/RaoParameters_maxMargin_mw_dc_lf_inBetween_5_100.json"
+    Given RefProg file is "5_special_features/5_1_loopflow/5_1_2_loopflow_in_rao/ref_prog_12nodes_same_as_uct.xml"
+    Given configuration file is "5_special_features/5_1_loopflow/5_1_2_loopflow_in_rao/rao_parameters_max_margin_mw_dc_lf_in_between_5_100.json"
     When I launch loopflow rao at "2019-01-08 21:30" with default loopflow limit as 0.0 percent of pmax
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "UNSECURED"

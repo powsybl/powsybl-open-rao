@@ -15,7 +15,7 @@ Feature: 4.3: Time-coupled generator constraints with MARMOT based on JSON time-
   ----------------------
   Scenario: 4.3.1: No constraints, specifically : StartUp allowed
   From 04:30 onwards, redispatching is required.
-    Given configuration file is "4_time_coupled/RaoParameters_minCost_megawatt_dc_0_shift.json"
+    Given configuration file is "4_time_coupled/rao_parameters_min_cost_megawatt_dc_0_shift.json"
     Given time-coupled constraints are in file "4_time_coupled/time-coupled-constraints-without-constraints.json" and rao inputs are:
       | Timestamp        | Network                      | CRAC                                 |
       | 2025-11-04 03:30 | 4_time_coupled/6Nodes_Pmax2500.xiidm | 4_time_coupled/4_3/crac_202511040330.json |
@@ -41,7 +41,7 @@ Feature: 4.3: Time-coupled generator constraints with MARMOT based on JSON time-
   Scenario: 4.3.2: Same as 4.3.1, but StartUp not allowed
     From 04:30 onwards, redispatching is required. Nevertheless, BBE1AA1_generator is not available
     since startup is prohibited.
-    Given configuration file is "4_time_coupled/RaoParameters_minCost_megawatt_dc_0_shift.json"
+    Given configuration file is "4_time_coupled/rao_parameters_min_cost_megawatt_dc_0_shift.json"
     Given time-coupled constraints are in file "4_time_coupled/time-coupled-constraints-startup-prohibited.json" and rao inputs are:
       | Timestamp        | Network                      | CRAC                                 |
       | 2025-11-04 03:30 | 4_time_coupled/6Nodes_Pmax2500.xiidm | 4_time_coupled/4_3/crac_202511040330.json |
@@ -66,7 +66,7 @@ Feature: 4.3: Time-coupled generator constraints with MARMOT based on JSON time-
 
   Scenario: 4.3.3: No constraints, specifically : ShutDown allowed
   Redispatching action is necessary at 19:30 but not afterwards.
-    Given configuration file is "4_time_coupled/RaoParameters_minCost_megawatt_dc_0_shift.json"
+    Given configuration file is "4_time_coupled/rao_parameters_min_cost_megawatt_dc_0_shift.json"
     Given time-coupled constraints are in file "4_time_coupled/time-coupled-constraints-without-constraints.json" and rao inputs are:
       | Timestamp        | Network                      | CRAC                                 |
       | 2025-11-04 19:30 | 4_time_coupled/6Nodes_Pmax2500.xiidm | 4_time_coupled/4_3/crac_202511041930.json |
@@ -92,7 +92,7 @@ Feature: 4.3: Time-coupled generator constraints with MARMOT based on JSON time-
   Scenario: 4.3.4: ShutDown not allowed
   Redispatching action is necessary at 19:30 but not afterwards. Since shutdown isn't possible, redispatching action
   is set at its Pmin afterwards.
-    Given configuration file is "4_time_coupled/RaoParameters_minCost_megawatt_dc_0_shift.json"
+    Given configuration file is "4_time_coupled/rao_parameters_min_cost_megawatt_dc_0_shift.json"
     Given time-coupled constraints are in file "4_time_coupled/time-coupled-constraints-shutdown-prohibited.json" and rao inputs are:
       | Timestamp        | Network                      | CRAC                                 |
       | 2025-11-04 19:30 | 4_time_coupled/6Nodes_Pmax2500.xiidm | 4_time_coupled/4_3/crac_202511041930.json |

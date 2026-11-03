@@ -9,9 +9,9 @@ Feature: 5.2.1: Handle MNECs in linear RAO
   @fast @rao @dc @preventive-only @max-min-margin
   Scenario: 5.2.1.1: reference run, no MNEC
   The flow on CNEC "NNL2AA1  NNL3AA1  1 - preventive" is increased because the CNEC is not limiting.
-    Given network file is "common/TestCase12Nodes.uct" for CORE CC
+    Given network file is "common/network_12nodes.uct" for CORE CC
     Given crac file is "5_special_features/5_2_mnec/ls_mnec_linearRao_ref.json"
-    Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
+    Given configuration file is "common/rao_parameters_max_margin_megawatt_dc.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -27,9 +27,9 @@ Feature: 5.2.1: Handle MNECs in linear RAO
   Same as 5.2.1.1, except that "NNL2AA1  NNL3AA1  1 - preventive" is a MNEC (threshold 900 MW) and not a CNEC (5000 MW).
   Unlike in the previous US, the flow of the MNEC cannot be increased above 900 MW, so the tap of the PST range action
   is adapted. The margin of the MNEC was positive initially, it must remain positive.
-    Given network file is "common/TestCase12Nodes.uct" for CORE CC
+    Given network file is "common/network_12nodes.uct" for CORE CC
     Given crac file is "5_special_features/5_2_mnec/ls_mnec_linearRao_1_2.json"
-    Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
+    Given configuration file is "common/rao_parameters_max_margin_megawatt_dc.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -45,9 +45,9 @@ Feature: 5.2.1: Handle MNECs in linear RAO
   Same as 5.2.1.2, except that the threshold of the MNEC is "NNL2AA1  NNL3AA1  1 - preventive" is 800 MW (vs 900 MW).
   As the initial flow is 833 MW, the MNEC is overloaded. Its flow cannot be decreased "too much" by the RAO. The maximum
   decrease is set at 50 MW by the parameter "acceptable-margin-decrease" in "mnec-parameters".
-    Given network file is "common/TestCase12Nodes.uct" for CORE CC
+    Given network file is "common/network_12nodes.uct" for CORE CC
     Given crac file is "5_special_features/5_2_mnec/ls_mnec_linearRao_1_3.json"
-    Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
+    Given configuration file is "common/rao_parameters_max_margin_megawatt_dc.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -64,9 +64,9 @@ Feature: 5.2.1: Handle MNECs in linear RAO
   As the initial flow is 833 MW, the MNEC is not overloaded. However, its flow can still be decreased by the RAO, even
   if the margin becomes negative. The maximum decrease is set at 50 MW by the parameter "acceptable-margin-decrease"
   in "mnec-parameters".
-    Given network file is "common/TestCase12Nodes.uct" for CORE CC
+    Given network file is "common/network_12nodes.uct" for CORE CC
     Given crac file is "5_special_features/5_2_mnec/ls_mnec_linearRao_1_4.json"
-    Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
+    Given configuration file is "common/rao_parameters_max_margin_megawatt_dc.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"

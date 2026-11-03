@@ -8,10 +8,10 @@ Feature: 2.1.5: Modify voltage level topology as remedial action (3 nodes case)
 
   @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: 2.1.5.1: PRA RA1 and CRA RA3 inapplicable (1/2)
-    Given network file is "2_remedial_actions/2_1_network_actions_optimisation/TestCase12Nodes_forCSE_3nodes_uselessSwitches.uct"
-    Given crac file is "2_remedial_actions/2_1_network_actions_optimisation/cseCrac_ep15us10-1case6.xml"
-    Given crac creation parameters file is "2_remedial_actions/2_1_network_actions_optimisation/CseCracCreationParameters_2_1_5_1.json"
-    Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
+    Given network file is "2_remedial_actions/2_1_network_actions_optimisation/network_12nodes_for_cse_3nodes_useless_switches.uct"
+    Given crac file is "2_remedial_actions/2_1_network_actions_optimisation/crac_2_1_4_6.xml"
+    Given crac creation parameters file is "2_remedial_actions/2_1_network_actions_optimisation/cse_crac_creation_parameters_2_1_5_1.json"
+    Given configuration file is "common/rao_parameters_max_margin_megawatt_dc.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "UNSECURED"
@@ -20,10 +20,10 @@ Feature: 2.1.5: Modify voltage level topology as remedial action (3 nodes case)
 
   @fast @rao @dc @contingency-scenarios @max-min-margin
   Scenario: 2.1.5.2: PRA RA1 inapplicable, CRA RA3 applicable
-    Given network file is "2_remedial_actions/2_1_network_actions_optimisation/TestCase12Nodes_forCSE_3nodes_uselessSwitches2.uct"
-    Given crac file is "2_remedial_actions/2_1_network_actions_optimisation/cseCrac_ep15us10-1case6.xml"
-    Given crac creation parameters file is "2_remedial_actions/2_1_network_actions_optimisation/CseCracCreationParameters_2_1_5_1.json"
-    Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
+    Given network file is "2_remedial_actions/2_1_network_actions_optimisation/network_12nodes_for_cse_3nodes_useless_switches2.uct"
+    Given crac file is "2_remedial_actions/2_1_network_actions_optimisation/crac_2_1_4_6.xml"
+    Given crac creation parameters file is "2_remedial_actions/2_1_network_actions_optimisation/cse_crac_creation_parameters_2_1_5_1.json"
+    Given configuration file is "common/rao_parameters_max_margin_megawatt_dc.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "UNSECURED"
@@ -33,10 +33,10 @@ Feature: 2.1.5: Modify voltage level topology as remedial action (3 nodes case)
 
   @fast @rao @dc @contingency-scenarios @max-min-margin
   Scenario: 2.1.5.3: PRA RA1 applicable, makes CRA RA3 inapplicable (1/2)
-    Given network file is "2_remedial_actions/2_1_network_actions_optimisation/TestCase12Nodes_forCSE_3nodes_uselessSwitches3.uct"
-    Given crac file is "2_remedial_actions/2_1_network_actions_optimisation/cseCrac_ep15us10-1case6.xml"
-    Given crac creation parameters file is "2_remedial_actions/2_1_network_actions_optimisation/CseCracCreationParameters_2_1_5_1.json"
-    Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
+    Given network file is "2_remedial_actions/2_1_network_actions_optimisation/network_12nodes_for_cse_3nodes_useless_switches3.uct"
+    Given crac file is "2_remedial_actions/2_1_network_actions_optimisation/crac_2_1_4_6.xml"
+    Given crac creation parameters file is "2_remedial_actions/2_1_network_actions_optimisation/cse_crac_creation_parameters_2_1_5_1.json"
+    Given configuration file is "common/rao_parameters_max_margin_megawatt_dc.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "UNSECURED"
@@ -47,10 +47,10 @@ Feature: 2.1.5: Modify voltage level topology as remedial action (3 nodes case)
 
   @fast @rao @dc @contingency-scenarios @max-min-margin
   Scenario: 2.1.5.4: PRA RA1 applicable, makes CRA RA3 inapplicable (2/2)
-    Given network file is "2_remedial_actions/2_1_network_actions_optimisation/TestCase12Nodes_forCSE_3nodes_uselessSwitches4.uct"
-    Given crac file is "2_remedial_actions/2_1_network_actions_optimisation/cseCrac_ep15us10-1case6.xml"
-    Given crac creation parameters file is "2_remedial_actions/2_1_network_actions_optimisation/CseCracCreationParameters_2_1_5_1.json"
-    Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
+    Given network file is "2_remedial_actions/2_1_network_actions_optimisation/network_12nodes_for_cse_3nodes_useless_switches4.uct"
+    Given crac file is "2_remedial_actions/2_1_network_actions_optimisation/crac_2_1_4_6.xml"
+    Given crac creation parameters file is "2_remedial_actions/2_1_network_actions_optimisation/cse_crac_creation_parameters_2_1_5_1.json"
+    Given configuration file is "common/rao_parameters_max_margin_megawatt_dc.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "UNSECURED"

@@ -10,7 +10,7 @@ Feature: 0.1.3.1: Import of simple network actions as preventive remedial action
   Scenario: 0.1.3.1.1
   No threshold with a PERCENT_IMAX unit is defined in the CRAC so no iMax was imported.
     Given crac file is "common/crac_2_1_2_1_selectionTopoRA.json"
-    Given network file is "common/TestCase12Nodes.uct"
+    Given network file is "common/network_12nodes.uct"
     When I import crac
     Then it should have the following flow CNECs:
       | Name           | NetworkElementId    | Instant    | Contingency         | Optimized | Monitored | ImaxLeft | ImaxRight | NominalVoltageLeft | NominalVoltageRight |

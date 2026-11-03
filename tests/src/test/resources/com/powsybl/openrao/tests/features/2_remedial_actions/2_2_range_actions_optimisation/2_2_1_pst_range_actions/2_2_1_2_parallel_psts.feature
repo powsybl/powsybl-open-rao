@@ -8,9 +8,9 @@ Feature: 2.2.1.2: Handle parallel PSTs
 
   @fast @rao @ac @preventive-only @search-tree-rao @max-min-margin
   Scenario: 2.2.1.2.1: Preventive search tree RAO with two aligned PSTs
-    Given network file is "2_remedial_actions/2_2_range_actions_optimisation/2_2_1_pst_range_actions/TestCase16Nodes_alignedPsts.uct"
+    Given network file is "2_remedial_actions/2_2_range_actions_optimisation/2_2_1_pst_range_actions/network_16nodes_aligned_psts.uct"
     Given crac file is "2_remedial_actions/2_2_range_actions_optimisation/2_2_1_pst_range_actions/cbcora_2_2_1_2_1.xml"
-    Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
+    Given configuration file is "common/rao_parameters_max_margin_ampere.json"
     When I launch rao at "2019-01-08 12:00"
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"

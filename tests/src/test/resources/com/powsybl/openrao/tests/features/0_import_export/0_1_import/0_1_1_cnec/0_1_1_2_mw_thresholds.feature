@@ -10,7 +10,7 @@ Feature: 0.1.1.2: Import of a CRAC with MW threshold
   Scenario: 0.1.1.2.1: Import of a CRAC with MW threshold
   No threshold with a PERCENT_IMAX unit is defined in the CRAC so no iMax was imported.
     Given crac file is "0_import_export/0_1_import/0_1_1_cnec/crac_0_1_1_2_1_MW.json"
-    Given network file is "common/TestCase12Nodes.uct"
+    Given network file is "common/network_12nodes.uct"
     When I import crac
     Then it should have the following flow CNECs:
       | Name                    | NetworkElementId    | Instant    | Contingency         | Optimized | Monitored | ImaxLeft | ImaxRight | NominalVoltageLeft | NominalVoltageRight |

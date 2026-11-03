@@ -9,7 +9,7 @@ Feature: 0.1.1.5: Consider two margins on tie-lines for each half-line with rela
   @fast @crac
   Scenario: 0.1.1.5.0: Import different thresholds (absolute) on two half-lines of the same tie-line
   No threshold with a PERCENT_IMAX unit is defined in the CRAC so no iMax was imported.
-    Given network file is "0_import_export/0_1_import/0_1_1_cnec/TestCase12Nodes_with_Xnodes.uct" for CORE CC
+    Given network file is "0_import_export/0_1_import/0_1_1_cnec/network_12nodes_with_xnodes.uct" for CORE CC
     Given crac file is "0_import_export/0_1_import/0_1_1_cnec/ls-Xnodes-and-half-lines.json"
     When I import crac
     Then it should have the following flow CNECs:
@@ -28,9 +28,9 @@ Feature: 0.1.1.5: Consider two margins on tie-lines for each half-line with rela
 
   @fast @rao @ac @preventive-only @max-min-margin
   Scenario: 0.1.1.5.1: Run a rao with different thresholds (absolute) on two half-lines of the same tie-line
-    Given network file is "0_import_export/0_1_import/0_1_1_cnec/TestCase12Nodes_with_Xnodes.uct"
+    Given network file is "0_import_export/0_1_import/0_1_1_cnec/network_12nodes_with_xnodes.uct"
     Given crac file is "0_import_export/0_1_import/0_1_1_cnec/ls-Xnodes-and-half-lines.json"
-    Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
+    Given configuration file is "common/rao_parameters_max_margin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "UNSECURED"
@@ -41,9 +41,9 @@ Feature: 0.1.1.5: Consider two margins on tie-lines for each half-line with rela
 
   @fast @rao @ac @preventive-only @max-min-margin
   Scenario: 0.1.1.5.2: Run a rao with different thresholds (relative) on two half-lines of the same tie-line
-    Given network file is "0_import_export/0_1_import/0_1_1_cnec/TestCase12Nodes_with_Xnodes_different_imax.uct"
+    Given network file is "0_import_export/0_1_import/0_1_1_cnec/network_12nodes_with_xnodes_different_imax.uct"
     Given crac file is "0_import_export/0_1_import/0_1_1_cnec/ls-Xnodes-and-half-lines-relative.json"
-    Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
+    Given configuration file is "common/rao_parameters_max_margin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "UNSECURED"

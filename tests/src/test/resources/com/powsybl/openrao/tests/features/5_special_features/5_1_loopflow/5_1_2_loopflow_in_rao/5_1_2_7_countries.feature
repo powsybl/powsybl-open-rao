@@ -8,11 +8,11 @@ Feature: 5.1.2.7: Monitor loopflows on specific countries
 
   @fast @rao @dc @preventive-only @loopflow @max-min-margin
   Scenario: 5.1.2.7.1 : loopflows monitored on the borders of BE and of NL
-    Given network file is "common/TestCase12Nodes.uct" for CORE CC
-    Given crac file is "5_special_features/5_1_loopflow/crac_5_1_1_3_2_crac_lf_rao_3_cbcora.xml"
+    Given network file is "common/network_12nodes.uct" for CORE CC
+    Given crac file is "5_special_features/5_1_loopflow/crac_5_1_1_3_2.xml"
     Given loopflow glsk file is "common/glsk_lots_of_lf_12nodes.xml"
-    Given RefProg file is "common/refProg_12nodes.xml"
-    Given configuration file is "common/RaoParameters_maxMargin_mw_dc_lf_false_5_100_BE_NL.json"
+    Given RefProg file is "common/ref_prog_12nodes.xml"
+    Given configuration file is "common/rao_parameters_max_margin_mw_dc_lf_false_5_100_be_nl.json"
     When I launch loopflow rao at "2019-01-08 21:30" with default loopflow limit as 0.0 percent of pmax
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "UNSECURED"
@@ -36,11 +36,11 @@ Feature: 5.1.2.7: Monitor loopflows on specific countries
 
   @fast @rao @dc @preventive-only @loopflow @max-min-margin
   Scenario: 5.1.2.7.2 : loopflows monitored on the borders of NL
-    Given network file is "common/TestCase12Nodes.uct" for CORE CC
-    Given crac file is "5_special_features/5_1_loopflow/crac_5_1_1_3_3_crac_lf_rao_3_with_frm_cbcora.xml"
+    Given network file is "common/network_12nodes.uct" for CORE CC
+    Given crac file is "5_special_features/5_1_loopflow/crac_5_1_1_3_3.xml"
     Given loopflow glsk file is "common/glsk_lots_of_lf_12nodes.xml"
-    Given RefProg file is "common/refProg_12nodes.xml"
-    Given configuration file is "5_special_features/5_1_loopflow/5_1_2_loopflow_in_rao/RaoParameters_maxMargin_mw_dc_lf_false_5_100_NL.json"
+    Given RefProg file is "common/ref_prog_12nodes.xml"
+    Given configuration file is "5_special_features/5_1_loopflow/5_1_2_loopflow_in_rao/rao_parameters_max_margin_mw_dc_lf_false_5_100_nl.json"
     When I launch loopflow rao at "2019-01-08 21:30" with default loopflow limit as 0.0 percent of pmax
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "UNSECURED"

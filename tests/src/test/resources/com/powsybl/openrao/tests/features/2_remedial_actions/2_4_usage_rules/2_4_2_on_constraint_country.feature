@@ -8,9 +8,9 @@ Feature: 2.4.2: activate remedial actions only after a constraint in a specific 
 
   @fast @rao @ac @preventive-only @max-min-margin
   Scenario: 2.4.2.1: Preventive onConstraint RA with constraint on base network
-    Given network file is "common/TestCase16Nodes.uct"
+    Given network file is "common/network_16nodes.uct"
     Given crac file is "2_remedial_actions/2_4_usage_rules/crac_2_4_2_1.json"
-    Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
+    Given configuration file is "common/rao_parameters_max_margin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "UNSECURED"
@@ -25,9 +25,9 @@ Feature: 2.4.2: activate remedial actions only after a constraint in a specific 
 
   @fast @rao @ac @preventive-only @max-min-margin
   Scenario: 2.4.2.2: Preventive onConstraint RA with constraint triggered by another preventive RA
-    Given network file is "common/TestCase16Nodes.uct"
+    Given network file is "common/network_16nodes.uct"
     Given crac file is "2_remedial_actions/2_4_usage_rules/crac_2_4_2_2.json"
-    Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
+    Given configuration file is "common/rao_parameters_max_margin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -41,9 +41,9 @@ Feature: 2.4.2: activate remedial actions only after a constraint in a specific 
 
   @fast @rao @ac @preventive-only @max-min-margin
   Scenario: 2.4.2.3: Preventive onConstraint RA with no constraint triggered
-    Given network file is "common/TestCase16Nodes.uct"
+    Given network file is "common/network_16nodes.uct"
     Given crac file is "2_remedial_actions/2_4_usage_rules/crac_2_4_2_3.json"
-    Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
+    Given configuration file is "common/rao_parameters_max_margin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "UNSECURED"
@@ -56,9 +56,9 @@ Feature: 2.4.2: activate remedial actions only after a constraint in a specific 
 
   @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: 2.4.2.4: Curative onConstraint RA with constraint after contingency
-    Given network file is "common/TestCase16Nodes.uct"
+    Given network file is "common/network_16nodes.uct"
     Given crac file is "2_remedial_actions/2_4_usage_rules/crac_2_4_2_4.json"
-    Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
+    Given configuration file is "common/rao_parameters_max_margin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "UNSECURED"
@@ -72,9 +72,9 @@ Feature: 2.4.2: activate remedial actions only after a constraint in a specific 
 
   @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: 2.4.2.5: Curative onConstraint RA with constraint triggered by another curative RA
-    Given network file is "common/TestCase16Nodes.uct"
+    Given network file is "common/network_16nodes.uct"
     Given crac file is "2_remedial_actions/2_4_usage_rules/crac_2_4_2_5.json"
-    Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
+    Given configuration file is "common/rao_parameters_max_margin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "UNSECURED"
@@ -88,9 +88,9 @@ Feature: 2.4.2: activate remedial actions only after a constraint in a specific 
 
   @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: 2.4.2.6: Curative onConstraint RA with no constraint triggered
-    Given network file is "common/TestCase16Nodes.uct"
+    Given network file is "common/network_16nodes.uct"
     Given crac file is "2_remedial_actions/2_4_usage_rules/crac_2_4_2_6.json"
-    Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
+    Given configuration file is "common/rao_parameters_max_margin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -102,9 +102,9 @@ Feature: 2.4.2: activate remedial actions only after a constraint in a specific 
 
   @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: 2.4.2.7: Preventive and curative onConstraint RA with constraint triggered on base network
-    Given network file is "common/TestCase16Nodes.uct"
+    Given network file is "common/network_16nodes.uct"
     Given crac file is "2_remedial_actions/2_4_usage_rules/crac_2_4_2_7.json"
-    Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
+    Given configuration file is "common/rao_parameters_max_margin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -119,9 +119,9 @@ Feature: 2.4.2: activate remedial actions only after a constraint in a specific 
 
   @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: 2.4.2.8: Preventive and curative onConstraint RA with constraint triggered after contingency
-    Given network file is "common/TestCase16Nodes.uct"
+    Given network file is "common/network_16nodes.uct"
     Given crac file is "2_remedial_actions/2_4_usage_rules/crac_2_4_2_8.json"
-    Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
+    Given configuration file is "common/rao_parameters_max_margin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -138,9 +138,9 @@ Feature: 2.4.2: activate remedial actions only after a constraint in a specific 
 
   @fast @rao @ac @preventive-only @max-min-margin
   Scenario: 2.4.2.9: Preventive onConstraint RA with no constraint triggered (CSE)
-    Given network file is "common/TestCase16Nodes.uct"
-    Given crac file is "2_remedial_actions/2_4_usage_rules/CseCrac_16_5_9.xml"
-    Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
+    Given network file is "common/network_16nodes.uct"
+    Given crac file is "2_remedial_actions/2_4_usage_rules/crac_2_4_2_9.xml"
+    Given configuration file is "common/rao_parameters_max_margin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "UNSECURED"
@@ -153,9 +153,9 @@ Feature: 2.4.2: activate remedial actions only after a constraint in a specific 
 
   @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: 2.4.2.10: Preventive and curative onConstraint RA with constraint triggered on the base network (CSE)
-    Given network file is "common/TestCase16Nodes.uct"
-    Given crac file is "2_remedial_actions/2_4_usage_rules/CseCrac_16_5_10.xml"
-    Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
+    Given network file is "common/network_16nodes.uct"
+    Given crac file is "2_remedial_actions/2_4_usage_rules/crac_2_4_2_10.xml"
+    Given configuration file is "common/rao_parameters_max_margin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -170,9 +170,9 @@ Feature: 2.4.2: activate remedial actions only after a constraint in a specific 
 
   @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: 2.4.2.11: Preventive and curative onConstraint RA with constraint triggered after contingency (CSE)
-    Given network file is "common/TestCase16Nodes.uct"
-    Given crac file is "2_remedial_actions/2_4_usage_rules/CseCrac_16_5_11.xml"
-    Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
+    Given network file is "common/network_16nodes.uct"
+    Given crac file is "2_remedial_actions/2_4_usage_rules/crac_2_4_2_11.xml"
+    Given configuration file is "common/rao_parameters_max_margin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -189,9 +189,9 @@ Feature: 2.4.2: activate remedial actions only after a constraint in a specific 
 
   @fast @rao @ac @preventive-only @max-min-margin
   Scenario: 2.4.2.12: Preventive onConstraint RA with constraint triggered on outage CNEC
-    Given network file is "common/TestCase16Nodes.uct"
-    Given crac file is "2_remedial_actions/2_4_usage_rules/CseCrac_16_5_12.xml"
-    Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
+    Given network file is "common/network_16nodes.uct"
+    Given crac file is "2_remedial_actions/2_4_usage_rules/crac_2_4_2_12.xml"
+    Given configuration file is "common/rao_parameters_max_margin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -205,9 +205,9 @@ Feature: 2.4.2: activate remedial actions only after a constraint in a specific 
 
   @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: 2.4.2.13: Test with a maximum number of CRA
-    Given network file is "2_remedial_actions/2_4_usage_rules/TestCase16Nodes_3psts.uct"
+    Given network file is "2_remedial_actions/2_4_usage_rules/network_16nodes_3psts.uct"
     Given crac file is "2_remedial_actions/2_4_usage_rules/crac_2_4_2_13.json"
-    Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
+    Given configuration file is "common/rao_parameters_max_margin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "UNSECURED"
@@ -221,9 +221,9 @@ Feature: 2.4.2: activate remedial actions only after a constraint in a specific 
 
   @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: 2.4.2.14: Trigger ARA only after a given outage
-    Given network file is "2_remedial_actions/2_4_usage_rules/12Nodes3ParallelLines.uct"
+    Given network file is "2_remedial_actions/2_4_usage_rules/network_12nodes_3_parallel_lines.uct"
     Given crac file is "2_remedial_actions/2_4_usage_rules/crac_2_4_2_14.json"
-    Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
+    Given configuration file is "common/rao_parameters_max_margin_megawatt_dc.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -235,9 +235,9 @@ Feature: 2.4.2: activate remedial actions only after a constraint in a specific 
 
   @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: 2.4.2.15: Trigger CRA only after a given outage
-    Given network file is "2_remedial_actions/2_4_usage_rules/12Nodes4ParallelLines.uct"
+    Given network file is "2_remedial_actions/2_4_usage_rules/network_12nodes_4_parallel_lines.uct"
     Given crac file is "2_remedial_actions/2_4_usage_rules/crac_2_4_2_15.json"
-    Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
+    Given configuration file is "common/rao_parameters_max_margin_megawatt_dc.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"

@@ -11,9 +11,9 @@ Feature: 2.4.3: Advanced usage rules tests
     # This is a copy of test case 2.4.2.7
     # pst_be is available after a flow constraint in BE, no contingency defined
     # So the same results as 2.4.2.7 are expected
-    Given network file is "common/TestCase16Nodes.uct"
-    Given crac file is "2_remedial_actions/2_4_usage_rules/crac_2_4_3_1_Crac_UR_1_1.json"
-    Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
+    Given network file is "common/network_16nodes.uct"
+    Given crac file is "2_remedial_actions/2_4_usage_rules/crac_2_4_3_1.json"
+    Given configuration file is "common/rao_parameters_max_margin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -30,9 +30,9 @@ Feature: 2.4.3: Advanced usage rules tests
   Scenario: 2.4.3.2: Flow constraint in country only after a given contingency
     # This is a copy of previous case but pst_be is available after a flow constraint in BE, only after contingency co1_fr2_fr3_1
     # Since only the preventive CNEC is constrained initially, the PST shall not be available
-    Given network file is "common/TestCase16Nodes.uct"
-    Given crac file is "2_remedial_actions/2_4_usage_rules/crac_2_4_3_2_Crac_UR_1_2.json"
-    Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
+    Given network file is "common/network_16nodes.uct"
+    Given crac file is "2_remedial_actions/2_4_usage_rules/crac_2_4_3_2.json"
+    Given configuration file is "common/rao_parameters_max_margin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "UNSECURED"

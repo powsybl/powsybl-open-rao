@@ -13,8 +13,8 @@ Feature: 0.2.3.1: Export different reason per perimeter in SWE CNE
   RAO status is set to failure.
     Given network file is "0_import_export/0_2_export/0_2_3_swe_cne/nordic32.xiidm"
     Given crac file is "0_import_export/0_2_export/0_2_3_swe_cne/cim_0_2_3_1_1_1.xml"
-    Given crac creation parameters file is "0_import_export/0_2_export/0_2_3_swe_cne/CimCracCreationParameters_MonitorLeftSide.json"
-    Given configuration file is "0_import_export/0_2_export/0_2_3_swe_cne/raoParametersSweIDCC_minObjectiveDisabled2P.json"
+    Given crac creation parameters file is "0_import_export/0_2_export/0_2_3_swe_cne/cim_crac_creation_parameters_monitor_left_side.json"
+    Given configuration file is "0_import_export/0_2_export/0_2_3_swe_cne/rao_parameters_swe_idcc_min_objective_disabled2p.json"
     When I launch rao
     Then the calculation partially fails
     Then the worst margin is 6.2 A on cnec "N1011_N1013 - preventive"
@@ -30,8 +30,8 @@ Feature: 0.2.3.1: Export different reason per perimeter in SWE CNE
    2P finds the same result as 1P.
     Given network file is "0_import_export/0_2_export/0_2_3_swe_cne/nordic32.xiidm"
     Given crac file is "0_import_export/0_2_export/0_2_3_swe_cne/cim_0_2_3_1_1_1.xml"
-    Given crac creation parameters file is "0_import_export/0_2_export/0_2_3_swe_cne/CimCracCreationParameters_MonitorLeftSide.json"
-    Given configuration file is "0_import_export/0_2_export/0_2_3_swe_cne/raoParametersSweIDCC_minObjective.json"
+    Given crac creation parameters file is "0_import_export/0_2_export/0_2_3_swe_cne/cim_crac_creation_parameters_monitor_left_side.json"
+    Given configuration file is "0_import_export/0_2_export/0_2_3_swe_cne/rao_parameters_swe_idcc_min_objective.json"
     When I launch rao
     Then the calculation partially fails
     Then the worst margin is 6.2 A on cnec "N1011_N1013 - preventive"
@@ -47,8 +47,8 @@ Feature: 0.2.3.1: Export different reason per perimeter in SWE CNE
   Global 2P finds the same result as 1P.
     Given network file is "0_import_export/0_2_export/0_2_3_swe_cne/nordic32.xiidm"
     Given crac file is "0_import_export/0_2_export/0_2_3_swe_cne/cim_0_2_3_1_1_1.xml"
-    Given crac creation parameters file is "0_import_export/0_2_export/0_2_3_swe_cne/CimCracCreationParameters_MonitorLeftSide.json"
-    Given configuration file is "0_import_export/0_2_export/0_2_3_swe_cne/raoParametersSweIDCC_minObjectiveWithGlobal2P.json"
+    Given crac creation parameters file is "0_import_export/0_2_export/0_2_3_swe_cne/cim_crac_creation_parameters_monitor_left_side.json"
+    Given configuration file is "0_import_export/0_2_export/0_2_3_swe_cne/rao_parameters_swe_idcc_min_objective_with_global2p.json"
     When I launch rao
     Then the worst margin is 6.2 A on cnec "N1011_N1013 - preventive"
     Then the calculation partially fails
@@ -63,12 +63,12 @@ Feature: 0.2.3.1: Export different reason per perimeter in SWE CNE
   Scenario: 0.2.3.1.1.4: CNE export: one contingency failing during 1st PRAO
     Given network file is "0_import_export/0_2_export/0_2_3_swe_cne/nordic32.xiidm"
     Given crac file is "0_import_export/0_2_export/0_2_3_swe_cne/cim_0_2_3_1_1_1.xml"
-    Given crac creation parameters file is "0_import_export/0_2_export/0_2_3_swe_cne/CimCracCreationParameters_MonitorLeftSide.json"
-    Given configuration file is "0_import_export/0_2_export/0_2_3_swe_cne/raoParametersSweIDCC_minObjectiveDisabled2P.json"
-    Given RaoResult file is "0_import_export/0_2_export/0_2_3_swe_cne/RaoResult_0_2_3_1_1_4_RaoResult_12_15_1.json"
+    Given crac creation parameters file is "0_import_export/0_2_export/0_2_3_swe_cne/cim_crac_creation_parameters_monitor_left_side.json"
+    Given configuration file is "0_import_export/0_2_export/0_2_3_swe_cne/rao_parameters_swe_idcc_min_objective_disabled2p.json"
+    Given RaoResult file is "0_import_export/0_2_export/0_2_3_swe_cne/rao_result_0_2_3_1_1_4.json"
     When I import data
     Then I export SWE CNE
-    Then the exported CNE file is the same as "0_import_export/0_2_export/0_2_3_swe_cne/ExpectedCNE_0_2_3_1_1_4_ExpectedCNE_12_15_1.xml"
+    Then the exported CNE file is the same as "0_import_export/0_2_export/0_2_3_swe_cne/cne_0_2_3_1_1_4.xml"
 
   @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: 0.2.3.1.2.1: One contingency failing during 1st ARAO, no 2P
@@ -77,8 +77,8 @@ Feature: 0.2.3.1: Export different reason per perimeter in SWE CNE
   RAO status is set to failure
     Given network file is "0_import_export/0_2_export/0_2_3_swe_cne/nordic32.xiidm"
     Given crac file is "0_import_export/0_2_export/0_2_3_swe_cne/cim_0_2_3_1_2_1.xml"
-    Given crac creation parameters file is "0_import_export/0_2_export/0_2_3_swe_cne/CimCracCreationParameters_MonitorLeftSide.json"
-    Given configuration file is "0_import_export/0_2_export/0_2_3_swe_cne/raoParametersSweIDCC_minObjectiveDisabled2P.json"
+    Given crac creation parameters file is "0_import_export/0_2_export/0_2_3_swe_cne/cim_crac_creation_parameters_monitor_left_side.json"
+    Given configuration file is "0_import_export/0_2_export/0_2_3_swe_cne/rao_parameters_swe_idcc_min_objective_disabled2p.json"
     When I launch rao
     Then the execution details should be "First preventive fell back to initial situation"
     Then its security status should be "UNSECURED"
@@ -91,8 +91,8 @@ Feature: 0.2.3.1: Export different reason per perimeter in SWE CNE
   sensi pre 2P partially fails
     Given network file is "0_import_export/0_2_export/0_2_3_swe_cne/nordic32.xiidm"
     Given crac file is "0_import_export/0_2_export/0_2_3_swe_cne/cim_0_2_3_1_2_1.xml"
-    Given crac creation parameters file is "0_import_export/0_2_export/0_2_3_swe_cne/CimCracCreationParameters_MonitorLeftSide.json"
-    Given configuration file is "0_import_export/0_2_export/0_2_3_swe_cne/raoParametersSweIDCC_minObjective.json"
+    Given crac creation parameters file is "0_import_export/0_2_export/0_2_3_swe_cne/cim_crac_creation_parameters_monitor_left_side.json"
+    Given configuration file is "0_import_export/0_2_export/0_2_3_swe_cne/rao_parameters_swe_idcc_min_objective.json"
     When I launch rao
     Then the execution details should be "Second preventive fell back to initial situation"
     Then its security status should be "UNSECURED"
@@ -105,8 +105,8 @@ Feature: 0.2.3.1: Export different reason per perimeter in SWE CNE
   sensi pre 2P partially fails
     Given network file is "0_import_export/0_2_export/0_2_3_swe_cne/nordic32.xiidm"
     Given crac file is "0_import_export/0_2_export/0_2_3_swe_cne/cim_0_2_3_1_2_1.xml"
-    Given crac creation parameters file is "0_import_export/0_2_export/0_2_3_swe_cne/CimCracCreationParameters_MonitorLeftSide.json"
-    Given configuration file is "0_import_export/0_2_export/0_2_3_swe_cne/raoParametersSweIDCC_minObjectiveWithGlobal2P.json"
+    Given crac creation parameters file is "0_import_export/0_2_export/0_2_3_swe_cne/cim_crac_creation_parameters_monitor_left_side.json"
+    Given configuration file is "0_import_export/0_2_export/0_2_3_swe_cne/rao_parameters_swe_idcc_min_objective_with_global2p.json"
     When I launch rao
     Then the execution details should be "Second preventive fell back to initial situation"
     Then its security status should be "UNSECURED"
@@ -118,12 +118,12 @@ Feature: 0.2.3.1: Export different reason per perimeter in SWE CNE
   Scenario: 0.2.3.1.2.4: CNE export: one contingency failing during 1st ARAO
     Given network file is "0_import_export/0_2_export/0_2_3_swe_cne/nordic32.xiidm"
     Given crac file is "0_import_export/0_2_export/0_2_3_swe_cne/cim_0_2_3_1_2_1.xml"
-    Given crac creation parameters file is "0_import_export/0_2_export/0_2_3_swe_cne/CimCracCreationParameters_MonitorLeftSide.json"
-    Given configuration file is "0_import_export/0_2_export/0_2_3_swe_cne/raoParametersSweIDCC_minObjectiveDisabled2P.json"
-    Given RaoResult file is "0_import_export/0_2_export/0_2_3_swe_cne/RaoResult_0_2_3_1_2_4_RaoResult_12_15_2.json"
+    Given crac creation parameters file is "0_import_export/0_2_export/0_2_3_swe_cne/cim_crac_creation_parameters_monitor_left_side.json"
+    Given configuration file is "0_import_export/0_2_export/0_2_3_swe_cne/rao_parameters_swe_idcc_min_objective_disabled2p.json"
+    Given RaoResult file is "0_import_export/0_2_export/0_2_3_swe_cne/rao_result_0_2_3_1_2_4.json"
     When I import data
     Then I export SWE CNE
-    Then the exported CNE file is the same as "0_import_export/0_2_export/0_2_3_swe_cne/ExpectedCNE_0_2_3_1_2_4_ExpectedCNE_12_15_2.xml"
+    Then the exported CNE file is the same as "0_import_export/0_2_export/0_2_3_swe_cne/cne_0_2_3_1_2_4.xml"
 
   @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: 0.2.3.1.3.1: One contingency failing during CRAO, no 2P
@@ -132,8 +132,8 @@ Feature: 0.2.3.1: Export different reason per perimeter in SWE CNE
   RAO status is set to failure
     Given network file is "0_import_export/0_2_export/0_2_3_swe_cne/nordic32.xiidm"
     Given crac file is "0_import_export/0_2_export/0_2_3_swe_cne/cim_0_2_3_1_3_1.xml"
-    Given crac creation parameters file is "0_import_export/0_2_export/0_2_3_swe_cne/CimCracCreationParameters_MonitorLeftSide.json"
-    Given configuration file is "0_import_export/0_2_export/0_2_3_swe_cne/raoParametersSweIDCC_minObjectiveDisabled2P.json"
+    Given crac creation parameters file is "0_import_export/0_2_export/0_2_3_swe_cne/cim_crac_creation_parameters_monitor_left_side.json"
+    Given configuration file is "0_import_export/0_2_export/0_2_3_swe_cne/rao_parameters_swe_idcc_min_objective_disabled2p.json"
     When I launch rao
     Then the execution details should be "First preventive fell back to initial situation"
     Then its security status should be "UNSECURED"
@@ -147,8 +147,8 @@ Feature: 0.2.3.1: Export different reason per perimeter in SWE CNE
   Keep in mind that since contingency CO_N1012_N4012 is no longer in failure, associated cnecs are now part of limiting elements and minimum margin computation
     Given network file is "0_import_export/0_2_export/0_2_3_swe_cne/nordic32.xiidm"
     Given crac file is "0_import_export/0_2_export/0_2_3_swe_cne/cim_0_2_3_1_3_1.xml"
-    Given crac creation parameters file is "0_import_export/0_2_export/0_2_3_swe_cne/CimCracCreationParameters_MonitorLeftSide.json"
-    Given configuration file is "0_import_export/0_2_export/0_2_3_swe_cne/raoParametersSweIDCC_minObjective.json"
+    Given crac creation parameters file is "0_import_export/0_2_export/0_2_3_swe_cne/cim_crac_creation_parameters_monitor_left_side.json"
+    Given configuration file is "0_import_export/0_2_export/0_2_3_swe_cne/rao_parameters_swe_idcc_min_objective.json"
     When I launch rao
     Then the execution details should be "Second preventive fell back to initial situation"
     Then the calculation succeeds
@@ -164,8 +164,8 @@ Feature: 0.2.3.1: Export different reason per perimeter in SWE CNE
   Scenario: 0.2.3.1.3.3: One contingency failing during CRAO, with global 2P
     Given network file is "0_import_export/0_2_export/0_2_3_swe_cne/nordic32.xiidm"
     Given crac file is "0_import_export/0_2_export/0_2_3_swe_cne/cim_0_2_3_1_3_1.xml"
-    Given crac creation parameters file is "0_import_export/0_2_export/0_2_3_swe_cne/CimCracCreationParameters_MonitorLeftSide.json"
-    Given configuration file is "0_import_export/0_2_export/0_2_3_swe_cne/raoParametersSweIDCC_minObjectiveWithGlobal2P.json"
+    Given crac creation parameters file is "0_import_export/0_2_export/0_2_3_swe_cne/cim_crac_creation_parameters_monitor_left_side.json"
+    Given configuration file is "0_import_export/0_2_export/0_2_3_swe_cne/rao_parameters_swe_idcc_min_objective_with_global2p.json"
     When I launch rao
     Then the execution details should be "Second preventive fell back to initial situation"
     Then its security status should be "UNSECURED"
@@ -182,24 +182,24 @@ Feature: 0.2.3.1: Export different reason per perimeter in SWE CNE
   CNE export without 2P
     Given network file is "0_import_export/0_2_export/0_2_3_swe_cne/nordic32.xiidm"
     Given crac file is "0_import_export/0_2_export/0_2_3_swe_cne/cim_0_2_3_1_3_1.xml"
-    Given crac creation parameters file is "0_import_export/0_2_export/0_2_3_swe_cne/CimCracCreationParameters_MonitorLeftSide.json"
-    Given configuration file is "0_import_export/0_2_export/0_2_3_swe_cne/raoParametersSweIDCC_minObjectiveDisabled2P.json"
-    Given RaoResult file is "0_import_export/0_2_export/0_2_3_swe_cne/RaoResult_0_2_3_1_3_4_RaoResult_12_15_3.json"
+    Given crac creation parameters file is "0_import_export/0_2_export/0_2_3_swe_cne/cim_crac_creation_parameters_monitor_left_side.json"
+    Given configuration file is "0_import_export/0_2_export/0_2_3_swe_cne/rao_parameters_swe_idcc_min_objective_disabled2p.json"
+    Given RaoResult file is "0_import_export/0_2_export/0_2_3_swe_cne/rao_result_0_2_3_1_3_4.json"
     When I import data
     Then I export SWE CNE
-    Then the exported CNE file is the same as "0_import_export/0_2_export/0_2_3_swe_cne/ExpectedCNE_0_2_3_1_3_4_ExpectedCNE_12_15_3.xml"
+    Then the exported CNE file is the same as "0_import_export/0_2_export/0_2_3_swe_cne/cne_0_2_3_1_3_4.xml"
 
   @fast @cne-export
   Scenario: 0.2.3.1.3.5: CNE export: One contingency failing during CRAO, with 2P
   CNE export with 2P: no divergence
     Given network file is "0_import_export/0_2_export/0_2_3_swe_cne/nordic32.xiidm"
     Given crac file is "0_import_export/0_2_export/0_2_3_swe_cne/cim_0_2_3_1_3_1.xml"
-    Given crac creation parameters file is "0_import_export/0_2_export/0_2_3_swe_cne/CimCracCreationParameters_MonitorLeftSide.json"
-    Given configuration file is "0_import_export/0_2_export/0_2_3_swe_cne/raoParametersSweIDCC_minObjective.json"
-    Given RaoResult file is "0_import_export/0_2_export/0_2_3_swe_cne/RaoResult_0_2_3_1_3_5_RaoResult_12_15_3_With2P.json"
+    Given crac creation parameters file is "0_import_export/0_2_export/0_2_3_swe_cne/cim_crac_creation_parameters_monitor_left_side.json"
+    Given configuration file is "0_import_export/0_2_export/0_2_3_swe_cne/rao_parameters_swe_idcc_min_objective.json"
+    Given RaoResult file is "0_import_export/0_2_export/0_2_3_swe_cne/rao_result_0_2_3_1_3_5.json"
     When I import data
     Then I export SWE CNE
-    Then the exported CNE file is the same as "0_import_export/0_2_export/0_2_3_swe_cne/ExpectedCNE_0_2_3_1_3_5_ExpectedCNE_12_15_3_With2P.xml"
+    Then the exported CNE file is the same as "0_import_export/0_2_export/0_2_3_swe_cne/cne_0_2_3_1_3_5.xml"
 
   @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: 0.2.3.1.4.1: One contingency failing during 1st PRAO, no 2P
@@ -208,8 +208,8 @@ Feature: 0.2.3.1: Export different reason per perimeter in SWE CNE
   RAO status is set to default
     Given network file is "0_import_export/0_2_export/0_2_3_swe_cne/nordic32.xiidm"
     Given crac file is "0_import_export/0_2_export/0_2_3_swe_cne/cim_0_2_3_1_4_1.xml"
-    Given crac creation parameters file is "0_import_export/0_2_export/0_2_3_swe_cne/CimCracCreationParameters_MonitorLeftSide.json"
-    Given configuration file is "0_import_export/0_2_export/0_2_3_swe_cne/raoParametersSweIDCC_minObjectiveDisabled2P.json"
+    Given crac creation parameters file is "0_import_export/0_2_export/0_2_3_swe_cne/cim_crac_creation_parameters_monitor_left_side.json"
+    Given configuration file is "0_import_export/0_2_export/0_2_3_swe_cne/rao_parameters_swe_idcc_min_objective_disabled2p.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "UNSECURED"
@@ -226,8 +226,8 @@ Feature: 0.2.3.1: Export different reason per perimeter in SWE CNE
   2P finds the same result as 1P
     Given network file is "0_import_export/0_2_export/0_2_3_swe_cne/nordic32.xiidm"
     Given crac file is "0_import_export/0_2_export/0_2_3_swe_cne/cim_0_2_3_1_4_1.xml"
-    Given crac creation parameters file is "0_import_export/0_2_export/0_2_3_swe_cne/CimCracCreationParameters_MonitorLeftSide.json"
-    Given configuration file is "0_import_export/0_2_export/0_2_3_swe_cne/raoParametersSweIDCC_minObjective.json"
+    Given crac creation parameters file is "0_import_export/0_2_export/0_2_3_swe_cne/cim_crac_creation_parameters_monitor_left_side.json"
+    Given configuration file is "0_import_export/0_2_export/0_2_3_swe_cne/rao_parameters_swe_idcc_min_objective.json"
     When I launch rao
     Then the execution details should be "Second preventive improved first preventive results"
     Then its security status should be "UNSECURED"
@@ -244,8 +244,8 @@ Feature: 0.2.3.1: Export different reason per perimeter in SWE CNE
   Global 2P finds the same result as 1P
     Given network file is "0_import_export/0_2_export/0_2_3_swe_cne/nordic32.xiidm"
     Given crac file is "0_import_export/0_2_export/0_2_3_swe_cne/cim_0_2_3_1_4_1.xml"
-    Given crac creation parameters file is "0_import_export/0_2_export/0_2_3_swe_cne/CimCracCreationParameters_MonitorLeftSide.json"
-    Given configuration file is "0_import_export/0_2_export/0_2_3_swe_cne/raoParametersSweIDCC_minObjectiveWithGlobal2P.json"
+    Given crac creation parameters file is "0_import_export/0_2_export/0_2_3_swe_cne/cim_crac_creation_parameters_monitor_left_side.json"
+    Given configuration file is "0_import_export/0_2_export/0_2_3_swe_cne/rao_parameters_swe_idcc_min_objective_with_global2p.json"
     When I launch rao
     Then the execution details should be "Second preventive improved first preventive results"
     Then its security status should be "UNSECURED"
@@ -261,12 +261,12 @@ Feature: 0.2.3.1: Export different reason per perimeter in SWE CNE
   Scenario: 0.2.3.1.4.4: CNE export: one contingency failing during 2nd PRAO
     Given network file is "0_import_export/0_2_export/0_2_3_swe_cne/nordic32.xiidm"
     Given crac file is "0_import_export/0_2_export/0_2_3_swe_cne/cim_0_2_3_1_4_1.xml"
-    Given crac creation parameters file is "0_import_export/0_2_export/0_2_3_swe_cne/CimCracCreationParameters_MonitorLeftSide.json"
-    Given configuration file is "0_import_export/0_2_export/0_2_3_swe_cne/raoParametersSweIDCC_minObjectiveDisabled2P.json"
-    Given RaoResult file is "0_import_export/0_2_export/0_2_3_swe_cne/RaoResult_0_2_3_1_4_4_RaoResult_12_15_4.json"
+    Given crac creation parameters file is "0_import_export/0_2_export/0_2_3_swe_cne/cim_crac_creation_parameters_monitor_left_side.json"
+    Given configuration file is "0_import_export/0_2_export/0_2_3_swe_cne/rao_parameters_swe_idcc_min_objective_disabled2p.json"
+    Given RaoResult file is "0_import_export/0_2_export/0_2_3_swe_cne/rao_result_0_2_3_1_4_4.json"
     When I import data
     Then I export SWE CNE
-    Then the exported CNE file is the same as "0_import_export/0_2_export/0_2_3_swe_cne/ExpectedCNE_0_2_3_1_4_4_ExpectedCNE_12_15_4.xml"
+    Then the exported CNE file is the same as "0_import_export/0_2_export/0_2_3_swe_cne/cne_0_2_3_1_4_4.xml"
 
   @fast @cne-export
   Scenario: 0.2.3.1.5: CNE export with angles
@@ -274,12 +274,12 @@ Feature: 0.2.3.1: Export different reason per perimeter in SWE CNE
   Expected CNE is the same as 0.2.3.1.4 with the extra angle value information
     Given network file is "0_import_export/0_2_export/0_2_3_swe_cne/nordic32.xiidm"
     Given crac file is "0_import_export/0_2_export/0_2_3_swe_cne/cim_0_2_3_1_5.xml"
-    Given crac creation parameters file is "0_import_export/0_2_export/0_2_3_swe_cne/CimCracCreationParameters_MonitorLeftSide.json"
-    Given configuration file is "0_import_export/0_2_export/0_2_3_swe_cne/raoParametersSweIDCC_minObjectiveDisabled2P.json"
-    Given RaoResult file is "0_import_export/0_2_export/0_2_3_swe_cne/RaoResult_0_2_3_1_5_RaoResult_12_15_5.json"
+    Given crac creation parameters file is "0_import_export/0_2_export/0_2_3_swe_cne/cim_crac_creation_parameters_monitor_left_side.json"
+    Given configuration file is "0_import_export/0_2_export/0_2_3_swe_cne/rao_parameters_swe_idcc_min_objective_disabled2p.json"
+    Given RaoResult file is "0_import_export/0_2_export/0_2_3_swe_cne/rao_result_0_2_3_1_5.json"
     When I import data
     Then I export SWE CNE
-    Then the exported CNE file is the same as "0_import_export/0_2_export/0_2_3_swe_cne/ExpectedCNE_0_2_3_1_5_ExpectedCNE_12_15_5.xml"
+    Then the exported CNE file is the same as "0_import_export/0_2_export/0_2_3_swe_cne/cne_0_2_3_1_5.xml"
 
   @fast @cne-export
   Scenario: 0.2.3.1.6: CNE export with angles, no angle results
@@ -287,20 +287,20 @@ Feature: 0.2.3.1: Export different reason per perimeter in SWE CNE
   Should not fail. Should instead skip angle CNECs, thus expected CNE is the same as 0.2.3.1.4 (but secure)
     Given network file is "0_import_export/0_2_export/0_2_3_swe_cne/nordic32.xiidm"
     Given crac file is "0_import_export/0_2_export/0_2_3_swe_cne/cim_0_2_3_1_5.xml"
-    Given crac creation parameters file is "0_import_export/0_2_export/0_2_3_swe_cne/CimCracCreationParameters_MonitorLeftSide.json"
-    Given configuration file is "0_import_export/0_2_export/0_2_3_swe_cne/raoParametersSweIDCC_minObjectiveDisabled2P.json"
-    Given RaoResult file is "0_import_export/0_2_export/0_2_3_swe_cne/RaoResult_0_2_3_1_6_RaoResult_12_15_6.json"
+    Given crac creation parameters file is "0_import_export/0_2_export/0_2_3_swe_cne/cim_crac_creation_parameters_monitor_left_side.json"
+    Given configuration file is "0_import_export/0_2_export/0_2_3_swe_cne/rao_parameters_swe_idcc_min_objective_disabled2p.json"
+    Given RaoResult file is "0_import_export/0_2_export/0_2_3_swe_cne/rao_result_0_2_3_1_6.json"
     When I import data at "2021-04-02 05:00"
     Then I export SWE CNE
-    Then the exported CNE file is the same as "0_import_export/0_2_export/0_2_3_swe_cne/ExpectedCNE_0_2_3_1_6_ExpectedCNE_12_15_6.xml"
+    Then the exported CNE file is the same as "0_import_export/0_2_export/0_2_3_swe_cne/cne_0_2_3_1_6.xml"
 
   @fast @cne-export
   Scenario: 0.2.3.1.7: CNE export: Check rounding on flows
     Given network file is "0_import_export/0_2_export/0_2_3_swe_cne/nordic32.xiidm"
     Given crac file is "0_import_export/0_2_export/0_2_3_swe_cne/cim_0_2_3_1_7.xml"
-    Given crac creation parameters file is "0_import_export/0_2_export/0_2_3_swe_cne/CimCracCreationParameters_MonitorLeftSide.json"
-    Given configuration file is "0_import_export/0_2_export/0_2_3_swe_cne/raoParametersSweIDCC_minObjective.json"
-    Given RaoResult file is "0_import_export/0_2_export/0_2_3_swe_cne/RaoResult_0_2_3_1_7_RaoResult_12_15_7.json"
+    Given crac creation parameters file is "0_import_export/0_2_export/0_2_3_swe_cne/cim_crac_creation_parameters_monitor_left_side.json"
+    Given configuration file is "0_import_export/0_2_export/0_2_3_swe_cne/rao_parameters_swe_idcc_min_objective.json"
+    Given RaoResult file is "0_import_export/0_2_export/0_2_3_swe_cne/rao_result_0_2_3_1_7.json"
     When I import data at "2021-04-02 05:00"
     Then I export SWE CNE
-    Then the exported CNE file is the same as "0_import_export/0_2_export/0_2_3_swe_cne/ExpectedCNE_0_2_3_1_7_ExpectedCNE_12_15_7.xml"
+    Then the exported CNE file is the same as "0_import_export/0_2_export/0_2_3_swe_cne/cne_0_2_3_1_7.xml"

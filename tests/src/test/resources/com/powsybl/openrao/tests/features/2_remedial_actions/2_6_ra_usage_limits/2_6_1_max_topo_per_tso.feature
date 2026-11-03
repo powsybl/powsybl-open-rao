@@ -8,9 +8,9 @@ Feature: 2.6.1: Handle maximum topological CRA per TSO
 
   @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: 2.6.1.1: Check that the maximum number of network actions per TSO is ignored in preventive 1
-    Given network file is "common/TestCase16Nodes.uct"
+    Given network file is "common/network_16nodes.uct"
     Given crac file is "2_remedial_actions/2_6_ra_usage_limits/crac_2_6_1_1.json"
-    Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
+    Given configuration file is "common/rao_parameters_max_margin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "UNSECURED"
@@ -30,9 +30,9 @@ Feature: 2.6.1: Handle maximum topological CRA per TSO
 
   @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: 2.6.1.2: Check that the maximum number of network actions per TSO is respected in curative - reference run
-    Given network file is "common/TestCase16Nodes.uct"
+    Given network file is "common/network_16nodes.uct"
     Given crac file is "2_remedial_actions/2_6_ra_usage_limits/crac_2_6_1_2.json"
-    Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
+    Given configuration file is "common/rao_parameters_max_margin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -47,9 +47,9 @@ Feature: 2.6.1: Handle maximum topological CRA per TSO
 
   @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: 2.6.1.3: Check that the maximum number of network actions per TSO is respected in curative
-    Given network file is "common/TestCase16Nodes.uct"
+    Given network file is "common/network_16nodes.uct"
     Given crac file is "2_remedial_actions/2_6_ra_usage_limits/crac_2_6_1_3.json"
-    Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
+    Given configuration file is "common/rao_parameters_max_margin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -62,9 +62,9 @@ Feature: 2.6.1: Handle maximum topological CRA per TSO
 
   @fast @rao @ac @contingency-scenarios @search-tree-rao @max-min-margin
   Scenario: 2.6.1.4: Simple case, with 2 curative states
-    Given network file is "common/TestCase16Nodes.uct"
+    Given network file is "common/network_16nodes.uct"
     Given crac file is "2_remedial_actions/2_6_ra_usage_limits/crac_2_6_1_4.json"
-    Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
+    Given configuration file is "common/rao_parameters_max_margin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -78,9 +78,9 @@ Feature: 2.6.1: Handle maximum topological CRA per TSO
   @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: 2.6.1.5: Check that the maximum number of network actions per TSO is ignored in preventive 2
     # Copy of 1.3.2.6 test but with a configuration limiting curative topo per TSO
-    Given network file is "common/TestCase16Nodes.uct"
+    Given network file is "common/network_16nodes.uct"
     Given crac file is "2_remedial_actions/2_6_ra_usage_limits/crac_2_6_1_5.json"
-    Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
+    Given configuration file is "common/rao_parameters_max_margin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "UNSECURED"
@@ -91,9 +91,9 @@ Feature: 2.6.1: Handle maximum topological CRA per TSO
 
   @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: 2.6.1.6: Check country filtering is well done in curative
-    Given network file is "common/TestCase16Nodes.uct"
+    Given network file is "common/network_16nodes.uct"
     Given crac file is "2_remedial_actions/2_6_ra_usage_limits/crac_2_6_1_6.json"
-    Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
+    Given configuration file is "common/rao_parameters_max_margin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "UNSECURED"

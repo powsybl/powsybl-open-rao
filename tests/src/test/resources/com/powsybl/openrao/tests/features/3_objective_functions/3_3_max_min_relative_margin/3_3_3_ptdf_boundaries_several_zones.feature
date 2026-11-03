@@ -9,9 +9,9 @@ Feature: 3.3.3: ptdfBoundaries with more than two zones
 
   @fast @rao @dc @preventive-only @max-min-relative-margin
   Scenario: 3.3.3.1: Boundary BE-DE with Alegro
-    Given network file is "common/TestCase12NodesHvdc.uct" for CORE CC
+    Given network file is "common/network_12nodes_hvdc.uct" for CORE CC
     Given crac file is "3_objective_functions/3_3_max_min_relative_margin/cbcora_3_3_2_1.xml"
-    Given configuration file is "3_objective_functions/3_3_max_min_relative_margin/RaoParameters_3_3_4_1.json"
+    Given configuration file is "3_objective_functions/3_3_max_min_relative_margin/rao_parameters_3_3_4_1.json"
     Given loopflow glsk file is "3_objective_functions/3_3_max_min_relative_margin/glsk_proportional_12nodes_hvdc.xml"
     When I launch rao at "2019-01-08 12:00"
     Then the execution details should be "The RAO only went through first preventive"

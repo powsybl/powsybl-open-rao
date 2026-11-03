@@ -8,9 +8,9 @@ Feature: 2.5.2: Handle combined RAs by configuration
 
   @fast @rao @ac @preventive-only @max-min-margin
   Scenario: 2.5.2.1: Optimal combination in preventive, at first depth
-    Given network file is "common/TestCase16Nodes.uct"
-    Given crac file is "2_remedial_actions/2_5_combinations/CseCrac_ep15us13case1.xml"
-    Given configuration file is "2_remedial_actions/2_5_combinations/RaoParameters_2_5_2_1.json"
+    Given network file is "common/network_16nodes.uct"
+    Given crac file is "2_remedial_actions/2_5_combinations/crac_2_5_2_1.xml"
+    Given configuration file is "2_remedial_actions/2_5_combinations/rao_parameters_2_5_2_1.json"
     When I launch rao at "2021-04-30 22:30"
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -27,9 +27,9 @@ Feature: 2.5.2: Handle combined RAs by configuration
 
   @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: 2.5.2.2: Optimal combination in curative, at first depth
-    Given network file is "2_remedial_actions/2_5_combinations/TestCase16Nodes_2_5_2_2.uct"
-    Given crac file is "2_remedial_actions/2_5_combinations/CseCrac_ep15us13case2_3_4.xml"
-    Given configuration file is "2_remedial_actions/2_5_combinations/RaoParameters_2_5_2_2.json"
+    Given network file is "2_remedial_actions/2_5_combinations/network_2_5_2_2.uct"
+    Given crac file is "2_remedial_actions/2_5_combinations/crac_2_5_2_2.xml"
+    Given configuration file is "2_remedial_actions/2_5_combinations/rao_parameters_2_5_2_2.json"
     When I launch rao at "2021-04-30 22:30"
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "UNSECURED"
@@ -43,10 +43,10 @@ Feature: 2.5.2: Handle combined RAs by configuration
 
   @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: 2.5.2.3: Optimal combination in curative, but not available as only 2 CRA are allowed
-    Given network file is "2_remedial_actions/2_5_combinations/TestCase16Nodes_2_5_2_2.uct"
-    Given crac file is "2_remedial_actions/2_5_combinations/CseCrac_ep15us13case2_3_4.xml"
-    Given configuration file is "2_remedial_actions/2_5_combinations/RaoParameters_2_5_2_2.json"
-    Given crac creation parameters file is "2_remedial_actions/2_5_combinations/CracCreationParameters_2_5_2_3.json"
+    Given network file is "2_remedial_actions/2_5_combinations/network_2_5_2_2.uct"
+    Given crac file is "2_remedial_actions/2_5_combinations/crac_2_5_2_2.xml"
+    Given configuration file is "2_remedial_actions/2_5_combinations/rao_parameters_2_5_2_2.json"
+    Given crac creation parameters file is "2_remedial_actions/2_5_combinations/crac_creation_parameters_2_5_2_3.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "UNSECURED"
@@ -59,9 +59,9 @@ Feature: 2.5.2: Handle combined RAs by configuration
 
   @fast @rao @ac @preventive-only @max-min-margin
   Scenario: 2.5.2.4: Optimal subset
-    Given network file is "common/TestCase16Nodes.uct"
-    Given crac file is "2_remedial_actions/2_5_combinations/CseCrac_ep15us13case1.xml"
-    Given configuration file is "2_remedial_actions/2_5_combinations/RaoParameters_2_5_2_5.json"
+    Given network file is "common/network_16nodes.uct"
+    Given crac file is "2_remedial_actions/2_5_combinations/crac_2_5_2_1.xml"
+    Given configuration file is "2_remedial_actions/2_5_combinations/rao_parameters_2_5_2_5.json"
     When I launch rao at "2021-04-30 22:30"
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -78,9 +78,9 @@ Feature: 2.5.2: Handle combined RAs by configuration
 
   @fast @rao @ac @preventive-only @max-min-margin
   Scenario: 2.5.2.5: Suboptimal combination, not used as it does not improve the margin as much as using individual RA (1)
-    Given network file is "common/TestCase16Nodes.uct"
-    Given crac file is "2_remedial_actions/2_5_combinations/CseCrac_ep15us13case1.xml"
-    Given configuration file is "2_remedial_actions/2_5_combinations/RaoParameters_2_5_2_6.json"
+    Given network file is "common/network_16nodes.uct"
+    Given crac file is "2_remedial_actions/2_5_combinations/crac_2_5_2_1.xml"
+    Given configuration file is "2_remedial_actions/2_5_combinations/rao_parameters_2_5_2_6.json"
     When I launch rao at "2021-04-30 22:30"
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -97,9 +97,9 @@ Feature: 2.5.2: Handle combined RAs by configuration
 
   @fast @rao @ac @preventive-only @max-min-margin
   Scenario: 2.5.2.6: Suboptimal combination, not used as it does not improve the margin as much as using individual RA (2)
-    Given network file is "common/TestCase16Nodes.uct"
-    Given crac file is "2_remedial_actions/2_5_combinations/CseCrac_ep15us13case1.xml"
-    Given configuration file is "2_remedial_actions/2_5_combinations/RaoParameters_2_5_2_7.json"
+    Given network file is "common/network_16nodes.uct"
+    Given crac file is "2_remedial_actions/2_5_combinations/crac_2_5_2_1.xml"
+    Given configuration file is "2_remedial_actions/2_5_combinations/rao_parameters_2_5_2_7.json"
     When I launch rao at "2021-04-30 22:30"
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -116,9 +116,9 @@ Feature: 2.5.2: Handle combined RAs by configuration
 
   @fast @rao @ac @preventive-only @max-min-margin
   Scenario: 2.5.2.7: Combination is better than individuals
-    Given network file is "common/TestCase16Nodes.uct"
-    Given crac file is "2_remedial_actions/2_5_combinations/CseCrac_ep15us13case8.xml"
-    Given configuration file is "2_remedial_actions/2_5_combinations/RaoParameters_2_5_2_8.json"
+    Given network file is "common/network_16nodes.uct"
+    Given crac file is "2_remedial_actions/2_5_combinations/crac_2_5_2_7.xml"
+    Given configuration file is "2_remedial_actions/2_5_combinations/rao_parameters_2_5_2_8.json"
     When I launch rao at "2021-04-30 22:30"
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "UNSECURED"
@@ -133,9 +133,9 @@ Feature: 2.5.2: Handle combined RAs by configuration
 
   @fast @rao @ac @preventive-only @max-min-margin
   Scenario: 2.5.2.8: onConstraint remedial action is not re evaluated after the activation of a combination of RA
-    Given network file is "common/TestCase16Nodes.uct"
-    Given crac file is "2_remedial_actions/2_5_combinations/CseCrac_ep15us13case9.xml"
-    Given configuration file is "2_remedial_actions/2_5_combinations/RaoParameters_2_5_2_5.json"
+    Given network file is "common/network_16nodes.uct"
+    Given crac file is "2_remedial_actions/2_5_combinations/crac_2_5_2_8.xml"
+    Given configuration file is "2_remedial_actions/2_5_combinations/rao_parameters_2_5_2_5.json"
     When I launch rao at "2021-04-30 22:30"
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -150,9 +150,9 @@ Feature: 2.5.2: Handle combined RAs by configuration
 
   @fast @rao @ac @preventive-only @max-min-margin
   Scenario: 2.5.2.9: Not imported combinations of RA
-    Given network file is "common/TestCase16Nodes.uct"
-    Given crac file is "2_remedial_actions/2_5_combinations/CseCrac_ep15us13case10.xml"
-    Given configuration file is "2_remedial_actions/2_5_combinations/RaoParameters_2_5_2_10.json"
+    Given network file is "common/network_16nodes.uct"
+    Given crac file is "2_remedial_actions/2_5_combinations/crac_2_5_2_9.xml"
+    Given configuration file is "2_remedial_actions/2_5_combinations/rao_parameters_2_5_2_10.json"
     When I launch rao at "2021-04-30 22:30"
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "UNSECURED"

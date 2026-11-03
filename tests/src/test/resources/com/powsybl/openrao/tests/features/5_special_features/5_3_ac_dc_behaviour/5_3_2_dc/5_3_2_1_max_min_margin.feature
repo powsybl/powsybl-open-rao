@@ -8,9 +8,9 @@ Feature: 5.3.2.1: Computation in MAX_MIN_MARGIN: optimization in A/MW, threshold
 
   @fast @rao @dc @preventive-only @max-min-margin
   Scenario: 5.3.2.1.1.1: MW thresholds in DC mode and min margin in MW
-    Given network file is "common/TestCase12Nodes.uct"
+    Given network file is "common/network_12nodes.uct"
     Given crac file is "5_special_features/5_3_ac_dc_behaviour/5_3_2_dc/crac_5_3_2_1_1_1_4MR_MW.json"
-    Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
+    Given configuration file is "common/rao_parameters_max_margin_megawatt_dc.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -25,9 +25,9 @@ Feature: 5.3.2.1: Computation in MAX_MIN_MARGIN: optimization in A/MW, threshold
   @fast @rao @dc @preventive-only @max-min-margin
   Scenario: 5.3.2.1.1.2: MW thresholds in AC mode and min margin in MW
   Same data as 5.3.2.1.1, but the computation is in AC.
-    Given network file is "common/TestCase12Nodes.uct"
+    Given network file is "common/network_12nodes.uct"
     Given crac file is "5_special_features/5_3_ac_dc_behaviour/5_3_2_dc/crac_5_3_2_1_1_1_4MR_MW.json"
-    Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
+    Given configuration file is "common/rao_parameters_max_margin_megawatt_dc.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -43,9 +43,9 @@ Feature: 5.3.2.1: Computation in MAX_MIN_MARGIN: optimization in A/MW, threshold
   @fast @rao @dc @preventive-only @max-min-margin
   Scenario: 5.3.2.1.2.1: A thresholds in DC mode and min margin in MW
   Same inputs as 5.3.2.1.1.1, but the thresholds are defined in A in the CRAC.
-    Given network file is "common/TestCase12Nodes.uct" for CORE CC
+    Given network file is "common/network_12nodes.uct" for CORE CC
     Given crac file is "5_special_features/5_3_ac_dc_behaviour/5_3_2_dc/crac_5_3_2_1_2_1_4MR_A.json"
-    Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
+    Given configuration file is "common/rao_parameters_max_margin_megawatt_dc.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -60,9 +60,9 @@ Feature: 5.3.2.1: Computation in MAX_MIN_MARGIN: optimization in A/MW, threshold
   @fast @rao @ac @preventive-only @max-min-margin
   Scenario: 5.3.2.1.2.2: A thresholds in AC mode and min margin in A
   Same data as 5.3.2.1.2.1, but the computation is in AC.
-    Given network file is "common/TestCase12Nodes.uct"
+    Given network file is "common/network_12nodes.uct"
     Given crac file is "5_special_features/5_3_ac_dc_behaviour/5_3_2_dc/crac_5_3_2_1_2_1_4MR_A.json"
-    Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
+    Given configuration file is "common/rao_parameters_max_margin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -78,9 +78,9 @@ Feature: 5.3.2.1: Computation in MAX_MIN_MARGIN: optimization in A/MW, threshold
   @fast @rao @dc @preventive-only @max-min-margin
   Scenario: 5.3.2.1.3.1: mixed thresholds in DC mode and min margin in MW
   Same inputs as 5.3.2.1.1.1, but some thresholds are defined in A in the CRAC (and others in MW).
-    Given network file is "common/TestCase12Nodes.uct" for CORE CC
+    Given network file is "common/network_12nodes.uct" for CORE CC
     Given crac file is "5_special_features/5_3_ac_dc_behaviour/5_3_2_dc/crac_5_3_2_1_3_1_4MR_mixed.json"
-    Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
+    Given configuration file is "common/rao_parameters_max_margin_megawatt_dc.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -93,9 +93,9 @@ Feature: 5.3.2.1: Computation in MAX_MIN_MARGIN: optimization in A/MW, threshold
   @fast @rao @ac @preventive-only @max-min-margin
   Scenario: 5.3.2.1.3.2: mixed thresholds in AC mode and min margin in A
   Same data as 5.3.2.1.3.1, but the computation is in AC.
-    Given network file is "common/TestCase12Nodes.uct" for CORE CC
+    Given network file is "common/network_12nodes.uct" for CORE CC
     Given crac file is "5_special_features/5_3_ac_dc_behaviour/5_3_2_dc/crac_5_3_2_1_3_1_4MR_mixed.json"
-    Given configuration file is "common/RaoParameters_maxMargin_ampere_ac.json"
+    Given configuration file is "common/rao_parameters_max_margin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"

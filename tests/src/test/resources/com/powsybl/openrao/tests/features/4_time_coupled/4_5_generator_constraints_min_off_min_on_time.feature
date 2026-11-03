@@ -14,7 +14,7 @@ From 20:30 to 23:30, 3000 MW of redispatching
   Min-off time = 6h
   The generator starts at 10h30 instead of 8h30 -> 2200MW overload
   The generator stops at 13h30 instead of 15h30 -> 2200MW overload
-    Given configuration file is "4_time_coupled/RaoParameters_minCost_megawatt_dc_0_shift_penalty_100.json"
+    Given configuration file is "4_time_coupled/rao_parameters_min_cost_megawatt_dc_0_shift_penalty_100.json"
     Given time-coupled constraints are in file "4_time_coupled/time-coupled-constraints-4_5_1.json" and rao inputs are:
       | Timestamp        | Network                      | CRAC                                   |
       | 2025-11-04 00:30 | 4_time_coupled/6Nodes_Pmin1000.xiidm | 4_time_coupled/4_5_min_off/crac_202511040030.json |
@@ -144,7 +144,7 @@ From 20:30 to 23:30, 3000 MW of redispatching
     Min-off time = 1h, lagTime = 2.5 and leadTime = 2.25.
     Between a stop and a restart of the generator, we need to wait at least 5.75h -> 6h.
     We end up in the same situation as 4.5.1. The generator stays off for more than minOffTime because of the lead and lag time constraints.
-    Given configuration file is "4_time_coupled/RaoParameters_minCost_megawatt_dc_0_shift_penalty_100.json"
+    Given configuration file is "4_time_coupled/rao_parameters_min_cost_megawatt_dc_0_shift_penalty_100.json"
     Given time-coupled constraints are in file "4_time_coupled/time-coupled-constraints-4_5_2.json" and rao inputs are:
       | Timestamp        | Network                      | CRAC                                   |
       | 2025-11-04 00:30 | 4_time_coupled/6Nodes_Pmin1000.xiidm | 4_time_coupled/4_5_min_off/crac_202511040030.json |
@@ -276,7 +276,7 @@ From 20:30 to 23:30, 3000 MW of redispatching
     -> the generator needs to stay on one timestamp longer than necessary at Pmin. The generator stays on between 7:30 and 15:30 instead of 8:30 and 15:30.
     Since we don't know when the generator was first started up, the constraint does not apply for the first timestamps
     -> we don't need to force the generator to stay on from 00:30 to 9:30
-    Given configuration file is "4_time_coupled/RaoParameters_minCost_megawatt_dc_0_shift_penalty_100.json"
+    Given configuration file is "4_time_coupled/rao_parameters_min_cost_megawatt_dc_0_shift_penalty_100.json"
     Given time-coupled constraints are in file "4_time_coupled/time-coupled-constraints-4_5_3.json" and rao inputs are:
       | Timestamp        | Network                      | CRAC                                   |
       | 2025-11-04 00:30 | 4_time_coupled/6Nodes_Pmin1000.xiidm | 4_time_coupled/4_5_min_off/crac_202511040030.json |
@@ -420,7 +420,7 @@ From 20:30 to 23:30, 3000 MW of redispatching
     -> however to respect the shutting down constraint -> we need to stop the generator at 13:30 -> 3 * 680070 = 330000
     -> from 20:30 to 23:30, 3000 MW of redispatching
 
-    Given configuration file is "4_time_coupled/RaoParameters_minCost_megawatt_dc_0_shift_penalty_100.json"
+    Given configuration file is "4_time_coupled/rao_parameters_min_cost_megawatt_dc_0_shift_penalty_100.json"
     Given time-coupled constraints are in file "4_time_coupled/time-coupled-constraints-4_5_4.json" and rao inputs are:
       | Timestamp        | Network                      | CRAC                                   |
       | 2025-11-04 00:30 | 4_time_coupled/6Nodes_Pmin1000.xiidm | 4_time_coupled/4_5_min_off/crac_202511040030.json |

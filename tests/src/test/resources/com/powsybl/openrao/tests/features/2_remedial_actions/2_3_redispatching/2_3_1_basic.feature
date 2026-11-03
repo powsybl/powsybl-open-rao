@@ -12,9 +12,9 @@ Feature: 2.3.1: Basic redispatching actions (free and costly)
   One generator produces 1000, the other produces -1000.
   The objective is to maximize the min margin => shut down both generators.
   Redispatching action's chosen setpoint = 0: on FRR1AA1 -> setpoint * 1 = 0, on FRR2 -> setpoint * -1 = 0.
-    Given network file is "2_remedial_actions/2_3_redispatching/2Nodes.uct"
+    Given network file is "2_remedial_actions/2_3_redispatching/network_2nodes.uct"
     Given crac file is "2_remedial_actions/2_3_redispatching/crac_2_3_1_1.json"
-    Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
+    Given configuration file is "common/rao_parameters_max_margin_megawatt_dc.json"
     When I launch rao
     Then the worst margin is 300 MW
     Then the execution details should be "The RAO only went through first preventive"
@@ -28,9 +28,9 @@ Feature: 2.3.1: Basic redispatching actions (free and costly)
   @fast @rao @dc @redispatching @preventive-only @max-min-margin
   Scenario: 2.3.1.1.bis: Extremely basic redispatching on 2 nodes network - maxMargin - load
   Exact same situation but with loads instead of generators.
-    Given network file is "2_remedial_actions/2_3_redispatching/2Nodes_load.uct"
+    Given network file is "2_remedial_actions/2_3_redispatching/network_2nodes_load.uct"
     Given crac file is "2_remedial_actions/2_3_redispatching/crac_2_3_1_1_load.json"
-    Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
+    Given configuration file is "common/rao_parameters_max_margin_megawatt_dc.json"
     When I launch rao
     Then the worst margin is 300 MW
     Then the execution details should be "The RAO only went through first preventive"
@@ -47,9 +47,9 @@ Feature: 2.3.1: Basic redispatching actions (free and costly)
   The initial setpoint is 1000, it is then updated to 300.0 (because the threshold of the line FR1 FR2 is 300)
   After optim => redispatching volume = 1000 - 300 = 700 MW
   Total cost : 10 for activation + 50 * 700 MW = 35010
-    Given network file is "2_remedial_actions/2_3_redispatching/2Nodes.uct"
+    Given network file is "2_remedial_actions/2_3_redispatching/network_2nodes.uct"
     Given crac file is "2_remedial_actions/2_3_redispatching/crac_2_3_1_1.json"
-    Given configuration file is "common/RaoParameters_minCost_megawatt_dc.json"
+    Given configuration file is "common/rao_parameters_min_cost_megawatt_dc.json"
     When I launch rao
     Then the worst margin is 10 MW
     Then the execution details should be "The RAO only went through first preventive"
@@ -65,9 +65,9 @@ Feature: 2.3.1: Basic redispatching actions (free and costly)
   Only one redispatching action available: with a key equal to 1 on FR1 and -0.7 on FR2.
   The sum of the key do not sum up to 1. It's impossible to respect injection balance constraint with a variation != 0.
   The RAO chose to not apply the action.
-    Given network file is "2_remedial_actions/2_3_redispatching/3Nodes.uct"
+    Given network file is "2_remedial_actions/2_3_redispatching/network_3nodes.uct"
     Given crac file is "2_remedial_actions/2_3_redispatching/crac_2_3_1_3.json"
-    Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
+    Given configuration file is "common/rao_parameters_max_margin_megawatt_dc.json"
     When I launch rao
     Then the worst margin is -267 MW
     Then the execution details should be "The RAO only went through first preventive"
@@ -82,9 +82,9 @@ Feature: 2.3.1: Basic redispatching actions (free and costly)
   Both redispatching actions have distribution keys that do not sum to 0, the actions have to be activated together to
   compensate each other, and the result is optimal when all generators are shut down.
   Injection balance constraint is satisfied 1000*(1+1)-1000*(1+1)=0
-    Given network file is "2_remedial_actions/2_3_redispatching/4Nodes.uct"
+    Given network file is "2_remedial_actions/2_3_redispatching/network_4nodes.uct"
     Given crac file is "2_remedial_actions/2_3_redispatching/crac_2_3_1_4.json"
-    Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
+    Given configuration file is "common/rao_parameters_max_margin_megawatt_dc.json"
     When I launch rao
     Then the worst margin is 500 MW
     Then the execution details should be "The RAO only went through first preventive"
@@ -104,9 +104,9 @@ Feature: 2.3.1: Basic redispatching actions (free and costly)
       - redispatchingActionFR3: initial setpoint = -300/0.6 = -500, final = -256 => delta+ = −244
       => 488*(1-0.7)-244*0.6 = 0
   Objective function breakdown: 10+488*50+10+244*50 = 36620
-    Given network file is "2_remedial_actions/2_3_redispatching/3Nodes.uct"
+    Given network file is "2_remedial_actions/2_3_redispatching/network_3nodes.uct"
     Given crac file is "2_remedial_actions/2_3_redispatching/crac_2_3_1_5.json"
-    Given configuration file is "common/RaoParameters_minCost_megawatt_dc.json"
+    Given configuration file is "common/rao_parameters_min_cost_megawatt_dc.json"
     When I launch rao
     Then the worst margin is 9.87 MW
     Then the execution details should be "The RAO only went through first preventive"
@@ -123,9 +123,9 @@ Feature: 2.3.1: Basic redispatching actions (free and costly)
   A simple three nodes network where all the prod is on FFR2AA1 and all the load is on FFR1AA1.
   The generator FFR3AA1 is disconnected so the redispatchingActionFR3 won't be used so the RAO can't use redispatchingActionFR1 either
   because it won't be able to satisfy the injection balancing constraint.
-    Given network file is "2_remedial_actions/2_3_redispatching/3Nodes_FFR3AA1_disconnected.xiidm"
+    Given network file is "2_remedial_actions/2_3_redispatching/network_3nodes_ffr3aa1_disconnected.xiidm"
     Given crac file is "2_remedial_actions/2_3_redispatching/crac_2_3_1_6.json"
-    Given configuration file is "common/RaoParameters_minCost_megawatt_dc.json"
+    Given configuration file is "common/rao_parameters_min_cost_megawatt_dc.json"
     When I launch rao
     Then the worst margin is -366.67 MW
     Then the execution details should be "The RAO only went through first preventive"

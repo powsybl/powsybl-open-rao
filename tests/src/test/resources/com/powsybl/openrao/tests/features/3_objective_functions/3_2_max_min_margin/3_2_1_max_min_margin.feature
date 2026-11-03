@@ -9,9 +9,9 @@ Feature: 3.2.1: MAX_MIN_MARGIN objective function
   @fast @rao @ac @preventive-only @secure-flow
   Scenario: 3.2.1.0.a: SECURE_FLOW objective function: secure initially, no RA applied
   This test is used as a reference for positive margin objective function,for comparison with the tests with MAX_MIN_MARGIN objective function.
-    Given network file is "common/TestCase12Nodes.uct"
+    Given network file is "common/network_12nodes.uct"
     Given crac file is "3_objective_functions/3_2_max_min_margin/crac_3_2_1_0.json"
-    Given configuration file is "common/RaoParameters_posMargin_ampere.json"
+    Given configuration file is "common/rao_parameters_pos_margin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -22,9 +22,9 @@ Feature: 3.2.1: MAX_MIN_MARGIN objective function
   @fast @rao @dc @preventive-only @secure-flow
   Scenario: 3.2.1.0.b: use relevant number of decimals for margin and cost logging
   This test is used as a reference for positive margin stop criterion, for comparison with the tests with max margin stop criterion.
-    Given network file is "common/TestCase12Nodes.uct"
+    Given network file is "common/network_12nodes.uct"
     Given crac file is "3_objective_functions/3_2_max_min_margin/crac_3_2_1_0_b.json"
-    Given configuration file is "common/RaoParameters_posMargin_megawatt_dc.json"
+    Given configuration file is "common/rao_parameters_pos_margin_megawatt_dc.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "UNSECURED"
@@ -35,9 +35,9 @@ Feature: 3.2.1: MAX_MIN_MARGIN objective function
   @fast @rao @ac @preventive-only @max-min-margin
   Scenario: 3.2.1.1: MAX_MIN_MARGIN objective function: secure initially, optimize
   Same as 3.2.1.0.a, but with MAX_MIN_MARGIN objective function.
-    Given network file is "common/TestCase12Nodes.uct"
+    Given network file is "common/network_12nodes.uct"
     Given crac file is "3_objective_functions/3_2_max_min_margin/crac_3_2_1_0.json"
-    Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
+    Given configuration file is "common/rao_parameters_max_margin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -50,9 +50,9 @@ Feature: 3.2.1: MAX_MIN_MARGIN objective function
   @fast @rao @ac @preventive-only @max-min-margin
   Scenario: 3.2.1.2: MAX_MIN_MARGIN objective function: maximum depth reached
   Same as 3.2.1.1, but only one RA is allowed: the worst margin is lower than in 5.1.1.
-    Given network file is "common/TestCase12Nodes.uct"
+    Given network file is "common/network_12nodes.uct"
     Given crac file is "3_objective_functions/3_2_max_min_margin/crac_3_2_1_0.json"
-    Given configuration file is "3_objective_functions/3_2_max_min_margin/RaoParameters_maxMargin_maxDepth.json"
+    Given configuration file is "3_objective_functions/3_2_max_min_margin/rao_parameters_max_margin_max_depth.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -65,9 +65,9 @@ Feature: 3.2.1: MAX_MIN_MARGIN objective function
   Scenario: 3.2.1.3: MAX_MIN_MARGIN objective function: relative minimum impact threshold not reached
   Same as 3.2.1.1, but the parameter relative-minimum-impact-threshold is set at 50%. As the best RA improves the margin
   from 500 MW to 693 MW, the improvement is below 50%: no RA is activated.
-    Given network file is "common/TestCase12Nodes.uct"
+    Given network file is "common/network_12nodes.uct"
     Given crac file is "3_objective_functions/3_2_max_min_margin/crac_3_2_1_0.json"
-    Given configuration file is "3_objective_functions/3_2_max_min_margin/RaoParameters_maxMargin_relativeMinImpact.json"
+    Given configuration file is "3_objective_functions/3_2_max_min_margin/rao_parameters_max_margin_relative_min_impact.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -79,9 +79,9 @@ Feature: 3.2.1: MAX_MIN_MARGIN objective function
   Scenario: 3.2.1.4.a: MAX_MIN_MARGIN objective function: absolute minimum impact threshold reached
   Same as 3.2.1.1, but the parameter absolute-minimum-impact-threshold is set at 190 MW. As the best RA improves the margin
   from 500 MW to 693 MW, the improvement is more than 190 MW: the RA is activated.
-    Given network file is "common/TestCase12Nodes.uct"
+    Given network file is "common/network_12nodes.uct"
     Given crac file is "3_objective_functions/3_2_max_min_margin/crac_3_2_1_0.json"
-    Given configuration file is "3_objective_functions/3_2_max_min_margin/RaoParameters_maxMargin_absoluteMinImpact275_ampere.json"
+    Given configuration file is "3_objective_functions/3_2_max_min_margin/rao_parameters_max_margin_absolute_min_impact275_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -95,9 +95,9 @@ Feature: 3.2.1: MAX_MIN_MARGIN objective function
   Scenario: 3.2.1.4.b: MAX_MIN_MARGIN objective function: absolute minimum impact threshold not reached
   Same as 3.2.1.1, but the parameter absolute-minimum-impact-threshold is set at 195 MW. As the best RA improves the margin
   from 500 MW to 693 MW, the improvement is below 195 MW: no RA is activated.
-    Given network file is "common/TestCase12Nodes.uct"
+    Given network file is "common/network_12nodes.uct"
     Given crac file is "3_objective_functions/3_2_max_min_margin/crac_3_2_1_0.json"
-    Given configuration file is "3_objective_functions/3_2_max_min_margin/RaoParameters_maxMargin_absoluteMinImpact280_ampere.json"
+    Given configuration file is "3_objective_functions/3_2_max_min_margin/rao_parameters_max_margin_absolute_min_impact280_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"

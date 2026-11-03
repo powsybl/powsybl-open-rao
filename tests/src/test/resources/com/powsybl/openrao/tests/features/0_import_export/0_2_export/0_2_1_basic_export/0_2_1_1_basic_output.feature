@@ -8,9 +8,9 @@ Feature: 0.2.1.1: Generate a basic output file after RAO computation
 
   @fast @rao @ac @preventive-only @secure-flow
   Scenario: 0.2.1.1.1: Secure optimization
-    Given network file is "common/TestCase12Nodes.uct"
+    Given network file is "common/network_12nodes.uct"
     Given crac file is "common/crac_2_1_2_1_selectionTopoRA.json"
-    Given configuration file is "common/RaoParameters_posMargin_ampere.json"
+    Given configuration file is "common/rao_parameters_pos_margin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -28,9 +28,9 @@ Feature: 0.2.1.1: Generate a basic output file after RAO computation
 
   @fast @rao @mock @ac @preventive-only @secure-flow
   Scenario: 0.2.1.1.2: Unsecure optimization
-    Given network file is "common/TestCase12Nodes.uct"
+    Given network file is "common/network_12nodes.uct"
     Given crac file is "0_import_export/0_2_export/0_2_1_basic_export/crac_0_2_1_1_2_unsecure.json"
-    Given configuration file is "common/RaoParameters_posMargin_ampere.json"
+    Given configuration file is "common/rao_parameters_pos_margin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "UNSECURED"
