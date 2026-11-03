@@ -34,6 +34,7 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.time.OffsetDateTime;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.powsybl.openrao.commons.UnitConverter.getFlowUnitMultiplier;
 import static org.junit.jupiter.api.Assertions.assertEquals;

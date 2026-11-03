@@ -21,6 +21,8 @@ import org.apache.commons.lang3.tuple.Pair;
 import java.io.IOException;
 import java.util.*;
 
+import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.versionIsAtLeast;
+
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
@@ -50,7 +52,7 @@ public final class BranchThresholdArrayDeserializer {
                         Unit unit = JsonSerializationConstants.deserializeUnit(jsonParser.nextTextValue());
                         branchThresholdAdder.withUnit(unit);
                         if (Unit.PERCENT_IMAX.equals(unit)) {
-                            if (JsonSerializationConstants.getPrimaryVersionNumber(version) > 2 || JsonSerializationConstants.getSubVersionNumber(version) > 12) {
+                            if (versionIsAtLeast(version, 2, 13)) {
                                 throw new OpenRaoException("PERCENT_IMAX thresholds are no longer supported in CRAC JSON format since CRAC version 2.13");
                             }
 
@@ -108,7 +110,7 @@ public final class BranchThresholdArrayDeserializer {
                 }
             }
 
-            if (JsonSerializationConstants.getPrimaryVersionNumber(version) > 2 || JsonSerializationConstants.getSubVersionNumber(version) > 12) {
+            if (versionIsAtLeast(version, 2, 13)) {
                 checkForDuplicateThresholds(thresholdSideBounds, side, hasMin, hasMax);
             }
 
