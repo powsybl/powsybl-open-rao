@@ -35,7 +35,7 @@ public class FlowCnecImpl extends AbstractCnec<FlowCnec> implements FlowCnec {
     // mw_lower_1, mw_lower_2, mw_upper_1, mw_upper_2, ampere_lower_1, ampere_lower_2, ampere_upper_1, ampere_upper_2
     private double[] boundValues = {Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN};
     // indicate if the bound was provided or if it was converted from an unit to another
-    private boolean[] boundProvided = {false, false, false, false, false, false, false, false, false};
+    private boolean[] boundProvided = {false, false, false, false, false, false, false, false};
     private final Double[] nominalVoltages = new Double[2];
     private final Double[] iMax = new Double[2];
 
