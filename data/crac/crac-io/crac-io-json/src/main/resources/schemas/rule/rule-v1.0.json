@@ -5,7 +5,9 @@
     "onLeftSide",
     "onRightSide",
     "onHighVoltageLevel",
-    "onLowVoltageLevel"
+    "onLowVoltageLevel",
+    "onRegulatedSide",
+    "onNonRegulatedSide"
   ],
   "additionalProperties": false
 }
