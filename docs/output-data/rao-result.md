@@ -286,7 +286,7 @@ Example:
 
 ### Extensions
 
-Since version **2.0** of the RAO result JSON format, all results except the remedial actions activations are stored
+Since version **2.0** of the RAO result JSON format, all other results are stored
 as [extensions](https://powsybl.readthedocs.io/projects/powsybl-core/en/stable/) of the RaoResult, as they can easily be
 recomputed from a list of optimal remedial actions. Yet, having them available can save computation time and data
 duplication.  In the JSON file, they are gathered in the `"extensions"` object, each extension being identified by its
