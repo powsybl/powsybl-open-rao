@@ -33,13 +33,14 @@ No — do not confuse two distinct concepts:
 
 ### Does OpenRAO compute the sensitivities internally, or do I have to supply them?
 
-**Internally.** CASTOR performs the sensitivity analysis itself at each step of the search tree and at each linear-optimization iteration, through the PowSyBl sensitivity provider configured in `load-flow-and-sensitivity-computation` (by default, Open Load Flow). Users never supply precomputed sensitivities — only the provider and its parameters ([load flow and sensitivity computation parameters](parameters/implementation-specific-parameters.md#load-flow-and-sensitivity-computation-parameters)).  
+**Internally.** CASTOR performs the sensitivity analysis itself at each step of the search tree and at each linear-optimization iteration, through the PowSyBl sensitivity provider configured in `load-flow-and-sensitivity-computation` (by default, Open Load Flow). Users never supply precomputed sensitivities — only the provider and its parameters ([load flow and sensitivity computation parameters](parameters/implementation-specific-parameters.md#load-flow-and-sensitivity-computation-parameters)).
 
 ### How are sensitivities handled for PSTs versus topological actions (switching, disconnections)?
 
 Remedial actions come in two families, and the sensitivity mechanism only applies to one of them ([CASTOR algorithm details](algorithms/castor.md#algorithm-details)):
 
 - **continuous range actions** (PSTs, HVDC links, injections) — the "linear remedial actions" (LRAs): for a given topology, CASTOR computes the linear sensitivity of each LRA on each CNEC of the studied perimeter (PSDFs for PSTs) and solves a linear problem `F_i = F_ref,i + Σ_j Δα_j · S_j,i` against the objective `OF = min_i(ρ_i · (F_max,i − F_i))`;
+- **discrete topological actions** (switching, line disconnections, ...): there is no sensitivity for these — each candidate combination is applied to the network and evaluated by a full load flow, its effect going directly into the reference flow `F_ref,i`.
 
 The two are combined: the LRA optimization is performed **separately for each topology** — the sensitivities are recomputed in the new topology at every search-tree leaf, which captures the coupled effects (topology + PSTs). See also the [search tree algorithm example](algorithms/castor.md#search-tree-algorithm-example).
 
@@ -52,6 +53,9 @@ They are not exposed in the RAO result. If you use OpenLoadFlow, they can be dum
 ### What is the minimum CRAC content for a RAO execution?
 
 - **at least two instants**: the first of kind `PREVENTIVE`, the second of kind `OUTAGE` (`AUTO` and `CURATIVE` instants are optional) — the importer warns otherwise ([JSON CRAC → Instants and States](input-data/crac/json.md#instants-and-states));
+- the **CNECs** at each state, with their thresholds (see below) and their optimized/monitored flags;
+- the **contingencies** they reference;
+- the **remedial actions with their usage rules** — a remedial action without any usage rule is imported but **never applied** (a business warn is emitted).
 
 ### How do I check that my CRAC file was imported correctly?
 
@@ -96,7 +100,7 @@ The [`RaoResult`](output-data/rao-result.md) is keyed by **state** (the preventi
 
 ### Can I distinguish initial N-0, initial N-1, after preventive optimization and after curative optimization?
 
-Yes — the granularity of the results is the **state**: the RaoResult provides flows and margins per CNEC per state (initial N-1 = the outage state; preventive actions are reported in the post-contingency states via `wasActivatedBeforeState`), the `costResults` distinguish `initial` / `preventive` / `auto` / `curative`, and the logs are segmented the same way ("Preventive perimeter optimization", then "Post-contingency perimeters optimization").
+Yes — the granularity of the results is the **state**: the RaoResult provides flows and margins per CNEC per state (initial N-1 = the outage state; the preventive actions are visible in the post-contingency states via `wasActivatedBeforeState`), the `costResults` distinguish `initial` / `preventive` / `auto` / `curative`, and the logs are segmented the same way ("Preventive perimeter optimization", then "Post-contingency perimeters optimization").
 
 ### Why can the overload count increase after preventive actions, while the objective improved?
 
