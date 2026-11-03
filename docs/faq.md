@@ -33,7 +33,7 @@ No — do not confuse two distinct concepts:
 
 ### Does OpenRAO compute the sensitivities internally, or do I have to supply them?
 
-**Internally.** CASTOR performs the sensitivity analysis itself at each step of the search tree and at each linear-optimization iteration, through the PowSyBl sensitivity provider configured in `load-flow-and-sensitivity-computation` (by default, OpenLoadFlow). Users never supply precomputed sensitivities — only the provider and its parameters ([load flow and sensitivity computation parameters](parameters/implementation-specific-parameters.md#load-flow-and-sensitivity-computation-parameters)). Note that the provider name is exactly `OpenLoadFlow` (no space): that is the value expected for `load-flow-provider` and `sensitivity-provider`.
+**Internally.** CASTOR performs the sensitivity analysis itself at each step of the search tree and at each linear-optimization iteration, through the PowSyBl sensitivity provider configured in `load-flow-and-sensitivity-computation` (by default, Open Load Flow). Users never supply precomputed sensitivities — only the provider and its parameters ([load flow and sensitivity computation parameters](parameters/implementation-specific-parameters.md#load-flow-and-sensitivity-computation-parameters)).  
 
 ### How are sensitivities handled for PSTs versus topological actions (switching, disconnections)?
 
