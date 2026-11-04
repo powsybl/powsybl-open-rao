@@ -28,7 +28,7 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '21'
-          # cache: 'maven'
+          cache: 'maven'
 
       - name: Setup GraalVM
         if: matrix.jvm == 'graalvm'
