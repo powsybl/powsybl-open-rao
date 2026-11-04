@@ -24,7 +24,7 @@ import static io.cucumber.core.options.Constants.PLUGIN_PROPERTY_NAME;
 @SelectPackages("com.powsybl.openrao.tests")
 @ConfigurationParameter(key = PLUGIN_PROPERTY_NAME, value = "pretty")
 @ConfigurationParameter(key = GLUE_PROPERTY_NAME, value = "com.powsybl.openrao.tests")
-@ConfigurationParameter(key = FILTER_TAGS_PROPERTY_NAME, value = "not @flaky and not @fast-rao and not @dont-run") // For SearchTreeRao testing
-//@ConfigurationParameter(key = FILTER_TAGS_PROPERTY_NAME, value = "not @flaky and not @multi-curative and not @search-tree-rao") // For FastRao testing
+//@ConfigurationParameter(key = FILTER_TAGS_PROPERTY_NAME, value = "not @flaky and not @fast-rao and not @dont-run") // For force-fast-rao=false
+@ConfigurationParameter(key = FILTER_TAGS_PROPERTY_NAME, value = "not @flaky and not @multi-curative and not @search-tree-rao") // For force-fast-rao=true
 public class RunCucumberTest {
 }
