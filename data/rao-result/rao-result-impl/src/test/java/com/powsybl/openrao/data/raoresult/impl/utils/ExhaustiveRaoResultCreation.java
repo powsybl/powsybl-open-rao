@@ -233,14 +233,14 @@ public final class ExhaustiveRaoResultCreation {
 
         double x = 3000;
 
-        angleResultBuilder.with(x + 100 + 35, null, cnec, DEGREE)
-            .with(x + 200 + 35, crac.getInstant("preventive"), cnec, DEGREE);
+        angleResultBuilder.withMeasurement(x + 100 + 35, null, cnec, DEGREE)
+            .withMeasurement(x + 200 + 35, crac.getInstant("preventive"), cnec, DEGREE);
 
         if (cnec.getState().getInstant().isAuto() || cnec.getState().getInstant().isCurative()) {
-            angleResultBuilder.with(x + 300 + 35, crac.getInstant("auto"), cnec, DEGREE);
+            angleResultBuilder.withMeasurement(x + 300 + 35, crac.getInstant("auto"), cnec, DEGREE);
         }
         if (cnec.getState().getInstant().isCurative()) {
-            angleResultBuilder.with(x + 400 + 35, crac.getInstant("curative"), cnec, DEGREE);
+            angleResultBuilder.withMeasurement(x + 400 + 35, crac.getInstant("curative"), cnec, DEGREE);
         }
     }
 
