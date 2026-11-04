@@ -10,6 +10,7 @@ package com.powsybl.openrao.data.raoresult.api.extension;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Instant;
+import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.VoltageCnec;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -17,7 +18,9 @@ import org.mockito.Mockito;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
@@ -77,5 +80,68 @@ public class VoltageResultTest {
 
         OpenRaoException exception = assertThrows(OpenRaoException.class, () -> VoltageResult.builder().addMeasurement(410.0, 420.0, null, voltageCnec, Unit.MEGAWATT));
         assertEquals("VoltageCNEC results are only allowed for kilovolts.", exception.getMessage());
+    }
+
+    private static VoltageCnec mockVoltageCnec(Instant instant) {
+        VoltageCnec voltageCnec = Mockito.mock(VoltageCnec.class);
+        State state = Mockito.mock(State.class);
+        Mockito.when(state.getInstant()).thenReturn(instant);
+        Mockito.when(voltageCnec.getState()).thenReturn(state);
+        Mockito.when(voltageCnec.getUpperBound(Unit.KILOVOLT)).thenReturn(Optional.of(440.0));
+        Mockito.when(voltageCnec.getLowerBound(Unit.KILOVOLT)).thenReturn(Optional.of(380.0));
+        return voltageCnec;
+    }
+
+    @Test
+    void testIsSecureWithoutResults() {
+        assertTrue(VoltageResult.build().build().isSecure());
+    }
+
+    @Test
+    void testIsSecure() {
+        Instant preventiveInstant = Mockito.mock(Instant.class);
+        Instant curativeInstant = Mockito.mock(Instant.class);
+        VoltageCnec preventiveCnec = mockVoltageCnec(preventiveInstant);
+        VoltageCnec curativeCnec = mockVoltageCnec(curativeInstant);
+
+        // only the margin at the CNEC's own instant matters (other instants are negative)
+        VoltageResult voltageResult = VoltageResult.build()
+            .addMeasurement(370.0, 400.0, null, preventiveCnec, Unit.KILOVOLT)
+            .addMeasurement(390.0, 430.0, preventiveInstant, preventiveCnec, Unit.KILOVOLT)
+            .addMeasurement(400.0, 450.0, preventiveInstant, curativeCnec, Unit.KILOVOLT)
+            .addMeasurement(400.0, 420.0, curativeInstant, curativeCnec, Unit.KILOVOLT)
+            .build();
+        assertTrue(voltageResult.isSecure());
+    }
+
+    @Test
+    void testIsNotSecureWithUnderVoltage() {
+        Instant preventiveInstant = Mockito.mock(Instant.class);
+        VoltageCnec secureCnec = mockVoltageCnec(preventiveInstant);
+        VoltageCnec unsecureCnec = mockVoltageCnec(preventiveInstant);
+
+        VoltageResult voltageResult = VoltageResult.build()
+            .addMeasurement(400.0, 420.0, preventiveInstant, secureCnec, Unit.KILOVOLT)
+            .addMeasurement(375.0, 420.0, preventiveInstant, unsecureCnec, Unit.KILOVOLT)
+            .build();
+        assertFalse(voltageResult.isSecure());
+    }
+
+    @Test
+    void testIsNotSecureWithOverVoltage() {
+        Instant preventiveInstant = Mockito.mock(Instant.class);
+        VoltageCnec voltageCnec = mockVoltageCnec(preventiveInstant);
+
+        VoltageResult voltageResult = VoltageResult.build().addMeasurement(400.0, 445.0, preventiveInstant, voltageCnec, Unit.KILOVOLT).build();
+        assertFalse(voltageResult.isSecure());
+    }
+
+    @Test
+    void testIstSecureWithNullMargin() {
+        Instant preventiveInstant = Mockito.mock(Instant.class);
+        VoltageCnec voltageCnec = mockVoltageCnec(preventiveInstant);
+
+        VoltageResult voltageResult = VoltageResult.build().addMeasurement(380.0, 440.0, preventiveInstant, voltageCnec, Unit.KILOVOLT).build();
+        assertTrue(voltageResult.isSecure());
     }
 }

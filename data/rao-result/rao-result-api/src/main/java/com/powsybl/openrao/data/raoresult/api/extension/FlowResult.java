@@ -9,6 +9,7 @@ package com.powsybl.openrao.data.raoresult.api.extension;
 
 import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.iidm.network.TwoSides;
+import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
@@ -126,6 +127,22 @@ public class FlowResult extends AbstractExtension<RaoResult> {
 
     private Optional<FlowCnecResult> safeGetResult(FlowCnec flowCnec) {
         return Optional.ofNullable(results.get(flowCnec));
+    }
+
+    public boolean isSecure() {
+        return results.keySet()
+            .stream()
+            .filter(flowCnec -> safeGetResult(flowCnec).isPresent())
+            .allMatch(this::hasPositiveMargin);
+    }
+
+    private boolean hasPositiveMargin(FlowCnec flowCnec) {
+        Optional<Double> marginAmpere = safeGetResult(flowCnec).flatMap(result -> result.getMargin(flowCnec.getState().getInstant(), Unit.AMPERE));
+        Optional<Double> marginMegawatt = safeGetResult(flowCnec).flatMap(result -> result.getMargin(flowCnec.getState().getInstant(), Unit.MEGAWATT));
+        if (marginAmpere.isEmpty() && marginMegawatt.isEmpty()) {
+            throw new OpenRaoException("No flow margin available for FlowCNEC %s".formatted(flowCnec.getId()));
+        }
+        return marginAmpere.orElse(Double.MAX_VALUE) >= 0 && marginMegawatt.orElse(Double.MAX_VALUE) >= 0;
     }
 
     @Override
