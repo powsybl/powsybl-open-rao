@@ -137,6 +137,7 @@ class RemedialActionCreationTest {
             NcCracCreationTestUtil.CURATIVE_3_INSTANT_ID);
 
         assertEquals(3, ((NetworkAction) importedRemedialActions.get(4)).getElementaryActions().size());
+        assertEquals("10XDE-VE-------2", importedRemedialActions.get(4).getOperator()); // EIC not in TsoEICode: raw EIC fallback
         NcCracCreationTestUtil.assertHasOnInstantUsageRule(cracCreationContext, "remedial-action-5", NcCracCreationTestUtil.PREVENTIVE_INSTANT_ID);
 
         NcCracCreationTestUtil.assertPstRangeActionImported(

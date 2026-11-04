@@ -40,7 +40,7 @@ public final class NcCracUtils {
     }
 
     public static String getUniqueName(String prefixUrl, String suffix) {
-        return getTsoNameFromUrl(prefixUrl).concat("_").concat(suffix);
+        return getTsoNameFromUrl(prefixUrl).map(tsoName -> tsoName.concat("_").concat(suffix)).orElse(suffix);
     }
 
     public static Optional<String> createElementName(String nativeElementName, String tsoNameUrl) {
@@ -128,7 +128,7 @@ public final class NcCracUtils {
         return matcher.find() ? matcher.group(1) : null;
     }
 
-    public static String getTsoNameFromUrl(String url) {
-        return TsoEICode.fromEICode(getEicFromUrl(url)).orElseThrow().getDisplayName();
+    public static Optional<String> getTsoNameFromUrl(String url) {
+        return TsoEICode.fromEICode(getEicFromUrl(url)).map(TsoEICode::getDisplayName);
     }
 }

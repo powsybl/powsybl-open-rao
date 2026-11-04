@@ -888,8 +888,7 @@ its `GenericAvailableSchedule` has no `AvailabilityTimePoint` at or after the im
 > The availability is overridden in the following order: the SIS profile overrides the `normalAvailable` field of the
 > RA profile, and the SSI profile overrides both.
 
-As for other remedial actions, the `mRID` is used as the remedial action's identifier and the instant of the remedial 
-action is determined by the `kind` which can be either `preventive` or `curative`.
+As for other remedial actions, the `mRID` is used as the remedial action's identifier.
 
 The operator of the counter-trade range action is the TSO identified by the `dcterms:creator` field of the RA profile 
 header. The remedial action is not imported if the creator is missing, does not contain a valid EIC code or is not a 
@@ -899,13 +898,9 @@ The `RemedialActionSystemOperator` field is optional. If it is provided, it is o
 both EIC codes are different, a warning is logged and the remedial action is still imported with the creator as 
 operator.
 
-> If the remedial action has its `kind` field set to `curative`, the remedial action will be imported for all curative instants at once.
+> ⚠️ Currently, only preventive counter-trading is supported: counter-trade remedial actions of kind `curative` will be ignored.
 
-If the remedial action is of kind `curative` and its `isManual` attribute is present and set to `false`, the importer 
-will interpret this remedial action as an automaton. Thus, its [usage rules](#usage-rules) will all be defined for the 
-auto instant.
-
-> Preventive automatons are not supported by OpenRAO so preventive remedial actions with `isManual` set to false will be ignored.
+> Counter-trading cannot be automatic, so counter-trade remedial actions with `isManual` set to `false` are not used in the RAO and will be ignored.
 
 Finally, the `timeToImplement` is converted to a number of seconds and used as the remedial action's speed.
 

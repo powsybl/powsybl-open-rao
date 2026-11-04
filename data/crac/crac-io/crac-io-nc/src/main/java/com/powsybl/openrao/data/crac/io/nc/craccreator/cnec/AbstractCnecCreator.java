@@ -133,7 +133,7 @@ public abstract class AbstractCnecCreator {
             .withId(cnecName)
             .withName(cnecName)
             .withInstant(instantId)
-            .withOperator(NcCracUtils.getTsoNameFromUrl(nativeAssessedElement.operator()))
+            .withOperator(NcCracUtils.getTsoNameFromUrl(nativeAssessedElement.operator()).orElse(NcCracUtils.getEicFromUrl(nativeAssessedElement.operator())))
             .withBorder(border);
         if (cnecAdder instanceof FlowCnecAdder) {
             // The following 2 lines mustn't be called for angle & voltage CNECs

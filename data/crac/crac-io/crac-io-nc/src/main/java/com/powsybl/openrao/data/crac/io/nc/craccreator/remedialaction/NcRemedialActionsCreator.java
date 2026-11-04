@@ -105,7 +105,6 @@ public class NcRemedialActionsCreator {
 
     private void addCountertradeRangeAction(CountertradeRemedialAction countertradeRemedialAction) {
         String remedialActionId = countertradeRemedialAction.mrid();
-        RemedialActionKind kind = RemedialActionKind.fromUrl(countertradeRemedialAction.kind());
 
         try {
             if (remedialActionId == null) {
@@ -114,11 +113,18 @@ public class NcRemedialActionsCreator {
                                 countertradeRemedialAction.name()
                         ));
             }
-            if (!RemedialActionKind.PREVENTIVE.equals(kind)) {
-                throw new OpenRaoImportException(ImportStatus.INCOMPLETE_DATA,
-                        String.format("Remedial action %s will not be imported because unsupported kind is provided",
-                                remedialActionId
-                        ));
+            if (!RemedialActionKind.PREVENTIVE.toString().equals(countertradeRemedialAction.kind())) {
+                throw new OpenRaoImportException(ImportStatus.NOT_YET_HANDLED_BY_OPEN_RAO,
+                    String.format("Remedial action %s will not be imported because only preventive counter-trading is currently supported by the RAO.",
+                        remedialActionId
+                    ));
+            }
+
+            if (!countertradeRemedialAction.isManual()) {
+                throw new OpenRaoImportException(ImportStatus.NOT_FOR_RAO,
+                    String.format("Remedial action %s will not be imported because counter-trading cannot be automatic.",
+                        remedialActionId)
+                );
             }
 
             List<String> alterations = new ArrayList<>();
@@ -134,8 +140,7 @@ public class NcRemedialActionsCreator {
                 counterTradeRangeActionAdder.withSpeed(countertradeRemedialAction.getTimeToImplementInSeconds());
             }
 
-            crac.getInstants(getInstantKind(countertradeRemedialAction))
-                    .forEach(instant -> addOnInstantUsageRules(remedialActionId, counterTradeRangeActionAdder, instant));
+            addOnInstantUsageRules(remedialActionId, counterTradeRangeActionAdder, crac.getPreventiveInstant());
             counterTradeRangeActionAdder.add();
 
             saveImportedContext(countertradeRemedialAction, alterations);
@@ -243,7 +248,7 @@ public class NcRemedialActionsCreator {
 
     private String createNameFromTapPositionAction(String tapPositionId, String operator) {
         if (operator != null) {
-            return NcCracUtils.getTsoNameFromUrl(operator) + "-" + tapPositionId;
+            return NcCracUtils.getTsoNameFromUrl(operator).map(tsoName -> tsoName + "-" + tapPositionId).orElse(tapPositionId);
         } else {
             return tapPositionId;
         }
@@ -258,7 +263,8 @@ public class NcRemedialActionsCreator {
 
         remedialActionAdder.withName(remedialActionName);
         if (gridStateAlterationRemedialAction.operator() != null) {
-            remedialActionAdder.withOperator(NcCracUtils.getTsoNameFromUrl(gridStateAlterationRemedialAction.operator()));
+            remedialActionAdder.withOperator(NcCracUtils.getTsoNameFromUrl(gridStateAlterationRemedialAction.operator())
+                .orElse(NcCracUtils.getEicFromUrl(gridStateAlterationRemedialAction.operator())));
         }
         if (gridStateAlterationRemedialAction.getTimeToImplementInSeconds() != null) {
             remedialActionAdder.withSpeed(gridStateAlterationRemedialAction.getTimeToImplementInSeconds());

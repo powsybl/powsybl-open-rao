@@ -98,7 +98,7 @@ public class CounterTradingRangeActionCreator {
         CounterTradeRangeActionAdder counterTradeRangeActionAdder = crac.newCounterTradeRangeAction()
                 .withId(remedialActionId)
                 .withName(countertradeRemedialAction.name())
-                .withOperator(NcCracUtils.getTsoNameFromUrl(countertradeRemedialAction.operator()))
+                .withOperator(NcCracUtils.getTsoNameFromUrl(countertradeRemedialAction.operator()).orElse(NcCracUtils.getEicFromUrl(countertradeRemedialAction.operator())))
                 .newRange().withMin(minRange).withMax(maxRange).add()
                 .withInitialSetpoint(0.)
                 .withAreaId(area);

@@ -26,7 +26,7 @@ public record CountertradeRemedialAction(String mrid, String name, String operat
                 propertyBag.get(NcConstants.REMEDIAL_ACTION_SYSTEM_OPERATOR),
                 propertyBag.get(NcConstants.KIND),
                 Boolean.parseBoolean(propertyBag.get(NcConstants.NORMAL_AVAILABLE)),
-                propertyBag.asBoolean(propertyBag.get(NcConstants.IS_MANUAL), true),
+                propertyBag.asBoolean(NcConstants.IS_MANUAL, true),
                 propertyBag.get(NcConstants.TIME_TO_IMPLEMENT),
                 propertyBag.get(NcConstants.BIDDING_ZONE),
                 propertyBag.asDouble(NcConstants.MAX_REGULATING_UP),

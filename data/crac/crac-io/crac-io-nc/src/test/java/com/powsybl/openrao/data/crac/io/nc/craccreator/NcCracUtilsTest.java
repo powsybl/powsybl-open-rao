@@ -10,6 +10,8 @@ package com.powsybl.openrao.data.crac.io.nc.craccreator;
 import com.powsybl.openrao.commons.OpenRaoException;
 import org.junit.jupiter.api.Test;
 
+import java.util.Optional;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -110,5 +112,15 @@ class NcCracUtilsTest {
         assertEquals("10XPT-REN------9", NcCracUtils.getEicFromUrl("http://energy.referencedata.eu/EIC/10XPT-REN------9"));
         assertEquals("10XFR-RTE------Q", NcCracUtils.getEicFromUrl("http://energy.referencedata.eu/EIC/10XFR-RTE------Q"));
         assertNull(NcCracUtils.getEicFromUrl("Hello world!"));
+    }
+
+    @Test
+    void testTsoNameFromUrl() {
+        assertEquals(Optional.of("RTE"), NcCracUtils.getTsoNameFromUrl("http://energy.referencedata.eu/EIC/10XFR-RTE------Q"));
+        assertEquals(Optional.of("REE"), NcCracUtils.getTsoNameFromUrl("http://energy.referencedata.eu/EIC/10XES-REE------E"));
+        // Valid EIC code but not a known TSO
+        assertEquals(Optional.empty(), NcCracUtils.getTsoNameFromUrl("http://energy.referencedata.eu/EIC/10XDE-VE-------2"));
+        // No EIC code in the URL
+        assertEquals(Optional.empty(), NcCracUtils.getTsoNameFromUrl("http://example.com/operator/RTE"));
     }
 }

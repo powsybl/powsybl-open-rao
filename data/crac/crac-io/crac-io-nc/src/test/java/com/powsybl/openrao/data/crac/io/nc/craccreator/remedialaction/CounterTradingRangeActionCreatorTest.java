@@ -176,8 +176,12 @@ class CounterTradingRangeActionCreatorTest {
                 "Remedial action ct-unavailable-in-ssi will not be imported it is not set to be available.");
 
         // Kind
-        assertRaNotImported(cracCreationContext, "ct-curative", ImportStatus.INCOMPLETE_DATA,
-                "Remedial action ct-curative will not be imported because unsupported kind is provided");
+        assertRaNotImported(cracCreationContext, "ct-curative", ImportStatus.NOT_YET_HANDLED_BY_OPEN_RAO,
+                "Remedial action ct-curative will not be imported because only preventive counter-trading is currently supported by the RAO.");
+
+        // Automatic
+        assertRaNotImported(cracCreationContext, "ct-automatic", ImportStatus.NOT_FOR_RAO,
+                "Remedial action ct-automatic will not be imported because counter-trading cannot be automatic.");
 
         // Operator
         assertRaNotImported(cracCreationContext, "ct-no-operator", ImportStatus.INCOMPLETE_DATA,
