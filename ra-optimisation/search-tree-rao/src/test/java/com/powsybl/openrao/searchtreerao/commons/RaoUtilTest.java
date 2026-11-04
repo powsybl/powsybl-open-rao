@@ -434,7 +434,7 @@ class RaoUtilTest {
             .withInstant("prev")
             .withNominalVoltage(200.)
             .newThreshold().withUnit(Unit.MEGAWATT).withMax(1000.).withSide(TwoSides.ONE).add()
-            .newThreshold().withUnit(Unit.AMPERE).withMax(1000.).withSide(TwoSides.ONE).add()
+            .newThreshold().withUnit(Unit.AMPERE).withMin(-1000.).withSide(TwoSides.ONE).add()
             .add();
         cracWIthTresholdInMwWithAc.newFlowCnec()
             .withId("cnecOneAmpThreshold")

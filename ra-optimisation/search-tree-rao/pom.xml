@@ -5,7 +5,7 @@
     <parent>
         <artifactId>open-rao-ra-optimisation</artifactId>
         <groupId>com.powsybl</groupId>
-        <version>7.5.0-SNAPSHOT</version>
+        <version>7.6.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -34,6 +34,10 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
+            <artifactId>open-rao-roda</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>open-rao-crac-impl</artifactId>
         </dependency>
         <dependency>
@@ -47,12 +51,6 @@
         <dependency>
             <groupId>com.powsybl</groupId>
             <artifactId>powsybl-open-loadflow</artifactId>
-        </dependency>
-        <!-- Only used for RodaParameters. TODO move this to a RaoParameters extension -->
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>open-rao-roda</artifactId>
-            <version>${project.version}</version>
         </dependency>
 
         <!-- test -->

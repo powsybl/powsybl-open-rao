@@ -10,6 +10,7 @@ package com.powsybl.openrao.data.raoresult.api;
 import com.powsybl.commons.extensions.AbstractExtendable;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.RemedialAction;
@@ -171,5 +172,10 @@ public class RaoResultClone extends AbstractExtendable<RaoResult> implements Rao
     @Override
     public String getExecutionDetails() {
         return raoResult.getExecutionDetails();
+    }
+
+    @Override
+    public boolean isSecure(PhysicalParameter... physicalParameters) {
+        return raoResult.isSecure(physicalParameters);
     }
 }
