@@ -57,7 +57,7 @@ public class JsonCostResult implements RaoResultJsonUtils.ExtensionSerializer<Co
         if (crac == null) {
             throw new OpenRaoException("CostResult cannot be deserialized because the deserializationContext does not contain a 'crac' attribute.");
         }
-        CostResult.CostResultBuilder costResultBuilder = CostResult.build();
+        CostResult.CostResultBuilder costResultBuilder = CostResult.builder();
         while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
             jsonParser.nextToken();
             if ("initial".equals(jsonParser.currentName())) {
@@ -101,11 +101,11 @@ public class JsonCostResult implements RaoResultJsonUtils.ExtensionSerializer<Co
         while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
             jsonParser.nextToken();
             if ("functionalCost".equals(jsonParser.currentName())) {
-                costResultBuilder.addFunctionalCostResult(instant, jsonParser.getDoubleValue());
+                costResultBuilder.withFunctionalCostResult(instant, jsonParser.getDoubleValue());
             } else if ("virtualCost".equals(jsonParser.currentName())) {
                 while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
                     jsonParser.nextToken();
-                    costResultBuilder.addVirtualCostResult(instant, jsonParser.currentName(), jsonParser.getDoubleValue());
+                    costResultBuilder.withVirtualCostResult(instant, jsonParser.currentName(), jsonParser.getDoubleValue());
                 }
             } else {
                 throw new OpenRaoException("Unexpected field in '%s': '%s'.".formatted(jsonParser.currentName(), getExtensionName()));

@@ -73,7 +73,7 @@ public class RaoResultDeserializer extends JsonDeserializer<RaoResult> {
 
         List<Extension<RaoResult>> extensions = Collections.emptyList();
 
-        Metadata.MetadataBuilder metadataBuilder = Metadata.build();
+        Metadata.MetadataBuilder metadataBuilder = Metadata.builder();
 
         String jsonFileVersion = isValid(jsonParser);
         Version version = Version.parse(jsonFileVersion);
@@ -99,12 +99,12 @@ public class RaoResultDeserializer extends JsonDeserializer<RaoResult> {
 
                 case OPTIMIZATION_STEPS_EXECUTED:
                     checkDeprecatedField(jsonParser, RAO_RESULT_TYPE, jsonFileVersion, "1.6");
-                    metadataBuilder.addExecutionDetails(jsonParser.nextTextValue());
+                    metadataBuilder.withExecutionDetails(jsonParser.nextTextValue());
                     break;
 
                 case EXECUTION_DETAILS:
                     if (version.major() == 1) {
-                        metadataBuilder.addExecutionDetails(jsonParser.nextTextValue());
+                        metadataBuilder.withExecutionDetails(jsonParser.nextTextValue());
                         break;
                     } else {
                         throw new OpenRaoException("From version 2.0 onward, execution details are no longer in the RAO Result but in the 'metadata' extension.");

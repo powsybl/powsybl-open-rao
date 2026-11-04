@@ -203,7 +203,7 @@ public final class MarmotUtils {
         ObjectiveFunction objectiveFunction = ObjectiveFunction.build(crac.getFlowCnecs(), Set.of(), initialResult, initialResult, Set.of(), raoParameters, crac.getStates());
         RemedialActionActivationResult remedialActionActivationResult = MarmotUtils.getRemedialActionActivationResult(initialResult, postMipResult, networkActionsResult, crac);
         ObjectiveFunctionResult singleTimestampObjectiveFunctionResult = objectiveFunction.evaluate(postMipResult, remedialActionActivationResult, reportNode);
-        CostResult.CostResultBuilder costResultBuilder = CostResult.build();
+        CostResult.CostResultBuilder costResultBuilder = CostResult.builder();
         addCostsForInstant(costResultBuilder, initialResult, null);
         crac.getSortedInstants()
             .stream()
@@ -215,9 +215,9 @@ public final class MarmotUtils {
     private static void addCostsForInstant(CostResult.CostResultBuilder costResultBuilder,
                                            ObjectiveFunctionResult objectiveFunctionResult,
                                            Instant instant) {
-        costResultBuilder.addFunctionalCostResult(instant, objectiveFunctionResult.getFunctionalCost());
+        costResultBuilder.withFunctionalCostResult(instant, objectiveFunctionResult.getFunctionalCost());
         objectiveFunctionResult.getVirtualCostNames().forEach(
-            virtualCostName -> costResultBuilder.addVirtualCostResult(
+            virtualCostName -> costResultBuilder.withVirtualCostResult(
                 instant,
                 virtualCostName,
                 objectiveFunctionResult.getVirtualCost(virtualCostName)

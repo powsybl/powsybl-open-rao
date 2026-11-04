@@ -99,12 +99,12 @@ public class JsonMetadataTest {
 
         when(crac.getStates()).thenReturn(Set.of(state1, state2, state3, state4));
 
-        Metadata metadata = Metadata.build()
-            .addComputationStatus(state1, ComputationStatus.DEFAULT)
-            .addComputationStatus(state2, ComputationStatus.FAILURE)
-            .addComputationStatus(state3, ComputationStatus.PARTIAL_FAILURE)
-            .addComputationStatus(state4, ComputationStatus.DEFAULT)
-            .addExecutionDetails("Some details")
+        Metadata metadata = Metadata.builder()
+            .withComputationStatus(state1, ComputationStatus.DEFAULT)
+            .withComputationStatus(state2, ComputationStatus.FAILURE)
+            .withComputationStatus(state3, ComputationStatus.PARTIAL_FAILURE)
+            .withComputationStatus(state4, ComputationStatus.DEFAULT)
+            .withExecutionDetails("Some details")
             .build();
 
         StringWriter writer = new StringWriter();

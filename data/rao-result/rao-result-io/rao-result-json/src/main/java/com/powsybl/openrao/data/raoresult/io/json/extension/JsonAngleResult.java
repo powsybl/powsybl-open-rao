@@ -55,7 +55,7 @@ public class JsonAngleResult implements RaoResultJsonUtils.ExtensionSerializer<A
         if (crac == null) {
             throw new OpenRaoException("AngleResult cannot be deserialized because the deserializationContext does not contain a 'crac' attribute.");
         }
-        AngleResult.AngleResultBuilder angleResultBuilder = AngleResult.build();
+        AngleResult.AngleResultBuilder angleResultBuilder = AngleResult.builder();
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             AngleCnec angleCnec = null;
             while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
@@ -124,7 +124,7 @@ public class JsonAngleResult implements RaoResultJsonUtils.ExtensionSerializer<A
                 while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
                     if ("angle".equals(jsonParser.currentName())) {
                         jsonParser.nextToken();
-                        angleResultBuilder.addMeasurement(jsonParser.getDoubleValue(), instant, angleCnec, Unit.DEGREE);
+                        angleResultBuilder.with(jsonParser.getDoubleValue(), instant, angleCnec, Unit.DEGREE);
                     } else {
                         throw new OpenRaoException("Unexpected token: " + jsonParser.getCurrentToken());
                     }

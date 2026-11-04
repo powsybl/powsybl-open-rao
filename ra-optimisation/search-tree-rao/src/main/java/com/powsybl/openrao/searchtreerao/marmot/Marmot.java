@@ -801,7 +801,7 @@ public class Marmot implements TimeCoupledRaoProvider {
     private static CostResult createCastorCostResultExtension(ObjectiveFunctionResult initialOptimizationResult,
                                                               ObjectiveFunctionResult finalLinearOptimizationResult,
                                                               List<Instant> instants) {
-        CostResult.CostResultBuilder costResultBuilder = CostResult.build();
+        CostResult.CostResultBuilder costResultBuilder = CostResult.builder();
         addCostsForInstant(costResultBuilder, initialOptimizationResult, null);
         instants.stream()
             .filter(instant -> !instant.isOutage())
@@ -812,9 +812,9 @@ public class Marmot implements TimeCoupledRaoProvider {
     private static void addCostsForInstant(CostResult.CostResultBuilder costResultBuilder,
                                            ObjectiveFunctionResult objectiveFunctionResult,
                                            Instant optimizedInstant) {
-        costResultBuilder.addFunctionalCostResult(optimizedInstant, objectiveFunctionResult.getFunctionalCost());
+        costResultBuilder.withFunctionalCostResult(optimizedInstant, objectiveFunctionResult.getFunctionalCost());
         objectiveFunctionResult.getVirtualCostNames()
-            .forEach(virtualCostName -> costResultBuilder.addVirtualCostResult(
+            .forEach(virtualCostName -> costResultBuilder.withVirtualCostResult(
                 optimizedInstant,
                 virtualCostName,
                 objectiveFunctionResult.getVirtualCost(virtualCostName))
@@ -825,20 +825,20 @@ public class Marmot implements TimeCoupledRaoProvider {
                                                                                                          FlowResult finalFlowResult,
                                                                                                          TemporalData<Crac> cracs,
                                                                                                          Unit flowUnit) {
-        com.powsybl.openrao.data.raoresult.api.extension.FlowResult.FlowResultBuilder flowResultBuilder = com.powsybl.openrao.data.raoresult.api.extension.FlowResult.build();
+        com.powsybl.openrao.data.raoresult.api.extension.FlowResult.FlowResultBuilder flowResultBuilder = com.powsybl.openrao.data.raoresult.api.extension.FlowResult.builder();
         cracs.getDataPerTimestamp().values().forEach(
             crac -> crac.getFlowCnecs().forEach(
                 flowCnec -> {
                     // TODO: it is assumed that no commercial flows or PTDF zonal sums are at stake
                     PrePerimeterResult prePerimeterResult = initialResults.getData(crac.getTimestamp().orElseThrow()).orElseThrow();
-                    flowResultBuilder.addFlowMeasurement(prePerimeterResult.getFlow(flowCnec, TwoSides.ONE, flowUnit), null, flowCnec, TwoSides.ONE, flowUnit)
-                        .addFlowMeasurement(prePerimeterResult.getFlow(flowCnec, TwoSides.TWO, flowUnit), null, flowCnec, TwoSides.TWO, flowUnit)
-                        .addFlowMeasurement(finalFlowResult.getFlow(flowCnec, TwoSides.ONE, flowUnit), crac.getPreventiveInstant(), flowCnec, TwoSides.ONE, flowUnit)
-                        .addFlowMeasurement(finalFlowResult.getFlow(flowCnec, TwoSides.TWO, flowUnit), crac.getPreventiveInstant(), flowCnec, TwoSides.TWO, flowUnit);
+                    flowResultBuilder.withFlowMeasurement(prePerimeterResult.getFlow(flowCnec, TwoSides.ONE, flowUnit), null, flowCnec, TwoSides.ONE, flowUnit)
+                        .withFlowMeasurement(prePerimeterResult.getFlow(flowCnec, TwoSides.TWO, flowUnit), null, flowCnec, TwoSides.TWO, flowUnit)
+                        .withFlowMeasurement(finalFlowResult.getFlow(flowCnec, TwoSides.ONE, flowUnit), crac.getPreventiveInstant(), flowCnec, TwoSides.ONE, flowUnit)
+                        .withFlowMeasurement(finalFlowResult.getFlow(flowCnec, TwoSides.TWO, flowUnit), crac.getPreventiveInstant(), flowCnec, TwoSides.TWO, flowUnit);
                     // TODO: handle multi-curative in MARMOT (the following only works with one curative instant)
                     if (flowCnec.getState().getInstant().isCurative()) {
-                        flowResultBuilder.addFlowMeasurement(finalFlowResult.getFlow(flowCnec, TwoSides.ONE, flowUnit), crac.getLastInstant(), flowCnec, TwoSides.ONE, flowUnit)
-                            .addFlowMeasurement(finalFlowResult.getFlow(flowCnec, TwoSides.TWO, flowUnit), crac.getLastInstant(), flowCnec, TwoSides.TWO, flowUnit);
+                        flowResultBuilder.withFlowMeasurement(finalFlowResult.getFlow(flowCnec, TwoSides.ONE, flowUnit), crac.getLastInstant(), flowCnec, TwoSides.ONE, flowUnit)
+                            .withFlowMeasurement(finalFlowResult.getFlow(flowCnec, TwoSides.TWO, flowUnit), crac.getLastInstant(), flowCnec, TwoSides.TWO, flowUnit);
                     }
                 }
             )
@@ -847,13 +847,13 @@ public class Marmot implements TimeCoupledRaoProvider {
     }
 
     private static Metadata getMetadataExtension(TemporalData<Crac> cracs, FlowResult globalFlowResult) {
-        Metadata.MetadataBuilder metadataBuilder = Metadata.build();
-        metadataBuilder.addExecutionDetails("RAO went through independent topological optimizations and global time-coupled linear optimization.");
+        Metadata.MetadataBuilder metadataBuilder = Metadata.builder();
+        metadataBuilder.withExecutionDetails("RAO went through independent topological optimizations and global time-coupled linear optimization.");
         for (OffsetDateTime timestamp : cracs.getTimestamps()) {
             for (State state : cracs.getData(timestamp).orElseThrow().getStates()) {
                 ComputationStatus computationStatus = globalFlowResult.getComputationStatus(state);
                 if (computationStatus != ComputationStatus.DEFAULT) {
-                    metadataBuilder.addComputationStatus(state, computationStatus);
+                    metadataBuilder.withComputationStatus(state, computationStatus);
                 }
             }
         }

@@ -56,7 +56,7 @@ public class JsonVoltageResult implements RaoResultJsonUtils.ExtensionSerializer
             throw new OpenRaoException("VoltageResult cannot be deserialized because the deserializationContext does not contain a 'crac' attribute.");
         }
 
-        VoltageResult.VoltageResultBuilder voltageResultBuilder = VoltageResult.build();
+        VoltageResult.VoltageResultBuilder voltageResultBuilder = VoltageResult.builder();
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             VoltageCnec voltageCnec = null;
             while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
@@ -144,7 +144,7 @@ public class JsonVoltageResult implements RaoResultJsonUtils.ExtensionSerializer
                     }
                 }
                 if (minVoltage != null && maxVoltage != null) {
-                    voltageResultBuilder.addMeasurement(minVoltage, maxVoltage, instant, voltageCnec, Unit.KILOVOLT);
+                    voltageResultBuilder.withMeasurement(minVoltage, maxVoltage, instant, voltageCnec, Unit.KILOVOLT);
                 } else {
                     throw new OpenRaoException("Missing min or max voltage for VoltageCNEC %s at instant %s.".formatted(voltageCnec.getId(), instant == null ? "initial" : instant.getId()));
                 }

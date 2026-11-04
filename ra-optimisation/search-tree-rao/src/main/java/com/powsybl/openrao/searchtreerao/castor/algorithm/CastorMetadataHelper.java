@@ -25,7 +25,7 @@ public final class CastorMetadataHelper {
                                                   RaoResult raoResult,
                                                   PrePerimeterResult prePerimeterResult,
                                                   String executionDetails) {
-        Metadata.MetadataBuilder metadataBuilder = Metadata.build();
+        Metadata.MetadataBuilder metadataBuilder = Metadata.builder();
         fillFromPrePerimeter(metadataBuilder, crac, prePerimeterResult, executionDetails);
         raoResult.addExtension(Metadata.class, metadataBuilder.build());
     }
@@ -34,18 +34,18 @@ public final class CastorMetadataHelper {
                                             Crac crac,
                                             PrePerimeterResult prePerimeterResult,
                                             String executionDetails) {
-        metadataBuilder.addExecutionDetails(executionDetails);
+        metadataBuilder.withExecutionDetails(executionDetails);
         for (State state : crac.getStates()) {
             if (prePerimeterResult.getComputationStatus(state) != ComputationStatus.DEFAULT) {
-                metadataBuilder.addComputationStatus(state, prePerimeterResult.getComputationStatus(state));
+                metadataBuilder.withComputationStatus(state, prePerimeterResult.getComputationStatus(state));
             }
         }
     }
 
     public static void fillAndAddWithGlobalFailure(Crac crac, RaoResult raoResult, String failureReason) {
-        Metadata.MetadataBuilder metadataBuilder = Metadata.build();
-        metadataBuilder.addExecutionDetails(failureReason);
-        crac.getStates().forEach(state -> metadataBuilder.addComputationStatus(state, ComputationStatus.FAILURE));
+        Metadata.MetadataBuilder metadataBuilder = Metadata.builder();
+        metadataBuilder.withExecutionDetails(failureReason);
+        crac.getStates().forEach(state -> metadataBuilder.withComputationStatus(state, ComputationStatus.FAILURE));
         raoResult.addExtension(Metadata.class, metadataBuilder.build());
     }
 }

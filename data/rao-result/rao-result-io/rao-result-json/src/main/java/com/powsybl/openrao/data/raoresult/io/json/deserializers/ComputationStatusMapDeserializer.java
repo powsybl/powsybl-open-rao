@@ -57,7 +57,7 @@ final class ComputationStatusMapDeserializer {
                         ));
                 }
             }
-            metadataBuilder.addComputationStatus(
+            metadataBuilder.withComputationStatus(
                 StateDeserializer.getState(instantId, contingencyId, crac, RaoResultJsonConstants.COMPUTATION_STATUS_MAP),
                 ComputationStatus.valueOf(computationStatus)
             );

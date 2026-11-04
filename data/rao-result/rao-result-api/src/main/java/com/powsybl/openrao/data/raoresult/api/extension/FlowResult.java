@@ -325,7 +325,7 @@ public class FlowResult extends AbstractExtension<RaoResult> {
 
     // builder
 
-    public static FlowResultBuilder build() {
+    public static FlowResultBuilder builder() {
         return new FlowResultBuilder();
     }
 
@@ -336,17 +336,17 @@ public class FlowResult extends AbstractExtension<RaoResult> {
             results = new HashMap<>();
         }
 
-        public FlowResultBuilder addFlowMeasurement(double flow, Instant instant, FlowCnec flowCnec, TwoSides side, Unit unit) {
+        public FlowResultBuilder withFlowMeasurement(double flow, Instant instant, FlowCnec flowCnec, TwoSides side, Unit unit) {
             results.computeIfAbsent(flowCnec, FlowCnecResult::new).addFlowMeasurement(flow, instant, side, unit);
             return this;
         }
 
-        public FlowResultBuilder addCommercialFlowMeasurement(double commercialFlow, Instant instant, FlowCnec flowCnec, TwoSides side, Unit unit) {
+        public FlowResultBuilder withCommercialFlowMeasurement(double commercialFlow, Instant instant, FlowCnec flowCnec, TwoSides side, Unit unit) {
             results.computeIfAbsent(flowCnec, FlowCnecResult::new).addCommercialFlowMeasurement(commercialFlow, instant, side, unit);
             return this;
         }
 
-        public FlowResultBuilder addPtdfZonalSumMeasurement(double ptdfZonalSum, Instant instant, FlowCnec flowCnec, TwoSides side) {
+        public FlowResultBuilder withPtdfZonalSumMeasurement(double ptdfZonalSum, Instant instant, FlowCnec flowCnec, TwoSides side) {
             results.computeIfAbsent(flowCnec, FlowCnecResult::new).addPtdfZonalSumMeasurement(ptdfZonalSum, instant, side);
             return this;
         }

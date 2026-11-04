@@ -47,7 +47,7 @@ public class JsonVoltageResultTest {
         state = mock(State.class);
         when(voltageCnec.getId()).thenReturn("cnec1");
         when(crac.getVoltageCnecs()).thenReturn(Set.of(voltageCnec));
-        voltageResultBuilder = VoltageResult.build();
+        voltageResultBuilder = VoltageResult.builder();
         serializerProvider = mock(SerializerProvider.class);
         when(serializerProvider.getAttribute("crac")).thenReturn(crac);
     }
@@ -67,8 +67,8 @@ public class JsonVoltageResultTest {
 
         Mockito.when(crac.getSortedInstants()).thenReturn(List.of(preventiveInstant));
 
-        voltageResultBuilder.addMeasurement(400.0, 405.0, null, voltageCnec, Unit.KILOVOLT)
-            .addMeasurement(417.0, 437.0, preventiveInstant, voltageCnec, Unit.KILOVOLT);
+        voltageResultBuilder.withMeasurement(400.0, 405.0, null, voltageCnec, Unit.KILOVOLT)
+            .withMeasurement(417.0, 437.0, preventiveInstant, voltageCnec, Unit.KILOVOLT);
 
         StringWriter writer = new StringWriter();
         JsonFactory factory = new JsonFactory();
@@ -106,8 +106,8 @@ public class JsonVoltageResultTest {
 
         Mockito.when(crac.getVoltageCnecs()).thenReturn(Set.of(cnec1, cnec2));
 
-        voltageResultBuilder.addMeasurement(215.0, 220.0, null, cnec2, Unit.KILOVOLT)
-            .addMeasurement(400.0, 405.0, null, cnec1, Unit.KILOVOLT);
+        voltageResultBuilder.withMeasurement(215.0, 220.0, null, cnec2, Unit.KILOVOLT)
+            .withMeasurement(400.0, 405.0, null, cnec1, Unit.KILOVOLT);
 
         StringWriter writer = new StringWriter();
         JsonFactory factory = new JsonFactory();
@@ -139,9 +139,9 @@ public class JsonVoltageResultTest {
         Mockito.when(state.getInstant()).thenReturn(instant2);
         Mockito.when(voltageCnec.getState()).thenReturn(state);
 
-        voltageResultBuilder.addMeasurement(415.0, 425.0, instant2, voltageCnec, Unit.KILOVOLT)
-            .addMeasurement(405.0, 410.0, instant1, voltageCnec, Unit.KILOVOLT)
-            .addMeasurement(400.0, 405.0, null, voltageCnec, Unit.KILOVOLT);
+        voltageResultBuilder.withMeasurement(415.0, 425.0, instant2, voltageCnec, Unit.KILOVOLT)
+            .withMeasurement(405.0, 410.0, instant1, voltageCnec, Unit.KILOVOLT)
+            .withMeasurement(400.0, 405.0, null, voltageCnec, Unit.KILOVOLT);
 
         StringWriter writer = new StringWriter();
         JsonFactory factory = new JsonFactory();

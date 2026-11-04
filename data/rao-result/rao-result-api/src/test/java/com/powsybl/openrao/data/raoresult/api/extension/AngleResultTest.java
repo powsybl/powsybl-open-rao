@@ -36,7 +36,7 @@ public class AngleResultTest {
 
         // initial results
 
-        AngleResult emptyAngleResult = AngleResult.build().build();
+        AngleResult emptyAngleResult = AngleResult.builder().build();
         assertEquals("angle-results", emptyAngleResult.getName());
 
         assertEquals(Double.NaN, emptyAngleResult.getAngle(null, angleCnec, Unit.DEGREE));
@@ -50,11 +50,11 @@ public class AngleResultTest {
 
         // manually add results
 
-        AngleResult.AngleResultBuilder angleResultBuilder = AngleResult.build();
+        AngleResult.AngleResultBuilder angleResultBuilder = AngleResult.builder();
 
-        angleResultBuilder.addMeasurement(25.0, null, angleCnec, Unit.DEGREE)
-            .addMeasurement(17.0, preventiveInstant, angleCnec, Unit.DEGREE)
-            .addMeasurement(-5.0, curativeInstant, angleCnec, Unit.DEGREE);
+        angleResultBuilder.with(25.0, null, angleCnec, Unit.DEGREE)
+            .with(17.0, preventiveInstant, angleCnec, Unit.DEGREE)
+            .with(-5.0, curativeInstant, angleCnec, Unit.DEGREE);
 
         AngleResult angleResult = angleResultBuilder.build();
 
@@ -69,7 +69,7 @@ public class AngleResultTest {
 
         // invalid unit
 
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> AngleResult.build().addMeasurement(25.0, null, angleCnec, Unit.MEGAWATT));
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> AngleResult.builder().with(25.0, null, angleCnec, Unit.MEGAWATT));
         assertEquals("AngleCNEC results are only allowed for degrees.", exception.getMessage());
     }
 }

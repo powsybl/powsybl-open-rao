@@ -53,7 +53,7 @@ class SweAdditionalConstraintSeriesCreatorTest {
         this.crac = Mockito.mock(Crac.class);
         this.raoResult = Mockito.mock(RaoResult.class);
         this.angleResult = Mockito.mock(AngleResult.class);
-        this.metadata = Metadata.build().build();
+        this.metadata = Metadata.builder().build();
         Mockito.when(raoResult.getExtension(Metadata.class)).thenReturn(metadata);
         preventiveInstant = Mockito.mock(Instant.class);
         outageInstant = Mockito.mock(Instant.class);
@@ -171,8 +171,8 @@ class SweAdditionalConstraintSeriesCreatorTest {
         Contingency contingency = Mockito.mock(Contingency.class);
         State preventiveState = Mockito.mock(State.class);
         Mockito.when(preventiveState.isPreventive()).thenReturn(true);
-        metadata = Metadata.build()
-            .addComputationStatus(preventiveState, ComputationStatus.FAILURE)
+        metadata = Metadata.builder()
+            .withComputationStatus(preventiveState, ComputationStatus.FAILURE)
             .build();
         Mockito.when(raoResult.getExtension(Metadata.class)).thenReturn(metadata);
         setUpAngleCnecs(contingency);
@@ -217,11 +217,11 @@ class SweAdditionalConstraintSeriesCreatorTest {
         Instant mockCurativeInstant = Mockito.mock(Instant.class);
         Mockito.when(mockCrac.getInstant(InstantKind.CURATIVE)).thenReturn(mockCurativeInstant);
 
-        AngleResult.AngleResultBuilder raoResultAngleResultBuilder = AngleResult.build();
-        raoResultAngleResultBuilder.addMeasurement(39.5, mockCurativeInstant, angleCnecWithMax, Unit.DEGREE)
-            .addMeasurement(35.0, mockCurativeInstant, angleCnecWithMin, Unit.DEGREE)
-            .addMeasurement(40.002, mockCurativeInstant, angleCnecWithMaxAndMin1, Unit.DEGREE)
-            .addMeasurement(38.99993, mockCurativeInstant, angleCnecWithMaxAndMin2, Unit.DEGREE);
+        AngleResult.AngleResultBuilder raoResultAngleResultBuilder = AngleResult.builder();
+        raoResultAngleResultBuilder.with(39.5, mockCurativeInstant, angleCnecWithMax, Unit.DEGREE)
+            .with(35.0, mockCurativeInstant, angleCnecWithMin, Unit.DEGREE)
+            .with(40.002, mockCurativeInstant, angleCnecWithMaxAndMin1, Unit.DEGREE)
+            .with(38.99993, mockCurativeInstant, angleCnecWithMaxAndMin2, Unit.DEGREE);
         AngleResult raoResultAngleResult = raoResultAngleResultBuilder.build();
 
         // No violation -> 1 decimal

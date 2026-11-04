@@ -30,7 +30,7 @@ class CostResultTest {
 
     @BeforeEach
     void setUp() {
-        costResultBuilder = CostResult.build();
+        costResultBuilder = CostResult.builder();
         preventive = Mockito.mock(Instant.class);
         curative = Mockito.mock(Instant.class);
 
@@ -67,9 +67,9 @@ class CostResultTest {
 
     @Test
     void testAddAndGetFunctionalCost() {
-        costResultBuilder.addFunctionalCostResult(null, 100.0)
-            .addFunctionalCostResult(preventive, 200.0)
-            .addFunctionalCostResult(curative, 300.0);
+        costResultBuilder.withFunctionalCostResult(null, 100.0)
+            .withFunctionalCostResult(preventive, 200.0)
+            .withFunctionalCostResult(curative, 300.0);
         costResult = costResultBuilder.build();
 
         assertEquals(100.0, costResult.getFunctionalCost(null));
@@ -79,10 +79,10 @@ class CostResultTest {
 
     @Test
     void testAddAndGetVirtualCost() {
-        costResultBuilder.addVirtualCostResult(null, "v1", 10.0)
-            .addVirtualCostResult(null, "v2", 20.0)
-            .addVirtualCostResult(preventive, "v1", 50.0)
-            .addVirtualCostResult(curative, "v3", 100.0);
+        costResultBuilder.withVirtualCostResult(null, "v1", 10.0)
+            .withVirtualCostResult(null, "v2", 20.0)
+            .withVirtualCostResult(preventive, "v1", 50.0)
+            .withVirtualCostResult(curative, "v3", 100.0);
         costResult = costResultBuilder.build();
 
         assertEquals(10.0, costResult.getVirtualCost(null, "v1"));
@@ -103,9 +103,9 @@ class CostResultTest {
 
     @Test
     void testGetCost() {
-        costResultBuilder.addFunctionalCostResult(preventive, 200.0)
-            .addVirtualCostResult(preventive, "v1", 50.0)
-            .addVirtualCostResult(preventive, "v2", 25.0);
+        costResultBuilder.withFunctionalCostResult(preventive, 200.0)
+            .withVirtualCostResult(preventive, "v1", 50.0)
+            .withVirtualCostResult(preventive, "v2", 25.0);
         costResult = costResultBuilder.build();
 
         assertEquals(275.0, costResult.getCost(preventive));

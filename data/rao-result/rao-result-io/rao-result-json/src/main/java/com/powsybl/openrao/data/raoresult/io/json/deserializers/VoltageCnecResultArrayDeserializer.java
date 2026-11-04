@@ -39,7 +39,7 @@ final class VoltageCnecResultArrayDeserializer {
     }
 
     static void deserialize(JsonParser jsonParser, RaoResultImpl raoResult, Crac crac, String jsonFileVersion) throws IOException {
-        VoltageResult.VoltageResultBuilder voltageResultBuilder = VoltageResult.build();
+        VoltageResult.VoltageResultBuilder voltageResultBuilder = VoltageResult.builder();
 
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             if (!jsonParser.nextFieldName().equals(VOLTAGECNEC_ID)) {
@@ -122,7 +122,7 @@ final class VoltageCnecResultArrayDeserializer {
 
         }
         if (!Double.isNaN(minVoltage) && !Double.isNaN(maxVoltage)) {
-            voltageResultBuilder.addMeasurement(minVoltage, maxVoltage, optimizedInstant, voltageCnec, Unit.KILOVOLT);
+            voltageResultBuilder.withMeasurement(minVoltage, maxVoltage, optimizedInstant, voltageCnec, Unit.KILOVOLT);
         }
     }
 }

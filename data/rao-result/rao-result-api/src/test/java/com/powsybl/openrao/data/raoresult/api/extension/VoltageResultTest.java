@@ -34,7 +34,7 @@ public class VoltageResultTest {
         Instant curativeInstant = Mockito.mock(Instant.class);
         Mockito.when(curativeInstant.getOrder()).thenReturn(1);
 
-        VoltageResult emptyVoltageResult = VoltageResult.build().build();
+        VoltageResult emptyVoltageResult = VoltageResult.builder().build();
         assertEquals("voltage-results", emptyVoltageResult.getName());
 
         // initial results
@@ -53,11 +53,11 @@ public class VoltageResultTest {
 
         // manually add results
 
-        VoltageResult.VoltageResultBuilder voltageResultBuilder = VoltageResult.build();
+        VoltageResult.VoltageResultBuilder voltageResultBuilder = VoltageResult.builder();
 
-        voltageResultBuilder.addMeasurement(400.0, 405.0, null, voltageCnec, Unit.KILOVOLT);
-        voltageResultBuilder.addMeasurement(417.0, 437.0, preventiveInstant, voltageCnec, Unit.KILOVOLT);
-        voltageResultBuilder.addMeasurement(370.0, 461.0, curativeInstant, voltageCnec, Unit.KILOVOLT);
+        voltageResultBuilder.withMeasurement(400.0, 405.0, null, voltageCnec, Unit.KILOVOLT);
+        voltageResultBuilder.withMeasurement(417.0, 437.0, preventiveInstant, voltageCnec, Unit.KILOVOLT);
+        voltageResultBuilder.withMeasurement(370.0, 461.0, curativeInstant, voltageCnec, Unit.KILOVOLT);
 
         VoltageResult voltageResult = voltageResultBuilder.build();
 
@@ -75,7 +75,7 @@ public class VoltageResultTest {
 
         // invalid unit
 
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> VoltageResult.build().addMeasurement(410.0, 420.0, null, voltageCnec, Unit.MEGAWATT));
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> VoltageResult.builder().withMeasurement(410.0, 420.0, null, voltageCnec, Unit.MEGAWATT));
         assertEquals("VoltageCNEC results are only allowed for kilovolts.", exception.getMessage());
     }
 }

@@ -56,7 +56,7 @@ public final class RaoResultGenerator {
 
     public static RaoResult failed(final Crac crac, final String failureReason) {
         RaoResultImpl raoResult = new RaoResultImpl(crac);
-        raoResult.addExtension(FlowResult.class, FlowResult.build().build()); // the extension is created by convention
+        raoResult.addExtension(FlowResult.class, FlowResult.builder().build()); // the extension is created by convention
         CastorMetadataHelper.fillAndAddWithGlobalFailure(crac, raoResult, failureReason);
         return raoResult;
     }
@@ -131,13 +131,13 @@ public final class RaoResultGenerator {
             crac,
             flowUnit
         ));
-        Metadata.MetadataBuilder metadataBuilder = Metadata.build();
+        Metadata.MetadataBuilder metadataBuilder = Metadata.builder();
         CastorMetadataHelper.fillFromPrePerimeter(metadataBuilder, crac, postPreventiveResult.prePerimeterResultForAllFollowingStates(), executionDetails);
         crac.getStates()
             .stream()
             .filter(postContingencyResults::containsKey)
             .filter(state -> postContingencyResults.get(state).prePerimeterResultForAllFollowingStates().getComputationStatus(state) != ComputationStatus.DEFAULT)
-            .forEach(state -> metadataBuilder.addComputationStatus(state, postContingencyResults.get(state).prePerimeterResultForAllFollowingStates().getComputationStatus(state)));
+            .forEach(state -> metadataBuilder.withComputationStatus(state, postContingencyResults.get(state).prePerimeterResultForAllFollowingStates().getComputationStatus(state)));
         raoResult.addExtension(Metadata.class, metadataBuilder.build());
         return raoResult;
     }

@@ -96,7 +96,7 @@ class RaoResultHelperTest {
         when(raoResult.getExtension(FlowResult.class)).thenReturn(flowResult);
         when(raoResult.getExtension(AngleResult.class)).thenReturn(angleResult);
         when(raoResult.getExtension(VoltageResult.class)).thenReturn(voltageResult);
-        when(raoResult.getExtension(Metadata.class)).thenReturn(Metadata.build().build());
+        when(raoResult.getExtension(Metadata.class)).thenReturn(Metadata.builder().build());
 
         preventiveInstant = mockInstant("preventive", InstantKind.PREVENTIVE);
         curativeInstant = mockInstant("curative", InstantKind.CURATIVE);
@@ -260,8 +260,8 @@ class RaoResultHelperTest {
     @ParameterizedTest
     @MethodSource("raoParameters")
     void testIsSecureFailureStatus(RaoParameters raoParameters, PhysicalParameter... parameters) {
-        Metadata.MetadataBuilder metadataBuilder = Metadata.build();
-        metadataBuilder.addComputationStatus(crac.getPreventiveState(), ComputationStatus.FAILURE);
+        Metadata.MetadataBuilder metadataBuilder = Metadata.builder();
+        metadataBuilder.withComputationStatus(crac.getPreventiveState(), ComputationStatus.FAILURE);
         when(raoResult.getExtension(Metadata.class)).thenReturn(metadataBuilder.build());
         assertFalse(isSecure(raoResult, crac, raoParameters, parameters));
     }

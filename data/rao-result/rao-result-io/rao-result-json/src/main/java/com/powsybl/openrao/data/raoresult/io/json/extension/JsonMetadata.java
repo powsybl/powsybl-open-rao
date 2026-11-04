@@ -93,14 +93,14 @@ public class JsonMetadata implements RaoResultJsonUtils.ExtensionSerializer<Meta
         if (crac == null) {
             throw new OpenRaoException("Metadata cannot be deserialized because the deserializationContext does not contain a 'crac' attribute.");
         }
-        Metadata.MetadataBuilder metadataBuilder = Metadata.build();
+        Metadata.MetadataBuilder metadataBuilder = Metadata.builder();
         while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
             switch (jsonParser.currentName()) {
                 case "computationStatus" -> jsonParser.nextToken();
-                case "executionDetails" -> metadataBuilder.addExecutionDetails(jsonParser.nextTextValue());
+                case "executionDetails" -> metadataBuilder.withExecutionDetails(jsonParser.nextTextValue());
                 case "computationStatusMap" -> {
                     jsonParser.nextToken();
-                    getComputationStatusMap(jsonParser, crac).forEach(metadataBuilder::addComputationStatus);
+                    getComputationStatusMap(jsonParser, crac).forEach(metadataBuilder::withComputationStatus);
                 }
                 default ->
                     throw new OpenRaoException("Unknown metadata field: %s.".formatted(jsonParser.currentName()));

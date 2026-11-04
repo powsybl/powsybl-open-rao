@@ -109,9 +109,9 @@ class SweCneTest {
         AngleResult angleResultWithFailure = AngleMonitoringResultAdapter.convertToAngleExtension(monitoringResult);
         raoResultFailureWithAngle.addExtension(AngleResult.class, angleResultWithFailure);
 
-        Metadata metadata = Metadata.build()
-            .addComputationStatus(crac.getPreventiveState(), ComputationStatus.FAILURE)
-            .addComputationStatus(curativeState, ComputationStatus.FAILURE)
+        Metadata metadata = Metadata.builder()
+            .withComputationStatus(crac.getPreventiveState(), ComputationStatus.FAILURE)
+            .withComputationStatus(curativeState, ComputationStatus.FAILURE)
             .build();
         raoResultFailureWithAngle.addExtension(Metadata.class, metadata);
 

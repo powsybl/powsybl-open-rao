@@ -149,7 +149,7 @@ public final class AngleResult extends AbstractExtension<RaoResult> {
 
     // builder
 
-    public static AngleResult.AngleResultBuilder build() {
+    public static AngleResult.AngleResultBuilder builder() {
         return new AngleResult.AngleResultBuilder();
     }
 
@@ -160,7 +160,7 @@ public final class AngleResult extends AbstractExtension<RaoResult> {
             this.results = new HashMap<>();
         }
 
-        public AngleResultBuilder addMeasurement(double angle, Instant instant, AngleCnec angleCnec, Unit unit) {
+        public AngleResultBuilder with(double angle, Instant instant, AngleCnec angleCnec, Unit unit) {
             checkUnit(unit);
             results.computeIfAbsent(angleCnec, AngleResult.AngleCnecResult::new).addAngleMeasurement(instant, angle);
             return this;

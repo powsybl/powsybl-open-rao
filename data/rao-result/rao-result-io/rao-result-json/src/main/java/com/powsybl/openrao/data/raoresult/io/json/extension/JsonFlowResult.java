@@ -66,7 +66,7 @@ public class JsonFlowResult implements RaoResultJsonUtils.ExtensionSerializer<Fl
         if (crac == null) {
             throw new OpenRaoException("FlowResult cannot be deserialized because the deserializationContext does not contain a 'crac' attribute.");
         }
-        FlowResult.FlowResultBuilder flowResultBuilder = FlowResult.build();
+        FlowResult.FlowResultBuilder flowResultBuilder = FlowResult.builder();
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             FlowCnec flowCnec = null;
             while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
@@ -214,18 +214,18 @@ public class JsonFlowResult implements RaoResultJsonUtils.ExtensionSerializer<Fl
             switch (jsonParser.currentName()) {
                 case "flow" -> {
                     jsonParser.nextToken();
-                    flowResultBuilder.addFlowMeasurement(jsonParser.getDoubleValue(), instant, flowCnec, side, unit);
+                    flowResultBuilder.withFlowMeasurement(jsonParser.getDoubleValue(), instant, flowCnec, side, unit);
                 }
                 case "commercialFlow" -> {
                     jsonParser.nextToken();
-                    flowResultBuilder.addCommercialFlowMeasurement(jsonParser.getDoubleValue(), instant, flowCnec, side, unit);
+                    flowResultBuilder.withCommercialFlowMeasurement(jsonParser.getDoubleValue(), instant, flowCnec, side, unit);
                 }
                 case "zonalPtdfSum" -> {
                     if (unit != Unit.MEGAWATT) {
                         throw new OpenRaoException("Zonal PTDF sum only defined for measurements in MW.");
                     }
                     jsonParser.nextToken();
-                    flowResultBuilder.addPtdfZonalSumMeasurement(jsonParser.getDoubleValue(), instant, flowCnec, side);
+                    flowResultBuilder.withPtdfZonalSumMeasurement(jsonParser.getDoubleValue(), instant, flowCnec, side);
                 }
                 default ->
                     throw new OpenRaoException("Unsupported flow value: %s.".formatted(jsonParser.currentName()));

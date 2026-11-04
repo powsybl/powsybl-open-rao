@@ -30,13 +30,13 @@ public final class CastorFlowResultExtensionHelper {
     }
 
     public static FlowResult convertToExtension(PrePerimeterResult initialResult, Crac crac, Unit flowUnit) {
-        FlowResult.FlowResultBuilder flowResultBuilder = FlowResult.build();
+        FlowResult.FlowResultBuilder flowResultBuilder = FlowResult.builder();
         crac.getFlowCnecs().forEach(flowCnec -> fillResultForInstant(flowResultBuilder, initialResult, flowCnec, null, flowUnit));
         return flowResultBuilder.build();
     }
 
     public static FlowResult convertToExtension(PrePerimeterResult initialResult, PrePerimeterResult preventiveResult, Crac crac, Unit flowUnit) {
-        FlowResult.FlowResultBuilder flowResultBuilder = FlowResult.build();
+        FlowResult.FlowResultBuilder flowResultBuilder = FlowResult.builder();
         crac.getFlowCnecs().forEach(flowCnec -> fillResultForInstant(flowResultBuilder, initialResult, flowCnec, null, flowUnit));
         crac.getFlowCnecs().forEach(flowCnec -> fillResultForInstant(flowResultBuilder, preventiveResult, flowCnec, crac.getPreventiveInstant(), flowUnit));
         return flowResultBuilder.build();
@@ -47,7 +47,7 @@ public final class CastorFlowResultExtensionHelper {
                                                 Map<State, PostPerimeterResult> postContingencyResults,
                                                 Crac crac,
                                                 Unit flowUnit) {
-        FlowResult.FlowResultBuilder flowResultBuilder = FlowResult.build();
+        FlowResult.FlowResultBuilder flowResultBuilder = FlowResult.builder();
         crac.getFlowCnecs().forEach(flowCnec -> fillResultForInstant(flowResultBuilder, initialResult, flowCnec, null, flowUnit));
         crac.getFlowCnecs().forEach(flowCnec -> fillResultForInstant(flowResultBuilder, preventiveResult, flowCnec, crac.getPreventiveInstant(), flowUnit));
         for (State state : postContingencyResults.keySet()) {
@@ -97,7 +97,7 @@ public final class CastorFlowResultExtensionHelper {
                                           Unit flowUnit) {
         double flow = prePerimeterResult.getFlow(flowCnec, side, flowUnit, instant);
         if (!Double.isNaN(flow)) {
-            flowResultBuilder.addFlowMeasurement(flow, instant, flowCnec, side, flowUnit);
+            flowResultBuilder.withFlowMeasurement(flow, instant, flowCnec, side, flowUnit);
         }
     }
 
@@ -111,7 +111,7 @@ public final class CastorFlowResultExtensionHelper {
         try {
             double commercialFlow = prePerimeterResult.getCommercialFlow(flowCnec, side, flowUnit);
             if (!Double.isNaN(commercialFlow)) {
-                flowResultBuilder.addCommercialFlowMeasurement(commercialFlow, instant, flowCnec, side, flowUnit);
+                flowResultBuilder.withCommercialFlowMeasurement(commercialFlow, instant, flowCnec, side, flowUnit);
             }
         } catch (OpenRaoException ignored) {
         }
@@ -126,7 +126,7 @@ public final class CastorFlowResultExtensionHelper {
         try {
             double ptdfZonalSum = prePerimeterResult.getPtdfZonalSum(flowCnec, side);
             if (!Double.isNaN(ptdfZonalSum)) {
-                flowResultBuilder.addPtdfZonalSumMeasurement(ptdfZonalSum, instant, flowCnec, side);
+                flowResultBuilder.withPtdfZonalSumMeasurement(ptdfZonalSum, instant, flowCnec, side);
             }
         } catch (OpenRaoException ignored) {
         }

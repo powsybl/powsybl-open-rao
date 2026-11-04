@@ -223,8 +223,8 @@ class CastorSecondPreventiveTest {
         when(preventiveResult.getCost()).thenReturn(-500.);
         CastorSecondPreventive castorSecondPreventive = new CastorSecondPreventive(crac, parameters, network, null, null, null, ReportNode.NO_OP);
 
-        CostResult costResult = CostResult.build()
-            .addFunctionalCostResult(null, -100.0)
+        CostResult costResult = CostResult.builder()
+            .withFunctionalCostResult(null, -100.0)
             .build();
         when(postFirstPreventiveRaoResult.getExtension(CostResult.class)).thenReturn(costResult);
 
@@ -232,20 +232,20 @@ class CastorSecondPreventiveTest {
         parameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN);
         setCost(preventiveResult, -100.);
         // case 1 : final cost is better than preventive (cost < preventive cost - minObjImprovement)
-        costResult = CostResult.build()
-            .addFunctionalCostResult(curativeInstant, -200.0)
+        costResult = CostResult.builder()
+            .withFunctionalCostResult(curativeInstant, -200.0)
             .build();
         when(postFirstPreventiveRaoResult.getExtension(CostResult.class)).thenReturn(costResult);
         assertFalse(castorSecondPreventive.shouldRunSecondPreventiveRao(preventiveResult, curativeResults, postFirstPreventiveRaoResult, 0));
         // case 2 : final cost = preventive cost - minObjImprovement
-        costResult = CostResult.build()
-            .addFunctionalCostResult(curativeInstant, -110.0)
+        costResult = CostResult.builder()
+            .withFunctionalCostResult(curativeInstant, -110.0)
             .build();
         when(postFirstPreventiveRaoResult.getExtension(CostResult.class)).thenReturn(costResult);
         assertFalse(castorSecondPreventive.shouldRunSecondPreventiveRao(preventiveResult, curativeResults, postFirstPreventiveRaoResult, 0));
         // case 3 : final cost > preventive cost - minObjImprovement
-        costResult = CostResult.build()
-            .addFunctionalCostResult(curativeInstant, -109.0)
+        costResult = CostResult.builder()
+            .withFunctionalCostResult(curativeInstant, -109.0)
             .build();
         when(postFirstPreventiveRaoResult.getExtension(CostResult.class)).thenReturn(costResult);
         assertTrue(castorSecondPreventive.shouldRunSecondPreventiveRao(preventiveResult, curativeResults, postFirstPreventiveRaoResult, 0));
@@ -305,21 +305,21 @@ class CastorSecondPreventiveTest {
 
         RaoResult postFirstRaoResult = Mockito.mock(RaoResult.class);
 
-        CostResult.CostResultBuilder costResultBuilder = CostResult.build()
-            .addFunctionalCostResult(null, -100.0)
-            .addFunctionalCostResult(preventiveInstant, -10.0)
-            .addFunctionalCostResult(curativeInstant, -120.0);
+        CostResult.CostResultBuilder costResultBuilder = CostResult.builder()
+            .withFunctionalCostResult(null, -100.0)
+            .withFunctionalCostResult(preventiveInstant, -10.0)
+            .withFunctionalCostResult(curativeInstant, -120.0);
         when(postFirstRaoResult.getExtension(CostResult.class)).thenReturn(costResultBuilder.build());
 
         CastorSecondPreventive castorSecondPreventive = new CastorSecondPreventive(crac, parameters, network, null, null, null, ReportNode.NO_OP);
 
         assertFalse(castorSecondPreventive.shouldRunSecondPreventiveRao(preventiveResult, curativeResults, postFirstRaoResult, 0));
 
-        costResultBuilder.addFunctionalCostResult(curativeInstant, -100.0);
+        costResultBuilder.withFunctionalCostResult(curativeInstant, -100.0);
         when(postFirstRaoResult.getExtension(CostResult.class)).thenReturn(costResultBuilder.build());
         assertFalse(castorSecondPreventive.shouldRunSecondPreventiveRao(preventiveResult, curativeResults, postFirstRaoResult, 0));
 
-        costResultBuilder.addFunctionalCostResult(curativeInstant, -95.0);
+        costResultBuilder.withFunctionalCostResult(curativeInstant, -95.0);
         when(postFirstRaoResult.getExtension(CostResult.class)).thenReturn(costResultBuilder.build());
         assertTrue(castorSecondPreventive.shouldRunSecondPreventiveRao(preventiveResult, curativeResults, postFirstRaoResult, 0));
     }

@@ -59,7 +59,7 @@ class FlowResultTest {
         when(flowCnec.getLowerBound(TwoSides.TWO, Unit.AMPERE)).thenReturn(Optional.of(-2000.0));
         when(flowCnec.getUpperBound(TwoSides.TWO, Unit.AMPERE)).thenReturn(Optional.of(2000.0));
 
-        flowResultBuilder = FlowResult.build();
+        flowResultBuilder = FlowResult.builder();
     }
 
     @Test
@@ -92,7 +92,7 @@ class FlowResultTest {
         @Test
         @DisplayName("Returns NaN for a different FlowCnec that was not modified")
         void testOtherCnecUninitialized() {
-            flowResultBuilder.addFlowMeasurement(500.0, null, flowCnec, TwoSides.ONE, Unit.MEGAWATT);
+            flowResultBuilder.withFlowMeasurement(500.0, null, flowCnec, TwoSides.ONE, Unit.MEGAWATT);
             flowResult = flowResultBuilder.build();
 
             FlowCnec otherCnec = mock(FlowCnec.class);
@@ -112,7 +112,7 @@ class FlowResultTest {
         @Test
         @DisplayName("Add flow measurement on null (initial) instant and verify getters")
         void testFlowMeasurementInitialInstant() {
-            flowResultBuilder.addFlowMeasurement(200.0, null, flowCnec, TwoSides.ONE, Unit.MEGAWATT);
+            flowResultBuilder.withFlowMeasurement(200.0, null, flowCnec, TwoSides.ONE, Unit.MEGAWATT);
             flowResult = flowResultBuilder.build();
 
             assertEquals(200.0, flowResult.getFlow(null, flowCnec, TwoSides.ONE, Unit.MEGAWATT));
@@ -130,10 +130,10 @@ class FlowResultTest {
         @Test
         @DisplayName("Add flow measurements for different instants, sides and units")
         void testMultiInstantAndMultiUnitMeasurements() {
-            flowResultBuilder.addFlowMeasurement(100.0, null, flowCnec, TwoSides.ONE, Unit.MEGAWATT)
-                .addFlowMeasurement(150.0, null, flowCnec, TwoSides.TWO, Unit.AMPERE)
-                .addFlowMeasurement(300.0, preventiveInstant, flowCnec, TwoSides.ONE, Unit.MEGAWATT)
-                .addFlowMeasurement(-400.0, curativeInstant, flowCnec, TwoSides.TWO, Unit.MEGAWATT);
+            flowResultBuilder.withFlowMeasurement(100.0, null, flowCnec, TwoSides.ONE, Unit.MEGAWATT)
+                .withFlowMeasurement(150.0, null, flowCnec, TwoSides.TWO, Unit.AMPERE)
+                .withFlowMeasurement(300.0, preventiveInstant, flowCnec, TwoSides.ONE, Unit.MEGAWATT)
+                .withFlowMeasurement(-400.0, curativeInstant, flowCnec, TwoSides.TWO, Unit.MEGAWATT);
             flowResult = flowResultBuilder.build();
 
             assertEquals(100.0, flowResult.getFlow(null, flowCnec, TwoSides.ONE, Unit.MEGAWATT));
@@ -153,7 +153,7 @@ class FlowResultTest {
         @DisplayName("Margin computation with negative margin (overload in positive flow direction)")
         void testNegativeMarginUpperBoundViolation() {
             // Flow = 1200 MW exceeding upperBound 1000 MW -> margin = min(2200, -200) = -200.0
-            flowResultBuilder.addFlowMeasurement(1200.0, null, flowCnec, TwoSides.ONE, Unit.MEGAWATT);
+            flowResultBuilder.withFlowMeasurement(1200.0, null, flowCnec, TwoSides.ONE, Unit.MEGAWATT);
             flowResult = flowResultBuilder.build();
             assertEquals(1200.0, flowResult.getFlow(null, flowCnec, TwoSides.ONE, Unit.MEGAWATT));
             assertEquals(-200.0, flowResult.getMargin(null, flowCnec, Unit.MEGAWATT));
@@ -163,7 +163,7 @@ class FlowResultTest {
         @DisplayName("Margin computation with negative margin (overload in negative flow direction)")
         void testNegativeMarginLowerBoundViolation() {
             // Flow = -1300 MW below lowerBound -1000 MW -> margin = min(-300, 2300) = -300.0
-            flowResultBuilder.addFlowMeasurement(-1300.0, null, flowCnec, TwoSides.ONE, Unit.MEGAWATT);
+            flowResultBuilder.withFlowMeasurement(-1300.0, null, flowCnec, TwoSides.ONE, Unit.MEGAWATT);
             flowResult = flowResultBuilder.build();
             assertEquals(-1300.0, flowResult.getFlow(null, flowCnec, TwoSides.ONE, Unit.MEGAWATT));
             assertEquals(-300.0, flowResult.getMargin(null, flowCnec, Unit.MEGAWATT));
@@ -182,8 +182,8 @@ class FlowResultTest {
             // Side ONE margin: min(350 - (-500), 500 - 350) = min(850, 150) = 150
             // Side TWO margin: min(350 - (-400), 400 - 350) = min(750, 50) = 50
             // Overall margin: min(150, 50) = 50
-            flowResultBuilder.addFlowMeasurement(350.0, null, asymmetricCnec, TwoSides.ONE, Unit.MEGAWATT)
-                .addFlowMeasurement(350.0, null, asymmetricCnec, TwoSides.TWO, Unit.MEGAWATT);
+            flowResultBuilder.withFlowMeasurement(350.0, null, asymmetricCnec, TwoSides.ONE, Unit.MEGAWATT)
+                .withFlowMeasurement(350.0, null, asymmetricCnec, TwoSides.TWO, Unit.MEGAWATT);
             flowResult = flowResultBuilder.build();
             assertEquals(50.0, flowResult.getMargin(null, asymmetricCnec, Unit.MEGAWATT));
         }
@@ -198,7 +198,7 @@ class FlowResultTest {
             // Flow = 500 MW
             // marginOne = min(500 - (-Double.MAX_VALUE), Double.MAX_VALUE - 500) = Double.MAX_VALUE - 500
             // marginTwo = same
-            flowResultBuilder.addFlowMeasurement(500.0, null, unboundedCnec, TwoSides.ONE, Unit.MEGAWATT);
+            flowResultBuilder.withFlowMeasurement(500.0, null, unboundedCnec, TwoSides.ONE, Unit.MEGAWATT);
             flowResult = flowResultBuilder.build();
             assertEquals(Double.POSITIVE_INFINITY, flowResult.getMargin(null, unboundedCnec, Unit.MEGAWATT));
         }
@@ -211,7 +211,7 @@ class FlowResultTest {
         @Test
         @DisplayName("Flow without Commercial Flow: flow & margin present, commercialFlow & loopFlow NaN")
         void testFlowWithoutCommercialFlow() {
-            flowResultBuilder.addFlowMeasurement(500.0, preventiveInstant, flowCnec, TwoSides.ONE, Unit.MEGAWATT);
+            flowResultBuilder.withFlowMeasurement(500.0, preventiveInstant, flowCnec, TwoSides.ONE, Unit.MEGAWATT);
             flowResult = flowResultBuilder.build();
 
             assertEquals(500.0, flowResult.getFlow(preventiveInstant, flowCnec, TwoSides.ONE, Unit.MEGAWATT));
@@ -223,7 +223,7 @@ class FlowResultTest {
         @Test
         @DisplayName("Commercial Flow without Flow: commercialFlow present, flow, margin & loopFlow NaN")
         void testCommercialFlowWithoutFlow() {
-            flowResultBuilder.addCommercialFlowMeasurement(300.0, preventiveInstant, flowCnec, TwoSides.ONE, Unit.MEGAWATT);
+            flowResultBuilder.withCommercialFlowMeasurement(300.0, preventiveInstant, flowCnec, TwoSides.ONE, Unit.MEGAWATT);
             flowResult = flowResultBuilder.build();
 
             assertEquals(300.0, flowResult.getCommercialFlow(preventiveInstant, flowCnec, TwoSides.ONE, Unit.MEGAWATT));
@@ -235,8 +235,8 @@ class FlowResultTest {
         @Test
         @DisplayName("Flow added first, then Commercial Flow: loopFlow = flow - commercialFlow")
         void testFlowThenCommercialFlowCalculatesLoopFlow() {
-            flowResultBuilder.addFlowMeasurement(600.0, preventiveInstant, flowCnec, TwoSides.ONE, Unit.MEGAWATT)
-                .addCommercialFlowMeasurement(200.0, preventiveInstant, flowCnec, TwoSides.ONE, Unit.MEGAWATT);
+            flowResultBuilder.withFlowMeasurement(600.0, preventiveInstant, flowCnec, TwoSides.ONE, Unit.MEGAWATT)
+                .withCommercialFlowMeasurement(200.0, preventiveInstant, flowCnec, TwoSides.ONE, Unit.MEGAWATT);
             flowResult = flowResultBuilder.build();
 
             assertEquals(600.0, flowResult.getFlow(preventiveInstant, flowCnec, TwoSides.ONE, Unit.MEGAWATT));
@@ -248,8 +248,8 @@ class FlowResultTest {
         @Test
         @DisplayName("Commercial Flow added first, then Flow: loopFlow = flow - commercialFlow")
         void testCommercialFlowThenFlowCalculatesLoopFlow() {
-            flowResultBuilder.addCommercialFlowMeasurement(250.0, curativeInstant, flowCnec, TwoSides.TWO, Unit.AMPERE)
-                .addFlowMeasurement(800.0, curativeInstant, flowCnec, TwoSides.TWO, Unit.AMPERE);
+            flowResultBuilder.withCommercialFlowMeasurement(250.0, curativeInstant, flowCnec, TwoSides.TWO, Unit.AMPERE)
+                .withFlowMeasurement(800.0, curativeInstant, flowCnec, TwoSides.TWO, Unit.AMPERE);
             flowResult = flowResultBuilder.build();
 
             assertEquals(800.0, flowResult.getFlow(curativeInstant, flowCnec, TwoSides.TWO, Unit.AMPERE));
@@ -262,8 +262,8 @@ class FlowResultTest {
         @Test
         @DisplayName("Flow on side ONE and commercial flow on side TWO do NOT pair up for loopFlow")
         void testMismatchedSidesDoNotComputeLoopFlow() {
-            flowResultBuilder.addFlowMeasurement(500.0, null, flowCnec, TwoSides.ONE, Unit.MEGAWATT)
-                .addCommercialFlowMeasurement(200.0, null, flowCnec, TwoSides.TWO, Unit.MEGAWATT);
+            flowResultBuilder.withFlowMeasurement(500.0, null, flowCnec, TwoSides.ONE, Unit.MEGAWATT)
+                .withCommercialFlowMeasurement(200.0, null, flowCnec, TwoSides.TWO, Unit.MEGAWATT);
             flowResult = flowResultBuilder.build();
 
             assertTrue(Double.isNaN(flowResult.getLoopFlow(null, flowCnec, TwoSides.ONE, Unit.MEGAWATT)));
@@ -273,8 +273,8 @@ class FlowResultTest {
         @Test
         @DisplayName("Flow in MW and commercial flow in AMPERE do NOT pair up for loopFlow")
         void testMismatchedUnitsDoNotComputeLoopFlow() {
-            flowResultBuilder.addFlowMeasurement(500.0, null, flowCnec, TwoSides.ONE, Unit.MEGAWATT)
-                .addCommercialFlowMeasurement(200.0, null, flowCnec, TwoSides.ONE, Unit.AMPERE);
+            flowResultBuilder.withFlowMeasurement(500.0, null, flowCnec, TwoSides.ONE, Unit.MEGAWATT)
+                .withCommercialFlowMeasurement(200.0, null, flowCnec, TwoSides.ONE, Unit.AMPERE);
             flowResult = flowResultBuilder.build();
 
             assertTrue(Double.isNaN(flowResult.getLoopFlow(null, flowCnec, TwoSides.ONE, Unit.MEGAWATT)));
@@ -289,8 +289,8 @@ class FlowResultTest {
         @Test
         @DisplayName("Add PTDF zonal sum measurement and get PTDF zonal sum")
         void testAddPtdfZonalSum() {
-            flowResultBuilder.addPtdfZonalSumMeasurement(0.25, preventiveInstant, flowCnec, TwoSides.ONE)
-                .addPtdfZonalSumMeasurement(0.35, preventiveInstant, flowCnec, TwoSides.TWO);
+            flowResultBuilder.withPtdfZonalSumMeasurement(0.25, preventiveInstant, flowCnec, TwoSides.ONE)
+                .withPtdfZonalSumMeasurement(0.35, preventiveInstant, flowCnec, TwoSides.TWO);
             flowResult = flowResultBuilder.build();
 
             assertEquals(0.25, flowResult.getPtdfZonalSum(preventiveInstant, flowCnec, TwoSides.ONE));
@@ -303,9 +303,9 @@ class FlowResultTest {
         @DisplayName("Flow added first (positive margin), then PTDF zonal sum -> relativeMargin = margin / ptdfZonalSum")
         void testFlowThenPtdfZonalSumCalculatesRelativeMargin() {
             // Flow = 200 MW -> margin = 800 MW
-            flowResultBuilder.addFlowMeasurement(200.0, preventiveInstant, flowCnec, TwoSides.ONE, Unit.MEGAWATT);
+            flowResultBuilder.withFlowMeasurement(200.0, preventiveInstant, flowCnec, TwoSides.ONE, Unit.MEGAWATT);
             // Add PTDF sum = 0.5 on side ONE
-            flowResultBuilder.addPtdfZonalSumMeasurement(0.5, preventiveInstant, flowCnec, TwoSides.ONE);
+            flowResultBuilder.withPtdfZonalSumMeasurement(0.5, preventiveInstant, flowCnec, TwoSides.ONE);
             flowResult = flowResultBuilder.build();
 
             // relativeMargin = 800 / 0.5 = 1600.0
@@ -315,9 +315,9 @@ class FlowResultTest {
         @Test
         @DisplayName("PTDF zonal sum added first, then Flow (positive margin) -> relativeMargin = margin / ptdfZonalSum")
         void testPtdfZonalSumThenFlowCalculatesRelativeMargin() {
-            flowResultBuilder.addPtdfZonalSumMeasurement(0.2, curativeInstant, flowCnec, TwoSides.TWO);
+            flowResultBuilder.withPtdfZonalSumMeasurement(0.2, curativeInstant, flowCnec, TwoSides.TWO);
             // Flow = 500 MW on side TWO -> margin = 500 MW
-            flowResultBuilder.addFlowMeasurement(500.0, curativeInstant, flowCnec, TwoSides.TWO, Unit.MEGAWATT);
+            flowResultBuilder.withFlowMeasurement(500.0, curativeInstant, flowCnec, TwoSides.TWO, Unit.MEGAWATT);
             flowResult = flowResultBuilder.build();
 
             // relativeMargin = 500 / 0.2 = 2500.0
@@ -328,8 +328,8 @@ class FlowResultTest {
         @DisplayName("Relative margin with negative margin (overload) returns raw negative margin")
         void testRelativeMarginWithNegativeMargin() {
             // Flow = 1200 MW -> margin = -200 MW (<= 0)
-            flowResultBuilder.addFlowMeasurement(1200.0, null, flowCnec, TwoSides.ONE, Unit.MEGAWATT)
-                .addPtdfZonalSumMeasurement(0.4, null, flowCnec, TwoSides.ONE);
+            flowResultBuilder.withFlowMeasurement(1200.0, null, flowCnec, TwoSides.ONE, Unit.MEGAWATT)
+                .withPtdfZonalSumMeasurement(0.4, null, flowCnec, TwoSides.ONE);
             flowResult = flowResultBuilder.build();
 
             // When margin <= 0, relative margin is margin directly (-200.0)
@@ -340,8 +340,8 @@ class FlowResultTest {
         @DisplayName("Relative margin with zero margin returns 0.0")
         void testRelativeMarginWithZeroMargin() {
             // Flow = 1000 MW -> margin = 0.0 (<= 0)
-            flowResultBuilder.addFlowMeasurement(1000.0, null, flowCnec, TwoSides.ONE, Unit.MEGAWATT)
-                .addPtdfZonalSumMeasurement(0.5, null, flowCnec, TwoSides.ONE);
+            flowResultBuilder.withFlowMeasurement(1000.0, null, flowCnec, TwoSides.ONE, Unit.MEGAWATT)
+                .withPtdfZonalSumMeasurement(0.5, null, flowCnec, TwoSides.ONE);
             flowResult = flowResultBuilder.build();
 
             assertEquals(0.0, flowResult.getRelativeMargin(null, flowCnec, Unit.MEGAWATT));
@@ -350,13 +350,13 @@ class FlowResultTest {
         @Test
         @DisplayName("Relative margin updates when margin gets updated with new more constraining flow")
         void testRelativeMarginUpdatesWhenMarginChanges() {
-            flowResultBuilder.addPtdfZonalSumMeasurement(0.5, preventiveInstant, flowCnec, TwoSides.ONE);
+            flowResultBuilder.withPtdfZonalSumMeasurement(0.5, preventiveInstant, flowCnec, TwoSides.ONE);
 
             // Flow 1: 200 MW -> margin = 800 MW -> relativeMargin = 800 / 0.5 = 1600.0
-            flowResultBuilder.addFlowMeasurement(200.0, preventiveInstant, flowCnec, TwoSides.ONE, Unit.MEGAWATT);
+            flowResultBuilder.withFlowMeasurement(200.0, preventiveInstant, flowCnec, TwoSides.ONE, Unit.MEGAWATT);
 
             // Flow 2: 800 MW -> margin = 200 MW -> relativeMargin = 200 / 0.5 = 400.0
-            flowResultBuilder.addFlowMeasurement(800.0, preventiveInstant, flowCnec, TwoSides.ONE, Unit.MEGAWATT);
+            flowResultBuilder.withFlowMeasurement(800.0, preventiveInstant, flowCnec, TwoSides.ONE, Unit.MEGAWATT);
             flowResult = flowResultBuilder.build();
 
             assertEquals(400.0, flowResult.getRelativeMargin(preventiveInstant, flowCnec, Unit.MEGAWATT));
@@ -365,9 +365,9 @@ class FlowResultTest {
         @Test
         @DisplayName("Relative margin updates when PTDF zonal sum changes")
         void testRelativeMarginUpdatesWhenPtdfChanges() {
-            flowResultBuilder.addFlowMeasurement(400.0, null, flowCnec, TwoSides.ONE, Unit.MEGAWATT) // margin = 600 MW
-                .addPtdfZonalSumMeasurement(0.5, null, flowCnec, TwoSides.ONE)
-                .addPtdfZonalSumMeasurement(0.25, null, flowCnec, TwoSides.ONE); // Update PTDF sum to 0.25 -> relativeMargin = 600 / 0.25 = 2400.0
+            flowResultBuilder.withFlowMeasurement(400.0, null, flowCnec, TwoSides.ONE, Unit.MEGAWATT) // margin = 600 MW
+                .withPtdfZonalSumMeasurement(0.5, null, flowCnec, TwoSides.ONE)
+                .withPtdfZonalSumMeasurement(0.25, null, flowCnec, TwoSides.ONE); // Update PTDF sum to 0.25 -> relativeMargin = 600 / 0.25 = 2400.0
             flowResult = flowResultBuilder.build();
             assertEquals(2400.0, flowResult.getRelativeMargin(null, flowCnec, Unit.MEGAWATT));
         }
@@ -375,9 +375,9 @@ class FlowResultTest {
         @Test
         @DisplayName("PTDF update applies to both MEGAWATT and AMPERE when margins exist for both")
         void testPtdfUpdateAffectsBothUnits() {
-            flowResultBuilder.addFlowMeasurement(200.0, null, flowCnec, TwoSides.ONE, Unit.MEGAWATT) // margin MW = 800
-                .addFlowMeasurement(500.0, null, flowCnec, TwoSides.ONE, Unit.AMPERE)   // margin A = 1500
-                .addPtdfZonalSumMeasurement(0.5, null, flowCnec, TwoSides.ONE);
+            flowResultBuilder.withFlowMeasurement(200.0, null, flowCnec, TwoSides.ONE, Unit.MEGAWATT) // margin MW = 800
+                .withFlowMeasurement(500.0, null, flowCnec, TwoSides.ONE, Unit.AMPERE)   // margin A = 1500
+                .withPtdfZonalSumMeasurement(0.5, null, flowCnec, TwoSides.ONE);
             flowResult = flowResultBuilder.build();
 
             assertEquals(1600.0, flowResult.getRelativeMargin(null, flowCnec, Unit.MEGAWATT));
@@ -393,19 +393,19 @@ class FlowResultTest {
         @DisplayName("Complete workflow with all measurements per instant and side")
         void testCompleteWorkflow() {
             // Null instant
-            flowResultBuilder.addFlowMeasurement(100.0, null, flowCnec, TwoSides.ONE, Unit.MEGAWATT)
-                .addCommercialFlowMeasurement(50.0, null, flowCnec, TwoSides.ONE, Unit.MEGAWATT)
-                .addPtdfZonalSumMeasurement(0.2, null, flowCnec, TwoSides.ONE);
+            flowResultBuilder.withFlowMeasurement(100.0, null, flowCnec, TwoSides.ONE, Unit.MEGAWATT)
+                .withCommercialFlowMeasurement(50.0, null, flowCnec, TwoSides.ONE, Unit.MEGAWATT)
+                .withPtdfZonalSumMeasurement(0.2, null, flowCnec, TwoSides.ONE);
 
             // Preventive instant
-            flowResultBuilder.addFlowMeasurement(300.0, preventiveInstant, flowCnec, TwoSides.TWO, Unit.MEGAWATT)
-                .addCommercialFlowMeasurement(100.0, preventiveInstant, flowCnec, TwoSides.TWO, Unit.MEGAWATT)
-                .addPtdfZonalSumMeasurement(0.4, preventiveInstant, flowCnec, TwoSides.TWO);
+            flowResultBuilder.withFlowMeasurement(300.0, preventiveInstant, flowCnec, TwoSides.TWO, Unit.MEGAWATT)
+                .withCommercialFlowMeasurement(100.0, preventiveInstant, flowCnec, TwoSides.TWO, Unit.MEGAWATT)
+                .withPtdfZonalSumMeasurement(0.4, preventiveInstant, flowCnec, TwoSides.TWO);
 
             // Curative instant
-            flowResultBuilder.addCommercialFlowMeasurement(80.0, curativeInstant, flowCnec, TwoSides.ONE, Unit.AMPERE)
-                .addFlowMeasurement(400.0, curativeInstant, flowCnec, TwoSides.ONE, Unit.AMPERE)
-                .addPtdfZonalSumMeasurement(0.8, curativeInstant, flowCnec, TwoSides.ONE);
+            flowResultBuilder.withCommercialFlowMeasurement(80.0, curativeInstant, flowCnec, TwoSides.ONE, Unit.AMPERE)
+                .withFlowMeasurement(400.0, curativeInstant, flowCnec, TwoSides.ONE, Unit.AMPERE)
+                .withPtdfZonalSumMeasurement(0.8, curativeInstant, flowCnec, TwoSides.ONE);
 
             flowResult = flowResultBuilder.build();
 
@@ -445,13 +445,13 @@ class FlowResultTest {
             when(cnec2.getLowerBound(Mockito.any(), Mockito.any())).thenReturn(Optional.of(-500.0));
             when(cnec2.getUpperBound(Mockito.any(), Mockito.any())).thenReturn(Optional.of(500.0));
 
-            flowResultBuilder.addFlowMeasurement(80.0, null, cnec1, TwoSides.ONE, Unit.MEGAWATT)
-                .addCommercialFlowMeasurement(30.0, null, cnec1, TwoSides.ONE, Unit.MEGAWATT)
-                .addPtdfZonalSumMeasurement(0.5, null, cnec1, TwoSides.ONE);
+            flowResultBuilder.withFlowMeasurement(80.0, null, cnec1, TwoSides.ONE, Unit.MEGAWATT)
+                .withCommercialFlowMeasurement(30.0, null, cnec1, TwoSides.ONE, Unit.MEGAWATT)
+                .withPtdfZonalSumMeasurement(0.5, null, cnec1, TwoSides.ONE);
 
-            flowResultBuilder.addFlowMeasurement(200.0, null, cnec2, TwoSides.ONE, Unit.MEGAWATT)
-                .addCommercialFlowMeasurement(150.0, null, cnec2, TwoSides.ONE, Unit.MEGAWATT)
-                .addPtdfZonalSumMeasurement(0.2, null, cnec2, TwoSides.ONE);
+            flowResultBuilder.withFlowMeasurement(200.0, null, cnec2, TwoSides.ONE, Unit.MEGAWATT)
+                .withCommercialFlowMeasurement(150.0, null, cnec2, TwoSides.ONE, Unit.MEGAWATT)
+                .withPtdfZonalSumMeasurement(0.2, null, cnec2, TwoSides.ONE);
 
             flowResult = flowResultBuilder.build();
 
@@ -493,15 +493,15 @@ class FlowResultTest {
             when(outageInstant.comesBefore(preventiveInstant)).thenReturn(false);
 
             // Add results for initial, preventive, and curative, but NOT for outage
-            flowResultBuilder.addFlowMeasurement(100.0, null, flowCnec, TwoSides.ONE, Unit.MEGAWATT)
-                .addCommercialFlowMeasurement(40.0, null, flowCnec, TwoSides.ONE, Unit.MEGAWATT)
-                .addPtdfZonalSumMeasurement(0.2, null, flowCnec, TwoSides.ONE)
-                .addFlowMeasurement(200.0, preventiveInstant, flowCnec, TwoSides.ONE, Unit.MEGAWATT)
-                .addCommercialFlowMeasurement(60.0, preventiveInstant, flowCnec, TwoSides.ONE, Unit.MEGAWATT)
-                .addPtdfZonalSumMeasurement(0.5, preventiveInstant, flowCnec, TwoSides.ONE)
-                .addFlowMeasurement(300.0, curativeInstant, flowCnec, TwoSides.ONE, Unit.MEGAWATT)
-                .addCommercialFlowMeasurement(80.0, curativeInstant, flowCnec, TwoSides.ONE, Unit.MEGAWATT)
-                .addPtdfZonalSumMeasurement(0.8, curativeInstant, flowCnec, TwoSides.ONE);
+            flowResultBuilder.withFlowMeasurement(100.0, null, flowCnec, TwoSides.ONE, Unit.MEGAWATT)
+                .withCommercialFlowMeasurement(40.0, null, flowCnec, TwoSides.ONE, Unit.MEGAWATT)
+                .withPtdfZonalSumMeasurement(0.2, null, flowCnec, TwoSides.ONE)
+                .withFlowMeasurement(200.0, preventiveInstant, flowCnec, TwoSides.ONE, Unit.MEGAWATT)
+                .withCommercialFlowMeasurement(60.0, preventiveInstant, flowCnec, TwoSides.ONE, Unit.MEGAWATT)
+                .withPtdfZonalSumMeasurement(0.5, preventiveInstant, flowCnec, TwoSides.ONE)
+                .withFlowMeasurement(300.0, curativeInstant, flowCnec, TwoSides.ONE, Unit.MEGAWATT)
+                .withCommercialFlowMeasurement(80.0, curativeInstant, flowCnec, TwoSides.ONE, Unit.MEGAWATT)
+                .withPtdfZonalSumMeasurement(0.8, curativeInstant, flowCnec, TwoSides.ONE);
 
             flowResult = flowResultBuilder.build();
 
@@ -535,10 +535,10 @@ class FlowResultTest {
             when(curativeInstant.comesBefore(preventiveInstant)).thenReturn(false);
 
             // Initial has results, curative has results, but neither preventive nor outage has results
-            flowResultBuilder.addFlowMeasurement(100.0, null, flowCnec, TwoSides.ONE, Unit.MEGAWATT)
-                .addCommercialFlowMeasurement(50.0, null, flowCnec, TwoSides.ONE, Unit.MEGAWATT)
-                .addPtdfZonalSumMeasurement(0.2, null, flowCnec, TwoSides.ONE)
-                .addFlowMeasurement(400.0, curativeInstant, flowCnec, TwoSides.ONE, Unit.MEGAWATT);
+            flowResultBuilder.withFlowMeasurement(100.0, null, flowCnec, TwoSides.ONE, Unit.MEGAWATT)
+                .withCommercialFlowMeasurement(50.0, null, flowCnec, TwoSides.ONE, Unit.MEGAWATT)
+                .withPtdfZonalSumMeasurement(0.2, null, flowCnec, TwoSides.ONE)
+                .withFlowMeasurement(400.0, curativeInstant, flowCnec, TwoSides.ONE, Unit.MEGAWATT);
 
             flowResult = flowResultBuilder.build();
 
@@ -574,7 +574,7 @@ class FlowResultTest {
             when(preventiveInstant.comesBefore(curativeInstant)).thenReturn(true);
             when(outageInstant.comesBefore(curativeInstant)).thenReturn(true);
 
-            flowResultBuilder.addFlowMeasurement(250.0, preventiveInstant, flowCnec, TwoSides.ONE, Unit.MEGAWATT);
+            flowResultBuilder.withFlowMeasurement(250.0, preventiveInstant, flowCnec, TwoSides.ONE, Unit.MEGAWATT);
             flowResult = flowResultBuilder.build();
 
             // Both outage and curative fall back to preventive

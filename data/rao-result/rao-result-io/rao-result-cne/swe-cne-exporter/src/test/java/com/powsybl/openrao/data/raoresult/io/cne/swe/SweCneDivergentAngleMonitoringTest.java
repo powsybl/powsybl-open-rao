@@ -72,8 +72,8 @@ class SweCneDivergentAngleMonitoringTest {
         AngleResult angleResult = AngleMonitoringResultAdapter.convertToAngleExtension(monitoringResult);
         raoResult.addExtension(AngleResult.class, angleResult);
 
-        Metadata metadata = Metadata.build()
-            .addComputationStatus(crac.getPreventiveState(), ComputationStatus.FAILURE)
+        Metadata metadata = Metadata.builder()
+            .withComputationStatus(crac.getPreventiveState(), ComputationStatus.FAILURE)
             .build();
         raoResult.addExtension(Metadata.class, metadata);
 

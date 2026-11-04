@@ -26,13 +26,13 @@ class MetadataTest {
 
     @Test
     void testGetName() {
-        assertEquals("metadata", Metadata.build().build().getName());
+        assertEquals("metadata", Metadata.builder().build().getName());
     }
 
     @Test
     void testGetComputationStatus() {
         // Case 1: Empty map -> DEFAULT
-        metadata = Metadata.build().build();
+        metadata = Metadata.builder().build();
         assertEquals(ComputationStatus.DEFAULT, metadata.getComputationStatus());
 
         State preventive = Mockito.mock(State.class);
@@ -41,43 +41,43 @@ class MetadataTest {
         when(curative.isPreventive()).thenReturn(false);
 
         // Case 2: Only DEFAULT statuses -> DEFAULT
-        metadata = Metadata.build()
-            .addComputationStatus(preventive, ComputationStatus.DEFAULT)
-            .addComputationStatus(curative, ComputationStatus.DEFAULT)
+        metadata = Metadata.builder()
+            .withComputationStatus(preventive, ComputationStatus.DEFAULT)
+            .withComputationStatus(curative, ComputationStatus.DEFAULT)
             .build();
         assertEquals(ComputationStatus.DEFAULT, metadata.getComputationStatus());
 
         // Case 3: Only PARTIAL_FAILURE statuses -> DEFAULT
         // (The implementation currently only looks for ComputationStatus.FAILURE)
-        metadata = Metadata.build()
-            .addComputationStatus(preventive, ComputationStatus.PARTIAL_FAILURE)
-            .addComputationStatus(curative, ComputationStatus.PARTIAL_FAILURE)
+        metadata = Metadata.builder()
+            .withComputationStatus(preventive, ComputationStatus.PARTIAL_FAILURE)
+            .withComputationStatus(curative, ComputationStatus.PARTIAL_FAILURE)
             .build();
         assertEquals(ComputationStatus.DEFAULT, metadata.getComputationStatus());
 
         // Case 4: One non-preventive FAILURE -> PARTIAL_FAILURE
-        metadata = Metadata.build()
-            .addComputationStatus(curative, ComputationStatus.FAILURE)
+        metadata = Metadata.builder()
+            .withComputationStatus(curative, ComputationStatus.FAILURE)
             .build();
         assertEquals(ComputationStatus.PARTIAL_FAILURE, metadata.getComputationStatus());
 
         // Case 5: One preventive FAILURE -> FAILURE
-        metadata = Metadata.build()
-            .addComputationStatus(preventive, ComputationStatus.FAILURE)
+        metadata = Metadata.builder()
+            .withComputationStatus(preventive, ComputationStatus.FAILURE)
             .build();
         assertEquals(ComputationStatus.FAILURE, metadata.getComputationStatus());
 
         // Case 6: Mixed statuses (preventive FAILURE + others) -> FAILURE
-        metadata = Metadata.build()
-            .addComputationStatus(preventive, ComputationStatus.FAILURE)
-            .addComputationStatus(curative, ComputationStatus.FAILURE)
+        metadata = Metadata.builder()
+            .withComputationStatus(preventive, ComputationStatus.FAILURE)
+            .withComputationStatus(curative, ComputationStatus.FAILURE)
             .build();
         assertEquals(ComputationStatus.FAILURE, metadata.getComputationStatus());
 
         // Case 7: Mixed statuses (non-preventive FAILURE + DEFAULT) -> PARTIAL_FAILURE
-        metadata = Metadata.build()
-            .addComputationStatus(preventive, ComputationStatus.DEFAULT)
-            .addComputationStatus(curative, ComputationStatus.FAILURE)
+        metadata = Metadata.builder()
+            .withComputationStatus(preventive, ComputationStatus.DEFAULT)
+            .withComputationStatus(curative, ComputationStatus.FAILURE)
             .build();
         assertEquals(ComputationStatus.PARTIAL_FAILURE, metadata.getComputationStatus());
     }
@@ -88,11 +88,11 @@ class MetadataTest {
         State state2 = Mockito.mock(State.class);
 
         // Default value for unknown state
-        assertEquals(ComputationStatus.DEFAULT, Metadata.build().build().getComputationStatus(state1));
+        assertEquals(ComputationStatus.DEFAULT, Metadata.builder().build().getComputationStatus(state1));
 
-        metadata = Metadata.build()
-            .addComputationStatus(state1, ComputationStatus.FAILURE)
-            .addComputationStatus(state2, ComputationStatus.PARTIAL_FAILURE)
+        metadata = Metadata.builder()
+            .withComputationStatus(state1, ComputationStatus.FAILURE)
+            .withComputationStatus(state2, ComputationStatus.PARTIAL_FAILURE)
             .build();
 
         assertEquals(ComputationStatus.FAILURE, metadata.getComputationStatus(state1));
@@ -105,7 +105,7 @@ class MetadataTest {
 
     @Test
     void testSetAndGetExecutionDetails() {
-        metadata = Metadata.build().build();
+        metadata = Metadata.builder().build();
 
         String details = "Step 1: Success\nStep 2: Warning";
         metadata.setExecutionDetails(details);
