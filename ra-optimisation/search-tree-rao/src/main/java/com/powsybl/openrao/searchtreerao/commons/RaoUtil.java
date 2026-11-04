@@ -400,7 +400,7 @@ public final class RaoUtil {
                                                         OptimizationResult preventiveOptimizationResult,
                                                         State preventiveState,
                                                         Map<State, PostPerimeterResult> postContingencyResults) {
-        fillWithActivatedRemedialActions(raoResult, preventiveOptimizationResult, preventiveState);
+        fillForState(raoResult, preventiveOptimizationResult, preventiveState);
         postContingencyResults.forEach((state, postPerimeterResult) -> fillForState(raoResult, postPerimeterResult.optimizationResult(), state));
     }
 
