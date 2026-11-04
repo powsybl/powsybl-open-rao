@@ -37,7 +37,7 @@ public final class CastorMetadataHelper {
         metadataBuilder.withExecutionDetails(executionDetails);
         for (State state : crac.getStates()) {
             if (prePerimeterResult.getComputationStatus(state) != ComputationStatus.DEFAULT) {
-                metadataBuilder.withComputationStatus(state, prePerimeterResult.getComputationStatus(state));
+                metadataBuilder.addComputationStatus(state, prePerimeterResult.getComputationStatus(state));
             }
         }
     }
@@ -45,7 +45,7 @@ public final class CastorMetadataHelper {
     public static void fillAndAddWithGlobalFailure(Crac crac, RaoResult raoResult, String failureReason) {
         Metadata.MetadataBuilder metadataBuilder = Metadata.builder();
         metadataBuilder.withExecutionDetails(failureReason);
-        crac.getStates().forEach(state -> metadataBuilder.withComputationStatus(state, ComputationStatus.FAILURE));
+        crac.getStates().forEach(state -> metadataBuilder.addComputationStatus(state, ComputationStatus.FAILURE));
         raoResult.addExtension(Metadata.class, metadataBuilder.build());
     }
 }

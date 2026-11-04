@@ -181,12 +181,12 @@ public class CostResult extends AbstractExtension<RaoResult> {
             costResultPerInstant = new HashMap<>();
         }
 
-        public CostResultBuilder withFunctionalCostResult(Instant optimizedInstant, double functionalCost) {
+        public CostResultBuilder addFunctionalCostResult(Instant optimizedInstant, double functionalCost) {
             getOrCreateAppropriateResult(optimizedInstant).setFunctionalCost(functionalCost);
             return this;
         }
 
-        public CostResultBuilder withVirtualCostResult(Instant optimizedInstant, String virtualCostName, double virtualCost) {
+        public CostResultBuilder addVirtualCostResult(Instant optimizedInstant, String virtualCostName, double virtualCost) {
             getOrCreateAppropriateResult(optimizedInstant).setVirtualCost(virtualCostName, virtualCost);
             return this;
         }

@@ -88,7 +88,7 @@ public final class Metadata extends AbstractExtension<RaoResult> {
             this.computationStatusPerState = new HashMap<>();
         }
 
-        public MetadataBuilder withComputationStatus(State state, ComputationStatus computationStatus) {
+        public MetadataBuilder addComputationStatus(State state, ComputationStatus computationStatus) {
             this.computationStatusPerState.put(state, computationStatus);
             return this;
         }

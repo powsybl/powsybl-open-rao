@@ -97,7 +97,7 @@ public final class CastorFlowResultExtensionHelper {
                                           Unit flowUnit) {
         double flow = prePerimeterResult.getFlow(flowCnec, side, flowUnit, instant);
         if (!Double.isNaN(flow)) {
-            flowResultBuilder.withFlowMeasurement(flow, instant, flowCnec, side, flowUnit);
+            flowResultBuilder.addFlowMeasurement(flow, instant, flowCnec, side, flowUnit);
         }
     }
 
@@ -111,7 +111,7 @@ public final class CastorFlowResultExtensionHelper {
         try {
             double commercialFlow = prePerimeterResult.getCommercialFlow(flowCnec, side, flowUnit);
             if (!Double.isNaN(commercialFlow)) {
-                flowResultBuilder.withCommercialFlowMeasurement(commercialFlow, instant, flowCnec, side, flowUnit);
+                flowResultBuilder.addCommercialFlowMeasurement(commercialFlow, instant, flowCnec, side, flowUnit);
             }
         } catch (OpenRaoException ignored) {
         }
@@ -126,7 +126,7 @@ public final class CastorFlowResultExtensionHelper {
         try {
             double ptdfZonalSum = prePerimeterResult.getPtdfZonalSum(flowCnec, side);
             if (!Double.isNaN(ptdfZonalSum)) {
-                flowResultBuilder.withPtdfZonalSumMeasurement(ptdfZonalSum, instant, flowCnec, side);
+                flowResultBuilder.addPtdfZonalSumMeasurement(ptdfZonalSum, instant, flowCnec, side);
             }
         } catch (OpenRaoException ignored) {
         }

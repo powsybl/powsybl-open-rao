@@ -101,11 +101,11 @@ public class JsonCostResult implements RaoResultJsonUtils.ExtensionSerializer<Co
         while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
             jsonParser.nextToken();
             if ("functionalCost".equals(jsonParser.currentName())) {
-                costResultBuilder.withFunctionalCostResult(instant, jsonParser.getDoubleValue());
+                costResultBuilder.addFunctionalCostResult(instant, jsonParser.getDoubleValue());
             } else if ("virtualCost".equals(jsonParser.currentName())) {
                 while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
                     jsonParser.nextToken();
-                    costResultBuilder.withVirtualCostResult(instant, jsonParser.currentName(), jsonParser.getDoubleValue());
+                    costResultBuilder.addVirtualCostResult(instant, jsonParser.currentName(), jsonParser.getDoubleValue());
                 }
             } else {
                 throw new OpenRaoException("Unexpected field in '%s': '%s'.".formatted(jsonParser.currentName(), getExtensionName()));

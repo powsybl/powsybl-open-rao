@@ -215,9 +215,9 @@ public final class MarmotUtils {
     private static void addCostsForInstant(CostResult.CostResultBuilder costResultBuilder,
                                            ObjectiveFunctionResult objectiveFunctionResult,
                                            Instant instant) {
-        costResultBuilder.withFunctionalCostResult(instant, objectiveFunctionResult.getFunctionalCost());
+        costResultBuilder.addFunctionalCostResult(instant, objectiveFunctionResult.getFunctionalCost());
         objectiveFunctionResult.getVirtualCostNames().forEach(
-            virtualCostName -> costResultBuilder.withVirtualCostResult(
+            virtualCostName -> costResultBuilder.addVirtualCostResult(
                 instant,
                 virtualCostName,
                 objectiveFunctionResult.getVirtualCost(virtualCostName)

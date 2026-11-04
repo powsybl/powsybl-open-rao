@@ -58,12 +58,12 @@ public final class CastorCostResultExtensionHelper {
         addPreventiveCosts(preventiveAndOutageOnlyResult, postPraResult, costResultBuilder, crac.getPreventiveInstant(), costOptimization);
         for (Instant instant : crac.getSortedInstants()) {
             if (instant.isAuto() || instant.isCurative()) {
-                costResultBuilder.withFunctionalCostResult(
+                costResultBuilder.addFunctionalCostResult(
                     instant,
                     computeFunctionalCost(preventiveAndOutageOnlyResult, postContingencyResults, costOptimization, instant)
                 );
                 postPraResult.getVirtualCostNames().forEach(
-                    virtualCostName -> costResultBuilder.withVirtualCostResult(
+                    virtualCostName -> costResultBuilder.addVirtualCostResult(
                         instant,
                         virtualCostName,
                         computeVirtualCost(virtualCostName, preventiveAndOutageOnlyResult, postContingencyResults, instant)
@@ -129,11 +129,11 @@ public final class CastorCostResultExtensionHelper {
     }
 
     private static void addInitialCosts(ObjectiveFunctionResult objectiveFunctionResult, CostResult.CostResultBuilder costResultBuilder) {
-        costResultBuilder.withFunctionalCostResult(null, objectiveFunctionResult.getFunctionalCost());
+        costResultBuilder.addFunctionalCostResult(null, objectiveFunctionResult.getFunctionalCost());
         objectiveFunctionResult.getVirtualCostNames().forEach(
             virtualCostName -> {
                 double virtualCost = objectiveFunctionResult.getVirtualCost(virtualCostName);
-                costResultBuilder.withVirtualCostResult(null, virtualCostName, Double.isNaN(virtualCost) ? 0 : virtualCost);
+                costResultBuilder.addVirtualCostResult(null, virtualCostName, Double.isNaN(virtualCost) ? 0 : virtualCost);
             }
         );
     }
@@ -144,11 +144,11 @@ public final class CastorCostResultExtensionHelper {
                                            Instant preventiveInstant,
                                            boolean costOptimization) {
         // for costly optimization, we only care about the cost of preventive actions (for after PRA result)
-        costResultBuilder.withFunctionalCostResult(preventiveInstant, (costOptimization ? preventiveAndOutageOnlyResult : postPraResult).getFunctionalCost());
+        costResultBuilder.addFunctionalCostResult(preventiveInstant, (costOptimization ? preventiveAndOutageOnlyResult : postPraResult).getFunctionalCost());
         postPraResult.getVirtualCostNames().forEach(
             virtualCostName -> {
                 double virtualCost = postPraResult.getVirtualCost(virtualCostName);
-                costResultBuilder.withVirtualCostResult(preventiveInstant, virtualCostName, Double.isNaN(virtualCost) ? 0 : virtualCost);
+                costResultBuilder.addVirtualCostResult(preventiveInstant, virtualCostName, Double.isNaN(virtualCost) ? 0 : virtualCost);
             }
         );
     }

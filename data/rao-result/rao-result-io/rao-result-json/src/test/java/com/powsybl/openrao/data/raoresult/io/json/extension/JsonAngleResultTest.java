@@ -67,8 +67,8 @@ public class JsonAngleResultTest {
         Mockito.when(angleCnec.getState()).thenReturn(state);
 
         AngleResult.AngleResultBuilder angleResultBuilder = AngleResult.builder();
-        angleResultBuilder.withMeasurement(25.0, null, angleCnec, Unit.DEGREE)
-            .withMeasurement(17.0, preventiveInstant, angleCnec, Unit.DEGREE);
+        angleResultBuilder.addMeasurement(25.0, null, angleCnec, Unit.DEGREE)
+            .addMeasurement(17.0, preventiveInstant, angleCnec, Unit.DEGREE);
 
         StringWriter writer = new StringWriter();
         JsonFactory factory = new JsonFactory();
@@ -108,8 +108,8 @@ public class JsonAngleResultTest {
 
         Mockito.when(crac.getAngleCnecs()).thenReturn(Set.of(cnec1, cnec2));
 
-        angleResultBuilder.withMeasurement(10.0, null, cnec2, Unit.DEGREE)
-            .withMeasurement(25.0, null, cnec1, Unit.DEGREE);
+        angleResultBuilder.addMeasurement(10.0, null, cnec2, Unit.DEGREE)
+            .addMeasurement(25.0, null, cnec1, Unit.DEGREE);
 
         StringWriter writer = new StringWriter();
         JsonFactory factory = new JsonFactory();
@@ -145,9 +145,9 @@ public class JsonAngleResultTest {
         Mockito.when(crac.getSortedInstants()).thenReturn(List.of(instant1, instant2));
 
         AngleResult.AngleResultBuilder angleResultBuilder = AngleResult.builder();
-        angleResultBuilder.withMeasurement(15.0, instant2, angleCnec, Unit.DEGREE)
-            .withMeasurement(10.0, instant1, angleCnec, Unit.DEGREE)
-            .withMeasurement(20.0, null, angleCnec, Unit.DEGREE);
+        angleResultBuilder.addMeasurement(15.0, instant2, angleCnec, Unit.DEGREE)
+            .addMeasurement(10.0, instant1, angleCnec, Unit.DEGREE)
+            .addMeasurement(20.0, null, angleCnec, Unit.DEGREE);
 
         StringWriter writer = new StringWriter();
         JsonFactory factory = new JsonFactory();

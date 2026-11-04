@@ -122,7 +122,7 @@ final class VoltageCnecResultArrayDeserializer {
 
         }
         if (!Double.isNaN(minVoltage) && !Double.isNaN(maxVoltage)) {
-            voltageResultBuilder.withMeasurement(minVoltage, maxVoltage, optimizedInstant, voltageCnec, Unit.KILOVOLT);
+            voltageResultBuilder.addMeasurement(minVoltage, maxVoltage, optimizedInstant, voltageCnec, Unit.KILOVOLT);
         }
     }
 }

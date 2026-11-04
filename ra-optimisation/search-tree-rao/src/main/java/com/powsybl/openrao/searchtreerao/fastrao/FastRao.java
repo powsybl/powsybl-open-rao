@@ -465,7 +465,7 @@ public class FastRao implements RaoProvider {
         for (State state : crac.getStates()) {
             ComputationStatus computationStatus = getAppropriateResult(state, postPraSensi, postAraSensi, postCraSensi).getComputationStatus(state);
             if (computationStatus != ComputationStatus.DEFAULT) {
-                metadataBuilder.withComputationStatus(state, computationStatus);
+                metadataBuilder.addComputationStatus(state, computationStatus);
             }
         }
         return metadataBuilder.build();

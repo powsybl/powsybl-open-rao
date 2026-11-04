@@ -261,7 +261,7 @@ class RaoResultHelperTest {
     @MethodSource("raoParameters")
     void testIsSecureFailureStatus(RaoParameters raoParameters, PhysicalParameter... parameters) {
         Metadata.MetadataBuilder metadataBuilder = Metadata.builder();
-        metadataBuilder.withComputationStatus(crac.getPreventiveState(), ComputationStatus.FAILURE);
+        metadataBuilder.addComputationStatus(crac.getPreventiveState(), ComputationStatus.FAILURE);
         when(raoResult.getExtension(Metadata.class)).thenReturn(metadataBuilder.build());
         assertFalse(isSecure(raoResult, crac, raoParameters, parameters));
     }

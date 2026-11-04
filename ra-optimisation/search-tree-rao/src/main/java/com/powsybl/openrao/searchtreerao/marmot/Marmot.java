@@ -812,9 +812,9 @@ public class Marmot implements TimeCoupledRaoProvider {
     private static void addCostsForInstant(CostResult.CostResultBuilder costResultBuilder,
                                            ObjectiveFunctionResult objectiveFunctionResult,
                                            Instant optimizedInstant) {
-        costResultBuilder.withFunctionalCostResult(optimizedInstant, objectiveFunctionResult.getFunctionalCost());
+        costResultBuilder.addFunctionalCostResult(optimizedInstant, objectiveFunctionResult.getFunctionalCost());
         objectiveFunctionResult.getVirtualCostNames()
-            .forEach(virtualCostName -> costResultBuilder.withVirtualCostResult(
+            .forEach(virtualCostName -> costResultBuilder.addVirtualCostResult(
                 optimizedInstant,
                 virtualCostName,
                 objectiveFunctionResult.getVirtualCost(virtualCostName))
@@ -831,14 +831,14 @@ public class Marmot implements TimeCoupledRaoProvider {
                 flowCnec -> {
                     // TODO: it is assumed that no commercial flows or PTDF zonal sums are at stake
                     PrePerimeterResult prePerimeterResult = initialResults.getData(crac.getTimestamp().orElseThrow()).orElseThrow();
-                    flowResultBuilder.withFlowMeasurement(prePerimeterResult.getFlow(flowCnec, TwoSides.ONE, flowUnit), null, flowCnec, TwoSides.ONE, flowUnit)
-                        .withFlowMeasurement(prePerimeterResult.getFlow(flowCnec, TwoSides.TWO, flowUnit), null, flowCnec, TwoSides.TWO, flowUnit)
-                        .withFlowMeasurement(finalFlowResult.getFlow(flowCnec, TwoSides.ONE, flowUnit), crac.getPreventiveInstant(), flowCnec, TwoSides.ONE, flowUnit)
-                        .withFlowMeasurement(finalFlowResult.getFlow(flowCnec, TwoSides.TWO, flowUnit), crac.getPreventiveInstant(), flowCnec, TwoSides.TWO, flowUnit);
+                    flowResultBuilder.addFlowMeasurement(prePerimeterResult.getFlow(flowCnec, TwoSides.ONE, flowUnit), null, flowCnec, TwoSides.ONE, flowUnit)
+                        .addFlowMeasurement(prePerimeterResult.getFlow(flowCnec, TwoSides.TWO, flowUnit), null, flowCnec, TwoSides.TWO, flowUnit)
+                        .addFlowMeasurement(finalFlowResult.getFlow(flowCnec, TwoSides.ONE, flowUnit), crac.getPreventiveInstant(), flowCnec, TwoSides.ONE, flowUnit)
+                        .addFlowMeasurement(finalFlowResult.getFlow(flowCnec, TwoSides.TWO, flowUnit), crac.getPreventiveInstant(), flowCnec, TwoSides.TWO, flowUnit);
                     // TODO: handle multi-curative in MARMOT (the following only works with one curative instant)
                     if (flowCnec.getState().getInstant().isCurative()) {
-                        flowResultBuilder.withFlowMeasurement(finalFlowResult.getFlow(flowCnec, TwoSides.ONE, flowUnit), crac.getLastInstant(), flowCnec, TwoSides.ONE, flowUnit)
-                            .withFlowMeasurement(finalFlowResult.getFlow(flowCnec, TwoSides.TWO, flowUnit), crac.getLastInstant(), flowCnec, TwoSides.TWO, flowUnit);
+                        flowResultBuilder.addFlowMeasurement(finalFlowResult.getFlow(flowCnec, TwoSides.ONE, flowUnit), crac.getLastInstant(), flowCnec, TwoSides.ONE, flowUnit)
+                            .addFlowMeasurement(finalFlowResult.getFlow(flowCnec, TwoSides.TWO, flowUnit), crac.getLastInstant(), flowCnec, TwoSides.TWO, flowUnit);
                     }
                 }
             )
@@ -853,7 +853,7 @@ public class Marmot implements TimeCoupledRaoProvider {
             for (State state : cracs.getData(timestamp).orElseThrow().getStates()) {
                 ComputationStatus computationStatus = globalFlowResult.getComputationStatus(state);
                 if (computationStatus != ComputationStatus.DEFAULT) {
-                    metadataBuilder.withComputationStatus(state, computationStatus);
+                    metadataBuilder.addComputationStatus(state, computationStatus);
                 }
             }
         }

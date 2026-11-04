@@ -169,7 +169,7 @@ public final class VoltageResult extends AbstractExtension<RaoResult> {
             results = new HashMap<>();
         }
 
-        public VoltageResult.VoltageResultBuilder withMeasurement(double minVoltage, double maxVoltage, Instant instant, VoltageCnec voltageCnec, Unit unit) {
+        public VoltageResult.VoltageResultBuilder addMeasurement(double minVoltage, double maxVoltage, Instant instant, VoltageCnec voltageCnec, Unit unit) {
             checkUnit(unit);
             results.computeIfAbsent(voltageCnec, VoltageCnecResult::new).addVoltageMeasurement(instant, minVoltage, maxVoltage);
             return this;

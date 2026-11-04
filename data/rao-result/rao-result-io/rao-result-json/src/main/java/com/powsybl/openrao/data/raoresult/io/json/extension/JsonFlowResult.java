@@ -214,18 +214,18 @@ public class JsonFlowResult implements RaoResultJsonUtils.ExtensionSerializer<Fl
             switch (jsonParser.currentName()) {
                 case "flow" -> {
                     jsonParser.nextToken();
-                    flowResultBuilder.withFlowMeasurement(jsonParser.getDoubleValue(), instant, flowCnec, side, unit);
+                    flowResultBuilder.addFlowMeasurement(jsonParser.getDoubleValue(), instant, flowCnec, side, unit);
                 }
                 case "commercialFlow" -> {
                     jsonParser.nextToken();
-                    flowResultBuilder.withCommercialFlowMeasurement(jsonParser.getDoubleValue(), instant, flowCnec, side, unit);
+                    flowResultBuilder.addCommercialFlowMeasurement(jsonParser.getDoubleValue(), instant, flowCnec, side, unit);
                 }
                 case "zonalPtdfSum" -> {
                     if (unit != Unit.MEGAWATT) {
                         throw new OpenRaoException("Zonal PTDF sum only defined for measurements in MW.");
                     }
                     jsonParser.nextToken();
-                    flowResultBuilder.withPtdfZonalSumMeasurement(jsonParser.getDoubleValue(), instant, flowCnec, side);
+                    flowResultBuilder.addPtdfZonalSumMeasurement(jsonParser.getDoubleValue(), instant, flowCnec, side);
                 }
                 default ->
                     throw new OpenRaoException("Unsupported flow value: %s.".formatted(jsonParser.currentName()));

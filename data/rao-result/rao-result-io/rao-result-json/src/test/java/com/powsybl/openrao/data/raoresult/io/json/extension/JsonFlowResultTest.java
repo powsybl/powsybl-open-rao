@@ -81,8 +81,8 @@ public class JsonFlowResultTest {
         @DisplayName("Serialize Cnec with only commercial flow or PTDF (no flows) produces flowCnec empty array")
         void testSerializeCnecWithoutFlows() throws IOException {
             when(crac.getSortedInstants()).thenReturn(List.of());
-            flowResultBuilder.withCommercialFlowMeasurement(100.0, null, flowCnec, TwoSides.ONE, Unit.MEGAWATT);
-            flowResultBuilder.withPtdfZonalSumMeasurement(0.5, null, flowCnec, TwoSides.ONE);
+            flowResultBuilder.addCommercialFlowMeasurement(100.0, null, flowCnec, TwoSides.ONE, Unit.MEGAWATT);
+            flowResultBuilder.addPtdfZonalSumMeasurement(0.5, null, flowCnec, TwoSides.ONE);
 
             String json = serializeToJson();
             assertEquals("[]", json);
@@ -92,7 +92,7 @@ public class JsonFlowResultTest {
         @DisplayName("Serialize initial instant with flow only (MW)")
         void testSerializeInitialFlowOnly() throws IOException {
             when(crac.getSortedInstants()).thenReturn(List.of());
-            flowResultBuilder.withFlowMeasurement(200.0, null, flowCnec, TwoSides.ONE, Unit.MEGAWATT);
+            flowResultBuilder.addFlowMeasurement(200.0, null, flowCnec, TwoSides.ONE, Unit.MEGAWATT);
 
             String expectedJson = "[{"
                 + "\"flowCnecId\":\"cnec1\","
@@ -109,9 +109,9 @@ public class JsonFlowResultTest {
         @DisplayName("Serialize initial instant with all MW fields: flow, commercial flow, loop flow, zonalPtdfSum")
         void testSerializeInitialAllMegawattFields() throws IOException {
             when(crac.getSortedInstants()).thenReturn(List.of());
-            flowResultBuilder.withFlowMeasurement(300.0, null, flowCnec, TwoSides.ONE, Unit.MEGAWATT);
-            flowResultBuilder.withCommercialFlowMeasurement(100.0, null, flowCnec, TwoSides.ONE, Unit.MEGAWATT);
-            flowResultBuilder.withPtdfZonalSumMeasurement(0.5, null, flowCnec, TwoSides.ONE);
+            flowResultBuilder.addFlowMeasurement(300.0, null, flowCnec, TwoSides.ONE, Unit.MEGAWATT);
+            flowResultBuilder.addCommercialFlowMeasurement(100.0, null, flowCnec, TwoSides.ONE, Unit.MEGAWATT);
+            flowResultBuilder.addPtdfZonalSumMeasurement(0.5, null, flowCnec, TwoSides.ONE);
 
             String expectedJson = "[{"
                 + "\"flowCnecId\":\"cnec1\","
@@ -132,9 +132,9 @@ public class JsonFlowResultTest {
         @DisplayName("Serialize AMPERE unit does not include zonalPtdfSum even if PTDF measurement is present")
         void testSerializeAmpereUnitDoesNotIncludeZonalPtdfSum() throws IOException {
             when(crac.getSortedInstants()).thenReturn(List.of());
-            flowResultBuilder.withFlowMeasurement(500.0, null, flowCnec, TwoSides.TWO, Unit.AMPERE);
-            flowResultBuilder.withCommercialFlowMeasurement(200.0, null, flowCnec, TwoSides.TWO, Unit.AMPERE);
-            flowResultBuilder.withPtdfZonalSumMeasurement(0.4, null, flowCnec, TwoSides.TWO);
+            flowResultBuilder.addFlowMeasurement(500.0, null, flowCnec, TwoSides.TWO, Unit.AMPERE);
+            flowResultBuilder.addCommercialFlowMeasurement(200.0, null, flowCnec, TwoSides.TWO, Unit.AMPERE);
+            flowResultBuilder.addPtdfZonalSumMeasurement(0.4, null, flowCnec, TwoSides.TWO);
 
             String expectedJson = "[{"
                 + "\"flowCnecId\":\"cnec1\","
@@ -154,8 +154,8 @@ public class JsonFlowResultTest {
         @DisplayName("Serialize with multiple sides (side1 and side2)")
         void testSerializeMultipleSides() throws IOException {
             when(crac.getSortedInstants()).thenReturn(List.of());
-            flowResultBuilder.withFlowMeasurement(200.0, null, flowCnec, TwoSides.ONE, Unit.MEGAWATT);
-            flowResultBuilder.withFlowMeasurement(250.0, null, flowCnec, TwoSides.TWO, Unit.MEGAWATT);
+            flowResultBuilder.addFlowMeasurement(200.0, null, flowCnec, TwoSides.ONE, Unit.MEGAWATT);
+            flowResultBuilder.addFlowMeasurement(250.0, null, flowCnec, TwoSides.TWO, Unit.MEGAWATT);
 
             String json = serializeToJson();
 
@@ -169,8 +169,8 @@ public class JsonFlowResultTest {
         @DisplayName("Serialize with multiple units (megawatt and ampere)")
         void testSerializeMultipleUnits() throws IOException {
             when(crac.getSortedInstants()).thenReturn(List.of());
-            flowResultBuilder.withFlowMeasurement(200.0, null, flowCnec, TwoSides.ONE, Unit.MEGAWATT);
-            flowResultBuilder.withFlowMeasurement(400.0, null, flowCnec, TwoSides.ONE, Unit.AMPERE);
+            flowResultBuilder.addFlowMeasurement(200.0, null, flowCnec, TwoSides.ONE, Unit.MEGAWATT);
+            flowResultBuilder.addFlowMeasurement(400.0, null, flowCnec, TwoSides.ONE, Unit.AMPERE);
 
             String json = serializeToJson();
             assertTrue(json.contains("\"megawatt\":{\"side1\":{\"flow\":200.0}}"));
@@ -194,8 +194,8 @@ public class JsonFlowResultTest {
             when(crac.getSortedInstants()).thenReturn(List.of());
 
             // Add cnecB first, then cnecA
-            flowResultBuilder.withFlowMeasurement(200.0, null, cnecB, TwoSides.ONE, Unit.MEGAWATT);
-            flowResultBuilder.withFlowMeasurement(100.0, null, cnecA, TwoSides.ONE, Unit.MEGAWATT);
+            flowResultBuilder.addFlowMeasurement(200.0, null, cnecB, TwoSides.ONE, Unit.MEGAWATT);
+            flowResultBuilder.addFlowMeasurement(100.0, null, cnecA, TwoSides.ONE, Unit.MEGAWATT);
 
             String expectedJson = "["
                 + "{\"flowCnecId\":\"cnec-a\",\"initial\":{\"megawatt\":{\"side1\":{\"flow\":100.0}}}},"
@@ -227,10 +227,10 @@ public class JsonFlowResultTest {
             when(flowCnec.getState()).thenReturn(state);
 
             // Add in reverse order: instant3, instant2, instant1, then null (initial)
-            flowResultBuilder.withFlowMeasurement(400.0, instant3, flowCnec, TwoSides.ONE, Unit.MEGAWATT);
-            flowResultBuilder.withFlowMeasurement(300.0, instant2, flowCnec, TwoSides.ONE, Unit.MEGAWATT);
-            flowResultBuilder.withFlowMeasurement(200.0, instant1, flowCnec, TwoSides.ONE, Unit.MEGAWATT);
-            flowResultBuilder.withFlowMeasurement(100.0, null, flowCnec, TwoSides.ONE, Unit.MEGAWATT);
+            flowResultBuilder.addFlowMeasurement(400.0, instant3, flowCnec, TwoSides.ONE, Unit.MEGAWATT);
+            flowResultBuilder.addFlowMeasurement(300.0, instant2, flowCnec, TwoSides.ONE, Unit.MEGAWATT);
+            flowResultBuilder.addFlowMeasurement(200.0, instant1, flowCnec, TwoSides.ONE, Unit.MEGAWATT);
+            flowResultBuilder.addFlowMeasurement(100.0, null, flowCnec, TwoSides.ONE, Unit.MEGAWATT);
 
             // instant3 is outage so it should not be serialized
             String expectedJson = "[{"
@@ -253,7 +253,7 @@ public class JsonFlowResultTest {
 
             when(crac.getSortedInstants()).thenReturn(List.of(preventiveInstant));
 
-            flowResultBuilder.withFlowMeasurement(300.0, preventiveInstant, flowCnec, TwoSides.ONE, Unit.MEGAWATT);
+            flowResultBuilder.addFlowMeasurement(300.0, preventiveInstant, flowCnec, TwoSides.ONE, Unit.MEGAWATT);
 
             // Initial has no flows, so only preventive instant appears
             String expectedJson = "[{"

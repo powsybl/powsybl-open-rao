@@ -71,13 +71,13 @@ class RaoResultImplTest {
         pstRangeActionResult.addActivationForState(crac.getPreventiveState(), -3.1); // tap = -8
 
         CostResult.CostResultBuilder costResultBuilder = CostResult.builder();
-        costResultBuilder.withFunctionalCostResult(null, 100.0);
-        costResultBuilder.withVirtualCostResult(null, "loopFlow", 0.0);
-        costResultBuilder.withVirtualCostResult(null, "MNEC", 0.0);
+        costResultBuilder.addFunctionalCostResult(null, 100.0);
+        costResultBuilder.addVirtualCostResult(null, "loopFlow", 0.0);
+        costResultBuilder.addVirtualCostResult(null, "MNEC", 0.0);
 
-        costResultBuilder.withFunctionalCostResult(crac.getInstant(CURATIVE_INSTANT_ID), -50.0);
-        costResultBuilder.withVirtualCostResult(crac.getInstant(CURATIVE_INSTANT_ID), "loopFlow", 10.0);
-        costResultBuilder.withVirtualCostResult(crac.getInstant(CURATIVE_INSTANT_ID), "MNEC", 2.0);
+        costResultBuilder.addFunctionalCostResult(crac.getInstant(CURATIVE_INSTANT_ID), -50.0);
+        costResultBuilder.addVirtualCostResult(crac.getInstant(CURATIVE_INSTANT_ID), "loopFlow", 10.0);
+        costResultBuilder.addVirtualCostResult(crac.getInstant(CURATIVE_INSTANT_ID), "MNEC", 2.0);
 
         raoResult.addExtension(CostResult.class, costResultBuilder.build());
     }

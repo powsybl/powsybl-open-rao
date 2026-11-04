@@ -172,7 +172,7 @@ class SweAdditionalConstraintSeriesCreatorTest {
         State preventiveState = Mockito.mock(State.class);
         Mockito.when(preventiveState.isPreventive()).thenReturn(true);
         metadata = Metadata.builder()
-            .withComputationStatus(preventiveState, ComputationStatus.FAILURE)
+            .addComputationStatus(preventiveState, ComputationStatus.FAILURE)
             .build();
         Mockito.when(raoResult.getExtension(Metadata.class)).thenReturn(metadata);
         setUpAngleCnecs(contingency);
@@ -218,10 +218,10 @@ class SweAdditionalConstraintSeriesCreatorTest {
         Mockito.when(mockCrac.getInstant(InstantKind.CURATIVE)).thenReturn(mockCurativeInstant);
 
         AngleResult.AngleResultBuilder raoResultAngleResultBuilder = AngleResult.builder();
-        raoResultAngleResultBuilder.withMeasurement(39.5, mockCurativeInstant, angleCnecWithMax, Unit.DEGREE)
-            .withMeasurement(35.0, mockCurativeInstant, angleCnecWithMin, Unit.DEGREE)
-            .withMeasurement(40.002, mockCurativeInstant, angleCnecWithMaxAndMin1, Unit.DEGREE)
-            .withMeasurement(38.99993, mockCurativeInstant, angleCnecWithMaxAndMin2, Unit.DEGREE);
+        raoResultAngleResultBuilder.addMeasurement(39.5, mockCurativeInstant, angleCnecWithMax, Unit.DEGREE)
+            .addMeasurement(35.0, mockCurativeInstant, angleCnecWithMin, Unit.DEGREE)
+            .addMeasurement(40.002, mockCurativeInstant, angleCnecWithMaxAndMin1, Unit.DEGREE)
+            .addMeasurement(38.99993, mockCurativeInstant, angleCnecWithMaxAndMin2, Unit.DEGREE);
         AngleResult raoResultAngleResult = raoResultAngleResultBuilder.build();
 
         // No violation -> 1 decimal

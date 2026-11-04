@@ -99,7 +99,7 @@ final class AngleCnecResultArrayDeserializer {
             }
         }
         if (!Double.isNaN(angle)) {
-            angleResultBuilder.withMeasurement(angle, optimizedInstant, angleCnec, Unit.DEGREE);
+            angleResultBuilder.addMeasurement(angle, optimizedInstant, angleCnec, Unit.DEGREE);
         }
     }
 }

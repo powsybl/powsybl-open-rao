@@ -45,7 +45,7 @@ final class CostResultMapDeserializer {
             switch (jsonParser.currentName()) {
                 case FUNCTIONAL_COST:
                     jsonParser.nextToken();
-                    costResultBuilder.withFunctionalCostResult(optimizedInstant, jsonParser.getDoubleValue());
+                    costResultBuilder.addFunctionalCostResult(optimizedInstant, jsonParser.getDoubleValue());
                     break;
 
                 case VIRTUAL_COSTS:
@@ -63,7 +63,7 @@ final class CostResultMapDeserializer {
         while (!jsonParser.nextToken().isStructEnd()) {
             String costName = jsonParser.currentName();
             jsonParser.nextToken();
-            costResultBuilder.withVirtualCostResult(optimizedInstant, costName, jsonParser.getDoubleValue());
+            costResultBuilder.addVirtualCostResult(optimizedInstant, costName, jsonParser.getDoubleValue());
         }
     }
 }

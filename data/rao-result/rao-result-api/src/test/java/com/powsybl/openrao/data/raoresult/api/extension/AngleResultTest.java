@@ -52,9 +52,9 @@ public class AngleResultTest {
 
         AngleResult.AngleResultBuilder angleResultBuilder = AngleResult.builder();
 
-        angleResultBuilder.withMeasurement(25.0, null, angleCnec, Unit.DEGREE)
-            .withMeasurement(17.0, preventiveInstant, angleCnec, Unit.DEGREE)
-            .withMeasurement(-5.0, curativeInstant, angleCnec, Unit.DEGREE);
+        angleResultBuilder.addMeasurement(25.0, null, angleCnec, Unit.DEGREE)
+            .addMeasurement(17.0, preventiveInstant, angleCnec, Unit.DEGREE)
+            .addMeasurement(-5.0, curativeInstant, angleCnec, Unit.DEGREE);
 
         AngleResult angleResult = angleResultBuilder.build();
 
@@ -69,7 +69,7 @@ public class AngleResultTest {
 
         // invalid unit
 
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> AngleResult.builder().withMeasurement(25.0, null, angleCnec, Unit.MEGAWATT));
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> AngleResult.builder().addMeasurement(25.0, null, angleCnec, Unit.MEGAWATT));
         assertEquals("AngleCNEC results are only allowed for degrees.", exception.getMessage());
     }
 }

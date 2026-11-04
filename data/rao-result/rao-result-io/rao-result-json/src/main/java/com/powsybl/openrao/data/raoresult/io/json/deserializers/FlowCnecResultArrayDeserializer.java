@@ -93,8 +93,8 @@ final class FlowCnecResultArrayDeserializer {
                     checkSideHandlingVersion(jsonFileVersion, ZONAL_PTDF_SUM);
                     // For older versions, suppose both sides are used
                     jsonParser.nextToken();
-                    flowResultBuilder.withPtdfZonalSumMeasurement(jsonParser.getDoubleValue(), optimizedInstant, flowCnec, TwoSides.ONE);
-                    flowResultBuilder.withPtdfZonalSumMeasurement(jsonParser.getDoubleValue(), optimizedInstant, flowCnec, TwoSides.TWO);
+                    flowResultBuilder.addPtdfZonalSumMeasurement(jsonParser.getDoubleValue(), optimizedInstant, flowCnec, TwoSides.ONE);
+                    flowResultBuilder.addPtdfZonalSumMeasurement(jsonParser.getDoubleValue(), optimizedInstant, flowCnec, TwoSides.TWO);
                     break;
                 default:
                     throw new OpenRaoException(String.format(UNEXPECTED_FIELD, FLOWCNEC_RESULTS, jsonParser.currentName()));
@@ -135,15 +135,15 @@ final class FlowCnecResultArrayDeserializer {
                     checkSideHandlingVersion(jsonFileVersion, FLOW);
                     // For older versions, suppose both sides are used
                     jsonParser.nextToken();
-                    flowResultBuilder.withFlowMeasurement(jsonParser.getDoubleValue(), optimizedInstant, flowCnec, TwoSides.ONE, unit);
-                    flowResultBuilder.withFlowMeasurement(jsonParser.getDoubleValue(), optimizedInstant, flowCnec, TwoSides.TWO, unit);
+                    flowResultBuilder.addFlowMeasurement(jsonParser.getDoubleValue(), optimizedInstant, flowCnec, TwoSides.ONE, unit);
+                    flowResultBuilder.addFlowMeasurement(jsonParser.getDoubleValue(), optimizedInstant, flowCnec, TwoSides.TWO, unit);
                     break;
                 case COMMERCIAL_FLOW:
                     checkSideHandlingVersion(jsonFileVersion, COMMERCIAL_FLOW);
                     // For older versions, suppose both sides are used
                     jsonParser.nextToken();
-                    flowResultBuilder.withCommercialFlowMeasurement(jsonParser.getDoubleValue(), optimizedInstant, flowCnec, TwoSides.ONE, unit);
-                    flowResultBuilder.withCommercialFlowMeasurement(jsonParser.getDoubleValue(), optimizedInstant, flowCnec, TwoSides.TWO, unit);
+                    flowResultBuilder.addCommercialFlowMeasurement(jsonParser.getDoubleValue(), optimizedInstant, flowCnec, TwoSides.ONE, unit);
+                    flowResultBuilder.addCommercialFlowMeasurement(jsonParser.getDoubleValue(), optimizedInstant, flowCnec, TwoSides.TWO, unit);
                     break;
                 case LOOP_FLOW:
                     checkSideHandlingVersion(jsonFileVersion, LOOP_FLOW);
@@ -169,11 +169,11 @@ final class FlowCnecResultArrayDeserializer {
             switch (jsonParser.currentName()) {
                 case FLOW:
                     jsonParser.nextToken();
-                    flowResultBuilder.withFlowMeasurement(jsonParser.getDoubleValue(), optimizedInstant, flowCnec, side, unit);
+                    flowResultBuilder.addFlowMeasurement(jsonParser.getDoubleValue(), optimizedInstant, flowCnec, side, unit);
                     break;
                 case COMMERCIAL_FLOW:
                     jsonParser.nextToken();
-                    flowResultBuilder.withCommercialFlowMeasurement(jsonParser.getDoubleValue(), optimizedInstant, flowCnec, side, unit);
+                    flowResultBuilder.addCommercialFlowMeasurement(jsonParser.getDoubleValue(), optimizedInstant, flowCnec, side, unit);
                     break;
                 case LOOP_FLOW:
                     jsonParser.nextToken();
@@ -183,7 +183,7 @@ final class FlowCnecResultArrayDeserializer {
                     if (!unit.equals(Unit.MEGAWATT)) {
                         throw new OpenRaoException(String.format("%s can only be defined in the MEGAWATT section", ZONAL_PTDF_SUM));
                     }
-                    flowResultBuilder.withPtdfZonalSumMeasurement(jsonParser.getDoubleValue(), optimizedInstant, flowCnec, side);
+                    flowResultBuilder.addPtdfZonalSumMeasurement(jsonParser.getDoubleValue(), optimizedInstant, flowCnec, side);
                     break;
                 default:
                     throw new OpenRaoException(String.format(UNEXPECTED_FIELD, FLOWCNEC_RESULTS, jsonParser.currentName()));

@@ -144,7 +144,7 @@ public class JsonVoltageResult implements RaoResultJsonUtils.ExtensionSerializer
                     }
                 }
                 if (minVoltage != null && maxVoltage != null) {
-                    voltageResultBuilder.withMeasurement(minVoltage, maxVoltage, instant, voltageCnec, Unit.KILOVOLT);
+                    voltageResultBuilder.addMeasurement(minVoltage, maxVoltage, instant, voltageCnec, Unit.KILOVOLT);
                 } else {
                     throw new OpenRaoException("Missing min or max voltage for VoltageCNEC %s at instant %s.".formatted(voltageCnec.getId(), instant == null ? "initial" : instant.getId()));
                 }

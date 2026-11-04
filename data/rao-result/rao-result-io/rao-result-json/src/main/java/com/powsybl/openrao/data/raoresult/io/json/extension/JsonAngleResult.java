@@ -124,7 +124,7 @@ public class JsonAngleResult implements RaoResultJsonUtils.ExtensionSerializer<A
                 while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
                     if ("angle".equals(jsonParser.currentName())) {
                         jsonParser.nextToken();
-                        angleResultBuilder.withMeasurement(jsonParser.getDoubleValue(), instant, angleCnec, Unit.DEGREE);
+                        angleResultBuilder.addMeasurement(jsonParser.getDoubleValue(), instant, angleCnec, Unit.DEGREE);
                     } else {
                         throw new OpenRaoException("Unexpected token: " + jsonParser.getCurrentToken());
                     }

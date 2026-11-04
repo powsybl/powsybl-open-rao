@@ -443,7 +443,7 @@ public final class RaoResultHelper {
             ComputationStatus computationStatus = getAppropriateResult(state, postPreventiveResults, postMergingContingencyResults)
                 .getComputationStatus(state);
             if (computationStatus != ComputationStatus.DEFAULT) {
-                metadataBuilder.withComputationStatus(state, computationStatus);
+                metadataBuilder.addComputationStatus(state, computationStatus);
             }
         }
         raoResult.addExtension(Metadata.class, metadataBuilder.build());

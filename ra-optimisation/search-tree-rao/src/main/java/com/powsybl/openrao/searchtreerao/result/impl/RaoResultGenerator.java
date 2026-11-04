@@ -137,7 +137,7 @@ public final class RaoResultGenerator {
             .stream()
             .filter(postContingencyResults::containsKey)
             .filter(state -> postContingencyResults.get(state).prePerimeterResultForAllFollowingStates().getComputationStatus(state) != ComputationStatus.DEFAULT)
-            .forEach(state -> metadataBuilder.withComputationStatus(state, postContingencyResults.get(state).prePerimeterResultForAllFollowingStates().getComputationStatus(state)));
+            .forEach(state -> metadataBuilder.addComputationStatus(state, postContingencyResults.get(state).prePerimeterResultForAllFollowingStates().getComputationStatus(state)));
         raoResult.addExtension(Metadata.class, metadataBuilder.build());
         return raoResult;
     }
