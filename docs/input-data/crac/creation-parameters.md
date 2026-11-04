@@ -1,10 +1,10 @@
 # CRAC creation parameters
 
 ## Introduction
-Native CRAC formats do not always hold all the information needed in order to conduct a precise remedial action optimisation.  
+Native CRAC formats do not always hold all the information needed in order to conduct a precise remedial action optimization.  
 For instance, when monitoring current flows (vs their limits) on lines, one can wonder if they shall monitor 
 the current on both sides of the line, on the left side only, or on the right side only.  
-In DC convention, it doesn't matter: it is enough for the RAO to monitor the left side, allowing it to have a smaller optimisation problem.  
+In DC convention, it doesn't matter: it is enough for the RAO to monitor the left side, allowing it to have a smaller optimization problem.  
 In AC convention, it is generally preferred to monitor both sides, as flows on both sides can be different because of losses.  
   
 In OpenRAO's [internal CRAC format](json.md), it is possible to define which side(s) to monitor, and this is needed in the RAO.  
@@ -41,8 +41,8 @@ OpenRAO's [Crac](https://github.com/powsybl/powsybl-open-rao/blob/main/data/crac
 object is actually just an interface, with a default implementation in [CracImpl](https://github.com/powsybl/powsybl-open-rao/tree/main/data/crac/crac-impl/src/main/java/com/powsybl/openrao/data/crac/impl).  
 As a OpenRAO toolbox user, you are allowed to define your own custom Crac implementation. This implementation shall be instanced using a [CracFactory](https://github.com/powsybl/powsybl-open-rao/blob/main/data/crac/crac-api/src/main/java/com/powsybl/openrao/data/crac/api/CracFactory.java).  
 OpenRAO's default implementation is [CracImplFactory](https://github.com/powsybl/powsybl-open-rao/blob/main/data/crac/crac-impl/src/main/java/com/powsybl/openrao/data/crac/impl/CracImplFactory.java).  
-Parameter "crac-factory" allows the user to define which CracFactory implementation (thus which Crac implementation) to 
-use. If you do not have a custom implementation (which should be the case of most users), set it to "CracImplFactory".  
+Parameter `crac-factory` allows the user to define which CracFactory implementation (thus which Crac implementation) to 
+use. If you do not have a custom implementation (which should be the case of most users), set it to `CracImplFactory`.  
 
 ### default-monitored-line-side
 
@@ -51,13 +51,13 @@ convention), when optimizing line's flow margin.
 Note that this parameter is ignored when the line side to monitor is defined by the native CRAC itself (e.g. when a 
 cross-border tie-line is monitored by one TSO only, then the RAO will automatically detect on which side this TSO is).  
 Possible values for this parameter are:  
-- **monitor-lines-on-side-one** to monitor lines on side one only (typically to be used in DC-loadflow mode)
-- **monitor-lines-on-side-two** to monitor lines on side two only (alternatively in DC-loadflow mode)
-- **monitor-lines-on-both-sides** to monitor lines on both sides; the flow limits defined in the native CRAC file will then 
-apply to both sides (typically to be used in AC-loadflow mode)
+- `monitor-lines-on-side-one` to monitor lines on side one only (typically to be used in DC load flow mode)
+- `monitor-lines-on-side-two` to monitor lines on side two only (alternatively in DC load flow mode)
+- `monitor-lines-on-both-sides` to monitor lines on both sides; the flow limits defined in the native CRAC file will then 
+apply to both sides (typically to be used in AC load flow mode)
   
 > 💡  **NOTE**  
-> If you don't know which option to choose, it is safest to go with **monitor-lines-on-both-sides**
+> If you don't know which option to choose, it is safest to go with `monitor-lines-on-both-sides`
 
 ### ra-usage-limits-per-instant
 This parameter limits the usage of remedial actions for given instants.  
@@ -65,29 +65,29 @@ The instant ID must match an ID of an instant in the CRAC.
 If the given instant contains multiple states (possible for auto and curative instant), the given limits are applied independently on each state.  
 The RAs usage limits contain the following fields :
 
- - **max-ra :**
+ - `max-ra` :
     - _Expected value:_ integer
     - _Default value:_ null
     - _Usage:_ It defines the maximum number of remedial actions allowed for the given instant. The RAO will prioritize remedial actions that have the best impact on the minimum margin.
 
-  - **max-ra-per-tso :**
+  - `max-ra-per-tso` :
     - _Expected value:_ a map with string keys and integer values. The keys should be the same as the RAs’ operators as written in the CRAC file
     - _Default value:_ empty map
     - _Usage:_ It defines the maximum number of remedial actions allowed for each TSO, for the given instant.
     The TSOs should be identified using the same IDs as in the CRAC. If a TSO is not listed in this map, then the number of its allowed RAs is supposed infinite.
 
-  - **max-topo-per-tso :**  
-    Exactly the same as **max-ra-per-tso** but it only concerns topological RAs
+  - `max-topo-per-tso` :  
+    Exactly the same as `max-ra-per-tso` but it only concerns topological RAs
 
-  - **max-pst-per-tso :**  
-    Exactly the same as **max-ra-per-tso** but it only concerns PST RAs
+  - `max-pst-per-tso` :  
+    Exactly the same as `max-ra-per-tso` but it only concerns PST RAs
 
-  - **max-elementary-actions-per-tso :**  
+  - `max-elementary-actions-per-tso` :  
     - _Expected value:_ a map with string keys and integer values. The keys should be RAs’ operators as written in the CRAC file
     - _Default value:_ empty map
     - _Usage:_ It defines the maximum number of elementary actions allowed for each TSO, for the given instant. For PST range actions, moving one tap is considered to be an elementary action.
     The TSOs should be identified using the same IDs as in the CRAC. If a TSO is not listed in this map, then the number of its allowed RAs is supposed infinite.
-    _⚠️ This usage limit is only applicable if PSTs are approximated as integer taps (see [APPROXIMATED_INTEGERS](../../parameters/implementation-specific-parameters.md#pst-modell))._
+    _⚠️ This usage limit is only applicable if PSTs are approximated as integer taps (see [APPROXIMATED_INTEGERS](../../parameters/implementation-specific-parameters.md#pst-model))._
 
 ### complete example
 ::::{tabs}
@@ -127,7 +127,7 @@ extension to the CracCreationParameters object in order to define them.
 
 The CSE native CRAC format does not allow defining [aligned range actions](json.md#range-actions). This extra parameter 
 allows the user to do just that.  
-To use it, you have to define a list of strings containing the IDs of range actions that have to be aligned seperated by a 
+To use it, you have to define a list of strings containing the IDs of range actions that have to be aligned separated by a 
 " + " sign; for example "range-action-1-id + range-action-17-id" and "range-action-8-id + range-action-9-id".  
 See [example below](#full-cse-example) for a better illustration.
 
@@ -215,15 +215,15 @@ Some processes require the RAO to split the CIM CRAC into multiple smaller CRACs
 borders separately. For example, the SWE CC process requires the RAO to be split into one France-Spain RAO and one 
 Spain-Portugal RAO. This is possible thanks to the CIM CRAC's TimeSeries tags, that can allocate crac objects to one of 
 the two borders.  
-The "timeseries-mrids" parameters allows the user to set which timeseries should be read from the CIM CRAC file, in order 
-to define the CNECs and remedial actions of the border-specific RAO. TimeSeries are identified by their "mRID" value.  
+The `timeseries-mrids` parameter allows the user to set which timeseries should be read from the CIM CRAC file, in order 
+to define the CNECs and remedial actions of the border-specific RAO. TimeSeries are identified by their `mRID` value.
 See [example below](#full-cim-example) for a better illustration.
 
 ### range-action-groups (CIM)
 
 Like the CSE native CRAC format, the CIM format does not allow defining [aligned range actions](json.md#range-actions). 
 This extra parameter allows the user to do just that.  
-To use it, you have to define a list of strings containing the IDs of range actions that have to be aligned seperated by a
+To use it, you have to define a list of strings containing the IDs of range actions that have to be aligned separated by a
 " + " sign; for example "range-action-1-id + range-action-17-id" and "range-action-8-id + range-action-9-id".  
 See [example below](#full-cim-example) for a better illustration.
 
@@ -254,7 +254,7 @@ See [example below](#full-cim-example) for a better illustration.
 
 This parameter allows the user to define the timestamp for which to create the CRAC.
 
-In the json file, the timestamp has to be defined using the ISO 8601 standard ex. " 2019-01-08T12:00+02:00"
+In the JSON file, the timestamp has to be defined using the ISO 8601 standard ex. " 2019-01-08T12:00+02:00"
 
 ### Full CIM example
 
@@ -395,7 +395,7 @@ In the NC profiles, the [AssessedElements](nc.md#cnecs) objects can be declared 
 
 ### curative-instants
 
-Because of the multiple curative instants used in NC, the definition of the instant of a FlowCNEC is [quite complex](nc.md#tatl-to-flowcnec-instant-association) and each curative instant must be linked to an application time for the importer to know which instant must be associated to a given TATL (or PATL).
+Because of the multiple curative instants used in NC, the definition of the instant of a flow CNEC is [quite complex](nc.md#tatl-to-flowcnec-instant-association) and each curative instant must be linked to an application time for the importer to know which instant must be associated to a given TATL (or PATL).
 
 ### tsos-which-do-not-use-patl-in-final-state
 
@@ -403,7 +403,7 @@ Usually, the PATL is used as the operational limit for the final state (i.e. aft
 
 ### borders
 
-This field is used to define the EI Code associated to each border so that the importer can properly assign FlowCNECs to region borders.
+This field is used to define the EI Code associated to each border so that the importer can properly assign flow CNECs to region borders.
 
 ### Full NC example
 
@@ -487,7 +487,7 @@ The user can define a [FbConstraintCracCreationParameters](https://github.com/po
 
 This parameter allows the user to define the timestamp for which to create the CRAC.
 
-In the json file, the timestamp has to be defined using the ISO 8601 standard ex. " 2019-01-08T12:00+02:00".
+In the JSON file, the timestamp has to be defined using the ISO 8601 standard ex. " 2019-01-08T12:00+02:00".
 
 ### internal-hvdcs
 

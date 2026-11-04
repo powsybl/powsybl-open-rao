@@ -30,8 +30,8 @@ public class AngleCnecSerializer<I extends AngleCnec> extends AbstractJsonSerial
         gen.writeStartObject();
         gen.writeStringField(JsonSerializationConstants.ID, angleCnec.getId());
         gen.writeStringField(JsonSerializationConstants.NAME, angleCnec.getName());
-        gen.writeStringField(JsonSerializationConstants.EXPORTING_NETWORK_ELEMENT_ID, angleCnec.getExportingNetworkElement().getId());
-        gen.writeStringField(JsonSerializationConstants.IMPORTING_NETWORK_ELEMENT_ID, angleCnec.getImportingNetworkElement().getId());
+        gen.writeStringField(JsonSerializationConstants.EXPORTING_NETWORK_ELEMENT_ID, angleCnec.getExportingNetworkElementId());
+        gen.writeStringField(JsonSerializationConstants.IMPORTING_NETWORK_ELEMENT_ID, angleCnec.getImportingNetworkElementId());
         gen.writeStringField(JsonSerializationConstants.OPERATOR, angleCnec.getOperator());
         gen.writeStringField(JsonSerializationConstants.BORDER, angleCnec.getBorder());
         gen.writeStringField(JsonSerializationConstants.INSTANT, angleCnec.getState().getInstant().getId());

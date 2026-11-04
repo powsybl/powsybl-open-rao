@@ -10,6 +10,7 @@ package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblem;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.OpenRaoMPConstraint;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
@@ -28,15 +29,26 @@ public class DiscretePstGroupFiller implements ProblemFiller {
     private final State optimizedState;
     private final Map<State, Set<PstRangeAction>> pstRangeActions;
     private int iteration = 0;
+    private final SearchTreeRaoRangeActionsOptimizationParameters.PstModel pstModel;
 
-    public DiscretePstGroupFiller(State optimizedState, Map<State, Set<PstRangeAction>> pstRangeActions) {
+    public DiscretePstGroupFiller(State optimizedState, Map<State, Set<PstRangeAction>> pstRangeActions, SearchTreeRaoRangeActionsOptimizationParameters.PstModel pstModel) {
         this.pstRangeActions = pstRangeActions;
         this.optimizedState = optimizedState;
+        this.pstModel = pstModel;
     }
 
     @Override
     public void fill(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult, RangeActionActivationResult rangeActionActivationResult) {
-        iteration = 0;
+        switch (pstModel) {
+            case APPROXIMATED_INTEGERS -> {
+                iteration++;
+                pstRangeActions.forEach((state, rangeActionSet) ->
+                    rangeActionSet.forEach(rangeAction -> buildRangeActionGroupConstraint(linearProblem, rangeAction, state, rangeActionActivationResult)
+                ));
+            }
+            case HYBRID -> iteration = 0;
+            default -> throw new IllegalStateException("Unexpected value: " + pstModel);
+        }
     }
 
     @Override

@@ -11,6 +11,9 @@ import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import org.junit.jupiter.api.Test;
 
+import java.util.Set;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -45,5 +48,18 @@ class CountryGraphTest {
 
         // negative max number of boundaries
         assertFalse(graph.areNeighbors(Country.FR, Country.BE, -10));
+    }
+
+    @Test
+    void testGetNeighbors() {
+        // borders in the network: FR-DE, DE-NL, NL-BE and BE-FR
+        Network network = Network.read("TestCase12Nodes.uct", getClass().getResourceAsStream("/TestCase12Nodes.uct"));
+        CountryGraph graph = new CountryGraph(network);
+
+        // the country is a neighbor on the left or on the right side of the boundaries
+        assertEquals(Set.of(Country.BE, Country.DE), graph.getNeighbors(Country.FR));
+        assertEquals(Set.of(Country.BE, Country.DE), graph.getNeighbors(Country.NL));
+        // a country absent from the network has no neighbor
+        assertTrue(graph.getNeighbors(Country.ES).isEmpty());
     }
 }

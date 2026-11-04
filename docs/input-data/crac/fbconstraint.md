@@ -97,7 +97,7 @@ Permanent thresholds:
   of Imax as a limit – Imax being defined for each line in the UCTE network file.
 - &lt;permanentImaxA&gt; and &lt;permanentImaxFactor&gt; : same definition of absolute and relative limits as defined previously.  
   
-Both tags can be present, they will be added, the most limiting will be the effective one during the optimisation.  
+Both tags can be present, they will be added, the most limiting will be the effective one during the optimization.  
 
 Temporary thresholds:  
 - &lt;temporaryImaxA&gt; and &lt;temporaryImaxFactor&gt; : same definitions  
@@ -110,10 +110,10 @@ and positive values.
 
 ### Additional values
 
-- An FRM value in specified for each CNEC, its value is in MW. Then the effective threshold value for the optimiser will 
+- An FRM value is specified for each CNEC, its value is in MW. Then the effective threshold value for the optimizer will 
   be the one of the threshold diminished by the FRM value. Several conversions might take place whether we want the 
   threshold in A or in MW.
-- A critical branch can be either a CNEC (optimised) or a MNEC (monitored) or actually both of these. For those that are 
+- A critical branch can be either a CNEC (optimized) or a MNEC (monitored) or actually both of these. For those that are 
   neither a CNEC nor a MNEC they will be ignored.
 - TSO origin for the critical branch is also specified. As tie-lines are usually defined in two parts in the CRAC there 
   will always be only one TSO implied per CNEC.

@@ -18,7 +18,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -52,8 +51,8 @@ class SwitchActionAdderImplTest {
         assertTrue(switchAction.isOpen());
 
         // check that network element has been added in CracImpl
-        assertEquals(1, ((CracImpl) crac).getNetworkElements().size());
-        assertNotNull(((CracImpl) crac).getNetworkElement("branchNetworkElementId"));
+        assertEquals(1, ((CracImpl) crac).getNetworkElementIds().size());
+        assertTrue(((CracImpl) crac).hasNetworkElement("branchNetworkElementId"));
     }
 
     @Test

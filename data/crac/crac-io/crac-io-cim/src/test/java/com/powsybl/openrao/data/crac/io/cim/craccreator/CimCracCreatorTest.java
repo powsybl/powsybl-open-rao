@@ -22,7 +22,6 @@ import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.InstantKind;
-import com.powsybl.openrao.data.crac.api.NetworkElement;
 import com.powsybl.openrao.data.crac.api.RaUsageLimits;
 import com.powsybl.openrao.data.crac.api.RemedialAction;
 import com.powsybl.openrao.data.crac.api.cnec.AngleCnec;
@@ -266,8 +265,8 @@ class CimCracCreatorTest {
         assertTrue(angleCnecCreationContext.isImported());
         assertNotNull(importedCrac.getAngleCnec(id));
         Set<String> importedAngleCnecNetworkElements = new HashSet<>();
-        importedAngleCnecNetworkElements.add(importedCrac.getAngleCnec(id).getImportingNetworkElement().toString());
-        importedAngleCnecNetworkElements.add(importedCrac.getAngleCnec(id).getExportingNetworkElement().toString());
+        importedAngleCnecNetworkElements.add(importedCrac.getAngleCnec(id).getImportingNetworkElementId());
+        importedAngleCnecNetworkElements.add(importedCrac.getAngleCnec(id).getExportingNetworkElementId());
         assertEquals(networkElementIds, importedAngleCnecNetworkElements);
         assertEquals(contingencyId, angleCnecCreationContext.getContingencyId());
         assertEquals(1, importedCrac.getAngleCnec(id).getThresholds().size());
@@ -302,7 +301,7 @@ class CimCracCreatorTest {
         assertTrue(remedialActionSeriesCreationContext.isImported());
         assertEquals(isAltered, remedialActionSeriesCreationContext.isAltered());
         assertNotNull(importedCrac.getPstRangeAction(id));
-        String actualNetworkElement = importedCrac.getPstRangeAction(id).getNetworkElement().toString();
+        String actualNetworkElement = importedCrac.getPstRangeAction(id).getNetworkElementId();
         assertEquals(networkElement, actualNetworkElement);
     }
 
@@ -313,7 +312,7 @@ class CimCracCreatorTest {
         assertTrue(remedialActionSeriesCreationContext.isImported());
         expectedCreatedIds.forEach(createdId -> assertNotNull(importedCrac.getHvdcRangeAction(createdId)));
         Set<String> actualNetworkElements = new HashSet<>();
-        expectedCreatedIds.forEach(createdId -> actualNetworkElements.add(importedCrac.getHvdcRangeAction(createdId).getNetworkElement().toString()));
+        expectedCreatedIds.forEach(createdId -> actualNetworkElements.add(importedCrac.getHvdcRangeAction(createdId).getNetworkElementId()));
         assertEquals(actualNetworkElements, expectedNetworkElements);
         Set<String> actualOperators = new HashSet<>();
         expectedCreatedIds.forEach(createdId -> actualOperators.add(importedCrac.getHvdcRangeAction(createdId).getOperator()));
@@ -327,9 +326,7 @@ class CimCracCreatorTest {
         assertTrue(remedialActionSeriesCreationContext.isImported());
         assertEquals(isAltered, remedialActionSeriesCreationContext.isAltered());
         assertNotNull(importedCrac.getNetworkAction(id));
-        Set<String> actualNetworkElements = importedCrac.getNetworkAction(id).getNetworkElements().stream()
-            .map(NetworkElement::getId)
-            .collect(Collectors.toSet());
+        Set<String> actualNetworkElements = importedCrac.getNetworkAction(id).getNetworkElementsIds();
         assertEquals(networkElements, actualNetworkElements);
     }
 
@@ -1138,7 +1135,7 @@ class CimCracCreatorTest {
         assertNotNull(flowCnec);
         FlowCnec duplicate = importedCrac.getFlowCnec(flowCnec.getId() + " - OUTAGE DUPLICATE");
         assertNotNull(duplicate);
-        assertEquals(flowCnec.getNetworkElement().getId(), duplicate.getNetworkElement().getId());
+        assertEquals(flowCnec.getNetworkElementId(), duplicate.getNetworkElementId());
         assertEquals(flowCnec.getState().getContingency(), duplicate.getState().getContingency());
         assertEquals(InstantKind.OUTAGE, duplicate.getState().getInstant().getKind());
         assertEquals(flowCnec.isOptimized(), duplicate.isOptimized());

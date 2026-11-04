@@ -41,7 +41,7 @@ the timestamps, and not some time in between two timestamps.
 | Time gap           | $\Delta_{\tau}$             | Time gap between two consecutive timestamps. It is assumed constant for all pairs of consecutive timestamps. It is computed based on  $\mathcal{T}$ |
 
 > In the following we define as _grid state_ a network situation for a given instant after a given contingency or the
-> basecase.
+> base case.
 
 #### Constant input data
 

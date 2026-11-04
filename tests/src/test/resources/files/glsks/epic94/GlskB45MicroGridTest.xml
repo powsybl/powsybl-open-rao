@@ -33,7 +33,7 @@
 					<measurement_Unit.name>MAW</measurement_Unit.name>
 					<attributeInstanceComponent.position>2</attributeInstanceComponent.position>
 					<RegisteredResource>
-						<mRID codingScheme="A02">_550ebe0d-f2b2-48c1-991f-cebea43a21aa</mRID>
+						<mRID codingScheme="A02">550ebe0d-f2b2-48c1-991f-cebea43a21aa</mRID>
 						<name>FFR2AA1 _generator</name>
 						<resourceCapacity.maximumCapacity>2002</resourceCapacity.maximumCapacity>
 						<resourceCapacity.minimumCapacity>-402</resourceCapacity.minimumCapacity>
@@ -61,7 +61,7 @@
 					<measurement_Unit.name>MAW</measurement_Unit.name>
 					<attributeInstanceComponent.position>1</attributeInstanceComponent.position>
 					<RegisteredResource>
-						<mRID codingScheme="A02">_9c3b8f97-7972-477d-9dc8-87365cc0ad0e</mRID>
+						<mRID codingScheme="A02">9c3b8f97-7972-477d-9dc8-87365cc0ad0e</mRID>
 						<name>FFR1AA1 _generator</name>
 						<resourceCapacity.maximumCapacity>2001</resourceCapacity.maximumCapacity>
 						<resourceCapacity.minimumCapacity>-401</resourceCapacity.minimumCapacity>

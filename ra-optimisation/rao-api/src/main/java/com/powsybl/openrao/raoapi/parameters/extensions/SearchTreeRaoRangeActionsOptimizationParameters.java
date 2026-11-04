@@ -51,7 +51,8 @@ public class SearchTreeRaoRangeActionsOptimizationParameters {
 
     public enum PstModel {
         CONTINUOUS,
-        APPROXIMATED_INTEGERS
+        APPROXIMATED_INTEGERS,
+        HYBRID
     }
 
     public enum RaRangeShrinking {

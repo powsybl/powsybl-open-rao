@@ -57,8 +57,8 @@ public class CneExportSteps {
         }
 
         exportedCne = CneHelper.exportSweCne(CommonTestData.getCracCreationContext(), CommonTestData.getRaoResult());
-        // The following crashes when running cucumber tests from jar-with-dependencies,
-        // maybe because "urn-entsoe-eu-local-extension-types.xsd" is missing in the jar.
+        // No validation here: the SWE export was observed to crash in some environments
+        // ("urn-entsoe-eu-local-extension-types.xsd" missing on the classpath).
         // We don't really need to fix this (will be moved to gridcapa)
         // + there are some unit tests in farao-core
     }

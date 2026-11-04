@@ -853,6 +853,7 @@ public class RaoSteps {
 
     private Pair<FlowCnec, Double> getWorstCnec(Unit unit, boolean relative) {
         Set<FlowCnec> flowCnecs = crac.getFlowCnecs().stream().filter(Cnec::isOptimized).collect(Collectors.toSet());
+        // QUESTION: what about TSOs not sharing CRAs for which curative CNECs should not be optimized?
         double worstMargin = Double.MAX_VALUE;
         Set<FlowCnec> worstCnecs = new HashSet<>();
         double margin;

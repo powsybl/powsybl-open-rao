@@ -14,7 +14,6 @@ import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.CracFactory;
 import com.powsybl.openrao.data.crac.api.Instant;
-import com.powsybl.openrao.data.crac.api.NetworkElement;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.HvdcRangeAction;
@@ -84,7 +83,7 @@ class IteratingLinearOptimizerTest {
     public void setUp() {
         rangeAction = Mockito.mock(RangeAction.class);
         when(rangeAction.getId()).thenReturn("ra");
-        when(rangeAction.getNetworkElements()).thenReturn(Set.of(Mockito.mock(NetworkElement.class)));
+        when(rangeAction.getNetworkElementsIds()).thenReturn(Set.of("ne"));
         optimizedState = Mockito.mock(State.class);
         Instant preventiveInstant = Mockito.mock(Instant.class);
         when(optimizedState.getInstant()).thenReturn(preventiveInstant);
@@ -360,10 +359,8 @@ class IteratingLinearOptimizerTest {
     @Test
     void updateWithHvdcRangeActionIfNecessaryAddsHvdcRangeActionWhenAcEmulationDeactivationWasApplied() throws Exception {
         HvdcRangeAction hvdcRangeAction = Mockito.mock(HvdcRangeAction.class);
-        NetworkElement hvdcLine = Mockito.mock(NetworkElement.class);
-        when(hvdcLine.getId()).thenReturn("hvdc-line");
-        when(hvdcRangeAction.getNetworkElement()).thenReturn(hvdcLine);
-        when(hvdcRangeAction.getNetworkElements()).thenReturn(Set.of(hvdcLine));
+        when(hvdcRangeAction.getNetworkElementId()).thenReturn("hvdc-line");
+        when(hvdcRangeAction.getNetworkElementsIds()).thenReturn(Set.of("hvdc-line"));
         when(hvdcRangeAction.getInitialSetpoint()).thenReturn(823.0);
         when(hvdcRangeAction.getCurrentSetpoint(network)).thenReturn(796.0);
 
@@ -373,7 +370,7 @@ class IteratingLinearOptimizerTest {
         HvdcAction elementaryHvdcAction = Mockito.mock(HvdcAction.class);
         NetworkAction acEmulationDeactivationAction = Mockito.mock(NetworkAction.class);
         when(acEmulationDeactivationAction.getElementaryActions()).thenReturn(Set.of(elementaryHvdcAction));
-        when(acEmulationDeactivationAction.getNetworkElements()).thenReturn(Set.of(hvdcLine));
+        when(acEmulationDeactivationAction.getNetworkElementsIds()).thenReturn(Set.of("hvdc-line"));
         when(elementaryHvdcAction.isAcEmulationEnabled()).thenReturn(Optional.of(false));
 
         NetworkActionsResult networkActionsResult = Mockito.mock(NetworkActionsResult.class);

@@ -71,6 +71,12 @@ class PstRangeActionImplTest {
     }
 
     @Test
+    void testGetNetworkElementsIds() {
+        PstRangeAction pstRa = pstRangeActionAdder.add();
+        assertEquals(Set.of(networkElementId), pstRa.getNetworkElementsIds());
+    }
+
+    @Test
     void apply() {
         PstRangeAction pstRa = pstRangeActionAdder.add();
         assertEquals(0, network.getTwoWindingsTransformer(networkElementId).getPhaseTapChanger().getTapPosition());

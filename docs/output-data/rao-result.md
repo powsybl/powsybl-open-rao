@@ -2,9 +2,9 @@
 
 ## Introduction
 
-A **R**emedial **A**ction **O**ptimisation process provides an optimal list of remedial actions to be applied in basecase and after contingencies listed in the [CRAC](../input-data/crac.md). The decisions are based upon the impact of these remedial actions on the CRAC's [CNECs](../input-data/crac.md#cnec).
+A **R**emedial **A**ction **O**ptimization process provides an optimal list of remedial actions to be applied in base case and after contingencies listed in the [CRAC](../input-data/crac.md). The decisions are based upon the impact of these remedial actions on the CRAC's [CNECs](../input-data/crac.md#cnec).
 
-A **RaoResult object model** has been designed in OpenRAO in order to hold all the important results of optimisation.
+A **RaoResult object model** has been designed in OpenRAO in order to hold all the important results of optimization.
 In this page, we present:
 - where to find the RaoResult instance,
 - how to save a RaoResult java object to a JSON file,
@@ -14,7 +14,7 @@ In this page, we present:
 ## Accessing the RAO result
 
 The [RaoResult](https://github.com/powsybl/powsybl-open-rao/blob/main/data/rao-result/rao-result-api/src/main/java/com/powsybl/openrao/data/raoresult/api/RaoResult.java) java object is actually an interface that is implemented by many OpenRAO classes. However, one only needs to use the interface's functions.
-A RaoResult object is returned by OpenRAO's main optimisation method:
+A RaoResult object is returned by OpenRAO's main optimization method:
 
 ~~~java
 CompletableFuture<RaoResult> RaoProvider::run(RaoInput raoInput, RaoParameters parameters, Instant targetEndInstant)
@@ -59,11 +59,11 @@ Where:
 
 ## Contents of the RAO result
 
-The RAO result object generally contains information about post-optimisation results.  
+The RAO result object generally contains information about post-optimization results.  
 However, in some cases, it may be interesting to get some information about the initial state (e.g. power flows before 
-optimisation), or about the situation after preventive optimisation (e.g. optimal PST tap positions in preventive). 
+optimization), or about the situation after preventive optimization (e.g. optimal PST tap positions in preventive). 
 This is why **most of the information in the RAO results are stored by optimized instant**:  
-- **INITIAL** (json) or **null** (Java API): values before remedial action optimisation (initial state)
+- **INITIAL** (JSON) or **null** (Java API): values before remedial action optimization (initial state)
 - Instant of kind **PREVENTIVE** or **OUTAGE**: values after optimizing preventive instant, i.e. after applying optimal preventive remedial actions
 - Instant of kind **AUTO**: values after simulating auto instant, i.e. after applying automatic remedial actions
 - Instant of kind **CURATIVE**: values after optimizing curative instant, i.e. after applying optimal curative remedial actions
@@ -72,14 +72,14 @@ _See also: [RAO steps](../algorithms/castor/rao-steps.md)_
 
 ### Computation status
 
-This field contains the status of sensitivity / load-flow computations during the RAO, for a given [state](../input-data/crac/json.md#instants-and-states),
+This field contains the status of sensitivity / load flow computations during the RAO, for a given [state](../input-data/crac/json.md#instants-and-states),
 or for the overall RAO (the status of the overall RAO is computed as the worst status among all states).  
 It can have one of the following values:
-- **DEFAULT**: the sensitivity / load-flow computations converged normally
-- **FAILURE**: the sensitivity / load-flow computations failed
+- **DEFAULT**: the sensitivity / load flow computations converged normally
+- **FAILURE**: the sensitivity / load flow computations failed
 
 When the results are returned to the user of your application, they should be sufficiently warned if any state's
-sensitivity / load-flow computation has failed.
+sensitivity / load flow computation has failed.
 
 ::::{tabs}
 :::{group-tab} JAVA API
@@ -145,7 +145,7 @@ parameters among:
 :::
 :::{group-tab} JSON File
 
-This information is not written in the json file, it is deduced from the values of the CNECs' margins (see below).
+This information is not written in the JSON file, it is deduced from the values of the CNECs' margins (see below).
 
 :::
 ::::
@@ -155,7 +155,7 @@ This information is not written in the json file, it is deduced from the values 
 This field can either contain information about the failure when the RAO fails, or macro information about which steps the [CASTOR RAO](../algorithms/castor.md#algorithm-details) executed when it did not fail.  
 (See also: [Second preventive RAO parameters](../parameters/implementation-specific-parameters.md#second-preventive-rao-parameters))
 
-Note: This field replaced the optimizationStepsExecuted field.
+> **Note:** This field replaced the optimizationStepsExecuted field.
 
 ::::{tabs}
 :::{group-tab} JAVA API
@@ -179,9 +179,21 @@ Example:
 :::
 ::::
 
+The different possible execution details are:
+- **The RAO only went through first preventive**: only the first preventive optimization was run (no second preventive); this is the default situation;
+- **First preventive fell back to initial situation**: the first preventive RAO did not improve the situation, so the initial situation (no remedial action applied) was kept;
+- **Second preventive improved first preventive results**: the second preventive RAO gave better or similar results than the first one (cost-wise), so its results were kept;
+- **Second preventive fell back to first preventive results**: the second preventive RAO did not improve on the first one, so the first preventive results were kept;
+- **Second preventive fell back to initial situation**: the second preventive RAO did not improve the situation, so the initial situation was kept;
+- **<specific failure reason>**: when the RAO fails, the field contains a message describing the cause of the failure.
+
+If the RAO went through angle or voltage [monitoring](../algorithms/monitoring.md), said monitoring(s) are appended to the execution details from the first flow RAO.
+
+For [MARMOT](../algorithms/marmot.md), one detail per timestamp is given as `<timestamp>: <detail>`, separated by ` - `; the default value is "RAO went through independent topological optimization and global time-coupled linear optimization".
+
 ### Objective function cost results
 
-Contains information about the reached objective function value, seperated into functional and virtual costs:
+Contains information about the reached objective function value, separated into functional and virtual costs:
 - the **functional** cost reflects the business value of the objective (e.g. the cost associated to the minimum margin and the business penalties on usage of remedial actions)
 - the **virtual** cost reflects the violation of some constraints (e.g. MNEC & loop-flow constraints)
 
@@ -189,19 +201,19 @@ Contains information about the reached objective function value, seperated into 
 :::{group-tab} JAVA API
 
 ~~~java
-// get the functional cost after optimisation of a given instant
+// get the functional cost after optimization of a given instant
 double getFunctionalCost(Instant optimizedInstant);
 
-// get the total virtual cost after optimisation of a given instant
+// get the total virtual cost after optimization of a given instant
 double getVirtualCost(Instant optimizedInstant);
 
-// get a specific virtual cost after optimisation of a given instant
+// get a specific virtual cost after optimization of a given instant
 double getVirtualCost(Instant optimizedInstant, String virtualCostName);
 
 // get all the virtual cost names in the RAO
 Set<String> getVirtualCostNames();
 
-// get the overall cost (functional + total virtual) after optimisation of a given instant
+// get the overall cost (functional + total virtual) after optimization of a given instant
 double getCost(Instant optimizedInstant);
 ~~~
 
@@ -261,7 +273,7 @@ The actual power flow on the branch.
 :::{group-tab} JAVA API
 
 ~~~java
-// get the flow on a given flow cnec, at a given side, in a given unit, after optimisation of a given instant
+// get the flow on a given flow CNEC, at a given side, in a given unit, after optimization of a given instant
 double getFlow(Instant optimizedInstant, FlowCnec flowCnec, TwoSides side, Unit unit);
 ~~~
 
@@ -333,7 +345,7 @@ it has multiple thresholds, the smallest margin is returned.
 :::{group-tab} JAVA API
 
 ~~~java
-// get the margin of a given flow cnec, in a given unit, after optimisation of a given instant
+// get the margin of a given flow CNEC, in a given unit, after optimization of a given instant
 double getMargin(Instant optimizedInstant, FlowCnec flowCnec, Unit unit);
 ~~~
 
@@ -385,15 +397,15 @@ Example:
 The relative margin is the smallest flow margin of the CNEC.
 - When the margin is negative, the relative margin is equal to the margin
 - When the margin is positive, it is equal to the margin divided by the zonal PTDF absolute sum  
-  It is used to artificially increase (in the RAO) the margin on flow cnecs that are less impacted by changes in
-  power exchanges between commercial zones, in order to prioritize other CNECs in the minimum margin optimisation.  
-  (See [Modelling the maximum minimum relative margin objective function](../algorithms/castor/linear-problem/objective-function-types/max-min-relative-margin-filler.md))
+  It is used to artificially increase (in the RAO) the margin on flow CNECs that are less impacted by changes in
+  power exchanges between commercial zones, in order to prioritize other CNECs in the minimum margin optimization.  
+  (See [Modeling the maximum minimum relative margin objective function](../algorithms/castor/linear-problem/objective-function-types/max-min-relative-margin-filler.md))
 
 ::::{tabs}
 :::{group-tab} JAVA API
 
 ~~~java
-// get the relative margin of a given flow cnec, in a given unit, after optimisation of a given instant
+// get the relative margin of a given flow CNEC, in a given unit, after optimization of a given instant
 double getRelativeMargin(Instant optimizedInstant, FlowCnec flowCnec, Unit unit);
 ~~~
 
@@ -449,7 +461,7 @@ The loop-flow value on a CNEC.
 :::{group-tab} JAVA API
 
 ~~~java
-// get the loop-flow on a given flow cnec, at a given side, in a given unit, after optimisation of a given instant
+// get the loop flow on a given flow CNEC, at a given side, in a given unit, after optimization of a given instant
 double getLoopFlow(Instant optimizedInstant, FlowCnec flowCnec, TwoSides side, Unit unit);
 ~~~
 
@@ -521,7 +533,7 @@ The commercial flow on a CNEC.
 :::{group-tab} JAVA API
 
 ~~~java
-// get the commercial flow on a given flow cnec, at a given side, in a given unit, after optimisation of a given instant
+// get the commercial flow on a given flow CNEC, at a given side, in a given unit, after optimization of a given instant
 double getCommercialFlow(Instant optimizedInstant, FlowCnec flowCnec, TwoSides side, Unit unit);
 ~~~
 
@@ -593,7 +605,7 @@ The absolute sum of zonal PTDFs (influence factors) on a given CNEC. Reflects th
 :::{group-tab} JAVA API
 
 ~~~java
-// get the absolute sum of zonal PTDFs for a given flow cnec, at a given side, after optimisation of a given instant
+// get the absolute sum of zonal PTDFs for a given flow CNEC, at a given side, after optimization of a given instant
 double getPtdfZonalSum(Instant optimizedInstant, FlowCnec flowCnec, TwoSides side);
 ~~~
 
@@ -817,11 +829,11 @@ Access the angle value of an AngleCnec.
 ::::{tabs}
 :::{group-tab} JAVA API
 
-*Note that this feature is not implemented in the default RAO result implementation, as angle CNECs are not optimised
+*Note that this feature is not implemented in the default RAO result implementation, as angle CNECs are not optimized
 by the RAO, but monitored by a [monitoring module](../algorithms/monitoring.md), with **ANGLE** as Physical parameter.*
 
 ~~~java
-// get the angle value for a given angle cnec, at a given state, in a given angle unit
+// get the angle value for a given angle CNEC, at a given state, in a given angle unit
 double getAngle(OptimizationState optimizationState, AngleCnec angleCnec, Unit unit);
 ~~~
 
@@ -858,11 +870,11 @@ Access the angle margin value of an AngleCnec.
 ::::{tabs}
 :::{group-tab} JAVA API
 
-*Note that this feature is not implemented in the default RAO result implementation, as angle CNECs are not optimised
+*Note that this feature is not implemented in the default RAO result implementation, as angle CNECs are not optimized
 by the RAO, but monitored by a [monitoring module](../algorithms/monitoring.md), with **ANGLE** as Physical parameter.*
 
 ~~~java
-// get the margin value for a given angle cnec, at a given state, in a given angle unit
+// get the margin value for a given angle CNEC, at a given state, in a given angle unit
 double getMargin(OptimizationState optimizationState, AngleCnec angleCnec, Unit unit);
 ~~~
 
@@ -924,11 +936,11 @@ so multiple voltage values can exist).
 ::::{tabs}
 :::{group-tab} JAVA API
 
-*Note that this feature is not implemented in the default RAO result implementation, as voltage CNECs are not optimised
+*Note that this feature is not implemented in the default RAO result implementation, as voltage CNECs are not optimized
 by the RAO, but monitored by a [monitoring module](../algorithms/monitoring.md), with **VOLTAGE** as Physical parameter.*
 
 ~~~java
-// get the min or max voltage value for a given voltage cnec, after optimisation of a given instant, in a given voltage unit
+// get the min or max voltage value for a given voltage CNEC, after optimization of a given instant, in a given voltage unit
 double getMinVoltage(Instant optimizedInstant, VoltageCnec voltageCnec, Unit unit);
 double getMaxVoltage(Instant optimizedInstant, VoltageCnec voltageCnec, Unit unit);
 ~~~
@@ -967,11 +979,11 @@ Access the worst voltage margin value (between min & max) of a VoltageCnec.
 ::::{tabs}
 :::{group-tab} JAVA API
 
-*Note that this feature is not implemented in the default RAO result implementation, as voltage CNECs are not optimised
+*Note that this feature is not implemented in the default RAO result implementation, as voltage CNECs are not optimized
 by the RAO, but monitored by a [voltage monitoring module](../algorithms/monitoring.md), with **VOLTAGE** as Physical parameter.*
 
 ~~~java
-// get the margin value for a given voltage cnec, after optimisation of a given instant, in a given voltage unit
+// get the margin value for a given voltage CNEC, after optimization of a given instant, in a given voltage unit
 double getMargin(Instant optimizedInstant, VoltageCnec voltageCnec, Unit unit);
 ~~~
 
@@ -1071,7 +1083,7 @@ Example:
 ### Standard range actions results
 
 These results contain information about the selection of standard range actions by the RAO.  
-Standard range actions are range actions that have a continuous set-point that can be optimised in a given range.  
+Standard range actions are range actions that have a continuous set-point that can be optimized in a given range.  
 Actually, standard range actions handled by OpenRAO are: **HVDC range actions** and **Injection range actions**.  
 *Note that you will need to use [RangeAction](../input-data/crac/json.md#range-actions) objects from the CRAC for querying the Java API.*
 

@@ -3,6 +3,7 @@
 ```{toctree}
 :hidden:
 time-coupled-constraints/generator-constraints-filler.md
+time-coupled-constraints/curative-range-actions-synchronization-filler.md
 ```
 
 Remedial actions can be integrated in costly computations by configuring their activation cost
@@ -48,7 +49,7 @@ FFR1AA1  FR1          0 2 400.00 0.00000 0.00000 -1000.0 0.00000 9000.00 -9000.0
 FFR2AA1  FR2          0 2 400.00 0.00000 0.00000 700.000 0.00000 9000.00 -9000.0 9000.00 -9000.0
 ```
 
-CRAC Json
+CRAC JSON
 
 ```json
 "injectionRangeActions": [

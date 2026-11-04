@@ -125,7 +125,7 @@ public class LazyNetwork implements Network, AutoCloseable {
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() {
         network = null;
         isLoaded = false;
         if (isOverwritten) {

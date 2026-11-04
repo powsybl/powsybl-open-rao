@@ -51,8 +51,8 @@ class SwitchActionImplTest {
 
     @Test
     void basicMethods() {
-        assertEquals(1, topologyOpen.getNetworkElements().size());
-        assertEquals("NNL3AA11 NNL3AA12 1", topologyOpen.getNetworkElements().iterator().next().getId());
+        assertEquals(1, topologyOpen.getNetworkElementsIds().size());
+        assertEquals("NNL3AA11 NNL3AA12 1", topologyOpen.getNetworkElementsIds().iterator().next());
         assertTrue(topologyOpen.canBeApplied(network));
     }
 

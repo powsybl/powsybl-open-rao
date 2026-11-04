@@ -21,7 +21,7 @@ lines when no commercial exchanges are present. Loop-flows limit the capacity av
 
 > 💡 Loop-flows computation is now available in MEGAWATT or in AMPERE
 
-It is possible to configure the RAO in order to make sure that, during RA optimisation, the loop-flow $F_{loop-flow}$
+It is possible to configure the RAO in order to make sure that, during RA optimization, the loop-flow $F_{loop-flow}$
 on each cross zonal CNEC does not exceed the maximum between:
 
 - the initial loop-flow $F_0$
@@ -46,4 +46,4 @@ The PTDF represents FlowCnec c's sensitivity to a variation of the net position 
 
 ## Implementation
 
-Loop-flow limitation are modelled in the RAO under the linear problem as constraints for each CNEC $i$ forcing the loop-flows within their bounds, see [Loop-flow constraints](../linear-problem/special-features/max-loop-flow-filler.md).
+Loop-flow limitation are modeled in the RAO under the linear problem as constraints for each CNEC $i$ forcing the loop-flows within their bounds, see [Loop-flow constraints](../linear-problem/special-features/max-loop-flow-filler.md).

@@ -18,7 +18,7 @@ In costly mode, the goal of the RAO is two-fold:
 
 In costly mode, the aim is no longer to maximize the minimum margin, but simply to make it secure. In order to prevent
 the RAO from choosing set-points to make the minimum margin perfectly equal to 0, which could lead to future rounding
-errors or unsecure situations using another load-flow engine or configuration, one solution is to shift the security
+errors or unsecure situations using another load flow engine or configuration, one solution is to shift the security
 domain of the lines by a few MW or A to keep a margin of error. This security shift is noted as $\Delta_{secure}$.
 
 > ⚙️ The security domain shift is set with the

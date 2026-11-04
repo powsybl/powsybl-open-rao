@@ -7,8 +7,6 @@
 
 package com.powsybl.openrao.data.crac.api.rangeaction;
 
-import com.powsybl.openrao.data.crac.api.NetworkElement;
-
 import java.util.Map;
 
 /**
@@ -35,9 +33,9 @@ import java.util.Map;
 public interface InjectionRangeAction extends StandardRangeAction<InjectionRangeAction> {
 
     /**
-     * Get the map of the NetworkElement (injections) on which the rangeAction applies,
-     * alongside with the distribution key which define how each injection NetworkElement
+     * Get the map of the network elements (injections) on which the rangeAction applies,
+     * alongside with the distribution key which define how each injection network element
      * is impacted by a change of setpoint of the RangeAction
      */
-    Map<NetworkElement, Double> getInjectionDistributionKeys();
+    Map<String, Double> getInjectionDistributionKeysIds();
 }

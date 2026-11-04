@@ -14,6 +14,7 @@ import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.VariationDirection;
 import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters;
 import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblem;
@@ -44,25 +45,42 @@ public class DiscretePstTapFiller implements ProblemFiller {
     private final boolean costOptimization;
     private final boolean maxElementaryActionLimit;
     private int iteration = 0;
+    private final SearchTreeRaoRangeActionsOptimizationParameters.PstModel pstModel;
 
     public DiscretePstTapFiller(OptimizationPerimeter optimizationPerimeter,
                                 Map<State, Set<PstRangeAction>> rangeActions,
                                 RangeActionSetpointResult prePerimeterRangeActionSetpoints,
                                 RangeActionsOptimizationParameters rangeActionsParameters,
                                 boolean costOptimization,
-                                boolean maxElementaryActionLimit) {
+                                boolean maxElementaryActionLimit,
+                                SearchTreeRaoRangeActionsOptimizationParameters.PstModel pstModel) {
         this.optimizationPerimeter = optimizationPerimeter;
         this.rangeActions = rangeActions;
         this.prePerimeterRangeActionSetpoints = prePerimeterRangeActionSetpoints;
         this.rangeActionsParameters = rangeActionsParameters;
         this.costOptimization = costOptimization;
         this.maxElementaryActionLimit = maxElementaryActionLimit;
+        this.pstModel = pstModel;
     }
 
     @Override
     public void fill(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult, RangeActionActivationResult rangeActionActivationResult) {
-        // TODO add costly mode cost in objective function (like in fillObjective)
-        iteration = 0;
+        switch (pstModel) {
+            case APPROXIMATED_INTEGERS -> {
+                iteration++;
+                rangeActions.entrySet().stream()
+                    .sorted(Comparator.comparingInt(e -> e.getKey().getInstant().getOrder()))
+                    .forEach(entry -> entry.getValue().forEach(rangeAction ->
+                        buildPstTapVariablesAndConstraints(linearProblem, rangeAction, entry.getKey(), rangeActionActivationResult))
+                    );
+                if (iteration > 1) {
+                    update(linearProblem, rangeActionActivationResult);
+                }
+                fillObjective(linearProblem);
+            }
+            case HYBRID -> iteration = 0;
+            default -> throw new IllegalStateException("Unexpected value: " + pstModel);
+        }
     }
 
     @Override

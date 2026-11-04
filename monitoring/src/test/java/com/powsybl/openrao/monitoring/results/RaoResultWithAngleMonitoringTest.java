@@ -8,16 +8,18 @@
 package com.powsybl.openrao.monitoring.results;
 
 import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.AngleCnec;
 import com.powsybl.openrao.data.crac.api.cnec.Cnec;
-import com.powsybl.openrao.data.crac.impl.AngleCnecValue;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
+import com.powsybl.openrao.monitoring.angle.AngleCnecMonitoringResult;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import java.util.Map;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -30,7 +32,7 @@ public class RaoResultWithAngleMonitoringTest {
 
     @Test
     void testGetCnecResult() {
-        // We have a preventive angle CNEC. We should allow getCnecResult to return a CnecResult only if optimizationInstant is preventive.
+        // We have a preventive angle CNEC. We should allow getCnecResult to return a CnecMonitoringResult only if optimizationInstant is preventive.
         AngleCnec angleCnec = Mockito.mock(AngleCnec.class);
         when(angleCnec.getId()).thenReturn("angle");
         Instant cnecInstant = Mockito.mock(Instant.class);
@@ -40,9 +42,8 @@ public class RaoResultWithAngleMonitoringTest {
         when(angleCnec.getState()).thenReturn(state);
 
         RaoResult raoResult = Mockito.mock(RaoResult.class);
-        MonitoringResult angleMonitoringResult = Mockito.mock(MonitoringResult.class);
-        CnecResult cnecResult = new CnecResult(angleCnec, Unit.DEGREE, new AngleCnecValue(10.0), 10, Cnec.SecurityStatus.SECURE);
-        when(angleMonitoringResult.getCnecResults()).thenReturn(Set.of(cnecResult));
+        AngleCnecMonitoringResult cnecResult = new AngleCnecMonitoringResult(angleCnec, Unit.DEGREE, 10);
+        MonitoringResult angleMonitoringResult = new MonitoringResult(PhysicalParameter.ANGLE, Set.of(cnecResult), Map.of(), Cnec.SecurityStatus.SECURE);
 
         RaoResultWithAngleMonitoring raoResultWithAngleMonitoring = new RaoResultWithAngleMonitoring(raoResult, angleMonitoringResult);
 

@@ -163,6 +163,12 @@ class VoltageCnecImplTest {
         assertEquals(-300, cnec.computeMargin(networkMock4, Unit.KILOVOLT), DOUBLE_TOLERANCE);
     }
 
+    @Test
+    void testNetworkElement() {
+        VoltageCnec voltageCnec = initPreventiveCnecAdder().newThreshold().withUnit(Unit.KILOVOLT).withMax(500.).add().add();
+        assertEquals("networkElement", voltageCnec.getNetworkElementId());
+    }
+
     // other
 
     @Test
