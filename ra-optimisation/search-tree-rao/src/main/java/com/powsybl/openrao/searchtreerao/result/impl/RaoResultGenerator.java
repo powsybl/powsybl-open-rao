@@ -261,7 +261,7 @@ public final class RaoResultGenerator {
             Optional<State> automatonState = contingencyScenario.getAutomatonState();
             if (automatonState.isPresent()) {
                 OptimizationResult automatonResult = postContingencyResults.get(automatonState.get()).optimizationResult();
-                // if automatonResult does not contain the contingency, exclude it because its sensitivity computation failed
+                // if automatonResult does not contain the contingency, exclude it because the sensitivity computation on one of its states failed
                 if (!automatonResult.getContingencies().contains(contingencyScenario.getContingency().getId())) {
                     contingenciesToExclude.add(contingencyScenario.getContingency().getId());
                     return;
@@ -269,7 +269,7 @@ public final class RaoResultGenerator {
             }
             for (Perimeter curativePerimeter : contingencyScenario.getCurativePerimeters()) {
                 OptimizationResult curativeResult = postContingencyResults.get(curativePerimeter.getRaOptimisationState()).optimizationResult();
-                // if curativeResult does not contain the contingency, exclude it because its sensitivity computation failed
+                // if curativeResult does not contain the contingency, exclude it because the sensitivity computation on one of its states failed
                 if (!curativeResult.getContingencies().contains(contingencyScenario.getContingency().getId())) {
                     contingenciesToExclude.add(contingencyScenario.getContingency().getId());
                 }
