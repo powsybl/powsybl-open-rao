@@ -74,6 +74,10 @@ import java.util.stream.Collectors;
 import static com.powsybl.openrao.searchtreerao.commons.RaoUtil.getFlowUnit;
 
 /**
+ * Meta-RAO provider using inner loops of light RAO computations only taking in account overloaded {@link FlowCnec}s.
+ *
+ * @deprecated since 7.6.0, use {@link com.powsybl.openrao.searchtreerao.OpenRao} as the default RAO provider.
+ *
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
@@ -81,6 +85,7 @@ import static com.powsybl.openrao.searchtreerao.commons.RaoUtil.getFlowUnit;
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 @AutoService(RaoProvider.class)
+@Deprecated(since = "7.6.0")
 public class FastRao implements RaoProvider {
     private static final String FAST_RAO = "FastRao";
     private static final int NUMBER_LOGGED_ELEMENTS_DURING_RAO = 2;

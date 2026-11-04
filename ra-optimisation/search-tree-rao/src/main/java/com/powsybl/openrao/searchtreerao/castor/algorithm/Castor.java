@@ -24,6 +24,10 @@ import java.time.Instant;
 import java.util.concurrent.CompletableFuture;
 
 /**
+ * RAO provider based on a search-tree algorithm to optimize topological remedial actions and range actions.
+ *
+ * @deprecated since 7.6.0, use {@link com.powsybl.openrao.searchtreerao.OpenRao} as the default RAO provider.
+ *
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
@@ -31,6 +35,7 @@ import java.util.concurrent.CompletableFuture;
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 @AutoService(RaoProvider.class)
+@Deprecated(since = "7.6.0")
 public class Castor implements RaoProvider {
 
     static {
