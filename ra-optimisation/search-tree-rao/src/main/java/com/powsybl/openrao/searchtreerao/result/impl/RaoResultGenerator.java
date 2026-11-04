@@ -219,7 +219,7 @@ public final class RaoResultGenerator {
                 x.addAll(y);
                 return x;
             });
-        Set<FlowCnec> allFollowingStatesLoopFlowCnecs = stateCnecs.stream()
+        Set<FlowCnec> allFollowingStatesLoopFlowCnecs = allFollowingStatesCnecs.stream()
             .filter(flowCnec -> initialResultContainsLoopFlowResult(flowCnec, initialResult, raoParameters))
             .collect(Collectors.toSet());
         ObjectiveFunctionResult followingStatesOfResult = ObjectiveFunction.build(
@@ -245,8 +245,6 @@ public final class RaoResultGenerator {
         initialResult.excludeContingencies(contingenciesToExclude);
         preventiveAndOutageOnlyResult.excludeContingencies(contingenciesToExclude);
         postPreventiveResult.optimizationResult().excludeContingencies(contingenciesToExclude);
-        postPreventiveResult.optimizationResult().excludeContingencies(contingenciesToExclude);
-        postPreventiveResult.prePerimeterResultForAllFollowingStates().excludeContingencies(contingenciesToExclude);
         postPreventiveResult.prePerimeterResultForAllFollowingStates().excludeContingencies(contingenciesToExclude);
         postContingencyResults.values().forEach(result -> {
             result.optimizationResult().excludeContingencies(contingenciesToExclude);
@@ -263,6 +261,7 @@ public final class RaoResultGenerator {
             Optional<State> automatonState = contingencyScenario.getAutomatonState();
             if (automatonState.isPresent()) {
                 OptimizationResult automatonResult = postContingencyResults.get(automatonState.get()).optimizationResult();
+                // if automatonResult does not contain the contingency, exclude it because its sensitivity computation failed
                 if (!automatonResult.getContingencies().contains(contingencyScenario.getContingency().getId())) {
                     contingenciesToExclude.add(contingencyScenario.getContingency().getId());
                     return;
@@ -270,6 +269,7 @@ public final class RaoResultGenerator {
             }
             for (Perimeter curativePerimeter : contingencyScenario.getCurativePerimeters()) {
                 OptimizationResult curativeResult = postContingencyResults.get(curativePerimeter.getRaOptimisationState()).optimizationResult();
+                // if curativeResult does not contain the contingency, exclude it because its sensitivity computation failed
                 if (!curativeResult.getContingencies().contains(contingencyScenario.getContingency().getId())) {
                     contingenciesToExclude.add(contingencyScenario.getContingency().getId());
                 }
@@ -286,7 +286,6 @@ public final class RaoResultGenerator {
         Set<FlowCnec> flowCnecs = crac.getFlowCnecs().stream()
             .filter(flowCnec -> flowCnec.getState().isPreventive() || flowCnec.getState().getInstant().getKind().equals(InstantKind.OUTAGE))
             .collect(Collectors.toSet());
-        // For non loopflow CNECs, the result returns NaN or is missing commercial flows
         Set<FlowCnec> loopFlowCnecs = flowCnecs.stream()
             .filter(flowCnec -> initialResultContainsLoopFlowResult(flowCnec, initialResult, raoParameters))
             .collect(Collectors.toSet());
@@ -314,6 +313,7 @@ public final class RaoResultGenerator {
     }
 
     private static boolean initialResultContainsLoopFlowResult(final FlowCnec flowCnec, final PrePerimeterResult initialResult, final RaoParameters raoParameters) {
+        // For non loopflow CNECs, the result returns NaN or is missing commercial flows
         boolean loopflowPresent;
         try {
             loopflowPresent = !Double.isNaN(initialResult.getLoopFlow(flowCnec, flowCnec.getMonitoredSides().iterator().next(), getFlowUnit(raoParameters)));
@@ -336,8 +336,6 @@ public final class RaoResultGenerator {
         initialResult.excludeCnecs(cnecsToExclude);
         preventiveAndOutageOnlyResult.excludeCnecs(cnecsToExclude);
         postPreventiveResult.optimizationResult().excludeCnecs(cnecsToExclude);
-        postPreventiveResult.optimizationResult().excludeCnecs(cnecsToExclude);
-        postPreventiveResult.prePerimeterResultForAllFollowingStates().excludeCnecs(cnecsToExclude);
         postPreventiveResult.prePerimeterResultForAllFollowingStates().excludeCnecs(cnecsToExclude);
         postContingencyResults.values().forEach(result -> {
             result.optimizationResult().excludeCnecs(cnecsToExclude);
