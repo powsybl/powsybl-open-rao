@@ -87,7 +87,7 @@ public final class TimeCoupledRao {
      * @return a runner for default RAO implementation
      */
     public static TimeCoupledRao.Runner find(final ReportNode reportNode) {
-        return find(null, reportNode);
+        return find("OpenRAO", reportNode);
     }
 
     /**

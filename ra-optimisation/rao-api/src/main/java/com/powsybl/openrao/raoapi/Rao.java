@@ -154,7 +154,7 @@ public final class Rao {
      * @return a runner for default RAO implementation
      */
     public static Runner find() {
-        return find("SearchTreeRao");
+        return find("OpenRAO");
     }
 
     /**
