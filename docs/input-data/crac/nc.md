@@ -818,7 +818,9 @@ of sections.
 A [counter-trade range action](json.md#counter-trade-range-action) is described by a `CountertradeRemedialAction` 
 object. Unlike other remedial actions, it does **not** use a `GridStateAlterationRemedialAction` object as parent, 
 nor does it use `GridStateAlteration` or `StaticPropertyRange` objects. Instead, all the information is contained 
-directly within the `CountertradeRemedialAction` object itself, which inherits from `RemedialAction`.
+directly within the `CountertradeRemedialAction` object itself, which inherits from `RemedialAction`. Its range combines 
+absolute values from the RA profile with variations from the SSI profile, possibly defined on a `RemedialActionGroup` 
+(see [range](#range)).
 
 ```xml
 <!-- RA Profile -->
@@ -927,32 +929,147 @@ initial setpoint is 0, and a setpoint of X means that the net position of the ar
 The initial net position is computed from the network (which must carry a load flow result). It has no default value: 
 if no net position can be computed for the area, the remedial action is not imported.
 
-Each bound of the range combines two limits:
+In the following, `NP0` denotes this initial net position.
 
-- the **economic limit**, computed from the `minEconomicP` and `maxEconomicP` fields of the `CountertradeRemedialAction`;
-- the **physical limit**, given by the `maxRegulatingDown` and `maxRegulatingUp` fields of the SSI profile, which are the 
-  maximum variations (in MW) that the remedial action can physically regulate down and up. These values are read on the 
-  `CountertradeRemedialAction` if it provides any of them, or else on the `RemedialActionGroup` linked to it through an 
-  enabled `RemedialActionDependency`. If both define these values with different values, the remedial action is not 
-  imported.
+Each bound of the range combines two limits, which are not expressed in the same way:
+
+- the **economic limit** comes from the `minEconomicP` and `maxEconomicP` fields of the `CountertradeRemedialAction` in 
+  the RA profile. These are **absolute values**: the minimum and maximum net positions (in MW) of the bidding zone. They 
+  are converted into variations from the initial setpoint by subtracting the initial net position:
+  - economic lower limit = `minEconomicP` - `NP0`
+  - economic upper limit = `maxEconomicP` - `NP0`
+- the **physical limit** comes from the `maxRegulatingDown` and `maxRegulatingUp` fields of the SSI profile. These are 
+  **variations from the initial setpoint** (in MW, given as positive values): the maximum quantity by which the net 
+  position can be decreased and increased. Since the initial setpoint is 0, they are used directly:
+  - physical lower limit = -`maxRegulatingDown`
+  - physical upper limit = `maxRegulatingUp`
+
+> `minEconomicP` and `maxEconomicP` are only read from the RA profile (the SSI profile does not override them), whereas 
+> `maxRegulatingDown` and `maxRegulatingUp` are only read from the SSI profile.
+
+The `CountertradeRemedialAction` and `RemedialActionGroup` objects of the SSI profile are matched with those of the RA 
+profile through their RDF identifier: the `rdf:about` of the SSI object refers to the `rdf:ID` of the RA profile object 
+(by convention, `_` followed by its `mRID`).
+
+##### Physical limit defined on the counter-trade remedial action
+
+The `maxRegulatingDown` and `maxRegulatingUp` values can be defined on the `CountertradeRemedialAction` itself, in the 
+SSI profile:
+
+```xml
+<!-- SSI Profile -->
+<rdf:RDF>
+    ...
+    <nc:CountertradeRemedialAction rdf:about="#_remedial-action">
+        <nc:RemedialAction.available>true</nc:RemedialAction.available>
+        <nc:PowerRemedialAction.maxRegulatingUp>1500</nc:PowerRemedialAction.maxRegulatingUp>
+        <nc:PowerRemedialAction.maxRegulatingDown>800</nc:PowerRemedialAction.maxRegulatingDown>
+    </nc:CountertradeRemedialAction>
+    ...
+</rdf:RDF>
+```
+
+> ⚠️ The `CountertradeRemedialAction` of the SSI profile is only read if its `available` field is set. Otherwise, its 
+> `maxRegulatingDown` and `maxRegulatingUp` values are ignored.
+
+##### Physical limit defined on a remedial action group
+
+The `maxRegulatingDown` and `maxRegulatingUp` values can also be defined, in the SSI profile, on a 
+`RemedialActionGroup` to which the `CountertradeRemedialAction` is linked, in the RA profile, through a 
+`RemedialActionDependency`:
+
+```xml
+<!-- RA Profile -->
+<rdf:RDF>
+    ...
+    <nc:RemedialActionGroup rdf:ID="_remedial-action-group">
+        <cim:IdentifiedObject.mRID>remedial-action-group</cim:IdentifiedObject.mRID>
+        <cim:IdentifiedObject.name>Counter-trade group</cim:IdentifiedObject.name>
+    </nc:RemedialActionGroup>
+    <nc:RemedialActionDependency rdf:ID="_remedial-action-dependency">
+        <nc:RemedialActionDependency.mRID>remedial-action-dependency</nc:RemedialActionDependency.mRID>
+        <nc:RemedialActionDependency.normalEnabled>true</nc:RemedialActionDependency.normalEnabled>
+        <nc:RemedialActionDependency.kind rdf:resource="http://entsoe.eu/ns/nc#RemedialActionDependencyKind.none"/>
+        <nc:RemedialActionDependency.RemedialAction rdf:resource="#_remedial-action"/>
+        <nc:RemedialActionDependency.DependingRemedialActionGroup rdf:resource="#_remedial-action-group"/>
+    </nc:RemedialActionDependency>
+    ...
+</rdf:RDF>
+```
+
+```xml
+<!-- SSI Profile -->
+<rdf:RDF>
+    ...
+    <nc:RemedialActionGroup rdf:about="#_remedial-action-group">
+        <nc:RemedialActionGroup.maxRegulatingUp>600</nc:RemedialActionGroup.maxRegulatingUp>
+        <nc:RemedialActionGroup.maxRegulatingDown>1200</nc:RemedialActionGroup.maxRegulatingDown>
+    </nc:RemedialActionGroup>
+    ...
+</rdf:RDF>
+```
+
+The group is handled as follows:
+
+- the `RemedialActionDependency` is only considered if its `normalEnabled` field is set to `true` or missing (it can be 
+  overridden by the `enabled` field of the SSI profile); otherwise the group is ignored for this remedial action;
+- the group is only used to read the physical limit of the counter-trade range action: it is not imported as a network 
+  action, and the counter-trade range action is not combined with the other remedial actions of the group;
+- the values of the group apply to each counter-trade range action linked to it **individually**: if several 
+  `CountertradeRemedialAction`s are linked to the same group, each of them gets the full `maxRegulatingDown` and 
+  `maxRegulatingUp` of the group as its own physical limit (they do not share it);
+- a group without `maxRegulatingDown` and `maxRegulatingUp` values in the SSI profile has no effect.
+
+If the `CountertradeRemedialAction` defines at least one of `maxRegulatingDown` and `maxRegulatingUp` in the SSI profile, 
+both values are read on the `CountertradeRemedialAction` (a missing one is not completed with the value of the group). 
+Otherwise, both values are read on the group. If both the `CountertradeRemedialAction` and its group define values, 
+they must be identical (a value defined on one side and missing on the other counts as different), otherwise the 
+remedial action is not imported.
+
+##### Bounds computation
 
 The bounds are:
 
-- **lower bound** = max(`minEconomicP` - initial net position, -`maxRegulatingDown`)
-- **upper bound** = min(`maxEconomicP` - initial net position, `maxRegulatingUp`)
+- **lower bound** = max(`minEconomicP` - `NP0`, -`maxRegulatingDown`)
+- **upper bound** = min(`maxEconomicP` - `NP0`, `maxRegulatingUp`)
 
 If only one of the two limits is provided for a bound, it is used alone.
 
 Moreover, the counter-trade cannot change the sign of the net position:
 
-- if the initial net position is positive, initial net position + lower bound cannot be negative;
-- if the initial net position is negative, initial net position + upper bound cannot be positive.
+- if the initial net position is positive, `NP0` + lower bound cannot be negative;
+- if the initial net position is negative, `NP0` + upper bound cannot be positive.
 
 If neither the economic limit nor the physical limit is provided for the lower (resp. upper) bound, the 
 `counter-trading-min-range` (resp. `counter-trading-max-range`) creation parameter is used as is (the sign constraint 
 above is not applied to it). If this parameter is not set either, the remedial action is not imported.
 
 If the resulting lower bound is greater than the upper bound, the remedial action is not imported.
+
+Depending on where the physical limit is defined, four cases are possible ("SSI" stands for values defined on the 
+`CountertradeRemedialAction` in the SSI profile, "group" for values defined on its `RemedialActionGroup` in the SSI 
+profile):
+
+| Case             | `maxRegulatingDown` / `maxRegulatingUp` used                                                                                             | Lower bound                                       | Upper bound                                    |
+|------------------|------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------|------------------------------------------------|
+| No SSI, no group | none                                                                                                                                     | `minEconomicP` - `NP0`                            | `maxEconomicP` - `NP0`                         |
+| SSI, no group    | those of the `CountertradeRemedialAction`                                                                                                | max(`minEconomicP` - `NP0`, -`maxRegulatingDown`) | min(`maxEconomicP` - `NP0`, `maxRegulatingUp`) |
+| No SSI, group    | those of the `RemedialActionGroup`                                                                                                       | max(`minEconomicP` - `NP0`, -`maxRegulatingDown`) | min(`maxEconomicP` - `NP0`, `maxRegulatingUp`) |
+| SSI, group       | those of the `CountertradeRemedialAction`, which must be identical to those of the group (otherwise the remedial action is not imported) | max(`minEconomicP` - `NP0`, -`maxRegulatingDown`) | min(`maxEconomicP` - `NP0`, `maxRegulatingUp`) |
+
+In all four cases, the rules above (limit used alone if the other one is missing, fallback on the creation parameters, 
+sign constraint, empty range) apply.
+
+> For instance, with an initial net position of 2000 MW, `minEconomicP` = 500 and `maxEconomicP` = 3000, the economic 
+> limits are [500 - 2000, 3000 - 2000] = [-1500, 1000]:
+>
+> | Case             | Physical limit                                                     | Range         |
+> |------------------|--------------------------------------------------------------------|---------------|
+> | No SSI, no group | none                                                               | [-1500, 1000] |
+> | SSI, no group    | SSI: `maxRegulatingDown` = 800, `maxRegulatingUp` = 1500           | [-800, 1000]  |
+> | No SSI, group    | group: `maxRegulatingDown` = 1200, `maxRegulatingUp` = 600         | [-1200, 600]  |
+> | SSI, group       | SSI and group: `maxRegulatingDown` = 800, `maxRegulatingUp` = 1500 | [-800, 1000]  |
+> | SSI, group       | SSI: 800 / 1500, group: 1200 / 600                                 | not imported  |
 
 > For instance, with an initial net position of 500 MW, `minEconomicP` = -1000, `maxEconomicP` = 1000, 
 > `maxRegulatingDown` = 3000 and `maxRegulatingUp` = 2000:
