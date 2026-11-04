@@ -10,6 +10,7 @@ package com.powsybl.openrao.searchtreerao.marmot;
 import com.google.auto.service.AutoService;
 import com.google.common.annotations.Beta;
 import com.powsybl.commons.report.ReportNode;
+import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.commons.TemporalDataImpl;
 import com.powsybl.openrao.commons.Unit;
@@ -25,6 +26,7 @@ import com.powsybl.openrao.data.raoresult.api.extension.CriticalCnecsResult;
 import com.powsybl.openrao.raoapi.LazyNetwork;
 import com.powsybl.openrao.raoapi.Rao;
 import com.powsybl.openrao.raoapi.RaoInput;
+import com.powsybl.openrao.raoapi.RaoProvider;
 import com.powsybl.openrao.raoapi.TimeCoupledRaoInput;
 import com.powsybl.openrao.raoapi.TimeCoupledRaoProvider;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
@@ -59,6 +61,7 @@ import com.powsybl.openrao.searchtreerao.result.impl.RangeActionActivationResult
 import com.powsybl.openrao.searchtreerao.result.impl.RangeActionSetpointResultImpl;
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 
+import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -94,8 +97,8 @@ import static com.powsybl.openrao.searchtreerao.marmot.MarmotUtils.runSensitivit
  */
 @Beta
 @Deprecated(since = "7.6.0")
-@AutoService(TimeCoupledRaoProvider.class)
-public class Marmot implements TimeCoupledRaoProvider {
+@AutoService({RaoProvider.class, TimeCoupledRaoProvider.class})
+public class Marmot implements RaoProvider, TimeCoupledRaoProvider {
 
     private static final String TIME_COUPLED_RAO = "TimeCoupledRao";
     private static final String MIN_MARGIN_VIOLATION_EVALUATOR = "min-margin-violation-evaluator";
@@ -833,5 +836,15 @@ public class Marmot implements TimeCoupledRaoProvider {
     @Override
     public String getName() {
         return TIME_COUPLED_RAO;
+    }
+
+    @Override
+    public CompletableFuture<RaoResult> run(RaoInput raoInput, RaoParameters parameters, ReportNode reportNode) {
+        return run(raoInput, parameters, null, reportNode);
+    }
+
+    @Override
+    public CompletableFuture<RaoResult> run(RaoInput raoInput, RaoParameters parameters, Instant targetEndInstant, ReportNode reportNode) {
+        throw new OpenRaoException("MARMOT should not be used for single timestamp cases; use CASTOR instead");
     }
 }
