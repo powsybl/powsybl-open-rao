@@ -24,6 +24,7 @@ import com.powsybl.openrao.data.crac.io.commons.api.StandardElementaryCreationCo
 import com.powsybl.openrao.data.crac.io.commons.ucte.UcteNetworkAnalyzer;
 import com.powsybl.openrao.data.crac.io.commons.ucte.UcteNetworkAnalyzerProperties;
 import com.powsybl.openrao.data.crac.io.fbconstraint.parameters.FbConstraintCracCreationParameters;
+import com.powsybl.openrao.data.crac.io.fbconstraint.xsd.ActionsSetType;
 import com.powsybl.openrao.data.crac.io.fbconstraint.xsd.CriticalBranchType;
 import com.powsybl.openrao.data.crac.io.fbconstraint.xsd.FlowBasedConstraintDocument;
 import com.powsybl.openrao.data.crac.io.fbconstraint.xsd.IndependantComplexVariant;
@@ -245,17 +246,58 @@ class FbConstraintCracCreator {
             .flatMap(List::stream)
             .collect(Collectors.toMap(HvdcConverter::node, HvdcConverter::station));
 
-        final Map<String, ComplexVariantReader> complexVariantReadersByElementId = complexVariantReaders.stream()
-            .collect(Collectors.toMap(
-                cvr -> cvr.getActionReaders().getFirst().getNetworkElementId(),
-                cvr -> cvr
-            ));
+        final Map<String, ComplexVariantReader> preventiveComplexVariantReadersByElementId = new HashMap<>();
+        final Map<String, ComplexVariantReader> curativeComplexVariantReadersByElementId = new HashMap<>();
+        complexVariantReaders.forEach(
+            cvr -> invalidateOrAddToMap(
+                cvr,
+                creationContext,
+                preventiveComplexVariantReadersByElementId,
+                curativeComplexVariantReadersByElementId
+            )
+        );
 
         for (final HvdcLine hvdcLine : hvdcLines) {
-            final HvdcLineRemedialActionAdder hvdcLineRemedialActionAdder = new HvdcLineRemedialActionAdder(hvdcLine, ucteNetworkAnalyzer, complexVariantReadersByElementId, nodeToStationMap);
-            hvdcLineRemedialActionAdder.add(crac, creationContext);
+            final HvdcLineRemedialActionAdder preventiveHvdcLineRemedialActionAdder = new HvdcLineRemedialActionAdder(
+                hvdcLine,
+                ucteNetworkAnalyzer,
+                preventiveComplexVariantReadersByElementId,
+                nodeToStationMap,
+                "preventive"
+            );
+            preventiveHvdcLineRemedialActionAdder.add(crac, creationContext);
+
+            final HvdcLineRemedialActionAdder curativeHvdcLineRemedialActionAdder = new HvdcLineRemedialActionAdder(
+                hvdcLine,
+                ucteNetworkAnalyzer,
+                curativeComplexVariantReadersByElementId,
+                nodeToStationMap,
+                "curative"
+            );
+            curativeHvdcLineRemedialActionAdder.add(crac, creationContext);
         }
         removeInvalidInjectionRangeActionsFromCrac(crac, creationContext);
+    }
+
+    private static void invalidateOrAddToMap(final ComplexVariantReader cvr,
+                                             final FbConstraintCreationContext creationContext,
+                                             final Map<String, ComplexVariantReader> preventiveComplexVariantReadersByElementId,
+                                             final Map<String, ComplexVariantReader> curativeComplexVariantReadersByElementId) {
+        final ActionsSetType actionsSetType = cvr.getComplexVariant().getActionsSet().getFirst();
+        if (actionsSetType.isPreventive()) {
+            preventiveComplexVariantReadersByElementId.put(
+                cvr.getActionReaders().getFirst().getNetworkElementId(),
+                cvr
+            );
+        } else if (actionsSetType.isCurative()) {
+            curativeComplexVariantReadersByElementId.put(
+                cvr.getActionReaders().getFirst().getNetworkElementId(),
+                cvr
+            );
+        } else {
+            cvr.invalidateOnMissingState();
+            creationContext.addComplexVariantCreationContext(cvr.getComplexVariantCreationContext());
+        }
     }
 
     private static void removeInvalidInjectionRangeActionsFromCrac(final Crac crac, final FbConstraintCreationContext creationContext) {

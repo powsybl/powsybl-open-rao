@@ -30,30 +30,37 @@ import java.util.stream.Stream;
  */
 class HvdcLineRemedialActionAdder {
     private static final String DELIMITER = " + ";
+    private static final String PREVENTIVE = "preventive";
+    private static final String CURATIVE = "curative";
 
     private final Map<String, String> nodeToStationMap;
 
+    private final String hvdcLineId;
     private final String fromNodeName;
     private final String toNodeName;
     private final ComplexVariantReader fromComplexVariantReader;
     private final ComplexVariantReader toComplexVariantReader;
     private final UcteGeneratorHelper fromGeneratorHelper;
     private final UcteGeneratorHelper toGeneratorHelper;
+    private final String state;
 
     private boolean isValid;
 
     HvdcLineRemedialActionAdder(final HvdcLine hvdcLine,
                                 final UcteNetworkAnalyzer ucteNetworkAnalyzer,
                                 final Map<String, ComplexVariantReader> complexVariantReadersByElementId,
-                                final Map<String, String> nodeToStationMap) {
+                                final Map<String, String> nodeToStationMap,
+                                final String state) {
         this.nodeToStationMap = nodeToStationMap;
 
+        this.hvdcLineId = hvdcLine.id();
         this.fromNodeName = hvdcLine.from();
         this.toNodeName = hvdcLine.to();
         this.fromComplexVariantReader = complexVariantReadersByElementId.get(fromNodeName);
         this.toComplexVariantReader = complexVariantReadersByElementId.get(toNodeName);
         this.fromGeneratorHelper = new UcteGeneratorHelper(fromNodeName, ucteNetworkAnalyzer);
         this.toGeneratorHelper = new UcteGeneratorHelper(toNodeName, ucteNetworkAnalyzer);
+        this.state = state;
 
         this.isValid = true;
     }
@@ -65,9 +72,27 @@ class HvdcLineRemedialActionAdder {
     }
 
     private void checkDataValidity() {
-        // If an element of the HVDC line (as defined in VirtualHubs input file) doesn't exist in the CRAC or is invalid,
+        // If both elements of the HVDC line (as defined in VirtualHubs input file) do not exist in the CRAC or are invalid,
+        // immediately invalidate the adder
+        if (fromComplexVariantReader == null && toComplexVariantReader == null) {
+            isValid = false;
+            return;
+        }
+        if (fromComplexVariantReader != null && toComplexVariantReader != null && !fromComplexVariantReader.isComplexVariantValid() && !toComplexVariantReader.isComplexVariantValid()) {
+            isValid = false;
+            return;
+        }
+
+        // If one of the two elements of the HVDC line doesn't exist in the CRAC or is invalid,
         // immediately invalidate the adder and return: the HVDC line will be ignored
-        if (fromComplexVariantReader == null || toComplexVariantReader == null || !fromComplexVariantReader.isComplexVariantValid() || !toComplexVariantReader.isComplexVariantValid()) {
+
+        if (fromComplexVariantReader == null || !fromComplexVariantReader.isComplexVariantValid() && toComplexVariantReader != null && toComplexVariantReader.isComplexVariantValid()) {
+            toComplexVariantReader.invalidateOnMissingOtherVariantOnState(state, hvdcLineId);
+            isValid = false;
+            return;
+        }
+        if (toComplexVariantReader == null || !toComplexVariantReader.isComplexVariantValid() && fromComplexVariantReader.isComplexVariantValid()) {
+            fromComplexVariantReader.invalidateOnMissingOtherVariantOnState(state, hvdcLineId);
             isValid = false;
             return;
         }
@@ -94,14 +119,14 @@ class HvdcLineRemedialActionAdder {
         final ActionsSetType toActionsSetType = toComplexVariantReader.getComplexVariant().getActionsSet().getFirst();
 
         if (fromActionsSetType.isPreventive() != toActionsSetType.isPreventive()) {
-            fromComplexVariantReader.invalidateOnInconsistencyOnState("preventive");
-            toComplexVariantReader.invalidateOnInconsistencyOnState("preventive");
+            fromComplexVariantReader.invalidateOnInconsistencyOnState(PREVENTIVE);
+            toComplexVariantReader.invalidateOnInconsistencyOnState(PREVENTIVE);
             isValid = false;
         }
 
         if (fromActionsSetType.isCurative() != toActionsSetType.isCurative()) {
-            fromComplexVariantReader.invalidateOnInconsistencyOnState("curative");
-            toComplexVariantReader.invalidateOnInconsistencyOnState("curative");
+            fromComplexVariantReader.invalidateOnInconsistencyOnState(CURATIVE);
+            toComplexVariantReader.invalidateOnInconsistencyOnState(CURATIVE);
             isValid = false;
         }
     }

@@ -53,6 +53,10 @@
         </plugins>
     </build>
 
+    <properties>
+        <apache.commons-collections4.version>4.4</apache.commons-collections4.version>
+    </properties>
+
     <dependencies>
         <!-- Compile dependencies -->
         <dependency>
@@ -78,6 +82,11 @@
         <dependency>
             <groupId>org.jvnet.jaxb</groupId>
             <artifactId>jaxb-plugins-runtime</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-collections4</artifactId>
+            <version>${apache.commons-collections4.version}</version>
         </dependency>
 
         <!-- Runtime dependencies -->

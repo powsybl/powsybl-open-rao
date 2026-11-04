@@ -125,6 +125,16 @@ class ComplexVariantReader {
         }
     }
 
+    void invalidateOnMissingState() {
+        this.importStatus = ImportStatus.INCONSISTENCY_IN_DATA;
+        this.importStatusDetail = "Invalid because ComplexVariant is defined neither in preventive state nor in curative state";
+    }
+
+    void invalidateOnMissingOtherVariantOnState(final String state, final String hvdcLineId) {
+        this.importStatus = ImportStatus.INCONSISTENCY_IN_DATA;
+        this.importStatusDetail = "Invalid because no other ComplexVariant is defined on " + state + " state for line " + hvdcLineId;
+    }
+
     void invalidateOnInconsistencyOnState(final String state) {
         this.importStatus = ImportStatus.INCONSISTENCY_IN_DATA;
         this.importStatusDetail = "Invalid because other ComplexVariant has opposite activation rule on " + state + " state";

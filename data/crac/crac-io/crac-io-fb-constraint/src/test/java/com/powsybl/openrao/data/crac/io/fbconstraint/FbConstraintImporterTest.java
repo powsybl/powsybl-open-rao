@@ -119,10 +119,11 @@ class FbConstraintImporterTest {
             .map(ElementaryCreationContext::getImportStatusDetail)
             .toList();
         Assertions.assertThat(notImportedStatusDetails)
-            .hasSize(2)
             .containsExactlyInAnyOrder(
                 "complex variant D4_RA_99991 was removed as it should contain one and only one actionSet",
-                "complex variant D4_RA_99992 was removed as it should contain one and only one actionSet"
+                "complex variant D4_RA_99992 was removed as it should contain one and only one actionSet",
+                "Invalid because no other ComplexVariant is defined on preventive state for line Ultranet1",
+                "Invalid because no other ComplexVariant is defined on preventive state for line Ultranet2"
             );
     }
 
@@ -148,8 +149,11 @@ class FbConstraintImporterTest {
             .map(ElementaryCreationContext::getImportStatusDetail)
             .toList();
         Assertions.assertThat(notImportedStatusDetails)
-            .hasSize(1)
-            .containsExactly("complex variant D4_RA_99991 was removed as " + importStatusDetails);
+            .hasSize(2)
+            .containsExactlyInAnyOrder(
+                "complex variant D4_RA_99991 was removed as " + importStatusDetails,
+                "Invalid because no other ComplexVariant is defined on preventive state for line Ultranet1"
+            );
     }
 
     @Test
@@ -256,12 +260,14 @@ class FbConstraintImporterTest {
         Assertions.assertThat(context.getRemedialActionCreationContexts())
             .hasSize(2);
         final SoftAssertions softly = new SoftAssertions();
-        for (int i = 0; i < 2; i++) {
-            final ElementaryCreationContext element = context.getRemedialActionCreationContexts().get(i);
-            softly.assertThat(element.getImportStatus()).isEqualTo(ImportStatus.INCONSISTENCY_IN_DATA);
-            softly.assertThat(element.getImportStatusDetail())
-                .isEqualTo("Invalid because other ComplexVariant has opposite activation rule on " + state + " state");
-        }
+        final ElementaryCreationContext element1 = context.getRemedialActionCreationContexts().get(0);
+        softly.assertThat(element1.getImportStatus()).isEqualTo(ImportStatus.INCONSISTENCY_IN_DATA);
+        softly.assertThat(element1.getImportStatusDetail())
+            .isEqualTo("Invalid because ComplexVariant is defined neither in preventive state nor in curative state");
+        final ElementaryCreationContext element2 = context.getRemedialActionCreationContexts().get(1);
+        softly.assertThat(element2.getImportStatus()).isEqualTo(ImportStatus.INCONSISTENCY_IN_DATA);
+        softly.assertThat(element2.getImportStatusDetail())
+            .isEqualTo("Invalid because no other ComplexVariant is defined on " + state + " state for line Ultranet1");
         softly.assertAll();
     }
 
