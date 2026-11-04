@@ -94,7 +94,7 @@ public class VoltageResultTest {
 
     @Test
     void testIsSecureWithoutResults() {
-        assertTrue(VoltageResult.build().build().isSecure());
+        assertTrue(VoltageResult.builder().build().isSecure());
     }
 
     @Test
@@ -105,7 +105,7 @@ public class VoltageResultTest {
         VoltageCnec curativeCnec = mockVoltageCnec(curativeInstant);
 
         // only the margin at the CNEC's own instant matters (other instants are negative)
-        VoltageResult voltageResult = VoltageResult.build()
+        VoltageResult voltageResult = VoltageResult.builder()
             .addMeasurement(370.0, 400.0, null, preventiveCnec, Unit.KILOVOLT)
             .addMeasurement(390.0, 430.0, preventiveInstant, preventiveCnec, Unit.KILOVOLT)
             .addMeasurement(400.0, 450.0, preventiveInstant, curativeCnec, Unit.KILOVOLT)
@@ -120,7 +120,7 @@ public class VoltageResultTest {
         VoltageCnec secureCnec = mockVoltageCnec(preventiveInstant);
         VoltageCnec unsecureCnec = mockVoltageCnec(preventiveInstant);
 
-        VoltageResult voltageResult = VoltageResult.build()
+        VoltageResult voltageResult = VoltageResult.builder()
             .addMeasurement(400.0, 420.0, preventiveInstant, secureCnec, Unit.KILOVOLT)
             .addMeasurement(375.0, 420.0, preventiveInstant, unsecureCnec, Unit.KILOVOLT)
             .build();
@@ -132,7 +132,7 @@ public class VoltageResultTest {
         Instant preventiveInstant = Mockito.mock(Instant.class);
         VoltageCnec voltageCnec = mockVoltageCnec(preventiveInstant);
 
-        VoltageResult voltageResult = VoltageResult.build().addMeasurement(400.0, 445.0, preventiveInstant, voltageCnec, Unit.KILOVOLT).build();
+        VoltageResult voltageResult = VoltageResult.builder().addMeasurement(400.0, 445.0, preventiveInstant, voltageCnec, Unit.KILOVOLT).build();
         assertFalse(voltageResult.isSecure());
     }
 
@@ -141,7 +141,7 @@ public class VoltageResultTest {
         Instant preventiveInstant = Mockito.mock(Instant.class);
         VoltageCnec voltageCnec = mockVoltageCnec(preventiveInstant);
 
-        VoltageResult voltageResult = VoltageResult.build().addMeasurement(380.0, 440.0, preventiveInstant, voltageCnec, Unit.KILOVOLT).build();
+        VoltageResult voltageResult = VoltageResult.builder().addMeasurement(380.0, 440.0, preventiveInstant, voltageCnec, Unit.KILOVOLT).build();
         assertTrue(voltageResult.isSecure());
     }
 }

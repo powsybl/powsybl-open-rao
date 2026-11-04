@@ -88,7 +88,7 @@ public class AngleResultTest {
 
     @Test
     void testIsSecureWithoutResults() {
-        assertTrue(AngleResult.build().build().isSecure());
+        assertTrue(AngleResult.builder().build().isSecure());
     }
 
     @Test
@@ -99,7 +99,7 @@ public class AngleResultTest {
         AngleCnec curativeCnec = mockAngleCnec(curativeInstant);
 
         // only the margin at the CNEC's own instant matters (other instants are negative)
-        AngleResult angleResult = AngleResult.build()
+        AngleResult angleResult = AngleResult.builder()
             .addMeasurement(-10.0, null, preventiveCnec, Unit.DEGREE)
             .addMeasurement(20.0, preventiveInstant, preventiveCnec, Unit.DEGREE)
             .addMeasurement(50.0, preventiveInstant, curativeCnec, Unit.DEGREE)
@@ -114,7 +114,7 @@ public class AngleResultTest {
         AngleCnec secureCnec = mockAngleCnec(preventiveInstant);
         AngleCnec unsecureCnec = mockAngleCnec(preventiveInstant);
 
-        AngleResult angleResult = AngleResult.build()
+        AngleResult angleResult = AngleResult.builder()
             .addMeasurement(15.0, preventiveInstant, secureCnec, Unit.DEGREE)
             .addMeasurement(35.0, preventiveInstant, unsecureCnec, Unit.DEGREE)
             .build();
@@ -126,7 +126,7 @@ public class AngleResultTest {
         Instant preventiveInstant = Mockito.mock(Instant.class);
         AngleCnec angleCnec = mockAngleCnec(preventiveInstant);
 
-        AngleResult angleResult = AngleResult.build().addMeasurement(30.0, preventiveInstant, angleCnec, Unit.DEGREE).build();
+        AngleResult angleResult = AngleResult.builder().addMeasurement(30.0, preventiveInstant, angleCnec, Unit.DEGREE).build();
         assertTrue(angleResult.isSecure());
     }
 }
