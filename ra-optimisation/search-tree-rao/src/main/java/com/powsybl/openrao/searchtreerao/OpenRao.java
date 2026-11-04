@@ -10,6 +10,7 @@ package com.powsybl.openrao.searchtreerao;
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
+import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.raoresult.api.TimeCoupledRaoResult;
 import com.powsybl.openrao.raoapi.RaoInput;
@@ -52,7 +53,10 @@ public class OpenRao implements RaoProvider, TimeCoupledRaoProvider {
     public CompletableFuture<RaoResult> run(RaoInput raoInput, RaoParameters parameters, Instant targetEndInstant, ReportNode reportNode) {
         FastRaoParameters fastRaoParameters = parameters.getExtension(FastRaoParameters.class);
         RaoProvider provider;
-        if (fastRaoParameters == null) {
+        if (raoInput.getCrac().getInstants(InstantKind.CURATIVE).size() > 1) {
+            OpenRaoLoggerProvider.TECHNICAL_LOGS.info("Multi-curative situation detected; using CASTOR algorithm as the computation engine");
+            provider = new Castor();
+        } else if (fastRaoParameters == null) {
             OpenRaoLoggerProvider.TECHNICAL_LOGS.info("Using CASTOR (search-tree RAO) algorithm as the computation engine");
             provider = new Castor();
         } else {

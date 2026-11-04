@@ -9,6 +9,7 @@ package com.powsybl.openrao.tests.steps;
 
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.commons.TemporalDataImpl;
@@ -108,6 +109,18 @@ public final class TimeCoupledRaoSteps {
     private static final List<String> DE_TSOS = List.of("D2", "D4", "D7", "D8");
     static final String DEFAULT_CRAC_CREATION_PARAMETERS_PATH = "cracCreationParameters/epic93/CracCreationParameters_93.json";
     static final double TOLERANCE_REDISPATCHING_VALUE = 1.0;
+    private final String timeCoupledRaoImplementation;
+
+    {
+        try {
+            final Properties configProperties = new Properties();
+            final InputStream inputStream = this.getClass().getClassLoader().getResourceAsStream("steps-config.properties");
+            configProperties.load(inputStream);
+            timeCoupledRaoImplementation = (String) configProperties.get("time-coupled-rao-implementation");
+        } catch (final IOException e) {
+            throw new OpenRaoException("Unable to load steps-config.properties", e);
+        }
+    }
 
     public TimeCoupledRaoSteps() {
         // should not be instantiated
@@ -270,14 +283,15 @@ public final class TimeCoupledRaoSteps {
     }
 
     @When("I launch marmot")
-    public static void iLaunchMarmot() {
+    public void iLaunchMarmot() {
         CommonTestData.setReportNode(
             ReportNode.newRootReportNode()
                 .withAllResourceBundlesFromClasspath()
                 .withMessageTemplate("test.rootnode")
                 .build()
         );
-        timeCoupledRaoResult = TimeCoupledRao.run(CommonTestData.getTimeCoupledRaoInput(), getRaoParameters(), CommonTestData.getReportNode());
+        timeCoupledRaoResult = TimeCoupledRao.find(timeCoupledRaoImplementation, CommonTestData.getReportNode())
+            .run(CommonTestData.getTimeCoupledRaoInput(), getRaoParameters());
     }
 
     @When("I export marmot results to {string}")
