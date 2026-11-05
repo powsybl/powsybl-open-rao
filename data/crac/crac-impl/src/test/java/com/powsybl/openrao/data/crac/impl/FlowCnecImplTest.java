@@ -741,4 +741,25 @@ class FlowCnecImplTest {
 
         assertEquals(Set.of(ONE, TWO), cnec3.getMonitoredSides());
     }
+
+    @Test
+    void testGetThresholdsWithFRM() {
+        // The bounds take into account the FRM but not the thresholds
+        FlowCnec cnec = initPreventiveCnecAdder()
+            .newThreshold().withUnit(MEGAWATT).withMax(500.).withMin(-100.).withSide(TwoSides.ONE).add()
+            .newThreshold().withUnit(AMPERE).withMax(300.).withMin(-200.).withSide(TwoSides.TWO).add()
+            .withNominalVoltage(220.)
+            .withReliabilityMargin(100)
+            .add();
+
+        assertEquals(400., cnec.getUpperBound(ONE, MEGAWATT).get());
+        assertEquals(500., cnec.getRawUpperBound(ONE, MEGAWATT).get());
+        assertEquals(300. - 100 / (220. * Math.sqrt(3) / 1000), cnec.getUpperBound(TWO, AMPERE).get());
+        assertEquals(300., cnec.getRawUpperBound(TWO, AMPERE).get());
+        assertEquals(0., cnec.getLowerBound(ONE, MEGAWATT).get());
+        assertEquals(-100, cnec.getRawLowerBound(ONE, MEGAWATT).get());
+        assertEquals(-200 + 100 / (220. * Math.sqrt(3) / 1000), cnec.getLowerBound(TWO, AMPERE).get());
+        assertEquals(-200, cnec.getRawLowerBound(TWO, AMPERE).get());
+    }
+
 }
