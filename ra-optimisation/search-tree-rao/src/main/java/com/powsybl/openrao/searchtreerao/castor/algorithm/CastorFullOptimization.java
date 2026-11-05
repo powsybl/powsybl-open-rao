@@ -101,19 +101,7 @@ public class CastorFullOptimization {
             }
 
             context.setStateTree(new StateTree(crac, optimizationReportNode));
-            context.setWorkingToolProvider(context.getToolProvider());
-            context.setDcRaoParameters(raoParameters);
-            context.setUseWorkingVars(LoadFlowAndSensitivityParameters.getOptimizeInDc(raoParameters)
-                    && !LoadFlowAndSensitivityParameters.getSensitivityWithLoadFlowParameters(raoParameters).getLoadFlowParameters().isDc());
-            if (context.useWorkingVars()) {
-                // clone RaoParameters and setDc(true)
-                ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                JsonRaoParameters.write(raoParameters, baos, reportNode);
-                context.setDcRaoParameters(JsonRaoParameters.read(new ByteArrayInputStream(baos.toByteArray()), reportNode));
-                LoadFlowAndSensitivityParameters.getSensitivityWithLoadFlowParameters(context.getDcRaoParameters()).getLoadFlowParameters().setDc(true);
-                context.setWorkingToolProvider(ToolProvider.buildFromRaoInputAndParameters(raoInput, context.getDcRaoParameters()));
-                network.getVariantManager().cloneVariant(network.getVariantManager().getWorkingVariantId(), WORKING_SCENARIO);
-            }
+            buildWorkingToolProvider(context);
 
             currentStep = "initial sensitivity analysis";
             // ----- INITIAL SENSI -----
@@ -246,6 +234,22 @@ public class CastorFullOptimization {
         return new RaoRunContext(ToolProvider.buildFromRaoInputAndParameters(raoInput, raoParameters));
     }
 
+    private void buildWorkingToolProvider(final RaoRunContext context) {
+        context.setWorkingToolProvider(context.getToolProvider());
+        context.setDcRaoParameters(raoParameters);
+        context.setUseWorkingVars(LoadFlowAndSensitivityParameters.getOptimizeInDc(raoParameters)
+                && !LoadFlowAndSensitivityParameters.getSensitivityWithLoadFlowParameters(raoParameters).getLoadFlowParameters().isDc());
+        if (context.useWorkingVars()) {
+            // clone RaoParameters and setDc(true)
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            JsonRaoParameters.write(raoParameters, baos, reportNode);
+            context.setDcRaoParameters(JsonRaoParameters.read(new ByteArrayInputStream(baos.toByteArray()), reportNode));
+            LoadFlowAndSensitivityParameters.getSensitivityWithLoadFlowParameters(context.getDcRaoParameters()).getLoadFlowParameters().setDc(true);
+            context.setWorkingToolProvider(ToolProvider.buildFromRaoInputAndParameters(raoInput, context.getDcRaoParameters()));
+            network.getVariantManager().cloneVariant(network.getVariantManager().getWorkingVariantId(), WORKING_SCENARIO);
+        }
+    }
+
     /**
      * Compute initial sensitivity on all CNECs (necessary to have initial flows for MNEC and loopflow
      * constraints on CNECs, in preventive and curative perimeters), both in AC and, when relevant, in the
@@ -312,7 +316,7 @@ public class CastorFullOptimization {
             );
         } else {
             preventiveResult = optimizePreventivePerimeter(
-                    context.getStateTree(), context.getWorkingToolProvider(), context.getToolProvider(),
+                    context.getStateTree(), context.getWorkingToolProvider(), context.getWorkingToolProvider(),
                     context.getWorkingInitialOutput(), initialOutput, preventivePerimeterOptimReportNode);
         }
         java.time.Instant preventiveRaoEndInstant = java.time.Instant.now();
@@ -351,6 +355,8 @@ public class CastorFullOptimization {
     }
 
     private void runCurativePerimeterOptimization(final RaoRunContext context, final ReportNode postContingencyPerimeterOptimReportNode) {
+        // curative stop criterion must be compared against leaf costs computed by the same (working) tool provider used in the curative search,
+        // otherwise a DC search is judged against an AC-recomputed target
         TreeParameters curativeTreeParameters = TreeParameters.buildForCurativePerimeter(raoParameters, context.getPreventiveResult().getCost());
         CastorContingencyScenarios castorContingencyScenarios = new CastorContingencyScenarios(
                 crac, raoParameters, context.getToolProvider(), context.getStateTree(), curativeTreeParameters, context.getInitialOutput());

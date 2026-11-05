@@ -270,6 +270,14 @@ from inside the RAO.
   of the network remain in AC. If the initial DC sensitivity analysis fails, the RAO falls back to optimizing in AC.  
   This parameter has no effect if the sensitivity-parameters are already in DC.  
 
+##### optimize-in-dc
+- **Expected value**: true/false
+- **Default value**: false
+- **Usage**: if true, and if the sensitivity-parameters are in AC, the sensitivity computations made during the search
+  tree optimization of each perimeter are run in DC, which is faster. The initial, post-preventive and final evaluations
+  of the network remain in AC. If the initial DC sensitivity analysis fails, the RAO falls back to optimizing in AC.  
+  This parameter has no effect if the sensitivity-parameters are already in DC.  
+
 #### Multi-threading parameters
 These parameters (`multi-threading`) allow you to run a RAO making the most out of your computation resources.
 
