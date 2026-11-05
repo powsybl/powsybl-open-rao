@@ -9,7 +9,7 @@ Feature: 5.2.3: Handle MNECs in search tree with range actions and network actio
   @fast @rao @ac @preventive-only @max-min-margin
   Scenario: 5.2.3.1: reference run, no MNEC
     Given network file is "common/network_12nodes.uct" for CORE CC
-    Given crac file is "5_special_features/5_2_mnec/ls_mixed_ref.json"
+    Given crac file is "5_special_features/5_2_mnec/crac_mixed_ref.json"
     Given configuration file is "common/rao_parameters_max_margin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
@@ -27,7 +27,7 @@ Feature: 5.2.3: Handle MNECs in search tree with range actions and network actio
   @fast @rao @ac @preventive-only @mnec @max-min-margin
   Scenario: 5.2.3.2: margin on MNEC should stay positive
     Given network file is "common/network_12nodes.uct" for CORE CC
-    Given crac file is "5_special_features/5_2_mnec/ls_mixed_4_2.json"
+    Given crac file is "5_special_features/5_2_mnec/crac_mixed_4_2.json"
     Given configuration file is "common/rao_parameters_max_margin_ampere_ac_mnec_dimin30.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
@@ -43,7 +43,7 @@ Feature: 5.2.3: Handle MNECs in search tree with range actions and network actio
   @fast @rao @ac @preventive-only @mnec @max-min-margin
   Scenario: 5.2.3.3: Search Tree RAO - 2 MNECs with one curative
     Given network file is "common/network_12nodes.uct" for CORE CC
-    Given crac file is "5_special_features/5_2_mnec/ls_mixed_4_3.json"
+    Given crac file is "5_special_features/5_2_mnec/crac_mixed_4_3.json"
     Given configuration file is "common/rao_parameters_max_margin_ampere_ac_mnec_dimin30.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"

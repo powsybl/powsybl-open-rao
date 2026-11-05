@@ -10,7 +10,7 @@ Feature: 1.4.4: Advanced 2nd preventive run conditions
   @fast @rao @ac @max-min-margin
   Scenario: 1.4.4.1: Cost has not increased during RAO, do not fall back to initial solution (copy of 1.4.1.1.1)
     Given network file is "common/network_16nodes.uct"
-    Given crac file is "1_multi_step_optimisation/1_4_second_preventive_rao/second_preventive_ls_1.json"
+    Given crac file is "1_multi_step_optimisation/1_4_second_preventive_rao/crac_second_preventive_1.json"
     Given configuration file is "1_multi_step_optimisation/1_4_second_preventive_rao/rao_parameters_max_margin_ampere_forbid_cost_increase.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
@@ -35,7 +35,7 @@ Feature: 1.4.4: Advanced 2nd preventive run conditions
   @fast @rao @ac @second-preventive @max-min-margin
   Scenario: 1.4.4.3: Cost has not increased during RAO, do not run 2P (copy of 1.4.1.1.1)
     Given network file is "common/network_16nodes.uct"
-    Given crac file is "1_multi_step_optimisation/1_4_second_preventive_rao/second_preventive_ls_1.json"
+    Given crac file is "1_multi_step_optimisation/1_4_second_preventive_rao/crac_second_preventive_1.json"
     Given configuration file is "1_multi_step_optimisation/1_4_second_preventive_rao/rao_parameters_max_margin_ampere_2p_if_cost_increase.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
@@ -62,7 +62,7 @@ Feature: 1.4.4: Advanced 2nd preventive run conditions
   @fast @rao @ac @second-preventive @max-min-margin
   Scenario: 1.4.4.5: Not enough time to run 2P (copy of 1.4.1.1.1)
     Given network file is "common/network_16nodes.uct"
-    Given crac file is "1_multi_step_optimisation/1_4_second_preventive_rao/second_preventive_ls_1.json"
+    Given crac file is "1_multi_step_optimisation/1_4_second_preventive_rao/crac_second_preventive_1.json"
     Given configuration file is "common/rao_parameters_max_margin_ampere_second_preventive.json"
     When I launch rao with a time limit of -1 seconds
     Then the worst margin is -144 A
@@ -73,7 +73,7 @@ Feature: 1.4.4: Advanced 2nd preventive run conditions
   @fast @rao @ac @second-preventive @max-min-margin
   Scenario: 1.4.4.6: Enough time to run 2P (copy of 1.4.1.1.1)
     Given network file is "common/network_16nodes.uct"
-    Given crac file is "1_multi_step_optimisation/1_4_second_preventive_rao/second_preventive_ls_1.json"
+    Given crac file is "1_multi_step_optimisation/1_4_second_preventive_rao/crac_second_preventive_1.json"
     Given configuration file is "common/rao_parameters_max_margin_ampere_second_preventive.json"
     When I launch rao with a time limit of 600 seconds
     Then the worst margin is 321 A

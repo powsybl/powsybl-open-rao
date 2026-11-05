@@ -3,13 +3,13 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-Feature: US 14.6: Boundary lines
+Feature: 0.1.1.4: Boundary lines
   #TODO: This feature covers
 
   @fast @rao @dc @preventive-only @max-min-margin
-  Scenario: 14.6.1 : Boundary line with no generation, RAO in MW
+  Scenario: 0.1.1.4.1 : Boundary line with no generation, RAO in MW
     Given network file is "0_import_export/0_1_import/0_1_1_cnec/network_12nodes_xnode_no_gen.uct" for CORE CC
-    Given crac file is "0_import_export/0_1_import/0_1_1_cnec/cbcora_14_6_1.xml"
+    Given crac file is "0_import_export/0_1_import/0_1_1_cnec/cbcora_0_1_1_4_1.xml"
     Given configuration file is "common/rao_parameters_max_margin_megawatt_dc.json"
     When I launch rao at "2019-01-08 12:00"
     Then the execution details should be "The RAO only went through first preventive"
@@ -19,9 +19,9 @@ Feature: US 14.6: Boundary lines
     Then 0 remedial actions are used in preventive
 
   @fast @rao @ac @preventive-only @max-min-margin
-  Scenario: 14.6.2 : Boundary line with no generation, RAO in A (same case as the previous scenario, but in A)
+  Scenario: 0.1.1.4.2 : Boundary line with no generation, RAO in A (same case as the previous scenario, but in A)
     Given network file is "0_import_export/0_1_import/0_1_1_cnec/network_12nodes_xnode_no_gen.uct" for CORE CC
-    Given crac file is "0_import_export/0_1_import/0_1_1_cnec/cbcora_14_6_1.xml"
+    Given crac file is "0_import_export/0_1_import/0_1_1_cnec/cbcora_0_1_1_4_1.xml"
     Given configuration file is "common/rao_parameters_max_margin_ampere.json"
     When I launch rao at "2019-01-08 12:00"
     Then the execution details should be "The RAO only went through first preventive"
@@ -31,9 +31,9 @@ Feature: US 14.6: Boundary lines
     Then 0 remedial actions are used in preventive
 
   @fast @rao @dc @preventive-only @max-min-margin
-  Scenario: 14.6.3 : Boundary line with generation, RAO in MW
+  Scenario: 0.1.1.4.3 : Boundary line with generation, RAO in MW
     Given network file is "0_import_export/0_1_import/0_1_1_cnec/network_12nodes_xnode_with_gen.uct" for CORE CC
-    Given crac file is "0_import_export/0_1_import/0_1_1_cnec/cbcora_14_6_1.xml"
+    Given crac file is "0_import_export/0_1_import/0_1_1_cnec/cbcora_0_1_1_4_1.xml"
     Given configuration file is "common/rao_parameters_max_margin_megawatt_dc.json"
     When I launch rao at "2019-01-08 12:00"
     Then the execution details should be "The RAO only went through first preventive"
@@ -43,9 +43,9 @@ Feature: US 14.6: Boundary lines
     Then 0 remedial actions are used in preventive
 
   @fast @rao @ac @preventive-only @max-min-margin
-  Scenario: 14.6.4 : Boundary line with generation, RAO in A (same case as the previous scenario, but in A)
+  Scenario: 0.1.1.4.4 : Boundary line with generation, RAO in A (same case as the previous scenario, but in A)
     Given network file is "0_import_export/0_1_import/0_1_1_cnec/network_12nodes_xnode_with_gen.uct" for CORE CC
-    Given crac file is "0_import_export/0_1_import/0_1_1_cnec/cbcora_14_6_1.xml"
+    Given crac file is "0_import_export/0_1_import/0_1_1_cnec/cbcora_0_1_1_4_1.xml"
     Given configuration file is "common/rao_parameters_max_margin_ampere.json"
     When I launch rao at "2019-01-08 12:00"
     Then the execution details should be "The RAO only went through first preventive"

@@ -10,7 +10,7 @@ Feature: 1.4.1: enable second optimization of the preventive perimeter
   @fast @rao @ac @second-preventive @max-min-margin
   Scenario: 1.4.1.1.1: Preventive network actions only
     Given network file is "common/network_16nodes.uct"
-    Given crac file is "1_multi_step_optimisation/1_4_second_preventive_rao/second_preventive_ls_1.json"
+    Given crac file is "1_multi_step_optimisation/1_4_second_preventive_rao/crac_second_preventive_1.json"
     Given configuration file is "common/rao_parameters_max_margin_ampere_second_preventive.json"
     When I launch rao
 #    Then I export rao reports to "reports/reports_1_4_1_1_1.txt"
@@ -27,7 +27,7 @@ Feature: 1.4.1: enable second optimization of the preventive perimeter
   @fast @rao @ac @second-preventive @max-min-margin
   Scenario: 1.4.1.1.2: Same case as 1.4.1.1 with a limitation of 2 RAs in preventive
     Given network file is "common/network_16nodes.uct"
-    Given crac file is "1_multi_step_optimisation/1_4_second_preventive_rao/second_preventive_ls_1_2.json"
+    Given crac file is "1_multi_step_optimisation/1_4_second_preventive_rao/crac_second_preventive_1_2.json"
     Given configuration file is "common/rao_parameters_max_margin_ampere_second_preventive.json"
     When I launch rao
     Then the execution details should be "Second preventive improved first preventive results"
@@ -42,7 +42,7 @@ Feature: 1.4.1: enable second optimization of the preventive perimeter
   @fast @rao @ac @second-preventive @max-min-margin
   Scenario: 1.4.1.1.3: Same case as 1.4.1.1.1 with pst_fr available in curative
     Given network file is "common/network_16nodes.uct"
-    Given crac file is "1_multi_step_optimisation/1_4_second_preventive_rao/second_preventive_ls_1_3.json"
+    Given crac file is "1_multi_step_optimisation/1_4_second_preventive_rao/crac_second_preventive_1_3.json"
     Given configuration file is "common/rao_parameters_max_margin_ampere_second_preventive.json"
     When I launch rao
     Then the execution details should be "Second preventive improved first preventive results"
@@ -58,7 +58,7 @@ Feature: 1.4.1: enable second optimization of the preventive perimeter
   Scenario: 1.4.1.1.4: Pst_fr limits relative to previous instant are the most impacting w.r.t relative to initial network
     # 2P is now always global, pst_fr is always optimized
     Given network file is "common/network_16nodes.uct"
-    Given crac file is "1_multi_step_optimisation/1_4_second_preventive_rao/second_preventive_ls_1_4.json"
+    Given crac file is "1_multi_step_optimisation/1_4_second_preventive_rao/crac_second_preventive_1_4.json"
     Given configuration file is "common/rao_parameters_max_margin_ampere_second_preventive.json"
     When I launch rao
     Then the execution details should be "Second preventive improved first preventive results"

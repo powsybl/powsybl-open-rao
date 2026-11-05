@@ -10,7 +10,7 @@ Feature: 0.1.1.8: Handle X-nodes
   Scenario: 0.1.1.8.1: Handle CRAC import with half-line IDs
   No threshold with a PERCENT_IMAX unit is defined in the CRAC so no iMax was imported.
     Given network file is "0_import_export/0_1_import/0_1_1_cnec/network_12nodes_with_xnodes.uct"
-    Given crac file is "0_import_export/0_1_import/0_1_1_cnec/ls-Xnodes.json"
+    Given crac file is "0_import_export/0_1_import/0_1_1_cnec/crac_Xnodes.json"
     When I import crac
     Then it should have the following flow CNECs:
       | Name       | NetworkElementId                          | Instant    | Contingency | Optimized | Monitored | ImaxLeft | ImaxRight | NominalVoltageLeft | NominalVoltageRight |
@@ -29,7 +29,7 @@ Feature: 0.1.1.8: Handle X-nodes
   @fast @rao @ac @preventive-only @max-min-margin
   Scenario: 0.1.1.8.2: Reference run for tests with Xnodes
     Given network file is "common/network_12nodes.uct"
-    Given crac file is "0_import_export/0_1_import/0_1_1_cnec/ls-ref.json"
+    Given crac file is "0_import_export/0_1_import/0_1_1_cnec/crac_ref.json"
     Given configuration file is "common/rao_parameters_max_margin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
@@ -45,7 +45,7 @@ Feature: 0.1.1.8: Handle X-nodes
   @fast @rao @ac @preventive-only @max-min-margin
   Scenario: 0.1.1.8.3: Run a rao on a simple network with one X-node but the line containing X-node is not optimized
     Given network file is "0_import_export/0_1_import/0_1_1_cnec/network_12nodes_with_one_xnode.uct"
-    Given crac file is "0_import_export/0_1_import/0_1_1_cnec/ls-Xnode-ref.json"
+    Given crac file is "0_import_export/0_1_import/0_1_1_cnec/crac_Xnode-ref.json"
     Given configuration file is "common/rao_parameters_max_margin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
@@ -59,7 +59,7 @@ Feature: 0.1.1.8: Handle X-nodes
   @fast @rao @ac @preventive-only @max-min-margin
   Scenario: 0.1.1.8.4: Run a rao on a simple network with one X-node and the line containing X-node is optimized
     Given network file is "0_import_export/0_1_import/0_1_1_cnec/network_12nodes_with_one_xnode.uct"
-    Given crac file is "0_import_export/0_1_import/0_1_1_cnec/ls-Xnode.json"
+    Given crac file is "0_import_export/0_1_import/0_1_1_cnec/crac_Xnode.json"
     Given configuration file is "common/rao_parameters_max_margin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
@@ -75,7 +75,7 @@ Feature: 0.1.1.8: Handle X-nodes
   @fast @rao @ac @preventive-only @max-min-margin
   Scenario: 0.1.1.8.5: Run a rao on a network with X-nodes at each border and 2 lines are optimized
     Given network file is "0_import_export/0_1_import/0_1_1_cnec/network_12nodes_with_xnodes.uct"
-    Given crac file is "0_import_export/0_1_import/0_1_1_cnec/ls-Xnodes.json"
+    Given crac file is "0_import_export/0_1_import/0_1_1_cnec/crac_Xnodes.json"
     Given configuration file is "common/rao_parameters_max_margin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"

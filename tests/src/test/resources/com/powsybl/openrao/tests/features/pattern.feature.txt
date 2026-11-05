@@ -16,7 +16,7 @@ Feature: xx.x: Add an explicit title
     # Inputs
       ## Compulsory if applicable
     Given network file is "common/network_12nodes.uct"
-    Given crac file is "5_special_features/5_2_mnec/ls_mnec_linearRao_ref.json"
+    Given crac file is "5_special_features/5_2_mnec/crac_mnec_linearRao_ref.json"
       ## Always define an explicit configuration file
     Given configuration file is "common/rao_parameters_max_margin_megawatt_dc.json"
     # Launch

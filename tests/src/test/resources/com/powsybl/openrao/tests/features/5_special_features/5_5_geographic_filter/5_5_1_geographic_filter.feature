@@ -34,7 +34,7 @@ Feature: 5.5.1: Geographic filter
     # This results in a solution that is less optimal than using "PST @1" alone (83A, see test case 5.5.1.3 variant 1)
     Given network file is "common/network_12nodes.uct"
     Given crac file is "common/crac_2_1_2_2_selectionTopoRA_variant1.json"
-    Given configuration file is "common/rao_parameters_case_91_1_12.json"
+    Given configuration file is "common/rao_parameters_case_common.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"

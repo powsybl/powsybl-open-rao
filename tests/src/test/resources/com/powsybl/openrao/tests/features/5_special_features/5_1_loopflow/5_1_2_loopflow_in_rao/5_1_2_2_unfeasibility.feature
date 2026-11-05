@@ -9,7 +9,7 @@ Feature: 5.1.2.2: Handle optimisation unfeasibility with loopflow constraints
   @fast @rao @dc @preventive-only @loopflow @max-min-margin
   Scenario: 5.1.2.2.1: Simple search tree RAO with LF limitation and infeasible linear problem
     Given network file is "common/network_12nodes.uct"
-    Given crac file is "5_special_features/5_1_loopflow/5_1_2_loopflow_in_rao/crac_5_1_2_2_1_crac_lf_rao_3bis.json"
+    Given crac file is "5_special_features/5_1_loopflow/5_1_2_loopflow_in_rao/crac_5_1_2_2_1.json"
     Given loopflow glsk file is "common/glsk_lots_of_lf_12nodes.xml"
     Given configuration file is "5_special_features/5_1_loopflow/5_1_2_loopflow_in_rao/rao_parameters_max_margin_mw_dc_lf_false_5_100.json"
     When I launch loopflow rao with default loopflow limit as 50.0 percent of pmax

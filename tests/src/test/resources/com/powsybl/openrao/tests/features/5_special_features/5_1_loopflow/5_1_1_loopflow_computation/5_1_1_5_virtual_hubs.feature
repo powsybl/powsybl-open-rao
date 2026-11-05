@@ -60,7 +60,7 @@ Feature: 5.1.1.5: Virtual hubs in loopflow computation
   @fast @loopflow-computation @ac @loopflow
   Scenario: 5.1.1.5.2 Loop flow computation with one virtual hub on a external Xnode border - MEGAWATT
     Given network file is "5_special_features/5_1_loopflow/5_1_1_loopflow_computation/network_12nodes_with_xnodes_boundary.uct" for CORE CC
-    Given crac file is "5_special_features/5_1_loopflow/5_1_1_loopflow_computation/crac_5_1_1_5_2_crac_lf_xnodes.json"
+    Given crac file is "5_special_features/5_1_loopflow/5_1_1_loopflow_computation/crac_5_1_1_5_2_xnodes.json"
     Given loopflow glsk file is "common/glsk_lots_of_lf_12nodes.xml"
     Given RefProg file is "5_special_features/5_1_loopflow/5_1_1_loopflow_computation/ref_prog_virtual_2.xml"
     Given Virtual hubs configuration file is "conf_virtual_hub_2.xml"
@@ -86,7 +86,7 @@ Feature: 5.1.1.5: Virtual hubs in loopflow computation
   Perform exactly the same test as 5.1.1.5.2, but this time with the computation carried out in Ampere.
   The expected result should match the Megawatt value converted to Ampere using the formula : flowInAmpere ~ flowInMw / (Unom × sqrt(3) / 1000).
     Given network file is "5_special_features/5_1_loopflow/5_1_1_loopflow_computation/network_12nodes_with_xnodes_boundary.uct" for CORE CC
-    Given crac file is "5_special_features/5_1_loopflow/5_1_1_loopflow_computation/crac_5_1_1_5_2_crac_lf_xnodes.json"
+    Given crac file is "5_special_features/5_1_loopflow/5_1_1_loopflow_computation/crac_5_1_1_5_2_xnodes.json"
     Given loopflow glsk file is "common/glsk_lots_of_lf_12nodes.xml"
     Given RefProg file is "5_special_features/5_1_loopflow/5_1_1_loopflow_computation/ref_prog_virtual_2.xml"
     Given Virtual hubs configuration file is "conf_virtual_hub_2.xml"
@@ -110,9 +110,8 @@ Feature: 5.1.1.5: Virtual hubs in loopflow computation
 
   @fast @rao @dc @preventive-only @loopflow @max-min-margin
   Scenario: 5.1.1.5.3 RAO with one virtual hub on a external Xnode border - MEGAWATT
-  Scenario: 7.18.3 RAO with one virtual hub on a external Xnode border - MEGAWATT
     Given network file is "5_special_features/5_1_loopflow/5_1_1_loopflow_computation/network_12nodes_with_xnodes_boundary.uct" for CORE CC
-    Given crac file is "5_special_features/5_1_loopflow/5_1_1_loopflow_computation/crac_7_18_3_crac_lf_rao_3_cbcora_xnodes.xml"
+    Given crac file is "5_special_features/5_1_loopflow/5_1_1_loopflow_computation/crac_5_1_1_5_3_xnodes.xml"
     Given loopflow glsk file is "common/glsk_lots_of_lf_12nodes.xml"
     Given RefProg file is "5_special_features/5_1_loopflow/5_1_1_loopflow_computation/ref_prog_virtual_2.xml"
     Given Virtual hubs configuration file is "conf_virtual_hub_2.xml"

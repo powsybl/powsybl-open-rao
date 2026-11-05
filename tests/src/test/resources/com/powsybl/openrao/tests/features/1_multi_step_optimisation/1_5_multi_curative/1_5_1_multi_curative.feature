@@ -11,7 +11,7 @@ Feature: 1.5.1: Multi-curative
     # Test state tree algorithm
     Given network file is "1_multi_step_optimisation/1_5_multi_curative/network_1_5_1_1.uct"
     Given crac file is "1_multi_step_optimisation/1_5_multi_curative/crac_1_5_1_1.json"
-    Given configuration file is "common/rao_parameters_case_91_1_12.json"
+    Given configuration file is "common/rao_parameters_case_common.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "UNSECURED"
@@ -644,7 +644,7 @@ Feature: 1.5.1: Multi-curative
     #
     Given network file is "1_multi_step_optimisation/1_5_multi_curative/network_12nodes_3_parallel_lines_disconnected.uct"
     Given crac file is "1_multi_step_optimisation/1_5_multi_curative/crac_1_5_1_19.json"
-    Given configuration file is "1_multi_step_optimisation/1_5_multi_curative/rao_parameters_case_91_12_secure_2prao.json"
+    Given configuration file is "1_multi_step_optimisation/1_5_multi_curative/rao_parameters_case_1_5_2_1_secure_2prao.json"
     When I launch rao
     Then the execution details should be "Second preventive improved first preventive results"
     Then its security status should be "SECURED"
@@ -666,7 +666,7 @@ Feature: 1.5.1: Multi-curative
   Thus the other 2 CRAs should be applied as before, but the PST should be applied in 2nd PRAO
     Given network file is "1_multi_step_optimisation/1_5_multi_curative/network_12nodes_3_parallel_lines_disconnected.uct"
     Given crac file is "1_multi_step_optimisation/1_5_multi_curative/crac_1_5_1_20.json"
-    Given configuration file is "1_multi_step_optimisation/1_5_multi_curative/rao_parameters_case_91_12_secure_2prao.json"
+    Given configuration file is "1_multi_step_optimisation/1_5_multi_curative/rao_parameters_case_1_5_2_1_secure_2prao.json"
     When I launch rao
     Then the execution details should be "Second preventive improved first preventive results"
     Then its security status should be "SECURED"
@@ -707,7 +707,7 @@ Feature: 1.5.1: Multi-curative
   Thus the other 2 CRAs should be applied as before, but the RA_CLOSE_NL2_BE3_2 should be applied in 2nd PRAO
     Given network file is "1_multi_step_optimisation/1_5_multi_curative/network_12nodes_3_parallel_lines_disconnected.uct"
     Given crac file is "1_multi_step_optimisation/1_5_multi_curative/crac_1_5_1_21.json"
-    Given configuration file is "1_multi_step_optimisation/1_5_multi_curative/rao_parameters_case_91_12_secure_2prao.json"
+    Given configuration file is "1_multi_step_optimisation/1_5_multi_curative/rao_parameters_case_1_5_2_1_secure_2prao.json"
     When I launch rao
     Then the execution details should be "Second preventive improved first preventive results"
     Then its security status should be "SECURED"
@@ -743,7 +743,7 @@ Feature: 1.5.1: Multi-curative
   Thus the other 2 CRAs should be applied as before, but the RA_CLOSE_NL2_BE3_3 should be applied in 2nd PRAO
     Given network file is "1_multi_step_optimisation/1_5_multi_curative/network_12nodes_3_parallel_lines_disconnected.uct"
     Given crac file is "1_multi_step_optimisation/1_5_multi_curative/crac_1_5_1_22.json"
-    Given configuration file is "1_multi_step_optimisation/1_5_multi_curative/rao_parameters_case_91_12_secure_2prao.json"
+    Given configuration file is "1_multi_step_optimisation/1_5_multi_curative/rao_parameters_case_1_5_2_1_secure_2prao.json"
     When I launch rao
     Then the execution details should be "Second preventive improved first preventive results"
     Then its security status should be "SECURED"

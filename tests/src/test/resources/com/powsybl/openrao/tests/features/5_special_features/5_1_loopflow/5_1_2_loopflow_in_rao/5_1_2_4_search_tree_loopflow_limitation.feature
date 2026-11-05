@@ -9,7 +9,7 @@ Feature: 5.1.2.4: Search-tree RAO with loopflow limitation
   @fast @rao @dc @preventive-only @max-min-margin
   Scenario: 5.1.2.4.1: Simple search tree RAO without LF limitation - MEGAWATT
     Given network file is "common/network_12nodes.uct"
-    Given crac file is "5_special_features/5_1_loopflow/5_1_2_loopflow_in_rao/crac_5_1_2_4_1_crac_lf_rao_3.json"
+    Given crac file is "5_special_features/5_1_loopflow/5_1_2_loopflow_in_rao/crac_5_1_2_4_1.json"
     Given configuration file is "common/rao_parameters_max_margin_megawatt_dc.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
@@ -24,7 +24,7 @@ Feature: 5.1.2.4: Search-tree RAO with loopflow limitation
   @fast @rao @dc @preventive-only @loopflow @max-min-margin
   Scenario: 5.1.2.4.2: Simple search tree RAO with LF limited by a predefined threshold - MEGAWATT
     Given network file is "common/network_12nodes.uct"
-    Given crac file is "5_special_features/5_1_loopflow/5_1_2_loopflow_in_rao/crac_5_1_2_4_1_crac_lf_rao_3.json"
+    Given crac file is "5_special_features/5_1_loopflow/5_1_2_loopflow_in_rao/crac_5_1_2_4_1.json"
     Given loopflow glsk file is "common/glsk_lots_of_lf_12nodes.xml"
     Given configuration file is "5_special_features/5_1_loopflow/rao_parameters_max_margin_mw_dc_lf_false_5_100_update_ptdf.json"
     When I launch loopflow rao with default loopflow limit as 50.0 percent of pmax
@@ -51,7 +51,7 @@ Feature: 5.1.2.4: Search-tree RAO with loopflow limitation
   @fast @rao @dc @preventive-only @loopflow @max-min-margin
   Scenario: 5.1.2.4.3: Simple search tree RAO with LF limited by their initial value
     Given network file is "common/network_12nodes.uct"
-    Given crac file is "5_special_features/5_1_loopflow/5_1_2_loopflow_in_rao/crac_5_1_2_4_1_crac_lf_rao_3.json"
+    Given crac file is "5_special_features/5_1_loopflow/5_1_2_loopflow_in_rao/crac_5_1_2_4_1.json"
     Given loopflow glsk file is "common/glsk_lots_of_lf_12nodes.xml"
     Given configuration file is "5_special_features/5_1_loopflow/rao_parameters_max_margin_mw_dc_lf_false_5_100_update_ptdf.json"
     When I launch loopflow rao with default loopflow limit as 25.0 percent of pmax
@@ -77,7 +77,7 @@ Feature: 5.1.2.4: Search-tree RAO with loopflow limitation
   @fast @rao @dc @preventive-only @loopflow @max-min-margin
   Scenario: 5.1.2.4.4: Simple search tree RAO with loop-approximation ON - MEGAWATT
     Given network file is "common/network_12nodes.uct"
-    Given crac file is "5_special_features/5_1_loopflow/5_1_2_loopflow_in_rao/crac_5_1_2_4_1_crac_lf_rao_3.json"
+    Given crac file is "5_special_features/5_1_loopflow/5_1_2_loopflow_in_rao/crac_5_1_2_4_1.json"
     Given loopflow glsk file is "common/glsk_lots_of_lf_12nodes.xml"
     Given configuration file is "common/rao_parameters_max_margin_mw_dc_lf_true_5_100.json"
     When I launch loopflow rao with default loopflow limit as 50.0 percent of pmax
@@ -101,7 +101,7 @@ Feature: 5.1.2.4: Search-tree RAO with loopflow limitation
   @fast @rao @dc @preventive-only @max-min-margin
   Scenario: 5.1.2.4.5: Complex search tree RAO without LF limitation
     Given network file is "common/network_12nodes_2psts.uct"
-    Given crac file is "5_special_features/5_1_loopflow/5_1_2_loopflow_in_rao/crac_5_1_2_4_5_crac_lf_rao_4.json"
+    Given crac file is "5_special_features/5_1_loopflow/5_1_2_loopflow_in_rao/crac_5_1_2_4_5.json"
     Given configuration file is "common/rao_parameters_max_margin_megawatt_dc.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
@@ -117,7 +117,7 @@ Feature: 5.1.2.4: Search-tree RAO with loopflow limitation
   @fast @rao @dc @preventive-only @loopflow @max-min-margin
   Scenario: 5.1.2.4.6: Complex search tree RAO with LF limitation
     Given network file is "common/network_12nodes_2psts.uct"
-    Given crac file is "5_special_features/5_1_loopflow/5_1_2_loopflow_in_rao/crac_5_1_2_4_6_crac_lf_rao_5.json"
+    Given crac file is "5_special_features/5_1_loopflow/5_1_2_loopflow_in_rao/crac_5_1_2_4_6.json"
     Given loopflow glsk file is "common/glsk_lots_of_lf_12nodes.xml"
     Given configuration file is "5_special_features/5_1_loopflow/5_1_2_loopflow_in_rao/rao_parameters_max_margin_mw_dc_lf_false_5_100.json"
     When I launch loopflow rao with default loopflow limit as 35.0 percent of pmax
