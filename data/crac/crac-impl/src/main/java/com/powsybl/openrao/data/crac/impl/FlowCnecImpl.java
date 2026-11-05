@@ -90,19 +90,20 @@ public class FlowCnecImpl extends AbstractCnec<FlowCnec> implements FlowCnec {
         }
         return Double.isNaN(boundValues[getIndex(side, requestedUnit, Bound.LOWER)])
             ? Optional.empty()
-            : Optional.of(boundValues[getIndex(side, requestedUnit, Bound.LOWER)]);
+            : Optional.of(boundValues[getIndex(side, requestedUnit, Bound.LOWER)] - reliabilityMargin * getFlowUnitMultiplier(getNominalVoltage(side), Unit.MEGAWATT, requestedUnit));
 
     }
 
     @Override
     public Optional<Double> getLowerBound(TwoSides side, Unit requestedUnit) {
-        Optional<Double> lowerBound = getRawLowerBound(side, requestedUnit);
+        Double lowerBound = boundValues[getIndex(side, requestedUnit, Bound.LOWER)];
         Unit otherUnit = requestedUnit.equals(Unit.MEGAWATT) ? Unit.AMPERE : Unit.MEGAWATT;
-        if (lowerBound.isPresent()) {
-            return lowerBound;
+        Double lowerBoundInOtherUnit = boundValues[getIndex(side, otherUnit, Bound.LOWER)];
+        if (!lowerBound.isNaN()) {
+            return Optional.of(lowerBound);
         }
-        if (!lowerBound.isPresent() && getRawLowerBound(side, otherUnit).isPresent()) {
-            return Optional.of(getRawLowerBound(side, otherUnit).get() * getFlowUnitMultiplier(getNominalVoltage(side), otherUnit, requestedUnit));
+        if (lowerBound.isNaN() && !lowerBoundInOtherUnit.isNaN()) {
+            return Optional.of(lowerBoundInOtherUnit * getFlowUnitMultiplier(getNominalVoltage(side), otherUnit, requestedUnit));
         }
         return Optional.empty();
     }
@@ -168,18 +169,19 @@ public class FlowCnecImpl extends AbstractCnec<FlowCnec> implements FlowCnec {
 
         return Double.isNaN(boundValues[getIndex(side, requestedUnit, Bound.UPPER)])
             ? Optional.empty()
-            : Optional.of(boundValues[getIndex(side, requestedUnit, Bound.UPPER)]);
+            : Optional.of(boundValues[getIndex(side, requestedUnit, Bound.UPPER)] + reliabilityMargin * getFlowUnitMultiplier(getNominalVoltage(side), Unit.MEGAWATT, requestedUnit));
     }
 
     @Override
     public Optional<Double> getUpperBound(TwoSides side, Unit requestedUnit) {
-        Optional<Double> upperBound = getRawUpperBound(side, requestedUnit);
+        Double upperBound = boundValues[getIndex(side, requestedUnit, Bound.UPPER)];
         Unit otherUnit = requestedUnit.equals(Unit.MEGAWATT) ? Unit.AMPERE : Unit.MEGAWATT;
-        if (upperBound.isPresent()) {
-            return upperBound;
+        Double upperBoundInOtherUnit = boundValues[getIndex(side, otherUnit, Bound.UPPER)];
+        if (!upperBound.isNaN()) {
+            return Optional.of(upperBound);
         }
-        if (!upperBound.isPresent() && getRawUpperBound(side, otherUnit).isPresent()) {
-            return Optional.of(getRawUpperBound(side, otherUnit).get() * getFlowUnitMultiplier(getNominalVoltage(side), otherUnit, requestedUnit));
+        if (upperBound.isNaN() && !upperBoundInOtherUnit.isNaN()) {
+            return Optional.of(upperBoundInOtherUnit * getFlowUnitMultiplier(getNominalVoltage(side), otherUnit, requestedUnit));
         }
         return Optional.empty();
     }

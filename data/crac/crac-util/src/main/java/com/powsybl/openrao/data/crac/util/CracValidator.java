@@ -26,8 +26,6 @@ import com.powsybl.openrao.data.crac.api.usagerule.UsageRule;
 
 import java.util.*;
 
-import static com.powsybl.openrao.commons.UnitConverter.getFlowUnitMultiplier;
-
 /**
  * Misc features that clean up a CRAC to prepare it for the RAO
  *
@@ -123,11 +121,11 @@ public final class CracValidator {
                         .withUnit(unit);
 
                     if (lowerBound.isPresent()) {
-                        tr.withMin(lowerBound.get() - cnec.getReliabilityMargin() * getFlowUnitMultiplier(cnec.getNominalVoltage(side), Unit.MEGAWATT, unit));
+                        tr.withMin(lowerBound.get());
                     }
 
                     if (upperBound.isPresent()) {
-                        tr.withMax(upperBound.get() + cnec.getReliabilityMargin() * getFlowUnitMultiplier(cnec.getNominalVoltage(side), Unit.MEGAWATT, unit));
+                        tr.withMax(upperBound.get());
                     }
                     tr.add();
                 }

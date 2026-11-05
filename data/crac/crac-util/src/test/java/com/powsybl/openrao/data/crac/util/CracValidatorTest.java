@@ -116,8 +116,8 @@ class CracValidatorTest {
         assertEquals(flowCnec.getNominalVoltage(TwoSides.TWO), duplicate.getNominalVoltage(TwoSides.TWO), 1e-6);
         for (TwoSides side : Set.of(TwoSides.ONE, TwoSides.TWO)) {
             for (Unit unit : Set.of(Unit.AMPERE, Unit.MEGAWATT)) {
-                assertEquals(flowCnec.getRawUpperBound(side, unit), duplicate.getRawUpperBound(side, unit));
-                assertEquals(flowCnec.getRawLowerBound(side, unit), duplicate.getRawLowerBound(side, unit));
+                assertEquals(flowCnec.getUpperBound(side, unit), duplicate.getUpperBound(side, unit));
+                assertEquals(flowCnec.getLowerBound(side, unit), duplicate.getLowerBound(side, unit));
             }
         }
     }

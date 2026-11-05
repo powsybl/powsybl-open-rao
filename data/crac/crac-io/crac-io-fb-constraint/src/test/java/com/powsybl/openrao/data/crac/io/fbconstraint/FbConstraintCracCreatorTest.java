@@ -35,7 +35,6 @@ import java.io.IOException;
 import java.time.OffsetDateTime;
 import java.util.Set;
 
-import static com.powsybl.openrao.commons.UnitConverter.getFlowUnitMultiplier;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -281,12 +280,11 @@ class FbConstraintCracCreatorTest {
     }
 
     private void checkBounds(FlowCnec cnec, TwoSides monitoredSide, Unit unit, Double min, Double max) {
-        double reliabilityMargin = cnec.getReliabilityMargin() * getFlowUnitMultiplier(cnec.getNominalVoltage(monitoredSide), Unit.MEGAWATT, unit);
         if (!Double.isNaN(min)) {
-            assertEquals(min, cnec.getRawLowerBound(monitoredSide, unit).get() - reliabilityMargin, TOLERANCE);
+            assertEquals(min, cnec.getRawLowerBound(monitoredSide, unit).get(), TOLERANCE);
         }
         if (!Double.isNaN(max)) {
-            assertEquals(max, cnec.getRawUpperBound(monitoredSide, unit).get() + reliabilityMargin, TOLERANCE);
+            assertEquals(max, cnec.getRawUpperBound(monitoredSide, unit).get(), TOLERANCE);
         }
     }
 

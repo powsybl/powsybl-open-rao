@@ -23,7 +23,6 @@ import java.io.IOException;
 import java.time.OffsetDateTime;
 import java.util.Set;
 
-import static com.powsybl.openrao.commons.UnitConverter.getFlowUnitMultiplier;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -98,12 +97,11 @@ class CriticalBranchReaderTest {
     void checkBoundOnBothSide(FlowCnec cnec, double min, double max, Unit unit) {
 
         for (TwoSides side : Set.of(TwoSides.ONE, TwoSides.TWO)) {
-            double reliabilityMargin = cnec.getReliabilityMargin() * getFlowUnitMultiplier(cnec.getNominalVoltage(side), Unit.MEGAWATT, unit);
             if (!Double.isNaN(min)) {
-                assertEquals(min, cnec.getRawLowerBound(side, unit).get() - reliabilityMargin);
+                assertEquals(min, cnec.getRawLowerBound(side, unit).get());
             }
             if (!Double.isNaN(max)) {
-                assertEquals(max, cnec.getRawUpperBound(side, unit).get() + reliabilityMargin);
+                assertEquals(max, cnec.getRawUpperBound(side, unit).get());
             }
         }
 

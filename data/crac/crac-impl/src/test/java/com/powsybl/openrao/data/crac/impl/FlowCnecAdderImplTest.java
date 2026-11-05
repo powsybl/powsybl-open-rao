@@ -126,8 +126,8 @@ class FlowCnecAdderImplTest {
             .newThreshold().withUnit(Unit.MEGAWATT).withSide(ONE).withMax(maxValueInMw).withMin(-maxValueInMw).add()
             .withReliabilityMargin(frmInMw)
             .add();
-        assertEquals(maxValueInMw - frmInMw, cnec.getRawUpperBound(ONE, Unit.MEGAWATT).orElseThrow(OpenRaoException::new), 0.0);
-        assertEquals(frmInMw - maxValueInMw, cnec.getRawLowerBound(ONE, Unit.MEGAWATT).orElseThrow(OpenRaoException::new), 0.0);
+        assertEquals(maxValueInMw - frmInMw, cnec.getUpperBound(ONE, Unit.MEGAWATT).orElseThrow(OpenRaoException::new), 0.0);
+        assertEquals(frmInMw - maxValueInMw, cnec.getLowerBound(ONE, Unit.MEGAWATT).orElseThrow(OpenRaoException::new), 0.0);
     }
 
     @Test
