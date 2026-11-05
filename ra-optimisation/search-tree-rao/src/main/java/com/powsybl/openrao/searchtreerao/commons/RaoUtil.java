@@ -261,10 +261,12 @@ public final class RaoUtil {
         Crac crac = raoInput.getCrac();
         if (!getSensitivityWithLoadFlowParameters(raoParameters).getLoadFlowParameters().isDc()) {
             crac.getFlowCnecs().forEach(flowCnec -> {
-                for (TwoSides side : Set.of(TwoSides.ONE, TwoSides.TWO)) {
-                    if (flowCnec.getRawLowerBound(side, Unit.MEGAWATT).isPresent() || flowCnec.getRawUpperBound(side, Unit.MEGAWATT).isPresent()) {
-                        CommonReports.reportThresholdForFlowCnecDefinedInMwButLoadflowComputationIsInAc(reportNode, flowCnec.getId());
-                    }
+                if (flowCnec.getRawLowerBound(TwoSides.ONE, Unit.MEGAWATT).isPresent() ||
+                    flowCnec.getRawUpperBound(TwoSides.ONE, Unit.MEGAWATT).isPresent() ||
+                    flowCnec.getRawLowerBound(TwoSides.TWO, Unit.MEGAWATT).isPresent() ||
+                    flowCnec.getRawUpperBound(TwoSides.TWO, Unit.MEGAWATT).isPresent()
+                ) {
+                    CommonReports.reportThresholdForFlowCnecDefinedInMwButLoadflowComputationIsInAc(reportNode, flowCnec.getId());
                 }
             });
         }
