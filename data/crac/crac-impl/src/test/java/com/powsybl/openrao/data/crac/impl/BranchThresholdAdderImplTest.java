@@ -48,8 +48,8 @@ class BranchThresholdAdderImplTest {
             .withNetworkElement("neID")
             .newThreshold().withUnit(Unit.MEGAWATT).withMin(-250.0).withMax(1000.0).withSide(TwoSides.ONE).add()
             .add();
-        assertEquals(1000.0, cnec.getUpperBound(ONE, Unit.MEGAWATT).orElseThrow(), DOUBLE_TOLERANCE);
-        assertEquals(-250.0, cnec.getLowerBound(ONE, Unit.MEGAWATT).orElseThrow(), DOUBLE_TOLERANCE);
+        assertEquals(1000.0, cnec.getRawUpperBound(ONE, Unit.MEGAWATT).orElseThrow(), DOUBLE_TOLERANCE);
+        assertEquals(-250.0, cnec.getRawLowerBound(ONE, Unit.MEGAWATT).orElseThrow(), DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -60,8 +60,8 @@ class BranchThresholdAdderImplTest {
             .newThreshold().withUnit(Unit.AMPERE).withMin(-1000.).withMax(1000.).withSide(TwoSides.ONE).add()
             .withNominalVoltage(220.)
             .add();
-        assertEquals(1000.0, cnec.getUpperBound(ONE, Unit.AMPERE).orElseThrow(), DOUBLE_TOLERANCE);
-        assertEquals(-1000.0, cnec.getLowerBound(ONE, Unit.AMPERE).orElseThrow(), DOUBLE_TOLERANCE);
+        assertEquals(1000.0, cnec.getRawUpperBound(ONE, Unit.AMPERE).orElseThrow(), DOUBLE_TOLERANCE);
+        assertEquals(-1000.0, cnec.getRawLowerBound(ONE, Unit.AMPERE).orElseThrow(), DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -74,8 +74,8 @@ class BranchThresholdAdderImplTest {
             .withIMax(5000.)
             .add();
 
-        assertEquals(0.5 * 5000., cnec.getUpperBound(ONE, Unit.AMPERE).orElseThrow(), DOUBLE_TOLERANCE);
-        assertEquals(-0.8 * 5000., cnec.getLowerBound(ONE, Unit.AMPERE).orElseThrow(), DOUBLE_TOLERANCE);
+        assertEquals(0.5 * 5000., cnec.getRawUpperBound(ONE, Unit.AMPERE).orElseThrow(), DOUBLE_TOLERANCE);
+        assertEquals(-0.8 * 5000., cnec.getRawLowerBound(ONE, Unit.AMPERE).orElseThrow(), DOUBLE_TOLERANCE);
     }
 
     @Test

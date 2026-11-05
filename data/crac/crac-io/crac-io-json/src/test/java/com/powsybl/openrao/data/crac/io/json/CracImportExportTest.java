@@ -658,26 +658,26 @@ class CracImportExportTest {
 
         // check bound
         FlowCnec flowCnec1 = crac.getFlowCnec("cnec4prevId");
-        assertTrue(flowCnec1.getLowerBound(TwoSides.ONE, Unit.MEGAWATT).isEmpty());
-        assertTrue(flowCnec1.getLowerBound(TwoSides.TWO, Unit.MEGAWATT).isEmpty());
-        assertEquals(500., flowCnec1.getUpperBound(TwoSides.ONE, Unit.MEGAWATT).get());
-        assertTrue(flowCnec1.getUpperBound(TwoSides.TWO, Unit.MEGAWATT).isEmpty());
+        assertTrue(flowCnec1.getRawLowerBound(TwoSides.ONE, Unit.MEGAWATT).isEmpty());
+        assertTrue(flowCnec1.getRawLowerBound(TwoSides.TWO, Unit.MEGAWATT).isEmpty());
+        assertEquals(500., flowCnec1.getRawUpperBound(TwoSides.ONE, Unit.MEGAWATT).get());
+        assertTrue(flowCnec1.getRawUpperBound(TwoSides.TWO, Unit.MEGAWATT).isEmpty());
 
-        assertTrue(flowCnec1.getUpperBound(TwoSides.TWO, Unit.AMPERE).isEmpty());
-        assertTrue(flowCnec1.getUpperBound(TwoSides.ONE, Unit.AMPERE).isEmpty());
-        assertTrue(flowCnec1.getLowerBound(TwoSides.ONE, Unit.AMPERE).isEmpty());
-        assertTrue(flowCnec1.getLowerBound(TwoSides.TWO, Unit.AMPERE).isEmpty());
+        assertTrue(flowCnec1.getRawUpperBound(TwoSides.TWO, Unit.AMPERE).isEmpty());
+        assertTrue(flowCnec1.getRawUpperBound(TwoSides.ONE, Unit.AMPERE).isEmpty());
+        assertTrue(flowCnec1.getRawLowerBound(TwoSides.ONE, Unit.AMPERE).isEmpty());
+        assertTrue(flowCnec1.getRawLowerBound(TwoSides.TWO, Unit.AMPERE).isEmpty());
 
         FlowCnec flowCnec2 = crac.getFlowCnec("cnec2prevId");
-        assertTrue(flowCnec2.getLowerBound(TwoSides.ONE, Unit.MEGAWATT).isEmpty());
-        assertTrue(flowCnec2.getLowerBound(TwoSides.TWO, Unit.MEGAWATT).isEmpty());
-        assertTrue(flowCnec2.getUpperBound(TwoSides.ONE, Unit.MEGAWATT).isEmpty());
-        assertTrue(flowCnec2.getUpperBound(TwoSides.TWO, Unit.MEGAWATT).isEmpty());
+        assertTrue(flowCnec2.getRawLowerBound(TwoSides.ONE, Unit.MEGAWATT).isEmpty());
+        assertTrue(flowCnec2.getRawLowerBound(TwoSides.TWO, Unit.MEGAWATT).isEmpty());
+        assertTrue(flowCnec2.getRawUpperBound(TwoSides.ONE, Unit.MEGAWATT).isEmpty());
+        assertTrue(flowCnec2.getRawUpperBound(TwoSides.TWO, Unit.MEGAWATT).isEmpty());
 
-        assertTrue(flowCnec2.getUpperBound(TwoSides.ONE, Unit.AMPERE).isEmpty());
-        assertEquals(1200., flowCnec2.getUpperBound(TwoSides.TWO, Unit.AMPERE).get());
-        assertEquals(-600., flowCnec2.getLowerBound(TwoSides.ONE, Unit.AMPERE).get());
-        assertEquals(-800., flowCnec2.getLowerBound(TwoSides.TWO, Unit.AMPERE).get());
+        assertTrue(flowCnec2.getRawUpperBound(TwoSides.ONE, Unit.AMPERE).isEmpty());
+        assertEquals(1200., flowCnec2.getRawUpperBound(TwoSides.TWO, Unit.AMPERE).get());
+        assertEquals(-600., flowCnec2.getRawLowerBound(TwoSides.ONE, Unit.AMPERE).get());
+        assertEquals(-800., flowCnec2.getRawLowerBound(TwoSides.TWO, Unit.AMPERE).get());
     }
 
     @Test

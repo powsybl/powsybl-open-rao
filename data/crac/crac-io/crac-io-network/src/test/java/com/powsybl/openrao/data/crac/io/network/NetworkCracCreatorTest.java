@@ -121,8 +121,8 @@ class NetworkCracCreatorTest {
         for (TwoSides side : Set.of(TwoSides.ONE, TwoSides.TWO)) {
             double expectedValue = side.equals(TwoSides.ONE) ? thresholdValue1 : thresholdValue2;
             if (!Double.isNaN(expectedValue)) {
-                assertEquals(-expectedValue, cnec.getLowerBound(side, thresholdUnit).get(), 1e-3);
-                assertEquals(expectedValue, cnec.getUpperBound(side, thresholdUnit).get(), 1e-3);
+                assertEquals(-expectedValue, cnec.getRawLowerBound(side, thresholdUnit).get(), 1e-3);
+                assertEquals(expectedValue, cnec.getRawUpperBound(side, thresholdUnit).get(), 1e-3);
             }
         }
     }

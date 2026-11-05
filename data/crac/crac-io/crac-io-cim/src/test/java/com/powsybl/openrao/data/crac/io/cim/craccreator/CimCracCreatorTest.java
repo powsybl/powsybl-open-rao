@@ -373,18 +373,18 @@ class CimCracCreatorTest {
 
     private void checkThresholdOneSide(String cnecId, Unit unit, TwoSides monitoredSide, double min, double max) {
         FlowCnec cnec = importedCrac.getFlowCnec(cnecId);
-        assertEquals(min, cnec.getLowerBound(monitoredSide, unit).get(), DOUBLE_TOLERANCE);
-        assertEquals(max, cnec.getUpperBound(monitoredSide, unit).get(), DOUBLE_TOLERANCE);
+        assertEquals(min, cnec.getRawLowerBound(monitoredSide, unit).get(), DOUBLE_TOLERANCE);
+        assertEquals(max, cnec.getRawUpperBound(monitoredSide, unit).get(), DOUBLE_TOLERANCE);
     }
 
     private void checkNumberOfBound(FlowCnec cnec, int expectedCount) {
         int count = 0;
         for (Unit unit : Set.of(Unit.AMPERE, Unit.MEGAWATT)) {
             for (TwoSides side : Set.of(TwoSides.ONE, TwoSides.TWO)) {
-                if (cnec.getUpperBound(side, unit).isPresent()) {
+                if (cnec.getRawUpperBound(side, unit).isPresent()) {
                     count++;
                 }
-                if (cnec.getLowerBound(side, unit).isPresent()) {
+                if (cnec.getRawLowerBound(side, unit).isPresent()) {
                     count++;
                 }
             }
@@ -1158,8 +1158,8 @@ class CimCracCreatorTest {
         assertEquals(flowCnec.getNominalVoltage(TwoSides.TWO), duplicate.getNominalVoltage(TwoSides.TWO), 1e-6);
         for (Unit unit : Set.of(Unit.MEGAWATT, Unit.AMPERE)) {
             for (TwoSides side : Set.of(TwoSides.ONE, TwoSides.TWO)) {
-                assertEquals(flowCnec.getLowerBound(side, unit), duplicate.getLowerBound(side, unit));
-                assertEquals(flowCnec.getUpperBound(side, unit), duplicate.getUpperBound(side, unit));
+                assertEquals(flowCnec.getRawLowerBound(side, unit), duplicate.getRawLowerBound(side, unit));
+                assertEquals(flowCnec.getRawUpperBound(side, unit), duplicate.getRawUpperBound(side, unit));
             }
         }
         assertTrue(cracCreationContext.getCreationReport().getReport().contains(

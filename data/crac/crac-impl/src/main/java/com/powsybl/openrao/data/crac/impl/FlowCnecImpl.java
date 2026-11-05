@@ -86,7 +86,7 @@ public class FlowCnecImpl extends AbstractCnec<FlowCnec> implements FlowCnec {
     }
 
     @Override
-    public Optional<Double> getLowerBound(TwoSides side, Unit requestedUnit) {
+    public Optional<Double> getRawLowerBound(TwoSides side, Unit requestedUnit) {
         if (!requestedUnit.equals(Unit.AMPERE) && !requestedUnit.equals(Unit.MEGAWATT)) {
             throw new OpenRaoException("FlowCnec lowerBound can only be requested in AMPERE or MEGAWATT");
         }
@@ -98,13 +98,13 @@ public class FlowCnecImpl extends AbstractCnec<FlowCnec> implements FlowCnec {
 
     @Override
     public Optional<Double> safeGetLowerBound(TwoSides side, Unit requestedUnit) {
-        Optional<Double> lowerBound = getLowerBound(side, requestedUnit);
+        Optional<Double> lowerBound = getRawLowerBound(side, requestedUnit);
         Unit otherUnit = requestedUnit.equals(Unit.MEGAWATT) ? Unit.AMPERE : Unit.MEGAWATT;
         if (lowerBound.isPresent()) {
             return lowerBound;
         }
-        if (!lowerBound.isPresent() && getLowerBound(side, otherUnit).isPresent()) {
-            return Optional.of(getLowerBound(side, otherUnit).get() * getFlowUnitMultiplier(getNominalVoltage(side), otherUnit, requestedUnit));
+        if (!lowerBound.isPresent() && getRawLowerBound(side, otherUnit).isPresent()) {
+            return Optional.of(getRawLowerBound(side, otherUnit).get() * getFlowUnitMultiplier(getNominalVoltage(side), otherUnit, requestedUnit));
         }
         return Optional.empty();
     }
@@ -162,7 +162,7 @@ public class FlowCnecImpl extends AbstractCnec<FlowCnec> implements FlowCnec {
     }
 
     @Override
-    public Optional<Double> getUpperBound(TwoSides side, Unit requestedUnit) {
+    public Optional<Double> getRawUpperBound(TwoSides side, Unit requestedUnit) {
 
         if (!requestedUnit.equals(Unit.AMPERE) && !requestedUnit.equals(Unit.MEGAWATT)) {
             throw new OpenRaoException("FlowCnec upperBound can only be requested in AMPERE or MEGAWATT");
@@ -175,13 +175,13 @@ public class FlowCnecImpl extends AbstractCnec<FlowCnec> implements FlowCnec {
 
     @Override
     public Optional<Double> safeGetUpperBound(TwoSides side, Unit requestedUnit) {
-        Optional<Double> upperBound = getUpperBound(side, requestedUnit);
+        Optional<Double> upperBound = getRawUpperBound(side, requestedUnit);
         Unit otherUnit = requestedUnit.equals(Unit.MEGAWATT) ? Unit.AMPERE : Unit.MEGAWATT;
         if (upperBound.isPresent()) {
             return upperBound;
         }
-        if (!upperBound.isPresent() && getUpperBound(side, otherUnit).isPresent()) {
-            return Optional.of(getUpperBound(side, otherUnit).get() * getFlowUnitMultiplier(getNominalVoltage(side), otherUnit, requestedUnit));
+        if (!upperBound.isPresent() && getRawUpperBound(side, otherUnit).isPresent()) {
+            return Optional.of(getRawUpperBound(side, otherUnit).get() * getFlowUnitMultiplier(getNominalVoltage(side), otherUnit, requestedUnit));
         }
         return Optional.empty();
     }

@@ -559,25 +559,25 @@ class JsonRetrocompatibilityTest {
         // check threshold
 
         FlowCnec flowCnec1 = crac.getFlowCnec("cnec4prevId");
-        assertTrue(flowCnec1.getLowerBound(TwoSides.ONE, Unit.MEGAWATT).isEmpty());
-        assertTrue(flowCnec1.getLowerBound(TwoSides.TWO, Unit.MEGAWATT).isEmpty());
-        assertEquals(500., flowCnec1.getUpperBound(TwoSides.ONE, Unit.MEGAWATT).get());
-        assertTrue(flowCnec1.getUpperBound(TwoSides.TWO, Unit.MEGAWATT).isEmpty());
+        assertTrue(flowCnec1.getRawLowerBound(TwoSides.ONE, Unit.MEGAWATT).isEmpty());
+        assertTrue(flowCnec1.getRawLowerBound(TwoSides.TWO, Unit.MEGAWATT).isEmpty());
+        assertEquals(500., flowCnec1.getRawUpperBound(TwoSides.ONE, Unit.MEGAWATT).get());
+        assertTrue(flowCnec1.getRawUpperBound(TwoSides.TWO, Unit.MEGAWATT).isEmpty());
 
-        assertTrue(flowCnec1.getUpperBound(TwoSides.TWO, Unit.AMPERE).isEmpty());
-        assertTrue(flowCnec1.getUpperBound(TwoSides.ONE, Unit.AMPERE).isEmpty());
-        assertTrue(flowCnec1.getLowerBound(TwoSides.ONE, Unit.AMPERE).isEmpty());
-        assertTrue(flowCnec1.getLowerBound(TwoSides.TWO, Unit.AMPERE).isEmpty());
+        assertTrue(flowCnec1.getRawUpperBound(TwoSides.TWO, Unit.AMPERE).isEmpty());
+        assertTrue(flowCnec1.getRawUpperBound(TwoSides.ONE, Unit.AMPERE).isEmpty());
+        assertTrue(flowCnec1.getRawLowerBound(TwoSides.ONE, Unit.AMPERE).isEmpty());
+        assertTrue(flowCnec1.getRawLowerBound(TwoSides.TWO, Unit.AMPERE).isEmpty());
 
         // lowerbound = max(-800,-800,-0.3*2000)
-        assertEquals(-600, crac.getFlowCnec("cnec2prevId").getLowerBound(TwoSides.ONE, Unit.AMPERE).get());
+        assertEquals(-600, crac.getFlowCnec("cnec2prevId").getRawLowerBound(TwoSides.ONE, Unit.AMPERE).get());
 
         // nominalV is the same on both sides so the threshold can either be defined on side ONE or TWO
         assertTrue(
-            crac.getFlowCnec("cnec2prevId").getUpperBound(TwoSides.ONE, Unit.AMPERE)
+            crac.getFlowCnec("cnec2prevId").getRawUpperBound(TwoSides.ONE, Unit.AMPERE)
                 .filter(bound -> bound.equals(1200.))
                 .isPresent()
-                || crac.getFlowCnec("cnec2prevId").getUpperBound(TwoSides.TWO, Unit.AMPERE)
+                || crac.getFlowCnec("cnec2prevId").getRawUpperBound(TwoSides.TWO, Unit.AMPERE)
                 .filter(bound -> bound.equals(1200.))
                 .isPresent()
         );
@@ -1108,14 +1108,14 @@ class JsonRetrocompatibilityTest {
     private void testContentOfV2Point13Crac(Crac crac) {
         testContentOfV2Point12Crac(crac);
 
-        assertFalse(crac.getFlowCnec("cnec2prevId").getLowerBound(TwoSides.ONE, Unit.MEGAWATT).isPresent());
-        assertFalse(crac.getFlowCnec("cnec2prevId").getLowerBound(TwoSides.TWO, Unit.MEGAWATT).isPresent());
-        assertFalse(crac.getFlowCnec("cnec2prevId").getUpperBound(TwoSides.ONE, Unit.MEGAWATT).isPresent());
-        assertFalse(crac.getFlowCnec("cnec2prevId").getUpperBound(TwoSides.TWO, Unit.MEGAWATT).isPresent());
+        assertFalse(crac.getFlowCnec("cnec2prevId").getRawLowerBound(TwoSides.ONE, Unit.MEGAWATT).isPresent());
+        assertFalse(crac.getFlowCnec("cnec2prevId").getRawLowerBound(TwoSides.TWO, Unit.MEGAWATT).isPresent());
+        assertFalse(crac.getFlowCnec("cnec2prevId").getRawUpperBound(TwoSides.ONE, Unit.MEGAWATT).isPresent());
+        assertFalse(crac.getFlowCnec("cnec2prevId").getRawUpperBound(TwoSides.TWO, Unit.MEGAWATT).isPresent());
 
-        assertEquals(-600, crac.getFlowCnec("cnec2prevId").getLowerBound(TwoSides.ONE, Unit.AMPERE).get());
-        assertFalse(crac.getFlowCnec("cnec2prevId").getLowerBound(TwoSides.TWO, Unit.AMPERE).isPresent());
-        assertFalse(crac.getFlowCnec("cnec2prevId").getUpperBound(TwoSides.ONE, Unit.AMPERE).isPresent());
-        assertEquals(1200, crac.getFlowCnec("cnec2prevId").getUpperBound(TwoSides.TWO, Unit.AMPERE).get());
+        assertEquals(-600, crac.getFlowCnec("cnec2prevId").getRawLowerBound(TwoSides.ONE, Unit.AMPERE).get());
+        assertFalse(crac.getFlowCnec("cnec2prevId").getRawLowerBound(TwoSides.TWO, Unit.AMPERE).isPresent());
+        assertFalse(crac.getFlowCnec("cnec2prevId").getRawUpperBound(TwoSides.ONE, Unit.AMPERE).isPresent());
+        assertEquals(1200, crac.getFlowCnec("cnec2prevId").getRawUpperBound(TwoSides.TWO, Unit.AMPERE).get());
     }
 }

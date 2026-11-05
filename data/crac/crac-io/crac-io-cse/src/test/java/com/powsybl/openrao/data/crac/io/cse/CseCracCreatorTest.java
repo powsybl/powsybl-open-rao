@@ -362,22 +362,22 @@ class CseCracCreatorTest {
         setUp("/cracs/cse_crac_pct_limit.xml");
 
         FlowCnec flowCnec1 = importedCrac.getFlowCnec("basecase_branch_1 - NNL2AA1 ->NNL3AA1  - preventive");
-        assertEquals(0.7 * 5000., flowCnec1.getUpperBound(TwoSides.ONE, Unit.AMPERE).get(), DOUBLE_TOLERANCE);
-        assertTrue(flowCnec1.getLowerBound(TwoSides.ONE, Unit.AMPERE).isEmpty());
-        assertTrue(flowCnec1.getUpperBound(TwoSides.TWO, Unit.AMPERE).isEmpty());
-        assertTrue(flowCnec1.getLowerBound(TwoSides.TWO, Unit.AMPERE).isEmpty());
+        assertEquals(0.7 * 5000., flowCnec1.getRawUpperBound(TwoSides.ONE, Unit.AMPERE).get(), DOUBLE_TOLERANCE);
+        assertTrue(flowCnec1.getRawLowerBound(TwoSides.ONE, Unit.AMPERE).isEmpty());
+        assertTrue(flowCnec1.getRawUpperBound(TwoSides.TWO, Unit.AMPERE).isEmpty());
+        assertTrue(flowCnec1.getRawLowerBound(TwoSides.TWO, Unit.AMPERE).isEmpty());
 
         FlowCnec flowCnec2 = importedCrac.getFlowCnec("basecase_branch_2 - NNL1AA1 ->NNL3AA1  - preventive");
-        assertEquals(-5000., flowCnec2.getLowerBound(TwoSides.ONE, Unit.AMPERE).get(), DOUBLE_TOLERANCE);
-        assertTrue(flowCnec2.getUpperBound(TwoSides.ONE, Unit.AMPERE).isEmpty());
-        assertTrue(flowCnec2.getUpperBound(TwoSides.TWO, Unit.AMPERE).isEmpty());
-        assertTrue(flowCnec2.getLowerBound(TwoSides.TWO, Unit.AMPERE).isEmpty());
+        assertEquals(-5000., flowCnec2.getRawLowerBound(TwoSides.ONE, Unit.AMPERE).get(), DOUBLE_TOLERANCE);
+        assertTrue(flowCnec2.getRawUpperBound(TwoSides.ONE, Unit.AMPERE).isEmpty());
+        assertTrue(flowCnec2.getRawUpperBound(TwoSides.TWO, Unit.AMPERE).isEmpty());
+        assertTrue(flowCnec2.getRawLowerBound(TwoSides.TWO, Unit.AMPERE).isEmpty());
 
         FlowCnec flowCnec3 = importedCrac.getFlowCnec("basecase_branch_3 - NNL1AA1 ->NNL2AA1  - preventive");
-        assertEquals(-0.2 * 5000., flowCnec3.getLowerBound(TwoSides.ONE, Unit.AMPERE).get(), DOUBLE_TOLERANCE);
-        assertEquals(0.2 * 5000., flowCnec3.getUpperBound(TwoSides.ONE, Unit.AMPERE).get(), DOUBLE_TOLERANCE);
-        assertTrue(flowCnec3.getUpperBound(TwoSides.TWO, Unit.AMPERE).isEmpty());
-        assertTrue(flowCnec3.getLowerBound(TwoSides.TWO, Unit.AMPERE).isEmpty());
+        assertEquals(-0.2 * 5000., flowCnec3.getRawLowerBound(TwoSides.ONE, Unit.AMPERE).get(), DOUBLE_TOLERANCE);
+        assertEquals(0.2 * 5000., flowCnec3.getRawUpperBound(TwoSides.ONE, Unit.AMPERE).get(), DOUBLE_TOLERANCE);
+        assertTrue(flowCnec3.getRawUpperBound(TwoSides.TWO, Unit.AMPERE).isEmpty());
+        assertTrue(flowCnec3.getRawLowerBound(TwoSides.TWO, Unit.AMPERE).isEmpty());
     }
 
     @Test
@@ -386,22 +386,22 @@ class CseCracCreatorTest {
         setUp("/cracs/cse_crac_pct_limit.xml");
 
         FlowCnec flowCnec1 = importedCrac.getFlowCnec("basecase_branch_1 - NNL2AA1 ->NNL3AA1  - preventive");
-        assertEquals(0.7 * 5000., flowCnec1.getUpperBound(TwoSides.TWO, Unit.AMPERE).get(), DOUBLE_TOLERANCE);
-        assertTrue(flowCnec1.getLowerBound(TwoSides.TWO, Unit.AMPERE).isEmpty());
-        assertTrue(flowCnec1.getUpperBound(TwoSides.ONE, Unit.AMPERE).isEmpty());
-        assertTrue(flowCnec1.getLowerBound(TwoSides.ONE, Unit.AMPERE).isEmpty());
+        assertEquals(0.7 * 5000., flowCnec1.getRawUpperBound(TwoSides.TWO, Unit.AMPERE).get(), DOUBLE_TOLERANCE);
+        assertTrue(flowCnec1.getRawLowerBound(TwoSides.TWO, Unit.AMPERE).isEmpty());
+        assertTrue(flowCnec1.getRawUpperBound(TwoSides.ONE, Unit.AMPERE).isEmpty());
+        assertTrue(flowCnec1.getRawLowerBound(TwoSides.ONE, Unit.AMPERE).isEmpty());
 
         FlowCnec flowCnec2 = importedCrac.getFlowCnec("basecase_branch_2 - NNL1AA1 ->NNL3AA1  - preventive");
-        assertTrue(flowCnec2.getUpperBound(TwoSides.TWO, Unit.AMPERE).isEmpty());
-        assertEquals(-5000., flowCnec2.getLowerBound(TwoSides.TWO, Unit.AMPERE).get(), DOUBLE_TOLERANCE);
-        assertTrue(flowCnec2.getUpperBound(TwoSides.ONE, Unit.AMPERE).isEmpty());
-        assertTrue(flowCnec2.getLowerBound(TwoSides.ONE, Unit.AMPERE).isEmpty());
+        assertTrue(flowCnec2.getRawUpperBound(TwoSides.TWO, Unit.AMPERE).isEmpty());
+        assertEquals(-5000., flowCnec2.getRawLowerBound(TwoSides.TWO, Unit.AMPERE).get(), DOUBLE_TOLERANCE);
+        assertTrue(flowCnec2.getRawUpperBound(TwoSides.ONE, Unit.AMPERE).isEmpty());
+        assertTrue(flowCnec2.getRawLowerBound(TwoSides.ONE, Unit.AMPERE).isEmpty());
 
         FlowCnec flowCnec3 = importedCrac.getFlowCnec("basecase_branch_3 - NNL1AA1 ->NNL2AA1  - preventive");
-        assertEquals(-0.2 * 5000., flowCnec3.getLowerBound(TwoSides.TWO, Unit.AMPERE).get(), DOUBLE_TOLERANCE);
-        assertEquals(0.2 * 5000., flowCnec3.getUpperBound(TwoSides.TWO, Unit.AMPERE).get(), DOUBLE_TOLERANCE);
-        assertTrue(flowCnec3.getUpperBound(TwoSides.ONE, Unit.AMPERE).isEmpty());
-        assertTrue(flowCnec3.getLowerBound(TwoSides.ONE, Unit.AMPERE).isEmpty());
+        assertEquals(-0.2 * 5000., flowCnec3.getRawLowerBound(TwoSides.TWO, Unit.AMPERE).get(), DOUBLE_TOLERANCE);
+        assertEquals(0.2 * 5000., flowCnec3.getRawUpperBound(TwoSides.TWO, Unit.AMPERE).get(), DOUBLE_TOLERANCE);
+        assertTrue(flowCnec3.getRawUpperBound(TwoSides.ONE, Unit.AMPERE).isEmpty());
+        assertTrue(flowCnec3.getRawLowerBound(TwoSides.ONE, Unit.AMPERE).isEmpty());
     }
 
     @Test
@@ -410,22 +410,22 @@ class CseCracCreatorTest {
         setUp("/cracs/cse_crac_pct_limit.xml");
 
         FlowCnec flowCnec1 = importedCrac.getFlowCnec("basecase_branch_1 - NNL2AA1 ->NNL3AA1  - preventive");
-        assertTrue(flowCnec1.getLowerBound(TwoSides.ONE, Unit.AMPERE).isEmpty());
-        assertTrue(flowCnec1.getLowerBound(TwoSides.TWO, Unit.AMPERE).isEmpty());
-        assertEquals(0.7 * 5000., flowCnec1.getUpperBound(TwoSides.ONE, Unit.AMPERE).get(), DOUBLE_TOLERANCE);
-        assertEquals(0.7 * 5000., flowCnec1.getUpperBound(TwoSides.TWO, Unit.AMPERE).get(), DOUBLE_TOLERANCE);
+        assertTrue(flowCnec1.getRawLowerBound(TwoSides.ONE, Unit.AMPERE).isEmpty());
+        assertTrue(flowCnec1.getRawLowerBound(TwoSides.TWO, Unit.AMPERE).isEmpty());
+        assertEquals(0.7 * 5000., flowCnec1.getRawUpperBound(TwoSides.ONE, Unit.AMPERE).get(), DOUBLE_TOLERANCE);
+        assertEquals(0.7 * 5000., flowCnec1.getRawUpperBound(TwoSides.TWO, Unit.AMPERE).get(), DOUBLE_TOLERANCE);
 
         FlowCnec flowCnec2 = importedCrac.getFlowCnec("basecase_branch_2 - NNL1AA1 ->NNL3AA1  - preventive");
-        assertTrue(flowCnec2.getUpperBound(TwoSides.ONE, Unit.AMPERE).isEmpty());
-        assertTrue(flowCnec2.getUpperBound(TwoSides.TWO, Unit.AMPERE).isEmpty());
-        assertEquals(-5000., flowCnec2.getLowerBound(TwoSides.ONE, Unit.AMPERE).get(), DOUBLE_TOLERANCE);
-        assertEquals(-5000., flowCnec2.getLowerBound(TwoSides.TWO, Unit.AMPERE).get(), DOUBLE_TOLERANCE);
+        assertTrue(flowCnec2.getRawUpperBound(TwoSides.ONE, Unit.AMPERE).isEmpty());
+        assertTrue(flowCnec2.getRawUpperBound(TwoSides.TWO, Unit.AMPERE).isEmpty());
+        assertEquals(-5000., flowCnec2.getRawLowerBound(TwoSides.ONE, Unit.AMPERE).get(), DOUBLE_TOLERANCE);
+        assertEquals(-5000., flowCnec2.getRawLowerBound(TwoSides.TWO, Unit.AMPERE).get(), DOUBLE_TOLERANCE);
 
         FlowCnec flowCnec3 = importedCrac.getFlowCnec("basecase_branch_3 - NNL1AA1 ->NNL2AA1  - preventive");
-        assertEquals(-0.2 * 5000., flowCnec3.getLowerBound(TwoSides.ONE, Unit.AMPERE).get(), DOUBLE_TOLERANCE);
-        assertEquals(0.2 * 5000., flowCnec3.getUpperBound(TwoSides.ONE, Unit.AMPERE).get(), DOUBLE_TOLERANCE);
-        assertEquals(-0.2 * 5000., flowCnec3.getLowerBound(TwoSides.TWO, Unit.AMPERE).get(), DOUBLE_TOLERANCE);
-        assertEquals(0.2 * 5000., flowCnec3.getUpperBound(TwoSides.TWO, Unit.AMPERE).get(), DOUBLE_TOLERANCE);
+        assertEquals(-0.2 * 5000., flowCnec3.getRawLowerBound(TwoSides.ONE, Unit.AMPERE).get(), DOUBLE_TOLERANCE);
+        assertEquals(0.2 * 5000., flowCnec3.getRawUpperBound(TwoSides.ONE, Unit.AMPERE).get(), DOUBLE_TOLERANCE);
+        assertEquals(-0.2 * 5000., flowCnec3.getRawLowerBound(TwoSides.TWO, Unit.AMPERE).get(), DOUBLE_TOLERANCE);
+        assertEquals(0.2 * 5000., flowCnec3.getRawUpperBound(TwoSides.TWO, Unit.AMPERE).get(), DOUBLE_TOLERANCE);
     }
 
     @Test

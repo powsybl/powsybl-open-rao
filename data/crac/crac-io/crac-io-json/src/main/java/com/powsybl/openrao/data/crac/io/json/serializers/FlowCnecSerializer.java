@@ -57,18 +57,18 @@ public class FlowCnecSerializer<I extends FlowCnec> extends AbstractJsonSerializ
         for (TwoSides side : TwoSides.values()) {
             for (Unit unit : List.of(Unit.MEGAWATT, Unit.AMPERE)) {
 
-                if (flowCnec.getLowerBound(side, unit).isPresent() || flowCnec.getUpperBound(side, unit).isPresent()) {
+                if (flowCnec.getRawLowerBound(side, unit).isPresent() || flowCnec.getRawUpperBound(side, unit).isPresent()) {
                     gen.writeStartObject();
                     gen.writeStringField(JsonSerializationConstants.UNIT, JsonSerializationConstants.serializeUnit(unit));
                     gen.writeNumberField(JsonSerializationConstants.SIDE, JsonSerializationConstants.serializeSide(side));
-                    if (flowCnec.getLowerBound(side, unit).isPresent()) {
+                    if (flowCnec.getRawLowerBound(side, unit).isPresent()) {
                         gen.writeNumberField(JsonSerializationConstants.MIN,
-                            flowCnec.getLowerBound(side, unit).get()
+                            flowCnec.getRawLowerBound(side, unit).get()
                                 - flowCnec.getReliabilityMargin() * getFlowUnitMultiplier(flowCnec.getNominalVoltage(side), Unit.MEGAWATT, unit));
                     }
-                    if (flowCnec.getUpperBound(side, unit).isPresent()) {
+                    if (flowCnec.getRawUpperBound(side, unit).isPresent()) {
                         gen.writeNumberField(JsonSerializationConstants.MAX,
-                            flowCnec.getUpperBound(side, unit).get()
+                            flowCnec.getRawUpperBound(side, unit).get()
                                 + flowCnec.getReliabilityMargin() * getFlowUnitMultiplier(flowCnec.getNominalVoltage(side), Unit.MEGAWATT, unit));
                     }
                     gen.writeEndObject();

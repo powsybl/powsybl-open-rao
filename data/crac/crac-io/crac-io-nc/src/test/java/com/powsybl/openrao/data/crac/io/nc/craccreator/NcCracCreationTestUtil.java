@@ -166,10 +166,10 @@ public final class NcCracCreationTestUtil {
             Double expectedMax = side == TwoSides.ONE ? expectedThresholdMaxLeft : expectedThresholdMaxRight;
             Double expectedMin = side == TwoSides.ONE ? expectedThresholdMinLeft : expectedThresholdMinRight;
             if (expectedMax != null) {
-                assertEquals(side == TwoSides.ONE ? expectedThresholdMaxLeft : expectedThresholdMaxRight, flowCnec.getUpperBound(side, Unit.AMPERE).get());
+                assertEquals(side == TwoSides.ONE ? expectedThresholdMaxLeft : expectedThresholdMaxRight, flowCnec.getRawUpperBound(side, Unit.AMPERE).get());
             }
             if (expectedMin != null) {
-                assertEquals(side == TwoSides.ONE ? expectedThresholdMinLeft : expectedThresholdMinRight, flowCnec.getLowerBound(side, Unit.AMPERE).get());
+                assertEquals(side == TwoSides.ONE ? expectedThresholdMinLeft : expectedThresholdMinRight, flowCnec.getRawLowerBound(side, Unit.AMPERE).get());
             }
         });
 

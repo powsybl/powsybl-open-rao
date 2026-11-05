@@ -114,8 +114,8 @@ public final class CracValidator {
     private static void copyThresholds(FlowCnec cnec, FlowCnecAdder adder) {
         for (Unit unit : Set.of(Unit.AMPERE, Unit.MEGAWATT)) {
             for (TwoSides side : Set.of(TwoSides.ONE, TwoSides.TWO)) {
-                Optional<Double> lowerBound = cnec.getLowerBound(side, unit);
-                Optional<Double> upperBound = cnec.getUpperBound(side, unit);
+                Optional<Double> lowerBound = cnec.getRawLowerBound(side, unit);
+                Optional<Double> upperBound = cnec.getRawUpperBound(side, unit);
                 if (upperBound.isPresent() || lowerBound.isPresent()) {
 
                     BranchThresholdAdder tr = adder.newThreshold()

@@ -283,10 +283,10 @@ class FbConstraintCracCreatorTest {
     private void checkBounds(FlowCnec cnec, TwoSides monitoredSide, Unit unit, Double min, Double max) {
         double reliabilityMargin = cnec.getReliabilityMargin() * getFlowUnitMultiplier(cnec.getNominalVoltage(monitoredSide), Unit.MEGAWATT, unit);
         if (!Double.isNaN(min)) {
-            assertEquals(min, cnec.getLowerBound(monitoredSide, unit).get() - reliabilityMargin, TOLERANCE);
+            assertEquals(min, cnec.getRawLowerBound(monitoredSide, unit).get() - reliabilityMargin, TOLERANCE);
         }
         if (!Double.isNaN(max)) {
-            assertEquals(max, cnec.getUpperBound(monitoredSide, unit).get() + reliabilityMargin, TOLERANCE);
+            assertEquals(max, cnec.getRawUpperBound(monitoredSide, unit).get() + reliabilityMargin, TOLERANCE);
         }
     }
 
@@ -294,10 +294,10 @@ class FbConstraintCracCreatorTest {
         int count = 0;
         for (Unit unit : Set.of(Unit.AMPERE, Unit.MEGAWATT)) {
             for (TwoSides side : Set.of(TwoSides.ONE, TwoSides.TWO)) {
-                if (cnec.getUpperBound(side, unit).isPresent()) {
+                if (cnec.getRawUpperBound(side, unit).isPresent()) {
                     count++;
                 }
-                if (cnec.getLowerBound(side, unit).isPresent()) {
+                if (cnec.getRawLowerBound(side, unit).isPresent()) {
                     count++;
                 }
             }
@@ -339,7 +339,7 @@ class FbConstraintCracCreatorTest {
 
         // ImaxA, PermanentImaxA and TemporaryImaxA set to 300, 200 and 100
         checkNumberOfBound(crac.getFlowCnec("CBCO_000008 - preventive"), 1);
-        assertEquals(300., crac.getFlowCnec("CBCO_000008 - preventive").getUpperBound(TwoSides.ONE, Unit.AMPERE).orElseThrow(), 0.1);
+        assertEquals(300., crac.getFlowCnec("CBCO_000008 - preventive").getRawUpperBound(TwoSides.ONE, Unit.AMPERE).orElseThrow(), 0.1);
     }
 
     @Test
@@ -373,7 +373,7 @@ class FbConstraintCracCreatorTest {
 
         // ImaxA, PermanentImaxA and TemporaryImaxA set to 300, 200 and 100
         checkNumberOfBound(crac.getFlowCnec("CBCO_000008 - preventive"), 1);
-        assertEquals(300., crac.getFlowCnec("CBCO_000008 - preventive").getUpperBound(TwoSides.TWO, Unit.AMPERE).orElseThrow(), 0.1);
+        assertEquals(300., crac.getFlowCnec("CBCO_000008 - preventive").getRawUpperBound(TwoSides.TWO, Unit.AMPERE).orElseThrow(), 0.1);
     }
 
     @Test
@@ -408,8 +408,8 @@ class FbConstraintCracCreatorTest {
         // ImaxA, PermanentImaxA and TemporaryImaxA set to 300, 200 and 100
 
         checkNumberOfBound(crac.getFlowCnec("CBCO_000008 - preventive"), 2);
-        assertEquals(300., crac.getFlowCnec("CBCO_000008 - preventive").getUpperBound(TwoSides.ONE, Unit.AMPERE).orElseThrow(), 0.1);
-        assertEquals(300., crac.getFlowCnec("CBCO_000008 - preventive").getUpperBound(TwoSides.TWO, Unit.AMPERE).orElseThrow(), 0.1);
+        assertEquals(300., crac.getFlowCnec("CBCO_000008 - preventive").getRawUpperBound(TwoSides.ONE, Unit.AMPERE).orElseThrow(), 0.1);
+        assertEquals(300., crac.getFlowCnec("CBCO_000008 - preventive").getRawUpperBound(TwoSides.TWO, Unit.AMPERE).orElseThrow(), 0.1);
     }
 
     @Test

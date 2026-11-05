@@ -47,7 +47,7 @@ public interface FlowCnec extends Cnec<FlowCnec> {
      * @param unit The unit in which the bound would be returned.
      * @return The lower bound of the {@link PhysicalParameter} on this {@code FlowCnec}.
      */
-    Optional<Double> getLowerBound(TwoSides side, Unit unit);
+    Optional<Double> getRawLowerBound(TwoSides side, Unit unit);
 
     /**
      * Getter that returns the lower acceptable value of the {@link PhysicalParameter} with the given {@link Unit}.
@@ -73,7 +73,7 @@ public interface FlowCnec extends Cnec<FlowCnec> {
      * @param unit The unit in which the upper bound would be returned.
      * @return The upper bound of the {@link PhysicalParameter} on this {@code FlowCnec}.
      */
-    Optional<Double> getUpperBound(TwoSides side, Unit unit);
+    Optional<Double> getRawUpperBound(TwoSides side, Unit unit);
 
     /**
      * Getter that returns the upper acceptable value of the {@link PhysicalParameter} with the given {@link Unit}.

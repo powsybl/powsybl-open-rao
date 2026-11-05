@@ -182,17 +182,17 @@ class CseCracCreatorWithMneTest {
         if (!directionInvertedInNetwork && "DIRECT".equals(direction)
             || directionInvertedInNetwork && "OPPOSITE".equals(direction)) {
             // should have max
-            return flowCnec.getUpperBound(side, expectedThresholdUnit).get() == expectedThreshold;
+            return flowCnec.getRawUpperBound(side, expectedThresholdUnit).get() == expectedThreshold;
 
         }
         if (directionInvertedInNetwork && "DIRECT".equals(direction)
             || !directionInvertedInNetwork && "OPPOSITE".equals(direction)) {
             // should have min
-            return flowCnec.getLowerBound(side, expectedThresholdUnit).get() == -expectedThreshold;
+            return flowCnec.getRawLowerBound(side, expectedThresholdUnit).get() == -expectedThreshold;
         }
         // should have min and max
-        return flowCnec.getLowerBound(side, expectedThresholdUnit).get() == -expectedThreshold &&
-            flowCnec.getUpperBound(side, expectedThresholdUnit).get() == expectedThreshold;
+        return flowCnec.getRawLowerBound(side, expectedThresholdUnit).get() == -expectedThreshold &&
+            flowCnec.getRawUpperBound(side, expectedThresholdUnit).get() == expectedThreshold;
 
     }
 
