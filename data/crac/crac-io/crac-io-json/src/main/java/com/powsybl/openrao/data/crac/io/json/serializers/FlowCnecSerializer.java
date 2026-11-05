@@ -21,8 +21,6 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
-import static com.powsybl.openrao.commons.UnitConverter.getFlowUnitMultiplier;
-
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
@@ -54,23 +52,18 @@ public class FlowCnecSerializer<I extends FlowCnec> extends AbstractJsonSerializ
 
     private void serializeThresholds(FlowCnec flowCnec, JsonGenerator gen) throws IOException {
         gen.writeArrayFieldStart(JsonSerializationConstants.THRESHOLDS);
-        for (TwoSides side : TwoSides.values()) {
-            for (Unit unit : List.of(Unit.MEGAWATT, Unit.AMPERE)) {
-
+        for (Unit unit : List.of(Unit.AMPERE, Unit.MEGAWATT)) {
+            for (TwoSides side : List.of(TwoSides.ONE, TwoSides.TWO)) {
                 if (flowCnec.getRawLowerBound(side, unit).isPresent() || flowCnec.getRawUpperBound(side, unit).isPresent()) {
                     gen.writeStartObject();
                     gen.writeStringField(JsonSerializationConstants.UNIT, JsonSerializationConstants.serializeUnit(unit));
-                    gen.writeNumberField(JsonSerializationConstants.SIDE, JsonSerializationConstants.serializeSide(side));
                     if (flowCnec.getRawLowerBound(side, unit).isPresent()) {
-                        gen.writeNumberField(JsonSerializationConstants.MIN,
-                            flowCnec.getRawLowerBound(side, unit).get()
-                                - flowCnec.getReliabilityMargin() * getFlowUnitMultiplier(flowCnec.getNominalVoltage(side), Unit.MEGAWATT, unit));
+                        gen.writeNumberField(JsonSerializationConstants.MIN, flowCnec.getRawLowerBound(side, unit).get());
                     }
                     if (flowCnec.getRawUpperBound(side, unit).isPresent()) {
-                        gen.writeNumberField(JsonSerializationConstants.MAX,
-                            flowCnec.getRawUpperBound(side, unit).get()
-                                + flowCnec.getReliabilityMargin() * getFlowUnitMultiplier(flowCnec.getNominalVoltage(side), Unit.MEGAWATT, unit));
+                        gen.writeNumberField(JsonSerializationConstants.MAX, flowCnec.getRawUpperBound(side, unit).get());
                     }
+                    gen.writeNumberField(JsonSerializationConstants.SIDE, JsonSerializationConstants.serializeSide(side));
                     gen.writeEndObject();
                 }
             }
