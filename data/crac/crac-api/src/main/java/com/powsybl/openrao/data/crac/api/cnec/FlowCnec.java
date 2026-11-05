@@ -60,7 +60,7 @@ public interface FlowCnec extends Cnec<FlowCnec> {
      *            defined in a different unit that the one requested.
      * @return The lower bound of the {@link PhysicalParameter} on this {@code FlowCnec}.
      */
-    Optional<Double> safeGetLowerBound(TwoSides side, Unit unit);
+    Optional<Double> getLowerBound(TwoSides side, Unit unit);
 
     /**
      * Getter that returns the upper acceptable value of the {@link PhysicalParameter} with the given {@link Unit}.
@@ -86,7 +86,7 @@ public interface FlowCnec extends Cnec<FlowCnec> {
      *            defined in a different unit that the one requested.
      * @return The upper bound of the {@link PhysicalParameter} on this {@code FlowCnec}.
      */
-    Optional<Double> safeGetUpperBound(TwoSides side, Unit unit);
+    Optional<Double> getUpperBound(TwoSides side, Unit unit);
 
     /**
      * A margin can be computed on a {@code FlowCnec}. It is the worst (minimal including negative) difference

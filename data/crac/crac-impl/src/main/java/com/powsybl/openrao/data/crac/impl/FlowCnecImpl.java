@@ -66,8 +66,8 @@ public class FlowCnecImpl extends AbstractCnec<FlowCnec> implements FlowCnec {
 
     @Override
     public double computeMargin(double actualValue, TwoSides side, Unit unit) {
-        double marginOnLowerBound = actualValue - safeGetLowerBound(side, unit).orElse(Double.NEGATIVE_INFINITY);
-        double marginOnUpperBound = safeGetUpperBound(side, unit).orElse(Double.POSITIVE_INFINITY) - actualValue;
+        double marginOnLowerBound = actualValue - getLowerBound(side, unit).orElse(Double.NEGATIVE_INFINITY);
+        double marginOnUpperBound = getUpperBound(side, unit).orElse(Double.POSITIVE_INFINITY) - actualValue;
         return Math.min(marginOnLowerBound, marginOnUpperBound);
     }
 
@@ -97,7 +97,7 @@ public class FlowCnecImpl extends AbstractCnec<FlowCnec> implements FlowCnec {
     }
 
     @Override
-    public Optional<Double> safeGetLowerBound(TwoSides side, Unit requestedUnit) {
+    public Optional<Double> getLowerBound(TwoSides side, Unit requestedUnit) {
         Optional<Double> lowerBound = getRawLowerBound(side, requestedUnit);
         Unit otherUnit = requestedUnit.equals(Unit.MEGAWATT) ? Unit.AMPERE : Unit.MEGAWATT;
         if (lowerBound.isPresent()) {
@@ -113,13 +113,13 @@ public class FlowCnecImpl extends AbstractCnec<FlowCnec> implements FlowCnec {
     public Set<TwoSides> getMonitoredSides() {
         // A side is considered monitored if at least one bound was defined on this side
         Set<TwoSides> sides = new TreeSet<>();
-        if (safeGetLowerBound(TwoSides.ONE, Unit.MEGAWATT).isPresent() ||
-            safeGetUpperBound(TwoSides.ONE, Unit.MEGAWATT).isPresent()) {
+        if (getLowerBound(TwoSides.ONE, Unit.MEGAWATT).isPresent() ||
+            getUpperBound(TwoSides.ONE, Unit.MEGAWATT).isPresent()) {
             sides.add(TwoSides.ONE);
         }
 
-        if (safeGetLowerBound(TwoSides.TWO, Unit.MEGAWATT).isPresent() ||
-            safeGetUpperBound(TwoSides.TWO, Unit.MEGAWATT).isPresent()) {
+        if (getLowerBound(TwoSides.TWO, Unit.MEGAWATT).isPresent() ||
+            getUpperBound(TwoSides.TWO, Unit.MEGAWATT).isPresent()) {
             sides.add(TwoSides.TWO);
         }
         return sides;
@@ -174,7 +174,7 @@ public class FlowCnecImpl extends AbstractCnec<FlowCnec> implements FlowCnec {
     }
 
     @Override
-    public Optional<Double> safeGetUpperBound(TwoSides side, Unit requestedUnit) {
+    public Optional<Double> getUpperBound(TwoSides side, Unit requestedUnit) {
         Optional<Double> upperBound = getRawUpperBound(side, requestedUnit);
         Unit otherUnit = requestedUnit.equals(Unit.MEGAWATT) ? Unit.AMPERE : Unit.MEGAWATT;
         if (upperBound.isPresent()) {
@@ -306,8 +306,8 @@ public class FlowCnecImpl extends AbstractCnec<FlowCnec> implements FlowCnec {
             boolean lowVoltageConstraints = false;
 
             if (getMonitoredSides().contains(TwoSides.ONE)) {
-                double marginLowerBoundSideOne = flowCnecValue.side1Value() - safeGetLowerBound(TwoSides.ONE, unit).orElse(Double.NEGATIVE_INFINITY);
-                double marginUpperBoundSideOne = safeGetUpperBound(TwoSides.ONE, unit).orElse(Double.POSITIVE_INFINITY) - flowCnecValue.side1Value();
+                double marginLowerBoundSideOne = flowCnecValue.side1Value() - getLowerBound(TwoSides.ONE, unit).orElse(Double.NEGATIVE_INFINITY);
+                double marginUpperBoundSideOne = getUpperBound(TwoSides.ONE, unit).orElse(Double.POSITIVE_INFINITY) - flowCnecValue.side1Value();
 
                 if (marginUpperBoundSideOne < 0) {
                     highVoltageConstraints = true;
@@ -317,8 +317,8 @@ public class FlowCnecImpl extends AbstractCnec<FlowCnec> implements FlowCnec {
                 }
             }
             if (getMonitoredSides().contains(TwoSides.TWO)) {
-                double marginLowerBoundSideTwo = flowCnecValue.side2Value() - safeGetLowerBound(TwoSides.TWO, unit).orElse(Double.NEGATIVE_INFINITY);
-                double marginUpperBoundSideTwo = safeGetUpperBound(TwoSides.TWO, unit).orElse(Double.POSITIVE_INFINITY) - flowCnecValue.side2Value();
+                double marginLowerBoundSideTwo = flowCnecValue.side2Value() - getLowerBound(TwoSides.TWO, unit).orElse(Double.NEGATIVE_INFINITY);
+                double marginUpperBoundSideTwo = getUpperBound(TwoSides.TWO, unit).orElse(Double.POSITIVE_INFINITY) - flowCnecValue.side2Value();
                 if (marginUpperBoundSideTwo < 0) {
                     highVoltageConstraints = true;
                 }

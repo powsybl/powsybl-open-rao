@@ -125,8 +125,8 @@ public class MaxMinMarginFiller implements ProblemFiller {
 
                 Optional<Double> minFlow;
                 Optional<Double> maxFlow;
-                minFlow = cnec.safeGetLowerBound(side, unit);
-                maxFlow = cnec.safeGetUpperBound(side, unit);
+                minFlow = cnec.getLowerBound(side, unit);
+                maxFlow = cnec.getUpperBound(side, unit);
 
                 if (minFlow.isPresent()) {
                     OpenRaoMPConstraint minimumMarginNegative = linearProblem.addMinimumMarginConstraint(

@@ -356,7 +356,7 @@ public final class RaoUtil {
         return flowCnecs.stream().filter(Cnec::isOptimized)
             .map(flowCnec ->
                 flowCnec.getMonitoredSides().stream().map(side ->
-                    Math.max(Math.abs(flowCnec.safeGetUpperBound(side, unit).orElse(0.)), Math.abs(flowCnec.safeGetLowerBound(side, unit).orElse(0.)))).max(Double::compare).orElse(0.))
+                    Math.max(Math.abs(flowCnec.getUpperBound(side, unit).orElse(0.)), Math.abs(flowCnec.getLowerBound(side, unit).orElse(0.)))).max(Double::compare).orElse(0.))
             .max(Double::compare)
             .orElse(0.);
     }

@@ -231,16 +231,16 @@ class FlowCnecImplTest {
             .add();
 
         // bounds on ONE side
-        assertEquals(500., cnec.safeGetUpperBound(ONE, MEGAWATT).orElseThrow(), DOUBLE_TOLERANCE);
-        assertEquals(500. / (0.38 * Math.sqrt(3)), cnec.safeGetUpperBound(ONE, AMPERE).orElseThrow(), DOUBLE_TOLERANCE); // = 760 A
-        assertFalse(cnec.safeGetLowerBound(ONE, MEGAWATT).isPresent());
-        assertFalse(cnec.safeGetLowerBound(ONE, AMPERE).isPresent());
+        assertEquals(500., cnec.getUpperBound(ONE, MEGAWATT).orElseThrow(), DOUBLE_TOLERANCE);
+        assertEquals(500. / (0.38 * Math.sqrt(3)), cnec.getUpperBound(ONE, AMPERE).orElseThrow(), DOUBLE_TOLERANCE); // = 760 A
+        assertFalse(cnec.getLowerBound(ONE, MEGAWATT).isPresent());
+        assertFalse(cnec.getLowerBound(ONE, AMPERE).isPresent());
 
         // bounds on TWO side
-        assertFalse(cnec.safeGetUpperBound(TWO, MEGAWATT).isPresent());
-        assertFalse(cnec.safeGetUpperBound(TWO, AMPERE).isPresent());
-        assertFalse(cnec.safeGetLowerBound(TWO, MEGAWATT).isPresent());
-        assertFalse(cnec.safeGetLowerBound(TWO, AMPERE).isPresent());
+        assertFalse(cnec.getUpperBound(TWO, MEGAWATT).isPresent());
+        assertFalse(cnec.getUpperBound(TWO, AMPERE).isPresent());
+        assertFalse(cnec.getLowerBound(TWO, MEGAWATT).isPresent());
+        assertFalse(cnec.getLowerBound(TWO, AMPERE).isPresent());
 
         // margin
         assertEquals(200., cnec.computeMargin(300, ONE, MEGAWATT), DOUBLE_TOLERANCE); // bound: 500 MW
@@ -257,16 +257,16 @@ class FlowCnecImplTest {
             .add();
 
         // bounds on ONE side
-        assertFalse(cnec.safeGetUpperBound(ONE, MEGAWATT).isPresent());
-        assertFalse(cnec.safeGetUpperBound(ONE, AMPERE).isPresent());
-        assertFalse(cnec.safeGetLowerBound(ONE, MEGAWATT).isPresent());
-        assertFalse(cnec.safeGetLowerBound(ONE, AMPERE).isPresent());
+        assertFalse(cnec.getUpperBound(ONE, MEGAWATT).isPresent());
+        assertFalse(cnec.getUpperBound(ONE, AMPERE).isPresent());
+        assertFalse(cnec.getLowerBound(ONE, MEGAWATT).isPresent());
+        assertFalse(cnec.getLowerBound(ONE, AMPERE).isPresent());
 
         // bounds on TWO side
-        assertFalse(cnec.safeGetUpperBound(TWO, MEGAWATT).isPresent());
-        assertFalse(cnec.safeGetUpperBound(TWO, AMPERE).isPresent());
-        assertEquals(-500., cnec.safeGetLowerBound(TWO, MEGAWATT).orElseThrow(), DOUBLE_TOLERANCE);
-        assertEquals(-500. / (0.38 * Math.sqrt(3)), cnec.safeGetLowerBound(TWO, AMPERE).orElseThrow(), DOUBLE_TOLERANCE); // = -760 A
+        assertFalse(cnec.getUpperBound(TWO, MEGAWATT).isPresent());
+        assertFalse(cnec.getUpperBound(TWO, AMPERE).isPresent());
+        assertEquals(-500., cnec.getLowerBound(TWO, MEGAWATT).orElseThrow(), DOUBLE_TOLERANCE);
+        assertEquals(-500. / (0.38 * Math.sqrt(3)), cnec.getLowerBound(TWO, AMPERE).orElseThrow(), DOUBLE_TOLERANCE); // = -760 A
 
         // margin
         assertEquals(Double.POSITIVE_INFINITY, cnec.computeMargin(300, ONE, MEGAWATT), DOUBLE_TOLERANCE); // bound: -500 MW
@@ -283,16 +283,16 @@ class FlowCnecImplTest {
             .add();
 
         // bounds on ONE side
-        assertFalse(cnec.safeGetUpperBound(ONE, MEGAWATT).isPresent());
-        assertFalse(cnec.safeGetUpperBound(ONE, AMPERE).isPresent());
-        assertEquals(-450., cnec.safeGetLowerBound(ONE, AMPERE).orElseThrow(), DOUBLE_TOLERANCE);
-        assertEquals(-450. * (0.38 * Math.sqrt(3)), cnec.safeGetLowerBound(ONE, MEGAWATT).orElseThrow(), DOUBLE_TOLERANCE); // -296 MW
+        assertFalse(cnec.getUpperBound(ONE, MEGAWATT).isPresent());
+        assertFalse(cnec.getUpperBound(ONE, AMPERE).isPresent());
+        assertEquals(-450., cnec.getLowerBound(ONE, AMPERE).orElseThrow(), DOUBLE_TOLERANCE);
+        assertEquals(-450. * (0.38 * Math.sqrt(3)), cnec.getLowerBound(ONE, MEGAWATT).orElseThrow(), DOUBLE_TOLERANCE); // -296 MW
 
         // bounds on TWO side
-        assertFalse(cnec.safeGetUpperBound(TWO, MEGAWATT).isPresent());
-        assertFalse(cnec.safeGetUpperBound(TWO, AMPERE).isPresent());
-        assertFalse(cnec.safeGetLowerBound(TWO, MEGAWATT).isPresent());
-        assertFalse(cnec.safeGetLowerBound(TWO, AMPERE).isPresent());
+        assertFalse(cnec.getUpperBound(TWO, MEGAWATT).isPresent());
+        assertFalse(cnec.getUpperBound(TWO, AMPERE).isPresent());
+        assertFalse(cnec.getLowerBound(TWO, MEGAWATT).isPresent());
+        assertFalse(cnec.getLowerBound(TWO, AMPERE).isPresent());
 
         // margin
         assertEquals(750., cnec.computeMargin(300, ONE, AMPERE), DOUBLE_TOLERANCE); // bound: -450 A
@@ -309,16 +309,16 @@ class FlowCnecImplTest {
             .add();
 
         // bounds on ONE side
-        assertFalse(cnec.safeGetUpperBound(ONE, MEGAWATT).isPresent());
-        assertFalse(cnec.safeGetUpperBound(ONE, AMPERE).isPresent());
-        assertFalse(cnec.safeGetLowerBound(ONE, MEGAWATT).isPresent());
-        assertFalse(cnec.safeGetLowerBound(ONE, AMPERE).isPresent());
+        assertFalse(cnec.getUpperBound(ONE, MEGAWATT).isPresent());
+        assertFalse(cnec.getUpperBound(ONE, AMPERE).isPresent());
+        assertFalse(cnec.getLowerBound(ONE, MEGAWATT).isPresent());
+        assertFalse(cnec.getLowerBound(ONE, AMPERE).isPresent());
 
         // bounds on TWO side
-        assertEquals(110., cnec.safeGetUpperBound(TWO, AMPERE).orElseThrow(), DOUBLE_TOLERANCE);
-        assertEquals(110. * (0.22 * Math.sqrt(3)), cnec.safeGetUpperBound(TWO, MEGAWATT).orElseThrow(), DOUBLE_TOLERANCE); // 42 MW
-        assertFalse(cnec.safeGetLowerBound(TWO, MEGAWATT).isPresent());
-        assertFalse(cnec.safeGetLowerBound(TWO, AMPERE).isPresent());
+        assertEquals(110., cnec.getUpperBound(TWO, AMPERE).orElseThrow(), DOUBLE_TOLERANCE);
+        assertEquals(110. * (0.22 * Math.sqrt(3)), cnec.getUpperBound(TWO, MEGAWATT).orElseThrow(), DOUBLE_TOLERANCE); // 42 MW
+        assertFalse(cnec.getLowerBound(TWO, MEGAWATT).isPresent());
+        assertFalse(cnec.getLowerBound(TWO, AMPERE).isPresent());
 
         // margin
         assertEquals(Double.POSITIVE_INFINITY, cnec.computeMargin(300, ONE, AMPERE), DOUBLE_TOLERANCE); // bound: 110 A
@@ -335,16 +335,16 @@ class FlowCnecImplTest {
             .add();
 
         // bounds on ONE side
-        assertEquals(1100., cnec.safeGetUpperBound(ONE, AMPERE).orElseThrow(), DOUBLE_TOLERANCE); // 1100 A
-        assertEquals(1100. * (0.38 * Math.sqrt(3)), cnec.safeGetUpperBound(ONE, MEGAWATT).orElseThrow(), DOUBLE_TOLERANCE); // 724 MW
-        assertFalse(cnec.safeGetLowerBound(ONE, MEGAWATT).isPresent());
-        assertFalse(cnec.safeGetLowerBound(ONE, AMPERE).isPresent());
+        assertEquals(1100., cnec.getUpperBound(ONE, AMPERE).orElseThrow(), DOUBLE_TOLERANCE); // 1100 A
+        assertEquals(1100. * (0.38 * Math.sqrt(3)), cnec.getUpperBound(ONE, MEGAWATT).orElseThrow(), DOUBLE_TOLERANCE); // 724 MW
+        assertFalse(cnec.getLowerBound(ONE, MEGAWATT).isPresent());
+        assertFalse(cnec.getLowerBound(ONE, AMPERE).isPresent());
 
         // bounds on TWO side
-        assertFalse(cnec.safeGetUpperBound(TWO, MEGAWATT).isPresent());
-        assertFalse(cnec.safeGetUpperBound(TWO, AMPERE).isPresent());
-        assertFalse(cnec.safeGetLowerBound(TWO, MEGAWATT).isPresent());
-        assertFalse(cnec.safeGetLowerBound(TWO, AMPERE).isPresent());
+        assertFalse(cnec.getUpperBound(TWO, MEGAWATT).isPresent());
+        assertFalse(cnec.getUpperBound(TWO, AMPERE).isPresent());
+        assertFalse(cnec.getLowerBound(TWO, MEGAWATT).isPresent());
+        assertFalse(cnec.getLowerBound(TWO, AMPERE).isPresent());
 
         // margin
         assertEquals(-100, cnec.computeMargin(1200, ONE, AMPERE), DOUBLE_TOLERANCE); // bound: 1100 A
@@ -363,16 +363,16 @@ class FlowCnecImplTest {
         assertEquals(Set.of(TWO), cnec.getMonitoredSides());
 
         // bounds on ONE side
-        assertFalse(cnec.safeGetUpperBound(ONE, MEGAWATT).isPresent());
-        assertFalse(cnec.safeGetUpperBound(ONE, AMPERE).isPresent());
-        assertFalse(cnec.safeGetLowerBound(ONE, MEGAWATT).isPresent());
-        assertFalse(cnec.safeGetLowerBound(ONE, AMPERE).isPresent());
+        assertFalse(cnec.getUpperBound(ONE, MEGAWATT).isPresent());
+        assertFalse(cnec.getUpperBound(ONE, AMPERE).isPresent());
+        assertFalse(cnec.getLowerBound(ONE, MEGAWATT).isPresent());
+        assertFalse(cnec.getLowerBound(ONE, AMPERE).isPresent());
 
         // bounds on TWO side
-        assertFalse(cnec.safeGetUpperBound(TWO, MEGAWATT).isPresent());
-        assertFalse(cnec.safeGetUpperBound(TWO, AMPERE).isPresent());
-        assertEquals(-900., cnec.safeGetLowerBound(TWO, AMPERE).orElseThrow(), DOUBLE_TOLERANCE); // -900 A
-        assertEquals(-900. * (0.22 * Math.sqrt(3)), cnec.safeGetLowerBound(TWO, MEGAWATT).orElseThrow(), DOUBLE_TOLERANCE); // -343 MW
+        assertFalse(cnec.getUpperBound(TWO, MEGAWATT).isPresent());
+        assertFalse(cnec.getUpperBound(TWO, AMPERE).isPresent());
+        assertEquals(-900., cnec.getLowerBound(TWO, AMPERE).orElseThrow(), DOUBLE_TOLERANCE); // -900 A
+        assertEquals(-900. * (0.22 * Math.sqrt(3)), cnec.getLowerBound(TWO, MEGAWATT).orElseThrow(), DOUBLE_TOLERANCE); // -343 MW
 
         // margin
         assertEquals(Double.POSITIVE_INFINITY, cnec.computeMargin(1200, ONE, AMPERE), DOUBLE_TOLERANCE); // bound: -900 A
@@ -403,16 +403,16 @@ class FlowCnecImplTest {
             .add();
 
         // bounds on ONE side
-        assertEquals(500., cnec.safeGetUpperBound(ONE, MEGAWATT).orElseThrow(), DOUBLE_TOLERANCE);
-        assertEquals(500. / (0.22 * Math.sqrt(3)), cnec.safeGetUpperBound(ONE, AMPERE).orElseThrow(), DOUBLE_TOLERANCE); // 1312 A
-        assertFalse(cnec.safeGetLowerBound(ONE, MEGAWATT).isPresent());
-        assertFalse(cnec.safeGetLowerBound(ONE, AMPERE).isPresent());
+        assertEquals(500., cnec.getUpperBound(ONE, MEGAWATT).orElseThrow(), DOUBLE_TOLERANCE);
+        assertEquals(500. / (0.22 * Math.sqrt(3)), cnec.getUpperBound(ONE, AMPERE).orElseThrow(), DOUBLE_TOLERANCE); // 1312 A
+        assertFalse(cnec.getLowerBound(ONE, MEGAWATT).isPresent());
+        assertFalse(cnec.getLowerBound(ONE, AMPERE).isPresent());
 
         // bounds on TWO side
-        assertFalse(cnec.safeGetUpperBound(TWO, MEGAWATT).isPresent());
-        assertFalse(cnec.safeGetUpperBound(TWO, AMPERE).isPresent());
-        assertFalse(cnec.safeGetLowerBound(TWO, MEGAWATT).isPresent());
-        assertFalse(cnec.safeGetLowerBound(TWO, AMPERE).isPresent());
+        assertFalse(cnec.getUpperBound(TWO, MEGAWATT).isPresent());
+        assertFalse(cnec.getUpperBound(TWO, AMPERE).isPresent());
+        assertFalse(cnec.getLowerBound(TWO, MEGAWATT).isPresent());
+        assertFalse(cnec.getLowerBound(TWO, AMPERE).isPresent());
 
         // margins
         assertEquals(400., cnec.computeMargin(100, ONE, MEGAWATT), DOUBLE_TOLERANCE); // bound: 500 MW
@@ -429,16 +429,16 @@ class FlowCnecImplTest {
             .add();
 
         // bounds on ONE side
-        assertFalse(cnec.safeGetUpperBound(ONE, MEGAWATT).isPresent());
-        assertFalse(cnec.safeGetUpperBound(ONE, AMPERE).isPresent());
-        assertFalse(cnec.safeGetLowerBound(ONE, MEGAWATT).isPresent());
-        assertFalse(cnec.safeGetLowerBound(ONE, AMPERE).isPresent());
+        assertFalse(cnec.getUpperBound(ONE, MEGAWATT).isPresent());
+        assertFalse(cnec.getUpperBound(ONE, AMPERE).isPresent());
+        assertFalse(cnec.getLowerBound(ONE, MEGAWATT).isPresent());
+        assertFalse(cnec.getLowerBound(ONE, AMPERE).isPresent());
 
         // bounds on TWO side
-        assertFalse(cnec.safeGetUpperBound(TWO, MEGAWATT).isPresent());
-        assertFalse(cnec.safeGetUpperBound(TWO, AMPERE).isPresent());
-        assertEquals(-600., cnec.safeGetLowerBound(TWO, MEGAWATT).orElseThrow(), DOUBLE_TOLERANCE);
-        assertEquals(-600. / (0.38 * Math.sqrt(3)), cnec.safeGetLowerBound(TWO, AMPERE).orElseThrow(), DOUBLE_TOLERANCE); // - 912 A
+        assertFalse(cnec.getUpperBound(TWO, MEGAWATT).isPresent());
+        assertFalse(cnec.getUpperBound(TWO, AMPERE).isPresent());
+        assertEquals(-600., cnec.getLowerBound(TWO, MEGAWATT).orElseThrow(), DOUBLE_TOLERANCE);
+        assertEquals(-600. / (0.38 * Math.sqrt(3)), cnec.getLowerBound(TWO, AMPERE).orElseThrow(), DOUBLE_TOLERANCE); // - 912 A
 
         // margin
         assertEquals(Double.POSITIVE_INFINITY, cnec.computeMargin(500, ONE, MEGAWATT), DOUBLE_TOLERANCE); // bound: -600 MW
@@ -455,16 +455,16 @@ class FlowCnecImplTest {
             .add();
 
         // bounds on ONE side
-        assertFalse(cnec.safeGetUpperBound(ONE, MEGAWATT).isPresent());
-        assertFalse(cnec.safeGetUpperBound(ONE, AMPERE).isPresent());
-        assertEquals(-1000., cnec.safeGetLowerBound(ONE, AMPERE).orElseThrow(), DOUBLE_TOLERANCE);
-        assertEquals(-1000. * (0.22 * Math.sqrt(3)), cnec.safeGetLowerBound(ONE, MEGAWATT).orElseThrow(), DOUBLE_TOLERANCE); // - 381 MW
+        assertFalse(cnec.getUpperBound(ONE, MEGAWATT).isPresent());
+        assertFalse(cnec.getUpperBound(ONE, AMPERE).isPresent());
+        assertEquals(-1000., cnec.getLowerBound(ONE, AMPERE).orElseThrow(), DOUBLE_TOLERANCE);
+        assertEquals(-1000. * (0.22 * Math.sqrt(3)), cnec.getLowerBound(ONE, MEGAWATT).orElseThrow(), DOUBLE_TOLERANCE); // - 381 MW
 
         // bounds on TWO side
-        assertFalse(cnec.safeGetUpperBound(TWO, MEGAWATT).isPresent());
-        assertFalse(cnec.safeGetUpperBound(TWO, AMPERE).isPresent());
-        assertFalse(cnec.safeGetLowerBound(TWO, MEGAWATT).isPresent());
-        assertFalse(cnec.safeGetLowerBound(TWO, AMPERE).isPresent());
+        assertFalse(cnec.getUpperBound(TWO, MEGAWATT).isPresent());
+        assertFalse(cnec.getUpperBound(TWO, AMPERE).isPresent());
+        assertFalse(cnec.getLowerBound(TWO, MEGAWATT).isPresent());
+        assertFalse(cnec.getLowerBound(TWO, AMPERE).isPresent());
 
         // margin
         assertEquals(1300., cnec.computeMargin(300, ONE, AMPERE), DOUBLE_TOLERANCE); // bound: -1000 A
@@ -481,16 +481,16 @@ class FlowCnecImplTest {
             .add();
 
         // bounds on ONE side
-        assertFalse(cnec.safeGetUpperBound(ONE, MEGAWATT).isPresent());
-        assertFalse(cnec.safeGetUpperBound(ONE, AMPERE).isPresent());
-        assertFalse(cnec.safeGetLowerBound(ONE, MEGAWATT).isPresent());
-        assertFalse(cnec.safeGetLowerBound(ONE, AMPERE).isPresent());
+        assertFalse(cnec.getUpperBound(ONE, MEGAWATT).isPresent());
+        assertFalse(cnec.getUpperBound(ONE, AMPERE).isPresent());
+        assertFalse(cnec.getLowerBound(ONE, MEGAWATT).isPresent());
+        assertFalse(cnec.getLowerBound(ONE, AMPERE).isPresent());
 
         // bounds on TWO side
-        assertEquals(500., cnec.safeGetUpperBound(TWO, AMPERE).orElseThrow(), DOUBLE_TOLERANCE); // 500 A
-        assertEquals(500. * (0.38 * Math.sqrt(3)), cnec.safeGetUpperBound(TWO, MEGAWATT).orElseThrow(), DOUBLE_TOLERANCE); // 329 MW
-        assertFalse(cnec.safeGetLowerBound(TWO, MEGAWATT).isPresent());
-        assertFalse(cnec.safeGetLowerBound(TWO, AMPERE).isPresent());
+        assertEquals(500., cnec.getUpperBound(TWO, AMPERE).orElseThrow(), DOUBLE_TOLERANCE); // 500 A
+        assertEquals(500. * (0.38 * Math.sqrt(3)), cnec.getUpperBound(TWO, MEGAWATT).orElseThrow(), DOUBLE_TOLERANCE); // 329 MW
+        assertFalse(cnec.getLowerBound(TWO, MEGAWATT).isPresent());
+        assertFalse(cnec.getLowerBound(TWO, AMPERE).isPresent());
 
         // margin
         assertEquals(Double.POSITIVE_INFINITY, cnec.computeMargin(800, ONE, AMPERE), DOUBLE_TOLERANCE); // bound: 864 A
@@ -507,16 +507,16 @@ class FlowCnecImplTest {
             .add();
 
         // bounds on ONE side
-        assertFalse(cnec.safeGetUpperBound(ONE, MEGAWATT).isPresent());
-        assertFalse(cnec.safeGetUpperBound(ONE, AMPERE).isPresent());
-        assertEquals(-2000., cnec.safeGetLowerBound(ONE, AMPERE).orElseThrow(), DOUBLE_TOLERANCE);
-        assertEquals(-2000. * (0.22 * Math.sqrt(3)), cnec.safeGetLowerBound(ONE, MEGAWATT).orElseThrow(), DOUBLE_TOLERANCE); // - 762 MW
+        assertFalse(cnec.getUpperBound(ONE, MEGAWATT).isPresent());
+        assertFalse(cnec.getUpperBound(ONE, AMPERE).isPresent());
+        assertEquals(-2000., cnec.getLowerBound(ONE, AMPERE).orElseThrow(), DOUBLE_TOLERANCE);
+        assertEquals(-2000. * (0.22 * Math.sqrt(3)), cnec.getLowerBound(ONE, MEGAWATT).orElseThrow(), DOUBLE_TOLERANCE); // - 762 MW
 
         // bounds on TWO side
-        assertFalse(cnec.safeGetUpperBound(TWO, MEGAWATT).isPresent());
-        assertFalse(cnec.safeGetUpperBound(TWO, AMPERE).isPresent());
-        assertFalse(cnec.safeGetLowerBound(TWO, MEGAWATT).isPresent());
-        assertFalse(cnec.safeGetLowerBound(TWO, AMPERE).isPresent());
+        assertFalse(cnec.getUpperBound(TWO, MEGAWATT).isPresent());
+        assertFalse(cnec.getUpperBound(TWO, AMPERE).isPresent());
+        assertFalse(cnec.getLowerBound(TWO, MEGAWATT).isPresent());
+        assertFalse(cnec.getLowerBound(TWO, AMPERE).isPresent());
 
         // margin
         assertEquals(2300., cnec.computeMargin(300, ONE, AMPERE), DOUBLE_TOLERANCE); // bound: -2000 A
@@ -537,16 +537,16 @@ class FlowCnecImplTest {
             .add();
 
         // bounds on ONE side
-        assertFalse(cnec.safeGetUpperBound(ONE, MEGAWATT).isPresent());
-        assertFalse(cnec.safeGetUpperBound(ONE, AMPERE).isPresent());
-        assertFalse(cnec.safeGetLowerBound(ONE, MEGAWATT).isPresent());
-        assertFalse(cnec.safeGetLowerBound(ONE, AMPERE).isPresent());
+        assertFalse(cnec.getUpperBound(ONE, MEGAWATT).isPresent());
+        assertFalse(cnec.getUpperBound(ONE, AMPERE).isPresent());
+        assertFalse(cnec.getLowerBound(ONE, MEGAWATT).isPresent());
+        assertFalse(cnec.getLowerBound(ONE, AMPERE).isPresent());
 
         // bounds on TWO side
-        assertEquals(500., cnec.safeGetUpperBound(TWO, AMPERE).orElseThrow(), DOUBLE_TOLERANCE); // 500 A
-        assertEquals(500. * (0.38 * Math.sqrt(3)), cnec.safeGetUpperBound(TWO, MEGAWATT).orElseThrow(), DOUBLE_TOLERANCE); // 329 MW
-        assertFalse(cnec.safeGetLowerBound(TWO, MEGAWATT).isPresent());
-        assertFalse(cnec.safeGetLowerBound(TWO, AMPERE).isPresent());
+        assertEquals(500., cnec.getUpperBound(TWO, AMPERE).orElseThrow(), DOUBLE_TOLERANCE); // 500 A
+        assertEquals(500. * (0.38 * Math.sqrt(3)), cnec.getUpperBound(TWO, MEGAWATT).orElseThrow(), DOUBLE_TOLERANCE); // 329 MW
+        assertFalse(cnec.getLowerBound(TWO, MEGAWATT).isPresent());
+        assertFalse(cnec.getLowerBound(TWO, AMPERE).isPresent());
 
         // margin
         assertEquals(Double.POSITIVE_INFINITY, cnec.computeMargin(800, ONE, AMPERE), DOUBLE_TOLERANCE); // bound: 864 A
@@ -567,8 +567,8 @@ class FlowCnecImplTest {
             .newThreshold().withUnit(MEGAWATT).withMin(-300.).withSide(TwoSides.TWO).add()
             .add();
 
-        assertEquals(100., cnec.safeGetUpperBound(ONE, MEGAWATT).orElseThrow(), DOUBLE_TOLERANCE);
-        assertEquals(-200., cnec.safeGetLowerBound(ONE, MEGAWATT).orElseThrow(), DOUBLE_TOLERANCE);
+        assertEquals(100., cnec.getUpperBound(ONE, MEGAWATT).orElseThrow(), DOUBLE_TOLERANCE);
+        assertEquals(-200., cnec.getLowerBound(ONE, MEGAWATT).orElseThrow(), DOUBLE_TOLERANCE);
         assertEquals(-200., cnec.computeMargin(300, ONE, MEGAWATT), DOUBLE_TOLERANCE);
         assertEquals(0., cnec.computeMargin(-200, ONE, MEGAWATT), DOUBLE_TOLERANCE);
     }
@@ -584,13 +584,13 @@ class FlowCnecImplTest {
             .newThreshold().withUnit(MEGAWATT).withMin(-50.).withMax(150.).withSide(TwoSides.TWO).add()
             .add();
 
-        assertEquals(100., cnec.safeGetUpperBound(ONE, MEGAWATT).orElseThrow(), DOUBLE_TOLERANCE);
-        assertEquals(-200., cnec.safeGetLowerBound(ONE, MEGAWATT).orElseThrow(), DOUBLE_TOLERANCE);
+        assertEquals(100., cnec.getUpperBound(ONE, MEGAWATT).orElseThrow(), DOUBLE_TOLERANCE);
+        assertEquals(-200., cnec.getLowerBound(ONE, MEGAWATT).orElseThrow(), DOUBLE_TOLERANCE);
         assertEquals(-200., cnec.computeMargin(300, ONE, MEGAWATT), DOUBLE_TOLERANCE);
         assertEquals(0., cnec.computeMargin(-200, ONE, MEGAWATT), DOUBLE_TOLERANCE);
 
-        assertEquals(150., cnec.safeGetUpperBound(TWO, MEGAWATT).orElseThrow(), DOUBLE_TOLERANCE);
-        assertEquals(-50., cnec.safeGetLowerBound(TWO, MEGAWATT).orElseThrow(), DOUBLE_TOLERANCE);
+        assertEquals(150., cnec.getUpperBound(TWO, MEGAWATT).orElseThrow(), DOUBLE_TOLERANCE);
+        assertEquals(-50., cnec.getLowerBound(TWO, MEGAWATT).orElseThrow(), DOUBLE_TOLERANCE);
         assertEquals(-150, cnec.computeMargin(300, TWO, MEGAWATT), DOUBLE_TOLERANCE);
         assertEquals(-150., cnec.computeMargin(-200, TWO, MEGAWATT), DOUBLE_TOLERANCE);
     }
@@ -604,8 +604,8 @@ class FlowCnecImplTest {
             .newThreshold().withUnit(AMPERE).withMin(-50.).withMax(50.).withSide(TwoSides.TWO).add()
             .add();
 
-        assertEquals(100, cnec.safeGetUpperBound(ONE, AMPERE).orElseThrow(), DOUBLE_TOLERANCE);
-        assertEquals(-70, cnec.safeGetLowerBound(ONE, AMPERE).orElseThrow(), DOUBLE_TOLERANCE);
+        assertEquals(100, cnec.getUpperBound(ONE, AMPERE).orElseThrow(), DOUBLE_TOLERANCE);
+        assertEquals(-70, cnec.getLowerBound(ONE, AMPERE).orElseThrow(), DOUBLE_TOLERANCE);
         assertEquals(0., cnec.computeMargin(100, ONE, AMPERE), DOUBLE_TOLERANCE);
         assertEquals(-30, cnec.computeMargin(-100, ONE, AMPERE), DOUBLE_TOLERANCE);
     }
@@ -618,9 +618,9 @@ class FlowCnecImplTest {
             .newThreshold().withUnit(MEGAWATT).withMax(200.).withSide(TwoSides.ONE).add()
             .add();
 
-        assertEquals(200, cnec.safeGetUpperBound(ONE, MEGAWATT).orElseThrow(), DOUBLE_TOLERANCE);
+        assertEquals(200, cnec.getUpperBound(ONE, MEGAWATT).orElseThrow(), DOUBLE_TOLERANCE);
         assertEquals(200, cnec.computeMargin(0., ONE, MEGAWATT), DOUBLE_TOLERANCE);
-        assertFalse(cnec.safeGetLowerBound(ONE, MEGAWATT).isPresent());
+        assertFalse(cnec.getLowerBound(ONE, MEGAWATT).isPresent());
     }
 
     @Test
@@ -631,9 +631,9 @@ class FlowCnecImplTest {
             .newThreshold().withUnit(MEGAWATT).withMin(-200.).withSide(TwoSides.ONE).add()
             .add();
 
-        assertEquals(-200, cnec.safeGetLowerBound(ONE, MEGAWATT).orElseThrow(), DOUBLE_TOLERANCE);
+        assertEquals(-200, cnec.getLowerBound(ONE, MEGAWATT).orElseThrow(), DOUBLE_TOLERANCE);
         assertEquals(200, cnec.computeMargin(0., ONE, MEGAWATT), DOUBLE_TOLERANCE);
-        assertFalse(cnec.safeGetUpperBound(ONE, MEGAWATT).isPresent());
+        assertFalse(cnec.getUpperBound(ONE, MEGAWATT).isPresent());
     }
 
     @Test
