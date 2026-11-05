@@ -46,7 +46,7 @@
         </dependency>
         <dependency>
             <groupId>com.powsybl</groupId>
-            <artifactId>open-rao-reference-program</artifactId>
+            <artifactId>powsybl-network-area</artifactId>
         </dependency>
 
         <!-- Runtime dependencies -->

@@ -10,7 +10,7 @@ package com.powsybl.openrao.data.crac.io.nc.craccreator.remedialaction;
 import com.powsybl.glsk.commons.CountryEICode;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.openrao.commons.EICode;
+import com.powsybl.networkarea.BorderBasedCountryArea;
 import com.powsybl.openrao.commons.TsoEICode;
 import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.openrao.data.crac.api.Crac;
@@ -21,8 +21,8 @@ import com.powsybl.openrao.data.crac.io.commons.iidm.IidmCounterTradeHelper;
 import com.powsybl.openrao.data.crac.io.nc.craccreator.NcCracUtils;
 import com.powsybl.openrao.data.crac.io.nc.objects.CountertradeRemedialAction;
 import com.powsybl.openrao.data.crac.io.nc.parameters.NcCracCreationParameters;
-import com.powsybl.openrao.data.refprog.referenceprogram.CountryNetPositionComputation;
 
+import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 
@@ -39,14 +39,13 @@ public class CounterTradingRangeActionCreator {
      */
     private final NcCracCreationParameters ncCracCreationParameters;
     /**
-     * Area net positions, computed once from the Network (assumed to already carry a load flow result).
-     */
-    private final Map<EICode, Double> netPositions;
-
-    /**
-     * Network used to compute connected areas.
+     * Network used to compute connected areas and net positions (assumed to already carry a load flow result).
      */
     private final Network network;
+    /**
+     * Country areas used to compute border exchanges, created once per country.
+     */
+    private final Map<Country, BorderBasedCountryArea> countryAreas = new EnumMap<>(Country.class);
 
     public CounterTradingRangeActionCreator(Crac crac,
                                             Network network,
@@ -54,7 +53,6 @@ public class CounterTradingRangeActionCreator {
         this.crac = crac;
         this.ncCracCreationParameters = ncCracCreationParameters;
         this.network = network;
-        this.netPositions = new CountryNetPositionComputation(network).getNetPositions();
     }
 
     /**
@@ -71,8 +69,12 @@ public class CounterTradingRangeActionCreator {
         validateCountertradeRemedialAction(countertradeRemedialAction, remedialActionId);
 
         String area = getAreaId(countertradeRemedialAction, remedialActionId);
-        Double initialNetPosition = netPositions.get(new EICode(Country.valueOf(area)));
-        if (initialNetPosition == null) {
+
+        IidmCounterTradeHelper iidmCounterTradeHelper = new IidmCounterTradeHelper(area, network);
+        List<String> neighbors = iidmCounterTradeHelper.getNeighbors();
+
+        double initialNetPosition = computeInitialNetPosition(area, neighbors);
+        if (Double.isNaN(initialNetPosition)) {
             throw new OpenRaoImportException(ImportStatus.INCOMPLETE_DATA,
                     String.format("Remedial action %s will not be imported because the initial net position of area %s could not be computed from the network.", remedialActionId, area));
         }
@@ -91,10 +93,6 @@ public class CounterTradingRangeActionCreator {
                             remedialActionId, minRange, maxRange));
         }
 
-        IidmCounterTradeHelper iidmCounterTradeHelper = new IidmCounterTradeHelper(area, network);
-
-        List<String> neighbors = iidmCounterTradeHelper.getNeighbors();
-
         CounterTradeRangeActionAdder counterTradeRangeActionAdder = crac.newCounterTradeRangeAction()
                 .withId(remedialActionId)
                 .withName(countertradeRemedialAction.name())
@@ -105,6 +103,35 @@ public class CounterTradingRangeActionCreator {
 
         neighbors.forEach(neighbor -> counterTradeRangeActionAdder.newConnectedArea().withAreaId(neighbor).add());
         return counterTradeRangeActionAdder;
+    }
+
+    /**
+     * Compute the initial net position of an area as the sum of its border exchanges with each of its neighbors.
+     * Neighbors are the areas sharing a border with it in the network.
+     *
+     * @param area       Country code of the area
+     * @param neighbors  Country codes of the areas sharing a border with the area
+     * @return the net position, or NaN if it cannot be computed (no neighbor in the network, or no load flow result)
+     */
+    private double computeInitialNetPosition(String area, List<String> neighbors) {
+        if (neighbors.isEmpty()) {
+            return Double.NaN;
+        }
+        Country country = Country.valueOf(area);
+        return neighbors.stream()
+                .mapToDouble(neighbor -> getBorderExchange(country, Country.valueOf(neighbor)))
+                .sum();
+    }
+
+    /**
+     * Get the flow leaving the country 'from' towards the country 'to'.
+     */
+    private double getBorderExchange(Country from, Country to) {
+        return getCountryArea(from).getLeavingFlowToCountry(getCountryArea(to));
+    }
+
+    private BorderBasedCountryArea getCountryArea(Country country) {
+        return countryAreas.computeIfAbsent(country, c -> new BorderBasedCountryArea(network, List.of(c)));
     }
 
     /**
