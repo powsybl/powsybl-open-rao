@@ -41,7 +41,7 @@ public interface FlowCnec extends Cnec<FlowCnec> {
      * The {@code unit} must match the {@link PhysicalParameter} of the {@code FlowCnec}. It returns an optional
      * because the {@code FlowCnec} is not necessarily bounded by a lower value. This value would take
      * {@code reliabilityMargin} into account. If no bound is declared in the requested unit, an empty optional will
-     * be return, no conversion is carried out.
+     * be returned, no conversion is carried out.
      *
      * @param side The side on which the lower bound is queried.
      * @param unit The unit in which the bound would be returned.
@@ -67,7 +67,7 @@ public interface FlowCnec extends Cnec<FlowCnec> {
      * The {@code unit} must match the {@link PhysicalParameter} of the {@code FlowCnec}. It returns an optional
      * because the {@code FlowCnec} is not necessarily bounded by an upper value. This value would take
      * {@code reliabilityMargin} into account. If no bound is declared in the requested unit, an empty optional will
-     * be return, no conversion is carried out.
+     * be returned, no conversion is carried out.
      *
      * @param side The side on which the upper bound is queried.
      * @param unit The unit in which the upper bound would be returned.

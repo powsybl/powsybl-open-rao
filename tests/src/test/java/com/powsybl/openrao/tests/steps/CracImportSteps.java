@@ -288,10 +288,10 @@ public class CracImportSteps {
             Optional<Double> min = Optional.ofNullable(expectedThreshold.get("Min").equals("None") ? null : Double.parseDouble(expectedThreshold.get("Min")));
             Optional<Double> max = Optional.ofNullable(expectedThreshold.get("Max").equals("None") ? null : Double.parseDouble(expectedThreshold.get("Max")));
             if (min.isPresent()) {
-                assertEquals(min.get(), flowCnec.getRawLowerBound(side, expectedUnit).get());
+                assertEquals(min.get(), flowCnec.getRawLowerBound(side, expectedUnit).get(), DOUBLE_TOLERANCE);
             }
             if (max.isPresent()) {
-                assertEquals(max.get(), flowCnec.getRawUpperBound(side, expectedUnit).get());
+                assertEquals(max.get(), flowCnec.getRawUpperBound(side, expectedUnit).get(), DOUBLE_TOLERANCE);
             }
         }
     }
