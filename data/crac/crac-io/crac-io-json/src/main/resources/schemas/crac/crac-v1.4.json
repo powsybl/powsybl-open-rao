@@ -35,17 +35,13 @@
     "flowCnecs": {
       "type": "array",
       "items": {
-        "items": {
-          "$ref": "../flow-cnec/flow-cnec-v1.4.json"
-        }
+        "$ref": "../flow-cnec/flow-cnec-v1.4.json"
       }
     },
     "angleCnecs": {
       "type": "array",
       "items": {
-        "items": {
-          "$ref": "../angle-cnec/angle-cnec-v1.4.json"
-        }
+        "$ref": "../angle-cnec/angle-cnec-v1.4.json"
       }
     },
     "pstRangeActions": {
