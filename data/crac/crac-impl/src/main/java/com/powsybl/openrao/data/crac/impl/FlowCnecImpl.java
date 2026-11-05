@@ -18,8 +18,6 @@ import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
-import com.powsybl.openrao.data.crac.api.threshold.BranchThreshold;
-import com.powsybl.openrao.data.crac.api.threshold.Threshold;
 
 import java.util.*;
 import java.util.stream.Collectors;

@@ -8,7 +8,6 @@
 package com.powsybl.openrao.data.crac.impl;
 
 import com.powsybl.openrao.commons.Unit;
-import com.powsybl.openrao.data.crac.api.threshold.Threshold;
 
 import java.util.Optional;
 
@@ -19,13 +18,13 @@ import static java.lang.Math.abs;
  *
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
-public class ThresholdImpl implements Threshold {
+public class Threshold {
 
     protected Unit unit;
     protected Double min;
     protected Double max;
 
-    ThresholdImpl(Unit unit, Double min, Double max) {
+    Threshold(Unit unit, Double min, Double max) {
         this.unit = unit;
         this.min = min;
         this.max = max;
@@ -39,24 +38,20 @@ public class ThresholdImpl implements Threshold {
         return max == null ? Double.NaN : max;
     }
 
-    @Override
     public Unit getUnit() {
         return unit;
     }
 
-    @Override
     public Optional<Double> min() {
         // So that it returns Optional.empty() if min value is null or NaN
         return Optional.ofNullable(Double.isNaN(getMin()) ? null : min);
     }
 
-    @Override
     public Optional<Double> max() {
         // So that it returns Optional.empty() if max value is null or NaN
         return Optional.ofNullable(Double.isNaN(getMax()) ? null : max);
     }
 
-    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -64,13 +59,20 @@ public class ThresholdImpl implements Threshold {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        ThresholdImpl otherT = (ThresholdImpl) o;
+        Threshold otherT = (Threshold) o;
         return (unit == null && otherT.getUnit() == null || unit != null && unit.equals(otherT.getUnit()))
                 && equalsDouble(max, otherT.getMax())
                 && equalsDouble(min, otherT.getMin());
     }
 
-    @Override
+    boolean limitsByMax() {
+        return max().isPresent();
+    }
+
+    boolean limitsByMin() {
+        return min().isPresent();
+    }
+
     public int hashCode() {
         int hash = 0;
         hash = 31 * hash + unit.hashCode();

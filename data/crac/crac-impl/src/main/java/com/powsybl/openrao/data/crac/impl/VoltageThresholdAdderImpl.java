@@ -37,7 +37,7 @@ public class VoltageThresholdAdderImpl extends AbstractThresholdAdderImpl<Voltag
     public VoltageCnecAdder add() {
         super.checkThreshold();
 
-        ownerAdder.addThreshold(new ThresholdImpl(unit, min, max));
+        ownerAdder.addThreshold(new Threshold(unit, min, max));
         return ownerAdder;
     }
 }
