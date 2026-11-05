@@ -11,8 +11,6 @@ import com.powsybl.openrao.commons.Unit;
 
 import java.util.Optional;
 
-import static java.lang.Math.abs;
-
 /**
  * Generic threshold (flow, voltage, etc.) in the CRAC file.
  *
