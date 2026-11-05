@@ -25,6 +25,7 @@ import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.networkaction.ActionType;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
+import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.OptimizationStepsExecuted;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.raoapi.RaoInput;
@@ -35,9 +36,14 @@ import com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityPa
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoTopoOptimizationParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SecondPreventiveRaoParameters;
+import com.powsybl.openrao.searchtreerao.commons.ToolProvider;
+import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
+import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
 import com.powsybl.openrao.searchtreerao.result.impl.FailedRaoResultImpl;
+import com.powsybl.openrao.searchtreerao.searchtree.parameters.SearchTreeParameters;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
+import org.mockito.MockedConstruction;
+import org.mockito.MockedStatic;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
@@ -49,8 +55,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.Mockito.*;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
@@ -547,7 +556,7 @@ class CastorFullOptimizationTest {
     @Test
     void catchDuringDataInitialization() throws IOException {
         setup("small-network-2P.uct", "small-crac-2P.json");
-        RaoParameters raoParameters = Mockito.mock(RaoParameters.class);
+        RaoParameters raoParameters = mock(RaoParameters.class);
         when(raoParameters.getObjectiveFunctionParameters()).thenThrow(new OpenRaoException("This exception should be caught"));
         RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null, ReportNode.NO_OP).run().join();
         assertInstanceOf(FailedRaoResultImpl.class, raoResult);
@@ -560,7 +569,7 @@ class CastorFullOptimizationTest {
     @Test
     void catchDuringInitialSensitivity() throws IOException {
         setup("small-network-2P.uct", "small-crac-2P.json");
-        Crac cracSpy = Mockito.spy(crac);
+        Crac cracSpy = spy(crac);
         when(cracSpy.getRangeActions()).thenThrow(new OpenRaoException("Testing exception handling"));
         raoInput = RaoInput.build(network, cracSpy).build();
         RaoParameters raoParameters = new RaoParameters(ReportNode.NO_OP);
@@ -574,13 +583,13 @@ class CastorFullOptimizationTest {
     void catchDuringFirstPreventive() throws IOException {
         setup("small-network-2P.uct", "small-crac-2P.json");
         RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_2P_v2.json"), ReportNode.NO_OP);
-        Crac cracSpy = Mockito.spy(crac);
+        Crac cracSpy = spy(crac);
         // getNetworkActions(preventiveState) is only called when building the preventive optimization perimeter,
         // unlike getNetworkActions(any()) which is also hit earlier (e.g. by StateTree, during data initialization).
         // doThrow(...).when(spy)... is used instead of when(spy...).thenThrow(...) because the latter calls the
         // real method first, and the real getNetworkActions(State) NPEs here since the matcher's return value
         // (used as the actual argument) is null, not the matched state.
-        Mockito.doThrow(new OpenRaoException("Testing exception handling")).when(cracSpy).getNetworkActions(crac.getPreventiveState());
+        doThrow(new OpenRaoException("Testing exception handling")).when(cracSpy).getNetworkActions(crac.getPreventiveState());
         raoInput = RaoInput.build(network, cracSpy).build();
 
         RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null, ReportNode.NO_OP).run().join();
@@ -595,7 +604,7 @@ class CastorFullOptimizationTest {
         // (unmocked) instance before reaching the contingency scenarios step
         LoadFlowAndSensitivityParameters.getSensitivityWithLoadFlowParameters(raoParameters).getLoadFlowParameters().setDc(true);
 
-        SearchTreeRaoTopoOptimizationParameters topoOptimizationParameters = Mockito.spy(raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getTopoOptimizationParameters());
+        SearchTreeRaoTopoOptimizationParameters topoOptimizationParameters = spy(raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getTopoOptimizationParameters());
         when(topoOptimizationParameters.getMaxCurativeSearchTreeDepth()).thenThrow(new OpenRaoException("Testing exception handling"));
         raoParameters.getExtension(OpenRaoSearchTreeParameters.class).setTopoOptimizationParameters(topoOptimizationParameters);
 
@@ -611,7 +620,7 @@ class CastorFullOptimizationTest {
         // (unmocked) instance before reaching the second preventive step
         LoadFlowAndSensitivityParameters.getSensitivityWithLoadFlowParameters(raoParameters).getLoadFlowParameters().setDc(true);
         OpenRaoSearchTreeParameters searchTreeParameters = raoParameters.getExtension(OpenRaoSearchTreeParameters.class);
-        OpenRaoSearchTreeParameters searchTreeParametersSpied = Mockito.spy(searchTreeParameters);
+        OpenRaoSearchTreeParameters searchTreeParametersSpied = spy(searchTreeParameters);
         raoParameters.removeExtension(OpenRaoSearchTreeParameters.class);
         raoParameters.addExtension(OpenRaoSearchTreeParameters.class, searchTreeParametersSpied);
         when(searchTreeParametersSpied.getSecondPreventiveRaoParameters()).thenThrow(new OpenRaoException("Testing exception handling"));
@@ -682,5 +691,117 @@ class CastorFullOptimizationTest {
         assertEquals(-432.82, raoResult.getCost(crac.getInstant("curative")), 1e-2);
         assertEquals(1, raoResult.getActivatedRangeActionsDuringState(crac.getState("co1_be1_fr5", crac.getInstant(InstantKind.CURATIVE))).size());
         assertEquals("CRA_HVDC", raoResult.getActivatedRangeActionsDuringState(crac.getState("co1_be1_fr5", crac.getInstant(InstantKind.CURATIVE))).iterator().next().getId());
+    }
+
+    @Test
+    void runInitialSensitivityAnalysisDisablesDcWhenDcSensitivityFails() throws IOException {
+        // The initial AC sensitivity succeeds but the initial DC sensitivity fails: the fallback must disable
+        // DC performance mode, reset the working tool provider/output back to AC, and clean up the temporary
+        // working variant - instead of letting the failed DC output silently propagate.
+        setup("small-network-2P.uct", "small-crac-2P.json");
+        RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_2P_v2.json"), ReportNode.NO_OP);
+        CastorFullOptimization castorFullOptimization = new CastorFullOptimization(raoInput, raoParameters, null, ReportNode.NO_OP);
+
+        ToolProvider acToolProvider = mock(ToolProvider.class);
+        ToolProvider dcToolProvider = mock(ToolProvider.class);
+        RaoRunContext context = new RaoRunContext(acToolProvider);
+        context.setUseWorkingVars(true);
+        context.setWorkingToolProvider(dcToolProvider);
+        context.setDcRaoParameters(new RaoParameters(ReportNode.NO_OP));
+        // normally cloned by run() before reaching this step, since runInitialSensitivityAnalysis expects it to exist
+        network.getVariantManager().cloneVariant(network.getVariantManager().getWorkingVariantId(), "WorkingScenario");
+
+        Logger logger = (Logger) LoggerFactory.getLogger(RaoBusinessWarns.class);
+        ListAppender<ILoggingEvent> listAppender = new ListAppender<>();
+        listAppender.start();
+        logger.addAppender(listAppender);
+
+        try (MockedConstruction<PrePerimeterSensitivityAnalysis> mockedSensitivityAnalysis = mockConstruction(PrePerimeterSensitivityAnalysis.class,
+                (mock, constructionContext) -> {
+                    PrePerimeterResult result = mock(PrePerimeterResult.class);
+                    when(result.getSensitivityStatus()).thenReturn(constructionContext.getCount() == 1 ? ComputationStatus.DEFAULT : ComputationStatus.FAILURE);
+                    when(mock.runInitialSensitivityAnalysis(any(Network.class), any(ReportNode.class))).thenReturn(result);
+                })) {
+            castorFullOptimization.runInitialSensitivityAnalysis(context, ReportNode.NO_OP);
+        } finally {
+            listAppender.stop();
+        }
+
+        assertFalse(context.useWorkingVars());
+        assertSame(context.getToolProvider(), context.getWorkingToolProvider());
+        assertSame(context.getInitialOutput(), context.getWorkingInitialOutput());
+        assertFalse(network.getVariantManager().getVariantIds().contains("WorkingScenario"));
+
+        List<String> logs = listAppender.list.stream().map(Object::toString).toList();
+        assertTrue(logs.stream().anyMatch(l -> l.contains("Initial sensitivity analysis in DC failed. Disabling performance improvement using DC.")));
+    }
+
+    @Test
+    void optimizePreventivePerimeterFallsBackToFullAcSearchWhenAcRecomputeDoesNotConverge() throws IOException {
+        // DC decides a network action combination for the preventive perimeter, but recomputing it in AC does
+        // not converge: the fallback must ignore the DC decision and search directly in AC instead.
+        setup("small-network-2P.uct", "small-crac-2P.json");
+        RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_2P_v2.json"), ReportNode.NO_OP);
+        CastorFullOptimization castorFullOptimization = new CastorFullOptimization(raoInput, raoParameters, null, ReportNode.NO_OP);
+
+        ToolProvider workingToolProvider = mock(ToolProvider.class);
+        when(workingToolProvider.getRaoParameters()).thenReturn(new RaoParameters(ReportNode.NO_OP));
+        ToolProvider baseToolProvider = mock(ToolProvider.class);
+        when(baseToolProvider.getRaoParameters()).thenReturn(raoParameters);
+
+        SearchTreeParameters searchTreeParameters = mock(SearchTreeParameters.class);
+
+        StateTree stateTree = mock(StateTree.class);
+        when(stateTree.getOperatorsNotSharingCras()).thenReturn(Set.of());
+        // real, empty-of-other-states perimeter: PreventiveOptimizationPerimeter.buildFromBasecaseScenario below
+        // runs for real and only needs a plain Perimeter wrapping the preventive state
+        when(stateTree.getBasecaseScenario()).thenReturn(new Perimeter(crac.getPreventiveState(), Set.of()));
+
+        PrePerimeterResult workingInitialResult = mock(PrePerimeterResult.class);
+        when(workingInitialResult.getSensitivityStatus(any())).thenReturn(ComputationStatus.DEFAULT);
+        PrePerimeterResult initialResult = mock(PrePerimeterResult.class);
+        when(initialResult.getSensitivityStatus(any())).thenReturn(ComputationStatus.DEFAULT);
+
+        OptimizationResult dcDecidedResult = mock(OptimizationResult.class);
+        when(dcDecidedResult.getActivatedNetworkActions()).thenReturn(Set.of(crac.getNetworkAction("close_de3_de4")));
+
+        OptimizationResult nonConvergingAcResult = mock(OptimizationResult.class);
+        when(nonConvergingAcResult.getSensitivityStatus()).thenReturn(ComputationStatus.FAILURE);
+
+        OptimizationResult fullAcSearchResult = mock(OptimizationResult.class);
+        when(fullAcSearchResult.getActivatedNetworkActions()).thenReturn(Set.of());
+        when(fullAcSearchResult.getActivatedRangeActions(any())).thenReturn(Set.of());
+
+        // normally cloned by runFirstPreventiveOptimization() before reaching this step
+        network.getVariantManager().cloneVariant(network.getVariantManager().getWorkingVariantId(), "PreventiveScenario");
+
+        Logger logger = (Logger) LoggerFactory.getLogger(RaoBusinessWarns.class);
+        ListAppender<ILoggingEvent> listAppender = new ListAppender<>();
+        listAppender.start();
+        logger.addAppender(listAppender);
+
+        OptimizationResult finalResult;
+        // only CastorSearchTreeHelper (the DC-search/AC-recompute seam) needs mocking: PreventiveOptimizationPerimeter
+        // and ObjectiveFunction run for real against the real small-crac-2P.json fixture already loaded by setup()
+        try (MockedStatic<CastorSearchTreeHelper> castorSearchTreeHelper = mockStatic(CastorSearchTreeHelper.class)) {
+            castorSearchTreeHelper.when(() -> CastorSearchTreeHelper.buildSearchTreeParameters(any(), any(), any(), any(), any(), any()))
+                .thenReturn(searchTreeParameters);
+            // 1st call = DC decide (preventive perimeter), 2nd call = full-AC fallback search once reoptimize fails to converge
+            castorSearchTreeHelper.when(() -> CastorSearchTreeHelper.searchNetworkActionCombination(
+                    any(), any(), any(), any(), any(), any(), any(), any(), any(), anyBoolean(), any()))
+                .thenReturn(dcDecidedResult, fullAcSearchResult);
+            castorSearchTreeHelper.when(() -> CastorSearchTreeHelper.reoptimizeNetworkActionCombination(
+                    any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), anyBoolean(), any()))
+                .thenReturn(nonConvergingAcResult);
+
+            finalResult = castorFullOptimization.optimizePreventivePerimeter(
+                stateTree, workingToolProvider, baseToolProvider, workingInitialResult, initialResult, ReportNode.NO_OP);
+        } finally {
+            listAppender.stop();
+        }
+
+        assertSame(fullAcSearchResult, finalResult);
+        List<String> warnLogs = listAppender.list.stream().map(Object::toString).toList();
+        assertTrue(warnLogs.stream().anyMatch(l -> l.contains("but the AC recompute failed to converge; falling back to a full AC search")));
     }
 }

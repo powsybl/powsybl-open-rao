@@ -19,6 +19,7 @@ import com.powsybl.openrao.searchtreerao.commons.ToolProvider;
 import com.powsybl.openrao.searchtreerao.commons.objectivefunction.ObjectiveFunction;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.commons.parameters.TreeParameters;
+import com.powsybl.openrao.searchtreerao.result.api.ObjectiveFunctionResult;
 import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
 import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
 import com.powsybl.openrao.searchtreerao.searchtree.algorithms.SearchTree;
@@ -33,8 +34,10 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.when;
 
 class CastorSearchTreeHelperTest {
 
@@ -152,5 +155,34 @@ class CastorSearchTreeHelperTest {
             assertEquals(1, mockedSearchTree.constructed().size());
             assertSame(acResult, result);
         }
+    }
+
+    @Test
+    void isSecureAndBetterThanChecksSecurityAndCostImprovement() {
+        ObjectiveFunctionResult result = Mockito.mock(ObjectiveFunctionResult.class);
+
+        // secure and strictly better cost
+        when(result.getVirtualCost()).thenReturn(0.);
+        when(result.getFunctionalCost()).thenReturn(0.);
+        when(result.getCost()).thenReturn(-10.);
+        assertTrue(CastorSearchTreeHelper.isSecureAndBetterThan(result, 0.));
+
+        // secure and cost equal to previous (within epsilon)
+        when(result.getCost()).thenReturn(0.);
+        assertTrue(CastorSearchTreeHelper.isSecureAndBetterThan(result, 0.));
+
+        // virtual cost above epsilon -> not secure, regardless of cost
+        when(result.getVirtualCost()).thenReturn(1.);
+        assertFalse(CastorSearchTreeHelper.isSecureAndBetterThan(result, 0.));
+
+        // functional cost above epsilon -> not secure
+        when(result.getVirtualCost()).thenReturn(0.);
+        when(result.getFunctionalCost()).thenReturn(1.);
+        assertFalse(CastorSearchTreeHelper.isSecureAndBetterThan(result, 0.));
+
+        // secure but cost clearly worse than previous
+        when(result.getFunctionalCost()).thenReturn(0.);
+        when(result.getCost()).thenReturn(10.);
+        assertFalse(CastorSearchTreeHelper.isSecureAndBetterThan(result, 0.));
     }
 }

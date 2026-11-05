@@ -251,7 +251,7 @@ public class CastorFullOptimization {
      * constraints on CNECs, in preventive and curative perimeters), both in AC and, when relevant, in the
      * DC working variant used to speed up the search tree.
      */
-    private void runInitialSensitivityAnalysis(final RaoRunContext context, final ReportNode optimizationReportNode) {
+    void runInitialSensitivityAnalysis(final RaoRunContext context, final ReportNode optimizationReportNode) {
         PrePerimeterSensitivityAnalysis prePerimeterSensitivityAnalysis = new PrePerimeterSensitivityAnalysis(
             crac, crac.getFlowCnecs(), crac.getRangeActions(), raoParameters, context.getToolProvider(), true);
         context.setPrePerimeterSensitivityAnalysis(prePerimeterSensitivityAnalysis);
@@ -539,7 +539,7 @@ public class CastorFullOptimization {
         return CompletableFuture.completedFuture(finalRaoResult);
     }
 
-    private OptimizationResult optimizePreventivePerimeter(final StateTree stateTree,
+    OptimizationResult optimizePreventivePerimeter(final StateTree stateTree,
                                                            final ToolProvider workingToolProvider,
                                                            final ToolProvider baseToolProvider,
                                                            final PrePerimeterResult workingInitialResult,
