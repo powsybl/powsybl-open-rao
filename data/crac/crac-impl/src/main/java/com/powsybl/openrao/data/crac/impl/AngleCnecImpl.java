@@ -12,7 +12,6 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
-import com.powsybl.openrao.data.crac.api.NetworkElement;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.AngleCnec;
 import com.powsybl.openrao.data.crac.api.threshold.Threshold;
@@ -26,13 +25,13 @@ import java.util.stream.Collectors;
  */
 public class AngleCnecImpl extends AbstractCnec<AngleCnec> implements AngleCnec {
     private final Set<Threshold> thresholds;
-    private final NetworkElement exportingNetworkElement;
-    private final NetworkElement importingNetworkElement;
+    private final String exportingNetworkElementId;
+    private final String importingNetworkElementId;
 
     AngleCnecImpl(String id,
                   String name,
-                  NetworkElement exportingNetworkElement,
-                  NetworkElement importingNetworkElement,
+                  String exportingNetworkElementId,
+                  String importingNetworkElementId,
                   String operator,
                   String border,
                   State state,
@@ -40,30 +39,20 @@ public class AngleCnecImpl extends AbstractCnec<AngleCnec> implements AngleCnec 
                   boolean monitored,
                   Set<Threshold> thresholds,
                   double reliabilityMargin) {
-        super(id, name, Set.of(exportingNetworkElement, importingNetworkElement), operator, border, state, optimized, monitored, reliabilityMargin);
+        super(id, name, Set.of(exportingNetworkElementId, importingNetworkElementId), operator, border, state, optimized, monitored, reliabilityMargin);
         this.thresholds = thresholds;
-        this.exportingNetworkElement = exportingNetworkElement;
-        this.importingNetworkElement = importingNetworkElement;
-    }
-
-    @Override
-    public NetworkElement getExportingNetworkElement() {
-        return exportingNetworkElement;
+        this.exportingNetworkElementId = exportingNetworkElementId;
+        this.importingNetworkElementId = importingNetworkElementId;
     }
 
     @Override
     public String getExportingNetworkElementId() {
-        return exportingNetworkElement.getId();
-    }
-
-    @Override
-    public NetworkElement getImportingNetworkElement() {
-        return importingNetworkElement;
+        return exportingNetworkElementId;
     }
 
     @Override
     public String getImportingNetworkElementId() {
-        return importingNetworkElement.getId();
+        return importingNetworkElementId;
     }
 
     @Override
@@ -118,8 +107,8 @@ public class AngleCnecImpl extends AbstractCnec<AngleCnec> implements AngleCnec 
     @Override
     public AngleCnecValue computeValue(Network network, Unit unit) {
         unit.checkPhysicalParameter(getPhysicalParameter());
-        VoltageLevel exportingVoltageLevel = getVoltageLevelOfElement(exportingNetworkElement.getId(), network);
-        VoltageLevel importingVoltageLevel = getVoltageLevelOfElement(importingNetworkElement.getId(), network);
+        VoltageLevel exportingVoltageLevel = getVoltageLevelOfElement(exportingNetworkElementId, network);
+        VoltageLevel importingVoltageLevel = getVoltageLevelOfElement(importingNetworkElementId, network);
         return new AngleCnecValue(exportingVoltageLevel.getBusView().getBusStream().mapToDouble(Bus::getAngle).max().getAsDouble()
             - importingVoltageLevel.getBusView().getBusStream().mapToDouble(Bus::getAngle).min().getAsDouble());
     }

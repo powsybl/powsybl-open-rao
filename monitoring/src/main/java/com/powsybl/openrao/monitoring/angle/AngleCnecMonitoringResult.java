@@ -64,8 +64,8 @@ public class AngleCnecMonitoringResult extends AbstractCnecMonitoringResult<Angl
 
     @Override
     protected void computeValue(Network network) {
-        VoltageLevel exportingVoltageLevel = getVoltageLevelOfElement(cnec.getExportingNetworkElement().getId(), network);
-        VoltageLevel importingVoltageLevel = getVoltageLevelOfElement(cnec.getImportingNetworkElement().getId(), network);
+        VoltageLevel exportingVoltageLevel = getVoltageLevelOfElement(cnec.getExportingNetworkElementId(), network);
+        VoltageLevel importingVoltageLevel = getVoltageLevelOfElement(cnec.getImportingNetworkElementId(), network);
         this.angle = exportingVoltageLevel.getBusView().getBusStream().mapToDouble(Bus::getAngle).max().getAsDouble()
             - importingVoltageLevel.getBusView().getBusStream().mapToDouble(Bus::getAngle).min().getAsDouble();
     }
@@ -78,8 +78,8 @@ public class AngleCnecMonitoringResult extends AbstractCnecMonitoringResult<Angl
     public String print() {
         return String.format("AngleCnec %s (with importing network element %s and exporting network element %s) at state %s has an angle of %s°.",
             cnec.getId(),
-            cnec.getImportingNetworkElement().getId(),
-            cnec.getExportingNetworkElement().getId(),
+            cnec.getImportingNetworkElementId(),
+            cnec.getExportingNetworkElementId(),
             cnec.getState().getId(),
             MeasurementRounding.roundValueBasedOnMargin(angle, margin, 2).doubleValue());
     }

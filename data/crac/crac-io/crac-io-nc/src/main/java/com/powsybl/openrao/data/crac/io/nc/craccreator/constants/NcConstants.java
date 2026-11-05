@@ -27,6 +27,12 @@ public final class NcConstants {
 
     public static final String EXTENSION_FILE_NC_PROFILE = "zip";
 
+    /**
+     * Regular expression of the namespaces published with NCP version 2.5. Finding one of them in an input file
+     * means that the file uses the NCP 2.5 vocabulary, which is not supported by the importer (only NCP 2.4 is).
+     */
+    public static final String NCP25_NAMESPACE_PATTERN = "https://cim4\\.eu/|https://cim\\.ucaiug\\.io/ns";
+
     public static final String RDF_BASE_URL = "http://entsoe.eu";
 
     public static final String TRIPLESTORE_RDF4J_NAME = "rdf4j";

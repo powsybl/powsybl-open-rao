@@ -21,7 +21,6 @@ import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControl;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Instant;
-import com.powsybl.openrao.data.crac.api.NetworkElement;
 import com.powsybl.openrao.data.crac.api.RaUsageLimits;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
@@ -275,13 +274,12 @@ class LeafTest {
         Leaf rootLeaf = new Leaf(optimizationPerimeter, networkWithAngleDroop, prePerimeterResult, appliedRemedialActions);
         RangeActionActivationResult rangeActionActivationResult = Mockito.mock(RangeActionActivationResult.class);
         UsageRule usageRule = Mockito.mock(UsageRule.class);
-        NetworkElement networkElement = Mockito.mock(NetworkElement.class);
         NetworkAction na1 = new NetworkActionImpl("na1", "na1", "TSO1", Set.of(usageRule),
             Set.of(new HvdcActionBuilder()
                 .withId(String.format("%s_%s_%s", "acEmulation", "BBE2AA11 FFR3AA11 1", "DEACTIVATE"))
                 .withHvdcId("BBE2AA11 FFR3AA11 1")
                 .withAcEmulationEnabled(false)
-                .build()), 1, 1.0, Set.of(networkElement));
+                .build()), 1, 1.0, Set.of("BBE2AA11 FFR3AA11 1"));
 
         // before creation of the leaf, AC emulation is still enabled
         assertEquals(0, networkWithAngleDroop.getHvdcLine("BBE2AA11 FFR3AA11 1").getActivePowerSetpoint(), 1e-2);
@@ -1064,10 +1062,8 @@ class LeafTest {
             .withNetworkElementId("FFR2AA1  DDE3AA1  1")
             .withOpen(true)
             .build();
-        NetworkElement networkElement1 = Mockito.mock(NetworkElement.class);
-        NetworkElement networkElement2 = Mockito.mock(NetworkElement.class);
         NetworkAction networkActionThatCreateAnIsland = new NetworkActionImpl("naCombination", "naCombination", "operator", Mockito.mock(Set.class),
-            Set.of(elementaryAction1, elementaryAction2), 1, 0.0, Set.of(networkElement1, networkElement2));
+            Set.of(elementaryAction1, elementaryAction2), 1, 0.0, Set.of("DDE2AA1  NNL3AA1  1", "FFR2AA1  DDE3AA1  1"));
 
         OpenRaoException exception = assertThrows(
             OpenRaoException.class, () ->
@@ -1101,9 +1097,8 @@ class LeafTest {
             .withNetworkElementId("FFR2AA1  DDE3AA1  1")
             .withOpen(true)
             .build();
-        NetworkElement networkElement1 = Mockito.mock(NetworkElement.class);
         NetworkAction networkActionThatCreateAnIsland = new NetworkActionImpl("naCombination", "naCombination", "operator", Mockito.mock(Set.class),
-            Set.of(elementaryAction1), 1, 0.0, Set.of(networkElement1));
+            Set.of(elementaryAction1), 1, 0.0, Set.of("DDE2AA1  NNL3AA1  1"));
 
         OpenRaoException exception = assertThrows(
             OpenRaoException.class, () ->

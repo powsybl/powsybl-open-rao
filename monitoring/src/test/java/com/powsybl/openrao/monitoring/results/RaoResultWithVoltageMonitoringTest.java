@@ -8,9 +8,11 @@
 package com.powsybl.openrao.monitoring.results;
 
 import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.State;
+import com.powsybl.openrao.data.crac.api.cnec.Cnec;
 import com.powsybl.openrao.data.crac.api.cnec.VoltageCnec;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.monitoring.voltage.VoltageCnecMonitoringResult;
@@ -70,5 +72,37 @@ public class RaoResultWithVoltageMonitoringTest {
         when(voltageCnecNotMonitored.getState()).thenReturn(state);
         when(voltageCnecNotMonitored.getId()).thenReturn("voltageNotMonitored");
         assertFalse(raoResultWithVoltageMonitoring.getCnecResult(cnecInstant, voltageCnecNotMonitored).isPresent());
+    }
+
+    @Test
+    void testIsSecure() {
+        RaoResult raoResult = Mockito.mock(RaoResult.class);
+        MonitoringResult voltageMonitoringResult = Mockito.mock(MonitoringResult.class);
+        RaoResultWithVoltageMonitoring raoResultWithVoltageMonitoring = new RaoResultWithVoltageMonitoring(raoResult, voltageMonitoringResult);
+
+        // all secure
+        when(voltageMonitoringResult.getStatus()).thenReturn(Cnec.SecurityStatus.SECURE);
+        when(raoResult.isSecure(PhysicalParameter.FLOW)).thenReturn(true);
+        when(raoResult.isSecure(PhysicalParameter.ANGLE)).thenReturn(true);
+        when(raoResult.isSecure(PhysicalParameter.FLOW, PhysicalParameter.ANGLE)).thenReturn(true);
+        assertTrue(raoResultWithVoltageMonitoring.isSecure(PhysicalParameter.VOLTAGE, PhysicalParameter.ANGLE));
+        assertTrue(raoResultWithVoltageMonitoring.isSecure(PhysicalParameter.VOLTAGE, PhysicalParameter.FLOW));
+        assertTrue(raoResultWithVoltageMonitoring.isSecure(PhysicalParameter.FLOW, PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE));
+
+        // unsecure flow
+        when(raoResult.isSecure(PhysicalParameter.FLOW)).thenReturn(false);
+        when(raoResult.isSecure(PhysicalParameter.FLOW, PhysicalParameter.ANGLE)).thenReturn(false);
+        assertTrue(raoResultWithVoltageMonitoring.isSecure(PhysicalParameter.VOLTAGE, PhysicalParameter.ANGLE));
+        assertFalse(raoResultWithVoltageMonitoring.isSecure(PhysicalParameter.VOLTAGE, PhysicalParameter.FLOW));
+        assertFalse(raoResultWithVoltageMonitoring.isSecure(PhysicalParameter.FLOW, PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE));
+
+        // unsecure angle
+        when(voltageMonitoringResult.getStatus()).thenReturn(Cnec.SecurityStatus.HIGH_CONSTRAINT);
+        when(raoResult.isSecure(PhysicalParameter.FLOW)).thenReturn(true);
+        when(raoResult.isSecure(PhysicalParameter.ANGLE)).thenReturn(true);
+        when(raoResult.isSecure(PhysicalParameter.FLOW, PhysicalParameter.ANGLE)).thenReturn(true);
+        assertFalse(raoResultWithVoltageMonitoring.isSecure(PhysicalParameter.VOLTAGE, PhysicalParameter.ANGLE));
+        assertFalse(raoResultWithVoltageMonitoring.isSecure(PhysicalParameter.VOLTAGE, PhysicalParameter.FLOW));
+        assertFalse(raoResultWithVoltageMonitoring.isSecure(PhysicalParameter.FLOW, PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE));
     }
 }

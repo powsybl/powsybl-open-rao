@@ -162,7 +162,7 @@ OpenRAO can construct this by concatenating multiple elements in order to ensure
 - **ImportStatusDetail**: a user-friendly message explaining why the element has not been imported (if applicable)
 - **NativeBranch**: the UCTE branch referred to in the original CRAC, with a "from" node, a "to" node, and a suffix (order code or alias)
 - **isBaseCase**: a boolean equal to true if the CNEC has been created for the preventive instant
-- **ContingencyId** (if present): the ID of the contingency for which the CNEc is monitored
+- **ContingencyId** (if present): the ID of the contingency for which the CNEC is monitored
 - **CreatedCnecIds**: the ID(s) of the OpenRAO CNEC(s) that were created for this native critical branch. These are the 
 IDs the user should use to query the internal CRAC & RaoResult objects.
 - **isDirectionInvertedInNetwork**: a boolean equal to true if the from/to in the original CRAC are the inverse of the 
@@ -531,7 +531,7 @@ void printSomeResults(MonitoredSeriesCreationContext context, CracCreationContex
 ### Angle CNEC creation contexts
 The `AngleCnecCreationContext` 
 contains information about the creation of angle CNECs in OpenRAO. One AngleCnecCreationContext is created for every native
-[B56](cim.md#anglecnecs) "AdditionalConstraint_Series" in the original CRAC, that can be uniquely identified. 
+[B56](cim.md#anglecnecs) "AdditionalConstraint_Series" in the original CRAC, that can be uniquely identified.
 It holds the following information:
 - **NativeId**: the unique identifier of the native AdditionalConstraint_Series (contained in the "mRID" tag)
 - **isImported**: a boolean equal to true if OpenRAO was able to import one or multiple CNECs from this element.
@@ -570,7 +570,7 @@ void printSomeResults(AngleCnecCreationContext context, CracCreationContext crac
 
 ### Voltage CNEC creation contexts
 The `VoltageCnecCreationContext`
-contains information about the creation of angle CNECs in OpenRAO. One VoltageCnecCreationContext is created for every voltage
+contains information about the creation of voltage CNECs in OpenRAO. One VoltageCnecCreationContext is created for every Voltage
 CNEC that should be created, as configured in the [CimCracCreationParameters](creation-parameters.md#voltage-cnecs-creation-parameters). 
 It holds the following information:
 - **NativeNetworkElementId**: the unique identifier of the network element that is monitored
@@ -694,7 +694,7 @@ _**This section is under construction**_
 ## JSON implementation
 
 The JsonCracCreationContext is a basic implementation of CracCreationContext.  
-Since the [JSON](json.md) format is OpenRAO's native format, not much transformation is made when importing a json CRAC 
+Since the [JSON](json.md) format is OpenRAO's native format, not much transformation is made when importing a JSON CRAC 
 file; thus, in most cases, the JSON CRAC creation context is not much of a use.  
 However, the importer does not throw exceptions, so it is important to check its success flag.  
 In the future, the object may evolve to contain information about transformations made in the rare cases where the user 

@@ -28,7 +28,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import static com.powsybl.openrao.util.RaoResultHelper.isSecure;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -64,12 +63,7 @@ public class AngleMonitoringSteps {
         assertEquals(CommonTestData.getMonitoringResult().getStatus().toString(), expectedStatus);
         assertEquals(
             "secure".equalsIgnoreCase(expectedStatus),
-                isSecure(
-                    CommonTestData.getRaoResult(),
-                    CommonTestData.getCrac(),
-                    CommonTestData.getRaoParameters(),
-                    PhysicalParameter.ANGLE
-                )
+            CommonTestData.getRaoResult().isSecure(PhysicalParameter.ANGLE)
         );
     }
 

@@ -21,7 +21,7 @@ public class FlowCnecResult {
     private final Map<Instant, ElementaryFlowCnecResult> results;
 
     FlowCnecResult() {
-        results = new HashMap<>();
+        this.results = new HashMap<>();
     }
 
     public ElementaryFlowCnecResult getResult(Instant optimizedInstant) {

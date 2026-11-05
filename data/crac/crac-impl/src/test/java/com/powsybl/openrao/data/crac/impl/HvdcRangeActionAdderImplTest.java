@@ -19,7 +19,6 @@ import org.junit.jupiter.api.Test;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -69,9 +68,9 @@ class HvdcRangeActionAdderImplTest {
         assertEquals("BE", hvdcRangeAction.getOperator());
         assertEquals(1, hvdcRangeAction.getRanges().size());
         assertEquals(1, hvdcRangeAction.getUsageRules().size());
-        assertEquals(1, crac.getNetworkElements().size());
+        assertEquals(1, crac.getNetworkElementIds().size());
         assertEquals(10., hvdcRangeAction.getInitialSetpoint());
-        assertNotNull(crac.getNetworkElement(networkElementId));
+        assertTrue(crac.hasNetworkElement(networkElementId));
     }
 
     @Test
@@ -115,8 +114,8 @@ class HvdcRangeActionAdderImplTest {
         assertTrue(hvdcRangeAction.getVariationCost(VariationDirection.DOWN).isEmpty());
         assertEquals(1, hvdcRangeAction.getRanges().size());
         assertEquals(1, hvdcRangeAction.getUsageRules().size());
-        assertEquals(1, crac.getNetworkElements().size());
-        assertNotNull(crac.getNetworkElement(networkElementId));
+        assertEquals(1, crac.getNetworkElementIds().size());
+        assertTrue(crac.hasNetworkElement(networkElementId));
         assertEquals(1, hvdcRangeAction.getSpeed().get().intValue());
         assertEquals(1.0, hvdcRangeAction.getInitialSetpoint());
     }
