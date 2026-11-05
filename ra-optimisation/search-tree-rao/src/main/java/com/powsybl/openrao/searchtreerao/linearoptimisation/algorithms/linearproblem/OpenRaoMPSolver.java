@@ -40,7 +40,7 @@ public class OpenRaoMPSolver {
         SearchTreeRaoRangeActionsOptimizationParameters.Solver.CBC, Double.POSITIVE_INFINITY,
         SearchTreeRaoRangeActionsOptimizationParameters.Solver.SCIP, 1E20,
         SearchTreeRaoRangeActionsOptimizationParameters.Solver.XPRESS, 1E20,
-        SearchTreeRaoRangeActionsOptimizationParameters.Solver.GUROBI, Double.POSITIVE_INFINITY
+        SearchTreeRaoRangeActionsOptimizationParameters.Solver.GUROBI, 1E30 // actually 1E30 for var bounds, 1e20 for ct RHS
     );
 
     private final SearchTreeRaoRangeActionsOptimizationParameters.Solver solver;

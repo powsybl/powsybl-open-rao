@@ -309,7 +309,7 @@ class OpenRaoMPSolverTest {
     @Test
     void testGurobiInfinity() {
         // can't instantiate a GUROBI solver because we need the link to the library and a licence
-        assertEquals(Double.POSITIVE_INFINITY, OpenRaoMPSolver.getSolverInfinity(SearchTreeRaoRangeActionsOptimizationParameters.Solver.GUROBI));
+        assertEquals(1E30, OpenRaoMPSolver.getSolverInfinity(SearchTreeRaoRangeActionsOptimizationParameters.Solver.GUROBI));
     }
 
     @Test
