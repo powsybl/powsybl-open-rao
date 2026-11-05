@@ -269,7 +269,7 @@ public final class CastorReports {
             .add();
 
         BUSINESS_WARNS.warn(
-            "Curative state {}: DC search reported perimeter secure with {} network action(s), but the AC recompute shows a margin violation; searching deeper in DC.",
+            "Curative state {}: DC search reported perimeter secure with {} network action(s), but the AC recompute shows a margin violation; falling back to a full AC search.",
             stateId, activatedNetworkActionCount);
     }
 
@@ -295,16 +295,6 @@ public final class CastorReports {
         BUSINESS_WARNS.warn(
             "Second preventive: DC search decided on {} network action(s), but the AC recompute failed to converge; falling back to a full AC search.",
             activatedNetworkActionCount);
-    }
-
-    public static void reportCurativeStateExhaustiveDcSearchStillInsecureInAc(final ReportNode parentNode, final String stateId) {
-        parentNode.newReportNode()
-            .withMessageTemplate("openrao.searchtreerao.reportCurativeStateExhaustiveDcSearchStillInsecureInAc")
-            .withUntypedValue(STATE_ID, stateId)
-            .withSeverity(WARN_SEVERITY)
-            .add();
-
-        BUSINESS_WARNS.warn("Curative state {}: exhaustive DC search still does not yield a combination secure in AC; falling back to a full AC search.", stateId);
     }
 
     public static void reportCurativeStateNoSecureCombinationFoundInAc(final ReportNode parentNode, final String stateId, final double cost) {

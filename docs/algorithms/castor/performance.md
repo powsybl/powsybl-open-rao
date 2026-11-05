@@ -192,10 +192,10 @@ up front and disables the mechanism for the whole run.
   converges but turns out insecure, or worse than before, is still accepted: any remaining insecurity is left for the
   next stage to resolve (curative, or, for second preventive, the overall keep-best-of-first-or-second-preventive
   decision).
-- **Curative escalates further, since it's the last stage to revisit a given contingency state.** If the AC recompute
-  of the DC-decided combination isn't at least as secure and as good (cost-wise) as not optimizing at all, the DC
-  search is re-run exhaustively (ignoring its stop criterion) to look for a combination both searches agree is secure.
-  If that result is still not secure/better once recomputed in AC, a full AC search is run as a last resort.
+- **Curative falls back to AC on any remaining insecurity, not just non-convergence.** If the AC recompute of the
+  DC-decided combination isn't at least as secure and as good (cost-wise) as not optimizing at all, a full AC search
+  is run for the perimeter as a last resort — curative is the last stage to revisit a given contingency state, so
+  there is no next stage left to resolve it.
 
 ---
 See also: [`optimize-in-dc` parameter](../../parameters/implementation-specific-parameters.md#optimize-in-dc)

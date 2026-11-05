@@ -155,11 +155,10 @@ class CastorFullOptimizationTest {
         // Same CRAC/network as smallRaoWithout2P, but optimized in DC with enforce-curative-security=true.
         // The curative perimeter's only available action (open_fr1_fr3) cannot actually secure the state
         // (see smallRaoWithout2P: final AC cost is 256.78, i.e. still overloaded), so this forces
-        // CastorContingencyScenarios' full three-step fallback ladder: the DC search's "secure" claim is
-        // rejected by the AC recompute, an exhaustive DC re-search is tried, and finally a full AC search is
-        // run as a last resort. The final result must match what a pure-AC search finds for this perimeter
-        // (smallRaoWithout2P's 256.78), proving the fallback reproduces the AC-mode decision rather than
-        // silently keeping an insecure DC-decided combination.
+        // CastorContingencyScenarios' fallback: the DC search's "secure" claim is rejected by the AC recompute,
+        // and a full AC search is run as a last resort. The final result must match what a pure-AC search finds
+        // for this perimeter (smallRaoWithout2P's 256.78), proving the fallback reproduces the AC-mode decision
+        // rather than silently keeping an insecure DC-decided combination.
         Logger logger = (Logger) LoggerFactory.getLogger(RaoBusinessWarns.class);
         ListAppender<ILoggingEvent> listAppender = new ListAppender<>();
         listAppender.start();
@@ -178,8 +177,7 @@ class CastorFullOptimizationTest {
 
         listAppender.stop();
         List<String> warnLogs = listAppender.list.stream().map(Object::toString).toList();
-        assertTrue(warnLogs.stream().anyMatch(l -> l.contains("but the AC recompute shows a margin violation; searching deeper in DC")));
-        assertTrue(warnLogs.stream().anyMatch(l -> l.contains("exhaustive DC search still does not yield a combination secure in AC; falling back to a full AC search")));
+        assertTrue(warnLogs.stream().anyMatch(l -> l.contains("but the AC recompute shows a margin violation; falling back to a full AC search")));
         assertTrue(warnLogs.stream().anyMatch(l -> l.contains("could not find any network action combination that is secure in AC")));
     }
 

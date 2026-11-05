@@ -183,13 +183,12 @@ class CastorContingencyScenariosTest {
 
         assertSame(acRecomputedResult, result);
         List<String> warnLogs = listAppender.list.stream().map(Object::toString).toList();
-        assertFalse(warnLogs.stream().anyMatch(l -> l.contains("but the AC recompute shows a margin violation; searching deeper in DC")));
-        assertFalse(warnLogs.stream().anyMatch(l -> l.contains("exhaustive DC search still does not yield a combination secure in AC; falling back to a full AC search")));
+        assertFalse(warnLogs.stream().anyMatch(l -> l.contains("but the AC recompute shows a margin violation; falling back to a full AC search")));
         assertFalse(warnLogs.stream().anyMatch(l -> l.contains("could not find any network action combination that is secure in AC")));
     }
 
     @Test
-    void runDcSearchEscalatesThroughLadderWhenAcVerificationKeepsFailing() {
+    void runDcSearchFallsBackToAcSearchWhenAcVerificationFails() {
         DcSearchFixture fixture = buildDcSearchFixture();
         OptimizationResult dcAndAcResult = mock(OptimizationResult.class);
         when(dcAndAcResult.getActivatedNetworkActions()).thenReturn(Set.of(mock(NetworkAction.class)));
@@ -221,8 +220,7 @@ class CastorContingencyScenariosTest {
 
         assertSame(dcAndAcResult, result);
         List<String> warnLogs = listAppender.list.stream().map(Object::toString).toList();
-        assertTrue(warnLogs.stream().anyMatch(l -> l.contains("but the AC recompute shows a margin violation; searching deeper in DC")));
-        assertTrue(warnLogs.stream().anyMatch(l -> l.contains("exhaustive DC search still does not yield a combination secure in AC; falling back to a full AC search")));
+        assertTrue(warnLogs.stream().anyMatch(l -> l.contains("but the AC recompute shows a margin violation; falling back to a full AC search")));
         assertTrue(warnLogs.stream().anyMatch(l -> l.contains("could not find any network action combination that is secure in AC")));
     }
 }
