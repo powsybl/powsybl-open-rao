@@ -16,6 +16,8 @@ import com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants;
 
 import java.io.IOException;
 
+import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.versionIsAtLeast;
+
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
@@ -51,8 +53,7 @@ public final class VoltageThresholdArrayDeserializer {
                 }
             }
 
-            if (JsonSerializationConstants.getPrimaryVersionNumber(version) > 2
-                || JsonSerializationConstants.getSubVersionNumber(version) > 12) {
+            if (versionIsAtLeast(version, 2, 13)) {
                 checkForDuplicateThresholds(hasMin, hasMax, currentHasMin, currentHasMax);
                 hasMin = hasMin || currentHasMin;
                 hasMax = hasMax || currentHasMax;
