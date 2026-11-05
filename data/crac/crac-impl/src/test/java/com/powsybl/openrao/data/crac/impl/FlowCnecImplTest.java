@@ -743,8 +743,8 @@ class FlowCnecImplTest {
     }
 
     @Test
-    void testGetThresholdsWithFRM() {
-        // The bounds take into account the FRM but not the thresholds
+    void testBoundWithFrm() {
+        // getUpperBound/getLowerBound take into account the FRM but not getRawUpperBound/getRawLowerBound
         FlowCnec cnec = initPreventiveCnecAdder()
             .newThreshold().withUnit(MEGAWATT).withMax(500.).withMin(-100.).withSide(TwoSides.ONE).add()
             .newThreshold().withUnit(AMPERE).withMax(300.).withMin(-200.).withSide(TwoSides.TWO).add()
