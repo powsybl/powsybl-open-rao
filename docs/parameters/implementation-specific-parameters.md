@@ -272,6 +272,8 @@ from inside the RAO.
   This parameter also has no effect if the CRAC contains no network action: the search tree only branches over network
   actions, so with none available there is no combinatorial search to speed up, and running in DC would only add the
   cost of an extra sensitivity analysis.
+- **Warning**: if the CRAC has HVDC range actions in AC emulation mode, be aware that DC sensitivity calculation does
+  not support HVDC lines in AC emulation mode — see the [HVDC page's warning](../algorithms/castor/special-features/hvdc.md#additional-warnings).
 
 #### Multi-threading parameters
 These parameters (`multi-threading`) allow you to run a RAO making the most out of your computation resources.

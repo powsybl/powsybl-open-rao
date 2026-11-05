@@ -187,11 +187,15 @@ up front and disables the mechanism for the whole run.
   emulation even when the value is unchanged, silently altering the network). Leaf optimization is skipped entirely if
   the DC leaf's stop criterion was already met with no range action activated, mirroring the rule the DC search itself
   applies to its own leaves.
-- **Security escalation.** If "DC said this combination is secure, but it isn't in AC":
-    1. If the AC recompute of the DC-decided combination is not secure, the DC search is re-run exhaustively (ignoring
-       its stop criterion) to look for a combination that both searches agree is secure.
-    2. If the AC recompute of that exhaustive DC result is still not secure, a full AC search is run for the perimeter
-       as a last resort.
+- **Preventive and second preventive fall back to AC only on non-convergence.** If the AC recompute of the DC-decided
+  combination fails to converge at all, a full AC search is run for the perimeter as a last resort. A result that
+  converges but turns out insecure, or worse than before, is still accepted: any remaining insecurity is left for the
+  next stage to resolve (curative, or, for second preventive, the overall keep-best-of-first-or-second-preventive
+  decision).
+- **Curative escalates further, since it's the last stage to revisit a given contingency state.** If the AC recompute
+  of the DC-decided combination isn't at least as secure and as good (cost-wise) as not optimizing at all, the DC
+  search is re-run exhaustively (ignoring its stop criterion) to look for a combination both searches agree is secure.
+  If that result is still not secure/better once recomputed in AC, a full AC search is run as a last resort.
 
 ---
 See also: [`optimize-in-dc` parameter](../../parameters/implementation-specific-parameters.md#optimize-in-dc)
