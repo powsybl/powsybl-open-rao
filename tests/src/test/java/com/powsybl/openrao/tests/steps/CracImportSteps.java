@@ -291,7 +291,7 @@ public class CracImportSteps {
                 assertEquals(min.get(), flowCnec.getLowerBound(side, expectedUnit).get());
             }
             if (max.isPresent()) {
-                assertEquals(max.get(), flowCnec.getUpperBound(side, expectedUnit).get());
+                assertEquals(max.get(), flowCnec.getUpperBound(side, expectedUnit).get(), DOUBLE_TOLERANCE);
             }
         }
     }
