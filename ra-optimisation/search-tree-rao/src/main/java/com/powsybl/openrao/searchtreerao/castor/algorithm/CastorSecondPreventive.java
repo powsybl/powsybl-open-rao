@@ -469,8 +469,21 @@ public class CastorSecondPreventive {
                     baseObjectiveFunction.evaluate(prePerimeterResult, noRaActivationResult, secondPreventiveReportNode),
                     prePerimeterResult, prePerimeterResult, new NetworkActionsResultImpl(Map.of()), noRaRangeActionsResult);
             } else {
+                SearchTreeParameters acSearchTreeParameters = CastorSearchTreeHelper.buildSearchTreeParameters(raoParameters,
+                    TreeParameters.buildForSecondPreventivePerimeter(raoParameters), crac, network,
+                    stateTree.getOperatorsNotSharingCras(), secondPreventiveReportNode);
+
                 result = CastorSearchTreeHelper.reoptimizeNetworkActionCombination(network, acOptPerimeter, baseObjectiveFunction, initialOutput, prePerimeterResult,
-                    appliedCras, toolProvider, crac.getOutageInstant(), searchTreeParameters, decidedResult, true, secondPreventiveReportNode);
+                    appliedCras, toolProvider, crac.getOutageInstant(), acSearchTreeParameters, decidedResult, true, secondPreventiveReportNode);
+
+                if (result.getSensitivityStatus() == ComputationStatus.FAILURE) {
+                    // the DC-decided combination does not even converge once recomputed in AC (e.g. it creates an
+                    // electrical island that is solvable in DC but not in AC): ignore the DC decision and search for a
+                    // combination directly in AC, which naturally discards candidates that fail to converge
+                    CastorReports.reportSecondPreventiveDcDecisionFailedAcVerification(secondPreventiveReportNode, decidedResult.getActivatedNetworkActions().size());
+                    result = CastorSearchTreeHelper.searchNetworkActionCombination(network, acOptPerimeter, baseObjectiveFunction, initialOutput, prePerimeterResult,
+                        appliedCras, toolProvider, crac.getOutageInstant(), acSearchTreeParameters, true, secondPreventiveReportNode);
+                }
             }
         }
 

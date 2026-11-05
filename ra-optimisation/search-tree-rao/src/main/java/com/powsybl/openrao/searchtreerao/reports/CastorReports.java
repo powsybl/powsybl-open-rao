@@ -285,6 +285,18 @@ public final class CastorReports {
             activatedNetworkActionCount);
     }
 
+    public static void reportSecondPreventiveDcDecisionFailedAcVerification(final ReportNode parentNode, final int activatedNetworkActionCount) {
+        parentNode.newReportNode()
+            .withMessageTemplate("openrao.searchtreerao.reportSecondPreventiveDcDecisionFailedAcVerification")
+            .withUntypedValue("networkActionCount", activatedNetworkActionCount)
+            .withSeverity(WARN_SEVERITY)
+            .add();
+
+        BUSINESS_WARNS.warn(
+            "Second preventive: DC search decided on {} network action(s), but the AC recompute failed to converge; falling back to a full AC search.",
+            activatedNetworkActionCount);
+    }
+
     public static void reportCurativeStateExhaustiveDcSearchStillInsecureInAc(final ReportNode parentNode, final String stateId) {
         parentNode.newReportNode()
             .withMessageTemplate("openrao.searchtreerao.reportCurativeStateExhaustiveDcSearchStillInsecureInAc")
