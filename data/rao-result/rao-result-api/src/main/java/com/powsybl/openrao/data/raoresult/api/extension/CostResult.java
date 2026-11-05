@@ -168,7 +168,7 @@ public class CostResult extends AbstractExtension<RaoResult> {
 
     // builder
 
-    public static CostResultBuilder build() {
+    public static CostResultBuilder builder() {
         return new CostResultBuilder();
     }
 

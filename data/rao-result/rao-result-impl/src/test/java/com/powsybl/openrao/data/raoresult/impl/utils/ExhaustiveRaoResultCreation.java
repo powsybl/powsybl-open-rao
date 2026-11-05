@@ -51,15 +51,15 @@ public final class ExhaustiveRaoResultCreation {
     public static RaoResult create(Crac crac) {
         RaoResultImpl raoResult = new RaoResultImpl(crac);
 
-        Metadata.MetadataBuilder metadataBuilder = Metadata.build();
-        metadataBuilder.addExecutionDetails("The RAO only went through first preventive and went through voltage monitoring and went through angle monitoring");
+        Metadata.MetadataBuilder metadataBuilder = Metadata.builder();
+        metadataBuilder.withExecutionDetails("The RAO only went through first preventive and went through voltage monitoring and went through angle monitoring");
         raoResult.addExtension(Metadata.class, metadataBuilder.build());
 
         // --------------------
         // --- Cost results ---
         // --------------------
 
-        CostResult.CostResultBuilder costResultBuilder = CostResult.build();
+        CostResult.CostResultBuilder costResultBuilder = CostResult.builder();
 
         // CostResult at initial state
         costResultBuilder.addFunctionalCostResult(null, 100.0);
@@ -104,19 +104,19 @@ public final class ExhaustiveRaoResultCreation {
          and the CostResults
          */
 
-        FlowResult.FlowResultBuilder flowResultBuilder = FlowResult.build();
+        FlowResult.FlowResultBuilder flowResultBuilder = FlowResult.builder();
         for (FlowCnec cnec : crac.getFlowCnecs()) {
             fillFlowCnecResult(flowResultBuilder, cnec, crac);
         }
         raoResult.addExtension(FlowResult.class, flowResultBuilder.build());
 
-        AngleResult.AngleResultBuilder angleResultBuilder = AngleResult.build();
+        AngleResult.AngleResultBuilder angleResultBuilder = AngleResult.builder();
         for (AngleCnec cnec : crac.getAngleCnecs()) {
             fillAngleCnecResult(angleResultBuilder, cnec, crac);
         }
         raoResult.addExtension(AngleResult.class, angleResultBuilder.build());
 
-        VoltageResult.VoltageResultBuilder voltageResultBuilder = VoltageResult.build();
+        VoltageResult.VoltageResultBuilder voltageResultBuilder = VoltageResult.builder();
         for (VoltageCnec cnec : crac.getVoltageCnecs()) {
             fillVoltageCnecResult(voltageResultBuilder, cnec, crac);
         }

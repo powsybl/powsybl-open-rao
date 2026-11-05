@@ -44,7 +44,7 @@ public class JsonCostResultTest {
         SerializerProvider serializerProvider = Mockito.mock(SerializerProvider.class);
         when(serializerProvider.getAttribute("crac")).thenReturn(crac);
 
-        CostResult costResult = CostResult.build()
+        CostResult costResult = CostResult.builder()
             .addFunctionalCostResult(null, 10.0)
             .addVirtualCostResult(null, "v1", 1.0)
             .addFunctionalCostResult(preventive, 20.0)

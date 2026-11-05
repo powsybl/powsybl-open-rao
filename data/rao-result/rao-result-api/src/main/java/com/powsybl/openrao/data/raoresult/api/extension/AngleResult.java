@@ -159,7 +159,7 @@ public final class AngleResult extends AbstractExtension<RaoResult> {
 
     // builder
 
-    public static AngleResult.AngleResultBuilder build() {
+    public static AngleResult.AngleResultBuilder builder() {
         return new AngleResult.AngleResultBuilder();
     }
 

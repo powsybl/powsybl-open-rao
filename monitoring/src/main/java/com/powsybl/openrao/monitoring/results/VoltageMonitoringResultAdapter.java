@@ -20,7 +20,7 @@ public final class VoltageMonitoringResultAdapter {
     }
 
     public static VoltageResult convertToVoltageExtension(MonitoringResult voltageMonitoringResult) {
-        VoltageResult.VoltageResultBuilder voltageResultBuilder = VoltageResult.build();
+        VoltageResult.VoltageResultBuilder voltageResultBuilder = VoltageResult.builder();
         voltageMonitoringResult.getCnecResults().forEach(
             voltageResult -> voltageResultBuilder.addMeasurement(
                 ((VoltageCnecMonitoringResult) voltageResult).getMinVoltage(),

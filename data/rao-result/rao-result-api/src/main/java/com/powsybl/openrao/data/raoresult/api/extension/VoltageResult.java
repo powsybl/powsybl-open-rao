@@ -168,7 +168,7 @@ public final class VoltageResult extends AbstractExtension<RaoResult> {
 
     // builder
 
-    public static VoltageResult.VoltageResultBuilder build() {
+    public static VoltageResult.VoltageResultBuilder builder() {
         return new VoltageResult.VoltageResultBuilder();
     }
 

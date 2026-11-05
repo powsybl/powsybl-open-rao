@@ -56,7 +56,7 @@ public class JsonVoltageResult implements RaoResultJsonUtils.ExtensionSerializer
             throw new OpenRaoException("VoltageResult cannot be deserialized because the deserializationContext does not contain a 'crac' attribute.");
         }
 
-        VoltageResult.VoltageResultBuilder voltageResultBuilder = VoltageResult.build();
+        VoltageResult.VoltageResultBuilder voltageResultBuilder = VoltageResult.builder();
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             VoltageCnec voltageCnec = null;
             while (jsonParser.nextToken() != JsonToken.END_OBJECT) {

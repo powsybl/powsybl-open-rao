@@ -30,7 +30,7 @@ public final class CastorCostResultExtensionHelper {
     }
 
     public static CostResult convertToExtension(ObjectiveFunctionResult initialResult) {
-        CostResult.CostResultBuilder costResultBuilder = CostResult.build();
+        CostResult.CostResultBuilder costResultBuilder = CostResult.builder();
         addInitialCosts(initialResult, costResultBuilder);
         return costResultBuilder.build();
     }
@@ -40,7 +40,7 @@ public final class CastorCostResultExtensionHelper {
                                                 ObjectiveFunctionResult postPraResult,
                                                 boolean costOptimization,
                                                 Instant preventiveInstant) {
-        CostResult.CostResultBuilder costResultBuilder = CostResult.build();
+        CostResult.CostResultBuilder costResultBuilder = CostResult.builder();
         addInitialCosts(initialResult, costResultBuilder);
         addPreventiveCosts(preventiveAndOutageOnlyResult, postPraResult, costResultBuilder, preventiveInstant, costOptimization);
         return costResultBuilder.build();
@@ -53,7 +53,7 @@ public final class CastorCostResultExtensionHelper {
                                                 boolean costOptimization,
                                                 Crac crac) {
 
-        CostResult.CostResultBuilder costResultBuilder = CostResult.build();
+        CostResult.CostResultBuilder costResultBuilder = CostResult.builder();
         addInitialCosts(initialResult, costResultBuilder);
         addPreventiveCosts(preventiveAndOutageOnlyResult, postPraResult, costResultBuilder, crac.getPreventiveInstant(), costOptimization);
         for (Instant instant : crac.getSortedInstants()) {

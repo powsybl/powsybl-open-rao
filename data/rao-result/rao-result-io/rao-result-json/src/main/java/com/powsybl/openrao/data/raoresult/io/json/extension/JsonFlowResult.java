@@ -66,7 +66,7 @@ public class JsonFlowResult implements RaoResultJsonUtils.ExtensionSerializer<Fl
         if (crac == null) {
             throw new OpenRaoException("FlowResult cannot be deserialized because the deserializationContext does not contain a 'crac' attribute.");
         }
-        FlowResult.FlowResultBuilder flowResultBuilder = FlowResult.build();
+        FlowResult.FlowResultBuilder flowResultBuilder = FlowResult.builder();
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             FlowCnec flowCnec = null;
             while (jsonParser.nextToken() != JsonToken.END_OBJECT) {

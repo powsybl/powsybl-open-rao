@@ -51,7 +51,7 @@ public class JsonFlowResultTest {
         state = mock(State.class);
         when(flowCnec.getId()).thenReturn("cnec1");
         when(crac.getFlowCnecs()).thenReturn(Set.of(flowCnec));
-        flowResultBuilder = FlowResult.build();
+        flowResultBuilder = FlowResult.builder();
         serializerProvider = mock(SerializerProvider.class);
         when(serializerProvider.getAttribute("crac")).thenReturn(crac);
         when(serializerProvider.getAttribute("flowUnits")).thenReturn(Set.of(Unit.AMPERE, Unit.MEGAWATT));

@@ -58,8 +58,8 @@ class RaoResultImplTest {
 
         raoResult = new RaoResultImpl(crac);
 
-        Metadata metadata = Metadata.build()
-            .addExecutionDetails("The RAO only went through first preventive")
+        Metadata metadata = Metadata.builder()
+            .withExecutionDetails("The RAO only went through first preventive")
             .build();
         raoResult.addExtension(Metadata.class, metadata);
 
@@ -70,7 +70,7 @@ class RaoResultImplTest {
         pstRangeActionResult.setInitialSetpoint(2.3); // tap = 6
         pstRangeActionResult.addActivationForState(crac.getPreventiveState(), -3.1); // tap = -8
 
-        CostResult.CostResultBuilder costResultBuilder = CostResult.build();
+        CostResult.CostResultBuilder costResultBuilder = CostResult.builder();
         costResultBuilder.addFunctionalCostResult(null, 100.0);
         costResultBuilder.addVirtualCostResult(null, "loopFlow", 0.0);
         costResultBuilder.addVirtualCostResult(null, "MNEC", 0.0);

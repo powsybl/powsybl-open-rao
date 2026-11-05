@@ -30,7 +30,7 @@ class CostResultTest {
 
     @BeforeEach
     void setUp() {
-        costResultBuilder = CostResult.build();
+        costResultBuilder = CostResult.builder();
         preventive = Mockito.mock(Instant.class);
         curative = Mockito.mock(Instant.class);
 

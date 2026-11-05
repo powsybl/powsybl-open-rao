@@ -342,7 +342,7 @@ public class FlowResult extends AbstractExtension<RaoResult> {
 
     // builder
 
-    public static FlowResultBuilder build() {
+    public static FlowResultBuilder builder() {
         return new FlowResultBuilder();
     }
 

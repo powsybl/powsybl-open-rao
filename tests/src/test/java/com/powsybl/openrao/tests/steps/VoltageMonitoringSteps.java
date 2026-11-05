@@ -15,6 +15,7 @@ import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.cnec.VoltageCnec;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.raoresult.api.extension.VoltageResult;
+import com.powsybl.openrao.monitoring.Monitoring;
 import com.powsybl.openrao.monitoring.MonitoringInput;
 import com.powsybl.openrao.monitoring.results.MonitoringResult;
 import com.powsybl.openrao.monitoring.voltage.VoltageMonitoring;
@@ -51,6 +52,7 @@ public class VoltageMonitoringSteps {
         MonitoringInput voltageMonitoringInput = MonitoringInput.buildWithVoltage(network, CommonTestData.getCrac(), raoResult).build();
         MonitoringResult voltageMonitoringResult = new VoltageMonitoring("OpenLoadFlow", loadFlowParameters).runMonitoring(voltageMonitoringInput, numberOfLoadFlowsInParallel);
         CommonTestData.setVoltageMonitoringResult(voltageMonitoringResult);
+        CommonTestData.setRaoResult(Monitoring.postProcessVoltageMonitoringResult(voltageMonitoringResult, voltageMonitoringInput, CommonTestData.getRaoParameters()));
     }
 
     @Then("the voltage monitoring result is {string}")

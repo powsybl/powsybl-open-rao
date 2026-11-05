@@ -53,7 +53,7 @@ class SweAdditionalConstraintSeriesCreatorTest {
         this.crac = Mockito.mock(Crac.class);
         this.raoResult = Mockito.mock(RaoResult.class);
         this.angleResult = Mockito.mock(AngleResult.class);
-        this.metadata = Metadata.build().build();
+        this.metadata = Metadata.builder().build();
         Mockito.when(raoResult.getExtension(Metadata.class)).thenReturn(metadata);
         preventiveInstant = Mockito.mock(Instant.class);
         outageInstant = Mockito.mock(Instant.class);
@@ -171,7 +171,7 @@ class SweAdditionalConstraintSeriesCreatorTest {
         Contingency contingency = Mockito.mock(Contingency.class);
         State preventiveState = Mockito.mock(State.class);
         Mockito.when(preventiveState.isPreventive()).thenReturn(true);
-        metadata = Metadata.build()
+        metadata = Metadata.builder()
             .addComputationStatus(preventiveState, ComputationStatus.FAILURE)
             .build();
         Mockito.when(raoResult.getExtension(Metadata.class)).thenReturn(metadata);
@@ -217,7 +217,7 @@ class SweAdditionalConstraintSeriesCreatorTest {
         Instant mockCurativeInstant = Mockito.mock(Instant.class);
         Mockito.when(mockCrac.getInstant(InstantKind.CURATIVE)).thenReturn(mockCurativeInstant);
 
-        AngleResult.AngleResultBuilder raoResultAngleResultBuilder = AngleResult.build();
+        AngleResult.AngleResultBuilder raoResultAngleResultBuilder = AngleResult.builder();
         raoResultAngleResultBuilder.addMeasurement(39.5, mockCurativeInstant, angleCnecWithMax, Unit.DEGREE)
             .addMeasurement(35.0, mockCurativeInstant, angleCnecWithMin, Unit.DEGREE)
             .addMeasurement(40.002, mockCurativeInstant, angleCnecWithMaxAndMin1, Unit.DEGREE)

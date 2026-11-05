@@ -20,7 +20,7 @@ public final class AngleMonitoringResultAdapter {
     }
 
     public static AngleResult convertToAngleExtension(MonitoringResult angleMonitoringResult) {
-        AngleResult.AngleResultBuilder angleResultBuilder = AngleResult.build();
+        AngleResult.AngleResultBuilder angleResultBuilder = AngleResult.builder();
         angleMonitoringResult.getCnecResults().forEach(
             angleResult -> angleResultBuilder.addMeasurement(
                 ((AngleCnecMonitoringResult) angleResult).getAngle(),

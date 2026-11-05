@@ -57,7 +57,7 @@ public class JsonCostResult implements RaoResultJsonUtils.ExtensionSerializer<Co
         if (crac == null) {
             throw new OpenRaoException("CostResult cannot be deserialized because the deserializationContext does not contain a 'crac' attribute.");
         }
-        CostResult.CostResultBuilder costResultBuilder = CostResult.build();
+        CostResult.CostResultBuilder costResultBuilder = CostResult.builder();
         while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
             jsonParser.nextToken();
             if ("initial".equals(jsonParser.currentName())) {

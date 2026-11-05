@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.powsybl.openrao.searchtreerao.commons;
+package com.powsybl.openrao.searchtreerao.castor.algorithm;
 
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
@@ -30,23 +30,16 @@ public final class CastorFlowResultExtensionHelper {
     }
 
     public static FlowResult convertToExtension(PrePerimeterResult initialResult, Crac crac, Unit flowUnit) {
-        return fillFromInitialResults(initialResult, crac, flowUnit).build();
-    }
-
-    private static FlowResult.FlowResultBuilder fillFromInitialResults(PrePerimeterResult initialResult, Crac crac, Unit flowUnit) {
-        FlowResult.FlowResultBuilder flowResultBuilder = FlowResult.build();
+        FlowResult.FlowResultBuilder flowResultBuilder = FlowResult.builder();
         crac.getFlowCnecs().forEach(flowCnec -> fillResultForInstant(flowResultBuilder, initialResult, flowCnec, null, flowUnit));
-        return flowResultBuilder;
+        return flowResultBuilder.build();
     }
 
     public static FlowResult convertToExtension(PrePerimeterResult initialResult, PrePerimeterResult preventiveResult, Crac crac, Unit flowUnit) {
-        return fillFromInitialAndPreventiveResults(initialResult, preventiveResult, crac, flowUnit).build();
-    }
-
-    private static FlowResult.FlowResultBuilder fillFromInitialAndPreventiveResults(PrePerimeterResult initialResult, PrePerimeterResult preventiveResult, Crac crac, Unit flowUnit) {
-        FlowResult.FlowResultBuilder flowResultBuilder = fillFromInitialResults(initialResult, crac, flowUnit);
+        FlowResult.FlowResultBuilder flowResultBuilder = FlowResult.builder();
+        crac.getFlowCnecs().forEach(flowCnec -> fillResultForInstant(flowResultBuilder, initialResult, flowCnec, null, flowUnit));
         crac.getFlowCnecs().forEach(flowCnec -> fillResultForInstant(flowResultBuilder, preventiveResult, flowCnec, crac.getPreventiveInstant(), flowUnit));
-        return flowResultBuilder;
+        return flowResultBuilder.build();
     }
 
     public static FlowResult convertToExtension(PrePerimeterResult initialResult,
@@ -54,15 +47,9 @@ public final class CastorFlowResultExtensionHelper {
                                                 Map<State, PostPerimeterResult> postContingencyResults,
                                                 Crac crac,
                                                 Unit flowUnit) {
-        return fillFromInitialPreventiveAndCurativeResults(initialResult, preventiveResult, postContingencyResults, crac, flowUnit).build();
-    }
-
-    private static FlowResult.FlowResultBuilder fillFromInitialPreventiveAndCurativeResults(PrePerimeterResult initialResult,
-                                                                                            PrePerimeterResult preventiveResult,
-                                                                                            Map<State, PostPerimeterResult> postContingencyResults,
-                                                                                            Crac crac,
-                                                                                            Unit flowUnit) {
-        FlowResult.FlowResultBuilder flowResultBuilder = fillFromInitialAndPreventiveResults(initialResult, preventiveResult, crac, flowUnit);
+        FlowResult.FlowResultBuilder flowResultBuilder = FlowResult.builder();
+        crac.getFlowCnecs().forEach(flowCnec -> fillResultForInstant(flowResultBuilder, initialResult, flowCnec, null, flowUnit));
+        crac.getFlowCnecs().forEach(flowCnec -> fillResultForInstant(flowResultBuilder, preventiveResult, flowCnec, crac.getPreventiveInstant(), flowUnit));
         for (State state : postContingencyResults.keySet()) {
             if (hasRemedialActionsApplied(postContingencyResults.get(state).optimizationResult(), state)) {
                 PrePerimeterResult prePerimeterResult = postContingencyResults.get(state).prePerimeterResultForAllFollowingStates();
@@ -76,7 +63,7 @@ public final class CastorFlowResultExtensionHelper {
                     );
             }
         }
-        return flowResultBuilder;
+        return flowResultBuilder.build();
     }
 
     private static boolean hasRemedialActionsApplied(OptimizationResult optimizationResult, State state) {

@@ -22,13 +22,8 @@ import com.powsybl.openrao.data.crac.io.fbconstraint.parameters.FbConstraintCrac
 import com.powsybl.openrao.data.crac.io.nc.parameters.NcCracCreationParameters;
 import com.powsybl.openrao.data.glsk.virtual.hubs.GlskVirtualHubs;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
-import com.powsybl.openrao.data.raoresult.api.extension.AngleResult;
-import com.powsybl.openrao.data.raoresult.api.extension.Metadata;
-import com.powsybl.openrao.data.raoresult.api.extension.VoltageResult;
 import com.powsybl.openrao.data.refprog.referenceprogram.ReferenceProgram;
-import com.powsybl.openrao.monitoring.results.AngleMonitoringResultAdapter;
 import com.powsybl.openrao.monitoring.results.MonitoringResult;
-import com.powsybl.openrao.monitoring.results.VoltageMonitoringResultAdapter;
 import com.powsybl.openrao.raoapi.TimeCoupledRaoInput;
 import com.powsybl.openrao.raoapi.json.JsonRaoParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
@@ -113,46 +108,15 @@ public final class CommonTestData {
     }
 
     public static void setRaoResult(RaoResult raoResult) {
-        if (CommonTestData.monitoringResult != null) {
-            // update RAO result with angle values
-            CommonTestData.raoResult.addExtension(AngleResult.class, AngleMonitoringResultAdapter.convertToAngleExtension(CommonTestData.monitoringResult));
-        } else {
-            CommonTestData.raoResult = raoResult;
-        }
+        CommonTestData.raoResult = raoResult;
     }
 
     public static void setAngleMonitoringResult(MonitoringResult result) {
         CommonTestData.monitoringResult = result;
-        if (CommonTestData.raoResult != null) {
-            // update RAO result with angle values
-            CommonTestData.raoResult.addExtension(AngleResult.class, AngleMonitoringResultAdapter.convertToAngleExtension(CommonTestData.monitoringResult));
-            Metadata metadata = CommonTestData.raoResult.getExtension(Metadata.class);
-            if (metadata != null) {
-                metadata.getExecutionDetails().ifPresent(
-                    executionDetails -> metadata.setExecutionDetails(
-                        executionDetails
-                            + " and went through angle monitoring"
-                    )
-                );
-            }
-        }
     }
 
     public static void setVoltageMonitoringResult(MonitoringResult result) {
         CommonTestData.monitoringResult = result;
-        if (CommonTestData.raoResult != null) {
-            // update RAO result with voltage values
-            CommonTestData.raoResult.addExtension(VoltageResult.class, VoltageMonitoringResultAdapter.convertToVoltageExtension(CommonTestData.monitoringResult));
-            Metadata metadata = CommonTestData.raoResult.getExtension(Metadata.class);
-            if (metadata != null) {
-                metadata.getExecutionDetails().ifPresent(
-                    executionDetails -> metadata.setExecutionDetails(
-                        executionDetails
-                            + " and went through voltage monitoring"
-                    )
-                );
-            }
-        }
     }
 
     public static void setDataLocation(String location) {

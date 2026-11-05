@@ -36,7 +36,7 @@ class CoreCneTest {
         Crac crac = CracFactory.findDefault().create("test-crac")
             .newInstant("preventive", InstantKind.PREVENTIVE);
         RaoResult raoResult = Mockito.mock(RaoResult.class);
-        Mockito.when(raoResult.getExtension(FlowResult.class)).thenReturn(FlowResult.build().build());
+        Mockito.when(raoResult.getExtension(FlowResult.class)).thenReturn(FlowResult.builder().build());
         UcteCracCreationContext cracCreationContext = Mockito.mock(UcteCracCreationContext.class);
         Mockito.when(cracCreationContext.getCrac()).thenReturn(crac);
         Mockito.when(cracCreationContext.getBranchCnecCreationContexts()).thenReturn(new ArrayList<>());

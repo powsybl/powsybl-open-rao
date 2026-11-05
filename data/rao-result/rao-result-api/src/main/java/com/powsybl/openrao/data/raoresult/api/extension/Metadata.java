@@ -76,7 +76,7 @@ public final class Metadata extends AbstractExtension<RaoResult> {
 
     // builder
 
-    public static MetadataBuilder build() {
+    public static MetadataBuilder builder() {
         return new MetadataBuilder();
     }
 
@@ -93,7 +93,7 @@ public final class Metadata extends AbstractExtension<RaoResult> {
             return this;
         }
 
-        public MetadataBuilder addExecutionDetails(String executionDetails) {
+        public MetadataBuilder withExecutionDetails(String executionDetails) {
             this.executionDetails = executionDetails;
             return this;
         }

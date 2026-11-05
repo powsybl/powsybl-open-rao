@@ -47,7 +47,7 @@ public class JsonAngleResultTest {
         state = mock(State.class);
         when(angleCnec.getId()).thenReturn("cnec1");
         when(crac.getAngleCnecs()).thenReturn(Set.of(angleCnec));
-        angleResultBuilder = AngleResult.build();
+        angleResultBuilder = AngleResult.builder();
         serializerProvider = mock(SerializerProvider.class);
         when(serializerProvider.getAttribute("crac")).thenReturn(crac);
     }
@@ -66,7 +66,7 @@ public class JsonAngleResultTest {
         Mockito.when(state.getInstant()).thenReturn(preventiveInstant);
         Mockito.when(angleCnec.getState()).thenReturn(state);
 
-        AngleResult.AngleResultBuilder angleResultBuilder = AngleResult.build();
+        AngleResult.AngleResultBuilder angleResultBuilder = AngleResult.builder();
         angleResultBuilder.addMeasurement(25.0, null, angleCnec, Unit.DEGREE)
             .addMeasurement(17.0, preventiveInstant, angleCnec, Unit.DEGREE);
 
@@ -144,7 +144,7 @@ public class JsonAngleResultTest {
         Mockito.when(angleCnec.getState()).thenReturn(state);
         Mockito.when(crac.getSortedInstants()).thenReturn(List.of(instant1, instant2));
 
-        AngleResult.AngleResultBuilder angleResultBuilder = AngleResult.build();
+        AngleResult.AngleResultBuilder angleResultBuilder = AngleResult.builder();
         angleResultBuilder.addMeasurement(15.0, instant2, angleCnec, Unit.DEGREE)
             .addMeasurement(10.0, instant1, angleCnec, Unit.DEGREE)
             .addMeasurement(20.0, null, angleCnec, Unit.DEGREE);

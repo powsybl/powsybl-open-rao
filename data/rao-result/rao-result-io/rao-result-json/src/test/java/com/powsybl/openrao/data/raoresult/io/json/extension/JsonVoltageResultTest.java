@@ -47,7 +47,7 @@ public class JsonVoltageResultTest {
         state = mock(State.class);
         when(voltageCnec.getId()).thenReturn("cnec1");
         when(crac.getVoltageCnecs()).thenReturn(Set.of(voltageCnec));
-        voltageResultBuilder = VoltageResult.build();
+        voltageResultBuilder = VoltageResult.builder();
         serializerProvider = mock(SerializerProvider.class);
         when(serializerProvider.getAttribute("crac")).thenReturn(crac);
     }

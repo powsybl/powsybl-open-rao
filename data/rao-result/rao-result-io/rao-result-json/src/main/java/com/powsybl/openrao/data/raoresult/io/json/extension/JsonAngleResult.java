@@ -55,7 +55,7 @@ public class JsonAngleResult implements RaoResultJsonUtils.ExtensionSerializer<A
         if (crac == null) {
             throw new OpenRaoException("AngleResult cannot be deserialized because the deserializationContext does not contain a 'crac' attribute.");
         }
-        AngleResult.AngleResultBuilder angleResultBuilder = AngleResult.build();
+        AngleResult.AngleResultBuilder angleResultBuilder = AngleResult.builder();
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             AngleCnec angleCnec = null;
             while (jsonParser.nextToken() != JsonToken.END_OBJECT) {

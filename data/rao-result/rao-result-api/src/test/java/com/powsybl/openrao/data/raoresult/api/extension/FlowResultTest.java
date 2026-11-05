@@ -61,7 +61,7 @@ class FlowResultTest {
         when(flowCnec.getLowerBound(TwoSides.TWO, Unit.AMPERE)).thenReturn(Optional.of(-2000.0));
         when(flowCnec.getUpperBound(TwoSides.TWO, Unit.AMPERE)).thenReturn(Optional.of(2000.0));
 
-        flowResultBuilder = FlowResult.build();
+        flowResultBuilder = FlowResult.builder();
     }
 
     @Test

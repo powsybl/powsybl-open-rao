@@ -223,7 +223,7 @@ class CastorSecondPreventiveTest {
         when(preventiveResult.getCost()).thenReturn(-500.);
         CastorSecondPreventive castorSecondPreventive = new CastorSecondPreventive(crac, parameters, network, null, null, null, ReportNode.NO_OP);
 
-        CostResult costResult = CostResult.build()
+        CostResult costResult = CostResult.builder()
             .addFunctionalCostResult(null, -100.0)
             .build();
         when(postFirstPreventiveRaoResult.getExtension(CostResult.class)).thenReturn(costResult);
@@ -232,19 +232,19 @@ class CastorSecondPreventiveTest {
         parameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN);
         setCost(preventiveResult, -100.);
         // case 1 : final cost is better than preventive (cost < preventive cost - minObjImprovement)
-        costResult = CostResult.build()
+        costResult = CostResult.builder()
             .addFunctionalCostResult(curativeInstant, -200.0)
             .build();
         when(postFirstPreventiveRaoResult.getExtension(CostResult.class)).thenReturn(costResult);
         assertFalse(castorSecondPreventive.shouldRunSecondPreventiveRao(preventiveResult, curativeResults, postFirstPreventiveRaoResult, 0));
         // case 2 : final cost = preventive cost - minObjImprovement
-        costResult = CostResult.build()
+        costResult = CostResult.builder()
             .addFunctionalCostResult(curativeInstant, -110.0)
             .build();
         when(postFirstPreventiveRaoResult.getExtension(CostResult.class)).thenReturn(costResult);
         assertFalse(castorSecondPreventive.shouldRunSecondPreventiveRao(preventiveResult, curativeResults, postFirstPreventiveRaoResult, 0));
         // case 3 : final cost > preventive cost - minObjImprovement
-        costResult = CostResult.build()
+        costResult = CostResult.builder()
             .addFunctionalCostResult(curativeInstant, -109.0)
             .build();
         when(postFirstPreventiveRaoResult.getExtension(CostResult.class)).thenReturn(costResult);
@@ -305,7 +305,7 @@ class CastorSecondPreventiveTest {
 
         RaoResult postFirstRaoResult = Mockito.mock(RaoResult.class);
 
-        CostResult.CostResultBuilder costResultBuilder = CostResult.build()
+        CostResult.CostResultBuilder costResultBuilder = CostResult.builder()
             .addFunctionalCostResult(null, -100.0)
             .addFunctionalCostResult(preventiveInstant, -10.0)
             .addFunctionalCostResult(curativeInstant, -120.0);
