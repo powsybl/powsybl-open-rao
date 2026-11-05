@@ -173,8 +173,8 @@ public class VoltageCnecImpl extends AbstractCnec<VoltageCnec> implements Voltag
         }
         VoltageCnecImpl cnec = (VoltageCnecImpl) o;
         return super.equals(cnec)
-            && getLowerBound(Unit.KILOVOLT) == cnec.getLowerBound(Unit.KILOVOLT)
-            && getUpperBound(Unit.KILOVOLT) == cnec.getUpperBound(Unit.KILOVOLT);
+            && getLowerBound(Unit.KILOVOLT).equals(cnec.getLowerBound(Unit.KILOVOLT))
+            && getUpperBound(Unit.KILOVOLT).equals(cnec.getUpperBound(Unit.KILOVOLT));
     }
 
     @Override

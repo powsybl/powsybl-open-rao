@@ -160,8 +160,8 @@ public class AngleCnecImpl extends AbstractCnec<AngleCnec> implements AngleCnec 
         }
         AngleCnecImpl cnec = (AngleCnecImpl) o;
         return super.equals(cnec)
-            && getLowerBound(Unit.DEGREE) == cnec.getLowerBound(Unit.DEGREE)
-            && getUpperBound(Unit.DEGREE) == cnec.getUpperBound(Unit.DEGREE)
+            && getLowerBound(Unit.DEGREE).equals(cnec.getLowerBound(Unit.DEGREE))
+            && getUpperBound(Unit.DEGREE).equals(cnec.getUpperBound(Unit.DEGREE))
             && getExportingNetworkElementId().equals(cnec.getExportingNetworkElementId())
             && getImportingNetworkElementId().equals(cnec.getImportingNetworkElementId());
     }
