@@ -74,6 +74,7 @@ public class CastorContingencyScenarios {
 
     private static final String CONTINGENCY_SCENARIO = "ContingencyScenario";
     private static final int NUMBER_LOGGED_ELEMENTS_DURING_RAO = 2;
+    private static final double EPSILON = 1e-6;
 
     private final Crac crac;
     private final RaoParameters raoParameters;
@@ -466,9 +467,15 @@ public class CastorContingencyScenarios {
                 searchInitialOutput, searchPrePerimeterOutput, new AppliedRemedialActions(), workingToolProvider, crac.getOutageInstant(), exhaustiveSearchTreeParameters, false, reportNode);
             network.getVariantManager().setWorkingVariant(prevVariant);
 
-            result = CastorSearchTreeHelper.reoptimizeNetworkActionCombination(network, acOptPerimeter, baseObjectiveFunction, initialSensitivityOutput, prePerimeterSensitivityOutput,
-                new AppliedRemedialActions(), toolProvider, crac.getOutageInstant(), exhaustiveSearchTreeParameters, exhaustedDecidedResult, false, reportNode);
-            if (!CastorSearchTreeHelper.isSecureAndBetterThan(result, previousOptimizedCost)) {
+            // if the exhaustive DC re-search converged on the same combination as the original greedy DC search, the AC
+            // recompute would just confirm the insecurity we already found above: skip it and go straight to the AC search
+            boolean exhaustiveSearchFoundSameCombination = sameDecision(decidedResult, exhaustedDecidedResult, curativeState);
+
+            if (!exhaustiveSearchFoundSameCombination) {
+                result = CastorSearchTreeHelper.reoptimizeNetworkActionCombination(network, acOptPerimeter, baseObjectiveFunction, initialSensitivityOutput, prePerimeterSensitivityOutput,
+                    new AppliedRemedialActions(), toolProvider, crac.getOutageInstant(), exhaustiveSearchTreeParameters, exhaustedDecidedResult, false, reportNode);
+            }
+            if (exhaustiveSearchFoundSameCombination || !CastorSearchTreeHelper.isSecureAndBetterThan(result, previousOptimizedCost)) {
                 // DC's own greedy search rejected the network action combination that AC would actually need (DC judged it
                 // as not improving, AC does not): fall back to a genuine AC search for this perimeter as a last resort.
                 // This search needs its own AC-flavored parameters instead of reusing the DC-flavored exhaustiveSearchTreeParameters.
@@ -486,6 +493,16 @@ public class CastorContingencyScenarios {
             network.getVariantManager().removeVariant(newVariant);
         }
         return result;
+    }
+
+    private boolean sameDecision(OptimizationResult result1, OptimizationResult result2, State state) {
+        if (!result1.getActivatedNetworkActions().equals(result2.getActivatedNetworkActions())) {
+            return false;
+        }
+        var setpoints1 = result1.getOptimizedSetpointsOnState(state);
+        var setpoints2 = result2.getOptimizedSetpointsOnState(state);
+        return setpoints1.keySet().equals(setpoints2.keySet())
+            && setpoints1.keySet().stream().allMatch(ra -> Math.abs(setpoints1.get(ra) - setpoints2.get(ra)) < EPSILON);
     }
 
     private SearchTreeParameters buildSearchTreeParameters(final RaoParameters currentRaoParameters,
