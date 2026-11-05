@@ -238,6 +238,7 @@ public class CastorFullOptimization {
         context.setWorkingToolProvider(context.getToolProvider());
         context.setDcRaoParameters(raoParameters);
         context.setUseWorkingVars(LoadFlowAndSensitivityParameters.getOptimizeInDc(raoParameters)
+                && !crac.getNetworkActions().isEmpty()
                 && !LoadFlowAndSensitivityParameters.getSensitivityWithLoadFlowParameters(raoParameters).getLoadFlowParameters().isDc());
         if (context.useWorkingVars()) {
             // clone RaoParameters and setDc(true)

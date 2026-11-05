@@ -47,6 +47,7 @@ import org.mockito.MockedStatic;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -55,6 +56,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -179,6 +181,59 @@ class CastorFullOptimizationTest {
         assertTrue(warnLogs.stream().anyMatch(l -> l.contains("but the AC recompute shows a margin violation; searching deeper in DC")));
         assertTrue(warnLogs.stream().anyMatch(l -> l.contains("exhaustive DC search still does not yield a combination secure in AC; falling back to a full AC search")));
         assertTrue(warnLogs.stream().anyMatch(l -> l.contains("could not find any network action combination that is secure in AC")));
+    }
+
+    @Test
+    void buildWorkingToolProviderDisablesDcWhenNoNetworkActionsAvailable() throws Exception {
+        // optimize-in-dc only pays off when the search tree can branch over network actions (see SearchTree's
+        // root-leaf-only short-circuit when getNetworkActions() is empty); with none in the CRAC, DC mode would
+        // just add an extra DC sensitivity pass with no combinatorial search to speed up, so it must stay disabled
+        // even if the parameter requests it.
+        network = Network.read("small-network-2P.uct", getClass().getResourceAsStream("/network/small-network-2P.uct"));
+        Crac cracWithoutNetworkActions = mock(Crac.class);
+        when(cracWithoutNetworkActions.getNetworkActions()).thenReturn(Set.of());
+        raoInput = mock(RaoInput.class);
+        when(raoInput.getNetwork()).thenReturn(network);
+        when(raoInput.getCrac()).thenReturn(cracWithoutNetworkActions);
+
+        RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_2P_v2.json"), ReportNode.NO_OP);
+        raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getLoadFlowAndSensitivityParameters().setOptimizeInDc(true);
+
+        RaoRunContext context = buildWorkingToolProviderViaReflection(raoInput, raoParameters);
+
+        assertFalse(context.useWorkingVars());
+        assertSame(context.getToolProvider(), context.getWorkingToolProvider());
+        assertFalse(network.getVariantManager().getVariantIds().contains("WorkingScenario"));
+    }
+
+    @Test
+    void buildWorkingToolProviderKeepsDcEnabledWhenNetworkActionsAvailable() throws Exception {
+        // regression guard: the CRAC used here has network actions (see smallRaoWith2POptimizedInDc), so
+        // optimize-in-dc must still kick in as before.
+        setup("small-network-2P.uct", "small-crac-2P.json");
+        assertFalse(crac.getNetworkActions().isEmpty());
+        RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_2P_v2.json"), ReportNode.NO_OP);
+        raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getLoadFlowAndSensitivityParameters().setOptimizeInDc(true);
+
+        RaoRunContext context = buildWorkingToolProviderViaReflection(raoInput, raoParameters);
+
+        assertTrue(context.useWorkingVars());
+        assertNotSame(context.getToolProvider(), context.getWorkingToolProvider());
+        assertTrue(network.getVariantManager().getVariantIds().contains("WorkingScenario"));
+    }
+
+    private RaoRunContext buildWorkingToolProviderViaReflection(RaoInput raoInput, RaoParameters raoParameters) throws Exception {
+        CastorFullOptimization castorFullOptimization = new CastorFullOptimization(raoInput, raoParameters, null, ReportNode.NO_OP);
+
+        Method createContext = CastorFullOptimization.class.getDeclaredMethod("createContext");
+        createContext.setAccessible(true);
+        RaoRunContext context = (RaoRunContext) createContext.invoke(castorFullOptimization);
+
+        Method buildWorkingToolProvider = CastorFullOptimization.class.getDeclaredMethod("buildWorkingToolProvider", RaoRunContext.class);
+        buildWorkingToolProvider.setAccessible(true);
+        buildWorkingToolProvider.invoke(castorFullOptimization, context);
+
+        return context;
     }
 
     @Test

@@ -165,9 +165,12 @@ pattern is applied:
    caller's original AC parameters — range-action setpoints only — warm-started with the DC-decided setpoints. This is
    implemented as a dedicated leaf-only re-optimization.
 
-If `optimize-in-dc` is not set, or if the caller's sensitivity parameters are already in DC, there is nothing to
-accelerate: every "DC vs AC" branch above collapses to a no-op and the RAO behaves exactly as it did before this
-mechanism existed.
+If `optimize-in-dc` is not set, if the caller's sensitivity parameters are already in DC, or if the CRAC has no network
+action at all, there is nothing to accelerate: every "DC vs AC" branch above collapses to a no-op and the RAO behaves
+exactly as it did before this mechanism existed. The last case is automatic: the search tree only branches over network
+actions (range actions are optimized once, in a single MILP solve), so with none available in the CRAC, DC sensitivity
+would only add the cost of an extra sensitivity analysis for no combinatorial search to speed up — the RAO detects this
+up front and disables the mechanism for the whole run.
 
 ### Implementation notes
 
