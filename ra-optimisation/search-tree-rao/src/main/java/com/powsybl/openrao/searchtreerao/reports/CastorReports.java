@@ -109,7 +109,7 @@ public final class CastorReports {
                 .withSeverity(WARN_SEVERITY)
                 .add();
 
-        BUSINESS_LOGS.warn("Initial sensitivity analysis in DC failed. Disabling performance improvement using DC.");
+        BUSINESS_WARNS.warn("Initial sensitivity analysis in DC failed. Disabling performance improvement using DC.");
     }
 
     public static void reportCastorSystematicSensitivityAnalysisAfterPraResults(final ReportNode parentNode,
