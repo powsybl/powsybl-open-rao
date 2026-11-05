@@ -32,6 +32,7 @@ public final class RaoResultJsonConstants {
     // v1.6 : voltage cnecs' voltage values are divided into minVoltage and maxVoltage
     // v1.7 : replaced "optimizationStepsExecuted" with "executionDetails"
     // v1.8 : export tap instead of set-point for PST range actions
+    // v1.9 : add securityStatus map
     // v2.0 : gather remedial actions in "remedialActionActivations" and collect other data in extensions
 
     // header
@@ -140,6 +141,9 @@ public final class RaoResultJsonConstants {
     // fast rao specific field
     public static final String FAST_RAO = "fast-rao";
     public static final String CRITICAL_CNECS_SET = "critical-cnecs";
+
+    // security status
+    public static final String SECURE = "secure";
 
     // manipulate version
     public static int getPrimaryVersionNumber(String fullVersion) {
@@ -258,6 +262,13 @@ public final class RaoResultJsonConstants {
             case FAILURE_STATUS -> ComputationStatus.FAILURE;
             default -> throw new OpenRaoException(String.format("Unrecognized computation status %s", stringValue));
         };
+    }
+
+    public static void deserializeSecurityStatus(RaoResultImpl raoResult, JsonParser jsonParser) throws IOException {
+        while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
+            jsonParser.nextToken();
+            raoResult.setSecurityStatus(PhysicalParameter.valueOf(jsonParser.currentName().toUpperCase()), jsonParser.getBooleanValue());
+        }
     }
 
     // state comparator

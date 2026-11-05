@@ -642,6 +642,14 @@ public interface RaoResult extends Extendable<RaoResult> {
     }
 
     /**
+     * Check if the RaoResult is secure for the given physical parameters.
+     *
+     * @param physicalParameters The physical parameters to check (any non-empty combination of FLOW, ANGLE and VOLTAGE).
+     * @return True if the RaoResult is secure for the given physical parameters, false otherwise.
+     */
+    boolean isSecure(PhysicalParameter... physicalParameters);
+
+    /**
      * Import RaoResult from a file
      *
      * @param importers   candidates RaoResult importers to process the data

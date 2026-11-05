@@ -3,10 +3,10 @@
 ## Introduction
 
 A **R**emedial **A**ction **O**ptimization process provides an optimal list of remedial actions to be applied in
-basecase and after contingencies listed in the [CRAC](../input-data/crac.md). The decisions are based upon the impact of
+base case and after contingencies listed in the [CRAC](../input-data/crac.md). The decisions are based upon the impact of
 these remedial actions on the CRAC's [CNECs](../input-data/crac.md#cnec).
 
-A **RAO Result object model** has been designed in OpenRAO in order to hold all the important results of optimization.
+A **RaoResult object model** has been designed in OpenRAO in order to hold all the important results of optimization.
 In this page, we present:
 - where to find the RaoResult instance,
 - how to save a RaoResult java object to a JSON file,
@@ -16,7 +16,7 @@ In this page, we present:
 ## Accessing the RAO result
 
 The [RaoResult](https://github.com/powsybl/powsybl-open-rao/blob/main/data/rao-result/rao-result-api/src/main/java/com/powsybl/openrao/data/raoresult/api/RaoResult.java)
-is a Java interface, an instance of which is returned by OpenRAO's main optimisation method:
+is a Java interface, an instance of which is returned by OpenRAO's main optimization method:
 
 ```java
 CompletableFuture<RaoResult> RaoProvider::run(RaoInput raoInput, RaoParameters parameters, Instant targetEndInstant)
@@ -61,11 +61,11 @@ Where:
 
 ## Contents of the RAO result
 
-The RAO result object generally contains information about post-optimisation results.  
+The RAO result object generally contains information about post-optimization results.  
 However, in some cases, it may be interesting to get some information about the initial state (e.g. power flows before 
-optimisation), or about the situation after preventive optimisation (e.g. optimal PST tap positions in preventive). 
+optimization), or about the situation after preventive optimization (e.g. optimal PST tap positions in preventive). 
 This is why **most of the information in the RAO results are stored by optimized instant**:  
-- **INITIAL** (json) or **null** (Java API): values before remedial action optimisation (initial state)
+- **INITIAL** (JSON) or **null** (Java API): values before remedial action optimization (initial state)
 - Instant of kind **PREVENTIVE** or **OUTAGE**: values after optimizing preventive instant, i.e. after applying optimal preventive remedial actions
 - Instant of kind **AUTO**: values after simulating auto instant, i.e. after applying automatic remedial actions
 - Instant of kind **CURATIVE**: values after optimizing curative instant, i.e. after applying optimal curative remedial actions
@@ -756,9 +756,9 @@ Not serialized.
 The relative margin is the smallest flow margin of the CNEC.
 - When the margin is negative, the relative margin is equal to the margin
 - When the margin is positive, it is equal to the margin divided by the zonal PTDF absolute sum  
-  It is used to artificially increase (in the RAO) the margin on flow cnecs that are less impacted by changes in
-  power exchanges between commercial zones, in order to prioritize other CNECs in the minimum margin optimisation.  
-  (See [Modelling the maximum minimum relative margin objective function](../algorithms/castor/linear-problem/objective-function-types/max-min-relative-margin-filler.md))
+  It is used to artificially increase (in the RAO) the margin on flow CNECs that are less impacted by changes in
+  power exchanges between commercial zones, in order to prioritize other CNECs in the minimum margin optimization.  
+  (See [Modeling the maximum minimum relative margin objective function](../algorithms/castor/linear-problem/objective-function-types/max-min-relative-margin-filler.md))
 
 ::::{tabs}
 :::{group-tab} JAVA API

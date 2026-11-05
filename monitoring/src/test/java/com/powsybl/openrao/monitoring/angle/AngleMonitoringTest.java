@@ -106,6 +106,10 @@ class AngleMonitoringTest {
         raoParameters.addExtension(OpenRaoSearchTreeParameters.class, searchTreeParameters);
         loadFlowParameters = new LoadFlowParameters();
         loadFlowParameters.setDc(false);
+        raoResult = Mockito.mock(RaoResult.class);
+        when(raoResult.isSecure(PhysicalParameter.VOLTAGE)).thenReturn(true);
+        when(raoResult.getActivatedNetworkActionsDuringState(any())).thenReturn(Collections.emptySet());
+        when(raoResult.getActivatedRangeActionsDuringState(any())).thenReturn(Collections.emptySet());
         searchTreeParameters.getLoadFlowAndSensitivityParameters()
             .getSensitivityWithLoadFlowParameters()
             .setLoadFlowParameters(loadFlowParameters);
@@ -428,7 +432,7 @@ class AngleMonitoringTest {
         RaoResult raoResultWithAngleMonitoring = runAngleMonitoringAndUpdateRaoResult(scalableZonalData);
 
         // Status checks
-        assertFalse(isSecure(raoResultWithAngleMonitoring, crac, false, Unit.AMPERE, PhysicalParameter.ANGLE));
+        assertFalse(raoResultWithAngleMonitoring.isSecure(PhysicalParameter.ANGLE));
         // Applied cras
         State state = crac.getState("Co-1", curativeInstant);
         assertEquals(1, raoResultWithAngleMonitoring.getActivatedNetworkActionsDuringState(state).size());
@@ -510,8 +514,9 @@ class AngleMonitoringTest {
         assertTrue(raoResultWithAngleMonitoring.isActivatedDuringState(crac.getState("coL1", crac.getInstant(CURATIVE_INSTANT_ID)), naL1Cur));
         OpenRaoException noVoltageCnecsException = assertThrows(OpenRaoException.class, () -> isSecure(raoResultWithAngleMonitoring, crac, false, Unit.AMPERE, PhysicalParameter.VOLTAGE));
         assertEquals("No VoltageResult extension found in the RaoResult. Impossible to compute voltage security status.", noVoltageCnecsException.getMessage());
-        assertFalse(isSecure(raoResultWithAngleMonitoring, crac, false, Unit.AMPERE, PhysicalParameter.ANGLE));
-        assertFalse(isSecure(raoResultWithAngleMonitoring, crac, false, Unit.AMPERE, PhysicalParameter.FLOW, PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE));
+        assertTrue(raoResultWithAngleMonitoring.isSecure(PhysicalParameter.VOLTAGE));
+        assertFalse(raoResultWithAngleMonitoring.isSecure(PhysicalParameter.ANGLE));
+        assertFalse(raoResultWithAngleMonitoring.isSecure(PhysicalParameter.FLOW, PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE));
 
         Metadata metadata = raoResultWithAngleMonitoring.getExtension(Metadata.class);
         assertNotNull(metadata);
@@ -548,7 +553,7 @@ class AngleMonitoringTest {
         // Loadflow is expected to be run 3 times: 2+3=5
         assertEquals(5, referenceValue.get());
         assertTrue(latch.await(5, TimeUnit.SECONDS));
-        assertFalse(isSecure(raoResultWithAngleMonitoring, crac, false, Unit.AMPERE, PhysicalParameter.FLOW, PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE));
+        assertFalse(raoResultWithAngleMonitoring.isSecure(PhysicalParameter.FLOW, PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE));
     }
 
     private static List<Arguments> sameElementSetpointCases() {
@@ -575,16 +580,6 @@ class AngleMonitoringTest {
             .newLoadAction().withNetworkElement("LD2").withActivePowerValue(secondSetpoint).add()
             .newOnConstraintUsageRule().withInstant(CURATIVE_INSTANT_ID).withCnec(acCur1.getId()).add()
             .add();
-
-        // raoResult = MonitoringTestUtil.readRaoResult("/rao-result-angle.json", crac);
-        // MonitoringInput monitoringInput = new MonitoringInput.MonitoringInputBuilder()
-        //     .withCrac(crac)
-        //     .withNetwork(network)
-        //     .withRaoResult(raoResult)
-        //     .withPhysicalParameter(PhysicalParameter.ANGLE)
-        //     .build();
-        // angleMonitoringResult = new Monitoring("OpenLoadFlow", loadFlowParameters).runMonitoring(monitoringInput, 2);
-        // assertEquals(Cnec.SecurityStatus.FAILURE, angleMonitoringResult.getStatus());
 
         ZonalData<Scalable> scalableZonalData = CimGlskDocument.importGlsk(getClass().getResourceAsStream("/GlskB45test.xml")).getZonalScalable(network);
 

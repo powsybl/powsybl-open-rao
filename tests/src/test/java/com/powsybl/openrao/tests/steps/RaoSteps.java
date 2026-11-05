@@ -58,8 +58,6 @@ import java.util.stream.Collectors;
 import static com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters.getSensitivityWithLoadFlowParameters;
 import static com.powsybl.openrao.searchtreerao.commons.RaoUtil.getFlowUnit;
 import static com.powsybl.openrao.tests.steps.CommonTestData.getResourcesPath;
-import static com.powsybl.openrao.tests.steps.CommonTestData.raoParameters;
-import static com.powsybl.openrao.util.RaoResultHelper.isSecure;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -174,12 +172,7 @@ public class RaoSteps {
     public void statusShouldBe(String status) {
         assertEquals(
             "secured".equalsIgnoreCase(status),
-            isSecure(
-                CommonTestData.getRaoResult(),
-                crac,
-                raoParameters,
-                PhysicalParameter.FLOW
-            )
+            CommonTestData.getRaoResult().isSecure(PhysicalParameter.FLOW)
         );
     }
 
@@ -896,6 +889,7 @@ public class RaoSteps {
 
     private Pair<FlowCnec, Double> getWorstCnec(Unit unit, boolean relative) {
         Set<FlowCnec> flowCnecs = crac.getFlowCnecs().stream().filter(Cnec::isOptimized).collect(Collectors.toSet());
+        // QUESTION: what about TSOs not sharing CRAs for which curative CNECs should not be optimized?
         double worstMargin = Double.MAX_VALUE;
         Set<FlowCnec> worstCnecs = new HashSet<>();
         double margin;

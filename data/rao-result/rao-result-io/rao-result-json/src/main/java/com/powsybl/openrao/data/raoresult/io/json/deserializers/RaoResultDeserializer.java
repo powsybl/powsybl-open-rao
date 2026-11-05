@@ -19,6 +19,7 @@ import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.raoresult.api.extension.Metadata;
 import com.powsybl.openrao.data.raoresult.impl.RaoResultImpl;
+import com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants;
 import com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,6 +42,7 @@ import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.
 import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.RAO_RESULT_IO_VERSION;
 import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.RAO_RESULT_TYPE;
 import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.REMEDIAL_ACTION_ACTIVATIONS;
+import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.SECURE;
 import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.STANDARDRANGEACTION_RESULTS;
 import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.VERSION;
 import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.VOLTAGECNEC_RESULTS;
@@ -117,6 +119,16 @@ public class RaoResultDeserializer extends JsonDeserializer<RaoResult> {
                         break;
                     } else {
                         throw new OpenRaoException("From version 2.0 onward, computation statuses are no longer in the RAO Result but in the 'metadata' extension.");
+                    }
+
+                case SECURE:
+                    if (version.major() == 1) {
+                        // TODO: deserialize but ignore
+                        jsonParser.nextToken();
+                        RaoResultJsonConstants.deserializeSecurityStatus(raoResult, jsonParser);
+                        break;
+                    } else {
+                        throw new OpenRaoException("From version 2.0 onward, security statuses are no longer in the RAO Result.");
                     }
 
                 case COST_RESULTS:
@@ -235,9 +247,6 @@ public class RaoResultDeserializer extends JsonDeserializer<RaoResult> {
 
     private static void checkVersion(String raoResultVersion) {
 
-        // if (getPrimaryVersionNumber(RAO_RESULT_IO_VERSION) > getPrimaryVersionNumber(raoResultVersion)) {
-        //     throw new OpenRaoException(String.format("RAO-result importer %s is no longer compatible with json RAO-result version %s", RAO_RESULT_IO_VERSION, raoResultVersion));
-        // }
         if (getPrimaryVersionNumber(RAO_RESULT_IO_VERSION) < getPrimaryVersionNumber(raoResultVersion)) {
             throw new OpenRaoException(String.format("RAO-result importer %s cannot handle json RAO-result version %s, consider upgrading open-rao version", RAO_RESULT_IO_VERSION, raoResultVersion));
         }

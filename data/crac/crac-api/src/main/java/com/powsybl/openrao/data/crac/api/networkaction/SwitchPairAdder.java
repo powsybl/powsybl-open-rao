@@ -16,9 +16,5 @@ public interface SwitchPairAdder {
 
     SwitchPairAdder withSwitchToClose(String networkElementId);
 
-    SwitchPairAdder withSwitchToOpen(String networkElementId, String networkElementName);
-
-    SwitchPairAdder withSwitchToClose(String networkElementId, String networkElementName);
-
     NetworkActionAdder add();
 }
