@@ -37,22 +37,4 @@ public class BranchThreshold extends Threshold {
         return side;
     }
 
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-
-        BranchThreshold otherT = (BranchThreshold) o;
-
-        return super.equals(otherT)
-                && side.equals(otherT.getSide());
-    }
-
-    public int hashCode() {
-        return super.hashCode()
-                + 31 * side.hashCode();
-    }
 }

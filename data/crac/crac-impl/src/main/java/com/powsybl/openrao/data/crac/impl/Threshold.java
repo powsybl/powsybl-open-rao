@@ -52,39 +52,11 @@ public class Threshold {
         return Optional.ofNullable(Double.isNaN(getMax()) ? null : max);
     }
 
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        Threshold otherT = (Threshold) o;
-        return (unit == null && otherT.getUnit() == null || unit != null && unit.equals(otherT.getUnit()))
-                && equalsDouble(max, otherT.getMax())
-                && equalsDouble(min, otherT.getMin());
-    }
-
     boolean limitsByMax() {
         return max().isPresent();
     }
 
     boolean limitsByMin() {
         return min().isPresent();
-    }
-
-    public int hashCode() {
-        int hash = 0;
-        hash = 31 * hash + unit.hashCode();
-        hash = 31 * hash + (Double.isNaN(getMin()) ? 0 : (int) getMin());
-        hash = 31 * hash + (Double.isNaN(getMax()) ? 0 : (int) getMax());
-        return hash;
-    }
-
-    private boolean equalsDouble(Double d1, Double d2) {
-        boolean isD1null = d1 == null || Double.isNaN(d1);
-        boolean isD2null = d2 == null || Double.isNaN(d2);
-        return isD1null && isD2null
-            || !isD1null && !isD2null && abs(d1 - d2) < 1e-6;
     }
 }
