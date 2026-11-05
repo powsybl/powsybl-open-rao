@@ -480,11 +480,11 @@ public class CastorContingencyScenarios {
                 // as not improving, AC does not): fall back to a genuine AC search for this perimeter as a last resort.
                 // This search needs its own AC-flavored parameters instead of reusing the DC-flavored exhaustiveSearchTreeParameters.
                 CastorReports.reportCurativeStateExhaustiveDcSearchStillInsecureInAc(reportNode, curativeState.getId());
-                SearchTreeParameters acExhaustiveSearchTreeParameters = buildSearchTreeParameters(toolProvider.getRaoParameters(), exhaustiveTreeParameters, network,
+                SearchTreeParameters acSearchTreeParameters = buildSearchTreeParameters(toolProvider.getRaoParameters(), curativeTreeParameters, network,
                     resultsPerPerimeter, prePerimeterResultPerPerimeter, reportNode);
 
                 result = CastorSearchTreeHelper.searchNetworkActionCombination(network, acOptPerimeter, baseObjectiveFunction, initialSensitivityOutput, prePerimeterSensitivityOutput,
-                    new AppliedRemedialActions(), toolProvider, crac.getOutageInstant(), acExhaustiveSearchTreeParameters, false, reportNode);
+                    new AppliedRemedialActions(), toolProvider, crac.getOutageInstant(), acSearchTreeParameters, false, reportNode);
                 if (!CastorSearchTreeHelper.isSecureAndBetterThan(result, previousOptimizedCost)) {
                     CastorReports.reportCurativeStateNoSecureCombinationFoundInAc(reportNode, curativeState.getId(), result.getCost());
                 }
