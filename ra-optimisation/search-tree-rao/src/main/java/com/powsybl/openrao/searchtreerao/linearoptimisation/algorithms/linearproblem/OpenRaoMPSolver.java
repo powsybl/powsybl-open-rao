@@ -253,6 +253,7 @@ public class OpenRaoMPSolver {
     }
 
     static double getSolverInfinity(SearchTreeRaoRangeActionsOptimizationParameters.Solver solver) {
+        // method required for testing without having to instantiate the mpSolver (impossible for commercial solvers)
         return SOLVER_INFINITY.get(Objects.requireNonNull(solver));
     }
 }
