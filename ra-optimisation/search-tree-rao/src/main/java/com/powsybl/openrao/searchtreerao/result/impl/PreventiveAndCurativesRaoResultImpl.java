@@ -53,7 +53,6 @@ import java.util.stream.Collectors;
 import static com.powsybl.openrao.data.raoresult.api.ComputationStatus.DEFAULT;
 import static com.powsybl.openrao.data.raoresult.api.ComputationStatus.FAILURE;
 import static com.powsybl.openrao.data.raoresult.api.ComputationStatus.PARTIAL_FAILURE;
-import static com.powsybl.openrao.searchtreerao.commons.RaoUtil.getDuplicateCnecs;
 import static com.powsybl.openrao.searchtreerao.commons.RaoUtil.getFlowUnit;
 
 /**
@@ -125,7 +124,6 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractExtendable<RaoR
         completePostContingencyResultsMap(stateTree, reportNode);
         Set<String> contingenciesToExclude = getContingenciesToExclude(stateTree);
         excludeContingencies(contingenciesToExclude);
-        excludeDuplicateCnecs();
         this.isFlowSecure = computeFlowSecurityStatus(contingenciesToExclude, stateTree.getOperatorsNotSharingCras());
     }
 
@@ -263,22 +261,6 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractExtendable<RaoR
             }
         });
         return contingenciesToExclude;
-    }
-
-    private void excludeDuplicateCnecs() {
-        Set<FlowCnec> flowCnecs = crac.getFlowCnecs();
-        Set<String> cnecsToExclude = getDuplicateCnecs(flowCnecs);
-        // exclude fictional cnec from the results
-        initialResult.excludeCnecs(cnecsToExclude);
-        preventiveAndOutageOnlyResult.excludeCnecs(cnecsToExclude);
-        firstPreventivePerimeterResult.optimizationResult().excludeCnecs(cnecsToExclude);
-        finalPreventivePerimeterResult.optimizationResult().excludeCnecs(cnecsToExclude);
-        firstPreventivePerimeterResult.prePerimeterResultForAllFollowingStates().excludeCnecs(cnecsToExclude);
-        finalPreventivePerimeterResult.prePerimeterResultForAllFollowingStates().excludeCnecs(cnecsToExclude);
-        postContingencyResults.values().forEach(result -> {
-            result.optimizationResult().excludeCnecs(cnecsToExclude);
-            result.prePerimeterResultForAllFollowingStates().excludeCnecs(cnecsToExclude);
-        });
     }
 
     private void excludeContingencies(Set<String> contingenciesToExclude) {

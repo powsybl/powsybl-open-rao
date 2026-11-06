@@ -20,6 +20,5 @@
         <module>crac-impl</module>
         <module>crac-io</module>
         <module>crac-loopflow-extension</module>
-        <module>crac-util</module>
     </modules>
 </project>

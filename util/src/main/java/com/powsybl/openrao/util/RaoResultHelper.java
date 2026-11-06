@@ -108,7 +108,7 @@ public final class RaoResultHelper {
             // - CNECs for TSOS without CRAs (if excludeCnecsForTsosWithoutCras is true)
             // - outage CNECs that were duplicated from auto CNECs
             for (FlowCnec flowCnec : crac.getFlowCnecs()) {
-                if (flowCnec.isOptimized() && !tsosWithoutCras.contains(flowCnec.getOperator()) && !flowCnec.getId().contains("OUTAGE DUPLICATE")) {
+                if (flowCnec.isOptimized() && !tsosWithoutCras.contains(flowCnec.getOperator())) {
                     Optional<Double> minMargin = safeGetDouble(raoResult.getMargin(flowCnec.getState().getInstant(), flowCnec, flowUnit));
                     if (minMargin.isPresent()) {
                         if (minMargin.get() < 0) {

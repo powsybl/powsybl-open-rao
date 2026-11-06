@@ -34,7 +34,6 @@ import java.util.Set;
 import static com.powsybl.openrao.data.raoresult.api.ComputationStatus.DEFAULT;
 import static com.powsybl.openrao.data.raoresult.api.ComputationStatus.FAILURE;
 import static com.powsybl.openrao.data.raoresult.api.ComputationStatus.PARTIAL_FAILURE;
-import static com.powsybl.openrao.searchtreerao.commons.RaoUtil.getDuplicateCnecs;
 
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
@@ -65,18 +64,7 @@ public class FastRaoResultImpl extends AbstractExtendable<RaoResult> implements 
         this.crac = crac;
         executionDetails = filteredRaoResult.getExecutionDetails();
         removeFailingContingencies(initialResult, afterPraResult, afterAraResult, finalResult, crac);
-        excludeDuplicateCnecs();
         this.isFlowSecure = RaoUtil.computeSecurityStatus(crac.getFlowCnecs(), finalResult, flowUnit, operatorsNotSharingCras);
-    }
-
-    private void excludeDuplicateCnecs() {
-        Set<FlowCnec> flowCnecs = crac.getFlowCnecs();
-        Set<String> cnecsToExclude = getDuplicateCnecs(flowCnecs);
-        // exclude fictional cnec from the results
-        initialResult.excludeCnecs(cnecsToExclude);
-        afterPraResult.excludeCnecs(cnecsToExclude);
-        afterAraResult.excludeCnecs(cnecsToExclude);
-        finalResult.excludeCnecs(cnecsToExclude);
     }
 
     private static void removeFailingContingencies(PrePerimeterResult initialResult, PrePerimeterResult afterPraResult, PrePerimeterResult afterAraResult, PrePerimeterResult finalResult, Crac crac) {

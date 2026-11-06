@@ -27,10 +27,6 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>open-rao-crac-io-commons</artifactId>
         </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>open-rao-crac-util</artifactId>
-        </dependency>
 
         <!-- Runtime dependencies -->
         <dependency>
@@ -54,6 +50,11 @@
             <groupId>com.powsybl</groupId>
             <artifactId>powsybl-ucte-converter</artifactId>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.powsybl</groupId>
+            <artifactId>powsybl-sensitivity-analysis-api</artifactId>
+            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>

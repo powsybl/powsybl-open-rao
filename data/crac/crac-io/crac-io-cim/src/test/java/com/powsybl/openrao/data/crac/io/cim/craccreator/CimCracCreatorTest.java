@@ -21,7 +21,6 @@ import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
-import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.crac.api.RaUsageLimits;
 import com.powsybl.openrao.data.crac.api.RemedialAction;
 import com.powsybl.openrao.data.crac.api.cnec.AngleCnec;
@@ -1131,41 +1130,6 @@ class CimCracCreatorTest {
         assertHasOneThreshold("OJLJJ_5_400_220 - CO_3 - outage", TwoSides.TWO, Unit.MEGAWATT, -1000., 1000.);
         assertHasOneThreshold("OJLJJ_5_400_220 - CO_2 - curative", TwoSides.TWO, Unit.AMPERE, -2000., 2000.);
         assertHasOneThreshold("OJLJJ_5_400_220 - CO_3 - curative", TwoSides.TWO, Unit.AMPERE, -2000., 2000.);
-    }
-
-    private void assertCnecHasOutageDuplicate(String flowCnecId) {
-        FlowCnec flowCnec = importedCrac.getFlowCnec(flowCnecId);
-        assertNotNull(flowCnec);
-        FlowCnec duplicate = importedCrac.getFlowCnec(flowCnec.getId() + " - OUTAGE DUPLICATE");
-        assertNotNull(duplicate);
-        assertEquals(flowCnec.getNetworkElementId(), duplicate.getNetworkElementId());
-        assertEquals(flowCnec.getState().getContingency(), duplicate.getState().getContingency());
-        assertEquals(InstantKind.OUTAGE, duplicate.getState().getInstant().getKind());
-        assertEquals(flowCnec.isOptimized(), duplicate.isOptimized());
-        assertEquals(flowCnec.isMonitored(), duplicate.isMonitored());
-        assertEquals(flowCnec.getReliabilityMargin(), duplicate.getReliabilityMargin(), 1e-6);
-        assertEquals(flowCnec.getIMax(TwoSides.ONE).get(), duplicate.getIMax(TwoSides.ONE).get(), 1e-6);
-        assertEquals(flowCnec.getIMax(TwoSides.TWO).get(), duplicate.getIMax(TwoSides.TWO).get(), 1e-6);
-        assertEquals(flowCnec.getNominalVoltage(TwoSides.ONE), duplicate.getNominalVoltage(TwoSides.ONE), 1e-6);
-        assertEquals(flowCnec.getNominalVoltage(TwoSides.TWO), duplicate.getNominalVoltage(TwoSides.TWO), 1e-6);
-        assertEquals(flowCnec.getThresholds(), duplicate.getThresholds());
-        assertTrue(cracCreationContext.getCreationReport().getReport().contains(
-            String.format("[ADDED] CNEC \"%s\" has no associated automaton. It will be cloned on the OUTAGE instant in order to be secured during preventive RAO.", flowCnecId)
-        ));
-    }
-
-    @Test
-    void importAndDuplicateAutoCnecs() throws IOException {
-        CracCreationParameters cracCreationParameters = new CracCreationParameters();
-        cracCreationParameters.setDefaultMonitoredLineSide(CracCreationParameters.MonitoredLineSide.MONITOR_LINES_ON_BOTH_SIDES);
-        cracCreationParameters.addExtension(CimCracCreationParameters.class, new CimCracCreationParameters());
-
-        cracCreationParameters.getExtension(CimCracCreationParameters.class).setTimestamp(OffsetDateTime.parse("2021-04-01T23:00Z"));
-        setUp("/cracs/CIM_21_2_1_ARA.xml", baseNetwork, cracCreationParameters);
-
-        assertEquals(12, importedCrac.getCnecs().size());
-        assertCnecHasOutageDuplicate("CNEC-4 - Co-1 - auto");
-        assertCnecHasOutageDuplicate("CNEC-4 - Co-2 - auto");
     }
 
     @Test
