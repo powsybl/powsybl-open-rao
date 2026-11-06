@@ -35,9 +35,7 @@
     "flowCnecs": {
       "type": "array",
       "items": {
-        "items": {
-          "$ref": "../flow-cnec/flow-cnec-v1.0.json"
-        }
+        "$ref": "../flow-cnec/flow-cnec-v1.0.json"
       }
     },
     "pstRangeActions": {

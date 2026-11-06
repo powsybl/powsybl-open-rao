@@ -50,25 +50,19 @@
     "flowCnecs": {
       "type": "array",
       "items": {
-        "items": {
-          "$ref": "../flow-cnec/flow-cnec-v2.8.json"
-        }
+        "$ref": "../flow-cnec/flow-cnec-v2.8.json"
       }
     },
     "angleCnecs": {
       "type": "array",
       "items": {
-        "items": {
-          "$ref": "../angle-cnec/angle-cnec-v1.4.json"
-        }
+        "$ref": "../angle-cnec/angle-cnec-v1.4.json"
       }
     },
     "voltageCnecs": {
       "type": "array",
       "items": {
-        "items": {
-          "$ref": "../voltage-cnec/voltage-cnec-v1.5.json"
-        }
+        "$ref": "../voltage-cnec/voltage-cnec-v1.5.json"
       }
     },
     "pstRangeActions": {
