@@ -177,6 +177,25 @@ class JsonRaoParametersTest extends AbstractSerDeTest {
     }
 
     @Test
+    void readUnknownSolver() {
+        String json = """
+                {
+                  "version": "%s",
+                  "extensions": {
+                    "open-rao-search-tree-parameters": {
+                      "range-actions-optimization": {
+                        "linear-optimization-solver": { "solver": "GUROB" }
+                      }
+                    }
+                  }
+                }
+                """.formatted(RAO_PARAMETERS_VERSION);
+        InputStream inputStream = new ByteArrayInputStream(json.getBytes(StandardCharsets.UTF_8));
+        OpenRaoException e = assertThrows(OpenRaoException.class, () -> JsonRaoParameters.read(inputStream, ReportNode.NO_OP));
+        assertEquals("Unknown solver: GUROB", e.getMessage());
+    }
+
+    @Test
     void update() {
         RaoParameters parameters = JsonRaoParameters.read(getClass().getResourceAsStream("/RaoParameters_default_v2.json"), ReportNode.NO_OP);
         assertEquals(1, parameters.getExtensions().size());
