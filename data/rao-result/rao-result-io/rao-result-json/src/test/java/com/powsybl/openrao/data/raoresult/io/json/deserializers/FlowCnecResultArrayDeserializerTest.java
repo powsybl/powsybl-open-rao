@@ -38,7 +38,7 @@ class FlowCnecResultArrayDeserializerTest {
         when(crac.getFlowCnec("fc1")).thenReturn(flowCnec);
         when(flowCnec.getUpperBound(TwoSides.ONE, Unit.MEGAWATT)).thenReturn(Optional.of(600.0));
 
-        RaoResultImpl raoResult = spy(new RaoResultImpl(crac));
+        RaoResultImpl raoResult = spy(RaoResultImpl.builder(crac).build());
 
         try (JsonParser parser = parserFrom(json)) {
             assertDoesNotThrow(() -> FlowCnecResultArrayDeserializer.deserialize(parser, raoResult, crac, "1.4"));
@@ -57,7 +57,7 @@ class FlowCnecResultArrayDeserializerTest {
     void deserializeThrowsWhenFirstFieldIsNotId() {
         String json = "[{\"notFlowCnecId\":1}]";
         Crac crac = mock(Crac.class);
-        RaoResultImpl raoResult = new RaoResultImpl(crac);
+        RaoResultImpl raoResult = RaoResultImpl.builder(crac).build();
 
         try (JsonParser parser = parserFrom(json)) {
             OpenRaoException ex = assertThrows(OpenRaoException.class,
@@ -73,7 +73,7 @@ class FlowCnecResultArrayDeserializerTest {
         String json = "[{\"flowCnecId\":\"unknown\",\"initial\":{\"megawatt\":{}}}]";
         Crac crac = mock(Crac.class);
         when(crac.getFlowCnec("unknown")).thenReturn(null);
-        RaoResultImpl raoResult = new RaoResultImpl(crac);
+        RaoResultImpl raoResult = RaoResultImpl.builder(crac).build();
 
         try (JsonParser parser = parserFrom(json)) {
             OpenRaoException ex = assertThrows(OpenRaoException.class,
@@ -93,7 +93,7 @@ class FlowCnecResultArrayDeserializerTest {
     void deserializeThrowsOnUnexpectedField(String fieldName, String json) {
         Crac crac = mock(Crac.class);
         when(crac.getFlowCnec("fc1")).thenReturn(mock(FlowCnec.class));
-        RaoResultImpl raoResult = new RaoResultImpl(crac);
+        RaoResultImpl raoResult = RaoResultImpl.builder(crac).build();
 
         try (JsonParser parser = parserFrom(json)) {
             OpenRaoException ex = assertThrows(OpenRaoException.class,
@@ -112,7 +112,7 @@ class FlowCnecResultArrayDeserializerTest {
         FlowCnec flowCnec = mock(FlowCnec.class);
         when(crac.getFlowCnec("fc1")).thenReturn(flowCnec);
 
-        RaoResultImpl raoResult = spy(new RaoResultImpl(crac));
+        RaoResultImpl raoResult = spy(RaoResultImpl.builder(crac).build());
 
         try (JsonParser parser = parserFrom(json)) {
             assertDoesNotThrow(() -> FlowCnecResultArrayDeserializer.deserialize(parser, raoResult, crac, "1.3"));
@@ -136,7 +136,7 @@ class FlowCnecResultArrayDeserializerTest {
     void deserializeThrowsWithDeprecatedBehavior(String fieldName, String currentVersion, String lastSupportedVersion, String json) {
         Crac crac = mock(Crac.class);
         when(crac.getFlowCnec("fc1")).thenReturn(mock(FlowCnec.class));
-        RaoResultImpl raoResult = new RaoResultImpl(crac);
+        RaoResultImpl raoResult = RaoResultImpl.builder(crac).build();
 
         try (JsonParser parser = parserFrom(json)) {
             OpenRaoException ex = assertThrows(OpenRaoException.class,
@@ -159,7 +159,7 @@ class FlowCnecResultArrayDeserializerTest {
         FlowCnec flowCnec = mock(FlowCnec.class);
         when(crac.getFlowCnec("fc1")).thenReturn(flowCnec);
 
-        RaoResultImpl raoResult = spy(new RaoResultImpl(crac));
+        RaoResultImpl raoResult = spy(RaoResultImpl.builder(crac).build());
 
         try (JsonParser parser = parserFrom(json)) {
             assertDoesNotThrow(() -> FlowCnecResultArrayDeserializer.deserialize(parser, raoResult, crac, "1.0"));
@@ -178,7 +178,7 @@ class FlowCnecResultArrayDeserializerTest {
         FlowCnec flowCnec = mock(FlowCnec.class);
         when(crac.getFlowCnec("fc1")).thenReturn(flowCnec);
 
-        RaoResultImpl raoResult = spy(new RaoResultImpl(crac));
+        RaoResultImpl raoResult = spy(RaoResultImpl.builder(crac).build());
 
         try (JsonParser parser = parserFrom(json)) {
             assertDoesNotThrow(() -> FlowCnecResultArrayDeserializer.deserialize(parser, raoResult, crac, "1.0"));
@@ -199,7 +199,7 @@ class FlowCnecResultArrayDeserializerTest {
         FlowCnec flowCnec = mock(FlowCnec.class);
         when(crac.getFlowCnec("fc1")).thenReturn(flowCnec);
 
-        RaoResultImpl raoResult = spy(new RaoResultImpl(crac));
+        RaoResultImpl raoResult = spy(RaoResultImpl.builder(crac).build());
 
         try (JsonParser parser = parserFrom(json)) {
             assertDoesNotThrow(() -> FlowCnecResultArrayDeserializer.deserialize(parser, raoResult, crac, "1.0"));
@@ -220,7 +220,7 @@ class FlowCnecResultArrayDeserializerTest {
         FlowCnec flowCnec = mock(FlowCnec.class);
         when(crac.getFlowCnec("fc1")).thenReturn(flowCnec);
 
-        RaoResultImpl raoResult = spy(new RaoResultImpl(crac));
+        RaoResultImpl raoResult = spy(RaoResultImpl.builder(crac).build());
 
         try (JsonParser parser = parserFrom(json)) {
             assertDoesNotThrow(() -> FlowCnecResultArrayDeserializer.deserialize(parser, raoResult, crac, "1.0"));
@@ -239,7 +239,7 @@ class FlowCnecResultArrayDeserializerTest {
         String json = "[{\"flowCnecId\":\"fc1\",\"initial\":{\"zonalPtdfSum\":0.85}}]";
         Crac crac = mock(Crac.class);
         when(crac.getFlowCnec("fc1")).thenReturn(mock(FlowCnec.class));
-        RaoResultImpl raoResult = new RaoResultImpl(crac);
+        RaoResultImpl raoResult = RaoResultImpl.builder(crac).build();
 
         try (JsonParser parser = parserFrom(json)) {
             OpenRaoException ex = assertThrows(OpenRaoException.class,
@@ -258,7 +258,7 @@ class FlowCnecResultArrayDeserializerTest {
         FlowCnec flowCnec = mock(FlowCnec.class);
         when(crac.getFlowCnec("fc1")).thenReturn(flowCnec);
 
-        RaoResultImpl raoResult = spy(new RaoResultImpl(crac));
+        RaoResultImpl raoResult = spy(RaoResultImpl.builder(crac).build());
 
         try (JsonParser parser = parserFrom(json)) {
             assertDoesNotThrow(() -> FlowCnecResultArrayDeserializer.deserialize(parser, raoResult, crac, "1.4"));
@@ -276,7 +276,7 @@ class FlowCnecResultArrayDeserializerTest {
         String json = "[{\"flowCnecId\":\"fc1\",\"initial\":{\"ampere\":{\"side1\":{\"zonalPtdfSum\":0.85}}}}]";
         Crac crac = mock(Crac.class);
         when(crac.getFlowCnec("fc1")).thenReturn(mock(FlowCnec.class));
-        RaoResultImpl raoResult = new RaoResultImpl(crac);
+        RaoResultImpl raoResult = RaoResultImpl.builder(crac).build();
 
         try (JsonParser parser = parserFrom(json)) {
             OpenRaoException ex = assertThrows(OpenRaoException.class,

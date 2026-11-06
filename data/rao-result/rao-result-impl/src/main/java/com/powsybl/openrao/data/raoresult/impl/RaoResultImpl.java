@@ -32,7 +32,7 @@ import java.util.stream.Collectors;
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class RaoResultImpl extends AbstractExtendable<RaoResult> implements RaoResult {
+public final class RaoResultImpl extends AbstractExtendable<RaoResult> implements RaoResult {
 
     private static final NetworkActionResult DEFAULT_NETWORKACTION_RESULT = new NetworkActionResult();
     private static final RangeActionResult DEFAULT_RANGEACTION_RESULT = new RangeActionResult();
@@ -40,21 +40,17 @@ public class RaoResultImpl extends AbstractExtendable<RaoResult> implements RaoR
 
     private final TemporalData<Crac> cracs;
 
-    private final Map<NetworkAction, NetworkActionResult> networkActionResults = new HashMap<>();
-    private final Map<RangeAction<?>, RangeActionResult> rangeActionResults = new HashMap<>();
+    private final Map<NetworkAction, NetworkActionResult> networkActionResults;
+    private final Map<RangeAction<?>, RangeActionResult> rangeActionResults;
 
-    public RaoResultImpl(Crac crac) {
-        this.cracs = new TemporalDataImpl<>();
-        this.cracs.put(crac.getTimestamp().orElse(DEFAULT_TIMESTAMP), crac);
-    }
-
-    public RaoResultImpl(TemporalData<Crac> cracs) {
+    private RaoResultImpl(TemporalData<Crac> cracs,
+                          Map<NetworkAction, NetworkActionResult> networkActionResults,
+                          Map<RangeAction<?>, RangeActionResult> rangeActionResults) {
         this.cracs = cracs;
-    }
-
-    public NetworkActionResult getAndCreateIfAbsentNetworkActionResult(NetworkAction networkAction) {
-        networkActionResults.putIfAbsent(networkAction, new NetworkActionResult());
-        return networkActionResults.get(networkAction);
+        this.networkActionResults = new HashMap<>();
+        this.networkActionResults.putAll(networkActionResults);
+        this.rangeActionResults = new HashMap<>();
+        this.rangeActionResults.putAll(rangeActionResults);
     }
 
     @Override
@@ -88,11 +84,6 @@ public class RaoResultImpl extends AbstractExtendable<RaoResult> implements RaoR
                 .filter(e -> e.getValue().getStatesWithActivation().contains(state))
                 .map(Map.Entry::getKey)
                 .collect(Collectors.toSet());
-    }
-
-    public RangeActionResult getAndCreateIfAbsentRangeActionResult(RangeAction<?> rangeAction) {
-        rangeActionResults.putIfAbsent(rangeAction, new RangeActionResult());
-        return rangeActionResults.get(rangeAction);
     }
 
     @Override
@@ -197,5 +188,50 @@ public class RaoResultImpl extends AbstractExtendable<RaoResult> implements RaoR
 
     private Crac getCrac(State state) {
         return getCrac(state.getTimestamp().orElse(DEFAULT_TIMESTAMP));
+    }
+
+    public static RaoResultImplBuilder builder(TemporalData<Crac> cracs) {
+        return new RaoResultImplBuilder(cracs);
+    }
+
+    public static RaoResultImplBuilder builder(Crac crac) {
+        return new RaoResultImplBuilder(crac);
+    }
+
+    public static final class RaoResultImplBuilder {
+        private final TemporalData<Crac> cracs;
+        private final Map<NetworkAction, NetworkActionResult> networkActionResults = new HashMap<>();
+        private final Map<RangeAction<?>, RangeActionResult> rangeActionResults = new HashMap<>();
+
+        private RaoResultImplBuilder(TemporalData<Crac> cracs) {
+            this.cracs = cracs;
+        }
+
+        private RaoResultImplBuilder(Crac crac) {
+            this.cracs = new TemporalDataImpl<>();
+            this.cracs.put(crac.getTimestamp().orElse(DEFAULT_TIMESTAMP), crac);
+        }
+
+        public RaoResultImplBuilder addNetworkActionActivation(NetworkAction networkAction, State state) {
+            networkActionResults.computeIfAbsent(networkAction, k -> new NetworkActionResult())
+                    .addActivationForState(state);
+            return this;
+        }
+
+        public RaoResultImplBuilder addRangeActionActivation(RangeAction<?> rangeAction, State state, double setPoint) {
+            rangeActionResults.computeIfAbsent(rangeAction, k -> new RangeActionResult())
+                .addActivationForState(state, setPoint);
+            return this;
+        }
+
+        public RaoResultImplBuilder addPstRangeActionActivation(PstRangeAction pstRangeAction, State state, int tap) {
+            rangeActionResults.computeIfAbsent(pstRangeAction, k -> new RangeActionResult())
+                .addActivationForState(state, pstRangeAction.convertTapToAngle(tap));
+            return this;
+        }
+
+        public RaoResultImpl build() {
+            return new RaoResultImpl(cracs, networkActionResults, rangeActionResults);
+        }
     }
 }

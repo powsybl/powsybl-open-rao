@@ -68,7 +68,6 @@ class SweCneDivergentAngleMonitoringTest {
             Cnec.SecurityStatus.FAILURE
         );
 
-        raoResult.getAndCreateIfAbsentNetworkActionResult(crac.getNetworkAction("na1")).addActivationForState(crac.getState("Co-1", crac.getInstant(InstantKind.CURATIVE)));
         AngleResult angleResult = AngleMonitoringResultAdapter.convertToAngleExtension(monitoringResult);
         raoResult.addExtension(AngleResult.class, angleResult);
 

@@ -528,15 +528,12 @@ class RaoResultRoundTripTest {
         State autoState = crac.getState("contingency", autoInstant);
         State curativeState = crac.getState("contingency", curativeInstant);
 
-        RaoResultImpl raoResult = new RaoResultImpl(crac);
-        raoResult.getAndCreateIfAbsentRangeActionResult(pstPrev).setInitialSetpoint(-10.);
-        raoResult.getAndCreateIfAbsentRangeActionResult(pstAuto).setInitialSetpoint(-10.);
-        raoResult.getAndCreateIfAbsentRangeActionResult(pstCur).setInitialSetpoint(-10.);
-        raoResult.getAndCreateIfAbsentRangeActionResult(pstPrev).addActivationForState(crac.getPreventiveState(), 10.);
-        raoResult.getAndCreateIfAbsentRangeActionResult(pstAuto).addActivationForState(autoState, 20.);
-        raoResult.getAndCreateIfAbsentRangeActionResult(pstCur).addActivationForState(curativeState, 30.);
+        RaoResultImpl.RaoResultImplBuilder raoResultBuilder = RaoResultImpl.builder(crac);
+        raoResultBuilder.addRangeActionActivation(pstPrev, crac.getPreventiveState(), 10.);
+        raoResultBuilder.addRangeActionActivation(pstAuto, autoState, 20.);
+        raoResultBuilder.addRangeActionActivation(pstCur, curativeState, 30.);
 
-        return raoResult;
+        return raoResultBuilder.build();
     }
 
     private void checkContentRangeActionCrossResult(RaoResult importedRaoResult, Crac crac) {

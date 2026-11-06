@@ -761,11 +761,11 @@ public class Marmot implements TimeCoupledRaoProvider {
                                                                           final Set<String> postTopoOverloadedCnecs,
                                                                           final RaoParameters raoParameters,
                                                                           final ReportNode reportNode) {
-        RaoResultImpl raoResult = new RaoResultImpl(cracs);
+        RaoResultImpl.RaoResultImplBuilder raoResultBuilder = RaoResultImpl.builder(cracs);
         TimeCoupledCostResult costResult = new TimeCoupledCostResult();
         MarmotUtils.fillRaoResult(
             cracs,
-            raoResult,
+            raoResultBuilder,
             costResult,
             initialResults,
             globalLinearOptimizationResult,
@@ -774,6 +774,8 @@ public class Marmot implements TimeCoupledRaoProvider {
             raoParameters,
             reportNode
         );
+
+        RaoResult raoResult = raoResultBuilder.build();
 
         // add extensions
         List<Instant> instants = cracs.getDataPerTimestamp().values().iterator().next().getSortedInstants();

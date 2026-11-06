@@ -63,7 +63,7 @@ public class Castor implements RaoProvider {
         } catch (OpenRaoException e) {
             String failure = String.format("Data initialisation failed: %s", e);
             CommonReports.reportExceptionMessage(reportNode, failure);
-            return CompletableFuture.completedFuture(new RaoResultImpl(raoInput.getCrac()));
+            return CompletableFuture.completedFuture(RaoResultImpl.builder(raoInput.getCrac()).build());
         }
 
         return new CastorFullOptimization(raoInput, parameters, targetEndInstant, reportNode).run();

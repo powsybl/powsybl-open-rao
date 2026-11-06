@@ -56,19 +56,18 @@ class RaoResultImplTest {
             .newOnInstantUsageRule().withInstant(CURATIVE_INSTANT_ID).add()
             .add();
 
-        raoResult = new RaoResultImpl(crac);
+        RaoResultImpl.RaoResultImplBuilder raoResultBuilder = RaoResultImpl.builder(crac);
+
+        raoResultBuilder.addNetworkActionActivation(na, crac.getState("Contingency FR1 FR3", autoInstant));
+        raoResultBuilder.addNetworkActionActivation(na, crac.getState("Contingency FR1 FR2", curativeInstant));
+        raoResultBuilder.addPstRangeActionActivation(pst, crac.getPreventiveState(), -8);
+
+        raoResult = raoResultBuilder.build();
 
         Metadata metadata = Metadata.builder()
             .withExecutionDetails("The RAO only went through first preventive")
             .build();
         raoResult.addExtension(Metadata.class, metadata);
-
-        raoResult.getAndCreateIfAbsentNetworkActionResult(na).addActivationForState(crac.getState("Contingency FR1 FR3", autoInstant));
-        raoResult.getAndCreateIfAbsentNetworkActionResult(na).addActivationForState(crac.getState("Contingency FR1 FR2", curativeInstant));
-
-        RangeActionResult pstRangeActionResult = raoResult.getAndCreateIfAbsentRangeActionResult(pst);
-        pstRangeActionResult.setInitialSetpoint(2.3); // tap = 6
-        pstRangeActionResult.addActivationForState(crac.getPreventiveState(), -3.1); // tap = -8
 
         CostResult.CostResultBuilder costResultBuilder = CostResult.builder();
         costResultBuilder.addFunctionalCostResult(null, 100.0);
@@ -90,8 +89,9 @@ class RaoResultImplTest {
         assertTrue(raoResult.isActivatedDuringState(crac.getPreventiveState(), pst));
         assertEquals(-8, raoResult.getOptimizedTapOnState(crac.getPreventiveState(), pst));
         assertEquals(Map.of(pst, -8), raoResult.getOptimizedTapsOnState(crac.getPreventiveState()));
-        assertEquals(-3.1, raoResult.getOptimizedSetPointOnState(crac.getPreventiveState(), pst), DOUBLE_TOLERANCE);
-        assertEquals(Map.of(pst, -3.1), raoResult.getOptimizedSetPointsOnState(crac.getPreventiveState()));
+        // The expected setpoint is the angle corresponding to tap -8.
+        assertEquals(-3.1161220798131644, raoResult.getOptimizedSetPointOnState(crac.getPreventiveState(), pst), DOUBLE_TOLERANCE);
+        assertEquals(Map.of(pst, -3.1161220798131644), raoResult.getOptimizedSetPointsOnState(crac.getPreventiveState()));
         assertEquals(Set.of(pst), raoResult.getActivatedRangeActionsDuringState(crac.getPreventiveState()));
         assertEquals(Set.of(), raoResult.getActivatedRangeActionsDuringState(crac.getState("Contingency FR1 FR3", autoInstant)));
     }
