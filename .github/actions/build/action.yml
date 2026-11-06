@@ -32,10 +32,10 @@ runs:
 
     - name: Build with Maven (with Jacoco)
       if: inputs.os == 'ubuntu-latest' && inputs.jvm == 'java'
-      shell: bash
+      shell: ${{ runner.os == 'Windows' && 'pwsh' || 'bash -e {0}' }}
       run: mvn --batch-mode -Pjacoco install
 
     - name: Build with Maven
       if: inputs.os != 'ubuntu-latest' || inputs.jvm != 'java'
-      shell: bash
+      shell: ${{ runner.os == 'Windows' && 'pwsh' || 'bash -e {0}' }}
       run: mvn --batch-mode install

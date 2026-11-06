@@ -7,7 +7,7 @@ on:
         description: "'true' if the PR changes at least one file other than docs and markdown files"
         value: ${{ jobs.filter.outputs.code }}
       docs:
-        description: "'true' if the PR changes at least one documentation or markdown file"
+        description: "'true' if the PR changes at least one file under docs/ or .github/"
         value: ${{ jobs.filter.outputs.docs }}
 
 jobs:
@@ -23,6 +23,7 @@ jobs:
       - id: filter
         uses: dorny/paths-filter@ceb8a2b8f2d89434be7ff52d3de7ec3738c5cc9d # v4
         with:
+          # Exclusions apply per file, so code changes still match in mixed code/docs PRs.
           predicate-quantifier: 'some-with-excludes'
           filters: |
             code:
