@@ -610,6 +610,10 @@ public interface RaoResult extends Extendable<RaoResult> {
         if (parameters.isEmpty()) {
             throw new OpenRaoException("At least one physical parameter must be provided.");
         }
+        Metadata metadata = getExtension(Metadata.class);
+        if (metadata != null && metadata.getComputationStatus() == ComputationStatus.FAILURE) {
+            return false;
+        }
         boolean secure = true;
         for (PhysicalParameter parameter : parameters) {
             switch (parameter) {
@@ -640,14 +644,6 @@ public interface RaoResult extends Extendable<RaoResult> {
         }
         return secure;
     }
-
-    /**
-     * Check if the RaoResult is secure for the given physical parameters.
-     *
-     * @param physicalParameters The physical parameters to check (any non-empty combination of FLOW, ANGLE and VOLTAGE).
-     * @return True if the RaoResult is secure for the given physical parameters, false otherwise.
-     */
-    boolean isSecure(PhysicalParameter... physicalParameters);
 
     /**
      * Import RaoResult from a file

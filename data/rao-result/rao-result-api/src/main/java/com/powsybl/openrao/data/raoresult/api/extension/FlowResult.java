@@ -17,10 +17,12 @@ import com.powsybl.openrao.data.raoresult.api.RaoResult;
 
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
@@ -30,13 +32,17 @@ public class FlowResult extends AbstractExtension<RaoResult> {
     private static final List<Unit> UNITS = List.of(Unit.AMPERE, Unit.MEGAWATT);
 
     private final Map<FlowCnec, FlowCnecResult> results;
+    private final Set<String> operatorsNotSharingCras;
 
-    private FlowResult(Map<FlowCnec, FlowCnecResult> results) {
-        this.results = new HashMap<>(results);
+    private FlowResult(Map<FlowCnec, FlowCnecResult> results, Set<String> operatorsNotSharingCras) {
+        this.results = new HashMap<>();
+        this.results.putAll(results);
+        this.operatorsNotSharingCras = new HashSet<>();
+        this.operatorsNotSharingCras.addAll(operatorsNotSharingCras);
     }
 
     public FlowResult(FlowResult flowResultToCopy) {
-        this(flowResultToCopy.results);
+        this(flowResultToCopy.results, flowResultToCopy.operatorsNotSharingCras);
     }
 
     /**
@@ -133,6 +139,10 @@ public class FlowResult extends AbstractExtension<RaoResult> {
         return results.keySet()
             .stream()
             .filter(flowCnec -> safeGetResult(flowCnec).isPresent())
+            .filter(FlowCnec::isOptimized)
+            .filter(flowCnec -> !flowCnec.getId().contains("OUTAGE DUPLICATE"))
+            .filter(flowCnec -> !operatorsNotSharingCras.contains(flowCnec.getOperator())
+                || !flowCnec.getState().getInstant().isCurative())
             .allMatch(this::hasPositiveMargin);
     }
 
@@ -348,9 +358,11 @@ public class FlowResult extends AbstractExtension<RaoResult> {
 
     public static final class FlowResultBuilder {
         private final Map<FlowCnec, FlowCnecResult> results;
+        private final Set<String> operatorsNotSharingCras;
 
         private FlowResultBuilder() {
             results = new HashMap<>();
+            operatorsNotSharingCras = new HashSet<>();
         }
 
         public FlowResultBuilder addFlowMeasurement(double flow, Instant instant, FlowCnec flowCnec, TwoSides side, Unit unit) {
@@ -368,8 +380,13 @@ public class FlowResult extends AbstractExtension<RaoResult> {
             return this;
         }
 
+        public FlowResultBuilder withOperatorsNotSharingCras(Set<String> operatorsNotSharingCras) {
+            this.operatorsNotSharingCras.addAll(operatorsNotSharingCras);
+            return this;
+        }
+
         public FlowResult build() {
-            return new FlowResult(results);
+            return new FlowResult(results, operatorsNotSharingCras);
         }
     }
 }

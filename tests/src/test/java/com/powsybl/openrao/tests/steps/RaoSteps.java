@@ -180,12 +180,7 @@ public class RaoSteps {
     public void statusWithVoltageShouldBe(String status) {
         assertEquals(
             "secured".equalsIgnoreCase(status),
-            isSecure(
-                CommonTestData.getRaoResult(),
-                crac,
-                raoParameters,
-                PhysicalParameter.FLOW
-            )
+            CommonTestData.getRaoResult().isSecure(PhysicalParameter.FLOW, PhysicalParameter.VOLTAGE)
         );
     }
 

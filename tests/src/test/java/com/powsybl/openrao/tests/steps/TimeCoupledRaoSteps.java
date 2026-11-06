@@ -520,7 +520,7 @@ public final class TimeCoupledRaoSteps {
     public void statusShouldBe(String status) {
         assertEquals(
             "secured".equalsIgnoreCase(status),
-            timeCoupledRaoResult.isSecure(PhysicalParameter.FLOW, PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE)
+            timeCoupledRaoResult.isSecure(PhysicalParameter.FLOW)
         );
     }
 

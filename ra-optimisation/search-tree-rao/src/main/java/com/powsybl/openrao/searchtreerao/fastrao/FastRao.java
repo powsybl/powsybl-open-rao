@@ -413,7 +413,7 @@ public class FastRao implements RaoProvider {
                 postPraSensi.get().prePerimeterResultForAllFollowingStates(),
                 postAraSensi.get(),
                 postCraSensi.get(),
-                RaoUtil.getFlowUnit(parameters)
+                parameters
             )
         );
         fastRaoResult.addExtension(Metadata.class, regenerateMetadata(
@@ -432,7 +432,7 @@ public class FastRao implements RaoProvider {
                                                                                                     PrePerimeterResult postPraSensi,
                                                                                                     PostPerimeterResult postAraSensi,
                                                                                                     PostPerimeterResult postCraSensi,
-                                                                                                    Unit flowUnit) {
+                                                                                                    RaoParameters raoParameters) {
         Map<State, PostPerimeterResult> postContingencyResults = new HashMap<>();
         for (State state : crac.getStates()) {
             switch (state.getInstant().getKind()) {
@@ -451,7 +451,7 @@ public class FastRao implements RaoProvider {
             postPraSensi,
             postContingencyResults,
             crac,
-            flowUnit
+            raoParameters
         );
     }
 

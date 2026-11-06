@@ -14,7 +14,6 @@ import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControl;
 import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
@@ -33,6 +32,7 @@ import com.powsybl.openrao.data.crac.api.usagerule.UsageRule;
 import com.powsybl.openrao.data.raoresult.impl.RaoResultImpl;
 import com.powsybl.openrao.data.refprog.referenceprogram.ReferenceProgramBuilder;
 import com.powsybl.openrao.raoapi.RaoInput;
+import com.powsybl.openrao.raoapi.parameters.NotOptimizedCnecsParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.PstModel;
@@ -412,5 +412,12 @@ public final class RaoUtil {
         optimizationResult.getActivatedRangeActions(state).forEach(
             ra -> raoResult.getAndCreateIfAbsentRangeActionResult(ra).addActivationForState(state, optimizationResult.getOptimizedSetpoint(ra, state))
         );
+    }
+
+    public static Set<String> getOperatorsNotSharingCras(Crac crac, RaoParameters raoParameters) {
+        NotOptimizedCnecsParameters notOptimizedCnecsParameters = raoParameters.getNotOptimizedCnecsParameters();
+        return notOptimizedCnecsParameters.getDoNotOptimizeCurativeCnecsForTsosWithoutCras()
+            ? crac.findOperatorsNotSharingCras()
+            : Collections.emptySet();
     }
 }

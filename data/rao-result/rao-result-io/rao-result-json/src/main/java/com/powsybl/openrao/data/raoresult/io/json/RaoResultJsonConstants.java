@@ -7,6 +7,8 @@
 
 package com.powsybl.openrao.data.raoresult.io.json;
 
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonToken;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
@@ -16,6 +18,7 @@ import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import org.apache.commons.lang3.StringUtils;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Objects;
@@ -264,10 +267,9 @@ public final class RaoResultJsonConstants {
         };
     }
 
-    public static void deserializeSecurityStatus(RaoResultImpl raoResult, JsonParser jsonParser) throws IOException {
+    public static void deserializeSecurityStatus(JsonParser jsonParser) throws IOException {
         while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
             jsonParser.nextToken();
-            raoResult.setSecurityStatus(PhysicalParameter.valueOf(jsonParser.currentName().toUpperCase()), jsonParser.getBooleanValue());
         }
     }
 

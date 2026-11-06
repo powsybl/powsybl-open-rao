@@ -90,7 +90,7 @@ public final class RaoResultGenerator {
             initialResult,
             postPreventiveResult.prePerimeterResultForAllFollowingStates(),
             crac,
-            flowUnit
+            raoParameters
         ));
         CastorMetadataHelper.fillAndAddFromPrePerimeter(
             crac,
@@ -129,7 +129,7 @@ public final class RaoResultGenerator {
             postPreventiveResult.prePerimeterResultForAllFollowingStates(),
             postContingencyResults,
             crac,
-            flowUnit
+            raoParameters
         ));
         Metadata.MetadataBuilder metadataBuilder = Metadata.builder();
         CastorMetadataHelper.fillFromPrePerimeter(metadataBuilder, crac, postPreventiveResult.prePerimeterResultForAllFollowingStates(), executionDetails);

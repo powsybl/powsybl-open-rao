@@ -57,6 +57,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Paths;
 import java.time.OffsetDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -74,6 +75,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 /**
@@ -514,9 +516,8 @@ class AngleMonitoringTest {
         assertTrue(raoResultWithAngleMonitoring.isActivatedDuringState(crac.getState("coL1", crac.getInstant(CURATIVE_INSTANT_ID)), naL1Cur));
         OpenRaoException noVoltageCnecsException = assertThrows(OpenRaoException.class, () -> isSecure(raoResultWithAngleMonitoring, crac, false, Unit.AMPERE, PhysicalParameter.VOLTAGE));
         assertEquals("No VoltageResult extension found in the RaoResult. Impossible to compute voltage security status.", noVoltageCnecsException.getMessage());
-        assertTrue(raoResultWithAngleMonitoring.isSecure(PhysicalParameter.VOLTAGE));
         assertFalse(raoResultWithAngleMonitoring.isSecure(PhysicalParameter.ANGLE));
-        assertFalse(raoResultWithAngleMonitoring.isSecure(PhysicalParameter.FLOW, PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE));
+        assertFalse(raoResultWithAngleMonitoring.isSecure(PhysicalParameter.FLOW, PhysicalParameter.ANGLE));
 
         Metadata metadata = raoResultWithAngleMonitoring.getExtension(Metadata.class);
         assertNotNull(metadata);

@@ -314,7 +314,7 @@ public final class RaoResultHelper {
                 preventivePostPerimeterResult.prePerimeterResultForAllFollowingStates(),
                 postMergingContingencyResults,
                 crac,
-                RaoUtil.getFlowUnit(raoParameters))
+                raoParameters)
             );
 
             String executionDetails = null;

@@ -21,6 +21,7 @@ import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.Mockito;
 
 import java.util.Optional;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -597,6 +598,8 @@ class FlowResultTest {
             State state = mock(State.class);
             when(state.getInstant()).thenReturn(preventiveInstant);
             when(flowCnec.getState()).thenReturn(state);
+            when(flowCnec.getId()).thenReturn("flowCnec");
+            when(flowCnec.isOptimized()).thenReturn(true);
         }
 
         @Test
@@ -647,6 +650,87 @@ class FlowResultTest {
         void testUnsecureNullMargin() {
             flowResult = flowResultBuilder.addFlowMeasurement(1000.0, preventiveInstant, flowCnec, TwoSides.ONE, Unit.MEGAWATT).build();
             assertTrue(flowResult.isSecure());
+        }
+    }
+
+    @Nested
+    @DisplayName("isSecure() with operators not sharing CRAs Tests")
+    class IsSecureOperatorsNotSharingCrasTests {
+
+        private FlowCnec curativeCnec;
+        private FlowCnec preventiveCnec;
+
+        @BeforeEach
+        void setUpCnecs() {
+            when(preventiveInstant.isCurative()).thenReturn(false);
+            when(curativeInstant.isCurative()).thenReturn(true);
+            curativeCnec = mockCnec("curativeCnec", "FR", curativeInstant);
+            preventiveCnec = mockCnec("preventiveCnec", "FR", preventiveInstant);
+        }
+
+        private FlowCnec mockCnec(String id, String operator, Instant instant) {
+            FlowCnec cnec = mock(FlowCnec.class);
+            State state = mock(State.class);
+            when(state.getInstant()).thenReturn(instant);
+            when(cnec.getState()).thenReturn(state);
+            when(cnec.getId()).thenReturn(id);
+            when(cnec.getOperator()).thenReturn(operator);
+            when(cnec.isOptimized()).thenReturn(true);
+            when(cnec.getLowerBound(Mockito.any(), Mockito.any())).thenReturn(Optional.of(-1000.0));
+            when(cnec.getUpperBound(Mockito.any(), Mockito.any())).thenReturn(Optional.of(1000.0));
+            return cnec;
+        }
+
+        @Test
+        @DisplayName("Overloaded curative CNEC of an operator sharing CRAs is not secure")
+        void testCurativeOverloadOperatorSharingCras() {
+            flowResult = flowResultBuilder
+                .addFlowMeasurement(1500.0, curativeInstant, curativeCnec, TwoSides.ONE, Unit.MEGAWATT)
+                .withOperatorsNotSharingCras(Set.of("BE"))
+                .build();
+            assertFalse(flowResult.isSecure());
+        }
+
+        @Test
+        @DisplayName("Overloaded curative CNEC of an operator not sharing CRAs is ignored")
+        void testCurativeOverloadOperatorNotSharingCras() {
+            flowResult = flowResultBuilder
+                .addFlowMeasurement(1500.0, curativeInstant, curativeCnec, TwoSides.ONE, Unit.MEGAWATT)
+                .withOperatorsNotSharingCras(Set.of("FR"))
+                .build();
+            assertTrue(flowResult.isSecure());
+        }
+
+        @Test
+        @DisplayName("Overloaded preventive CNEC of an operator not sharing CRAs is still considered")
+        void testPreventiveOverloadOperatorNotSharingCras() {
+            flowResult = flowResultBuilder
+                .addFlowMeasurement(1500.0, preventiveInstant, preventiveCnec, TwoSides.ONE, Unit.MEGAWATT)
+                .withOperatorsNotSharingCras(Set.of("FR"))
+                .build();
+            assertFalse(flowResult.isSecure());
+        }
+
+        @Test
+        @DisplayName("Ignoring curative CNECs of an operator not sharing CRAs does not hide other overloads")
+        void testOtherOperatorOverloadStillDetected() {
+            FlowCnec otherCurativeCnec = mockCnec("otherCurativeCnec", "BE", curativeInstant);
+            flowResult = flowResultBuilder
+                .addFlowMeasurement(1500.0, curativeInstant, curativeCnec, TwoSides.ONE, Unit.MEGAWATT)
+                .addFlowMeasurement(-1200.0, curativeInstant, otherCurativeCnec, TwoSides.ONE, Unit.MEGAWATT)
+                .withOperatorsNotSharingCras(Set.of("FR"))
+                .build();
+            assertFalse(flowResult.isSecure());
+        }
+
+        @Test
+        @DisplayName("Copied FlowResult keeps operators not sharing CRAs")
+        void testCopyKeepsOperatorsNotSharingCras() {
+            flowResult = flowResultBuilder
+                .addFlowMeasurement(1500.0, curativeInstant, curativeCnec, TwoSides.ONE, Unit.MEGAWATT)
+                .withOperatorsNotSharingCras(Set.of("FR"))
+                .build();
+            assertTrue(new FlowResult(flowResult).isSecure());
         }
     }
 }

@@ -825,6 +825,7 @@ public class Marmot implements TimeCoupledRaoProvider {
                                                                                                          FlowResult finalFlowResult,
                                                                                                          TemporalData<Crac> cracs,
                                                                                                          Unit flowUnit) {
+        // operators not sharing CRAs currently not supported in MARMOT
         com.powsybl.openrao.data.raoresult.api.extension.FlowResult.FlowResultBuilder flowResultBuilder = com.powsybl.openrao.data.raoresult.api.extension.FlowResult.builder();
         cracs.getDataPerTimestamp().values().forEach(
             crac -> crac.getFlowCnecs().forEach(
