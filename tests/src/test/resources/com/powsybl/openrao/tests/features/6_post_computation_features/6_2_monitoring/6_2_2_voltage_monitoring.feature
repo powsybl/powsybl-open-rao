@@ -10,9 +10,9 @@ Feature: 6.2.2: Voltage Monitoring
   Scenario: 6.2.2.1: Basic Voltage Monitoring
   Simple voltage monitoring case with one VoltageCnec in curative
   The CRAC file does not contain any FlowCNEC but the computation is still performed.
-    Given network file is "epic94/voltage_monitoring.xiidm"
-    Given crac file is "epic94/voltage_monitoring_crac.json"
-    Given configuration file is "epic94/monitoring_parameters.json"
+    Given network file is "6_post_computation_features/6_2_monitoring/voltage_monitoring.xiidm"
+    Given crac file is "6_post_computation_features/6_2_monitoring/voltage_monitoring_crac.json"
+    Given configuration file is "6_post_computation_features/6_2_monitoring/monitoring_parameters.json"
     When I launch rao
     When I launch voltage monitoring on 1 threads
     Then the execution details should be "The RAO only went through first preventive and went through voltage monitoring"
@@ -27,9 +27,9 @@ Feature: 6.2.2: Voltage Monitoring
   Scenario: 6.2.2.2: Basic Voltage Monitoring with preventive and curative VoltageCNECs
   Simple voltage monitoring case with two VoltageCnecs (one in preventive and the other in curative)
   The CRAC file does not contain any FlowCNEC but the computation is still performed.
-    Given network file is "epic94/voltage_monitoring.xiidm"
-    Given crac file is "epic94/voltage_monitoring_with_preventive_crac.json"
-    Given configuration file is "epic94/monitoring_parameters.json"
+    Given network file is "6_post_computation_features/6_2_monitoring/voltage_monitoring.xiidm"
+    Given crac file is "6_post_computation_features/6_2_monitoring/voltage_monitoring_with_preventive_crac.json"
+    Given configuration file is "6_post_computation_features/6_2_monitoring/monitoring_parameters.json"
     When I launch rao
     When I launch voltage monitoring on 1 threads
     Then the execution details should be "The RAO only went through first preventive and went through voltage monitoring"
