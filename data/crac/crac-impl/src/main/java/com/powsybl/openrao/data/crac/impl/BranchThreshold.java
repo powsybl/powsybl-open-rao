@@ -9,7 +9,6 @@ package com.powsybl.openrao.data.crac.impl;
 
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.Unit;
-import com.powsybl.openrao.data.crac.api.threshold.BranchThreshold;
 
 /**
  * Limits of a flow (in MEGAWATT or AMPERE) through a branch.
@@ -18,7 +17,7 @@ import com.powsybl.openrao.data.crac.api.threshold.BranchThreshold;
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
-public class BranchThresholdImpl extends ThresholdImpl implements BranchThreshold {
+public class BranchThreshold extends Threshold {
 
     /**
      * Side of the network element which is monitored
@@ -29,34 +28,13 @@ public class BranchThresholdImpl extends ThresholdImpl implements BranchThreshol
      * Direction in which the flow is monitored
      */
 
-    BranchThresholdImpl(TwoSides side, Unit unit, Double min, Double max) {
+    BranchThreshold(TwoSides side, Unit unit, Double min, Double max) {
         super(unit, min, max);
         this.side = side;
     }
 
-    @Override
     public TwoSides getSide() {
         return side;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-
-        BranchThresholdImpl otherT = (BranchThresholdImpl) o;
-
-        return super.equals(otherT)
-                && side.equals(otherT.getSide());
-    }
-
-    @Override
-    public int hashCode() {
-        return super.hashCode()
-                + 31 * side.hashCode();
-    }
 }
