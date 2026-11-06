@@ -24,6 +24,6 @@ import static io.cucumber.core.options.Constants.PLUGIN_PROPERTY_NAME;
 @SelectPackages("com.powsybl.openrao.tests")
 @ConfigurationParameter(key = PLUGIN_PROPERTY_NAME, value = "pretty")
 @ConfigurationParameter(key = GLUE_PROPERTY_NAME, value = "com.powsybl.openrao.tests")
-@ConfigurationParameter(key = FILTER_TAGS_PROPERTY_NAME, value = "@counter-trading")
+@ConfigurationParameter(key = FILTER_TAGS_PROPERTY_NAME, value = "@counter-trading and not @dont-run")
 public class CustomCucumberTest {
 }

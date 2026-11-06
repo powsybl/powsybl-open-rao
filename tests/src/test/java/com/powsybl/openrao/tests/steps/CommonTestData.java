@@ -12,6 +12,8 @@ import com.powsybl.glsk.commons.ZonalData;
 import com.powsybl.iidm.modification.scalable.Scalable;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.serde.NetworkSerDe;
+import com.powsybl.openrao.commons.MeritOrderGlsk;
+import com.powsybl.openrao.commons.MeritOrderTranche;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.CracCreationContext;
@@ -35,6 +37,7 @@ import com.powsybl.openrao.tests.utils.Helpers;
 import com.powsybl.openrao.virtualhubs.VirtualHubsConfiguration;
 import com.powsybl.openrao.virtualhubs.xml.XmlVirtualHubsConfiguration;
 import com.powsybl.sensitivity.SensitivityVariableSet;
+import io.cucumber.datatable.DataTable;
 import io.cucumber.java.Before;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.When;
@@ -48,6 +51,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static com.powsybl.openrao.tests.utils.Helpers.getFile;
 import static com.powsybl.openrao.tests.utils.Helpers.getOffsetDateTimeFromBrusselsTimestamp;
@@ -88,6 +95,7 @@ public final class CommonTestData {
     private static ZonalData<Scalable> monitoringGlsks;
     private static ZonalData<Scalable> counterTradeGlsks;
     private static ZonalData<SensitivityVariableSet> loopflowGlsks;
+    private static final Map<String, MeritOrderGlsk> MERIT_ORDER_GLSKS = new HashMap<>();
 
     private static String raoResultPath;
     private static RaoResult raoResult;
@@ -147,6 +155,7 @@ public final class CommonTestData {
         raoParametersPath = null;
         cracCreationParametersPath = null;
         loopflowGlskPath = null;
+        MERIT_ORDER_GLSKS.clear();
         monitoringGlskPath = null;
         counterTradeGlskPath = null;
         refProgPath = null;
@@ -209,6 +218,22 @@ public final class CommonTestData {
         loopflowGlskPath = getResourcesPath().concat("glsks/").concat(path);
     }
 
+    @Given("merit order glsk for area {string} is:")
+    public static void meritOrderGlskIs(String area, DataTable table) {
+        List<MeritOrderTranche> upward = new ArrayList<>();
+        List<MeritOrderTranche> downward = new ArrayList<>();
+        for (Map<String, String> row : table.asMaps(String.class, String.class)) {
+            MeritOrderTranche tranche = new MeritOrderTranche(row.get("generator"),
+                Double.parseDouble(row.get("minP")), Double.parseDouble(row.get("maxP")));
+            switch (row.get("direction")) {
+                case "up" -> upward.add(tranche);
+                case "down" -> downward.add(tranche);
+                default -> throw new OpenRaoException("Unknown merit order direction: " + row.get("direction"));
+            }
+        }
+        MERIT_ORDER_GLSKS.put(area, new MeritOrderGlsk(area, upward, downward));
+    }
+
     @Given("monitoring glsk file is {string}")
     public static void monitoringGlskFileIs(String path) {
         monitoringGlskPath = getResourcesPath().concat("glsks/").concat(path);
@@ -266,6 +291,10 @@ public final class CommonTestData {
 
     public static ZonalData<SensitivityVariableSet> getLoopflowGlsks() {
         return loopflowGlsks;
+    }
+
+    public static Map<String, MeritOrderGlsk> getMeritOrderGlsks() {
+        return MERIT_ORDER_GLSKS;
     }
 
     public static ZonalData<Scalable> getMonitoringGlsks() {
