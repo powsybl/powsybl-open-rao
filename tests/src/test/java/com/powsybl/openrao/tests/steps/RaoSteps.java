@@ -76,6 +76,7 @@ public class RaoSteps {
     private Network network;
     private State preventiveState;
     private final String raoImplementation;
+    private final boolean forceFastRao;
 
     {
         try {
@@ -83,6 +84,7 @@ public class RaoSteps {
             final InputStream inputStream = this.getClass().getClassLoader().getResourceAsStream("steps-config.properties");
             configProperties.load(inputStream);
             raoImplementation = (String) configProperties.get("rao-implementation");
+            forceFastRao = Boolean.parseBoolean((String) configProperties.get("force-fast-rao"));
         } catch (final IOException e) {
             throw new OpenRaoException("Unable to load steps-config.properties", e);
         }
@@ -815,7 +817,7 @@ public class RaoSteps {
                     .withMessageTemplate("test.rootnode")
                     .build()
             );
-            raoResult = RaoUtils.runRao(raoType, loopflowLimitAsPmaxPercentageInput, timeLimit, CommonTestData.getReportNode());
+            raoResult = RaoUtils.runRao(raoType, loopflowLimitAsPmaxPercentageInput, timeLimit, CommonTestData.getReportNode(), forceFastRao);
             CommonTestData.setRaoResult(raoResult);
         } catch (IOException e) {
             throw new UncheckedIOException(e);

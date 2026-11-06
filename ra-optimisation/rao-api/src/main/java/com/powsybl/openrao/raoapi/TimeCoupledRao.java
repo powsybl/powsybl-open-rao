@@ -23,8 +23,12 @@ import java.util.Objects;
 import java.util.ServiceLoader;
 
 /**
+ * @deprecated since 7.6.0, {@link Rao} supports time-coupled remedial action optimization and is preferred as the main
+ * optimization interface.
+ *
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
+@Deprecated(since = "7.6.0")
 public final class TimeCoupledRao {
     private TimeCoupledRao() {
         throw new AssertionError("Utility class should not been instantiated");
@@ -87,7 +91,7 @@ public final class TimeCoupledRao {
      * @return a runner for default RAO implementation
      */
     public static TimeCoupledRao.Runner find(final ReportNode reportNode) {
-        return find(null, reportNode);
+        return find("OpenRAO", reportNode);
     }
 
     /**

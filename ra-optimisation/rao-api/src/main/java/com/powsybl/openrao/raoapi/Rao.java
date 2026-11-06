@@ -14,6 +14,7 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.util.ServiceLoaderCache;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
+import com.powsybl.openrao.data.raoresult.api.TimeCoupledRaoResult;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.reports.RaoApiReports;
 import com.powsybl.tools.Version;
@@ -131,6 +132,31 @@ public final class Rao {
             return run(raoInput, ReportNode.NO_OP);
         }
 
+        public TimeCoupledRaoResult run(TimeCoupledRaoInput raoInput, RaoParameters parameters, ReportNode reportNode) {
+            Objects.requireNonNull(raoInput, "RAO input should not be null");
+            Objects.requireNonNull(parameters, "parameters should not be null");
+
+            Version openRaoVersion = ServiceLoader.load(Version.class).stream()
+                .map(ServiceLoader.Provider::get)
+                .filter(version -> version.getRepositoryName().equals("open-rao"))
+                .findFirst().orElseThrow();
+            RaoApiReports.reportRaoVersionAndGitCommit(reportNode, openRaoVersion.getMavenProjectVersion(), openRaoVersion.getGitVersion());
+
+            return provider.run(raoInput, parameters, reportNode).join();
+        }
+
+        public TimeCoupledRaoResult run(TimeCoupledRaoInput raoInput, ReportNode reportNode) {
+            return run(raoInput, RaoParameters.load(reportNode), reportNode);
+        }
+
+        public TimeCoupledRaoResult run(TimeCoupledRaoInput raoInput, RaoParameters parameters) {
+            return run(raoInput, parameters, ReportNode.NO_OP);
+        }
+
+        public TimeCoupledRaoResult run(TimeCoupledRaoInput raoInput) {
+            return run(raoInput, ReportNode.NO_OP);
+        }
+
         public String getName() {
             return provider.getName();
         }
@@ -154,7 +180,7 @@ public final class Rao {
      * @return a runner for default RAO implementation
      */
     public static Runner find() {
-        return find("SearchTreeRao");
+        return find("OpenRAO");
     }
 
     /**
@@ -220,5 +246,13 @@ public final class Rao {
 
     public static RaoResult run(RaoInput raoInput) {
         return find().run(raoInput);
+    }
+
+    public static TimeCoupledRaoResult run(TimeCoupledRaoInput raoInput, RaoParameters parameters, final ReportNode reportNode) {
+        return find().run(raoInput, parameters, reportNode);
+    }
+
+    public static TimeCoupledRaoResult run(TimeCoupledRaoInput raoInput, final ReportNode reportNode) {
+        return find().run(raoInput, reportNode);
     }
 }
