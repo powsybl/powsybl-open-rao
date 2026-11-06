@@ -16,6 +16,8 @@ import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.commons.TemporalDataImpl;
 import com.powsybl.openrao.commons.logs.TechnicalLogs;
 import com.powsybl.openrao.data.crac.api.Crac;
+import com.powsybl.openrao.data.crac.api.State;
+import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.raoresult.api.TimeCoupledRaoResult;
 import com.powsybl.openrao.data.timecoupledconstraints.GeneratorConstraints;
@@ -25,6 +27,7 @@ import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.TimeCoupledRaoInput;
 import com.powsybl.openrao.raoapi.json.JsonRaoParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
+import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.marmot.results.TimeCoupledRaoResultImpl;
 import com.powsybl.openrao.searchtreerao.marmot.results.extensions.PreTimeCouplingOverloadedCnecs;
 import org.junit.jupiter.api.Test;
@@ -32,6 +35,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.nio.file.Path;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
@@ -690,5 +694,29 @@ class MarmotTest {
         assertEquals(Set.of(crac01.getPstRangeAction("pstFr2Fr3")), timeCoupledRaoResult.getActivatedRangeActionsDuringState(crac01.getState("Contingency FR2 FR3 2", crac01.getLastInstant())));
         assertEquals(Set.of(crac00.getNetworkAction("closeFr2Fr3")), timeCoupledRaoResult.getActivatedNetworkActionsDuringState(crac00.getState("Contingency FR2 FR3 2", crac00.getLastInstant())));
         assertEquals(Set.of(crac01.getNetworkAction("closeFr2Fr3")), timeCoupledRaoResult.getActivatedNetworkActionsDuringState(crac01.getState("Contingency FR2 FR3 2", crac01.getLastInstant())));
+    }
+
+    @Test
+    void testComputeOptimizationPerimetersPerTimestamp() throws Exception {
+        OffsetDateTime timestamp = OffsetDateTime.parse("2025-02-13T00:30Z");
+        Network network = Network.read("/network/3Nodes6Lines.uct", MarmotTest.class.getResourceAsStream("/network/3Nodes6Lines.uct"));
+        Crac crac = Crac.read("crac-2-contingency.json", MarmotTest.class.getResourceAsStream("/crac/crac-2-contingency.json"), network);
+
+        TemporalData<Crac> cracs = new TemporalDataImpl<>(Map.of(timestamp, crac));
+        TemporalData<Set<FlowCnec>> consideredCnecs = new TemporalDataImpl<>(Map.of(timestamp, Set.of(crac.getFlowCnec("preventive-cnec"), crac.getFlowCnec("curative-cnec-1"))));
+
+        Method method = Marmot.class.getDeclaredMethod("computeOptimizationPerimetersPerTimestamp", TemporalData.class, TemporalData.class, int.class);
+        method.setAccessible(true);
+        TemporalData<?> perimeters = (TemporalData<?>) method.invoke(null, cracs, consideredCnecs, 1);
+        OptimizationPerimeter perimeter = (OptimizationPerimeter) perimeters.getData(timestamp).orElseThrow();
+
+        // Curative-2 state and its related range action "PST - curative-2" is ignored because the state has no considered CNEC.
+        State preventive1 = crac.getPreventiveState();
+        State curative1 = crac.getState("contingency-1", crac.getInstant("curative"));
+        assertEquals(preventive1, perimeter.getMainOptimizationState());
+        assertEquals(consideredCnecs.getData(timestamp).orElseThrow(), perimeter.getFlowCnecs());
+        assertEquals(Map.of(preventive1, Set.of(crac.getRangeAction("PST - preventive")),
+            curative1, Set.of(crac.getRangeAction("PST - curative-1"))), perimeter.getRangeActionsPerState());
+        assertEquals(Set.of(preventive1, curative1), perimeter.getRangeActionOptimizationStates());
     }
 }
