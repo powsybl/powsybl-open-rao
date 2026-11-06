@@ -9,6 +9,7 @@ package com.powsybl.openrao.searchtreerao.castor.algorithm;
 
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
+import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.searchtreerao.commons.ToolProvider;
 import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
 import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
@@ -43,6 +44,11 @@ final class RaoRunContext {
     @Nullable private PostPerimeterResult finalSecondPreventiveResult;
     @Nullable private Map<State, PostPerimeterResult> finalPostContingencyResults;
     @Nullable private Boolean logFinalResultsOutsideOfSecondPreventive;
+
+    @Nullable private ToolProvider workingToolProvider;
+    @Nullable private RaoParameters dcRaoParameters;
+    @Nullable private PrePerimeterResult workingInitialOutput;
+    @Nullable private Boolean useWorkingVars;
 
     RaoRunContext(@NonNull ToolProvider toolProvider) {
         this.toolProvider = Objects.requireNonNull(toolProvider);
@@ -154,5 +160,37 @@ final class RaoRunContext {
 
     boolean isLogFinalResultsOutsideOfSecondPreventive() {
         return Objects.requireNonNull(logFinalResultsOutsideOfSecondPreventive, "logFinalResultsOutsideOfSecondPreventive has not been set yet");
+    }
+
+    @NonNull Boolean useWorkingVars() {
+        return Objects.requireNonNull(useWorkingVars, "useWorkingVars has not been set yet");
+    }
+
+    void setUseWorkingVars(boolean useWorkingVars) {
+        this.useWorkingVars = useWorkingVars;
+    }
+
+    @NonNull PrePerimeterResult getWorkingInitialOutput() {
+        return Objects.requireNonNull(workingInitialOutput, "workingInitialOutput has not been computed yet");
+    }
+
+    void setWorkingInitialOutput(@NonNull PrePerimeterResult workingInitialOutput) {
+        this.workingInitialOutput = workingInitialOutput;
+    }
+
+    @NonNull RaoParameters getDcRaoParameters() {
+        return Objects.requireNonNull(dcRaoParameters, "dcRaoParameters has not been set yet");
+    }
+
+    void setDcRaoParameters(@NonNull RaoParameters dcRaoParameters) {
+        this.dcRaoParameters = dcRaoParameters;
+    }
+
+    @NonNull ToolProvider getWorkingToolProvider() {
+        return Objects.requireNonNull(workingToolProvider, "workingToolProvider has not been set yet");
+    }
+
+    void setWorkingToolProvider(@NonNull ToolProvider workingToolProvider) {
+        this.workingToolProvider = workingToolProvider;
     }
 }
