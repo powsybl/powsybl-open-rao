@@ -7,33 +7,24 @@
 
 package com.powsybl.openrao.data.raoresult.impl;
 
-import com.powsybl.iidm.network.TwoSides;
-import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.commons.PhysicalParameter;
-import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.State;
-import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.networkaction.ActionType;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.impl.utils.CommonCracCreation;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
-import com.powsybl.openrao.data.raoresult.api.OptimizationStepsExecuted;
-import com.powsybl.openrao.data.raoresult.api.RaoResult;
+import com.powsybl.openrao.data.raoresult.api.extension.CostResult;
+import com.powsybl.openrao.data.raoresult.api.extension.Metadata;
 import org.junit.jupiter.api.Test;
 
 import java.util.Map;
 import java.util.Set;
 
-import static com.powsybl.openrao.commons.Unit.AMPERE;
-import static com.powsybl.openrao.commons.Unit.DEGREE;
-import static com.powsybl.openrao.commons.Unit.KILOVOLT;
-import static com.powsybl.openrao.commons.Unit.MEGAWATT;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -42,25 +33,20 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class RaoResultImplTest {
     private static final double DOUBLE_TOLERANCE = 1e-6;
     private static final String PREVENTIVE_INSTANT_ID = "preventive";
-    private static final String OUTAGE_INSTANT_ID = "outage";
     private static final String AUTO_INSTANT_ID = "auto";
     private static final String CURATIVE_INSTANT_ID = "curative";
 
     private RaoResultImpl raoResult;
     private Crac crac;
-    private FlowCnec cnec;
     private PstRangeAction pst;
     private NetworkAction na;
-    private Instant preventiveInstant;
     private Instant autoInstant;
     private Instant curativeInstant;
 
     private void setUp() {
         crac = CommonCracCreation.createWithPreventiveAndCurativePstRange();
-        preventiveInstant = crac.getInstant(PREVENTIVE_INSTANT_ID);
         autoInstant = crac.getInstant(AUTO_INSTANT_ID);
         curativeInstant = crac.getInstant(CURATIVE_INSTANT_ID);
-        cnec = crac.getFlowCnec("cnec1basecase");
         pst = crac.getPstRangeAction("pst");
         na = crac.newNetworkAction().withId("na-id")
             .newSwitchAction().withNetworkElement("any").withActionType(ActionType.OPEN).add()
@@ -72,47 +58,10 @@ class RaoResultImplTest {
 
         raoResult = new RaoResultImpl(crac);
 
-        // add default secure margin for all FlowCNECs
-        for (FlowCnec flowCnec : crac.getFlowCnecs()) {
-            FlowCnecResult flowResult = raoResult.getAndCreateIfAbsentFlowCnecResult(flowCnec);
-            ElementaryFlowCnecResult elementaryFlowResult = flowResult.getAndCreateIfAbsentResultForOptimizationState(flowCnec.getState().getInstant());
-            elementaryFlowResult.setMargin(10., MEGAWATT);
-        }
-
-        // override for FlowCNEC "cnec1basecase"
-        FlowCnecResult flowCnecResult = raoResult.getAndCreateIfAbsentFlowCnecResult(cnec);
-
-        flowCnecResult.getAndCreateIfAbsentResultForOptimizationState(null);
-        ElementaryFlowCnecResult elementaryFlowCnecResult = flowCnecResult.getResult(null);
-
-        elementaryFlowCnecResult.setFlow(TwoSides.ONE, 100., MEGAWATT);
-        elementaryFlowCnecResult.setMargin(101., MEGAWATT);
-        elementaryFlowCnecResult.setRelativeMargin(102., MEGAWATT);
-        elementaryFlowCnecResult.setLoopFlow(TwoSides.ONE, 103., MEGAWATT);
-        elementaryFlowCnecResult.setCommercialFlow(TwoSides.ONE, 104., MEGAWATT);
-
-        elementaryFlowCnecResult.setFlow(TwoSides.ONE, 110., AMPERE);
-        elementaryFlowCnecResult.setMargin(111., AMPERE);
-        elementaryFlowCnecResult.setRelativeMargin(112., AMPERE);
-        elementaryFlowCnecResult.setLoopFlow(TwoSides.ONE, 113., AMPERE);
-        elementaryFlowCnecResult.setCommercialFlow(TwoSides.ONE, 114., AMPERE);
-
-        elementaryFlowCnecResult.setPtdfZonalSum(TwoSides.ONE, 0.1);
-
-        flowCnecResult.getAndCreateIfAbsentResultForOptimizationState(preventiveInstant);
-        elementaryFlowCnecResult = flowCnecResult.getResult(preventiveInstant);
-
-        elementaryFlowCnecResult.setFlow(TwoSides.ONE, 200., MEGAWATT);
-        elementaryFlowCnecResult.setMargin(201., MEGAWATT);
-        elementaryFlowCnecResult.setRelativeMargin(202., MEGAWATT);
-        elementaryFlowCnecResult.setLoopFlow(TwoSides.ONE, 203., MEGAWATT);
-
-        elementaryFlowCnecResult.setFlow(TwoSides.ONE, 210., AMPERE);
-        elementaryFlowCnecResult.setMargin(211., AMPERE);
-        elementaryFlowCnecResult.setRelativeMargin(212., AMPERE);
-        elementaryFlowCnecResult.setLoopFlow(TwoSides.ONE, 213., AMPERE);
-
-        elementaryFlowCnecResult.setPtdfZonalSum(TwoSides.ONE, 0.1);
+        Metadata metadata = Metadata.builder()
+            .withExecutionDetails("The RAO only went through first preventive")
+            .build();
+        raoResult.addExtension(Metadata.class, metadata);
 
         raoResult.getAndCreateIfAbsentNetworkActionResult(na).addActivationForState(crac.getState("Contingency FR1 FR3", autoInstant));
         raoResult.getAndCreateIfAbsentNetworkActionResult(na).addActivationForState(crac.getState("Contingency FR1 FR2", curativeInstant));
@@ -121,64 +70,23 @@ class RaoResultImplTest {
         pstRangeActionResult.setInitialSetpoint(2.3); // tap = 6
         pstRangeActionResult.addActivationForState(crac.getPreventiveState(), -3.1); // tap = -8
 
-        CostResult costResult = raoResult.getAndCreateIfAbsentCostResult(RaoResult.INITIAL_INSTANT_ID);
-        costResult.setFunctionalCost(100.);
-        costResult.setVirtualCost("loopFlow", 0.);
-        costResult.setVirtualCost("MNEC", 0.);
+        CostResult.CostResultBuilder costResultBuilder = CostResult.builder();
+        costResultBuilder.addFunctionalCostResult(null, 100.0);
+        costResultBuilder.addVirtualCostResult(null, "loopFlow", 0.0);
+        costResultBuilder.addVirtualCostResult(null, "MNEC", 0.0);
 
-        costResult = raoResult.getAndCreateIfAbsentCostResult(CURATIVE_INSTANT_ID);
-        costResult.setFunctionalCost(-50.);
-        costResult.setVirtualCost("loopFlow", 10.);
-        costResult.setVirtualCost("MNEC", 2.);
+        costResultBuilder.addFunctionalCostResult(crac.getInstant(CURATIVE_INSTANT_ID), -50.0);
+        costResultBuilder.addVirtualCostResult(crac.getInstant(CURATIVE_INSTANT_ID), "loopFlow", 10.0);
+        costResultBuilder.addVirtualCostResult(crac.getInstant(CURATIVE_INSTANT_ID), "MNEC", 2.0);
 
-        raoResult.setComputationStatus(ComputationStatus.DEFAULT);
-    }
-
-    private void getResultAtAGivenState(Instant optimizedInstant) {
-        assertEquals(200., raoResult.getFlow(optimizedInstant, cnec, TwoSides.ONE, MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(201., raoResult.getMargin(optimizedInstant, cnec, MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(202., raoResult.getRelativeMargin(optimizedInstant, cnec, MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(203., raoResult.getLoopFlow(optimizedInstant, cnec, TwoSides.ONE, MEGAWATT), DOUBLE_TOLERANCE);
-        assertTrue(Double.isNaN(raoResult.getCommercialFlow(optimizedInstant, cnec, TwoSides.ONE, MEGAWATT)));
-
-        assertEquals(210., raoResult.getFlow(optimizedInstant, cnec, TwoSides.ONE, AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(211., raoResult.getMargin(optimizedInstant, cnec, AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(212., raoResult.getRelativeMargin(optimizedInstant, cnec, AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(213., raoResult.getLoopFlow(optimizedInstant, cnec, TwoSides.ONE, AMPERE), DOUBLE_TOLERANCE);
-        assertTrue(Double.isNaN(raoResult.getCommercialFlow(optimizedInstant, cnec, TwoSides.ONE, AMPERE)));
-
-        assertEquals(0.1, raoResult.getPtdfZonalSum(optimizedInstant, cnec, TwoSides.ONE), DOUBLE_TOLERANCE);
-    }
-
-    @Test
-    void testPreventiveCnecResults() {
-        setUp();
-
-        assertEquals(100., raoResult.getFlow(null, cnec, TwoSides.ONE, MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(101., raoResult.getMargin(null, cnec, MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(102., raoResult.getRelativeMargin(null, cnec, MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(103., raoResult.getLoopFlow(null, cnec, TwoSides.ONE, MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(104., raoResult.getCommercialFlow(null, cnec, TwoSides.ONE, MEGAWATT), DOUBLE_TOLERANCE);
-
-        assertEquals(110., raoResult.getFlow(null, cnec, TwoSides.ONE, AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(111., raoResult.getMargin(null, cnec, AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(112., raoResult.getRelativeMargin(null, cnec, AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(113., raoResult.getLoopFlow(null, cnec, TwoSides.ONE, AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(114., raoResult.getCommercialFlow(null, cnec, TwoSides.ONE, AMPERE), DOUBLE_TOLERANCE);
-
-        assertEquals(0.1, raoResult.getPtdfZonalSum(null, cnec, TwoSides.ONE), DOUBLE_TOLERANCE);
-
-        // should always return after pra results because the cnec is Preventive
-        getResultAtAGivenState(preventiveInstant);
-        getResultAtAGivenState(autoInstant);
-        getResultAtAGivenState(curativeInstant);
+        raoResult.addExtension(CostResult.class, costResultBuilder.build());
     }
 
     @Test
     void testPstRangeActionResults() {
         setUp();
-        assertEquals(6, raoResult.getPreOptimizationTapOnState(crac.getPreventiveState(), pst));
-        assertEquals(2.3, raoResult.getPreOptimizationSetPointOnState(crac.getPreventiveState(), pst), DOUBLE_TOLERANCE);
+        assertEquals(0, raoResult.getPreOptimizationTapOnState(crac.getPreventiveState(), pst));
+        assertEquals(0.0, raoResult.getPreOptimizationSetPointOnState(crac.getPreventiveState(), pst), DOUBLE_TOLERANCE);
         assertTrue(raoResult.isActivatedDuringState(crac.getPreventiveState(), pst));
         assertEquals(-8, raoResult.getOptimizedTapOnState(crac.getPreventiveState(), pst));
         assertEquals(Map.of(pst, -8), raoResult.getOptimizedTapsOnState(crac.getPreventiveState()));
@@ -222,253 +130,25 @@ class RaoResultImplTest {
     void testCostResults() {
         setUp();
 
-        assertEquals(Set.of("loopFlow", "MNEC"), raoResult.getVirtualCostNames());
+        CostResult costResult = raoResult.getExtension(CostResult.class);
+        assertNotNull(costResult);
 
-        assertEquals(100., raoResult.getFunctionalCost(null), DOUBLE_TOLERANCE);
-        assertEquals(0., raoResult.getVirtualCost(null, "loopFlow"), DOUBLE_TOLERANCE);
-        assertEquals(0., raoResult.getVirtualCost(null, "MNEC"), DOUBLE_TOLERANCE);
-        assertEquals(0., raoResult.getVirtualCost(null), DOUBLE_TOLERANCE);
-        assertEquals(100., raoResult.getCost(null), DOUBLE_TOLERANCE);
+        assertEquals(Set.of("loopFlow", "MNEC"), costResult.getVirtualCostNames());
 
-        assertEquals(-50., raoResult.getFunctionalCost(curativeInstant), DOUBLE_TOLERANCE);
-        assertEquals(10., raoResult.getVirtualCost(curativeInstant, "loopFlow"), DOUBLE_TOLERANCE);
-        assertEquals(2., raoResult.getVirtualCost(curativeInstant, "MNEC"), DOUBLE_TOLERANCE);
-        assertEquals(12., raoResult.getVirtualCost(curativeInstant), DOUBLE_TOLERANCE);
-        assertEquals(-38, raoResult.getCost(curativeInstant), DOUBLE_TOLERANCE);
+        assertEquals(100., costResult.getFunctionalCost(null), DOUBLE_TOLERANCE);
+        assertEquals(0., costResult.getVirtualCost(null, "loopFlow"), DOUBLE_TOLERANCE);
+        assertEquals(0., costResult.getVirtualCost(null, "MNEC"), DOUBLE_TOLERANCE);
+        assertEquals(0., costResult.getVirtualCost(null), DOUBLE_TOLERANCE);
+        assertEquals(100., costResult.getCost(null), DOUBLE_TOLERANCE);
 
-        assertEquals(ComputationStatus.DEFAULT, raoResult.getComputationStatus());
-    }
+        assertEquals(-50., costResult.getFunctionalCost(curativeInstant), DOUBLE_TOLERANCE);
+        assertEquals(10., costResult.getVirtualCost(curativeInstant, "loopFlow"), DOUBLE_TOLERANCE);
+        assertEquals(2., costResult.getVirtualCost(curativeInstant, "MNEC"), DOUBLE_TOLERANCE);
+        assertEquals(12., costResult.getVirtualCost(curativeInstant), DOUBLE_TOLERANCE);
+        assertEquals(-38, costResult.getCost(curativeInstant), DOUBLE_TOLERANCE);
 
-    @Test
-    void testExecutionDetails() {
-        setUp();
-        assertEquals(OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY, raoResult.getExecutionDetails());
-        raoResult.setExecutionDetails(OptimizationStepsExecuted.FIRST_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION);
-        assertEquals(OptimizationStepsExecuted.FIRST_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION, raoResult.getExecutionDetails());
-    }
-
-    @Test
-    void testSensitivityStatus() {
-        setUp();
-        raoResult.setComputationStatus(crac.getState("Contingency FR1 FR3", autoInstant), ComputationStatus.DEFAULT);
-        assertEquals(ComputationStatus.DEFAULT, raoResult.getComputationStatus(crac.getState("Contingency FR1 FR3", autoInstant)));
-    }
-
-    @Test
-    void comprehensiveRaoResultWithAllThreeTypesOfCnecs() {
-        setUp();
-        addOutageFlowCnec();
-        addAngleCnecs();
-        addVoltageCnecs();
-
-        FlowCnec outageCnec = crac.getFlowCnec("cnec1stateOutageContingency1");
-        FlowCnecResult flowResult = raoResult.getAndCreateIfAbsentFlowCnecResult(outageCnec);
-        ElementaryFlowCnecResult elementaryFlowResult = flowResult.getAndCreateIfAbsentResultForOptimizationState(crac.getInstant(PREVENTIVE_INSTANT_ID));
-        elementaryFlowResult.setMargin(10., MEGAWATT);
-
-        AngleCnecResult angleResult1 = raoResult.getAndCreateIfAbsentAngleCnecResult(crac.getAngleCnec("angleCnecPreventive"));
-        ElementaryAngleCnecResult elementaryAngleCnecResult1 = angleResult1.getAndCreateIfAbsentResultForOptimizationState(preventiveInstant);
-        elementaryAngleCnecResult1.setAngle(50., DEGREE);
-        elementaryAngleCnecResult1.setMargin(10., DEGREE);
-
-        AngleCnecResult angleResult2 = raoResult.getAndCreateIfAbsentAngleCnecResult(crac.getAngleCnec("angleCnecStateOutageContingency1"));
-        ElementaryAngleCnecResult elementaryAngleCnecResult2 = angleResult2.getAndCreateIfAbsentResultForOptimizationState(preventiveInstant);
-        elementaryAngleCnecResult2.setAngle(90., DEGREE);
-        elementaryAngleCnecResult2.setMargin(30., DEGREE);
-
-        AngleCnecResult angleResult3 = raoResult.getAndCreateIfAbsentAngleCnecResult(crac.getAngleCnec("angleCnecStateCurativeContingency1"));
-        ElementaryAngleCnecResult elementaryAngleCnecResult3 = angleResult3.getAndCreateIfAbsentResultForOptimizationState(preventiveInstant);
-        elementaryAngleCnecResult3.setAngle(35., DEGREE);
-        elementaryAngleCnecResult3.setMargin(-.5, DEGREE);
-
-        AngleCnecResult angleResul4 = raoResult.getAndCreateIfAbsentAngleCnecResult(crac.getAngleCnec("angleCnecStateCurativeContingency1"));
-        ElementaryAngleCnecResult elementaryAngleCnecResult4 = angleResul4.getAndCreateIfAbsentResultForOptimizationState(curativeInstant);
-        elementaryAngleCnecResult4.setAngle(35., DEGREE);
-        elementaryAngleCnecResult4.setMargin(-.5, DEGREE);
-
-        VoltageCnecResult voltageResult1 = raoResult.getAndCreateIfAbsentVoltageCnecResult(crac.getVoltageCnec("voltageCnecPreventive"));
-        ElementaryVoltageCnecResult elementaryVoltageCnecResult1 = voltageResult1.getAndCreateIfAbsentResultForOptimizationState(preventiveInstant);
-        elementaryVoltageCnecResult1.setMinVoltage(400., KILOVOLT);
-        elementaryVoltageCnecResult1.setMaxVoltage(420., KILOVOLT);
-        elementaryVoltageCnecResult1.setMargin(40., KILOVOLT);
-
-        VoltageCnecResult voltageResult2 = raoResult.getAndCreateIfAbsentVoltageCnecResult(crac.getVoltageCnec("voltageCnecStateOutageContingency1"));
-        ElementaryVoltageCnecResult elementaryVoltageCnecResult2 = voltageResult2.getAndCreateIfAbsentResultForOptimizationState(preventiveInstant);
-        elementaryVoltageCnecResult2.setMinVoltage(415., KILOVOLT);
-        elementaryVoltageCnecResult2.setMaxVoltage(435., KILOVOLT);
-        elementaryVoltageCnecResult2.setMargin(5., KILOVOLT);
-
-        VoltageCnecResult voltageResult3 = raoResult.getAndCreateIfAbsentVoltageCnecResult(crac.getVoltageCnec("voltageCnecStateCurativeContingency1"));
-        ElementaryVoltageCnecResult elementaryVoltageCnecResult3 = voltageResult3.getAndCreateIfAbsentResultForOptimizationState(preventiveInstant);
-        elementaryVoltageCnecResult3.setMinVoltage(400., KILOVOLT);
-        elementaryVoltageCnecResult3.setMaxVoltage(420., KILOVOLT);
-        elementaryVoltageCnecResult3.setMargin(40., KILOVOLT);
-
-        VoltageCnecResult voltageResult4 = raoResult.getAndCreateIfAbsentVoltageCnecResult(crac.getVoltageCnec("voltageCnecStateCurativeContingency1"));
-        ElementaryVoltageCnecResult elementaryVoltageCnecResult4 = voltageResult4.getAndCreateIfAbsentResultForOptimizationState(curativeInstant);
-        elementaryVoltageCnecResult4.setMinVoltage(400., KILOVOLT);
-        elementaryVoltageCnecResult4.setMaxVoltage(420., KILOVOLT);
-        elementaryVoltageCnecResult4.setMargin(40., KILOVOLT);
-
-        assertEquals(50.0, raoResult.getAngle(preventiveInstant, crac.getAngleCnec("angleCnecPreventive"), DEGREE));
-        assertEquals(10.0, raoResult.getMargin(preventiveInstant, crac.getAngleCnec("angleCnecPreventive"), DEGREE));
-
-        assertEquals(90.0, raoResult.getAngle(preventiveInstant, crac.getAngleCnec("angleCnecStateOutageContingency1"), DEGREE));
-        assertEquals(30.0, raoResult.getMargin(preventiveInstant, crac.getAngleCnec("angleCnecStateOutageContingency1"), DEGREE));
-
-        assertEquals(35.0, raoResult.getAngle(preventiveInstant, crac.getAngleCnec("angleCnecStateCurativeContingency1"), DEGREE));
-        assertEquals(-.5, raoResult.getMargin(preventiveInstant, crac.getAngleCnec("angleCnecStateCurativeContingency1"), DEGREE));
-
-        assertEquals(35.0, raoResult.getAngle(curativeInstant, crac.getAngleCnec("angleCnecStateCurativeContingency1"), DEGREE));
-        assertEquals(-.5, raoResult.getMargin(curativeInstant, crac.getAngleCnec("angleCnecStateCurativeContingency1"), DEGREE));
-
-        assertEquals(400.0, raoResult.getMinVoltage(preventiveInstant, crac.getVoltageCnec("voltageCnecPreventive"), KILOVOLT));
-        assertEquals(420.0, raoResult.getMaxVoltage(preventiveInstant, crac.getVoltageCnec("voltageCnecPreventive"), KILOVOLT));
-        assertEquals(40.0, raoResult.getMargin(preventiveInstant, crac.getVoltageCnec("voltageCnecPreventive"), KILOVOLT));
-
-        assertEquals(415.0, raoResult.getMinVoltage(preventiveInstant, crac.getVoltageCnec("voltageCnecStateOutageContingency1"), KILOVOLT));
-        assertEquals(435.0, raoResult.getMaxVoltage(preventiveInstant, crac.getVoltageCnec("voltageCnecStateOutageContingency1"), KILOVOLT));
-        assertEquals(5.0, raoResult.getMargin(preventiveInstant, crac.getVoltageCnec("voltageCnecStateOutageContingency1"), KILOVOLT));
-
-        assertEquals(400.0, raoResult.getMinVoltage(preventiveInstant, crac.getVoltageCnec("voltageCnecStateCurativeContingency1"), KILOVOLT));
-        assertEquals(420.0, raoResult.getMaxVoltage(preventiveInstant, crac.getVoltageCnec("voltageCnecStateCurativeContingency1"), KILOVOLT));
-        assertEquals(40.0, raoResult.getMargin(preventiveInstant, crac.getVoltageCnec("voltageCnecStateCurativeContingency1"), KILOVOLT));
-
-        assertEquals(400.0, raoResult.getMinVoltage(curativeInstant, crac.getVoltageCnec("voltageCnecStateCurativeContingency1"), KILOVOLT));
-        assertEquals(420.0, raoResult.getMaxVoltage(curativeInstant, crac.getVoltageCnec("voltageCnecStateCurativeContingency1"), KILOVOLT));
-        assertEquals(40.0, raoResult.getMargin(curativeInstant, crac.getVoltageCnec("voltageCnecStateCurativeContingency1"), KILOVOLT));
-    }
-
-    private void addVoltageCnecs() {
-        crac.newVoltageCnec()
-            .withId("voltageCnecPreventive")
-            .withNetworkElement("BBE2AA1 ")
-            .withInstant(PREVENTIVE_INSTANT_ID)
-            .withMonitored(true)
-            .withOperator("operator1")
-            .newThreshold()
-                .withUnit(KILOVOLT)
-                .withMax(440.)
-                .add()
-            .add();
-
-        crac.newVoltageCnec()
-            .withId("voltageCnecStateOutageContingency1")
-            .withNetworkElement("BBE2AA1 ")
-            .withInstant(OUTAGE_INSTANT_ID)
-            .withContingency("Contingency FR1 FR3")
-            .withMonitored(true)
-            .withOperator("operator1")
-            .newThreshold()
-                .withUnit(KILOVOLT)
-                .withMax(420.)
-                .add()
-            .add();
-
-        crac.newVoltageCnec()
-            .withId("voltageCnecStateCurativeContingency1")
-            .withNetworkElement("BBE2AA1 ")
-            .withInstant(CURATIVE_INSTANT_ID)
-            .withContingency("Contingency FR1 FR3")
-            .withMonitored(true)
-            .withOperator("operator1")
-            .newThreshold()
-                .withUnit(KILOVOLT)
-                .withMax(440.)
-                .add()
-            .add();
-    }
-
-    private void addAngleCnecs() {
-        crac.newAngleCnec()
-            .withId("angleCnecPreventive")
-            .withExportingNetworkElement("BBE2AA1 ")
-            .withImportingNetworkElement("FFR3AA1 ")
-            .withInstant(PREVENTIVE_INSTANT_ID)
-            .withOperator("operator1")
-            .withMonitored(true)
-            .newThreshold()
-                .withUnit(DEGREE)
-                .withMin(-60.)
-                .withMax(60.)
-                .add()
-            .add();
-
-        crac.newAngleCnec()
-            .withId("angleCnecStateOutageContingency1")
-            .withExportingNetworkElement("BBE2AA1 ")
-            .withImportingNetworkElement("FFR3AA1 ")
-            .withInstant(OUTAGE_INSTANT_ID)
-            .withContingency("Contingency FR1 FR3")
-            .withMonitored(true)
-            .withOperator("operator1")
-            .newThreshold()
-                .withUnit(DEGREE)
-                .withMin(-120.)
-                .withMax(120.)
-                .add()
-            .add();
-
-        crac.newAngleCnec()
-            .withId("angleCnecStateCurativeContingency1")
-            .withExportingNetworkElement("BBE2AA1 ")
-            .withImportingNetworkElement("FFR3AA1 ")
-            .withInstant(CURATIVE_INSTANT_ID)
-            .withContingency("Contingency FR1 FR3")
-            .withMonitored(true)
-            .withOperator("operator1")
-            .newThreshold()
-                .withUnit(DEGREE)
-                .withMin(-30.)
-                .withMax(30.)
-                .add()
-            .add();
-    }
-
-    private void addOutageFlowCnec() {
-        crac.newFlowCnec()
-            .withId("cnec1stateOutageContingency1")
-            .withNetworkElement("BBE2AA1  FFR3AA1  1")
-            .withInstant(OUTAGE_INSTANT_ID)
-            .withContingency("Contingency FR1 FR3")
-            .withOptimized(true)
-            .withOperator("operator1")
-            .withNominalVoltage(380.)
-            .withIMax(5000.)
-            .newThreshold()
-                .withUnit(Unit.MEGAWATT)
-                .withSide(TwoSides.ONE)
-                .withMin(-2000.)
-                .withMax(2000.)
-                .add()
-            .newThreshold()
-                .withUnit(Unit.MEGAWATT)
-                .withSide(TwoSides.TWO)
-                .withMin(-2000.)
-                .withMax(2000.)
-                .add()
-            .add();
-    }
-
-    @Test
-    void testIsSecure() {
-        setUp();
-
-        raoResult.setSecurityStatus(PhysicalParameter.FLOW, true);
-        raoResult.setSecurityStatus(PhysicalParameter.ANGLE, false);
-        raoResult.setSecurityStatus(PhysicalParameter.VOLTAGE, true);
-
-        assertTrue(raoResult.isSecure(PhysicalParameter.FLOW));
-        assertFalse(raoResult.isSecure(PhysicalParameter.ANGLE));
-        assertTrue(raoResult.isSecure(PhysicalParameter.VOLTAGE));
-
-        assertTrue(raoResult.isSecure(PhysicalParameter.FLOW, PhysicalParameter.VOLTAGE));
-        assertFalse(raoResult.isSecure(PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE));
-        assertFalse(raoResult.isSecure(PhysicalParameter.FLOW, PhysicalParameter.ANGLE));
-
-        assertFalse(raoResult.isSecure(PhysicalParameter.FLOW, PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE));
-
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> raoResult.isSecure());
-        assertEquals("At least one physical parameter must be provided.", exception.getMessage());
+        Metadata metadata = raoResult.getExtension(Metadata.class);
+        assertNotNull(metadata);
+        assertEquals(ComputationStatus.DEFAULT, metadata.getComputationStatus());
     }
 }

@@ -30,7 +30,7 @@
     }
   },
   "computationStatusMap" : [ {
-    "computationStatus" : "DEFAULT",
+    "computationStatus" : "FAILURE",
     "instant" : "preventive"
   }, {
     "computationStatus" : "FAILURE",

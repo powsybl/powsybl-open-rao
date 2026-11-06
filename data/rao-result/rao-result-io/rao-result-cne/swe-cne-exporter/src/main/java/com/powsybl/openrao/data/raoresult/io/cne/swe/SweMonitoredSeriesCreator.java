@@ -117,7 +117,7 @@ public class SweMonitoredSeriesCreator {
         double threshold = 0.0;
         double margin = Double.POSITIVE_INFINITY;
         for (TwoSides side : cnec.getMonitoredSides()) {
-            double flowOnSide = sweCneHelper.getRaoResult().getFlow(optimizedInstant, cnec, side, Unit.AMPERE);
+            double flowOnSide = sweCneHelper.getFlowResult().getFlow(optimizedInstant, cnec, side, Unit.AMPERE);
             if (Double.isNaN(flowOnSide)) {
                 continue;
             }

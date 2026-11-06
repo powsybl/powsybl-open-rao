@@ -24,8 +24,6 @@ import com.powsybl.openrao.data.glsk.virtual.hubs.GlskVirtualHubs;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.refprog.referenceprogram.ReferenceProgram;
 import com.powsybl.openrao.monitoring.results.MonitoringResult;
-import com.powsybl.openrao.monitoring.results.RaoResultWithAngleMonitoring;
-import com.powsybl.openrao.monitoring.results.RaoResultWithVoltageMonitoring;
 import com.powsybl.openrao.raoapi.TimeCoupledRaoInput;
 import com.powsybl.openrao.raoapi.json.JsonRaoParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
@@ -110,28 +108,15 @@ public final class CommonTestData {
     }
 
     public static void setRaoResult(RaoResult raoResult) {
-        if (CommonTestData.monitoringResult != null) {
-            // update RAO result with angle values
-            CommonTestData.raoResult = new RaoResultWithAngleMonitoring(raoResult, CommonTestData.monitoringResult);
-        } else {
-            CommonTestData.raoResult = raoResult;
-        }
+        CommonTestData.raoResult = raoResult;
     }
 
     public static void setAngleMonitoringResult(MonitoringResult result) {
         CommonTestData.monitoringResult = result;
-        if (CommonTestData.raoResult != null) {
-            // update RAO result with angle values
-            CommonTestData.raoResult = new RaoResultWithAngleMonitoring(CommonTestData.raoResult, CommonTestData.monitoringResult);
-        }
     }
 
     public static void setVoltageMonitoringResult(MonitoringResult result) {
         CommonTestData.monitoringResult = result;
-        if (CommonTestData.raoResult != null) {
-            // update RAO result with angle values
-            CommonTestData.raoResult = new RaoResultWithVoltageMonitoring(CommonTestData.raoResult, CommonTestData.monitoringResult);
-        }
     }
 
     public static void setDataLocation(String location) {

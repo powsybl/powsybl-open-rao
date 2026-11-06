@@ -13,12 +13,12 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
+import com.powsybl.openrao.data.raoresult.impl.RaoResultImpl;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.RaoProvider;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
 import com.powsybl.openrao.searchtreerao.reports.CommonReports;
-import com.powsybl.openrao.searchtreerao.result.impl.FailedRaoResultImpl;
 
 import java.time.Instant;
 import java.util.concurrent.CompletableFuture;
@@ -63,7 +63,7 @@ public class Castor implements RaoProvider {
         } catch (OpenRaoException e) {
             String failure = String.format("Data initialisation failed: %s", e);
             CommonReports.reportExceptionMessage(reportNode, failure);
-            return CompletableFuture.completedFuture(new FailedRaoResultImpl(failure));
+            return CompletableFuture.completedFuture(new RaoResultImpl(raoInput.getCrac()));
         }
 
         return new CastorFullOptimization(raoInput, parameters, targetEndInstant, reportNode).run();

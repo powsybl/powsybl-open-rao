@@ -101,7 +101,7 @@ final class RangeActionResultArrayDeserializer {
                             throw new OpenRaoException("Since version 1.8, only the initial taps are reported for PST range actions.");
                         }
                         jsonParser.nextToken();
-                        rangeActionResult.setInitialSetpoint(jsonParser.getDoubleValue());
+                        LOGGER.info("Field {} in {} is now retrieved from the CRAC", INITIAL_SETPOINT, RANGEACTION_RESULTS);
                         break;
 
                     case STATES_ACTIVATED:
@@ -125,9 +125,9 @@ final class RangeActionResultArrayDeserializer {
                             LOGGER.info("Field {} in {} is no longer used", INITIAL_TAP, RANGEACTION_RESULTS);
                             jsonParser.nextTextValue();
                             break;
-                        } else if (rangeAction instanceof PstRangeAction pstRangeAction) {
+                        } else if (rangeAction instanceof PstRangeAction) {
                             jsonParser.nextToken();
-                            rangeActionResult.setInitialSetpoint(pstRangeAction.getTapToAngleConversionMap().get(jsonParser.getIntValue()));
+                            LOGGER.info("Field {} in {} is now retrieved from the CRAC", INITIAL_TAP, RANGEACTION_RESULTS);
                             break;
                         } else {
                             throw new OpenRaoException("Initial taps can only be defined for PST range actions.");

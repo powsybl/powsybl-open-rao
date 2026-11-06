@@ -61,4 +61,13 @@ class RaoResultDeserializerTest {
         RaoResultImpl raoResult = (RaoResultImpl) RaoResult.read(raoResultStream, crac);
         assertNull(raoResult.getExtension(CriticalCnecsResult.class));
     }
+
+    @Test
+    void testMetadataNotInExtension() throws IOException {
+        Crac crac = ExhaustiveCracCreation.create();
+        try (InputStream raoResultStream = getClass().getResourceAsStream("/rao-result-metadata-not-in-extension.json")) {
+            OpenRaoException exception = assertThrows(OpenRaoException.class, () -> RaoResult.read(raoResultStream, crac));
+            assertEquals("From version 2.0 onward, computation status is no longer in the RAO Result but in the 'metadata' extension.", exception.getMessage());
+        }
+    }
 }

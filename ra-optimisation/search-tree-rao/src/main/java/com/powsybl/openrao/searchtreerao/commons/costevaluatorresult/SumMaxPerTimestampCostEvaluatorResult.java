@@ -65,7 +65,7 @@ public class SumMaxPerTimestampCostEvaluatorResult implements CostEvaluatorResul
         AtomicBoolean stateWithoutTimestampIsPresent = new AtomicBoolean(false);
         AtomicDouble maxCostWithoutTimestamp = new AtomicDouble(-COST_LIMIT);
         filteredCnecs.forEach((flowCnec, margin) -> {
-            //FIXME: check why NaN values can be present
+            // FIXME: check why NaN values can be present
             if (Double.isNaN(margin)) {
                 return;
             }

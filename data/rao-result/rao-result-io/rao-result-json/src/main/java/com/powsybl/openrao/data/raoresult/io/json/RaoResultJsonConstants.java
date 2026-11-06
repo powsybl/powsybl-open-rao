@@ -7,25 +7,20 @@
 
 package com.powsybl.openrao.data.raoresult.io.json;
 
-import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
-import com.powsybl.openrao.data.raoresult.api.RaoResult;
-import com.powsybl.openrao.data.raoresult.impl.RaoResultImpl;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.List;
 import java.util.Objects;
 
 /**
@@ -36,11 +31,12 @@ public final class RaoResultJsonConstants {
     private RaoResultJsonConstants() {
     }
 
-    public static final String RAO_RESULT_IO_VERSION = "1.9";
+    public static final String RAO_RESULT_IO_VERSION = "2.0";
     // v1.6 : voltage cnecs' voltage values are divided into minVoltage and maxVoltage
     // v1.7 : replaced "optimizationStepsExecuted" with "executionDetails"
     // v1.8 : export tap instead of set-point for PST range actions
     // v1.9 : add securityStatus map
+    // v2.0 : gather remedial actions in "remedialActionActivations" and collect other data in extensions
 
     // header
     public static final String TYPE = "type";
@@ -93,6 +89,13 @@ public final class RaoResultJsonConstants {
     public static final String AFTER_PRA_SETPOINT = "afterPraSetpoint";
     public static final String TAP = "tap";
     public static final String SETPOINT = "setpoint";
+
+    // remedialActionActivations
+    public static final String REMEDIAL_ACTION_ACTIVATIONS = "remedialActionActivations";
+    public static final String ACTIVATED_REMEDIAL_ACTIONS = "activatedRemedialActions";
+    public static final String ID = "id";
+    public static final String TIMESTAMP = "timestamp";
+    public static final String SET_POINT = "setPoint";
 
     // instants
     public static final String INSTANT = "instant";
@@ -264,20 +267,9 @@ public final class RaoResultJsonConstants {
         };
     }
 
-    public static void serializeSecurityStatus(Crac crac, RaoResult raoResult, JsonGenerator jsonGenerator) throws IOException {
-        jsonGenerator.writeObjectFieldStart(SECURE);
-        for (PhysicalParameter physicalParameter : List.of(PhysicalParameter.FLOW, PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE)) {
-            if (!crac.getCnecs(physicalParameter).isEmpty()) {
-                jsonGenerator.writeBooleanField(physicalParameter.name().toLowerCase(), raoResult.isSecure(physicalParameter));
-            }
-        }
-        jsonGenerator.writeEndObject();
-    }
-
-    public static void deserializeSecurityStatus(RaoResultImpl raoResult, JsonParser jsonParser) throws IOException {
+    public static void deserializeSecurityStatus(JsonParser jsonParser) throws IOException {
         while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
             jsonParser.nextToken();
-            raoResult.setSecurityStatus(PhysicalParameter.valueOf(jsonParser.currentName().toUpperCase()), jsonParser.getBooleanValue());
         }
     }
 

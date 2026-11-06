@@ -8,28 +8,20 @@
 package com.powsybl.openrao.data.raoresult.impl;
 
 import com.powsybl.commons.extensions.AbstractExtendable;
-import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.commons.PhysicalParameter;
-import com.powsybl.openrao.commons.Unit;
-import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
+import com.powsybl.openrao.commons.TemporalData;
+import com.powsybl.openrao.commons.TemporalDataImpl;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.State;
-import com.powsybl.openrao.data.crac.api.cnec.AngleCnec;
-import com.powsybl.openrao.data.crac.api.cnec.Cnec;
-import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
-import com.powsybl.openrao.data.crac.api.cnec.VoltageCnec;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
-import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
-import com.powsybl.openrao.data.raoresult.api.OptimizationStepsExecuted;
+import com.powsybl.openrao.data.crac.api.rangeaction.StandardRangeAction;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 
-import java.util.EnumMap;
+import java.time.OffsetDateTime;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -42,178 +34,27 @@ import java.util.stream.Collectors;
  */
 public class RaoResultImpl extends AbstractExtendable<RaoResult> implements RaoResult {
 
-    private static final FlowCnecResult DEFAULT_FLOWCNEC_RESULT = new FlowCnecResult();
-    private static final AngleCnecResult DEFAULT_ANGLECNEC_RESULT = new AngleCnecResult();
-    private static final VoltageCnecResult DEFAULT_VOLTAGECNEC_RESULT = new VoltageCnecResult();
     private static final NetworkActionResult DEFAULT_NETWORKACTION_RESULT = new NetworkActionResult();
     private static final RangeActionResult DEFAULT_RANGEACTION_RESULT = new RangeActionResult();
-    private static final CostResult DEFAULT_COST_RESULT = new CostResult();
+    private static final OffsetDateTime DEFAULT_TIMESTAMP = OffsetDateTime.MIN;
 
-    private final Crac crac;
+    private final TemporalData<Crac> cracs;
 
-    private ComputationStatus computationStatus;
-    private final Map<State, ComputationStatus> computationStatusPerState = new HashMap<>();
-    private final Map<FlowCnec, FlowCnecResult> flowCnecResults = new HashMap<>();
-    private final Map<AngleCnec, AngleCnecResult> angleCnecResults = new HashMap<>();
-    private final Map<VoltageCnec, VoltageCnecResult> voltageCnecResults = new HashMap<>();
     private final Map<NetworkAction, NetworkActionResult> networkActionResults = new HashMap<>();
     private final Map<RangeAction<?>, RangeActionResult> rangeActionResults = new HashMap<>();
-    private final Map<String, CostResult> costResults = new HashMap<>();
-    private final EnumMap<PhysicalParameter, Boolean> securityStatusPerPhysicalParameter = new EnumMap<>(PhysicalParameter.class);
-
-    private String executionDetails = OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY;
 
     public RaoResultImpl(Crac crac) {
-        this.crac = crac;
+        this.cracs = new TemporalDataImpl<>();
+        this.cracs.put(crac.getTimestamp().orElse(DEFAULT_TIMESTAMP), crac);
     }
 
-    public void setComputationStatus(ComputationStatus computationStatus) {
-        this.computationStatus = computationStatus;
-    }
-
-    public void setComputationStatus(State state, ComputationStatus computationStatus) {
-        this.computationStatusPerState.put(state, computationStatus);
-    }
-
-    @Override
-    public ComputationStatus getComputationStatus() {
-        return computationStatus;
-    }
-
-    @Override
-    public ComputationStatus getComputationStatus(State state) {
-        return computationStatusPerState.getOrDefault(state, ComputationStatus.DEFAULT);
-    }
-
-    private Instant checkOptimizedInstant(Instant optimizedInstant, Cnec<?> cnec) {
-        if (optimizedInstant == null) {
-            return null;
-        }
-        Instant instant = optimizedInstant;
-        if (cnec.getState().getInstant().comesBefore(instant)) {
-            instant = cnec.getState().getInstant();
-        }
-        if (instant.isOutage()) {
-            instant = crac.getPreventiveInstant();
-        }
-        return instant;
-    }
-
-    @Override
-    public double getFlow(Instant optimizedInstant, FlowCnec flowCnec, TwoSides side, Unit unit) {
-        return flowCnecResults.getOrDefault(flowCnec, DEFAULT_FLOWCNEC_RESULT).getResult(checkOptimizedInstant(optimizedInstant, flowCnec)).getFlow(side, unit);
-    }
-
-    @Override
-    public double getAngle(Instant optimizedInstant, AngleCnec angleCnec, Unit unit) {
-        return angleCnecResults.getOrDefault(angleCnec, DEFAULT_ANGLECNEC_RESULT).getResult(checkOptimizedInstant(optimizedInstant, angleCnec)).getAngle(unit);
-    }
-
-    @Override
-    public double getMinVoltage(Instant optimizedInstant, VoltageCnec voltageCnec, Unit unit) {
-        return voltageCnecResults.getOrDefault(voltageCnec, DEFAULT_VOLTAGECNEC_RESULT).getResult(checkOptimizedInstant(optimizedInstant, voltageCnec)).getMinVoltage(unit);
-    }
-
-    @Override
-    public double getMaxVoltage(Instant optimizedInstant, VoltageCnec voltageCnec, Unit unit) {
-        return voltageCnecResults.getOrDefault(voltageCnec, DEFAULT_VOLTAGECNEC_RESULT).getResult(checkOptimizedInstant(optimizedInstant, voltageCnec)).getMaxVoltage(unit);
-    }
-
-    @Override
-    public double getMargin(Instant optimizedInstant, FlowCnec flowCnec, Unit unit) {
-        return flowCnecResults.getOrDefault(flowCnec, DEFAULT_FLOWCNEC_RESULT).getResult(checkOptimizedInstant(optimizedInstant, flowCnec)).getMargin(unit);
-    }
-
-    @Override
-    public double getMargin(Instant optimizedInstant, AngleCnec angleCnec, Unit unit) {
-        return angleCnecResults.getOrDefault(angleCnec, DEFAULT_ANGLECNEC_RESULT).getResult(checkOptimizedInstant(optimizedInstant, angleCnec)).getMargin(unit);
-    }
-
-    @Override
-    public double getMargin(Instant optimizedInstant, VoltageCnec voltageCnec, Unit unit) {
-        return voltageCnecResults.getOrDefault(voltageCnec, DEFAULT_VOLTAGECNEC_RESULT).getResult(checkOptimizedInstant(optimizedInstant, voltageCnec)).getMargin(unit);
-    }
-
-    @Override
-    public double getRelativeMargin(Instant optimizedInstant, FlowCnec flowCnec, Unit unit) {
-        return flowCnecResults.getOrDefault(flowCnec, DEFAULT_FLOWCNEC_RESULT).getResult(checkOptimizedInstant(optimizedInstant, flowCnec)).getRelativeMargin(unit);
-    }
-
-    @Override
-    public double getLoopFlow(Instant optimizedInstant, FlowCnec flowCnec, TwoSides side, Unit unit) {
-        return flowCnecResults.getOrDefault(flowCnec, DEFAULT_FLOWCNEC_RESULT).getResult(checkOptimizedInstant(optimizedInstant, flowCnec)).getLoopFlow(side, unit);
-    }
-
-    @Override
-    public double getCommercialFlow(Instant optimizedInstant, FlowCnec flowCnec, TwoSides side, Unit unit) {
-        return flowCnecResults.getOrDefault(flowCnec, DEFAULT_FLOWCNEC_RESULT).getResult(checkOptimizedInstant(optimizedInstant, flowCnec)).getCommercialFlow(side, unit);
-    }
-
-    @Override
-    public double getPtdfZonalSum(Instant optimizedInstant, FlowCnec flowCnec, TwoSides side) {
-        return flowCnecResults.getOrDefault(flowCnec, DEFAULT_FLOWCNEC_RESULT).getResult(checkOptimizedInstant(optimizedInstant, flowCnec)).getPtdfZonalSum(side);
-    }
-
-    public FlowCnecResult getAndCreateIfAbsentFlowCnecResult(FlowCnec flowCnec) {
-        flowCnecResults.putIfAbsent(flowCnec, new FlowCnecResult());
-        return flowCnecResults.get(flowCnec);
-    }
-
-    public AngleCnecResult getAndCreateIfAbsentAngleCnecResult(AngleCnec angleCnec) {
-        angleCnecResults.putIfAbsent(angleCnec, new AngleCnecResult());
-        return angleCnecResults.get(angleCnec);
-    }
-
-    public VoltageCnecResult getAndCreateIfAbsentVoltageCnecResult(VoltageCnec voltageCnec) {
-        voltageCnecResults.putIfAbsent(voltageCnec, new VoltageCnecResult());
-        return voltageCnecResults.get(voltageCnec);
-    }
-
-    public CostResult getAndCreateIfAbsentCostResult(String optimizedInstantId) {
-        costResults.putIfAbsent(optimizedInstantId, new CostResult());
-        return costResults.get(optimizedInstantId);
-    }
-
-    @Override
-    public double getCost(Instant optimizedInstant) {
-        String id = getIdFromNullableInstant(optimizedInstant);
-        return costResults.getOrDefault(id, DEFAULT_COST_RESULT).getCost();
-    }
-
-    @Override
-    public double getFunctionalCost(Instant optimizedInstant) {
-        String id = getIdFromNullableInstant(optimizedInstant);
-        return costResults.getOrDefault(id, DEFAULT_COST_RESULT).getFunctionalCost();
-    }
-
-    @Override
-    public double getVirtualCost(Instant optimizedInstant) {
-        String id = getIdFromNullableInstant(optimizedInstant);
-        return costResults.getOrDefault(id, DEFAULT_COST_RESULT).getVirtualCost();
-    }
-
-    @Override
-    public Set<String> getVirtualCostNames() {
-        return costResults.values().stream().flatMap(c -> c.getVirtualCostNames().stream()).collect(Collectors.toSet());
-    }
-
-    @Override
-    public double getVirtualCost(Instant optimizedInstant, String virtualCostName) {
-        String id = getIdFromNullableInstant(optimizedInstant);
-        return costResults.getOrDefault(id, DEFAULT_COST_RESULT).getVirtualCost(virtualCostName);
-    }
-
-    private static String getIdFromNullableInstant(Instant optimizedInstant) {
-        return optimizedInstant == null ? INITIAL_INSTANT_ID : optimizedInstant.getId();
+    public RaoResultImpl(TemporalData<Crac> cracs) {
+        this.cracs = cracs;
     }
 
     public NetworkActionResult getAndCreateIfAbsentNetworkActionResult(NetworkAction networkAction) {
         networkActionResults.putIfAbsent(networkAction, new NetworkActionResult());
         return networkActionResults.get(networkAction);
-    }
-
-    public void setSecurityStatus(PhysicalParameter physicalParameter, boolean status) {
-        securityStatusPerPhysicalParameter.put(physicalParameter, status);
     }
 
     @Override
@@ -272,7 +113,14 @@ public class RaoResultImpl extends AbstractExtendable<RaoResult> implements RaoR
     @Override
     public double getPreOptimizationSetPointOnState(State state, RangeAction<?> rangeAction) {
         if (state.isPreventive()) {
-            return rangeActionResults.getOrDefault(rangeAction, DEFAULT_RANGEACTION_RESULT).getInitialSetpoint();
+            if (rangeAction instanceof PstRangeAction pstRangeAction) {
+                return pstRangeAction.convertTapToAngle(pstRangeAction.getInitialTap());
+            } else if (rangeAction instanceof StandardRangeAction<?> standardRangeAction) {
+                return standardRangeAction.getInitialSetpoint();
+            } else {
+                // should not happen
+                throw new OpenRaoException("Unsupported range action type: " + rangeAction.getClass().getName());
+            }
         } else {
             return getOptimizedSetPointOnState(stateBefore(state), rangeAction);
         }
@@ -294,7 +142,7 @@ public class RaoResultImpl extends AbstractExtendable<RaoResult> implements RaoR
             stateBefore = stateBefore(stateBefore);
         }
         // If no activated RA was found, return initial setpoint
-        return getPreOptimizationSetPointOnState(crac.getPreventiveState(), rangeAction);
+        return getPreOptimizationSetPointOnState(getCrac(state).getPreventiveState(), rangeAction);
     }
 
     @Override
@@ -307,63 +155,47 @@ public class RaoResultImpl extends AbstractExtendable<RaoResult> implements RaoR
 
     @Override
     public Map<PstRangeAction, Integer> getOptimizedTapsOnState(State state) {
-        return crac.getPstRangeActions().stream().collect(Collectors.toMap(Function.identity(), pst -> getOptimizedTapOnState(state, pst)));
+        return getCrac(state).getPstRangeActions().stream().collect(Collectors.toMap(Function.identity(), pst -> getOptimizedTapOnState(state, pst)));
     }
 
     @Override
     public Map<RangeAction<?>, Double> getOptimizedSetPointsOnState(State state) {
-        return crac.getRangeActions().stream().collect(Collectors.toMap(Function.identity(), ra -> getOptimizedSetPointOnState(state, ra)));
+        return getCrac(state).getRangeActions().stream().collect(Collectors.toMap(Function.identity(), ra -> getOptimizedSetPointOnState(state, ra)));
     }
 
     private State stateBefore(State state) {
         if (state.getContingency().isPresent()) {
-            return stateBefore(state.getContingency().orElseThrow().getId(), state.getInstant());
+            return stateBefore(state.getContingency().orElseThrow().getId(), state.getInstant(), state.getTimestamp().orElse(DEFAULT_TIMESTAMP));
         } else {
             return null;
         }
     }
 
-    private State stateBefore(String contingencyId, Instant instant) {
+    private State stateBefore(String contingencyId, Instant instant, OffsetDateTime timestamp) {
+        Crac crac = getCrac(timestamp);
         if (instant.isOutage()) {
             return crac.getPreventiveState();
         }
-        State stateBefore = lookupState(contingencyId, crac.getInstantBefore(instant));
+        State stateBefore = lookupState(contingencyId, crac.getInstantBefore(instant), timestamp);
         if (Objects.nonNull(stateBefore)) {
             return stateBefore;
         } else {
-            return stateBefore(contingencyId, crac.getInstantBefore(instant));
+            return stateBefore(contingencyId, crac.getInstantBefore(instant), timestamp);
         }
     }
 
-    private State lookupState(String contingencyId, Instant instant) {
-        return crac.getStates(instant).stream()
+    private State lookupState(String contingencyId, Instant instant, OffsetDateTime timestamp) {
+        return getCrac(timestamp).getStates(instant).stream()
                 .filter(state -> state.getContingency().isPresent() && state.getContingency().get().getId().equals(contingencyId))
                 .findAny()
                 .orElse(null);
     }
 
-    @Override
-    public void setExecutionDetails(String executionDetails) {
-        this.executionDetails = executionDetails;
+    private Crac getCrac(OffsetDateTime timestamp) {
+        return cracs.getData(timestamp).orElseThrow();
     }
 
-    @Override
-    public String getExecutionDetails() {
-        return executionDetails;
-    }
-
-    @Override
-    public boolean isSecure(PhysicalParameter... physicalParameters) {
-        List<PhysicalParameter> parameters = List.of(physicalParameters);
-        if (parameters.isEmpty()) {
-            throw new OpenRaoException("At least one physical parameter must be provided.");
-        }
-        if (computationStatus == ComputationStatus.FAILURE) {
-            OpenRaoLoggerProvider.BUSINESS_WARNS.warn("RAO failed, security status is unknown. Returning false by default.");
-            return false;
-        }
-        return parameters.stream().allMatch(
-            physicalParameter -> securityStatusPerPhysicalParameter.getOrDefault(physicalParameter, true)
-        );
+    private Crac getCrac(State state) {
+        return getCrac(state.getTimestamp().orElse(DEFAULT_TIMESTAMP));
     }
 }

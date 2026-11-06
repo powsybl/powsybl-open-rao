@@ -14,9 +14,7 @@ import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControl;
 import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
-import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.InstantKind;
@@ -31,8 +29,10 @@ import com.powsybl.openrao.data.crac.api.usagerule.OnContingencyState;
 import com.powsybl.openrao.data.crac.api.usagerule.OnFlowConstraintInCountry;
 import com.powsybl.openrao.data.crac.api.usagerule.OnInstant;
 import com.powsybl.openrao.data.crac.api.usagerule.UsageRule;
+import com.powsybl.openrao.data.raoresult.impl.RaoResultImpl;
 import com.powsybl.openrao.data.refprog.referenceprogram.ReferenceProgramBuilder;
 import com.powsybl.openrao.raoapi.RaoInput;
+import com.powsybl.openrao.raoapi.parameters.NotOptimizedCnecsParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.PstModel;
@@ -40,6 +40,7 @@ import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.Optimiza
 import com.powsybl.openrao.searchtreerao.reports.CommonReports;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
+import com.powsybl.openrao.searchtreerao.result.impl.PostPerimeterResult;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.ArrayList;
@@ -89,7 +90,7 @@ public final class RaoUtil {
             RaUsageLimits raUsageLimits = crac.getRaUsageLimits(instant);
             if (raUsageLimits != null) {
                 getRaUsageLimitByLimitName(limitType, raUsageLimits).forEach((tso, limit) ->
-                    dataPerTso.computeIfAbsent(tso, k -> new ArrayList<>()).add(limit == null ? null : limit)
+                    dataPerTso.computeIfAbsent(tso, k -> new ArrayList<>()).add(limit)
                 );
             }
 
@@ -392,35 +393,31 @@ public final class RaoUtil {
         return getSensitivityWithLoadFlowParameters(raoParameters).getLoadFlowParameters().isDc() ? Unit.MEGAWATT : Unit.AMPERE;
     }
 
-    public static boolean computeSecurityStatus(Set<FlowCnec> flowCnecs, FlowResult flowResult, Unit flowUnit, Set<String> operatorsNotSharingCras) {
-        return flowCnecs.stream()
-            .filter(FlowCnec::isOptimized) // ignore MNECs
-            .filter(flowCnec -> !flowCnec.getId().contains("OUTAGE DUPLICATE")) // ignore duplicated CNECs
-            .filter(flowCnec -> !cnecBelongsToTsoNotSharingCras(flowCnec, operatorsNotSharingCras)
-                || !flowCnec.getState().getInstant().isCurative())
-            .allMatch(flowCnec -> flowResult.getMargin(flowCnec, flowUnit) >= 0);
+    public static void fillWithActivatedRemedialActions(RaoResultImpl raoResult, OptimizationResult preventiveOptimizationResult, State preventiveState) {
+        fillForState(raoResult, preventiveOptimizationResult, preventiveState);
     }
 
-    private static boolean cnecBelongsToTsoNotSharingCras(FlowCnec flowCnec, Set<String> operatorsNotSharingCras) {
-        return operatorsNotSharingCras != null
-            && flowCnec.getOperator() != null
-            && operatorsNotSharingCras.contains(flowCnec.getOperator());
+    public static void fillWithActivatedRemedialActions(RaoResultImpl raoResult,
+                                                        OptimizationResult preventiveOptimizationResult,
+                                                        State preventiveState,
+                                                        Map<State, PostPerimeterResult> postContingencyResults) {
+        fillForState(raoResult, preventiveOptimizationResult, preventiveState);
+        postContingencyResults.forEach((state, postPerimeterResult) -> fillForState(raoResult, postPerimeterResult.optimizationResult(), state));
     }
 
-    public static boolean getFlowSecurityStatus(boolean computedStatus,
-                                                String nonFlowBanReason,
-                                                PhysicalParameter... physicalParameters) {
-        List<PhysicalParameter> parameters = List.of(physicalParameters);
-        if (parameters.isEmpty()) {
-            throw new OpenRaoException("At least one physical parameter must be provided.");
-        }
-        if (parameters.contains(PhysicalParameter.ANGLE)) {
-            OpenRaoLoggerProvider.BUSINESS_WARNS.warn("Angle security check " + nonFlowBanReason);
-        }
-        if (parameters.contains(PhysicalParameter.VOLTAGE)) {
-            OpenRaoLoggerProvider.BUSINESS_WARNS.warn("Voltage security check " + nonFlowBanReason);
-        }
-        return computedStatus;
+    public static void fillForState(RaoResultImpl raoResult, OptimizationResult optimizationResult, State state) {
+        optimizationResult.getActivatedNetworkActions().forEach(
+            ra -> raoResult.getAndCreateIfAbsentNetworkActionResult(ra).addActivationForState(state)
+        );
+        optimizationResult.getActivatedRangeActions(state).forEach(
+            ra -> raoResult.getAndCreateIfAbsentRangeActionResult(ra).addActivationForState(state, optimizationResult.getOptimizedSetpoint(ra, state))
+        );
     }
 
+    public static Set<String> getOperatorsNotSharingCras(Crac crac, RaoParameters raoParameters) {
+        NotOptimizedCnecsParameters notOptimizedCnecsParameters = raoParameters.getNotOptimizedCnecsParameters();
+        return notOptimizedCnecsParameters.getDoNotOptimizeCurativeCnecsForTsosWithoutCras()
+            ? crac.findOperatorsNotSharingCras()
+            : Collections.emptySet();
+    }
 }
