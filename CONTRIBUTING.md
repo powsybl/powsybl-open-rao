@@ -75,4 +75,10 @@ Here is a set of rules your pull request must follow:
 - Final commit message should start with `xxxx(subject): text #yy` with `xxxx` equal to `feat`, `test`, `doc`, `fix` or `chore` and `yy`is the PR number.
 - Before merging by "squash and merge", edit the commit message to only keep relevant PR info.
 
+Maintainers may close a pull request, including a draft, if either:
+- its latest review remains unaddressed for **2 months** after the review; or
+- it has had no meaningful commit activity for **2 months**. Commits that do not advance the pull request, such as empty commits or merely synchronizing the branch with `main` (by fast-forwarding or merging), do not count as meaningful activity.
+
+When closing a stale pull request, maintainers may also delete its source branch if it is in the main repository.
+
 [^1]: See OpenRAO's list of labels for Issues & Pull Requests [here](https://github.com/powsybl/powsybl-open-rao/issues/labels)
