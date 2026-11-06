@@ -35,8 +35,11 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -159,6 +162,38 @@ class JsonRaoParametersTest extends AbstractSerDeTest {
                 (params, path) -> JsonRaoParameters.write(params, path, ReportNode.NO_OP),
                 path -> JsonRaoParameters.read(path, ReportNode.NO_OP),
                 "/RaoParametersSet_v2.json");
+    }
+
+    @Test
+    void roundTripGurobiSolver() {
+        RaoParameters parameters = new RaoParameters(ReportNode.NO_OP);
+        parameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters(ReportNode.NO_OP));
+        OpenRaoSearchTreeParameters searchTreeParameters = parameters.getExtension(OpenRaoSearchTreeParameters.class);
+        searchTreeParameters.getRangeActionsOptimizationParameters().getLinearOptimizationSolver().setSolver(SearchTreeRaoRangeActionsOptimizationParameters.Solver.GUROBI);
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        JsonRaoParameters.write(parameters, outputStream, ReportNode.NO_OP);
+        RaoParameters readParameters = JsonRaoParameters.read(new ByteArrayInputStream(outputStream.toByteArray()), ReportNode.NO_OP);
+        assertEquals(SearchTreeRaoRangeActionsOptimizationParameters.Solver.GUROBI,
+            readParameters.getExtension(OpenRaoSearchTreeParameters.class).getRangeActionsOptimizationParameters().getLinearOptimizationSolver().getSolver());
+    }
+
+    @Test
+    void readUnknownSolver() {
+        String json = """
+                {
+                  "version": "%s",
+                  "extensions": {
+                    "open-rao-search-tree-parameters": {
+                      "range-actions-optimization": {
+                        "linear-optimization-solver": { "solver": "GUROB" }
+                      }
+                    }
+                  }
+                }
+                """.formatted(RAO_PARAMETERS_VERSION);
+        InputStream inputStream = new ByteArrayInputStream(json.getBytes(StandardCharsets.UTF_8));
+        OpenRaoException e = assertThrows(OpenRaoException.class, () -> JsonRaoParameters.read(inputStream, ReportNode.NO_OP));
+        assertEquals("Unknown solver: GUROB", e.getMessage());
     }
 
     @Test
