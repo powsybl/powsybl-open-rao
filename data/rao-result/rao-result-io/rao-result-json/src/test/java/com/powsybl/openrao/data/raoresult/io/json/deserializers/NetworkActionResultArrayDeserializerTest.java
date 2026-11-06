@@ -34,7 +34,7 @@ class NetworkActionResultArrayDeserializerTest {
         RaoResultImpl.RaoResultImplBuilder raoResultBuilder = spy(RaoResultImpl.builder(crac));
         try (JsonParser parser = parserFrom(json)) {
             NetworkActionResultArrayDeserializer.deserialize(parser, raoResultBuilder, crac);
-            verify(raoResultBuilder, never()).addNetworkActionActivation(networkAction, any());
+            verify(raoResultBuilder, never()).addNetworkActionActivation(eq(networkAction), any());
             verifyNoMoreInteractions(raoResultBuilder);
         } catch (IOException e) {
             throw new AssertionError("Failed to parse JSON content");

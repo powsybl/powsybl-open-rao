@@ -40,7 +40,7 @@ class RangeActionResultArrayDeserializerTest {
             assertDoesNotThrow(() -> RangeActionResultArrayDeserializer.deserialize(parser, raoResultBuilder, crac, "1.7"));
         }
 
-        verify(raoResultBuilder, never()).addRangeActionActivation(rangeAction, any(), any());
+        verify(raoResultBuilder, never()).addRangeActionActivation(eq(rangeAction), any(), anyDouble());
         verifyNoMoreInteractions(raoResultBuilder);
     }
 
