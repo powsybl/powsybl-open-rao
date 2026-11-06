@@ -44,6 +44,11 @@
             <groupId>com.powsybl</groupId>
             <artifactId>powsybl-triple-store-impl-rdf4j</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.apache.jena</groupId>
+            <artifactId>apache-jena-libs</artifactId>
+            <version>6.2.0</version>
+        </dependency>
 
         <!-- Runtime dependencies -->
         <dependency>
