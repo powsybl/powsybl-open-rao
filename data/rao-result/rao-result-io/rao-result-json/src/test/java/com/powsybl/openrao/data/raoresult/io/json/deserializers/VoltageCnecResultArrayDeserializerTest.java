@@ -39,7 +39,7 @@ class VoltageCnecResultArrayDeserializerTest {
         when(voltageCnec.getLowerBound(Unit.KILOVOLT)).thenReturn(Optional.of(350.2));
         when(voltageCnec.getUpperBound(Unit.KILOVOLT)).thenReturn(Optional.of(410.2));
 
-        RaoResultImpl raoResult = spy(new RaoResultImpl(crac));
+        RaoResultImpl raoResult = spy(RaoResultImpl.builder(crac).build());
 
         try (JsonParser parser = parserFrom(json)) {
             assertDoesNotThrow(() -> VoltageCnecResultArrayDeserializer.deserialize(parser, raoResult, crac, "1.6"));
@@ -56,7 +56,7 @@ class VoltageCnecResultArrayDeserializerTest {
     void deserializeThrowsWhenFirstFieldIsNotId() {
         String json = "[{\"notVoltageCnecId\":1}]";
         Crac crac = mock(Crac.class);
-        RaoResultImpl raoResult = new RaoResultImpl(crac);
+        RaoResultImpl raoResult = RaoResultImpl.builder(crac).build();
 
         try (JsonParser parser = parserFrom(json)) {
             OpenRaoException ex = assertThrows(OpenRaoException.class,
@@ -72,7 +72,7 @@ class VoltageCnecResultArrayDeserializerTest {
         String json = "[{\"voltageCnecId\":\"unknown\",\"initial\":{\"kilovolt\":{}}}]";
         Crac crac = mock(Crac.class);
         when(crac.getVoltageCnec("unknown")).thenReturn(null);
-        RaoResultImpl raoResult = new RaoResultImpl(crac);
+        RaoResultImpl raoResult = RaoResultImpl.builder(crac).build();
 
         try (JsonParser parser = parserFrom(json)) {
             OpenRaoException ex = assertThrows(OpenRaoException.class,
@@ -91,7 +91,7 @@ class VoltageCnecResultArrayDeserializerTest {
     void deserializeThrowsOnUnexpectedField(String fieldName, String json) {
         Crac crac = mock(Crac.class);
         when(crac.getVoltageCnec("vc1")).thenReturn(mock(VoltageCnec.class));
-        RaoResultImpl raoResult = new RaoResultImpl(crac);
+        RaoResultImpl raoResult = RaoResultImpl.builder(crac).build();
 
         try (JsonParser parser = parserFrom(json)) {
             OpenRaoException ex = assertThrows(OpenRaoException.class,
@@ -108,7 +108,7 @@ class VoltageCnecResultArrayDeserializerTest {
         String json = "[{\"voltageCnecId\":\"vc1\",\"initial\":{\"kilovolt\":{\"voltage\":390.0}}}]";
         Crac crac = mock(Crac.class);
         when(crac.getVoltageCnec("vc1")).thenReturn(mock(VoltageCnec.class));
-        RaoResultImpl raoResult = new RaoResultImpl(crac);
+        RaoResultImpl raoResult = RaoResultImpl.builder(crac).build();
 
         try (JsonParser parser = parserFrom(json)) {
             OpenRaoException ex = assertThrows(OpenRaoException.class,
@@ -127,7 +127,7 @@ class VoltageCnecResultArrayDeserializerTest {
         VoltageCnec voltageCnec = mock(VoltageCnec.class);
         when(crac.getVoltageCnec("vc1")).thenReturn(voltageCnec);
 
-        RaoResultImpl raoResult = spy(new RaoResultImpl(crac));
+        RaoResultImpl raoResult = spy(RaoResultImpl.builder(crac).build());
 
         try (JsonParser parser = parserFrom(json)) {
             assertDoesNotThrow(() -> VoltageCnecResultArrayDeserializer.deserialize(parser, raoResult, crac, "1.5"));

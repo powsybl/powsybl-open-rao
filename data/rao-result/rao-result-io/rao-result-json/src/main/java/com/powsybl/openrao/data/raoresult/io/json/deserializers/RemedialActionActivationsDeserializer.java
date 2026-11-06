@@ -41,7 +41,7 @@ final class RemedialActionActivationsDeserializer {
     private RemedialActionActivationsDeserializer() {
     }
 
-    static void deserialize(JsonParser jsonParser, RaoResultImpl raoResult, Crac crac) throws IOException {
+    static void deserialize(JsonParser jsonParser, RaoResultImpl.RaoResultImplBuilder raoResultBuilder, Crac crac) throws IOException {
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             Instant instant = null;
             Contingency contingency = null;
@@ -67,11 +67,11 @@ final class RemedialActionActivationsDeserializer {
                 throw new JsonParseException(jsonParser, "Unknown state.");
             }
             activatedPstRangeActions.forEach((pstRangeAction, tap) ->
-                raoResult.getAndCreateIfAbsentRangeActionResult(pstRangeAction).addActivationForState(state, pstRangeAction.convertTapToAngle(tap)));
+                raoResultBuilder.addPstRangeActionActivation(pstRangeAction, state, tap));
             activatedStandardRangeActions.forEach((standardRangeAction, setPoint) ->
-                raoResult.getAndCreateIfAbsentRangeActionResult(standardRangeAction).addActivationForState(state, setPoint));
+                raoResultBuilder.addRangeActionActivation(standardRangeAction, state, setPoint));
             activatedNetworkActions.forEach(networkAction ->
-                raoResult.getAndCreateIfAbsentNetworkActionResult(networkAction).addActivationForState(state));
+                raoResultBuilder.addNetworkActionActivation(networkAction, state));
         }
     }
 

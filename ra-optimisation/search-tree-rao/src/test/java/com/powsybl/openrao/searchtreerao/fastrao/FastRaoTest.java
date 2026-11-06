@@ -97,7 +97,7 @@ class FastRaoTest {
         CostResult costResult = raoResult.getExtension(CostResult.class);
         assertNotNull(costResult);
         assertEquals(-101.15, costResult.getFunctionalCost(crac.getLastInstant()), 1e-1);
-        assertEquals(List.of(List.of("Close FR2 FR3", "Close FR1 FR2")), raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getTopoOptimizationParameters().getPredefinedCombinations());
+        assertEquals(List.of(List.of("Close FR1 FR2", "Close FR2 FR3")), raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getTopoOptimizationParameters().getPredefinedCombinations());
 
         Metadata metadata = raoResult.getExtension(Metadata.class);
         assertNotNull(metadata);

@@ -22,8 +22,6 @@ import com.powsybl.openrao.data.raoresult.api.extension.CostResult;
 import com.powsybl.openrao.data.raoresult.api.extension.FlowResult;
 import com.powsybl.openrao.data.raoresult.api.extension.Metadata;
 import com.powsybl.openrao.data.raoresult.api.extension.VoltageResult;
-import com.powsybl.openrao.data.raoresult.impl.NetworkActionResult;
-import com.powsybl.openrao.data.raoresult.impl.RangeActionResult;
 import com.powsybl.openrao.data.raoresult.impl.RaoResultImpl;
 
 import java.util.Set;
@@ -49,7 +47,83 @@ public final class ExhaustiveRaoResultCreation {
     }
 
     public static RaoResult create(Crac crac) {
-        RaoResultImpl raoResult = new RaoResultImpl(crac);
+        RaoResultImpl.RaoResultImplBuilder raoResultBuilder = RaoResultImpl.builder(crac);
+
+        // -----------------------------
+        // --- NetworkAction results ---
+        // -----------------------------
+
+        Instant autoInstant = crac.getInstant("auto");
+        Instant curativeInstant = crac.getInstant("curative");
+        for (NetworkAction networkAction : crac.getNetworkActions()) {
+            switch (networkAction.getId()) {
+                case "complexNetworkActionId":
+                    // free to use preventive, activated
+                    raoResultBuilder.addNetworkActionActivation(networkAction, crac.getPreventiveState());
+                    break;
+                case "injectionSetpointRaId":
+                    // automaton, activated
+                    raoResultBuilder.addNetworkActionActivation(networkAction, crac.getState("contingency2Id", autoInstant));
+                    break;
+                case "pstSetpointRaId":
+                    // forced in curative, activated
+                    raoResultBuilder.addNetworkActionActivation(networkAction, crac.getState("contingency1Id", curativeInstant));
+                    break;
+                case "switchPairRaId":
+                    // available in curative, not activated
+                    break;
+                default:
+                    // do nothing
+            }
+        }
+
+        // ------------------------------
+        // --- PstRangeAction results ---
+        // ------------------------------
+
+        for (PstRangeAction pstRangeAction : crac.getPstRangeActions()) {
+            switch (pstRangeAction.getId()) {
+                case "pstRange1Id":
+                    // free to use preventive, activated
+                    raoResultBuilder.addRangeActionActivation(pstRangeAction, crac.getPreventiveState(), 3.0);
+                    break;
+                case "pstRange2Id":
+                    // on flow in preventive state, not activated
+                    break;
+                case "pstRange3Id":
+                    // on angle in curative state, not activated
+                    break;
+                default:
+                    // do nothing
+            }
+        }
+
+        // -------------------------------
+        // --- HvdcRangeAction results ---
+        // -------------------------------
+
+        for (HvdcRangeAction hvdcRangeAction : crac.getHvdcRangeActions()) {
+            switch (hvdcRangeAction.getId()) {
+                case "hvdcRange1Id":
+                    // free to use preventive, activated
+                    raoResultBuilder.addRangeActionActivation(hvdcRangeAction, crac.getPreventiveState(), -1000);
+                    break;
+                case "hvdcRange2Id":
+                    // activated for two curative states
+                    raoResultBuilder.addRangeActionActivation(hvdcRangeAction, crac.getState("contingency1Id", curativeInstant), 100);
+                    raoResultBuilder.addRangeActionActivation(hvdcRangeAction, crac.getState("contingency2Id", curativeInstant), 400);
+                    break;
+                default:
+                    // do nothing
+            }
+        }
+
+        // ------------------------------------
+        // --- InjectionRangeAction results ---
+        // ------------------------------------
+        raoResultBuilder.addRangeActionActivation(crac.getInjectionRangeAction("injectionRange1Id"), crac.getState("contingency1Id", curativeInstant), -300);
+
+        RaoResultImpl raoResult = raoResultBuilder.build();
 
         Metadata.MetadataBuilder metadataBuilder = Metadata.builder();
         metadataBuilder.withExecutionDetails("The RAO only went through first preventive and went through voltage monitoring and went through angle monitoring");
@@ -121,93 +195,6 @@ public final class ExhaustiveRaoResultCreation {
             fillVoltageCnecResult(voltageResultBuilder, cnec, crac);
         }
         raoResult.addExtension(VoltageResult.class, voltageResultBuilder.build());
-
-        // -----------------------------
-        // --- NetworkAction results ---
-        // -----------------------------
-
-        Instant autoInstant = crac.getInstant("auto");
-        Instant curativeInstant = crac.getInstant("curative");
-        for (NetworkAction networkAction : crac.getNetworkActions()) {
-            NetworkActionResult nar = raoResult.getAndCreateIfAbsentNetworkActionResult(networkAction);
-
-            switch (networkAction.getId()) {
-                case "complexNetworkActionId":
-                    // free to use preventive, activated
-                    nar.addActivationForState(crac.getPreventiveState());
-                    break;
-                case "injectionSetpointRaId":
-                    // automaton, activated
-                    nar.addActivationForState(crac.getState("contingency2Id", autoInstant));
-                    break;
-                case "pstSetpointRaId":
-                    // forced in curative, activated
-                    nar.addActivationForState(crac.getState("contingency1Id", curativeInstant));
-                    break;
-                case "switchPairRaId":
-                    // available in curative, not activated
-                    break;
-                default:
-                    // do nothing
-            }
-        }
-
-        // ------------------------------
-        // --- PstRangeAction results ---
-        // ------------------------------
-
-        for (PstRangeAction pstRangeAction : crac.getPstRangeActions()) {
-            RangeActionResult prar = (RangeActionResult) raoResult.getAndCreateIfAbsentRangeActionResult(pstRangeAction);
-
-            switch (pstRangeAction.getId()) {
-                case "pstRange1Id":
-                    // free to use preventive, activated
-                    prar.setInitialSetpoint(0);
-                    prar.addActivationForState(crac.getPreventiveState(), 3.0);
-                    break;
-                case "pstRange2Id":
-                    // on flow in preventive state, not activated
-                    prar.setInitialSetpoint(1.5);
-                    break;
-                case "pstRange3Id":
-                    // on angle in curative state, not activated
-                    prar.setInitialSetpoint(1.0);
-                    break;
-                default:
-                    // do nothing
-            }
-        }
-
-        // -------------------------------
-        // --- HvdcRangeAction results ---
-        // -------------------------------
-
-        for (HvdcRangeAction hvdcRangeAction : crac.getHvdcRangeActions()) {
-            RangeActionResult hrar = raoResult.getAndCreateIfAbsentRangeActionResult(hvdcRangeAction);
-
-            switch (hvdcRangeAction.getId()) {
-                case "hvdcRange1Id":
-                    // free to use preventive, activated
-                    hrar.setInitialSetpoint(0);
-                    hrar.addActivationForState(crac.getPreventiveState(), -1000);
-                    break;
-                case "hvdcRange2Id":
-                    // activated for two curative states
-                    hrar.setInitialSetpoint(-100);
-                    hrar.addActivationForState(crac.getState("contingency1Id", curativeInstant), 100);
-                    hrar.addActivationForState(crac.getState("contingency2Id", curativeInstant), 400);
-                    break;
-                default:
-                    // do nothing
-            }
-        }
-
-        // ------------------------------------
-        // --- InjectionRangeAction results ---
-        // ------------------------------------
-        RangeActionResult irar = raoResult.getAndCreateIfAbsentRangeActionResult(crac.getInjectionRangeAction("injectionRange1Id"));
-        irar.setInitialSetpoint(100);
-        irar.addActivationForState(crac.getState("contingency1Id", curativeInstant), -300);
 
         return raoResult;
     }

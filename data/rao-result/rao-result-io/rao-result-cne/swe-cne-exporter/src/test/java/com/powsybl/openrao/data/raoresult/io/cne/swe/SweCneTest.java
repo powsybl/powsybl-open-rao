@@ -101,11 +101,9 @@ class SweCneTest {
             Map.of(crac.getState("Co-1", crac.getInstant(InstantKind.CURATIVE)), Set.of(crac.getRemedialAction("na1"))),
             Cnec.SecurityStatus.SECURE);
 
-        raoResultWithAngle.getAndCreateIfAbsentNetworkActionResult(networkAction).addActivationForState(curativeState);
         AngleResult angleResult = AngleMonitoringResultAdapter.convertToAngleExtension(monitoringResult);
         raoResultWithAngle.addExtension(AngleResult.class, angleResult);
 
-        raoResultFailureWithAngle.getAndCreateIfAbsentNetworkActionResult(networkAction).addActivationForState(curativeState);
         AngleResult angleResultWithFailure = AngleMonitoringResultAdapter.convertToAngleExtension(monitoringResult);
         raoResultFailureWithAngle.addExtension(AngleResult.class, angleResultWithFailure);
 

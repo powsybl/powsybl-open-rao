@@ -132,7 +132,7 @@ public final class MarmotUtils {
     }
 
     public static void fillRaoResult(TemporalData<Crac> cracs,
-                                     RaoResultImpl raoResult,
+                                     RaoResultImpl.RaoResultImplBuilder raoResultBuilder,
                                      TimeCoupledCostResult costResult,
                                      TemporalData<PrePerimeterResult> initialResults,
                                      GlobalLinearOptimizationResult globalLinearOptimizationResult,
@@ -148,7 +148,7 @@ public final class MarmotUtils {
 
             // merge preventive and curative network actions into one networkActionsResult before entering the postOptimizationResult constructor
             NetworkActionsResult networkActionsResult = getNetworkActionsResult(crac, preventiveActions, curativeActions);
-            fillWithActivatedRemedialActions(globalLinearOptimizationResult, networkActionsResult, raoResult, crac);
+            fillWithActivatedRemedialActions(globalLinearOptimizationResult, networkActionsResult, raoResultBuilder, crac);
             CostResult individualCostResult = computeCastorCostResultsExtension(
                 crac,
                 initialResult,
@@ -163,16 +163,15 @@ public final class MarmotUtils {
 
     private static void fillWithActivatedRemedialActions(GlobalLinearOptimizationResult globalLinearOptimizationResult,
                                                          NetworkActionsResult networkActionsResult,
-                                                         RaoResultImpl raoResult,
+                                                         RaoResultImpl.RaoResultImplBuilder raoResultBuilder,
                                                          Crac crac) {
         for (State state : crac.getStates()) {
             networkActionsResult.getActivatedNetworkActionsPerState()
                 .getOrDefault(state, new HashSet<>())
-                .forEach(networkAction -> raoResult.getAndCreateIfAbsentNetworkActionResult(networkAction)
-                    .addActivationForState(state));
+                .forEach(networkAction -> raoResultBuilder.addNetworkActionActivation(networkAction, state));
             globalLinearOptimizationResult.getActivatedRangeActions(state)
-                .forEach(rangeAction -> raoResult.getAndCreateIfAbsentRangeActionResult(rangeAction)
-                    .addActivationForState(state, globalLinearOptimizationResult.getOptimizedSetpoint(rangeAction, state)));
+                .forEach(rangeAction -> raoResultBuilder.addRangeActionActivation(
+                    rangeAction, state, globalLinearOptimizationResult.getOptimizedSetpoint(rangeAction, state)));
         }
     }
 

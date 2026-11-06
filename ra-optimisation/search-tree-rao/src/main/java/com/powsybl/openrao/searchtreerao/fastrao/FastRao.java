@@ -114,7 +114,7 @@ public class FastRao implements RaoProvider {
         } catch (OpenRaoException e) {
             String failure = String.format("Data initialisation failed: %s", e);
             CommonReports.reportExceptionMessage(reportNode, failure);
-            RaoResult raoResult = new RaoResultImpl(raoInput.getCrac());
+            RaoResult raoResult = RaoResultImpl.builder(raoInput.getCrac()).build();
             CastorMetadataHelper.fillAndAddWithGlobalFailure(raoInput.getCrac(), raoResult, failure);
             return CompletableFuture.completedFuture(raoResult);
         }
@@ -170,7 +170,7 @@ public class FastRao implements RaoProvider {
             if (initialResult.getSensitivityStatus() == ComputationStatus.FAILURE) {
                 CommonReports.reportInitialSensitivityAnalysisFailed(reportNode);
                 String failureReason = "Initial sensitivity analysis failed";
-                RaoResult raoResult = new RaoResultImpl(raoInput.getCrac());
+                RaoResult raoResult = RaoResultImpl.builder(raoInput.getCrac()).build();
                 CastorMetadataHelper.fillAndAddWithGlobalFailure(raoInput.getCrac(), raoResult, failureReason);
                 return raoResult;
             }
@@ -393,15 +393,16 @@ public class FastRao implements RaoProvider {
 
         FastRaoReports.reportFastRaoIterationRunFullSensitivityAnalysisEnd(counter);
 
-        RaoResultImpl fastRaoResult = new RaoResultImpl(crac);
+        RaoResultImpl.RaoResultImplBuilder fastRaoResultBuilder = RaoResultImpl.builder(crac);
         crac.getStates().forEach(state -> {
             raoResult.getActivatedNetworkActionsDuringState(state)
-                .forEach(networkAction -> fastRaoResult.getAndCreateIfAbsentNetworkActionResult(networkAction)
-                    .addActivationForState(state));
+                .forEach(networkAction -> fastRaoResultBuilder.addNetworkActionActivation(networkAction, state));
             raoResult.getActivatedRangeActionsDuringState(state)
-                .forEach(rangeAction -> fastRaoResult.getAndCreateIfAbsentRangeActionResult(rangeAction)
-                    .addActivationForState(state, raoResult.getOptimizedSetPointOnState(state, rangeAction)));
+                .forEach(rangeAction -> fastRaoResultBuilder.addRangeActionActivation(
+                    rangeAction, state, raoResult.getOptimizedSetPointOnState(state, rangeAction)));
         });
+
+        RaoResultImpl fastRaoResult = fastRaoResultBuilder.build();
 
         // TODO: this is not quite proper since CASTOR may not be the inner loop provider
         fastRaoResult.addExtension(CostResult.class, new CostResult(raoResult.getExtension(CostResult.class)));

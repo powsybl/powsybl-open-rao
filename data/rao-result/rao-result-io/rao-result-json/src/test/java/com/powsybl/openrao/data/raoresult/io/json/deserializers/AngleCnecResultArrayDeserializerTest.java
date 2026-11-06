@@ -37,7 +37,7 @@ class AngleCnecResultArrayDeserializerTest {
         when(crac.getAngleCnec("ac1")).thenReturn(angleCnec);
         when(angleCnec.getUpperBound(Unit.DEGREE)).thenReturn(Optional.of(11.2));
 
-        RaoResultImpl raoResult = spy(new RaoResultImpl(crac));
+        RaoResultImpl raoResult = spy(RaoResultImpl.builder(crac).build());
 
         try (JsonParser parser = parserFrom(json)) {
             assertDoesNotThrow(() -> AngleCnecResultArrayDeserializer.deserialize(parser, raoResult, crac, "1.3"));
@@ -53,7 +53,7 @@ class AngleCnecResultArrayDeserializerTest {
     void deserializeThrowsWhenFirstFieldIsNotId() {
         String json = "[{\"notAngleCnecId\":1}]";
         Crac crac = mock(Crac.class);
-        RaoResultImpl raoResult = new RaoResultImpl(crac);
+        RaoResultImpl raoResult = RaoResultImpl.builder(crac).build();
 
         try (JsonParser parser = parserFrom(json)) {
             OpenRaoException ex = assertThrows(OpenRaoException.class,
@@ -69,7 +69,7 @@ class AngleCnecResultArrayDeserializerTest {
         String json = "[{\"angleCnecId\":\"unknown\",\"initial\":{\"degree\":{}}}]";
         Crac crac = mock(Crac.class);
         when(crac.getAngleCnec("unknown")).thenReturn(null);
-        RaoResultImpl raoResult = new RaoResultImpl(crac);
+        RaoResultImpl raoResult = RaoResultImpl.builder(crac).build();
 
         try (JsonParser parser = parserFrom(json)) {
             OpenRaoException ex = assertThrows(OpenRaoException.class,
@@ -88,7 +88,7 @@ class AngleCnecResultArrayDeserializerTest {
     void deserializeThrowsOnUnexpectedField(String fieldName, String json) {
         Crac crac = mock(Crac.class);
         when(crac.getAngleCnec("ac1")).thenReturn(mock(AngleCnec.class));
-        RaoResultImpl raoResult = new RaoResultImpl(crac);
+        RaoResultImpl raoResult = RaoResultImpl.builder(crac).build();
 
         try (JsonParser parser = parserFrom(json)) {
             OpenRaoException ex = assertThrows(OpenRaoException.class,

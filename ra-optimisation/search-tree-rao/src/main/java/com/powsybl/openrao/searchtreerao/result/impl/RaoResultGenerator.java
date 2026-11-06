@@ -55,14 +55,14 @@ public final class RaoResultGenerator {
     }
 
     public static RaoResult failed(final Crac crac, final String failureReason) {
-        RaoResultImpl raoResult = new RaoResultImpl(crac);
+        RaoResultImpl raoResult = RaoResultImpl.builder(crac).build();
         raoResult.addExtension(FlowResult.class, FlowResult.builder().build()); // the extension is created by convention
         CastorMetadataHelper.fillAndAddWithGlobalFailure(crac, raoResult, failureReason);
         return raoResult;
     }
 
     public static RaoResult empty(final Crac crac, final String executionDetails, final PrePerimeterResult initialResult, final RaoParameters raoParameters) {
-        RaoResultImpl raoResult = new RaoResultImpl(crac);
+        RaoResultImpl raoResult = RaoResultImpl.builder(crac).build();
         Unit flowUnit = RaoUtil.getFlowUnit(raoParameters);
         raoResult.addExtension(CostResult.class, CastorCostResultExtensionHelper.convertToExtension(initialResult));
         raoResult.addExtension(FlowResult.class, CastorFlowResultExtensionHelper.convertToExtension(initialResult, crac, flowUnit));
@@ -75,10 +75,10 @@ public final class RaoResultGenerator {
                                        final PostPerimeterResult postPreventiveResult,
                                        final RaoParameters raoParameters,
                                        final ReportNode reportNode) {
-        RaoResultImpl raoResult = new RaoResultImpl(crac);
-        Unit flowUnit = RaoUtil.getFlowUnit(raoParameters);
+        RaoResultImpl.RaoResultImplBuilder raoResultBuilder = RaoResultImpl.builder(crac);
         ObjectiveFunctionResult preventiveAndOutageOnlyResult = generatePreventiveAndOutageOnlyResult(crac, initialResult, postPreventiveResult, raoParameters, reportNode);
-        RaoUtil.fillWithActivatedRemedialActions(raoResult, postPreventiveResult.optimizationResult(), crac.getPreventiveState());
+        RaoUtil.fillWithActivatedRemedialActions(raoResultBuilder, postPreventiveResult.optimizationResult(), crac.getPreventiveState());
+        RaoResultImpl raoResult = raoResultBuilder.build();
         raoResult.addExtension(CostResult.class, CastorCostResultExtensionHelper.convertToExtension(
             initialResult,
             preventiveAndOutageOnlyResult,
@@ -109,13 +109,13 @@ public final class RaoResultGenerator {
                                                   final RaoParameters raoParameters,
                                                   final StateTree stateTree,
                                                   final ReportNode reportNode) {
-        RaoResultImpl raoResult = new RaoResultImpl(crac);
-        Unit flowUnit = RaoUtil.getFlowUnit(raoParameters);
+        RaoResultImpl.RaoResultImplBuilder raoResultBuilder = RaoResultImpl.builder(crac);
         ObjectiveFunctionResult preventiveAndOutageOnlyResult = generatePreventiveAndOutageOnlyResult(crac, initialResult, postPreventiveResult, raoParameters, reportNode);
         completePostContingencyResultsMap(crac, initialResult, postPreventiveResult, postContingencyResults, stateTree, raoParameters, reportNode);
         excludeDuplicatedCnecs(crac, initialResult, preventiveAndOutageOnlyResult, postPreventiveResult, postContingencyResults);
         excludeContingencies(stateTree, initialResult, preventiveAndOutageOnlyResult, postPreventiveResult, postContingencyResults);
-        RaoUtil.fillWithActivatedRemedialActions(raoResult, postPreventiveResult.optimizationResult(), crac.getPreventiveState(), postContingencyResults);
+        RaoUtil.fillWithActivatedRemedialActions(raoResultBuilder, postPreventiveResult.optimizationResult(), crac.getPreventiveState(), postContingencyResults);
+        RaoResultImpl raoResult = raoResultBuilder.build();
         raoResult.addExtension(CostResult.class, CastorCostResultExtensionHelper.convertToExtension(
             initialResult,
             preventiveAndOutageOnlyResult,

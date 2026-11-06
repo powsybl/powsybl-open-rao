@@ -393,24 +393,26 @@ public final class RaoUtil {
         return getSensitivityWithLoadFlowParameters(raoParameters).getLoadFlowParameters().isDc() ? Unit.MEGAWATT : Unit.AMPERE;
     }
 
-    public static void fillWithActivatedRemedialActions(RaoResultImpl raoResult, OptimizationResult preventiveOptimizationResult, State preventiveState) {
-        fillForState(raoResult, preventiveOptimizationResult, preventiveState);
+    public static void fillWithActivatedRemedialActions(RaoResultImpl.RaoResultImplBuilder raoResultBuilder,
+                                                        OptimizationResult preventiveOptimizationResult,
+                                                        State preventiveState) {
+        fillForState(raoResultBuilder, preventiveOptimizationResult, preventiveState);
     }
 
-    public static void fillWithActivatedRemedialActions(RaoResultImpl raoResult,
+    public static void fillWithActivatedRemedialActions(RaoResultImpl.RaoResultImplBuilder raoResultBuilder,
                                                         OptimizationResult preventiveOptimizationResult,
                                                         State preventiveState,
                                                         Map<State, PostPerimeterResult> postContingencyResults) {
-        fillForState(raoResult, preventiveOptimizationResult, preventiveState);
-        postContingencyResults.forEach((state, postPerimeterResult) -> fillForState(raoResult, postPerimeterResult.optimizationResult(), state));
+        fillForState(raoResultBuilder, preventiveOptimizationResult, preventiveState);
+        postContingencyResults.forEach((state, postPerimeterResult) -> fillForState(raoResultBuilder, postPerimeterResult.optimizationResult(), state));
     }
 
-    public static void fillForState(RaoResultImpl raoResult, OptimizationResult optimizationResult, State state) {
+    public static void fillForState(RaoResultImpl.RaoResultImplBuilder raoResultBuilder, OptimizationResult optimizationResult, State state) {
         optimizationResult.getActivatedNetworkActions().forEach(
-            ra -> raoResult.getAndCreateIfAbsentNetworkActionResult(ra).addActivationForState(state)
+            ra -> raoResultBuilder.addNetworkActionActivation(ra, state)
         );
         optimizationResult.getActivatedRangeActions(state).forEach(
-            ra -> raoResult.getAndCreateIfAbsentRangeActionResult(ra).addActivationForState(state, optimizationResult.getOptimizedSetpoint(ra, state))
+            ra -> raoResultBuilder.addRangeActionActivation(ra, state, optimizationResult.getOptimizedSetpoint(ra, state))
         );
     }
 

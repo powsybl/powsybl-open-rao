@@ -305,8 +305,10 @@ public final class RaoResultHelper {
                 Thread.currentThread().interrupt();
             }
 
-            final RaoResultImpl mergedRaoResult = new RaoResultImpl(crac);
-            RaoUtil.fillWithActivatedRemedialActions(mergedRaoResult, preventivePostPerimeterResult.optimizationResult(), crac.getPreventiveState(), postMergingContingencyResults);
+            final RaoResultImpl.RaoResultImplBuilder raoResultImplBuilder = RaoResultImpl.builder(crac);
+            RaoUtil.fillWithActivatedRemedialActions(raoResultImplBuilder, preventivePostPerimeterResult.optimizationResult(), crac.getPreventiveState(), postMergingContingencyResults);
+
+            final RaoResultImpl mergedRaoResult = raoResultImplBuilder.build();
 
             // add extensions
             mergedRaoResult.addExtension(FlowResult.class, CastorFlowResultExtensionHelper.convertToExtension(

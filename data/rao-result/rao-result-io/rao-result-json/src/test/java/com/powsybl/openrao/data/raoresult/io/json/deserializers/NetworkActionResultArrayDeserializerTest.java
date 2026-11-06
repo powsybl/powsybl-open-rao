@@ -31,11 +31,11 @@ class NetworkActionResultArrayDeserializerTest {
         Crac crac = mock(Crac.class);
         NetworkAction networkAction = mock(NetworkAction.class);
         when(crac.getNetworkAction("na1")).thenReturn(networkAction);
-        RaoResultImpl raoResult = spy(new RaoResultImpl(crac));
+        RaoResultImpl.RaoResultImplBuilder raoResultBuilder = spy(RaoResultImpl.builder(crac));
         try (JsonParser parser = parserFrom(json)) {
-            NetworkActionResultArrayDeserializer.deserialize(parser, raoResult, crac);
-            verify(raoResult, atLeastOnce()).getAndCreateIfAbsentNetworkActionResult(networkAction);
-            verifyNoMoreInteractions(raoResult);
+            NetworkActionResultArrayDeserializer.deserialize(parser, raoResultBuilder, crac);
+            verify(raoResultBuilder, never()).addNetworkActionActivation(networkAction, any());
+            verifyNoMoreInteractions(raoResultBuilder);
         } catch (IOException e) {
             throw new AssertionError("Failed to parse JSON content");
         }
@@ -45,10 +45,10 @@ class NetworkActionResultArrayDeserializerTest {
     void deserializeThrowsWhenFirstFieldIsNotId() {
         String json = "[{\"statesActivated\":[]}]";
         Crac crac = mock(Crac.class);
-        RaoResultImpl raoResult = new RaoResultImpl(crac);
+        RaoResultImpl.RaoResultImplBuilder raoResultBuilder = RaoResultImpl.builder(crac);
         try (JsonParser parser = parserFrom(json)) {
             OpenRaoException exception = assertThrows(OpenRaoException.class,
-                () -> NetworkActionResultArrayDeserializer.deserialize(parser, raoResult, crac));
+                () -> NetworkActionResultArrayDeserializer.deserialize(parser, raoResultBuilder, crac));
             assertEquals("Cannot deserialize RaoResult: each networkActionResults must start with an networkActionId field", exception.getMessage());
         } catch (IOException e) {
             throw new AssertionError("Failed to parse JSON content");
@@ -60,10 +60,10 @@ class NetworkActionResultArrayDeserializerTest {
         String json = "[{\"networkActionId\":\"unknownId\",\"statesActivated\":[]}]";
         Crac crac = mock(Crac.class);
         when(crac.getNetworkAction("unknown")).thenReturn(null);
-        RaoResultImpl raoResult = new RaoResultImpl(crac);
+        RaoResultImpl.RaoResultImplBuilder raoResultBuilder = RaoResultImpl.builder(crac);
         try (JsonParser parser = parserFrom(json)) {
             OpenRaoException exception = assertThrows(OpenRaoException.class,
-                () -> NetworkActionResultArrayDeserializer.deserialize(parser, raoResult, crac));
+                () -> NetworkActionResultArrayDeserializer.deserialize(parser, raoResultBuilder, crac));
             assertEquals("Cannot deserialize RaoResult: cannot deserialize RaoResult: networkAction with id unknownId does not exist in the Crac", exception.getMessage());
         } catch (IOException e) {
             throw new AssertionError("Failed to parse JSON content");
@@ -75,10 +75,10 @@ class NetworkActionResultArrayDeserializerTest {
         String json = "[{\"networkActionId\":\"na1\",\"unexpectedField\":true}]";
         Crac crac = mock(Crac.class);
         when(crac.getNetworkAction("na1")).thenReturn(mock(NetworkAction.class));
-        RaoResultImpl raoResult = new RaoResultImpl(crac);
+        RaoResultImpl.RaoResultImplBuilder raoResultBuilder = RaoResultImpl.builder(crac);
         try (JsonParser parser = parserFrom(json)) {
             OpenRaoException exception = assertThrows(OpenRaoException.class,
-                () -> NetworkActionResultArrayDeserializer.deserialize(parser, raoResult, crac));
+                () -> NetworkActionResultArrayDeserializer.deserialize(parser, raoResultBuilder, crac));
             assertEquals(String.format("Cannot deserialize RaoResult: unexpected field in networkActionResults (%s)", "unexpectedField"), exception.getMessage());
         } catch (IOException e) {
             throw new AssertionError("Failed to parse JSON content");
