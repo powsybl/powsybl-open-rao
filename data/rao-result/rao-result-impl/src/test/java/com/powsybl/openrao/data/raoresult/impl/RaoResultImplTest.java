@@ -89,6 +89,7 @@ class RaoResultImplTest {
         assertTrue(raoResult.isActivatedDuringState(crac.getPreventiveState(), pst));
         assertEquals(-8, raoResult.getOptimizedTapOnState(crac.getPreventiveState(), pst));
         assertEquals(Map.of(pst, -8), raoResult.getOptimizedTapsOnState(crac.getPreventiveState()));
+        // The expected setpoint is the angle corresponding to tap -8.
         assertEquals(-3.1161220798131644, raoResult.getOptimizedSetPointOnState(crac.getPreventiveState(), pst), DOUBLE_TOLERANCE);
         assertEquals(Map.of(pst, -3.1161220798131644), raoResult.getOptimizedSetPointsOnState(crac.getPreventiveState()));
         assertEquals(Set.of(pst), raoResult.getActivatedRangeActionsDuringState(crac.getPreventiveState()));

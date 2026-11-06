@@ -97,7 +97,9 @@ class FastRaoTest {
         CostResult costResult = raoResult.getExtension(CostResult.class);
         assertNotNull(costResult);
         assertEquals(-101.15, costResult.getFunctionalCost(crac.getLastInstant()), 1e-1);
-        assertEquals(List.of(List.of("Close FR1 FR2", "Close FR2 FR3")), raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getTopoOptimizationParameters().getPredefinedCombinations());
+        // Activated network actions come from a set, whose iteration order is unspecified.
+        List<List<String>> combinations = raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getTopoOptimizationParameters().getPredefinedCombinations();
+        assertEquals(List.of(List.of("Close FR1 FR2", "Close FR2 FR3")), combinations.stream().map(combination -> combination.stream().sorted().toList()).toList());
 
         Metadata metadata = raoResult.getExtension(Metadata.class);
         assertNotNull(metadata);
