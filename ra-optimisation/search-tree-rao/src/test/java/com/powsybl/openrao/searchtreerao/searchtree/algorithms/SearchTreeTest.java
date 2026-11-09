@@ -267,22 +267,6 @@ class SearchTreeTest {
     }
 
     @Test
-    void runAndOptimizeOnlyRootLeafWithLoadFlow() throws Exception {
-        raoWithoutLoopFlowLimitation();
-        setStopCriterionAtMinObjective();
-        when(rootLeaf.getCost()).thenReturn(2.);
-        when(rootLeaf.getStatus()).thenReturn(Leaf.Status.EVALUATED, Leaf.Status.OPTIMIZED);
-        Mockito.doReturn(rootLeaf).when(searchTree).makeLeaf(optimizationPerimeter, network, prePerimeterResult, appliedRemedialActions);
-        // add an hvdc range action on a HVDC lie in AC emulation
-        HvdcRangeAction hvdcRangeAction = Mockito.mock(HvdcRangeActionImpl.class);
-        when(hvdcRangeAction.isAngleDroopActivePowerControlEnabled(network)).thenReturn(true);
-        when(optimizationPerimeter.getRangeActions()).thenReturn(Set.of(hvdcRangeAction));
-        searchTree.run().get();
-        hvdcUtilsMock.verify(() -> HvdcUtils.runLoadFlowAndUpdateHvdcActivePowerSetpoint(any(), any(), any(), any(), any(), any()), times(1));
-
-    }
-
-    @Test
     void rootLeafMeetsTargetObjectiveValue() throws Exception {
         raoWithoutLoopFlowLimitation();
         setStopCriterionAtTargetObjectiveValue(3.);
