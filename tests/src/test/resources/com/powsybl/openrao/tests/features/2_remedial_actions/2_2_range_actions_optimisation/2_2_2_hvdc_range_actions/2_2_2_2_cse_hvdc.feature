@@ -8,9 +8,9 @@ Feature: 2.2.2.2: Handle CSE's HVDCs with range actions on injections
 
   @fast @rao @dc @preventive-only @hvdc @max-min-margin
   Scenario: 2.2.2.2.1: UCTE HVDC as InjectionRangeAction with one preventive CNEC
-    Given network file is "epic15/TestCase16NodesWithUcteHvdc.uct"
-    Given crac file is "epic15/cseCrac_ep15us12-5case1.xml"
-    Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
+    Given network file is "common/network_16nodes_with_ucte_hvdc.uct"
+    Given crac file is "2_remedial_actions/2_2_range_actions_optimisation/2_2_2_hvdc_range_actions/crac_2_2_2_2_1.xml"
+    Given configuration file is "common/rao_parameters_max_margin_megawatt_dc.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -20,9 +20,9 @@ Feature: 2.2.2.2: Handle CSE's HVDCs with range actions on injections
 
   @fast @rao @dc @preventive-only @hvdc @max-min-margin
   Scenario: 2.2.2.2.2: UCTE HVDC as InjectionRangeAction with two preventive CNECs
-    Given network file is "epic15/TestCase16NodesWithUcteHvdc.uct"
-    Given crac file is "epic15/cseCrac_ep15us12-5case2.xml"
-    Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
+    Given network file is "common/network_16nodes_with_ucte_hvdc.uct"
+    Given crac file is "2_remedial_actions/2_2_range_actions_optimisation/2_2_2_hvdc_range_actions/crac_2_2_2_2_2.xml"
+    Given configuration file is "common/rao_parameters_max_margin_megawatt_dc.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -33,9 +33,9 @@ Feature: 2.2.2.2: Handle CSE's HVDCs with range actions on injections
 
   @fast @rao @dc @preventive-only @hvdc @max-min-margin
   Scenario: 2.2.2.2.3: UCTE HVDC as InjectionRangeAction with PST range action and two preventive CNECs
-    Given network file is "epic15/TestCase16NodesWithUcteHvdc.uct"
-    Given crac file is "epic15/cseCrac_ep15us12-5case3.xml"
-    Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
+    Given network file is "common/network_16nodes_with_ucte_hvdc.uct"
+    Given crac file is "2_remedial_actions/2_2_range_actions_optimisation/2_2_2_hvdc_range_actions/crac_2_2_2_2_3.xml"
+    Given configuration file is "common/rao_parameters_max_margin_megawatt_dc.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -47,9 +47,9 @@ Feature: 2.2.2.2: Handle CSE's HVDCs with range actions on injections
 
   @fast @rao @dc @preventive-only @hvdc @max-min-margin
   Scenario: 2.2.2.2.4: UCTE HVDC as InjectionRangeAction with outage CNEC
-    Given network file is "epic15/TestCase16NodesWithUcteHvdc.uct"
-    Given crac file is "epic15/cseCrac_ep15us12-5case4.xml"
-    Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
+    Given network file is "common/network_16nodes_with_ucte_hvdc.uct"
+    Given crac file is "2_remedial_actions/2_2_range_actions_optimisation/2_2_2_hvdc_range_actions/crac_2_2_2_2_4.xml"
+    Given configuration file is "common/rao_parameters_max_margin_megawatt_dc.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -63,9 +63,9 @@ Feature: 2.2.2.2: Handle CSE's HVDCs with range actions on injections
 
   @fast @rao @dc @contingency-scenarios @hvdc @max-min-margin
   Scenario: 2.2.2.2.5: UCTE HVDC as InjectionRangeAction with one curative perimeter
-    Given network file is "epic15/TestCase16NodesWithUcteHvdc.uct"
-    Given crac file is "epic15/cseCrac_ep15us12-5case5.xml"
-    Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
+    Given network file is "common/network_16nodes_with_ucte_hvdc.uct"
+    Given crac file is "2_remedial_actions/2_2_range_actions_optimisation/2_2_2_hvdc_range_actions/crac_2_2_2_2_5.xml"
+    Given configuration file is "common/rao_parameters_max_margin_megawatt_dc.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -80,9 +80,9 @@ Feature: 2.2.2.2: Handle CSE's HVDCs with range actions on injections
 
   @fast @rao @dc @contingency-scenarios @hvdc @max-min-margin
   Scenario: 2.2.2.2.6: UCTE HVDC as InjectionRangeAction with two curative perimeters and negative initial flow
-    Given network file is "epic15/TestCase16NodesWithUcteHvdc.uct"
-    Given crac file is "epic15/cseCrac_ep15us12-5case6.xml"
-    Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
+    Given network file is "common/network_16nodes_with_ucte_hvdc.uct"
+    Given crac file is "2_remedial_actions/2_2_range_actions_optimisation/2_2_2_hvdc_range_actions/crac_2_2_2_2_6.xml"
+    Given configuration file is "common/rao_parameters_max_margin_megawatt_dc.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -100,9 +100,9 @@ Feature: 2.2.2.2: Handle CSE's HVDCs with range actions on injections
 
   @fast @rao @dc @preventive-only @hvdc @max-min-margin
   Scenario: 2.2.2.2.7: UCTE HVDC as InjectionRangeAction with a negative optimal setpoint
-    Given network file is "epic15/TestCase16NodesWithUcteHvdc.uct"
-    Given crac file is "epic15/cseCrac_ep15us12-5case7.xml"
-    Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
+    Given network file is "common/network_16nodes_with_ucte_hvdc.uct"
+    Given crac file is "2_remedial_actions/2_2_range_actions_optimisation/2_2_2_hvdc_range_actions/crac_2_2_2_2_7.xml"
+    Given configuration file is "common/rao_parameters_max_margin_megawatt_dc.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -112,10 +112,10 @@ Feature: 2.2.2.2: Handle CSE's HVDCs with range actions on injections
 
   @fast @rao @dc @contingency-scenarios @hvdc @max-min-margin
   Scenario: 2.2.2.2.8: UCTE HVDC as InjectionRangeAction and PST filtering
-    Given network file is "epic15/TestCase16NodesWithUcteHvdc.uct"
-    Given crac file is "epic15/cseCrac_ep15us12-5case8.xml"
-    Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
-    Given crac creation parameters file is "epic15/us_15_2_7.json"
+    Given network file is "common/network_16nodes_with_ucte_hvdc.uct"
+    Given crac file is "2_remedial_actions/2_2_range_actions_optimisation/2_2_2_hvdc_range_actions/crac_2_2_2_2_8.xml"
+    Given configuration file is "common/rao_parameters_max_margin_megawatt_dc.json"
+    Given crac creation parameters file is "2_remedial_actions/2_2_range_actions_optimisation/2_2_2_hvdc_range_actions/crac_creation_parameters_2_2_2_2_8.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"

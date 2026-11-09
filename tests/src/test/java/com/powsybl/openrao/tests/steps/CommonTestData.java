@@ -66,8 +66,8 @@ import static com.powsybl.openrao.tests.utils.Helpers.importUcteGlskFile;
  */
 public final class CommonTestData {
 
-    private static final String DEFAULT_CRAC_CREATION_PARAMETERS_PATH = "cracCreationParameters/common/CracCreationParameters_default.json";
-    private static final String DEFAULT_RAO_PARAMETERS_PATH = "configurations/common/RaoParameters_default.json";
+    private static final String DEFAULT_CRAC_CREATION_PARAMETERS_PATH = "cracCreationParameters/common/crac_creation_parameters_default.json";
+    private static final String DEFAULT_RAO_PARAMETERS_PATH = "configurations/common/rao_parameters_default.json";
 
     private static String dataPrefix = "src/test/resources/files/";
 
