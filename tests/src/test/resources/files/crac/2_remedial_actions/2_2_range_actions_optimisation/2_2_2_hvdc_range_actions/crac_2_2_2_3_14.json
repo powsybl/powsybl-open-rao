@@ -86,16 +86,16 @@
     "operator" : "FR",
     "activationCost": 0.0,
     "variationCosts": {
-      "up": 0.0,
-      "down": 0.0
+      "up": 10.0,
+      "down": 10.0
     },
     "onInstantUsageRules" : [ {
       "instant" : "curative"
     } ],
     "networkElementId" : "BBE2AA11 FFR3AA11 1",
     "ranges" : [ {
-      "min" : 795.0,
-      "max" : 824.0
+      "min" : -2000.0,
+      "max" : 2100.0
     } ]
   }   ],
   "networkActions" : [ ]

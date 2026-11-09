@@ -251,16 +251,17 @@ Feature: 2.2.2.3: Optimize HVDC range actions initially in AC emulation mode
     In root leaf, the optimal setpoint found for the PST is 9 => cost = 95.0 = 5+9*10
     In the leaf evaluating the acEmulationDeactivation action, the sensi of the PST on the CNEC is higher (173A/tap vs 142A/tap in root)
     ie moving the pst by one tap has more impact on the CNEC so we only need to move it to tap 7 to secure the network => cost = 75.0 = 5+7*10
+    Moving the HVDC setpoint would be too expensive compared to moving the PST so it stays the same
     Given network file is "common/network_16nodes_with_hvdc_ac_emulation.xiidm"
     Given crac file is "2_remedial_actions/2_2_range_actions_optimisation/2_2_2_hvdc_range_actions/crac_2_2_2_3_14.json"
     Given configuration file is "common/rao_parameters_min_cost_ac.json"
     When I launch rao
     Then the initial setpoint of RangeAction "CRA_HVDC" should be 823
     Then 0 remedial actions are used in preventive
-    Then 3 remedial actions are used after "CO_0001" at "curative"
+    Then 2 remedial actions are used after "CO_0001" at "curative"
     Then the remedial action "acEmulationDeactivation_BBE2AA11 FFR3AA11 1" is used after "CO_0001" at "curative"
     Then the tap of PstRangeAction "PST_PRA_PST_be_BBE2AA11 BBE3AA11 1" should be 7 after "CO_0001" at "curative"
-    Then the setpoint of RangeAction "CRA_HVDC" should be 824 MW after "CO_0001" at "curative"
+    Then the setpoint of RangeAction "CRA_HVDC" should be 823 MW after "CO_0001" at "curative"
 
 
   @fast @rao @ac @preventive-only @hvdc @second-preventive
