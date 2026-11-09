@@ -22,7 +22,6 @@ import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
 import com.powsybl.openrao.searchtreerao.result.impl.PostPerimeterResult;
 
 import java.util.Map;
-import java.util.Set;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
@@ -40,7 +39,7 @@ public final class CastorFlowResultExtensionHelper {
 
     public static FlowResult convertToExtension(PrePerimeterResult initialResult, PrePerimeterResult preventiveResult, Crac crac, RaoParameters raoParameters) {
         Unit flowUnit = RaoUtil.getFlowUnit(raoParameters);
-        FlowResult.FlowResultBuilder flowResultBuilder = initBuilder(crac, raoParameters);
+        FlowResult.FlowResultBuilder flowResultBuilder = FlowResult.builder();
         crac.getFlowCnecs().forEach(flowCnec -> fillResultForInstant(flowResultBuilder, initialResult, flowCnec, null, flowUnit));
         crac.getFlowCnecs().forEach(flowCnec -> fillResultForInstant(flowResultBuilder, preventiveResult, flowCnec, crac.getPreventiveInstant(), flowUnit));
         return flowResultBuilder.build();
@@ -51,7 +50,7 @@ public final class CastorFlowResultExtensionHelper {
                                                 Map<State, PostPerimeterResult> postContingencyResults,
                                                 Crac crac,
                                                 RaoParameters raoParameters) {
-        FlowResult.FlowResultBuilder flowResultBuilder = initBuilder(crac, raoParameters);
+        FlowResult.FlowResultBuilder flowResultBuilder = FlowResult.builder();
         Unit flowUnit = RaoUtil.getFlowUnit(raoParameters);
         crac.getFlowCnecs().forEach(flowCnec -> fillResultForInstant(flowResultBuilder, initialResult, flowCnec, null, flowUnit));
         crac.getFlowCnecs().forEach(flowCnec -> fillResultForInstant(flowResultBuilder, preventiveResult, flowCnec, crac.getPreventiveInstant(), flowUnit));
@@ -69,11 +68,6 @@ public final class CastorFlowResultExtensionHelper {
             }
         }
         return flowResultBuilder.build();
-    }
-
-    private static FlowResult.FlowResultBuilder initBuilder(Crac crac, RaoParameters raoParameters) {
-        Set<String> operatorsNotSharingCras = RaoUtil.getOperatorsNotSharingCras(crac, raoParameters);
-        return FlowResult.builder().withOperatorsNotSharingCras(operatorsNotSharingCras);
     }
 
     private static boolean hasRemedialActionsApplied(OptimizationResult optimizationResult, State state) {

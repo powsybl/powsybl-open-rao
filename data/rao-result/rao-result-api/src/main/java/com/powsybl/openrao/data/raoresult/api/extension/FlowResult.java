@@ -15,9 +15,9 @@ import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -32,17 +32,14 @@ public class FlowResult extends AbstractExtension<RaoResult> {
     private static final List<Unit> UNITS = List.of(Unit.AMPERE, Unit.MEGAWATT);
 
     private final Map<FlowCnec, FlowCnecResult> results;
-    private final Set<String> operatorsNotSharingCras;
 
-    private FlowResult(Map<FlowCnec, FlowCnecResult> results, Set<String> operatorsNotSharingCras) {
+    private FlowResult(Map<FlowCnec, FlowCnecResult> results) {
         this.results = new HashMap<>();
         this.results.putAll(results);
-        this.operatorsNotSharingCras = new HashSet<>();
-        this.operatorsNotSharingCras.addAll(operatorsNotSharingCras);
     }
 
     public FlowResult(FlowResult flowResultToCopy) {
-        this(flowResultToCopy.results, flowResultToCopy.operatorsNotSharingCras);
+        this(flowResultToCopy.results);
     }
 
     /**
@@ -135,11 +132,11 @@ public class FlowResult extends AbstractExtension<RaoResult> {
         return Optional.ofNullable(results.get(flowCnec));
     }
 
-    // FIXME: having `operatorsNotSharingCras` is not very clean, what about passing it as an attribute of `isSecure` at first
-    // FIXME: this behavior will have to be updated soon, basically two options are possible:
-    // FIXME: - either put it in the CRAC or flag the CNECs accordingly
-    // FIXME: - either do consider them in the security status because it makes sense
     public boolean isSecure() {
+        return isSecure(Collections.emptySet());
+    }
+
+    public boolean isSecure(Set<String> operatorsNotSharingCras) {
         return results.keySet()
             .stream()
             .filter(flowCnec -> safeGetResult(flowCnec).isPresent())
@@ -362,11 +359,9 @@ public class FlowResult extends AbstractExtension<RaoResult> {
 
     public static final class FlowResultBuilder {
         private final Map<FlowCnec, FlowCnecResult> results;
-        private final Set<String> operatorsNotSharingCras;
 
         private FlowResultBuilder() {
             results = new HashMap<>();
-            operatorsNotSharingCras = new HashSet<>();
         }
 
         public FlowResultBuilder addFlowMeasurement(double flow, Instant instant, FlowCnec flowCnec, TwoSides side, Unit unit) {
@@ -384,13 +379,8 @@ public class FlowResult extends AbstractExtension<RaoResult> {
             return this;
         }
 
-        public FlowResultBuilder withOperatorsNotSharingCras(Set<String> operatorsNotSharingCras) {
-            this.operatorsNotSharingCras.addAll(operatorsNotSharingCras);
-            return this;
-        }
-
         public FlowResult build() {
-            return new FlowResult(results, operatorsNotSharingCras);
+            return new FlowResult(results);
         }
     }
 }

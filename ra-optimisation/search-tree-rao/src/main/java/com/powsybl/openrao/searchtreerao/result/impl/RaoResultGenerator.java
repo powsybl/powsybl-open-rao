@@ -9,6 +9,7 @@ package com.powsybl.openrao.searchtreerao.result.impl;
 
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.InstantKind;
@@ -55,14 +56,26 @@ public final class RaoResultGenerator {
     }
 
     public static RaoResult failed(final Crac crac, final String failureReason) {
-        RaoResultImpl raoResult = RaoResultImpl.builder(crac).build();
+        // default security status is "unsecure" when RAO has failed
+        RaoResultImpl raoResult = RaoResultImpl.builder(crac)
+            .withSecurityStatus(PhysicalParameter.FLOW, false)
+            .withSecurityStatus(PhysicalParameter.ANGLE, false)
+            .withSecurityStatus(PhysicalParameter.VOLTAGE, false)
+            .build();
         raoResult.addExtension(FlowResult.class, FlowResult.builder().build()); // the extension is created by convention
         CastorMetadataHelper.fillAndAddWithGlobalFailure(crac, raoResult, failureReason);
         return raoResult;
     }
 
     public static RaoResult empty(final Crac crac, final String executionDetails, final PrePerimeterResult initialResult, final RaoParameters raoParameters) {
-        RaoResultImpl raoResult = RaoResultImpl.builder(crac).build();
+        RaoResultImpl raoResult = RaoResultImpl.builder(crac)
+            .withSecurityStatus(PhysicalParameter.FLOW, RaoUtil.computeSecurityStatus(
+                crac.getFlowCnecs(),
+                initialResult,
+                RaoUtil.getFlowUnit(raoParameters),
+                RaoUtil.getOperatorsNotSharingCras(crac, raoParameters)
+            ))
+            .build();
         Unit flowUnit = RaoUtil.getFlowUnit(raoParameters);
         raoResult.addExtension(CostResult.class, CastorCostResultExtensionHelper.convertToExtension(initialResult));
         raoResult.addExtension(FlowResult.class, CastorFlowResultExtensionHelper.convertToExtension(initialResult, crac, flowUnit));
@@ -75,7 +88,13 @@ public final class RaoResultGenerator {
                                        final PostPerimeterResult postPreventiveResult,
                                        final RaoParameters raoParameters,
                                        final ReportNode reportNode) {
-        RaoResultImpl.RaoResultImplBuilder raoResultBuilder = RaoResultImpl.builder(crac);
+        RaoResultImpl.RaoResultImplBuilder raoResultBuilder = RaoResultImpl.builder(crac)
+            .withSecurityStatus(PhysicalParameter.FLOW, RaoUtil.computeSecurityStatus(
+                crac.getFlowCnecs(),
+                postPreventiveResult.optimizationResult(),
+                RaoUtil.getFlowUnit(raoParameters),
+                RaoUtil.getOperatorsNotSharingCras(crac, raoParameters)
+            ));
         ObjectiveFunctionResult preventiveAndOutageOnlyResult = generatePreventiveAndOutageOnlyResult(crac, initialResult, postPreventiveResult, raoParameters, reportNode);
         RaoUtil.fillWithActivatedRemedialActions(raoResultBuilder, postPreventiveResult.optimizationResult(), crac.getPreventiveState());
         RaoResultImpl raoResult = raoResultBuilder.build();
@@ -115,7 +134,16 @@ public final class RaoResultGenerator {
         excludeDuplicatedCnecs(crac, initialResult, preventiveAndOutageOnlyResult, postPreventiveResult, postContingencyResults);
         excludeContingencies(stateTree, initialResult, preventiveAndOutageOnlyResult, postPreventiveResult, postContingencyResults);
         RaoUtil.fillWithActivatedRemedialActions(raoResultBuilder, postPreventiveResult.optimizationResult(), crac.getPreventiveState(), postContingencyResults);
-        RaoResultImpl raoResult = raoResultBuilder.build();
+        RaoResultImpl raoResult = raoResultBuilder.withSecurityStatus(
+            PhysicalParameter.FLOW,
+            RaoUtil.computeSecurityStatus(
+                crac,
+                postPreventiveResult.prePerimeterResultForAllFollowingStates(),
+                postContingencyResults,
+                RaoUtil.getFlowUnit(raoParameters),
+                RaoUtil.getOperatorsNotSharingCras(crac, raoParameters)
+            )
+        ).build();
         raoResult.addExtension(CostResult.class, CastorCostResultExtensionHelper.convertToExtension(
             initialResult,
             preventiveAndOutageOnlyResult,

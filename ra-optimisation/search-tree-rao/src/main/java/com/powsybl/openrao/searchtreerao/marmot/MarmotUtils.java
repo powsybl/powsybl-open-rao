@@ -11,6 +11,7 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.commons.TemporalDataImpl;
 import com.powsybl.openrao.data.crac.api.Crac;
@@ -30,6 +31,7 @@ import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.json.JsonRaoParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.searchtreerao.castor.algorithm.PrePerimeterSensitivityAnalysis;
+import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
 import com.powsybl.openrao.searchtreerao.commons.ToolProvider;
 import com.powsybl.openrao.searchtreerao.commons.objectivefunction.ObjectiveFunction;
 import com.powsybl.openrao.searchtreerao.marmot.results.GlobalLinearOptimizationResult;
@@ -149,6 +151,7 @@ public final class MarmotUtils {
             // merge preventive and curative network actions into one networkActionsResult before entering the postOptimizationResult constructor
             NetworkActionsResult networkActionsResult = getNetworkActionsResult(crac, preventiveActions, curativeActions);
             fillWithActivatedRemedialActions(globalLinearOptimizationResult, networkActionsResult, raoResultBuilder, crac);
+            fillSecurityStatus(cracs, globalLinearOptimizationResult, raoResultBuilder, raoParameters);
             CostResult individualCostResult = computeCastorCostResultsExtension(
                 crac,
                 initialResult,
@@ -173,6 +176,27 @@ public final class MarmotUtils {
                 .forEach(rangeAction -> raoResultBuilder.addRangeActionActivation(
                     rangeAction, state, globalLinearOptimizationResult.getOptimizedSetpoint(rangeAction, state)));
         }
+    }
+
+    private static void fillSecurityStatus(TemporalData<Crac> cracs,
+                                           GlobalLinearOptimizationResult globalLinearOptimizationResult,
+                                           RaoResultImpl.RaoResultImplBuilder raoResultBuilder,
+                                           RaoParameters raoParameters) {
+        Set<FlowCnec> allFlowCnecs = new HashSet<>();
+        Set<String> operatorsNotSharingCras = new HashSet<>();
+        cracs.getDataPerTimestamp().values().forEach(crac -> {
+            allFlowCnecs.addAll(crac.getFlowCnecs());
+            operatorsNotSharingCras.addAll(crac.findOperatorsNotSharingCras());
+        });
+        raoResultBuilder.withSecurityStatus(
+            PhysicalParameter.FLOW,
+            RaoUtil.computeSecurityStatus(
+                allFlowCnecs,
+                globalLinearOptimizationResult,
+                RaoUtil.getFlowUnit(raoParameters),
+                operatorsNotSharingCras
+            )
+        );
     }
 
     public static NetworkActionsResult getNetworkActionsResult(Crac crac,

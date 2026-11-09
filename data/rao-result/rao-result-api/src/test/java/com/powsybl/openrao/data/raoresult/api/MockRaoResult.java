@@ -8,6 +8,7 @@
 package com.powsybl.openrao.data.raoresult.api;
 
 import com.powsybl.commons.extensions.AbstractExtendable;
+import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.data.crac.api.RemedialAction;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
@@ -94,5 +95,10 @@ public class MockRaoResult extends AbstractExtendable<RaoResult> implements RaoR
     @Override
     public Map<RangeAction<?>, Double> getOptimizedSetPointsOnState(State state) {
         return null;
+    }
+
+    @Override
+    public boolean isSecure(PhysicalParameter... physicalParameters) {
+        return true;
     }
 }

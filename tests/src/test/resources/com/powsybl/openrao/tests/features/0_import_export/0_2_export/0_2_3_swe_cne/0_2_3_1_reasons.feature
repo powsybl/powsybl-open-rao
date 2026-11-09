@@ -283,7 +283,6 @@ Feature: 0.2.3.1: Export different reason per perimeter in SWE CNE
 
   @fast @cne-export
   Scenario: 0.2.3.1.6: CNE export with angles, no angle results
-  # warning: margins in RAO Result are inconsistent with flows
   Copy of 0.2.3.1.4 with extra angle CNEC but no angle values in RAO result and a secure RAO
   Should not fail. Should instead skip angle CNECs, thus expected CNE is the same as 0.2.3.1.4 (but secure)
     Given network file is "0_import_export/0_2_export/0_2_3_swe_cne/nordic32.xiidm"

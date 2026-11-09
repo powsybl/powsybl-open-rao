@@ -29,6 +29,7 @@ import com.powsybl.openrao.data.crac.api.usagerule.OnContingencyState;
 import com.powsybl.openrao.data.crac.api.usagerule.OnFlowConstraintInCountry;
 import com.powsybl.openrao.data.crac.api.usagerule.OnInstant;
 import com.powsybl.openrao.data.crac.api.usagerule.UsageRule;
+import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.impl.RaoResultImpl;
 import com.powsybl.openrao.data.refprog.referenceprogram.ReferenceProgramBuilder;
 import com.powsybl.openrao.raoapi.RaoInput;
@@ -47,6 +48,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -251,7 +253,7 @@ public final class RaoUtil {
             (!raoParameters.hasExtension(OpenRaoSearchTreeParameters.class)
                 || raoParameters.hasExtension(OpenRaoSearchTreeParameters.class) && raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getMinMarginsParameters().isEmpty())) {
             throw new OpenRaoException(format("Objective function type %s requires a config with costly min margin parameters",
-                                              raoParameters.getObjectiveFunctionParameters().getType()));
+                raoParameters.getObjectiveFunctionParameters().getType()));
         }
     }
 
@@ -414,6 +416,50 @@ public final class RaoUtil {
         optimizationResult.getActivatedRangeActions(state).forEach(
             ra -> raoResultBuilder.addRangeActionActivation(ra, state, optimizationResult.getOptimizedSetpoint(ra, state))
         );
+    }
+
+    public static boolean computeSecurityStatus(Crac crac,
+                                                FlowResult postPrasFlowResult,
+                                                Map<State, PostPerimeterResult> postContingencyResults,
+                                                Unit flowUnit,
+                                                Set<String> operatorsNotSharingCras) {
+        Set<FlowCnec> preventiveAndOutageCnecs = new HashSet<>(crac.getFlowCnecs(crac.getPreventiveState()));
+        crac.getStates(crac.getOutageInstant()).forEach(state -> preventiveAndOutageCnecs.addAll(crac.getFlowCnecs(state)));
+
+        if (!computeSecurityStatus(preventiveAndOutageCnecs, postPrasFlowResult, flowUnit, operatorsNotSharingCras)) {
+            return false;
+        }
+
+        for (State state : postContingencyResults.keySet()) {
+            PostPerimeterResult postPerimeterResult = postContingencyResults.get(state);
+            if (postPerimeterResult.optimizationResult().getComputationStatus(state) != ComputationStatus.FAILURE) {
+                if (!computeSecurityStatus(
+                    crac.getFlowCnecs(state),
+                    postPerimeterResult.prePerimeterResultForAllFollowingStates(),
+                    flowUnit,
+                    operatorsNotSharingCras)
+                ) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    public static boolean computeSecurityStatus(Set<FlowCnec> flowCnecs, FlowResult flowResult, Unit flowUnit, Set<String> operatorsNotSharingCras) {
+        return flowCnecs.stream()
+            .filter(FlowCnec::isOptimized) // ignore MNECs
+            .filter(flowCnec -> !flowCnec.getId().contains("OUTAGE DUPLICATE")) // ignore duplicated CNECs
+            .filter(flowCnec -> !cnecBelongsToTsoNotSharingCras(flowCnec, operatorsNotSharingCras)
+                || !flowCnec.getState().getInstant().isCurative())
+            .allMatch(flowCnec -> flowResult.getMargin(flowCnec, flowUnit) >= 0);
+    }
+
+    private static boolean cnecBelongsToTsoNotSharingCras(FlowCnec flowCnec, Set<String> operatorsNotSharingCras) {
+        return operatorsNotSharingCras != null
+            && flowCnec.getOperator() != null
+            && operatorsNotSharingCras.contains(flowCnec.getOperator());
     }
 
     public static Set<String> getOperatorsNotSharingCras(Crac crac, RaoParameters raoParameters) {

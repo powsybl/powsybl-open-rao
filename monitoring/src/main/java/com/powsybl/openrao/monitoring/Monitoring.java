@@ -14,6 +14,7 @@ import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.loadflow.LoadFlowRunParameters;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.PhysicalParameter;
+import com.powsybl.openrao.data.crac.api.cnec.Cnec;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.raoresult.api.extension.AngleResult;
@@ -29,6 +30,8 @@ import com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityPa
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 import com.powsybl.openrao.util.RaoResultHelper;
 
+import java.util.EnumMap;
+import java.util.Map;
 import java.util.function.Function;
 
 /**
@@ -196,6 +199,7 @@ public class Monitoring {
             monitoringInput.getCrac(),
             monitoringInput.getNetwork(),
             appliedRemedialActions,
+            new EnumMap<>(Map.of(physicalParameter, monitoringResult.getStatus() == Cnec.SecurityStatus.SECURE)),
             raoParameters,
             ReportNode.NO_OP
         );

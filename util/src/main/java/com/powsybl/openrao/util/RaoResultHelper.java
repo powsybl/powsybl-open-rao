@@ -48,6 +48,7 @@ import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 import java.time.OffsetDateTime;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.EnumMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -74,15 +75,12 @@ public final class RaoResultHelper {
     /**
      * Indicates whether all the CNECs of a given type are secure (i.e. with a margin >= 0) at the last instant (i.e. after RAO).
      *
-     * @deprecated since 7.6.0, rely directly on flow/angle/voltage extensions for security statuses
-     *
      * @param raoResult     The RaoResult for which to check security.
      * @param crac          The CRAC for which to check security.
      * @param raoParameters The RaoParameters for which to check security.
      * @param u             The types of CNECs to check (FLOW -> FlowCNECs, ANGLE -> AngleCNECs, VOLTAGE -> VoltageCNECs). 1 to 3 arguments can be provided.
      * @return whether all the CNECs of the given type(s) are secure at the last instant (i.e. after RAO).
      */
-    @Deprecated(since = "7.6.0")
     public static boolean isSecure(RaoResult raoResult, Crac crac, RaoParameters raoParameters, PhysicalParameter... u) {
         boolean excludeCnecsForTsosWithoutCras = raoParameters.getNotOptimizedCnecsParameters().getDoNotOptimizeCurativeCnecsForTsosWithoutCras();
         Unit flowUnit = getSensitivityWithLoadFlowParameters(raoParameters).getLoadFlowParameters().isDc() ? Unit.MEGAWATT : Unit.AMPERE;
@@ -93,15 +91,12 @@ public final class RaoResultHelper {
     /**
      * Indicates whether all the CNECs of a given type are secure (i.e. with a margin >= 0) at the last instant (i.e. after RAO).
      *
-     * @deprecated since 7.6.0, rely directly on flow/angle/voltage extensions for security statuses
-     *
      * @param raoResult     The RaoResult for which to check security.
      * @param cracs         The CRACs for which to check security.
      * @param raoParameters The RaoParameters for which to check security.
      * @param u             The types of CNECs to check (FLOW -> FlowCNECs, ANGLE -> AngleCNECs, VOLTAGE -> VoltageCNECs). 1 to 3 arguments can be provided.
      * @return whether all the CNECs of the given type(s) are secure at the last instant (i.e. after RAO).
      */
-    @Deprecated(since = "7.6.0")
     public static boolean isSecure(RaoResult raoResult, TemporalData<Crac> cracs, RaoParameters raoParameters, PhysicalParameter... u) {
 
         for (OffsetDateTime timestamp : cracs.getTimestamps()) {
@@ -112,7 +107,6 @@ public final class RaoResultHelper {
         return true;
     }
 
-    @Deprecated(since = "7.6.0")
     public static boolean isSecure(RaoResult raoResult, Crac crac, boolean excludeCnecsForTsosWithoutCras, Unit flowUnit, PhysicalParameter... u) {
         Set<PhysicalParameter> parameters = new HashSet<>(Arrays.asList(u));
         if (parameters.isEmpty()) {
@@ -230,6 +224,31 @@ public final class RaoResultHelper {
                                                       AppliedRemedialActions appliedRemedialAction,
                                                       RaoParameters raoParameters,
                                                       ReportNode reportNode) {
+        return addAppliedRemedialActions(raoResult, crac, network, appliedRemedialAction, new EnumMap<>(PhysicalParameter.class), raoParameters, reportNode);
+    }
+
+    /**
+     * Adds new remedial actions to the given {@link RaoResult}. This method returns a new {@link RaoResult}
+     * which includes the newly applied remedial actions and updated flows.
+     *
+     * @param raoResult                  The RAO result instance that will be updated with the applied remedial actions.
+     * @param crac                       The CRAC on which the original {@link RaoResult} is based.
+     * @param network                    The network on which the computations were initially made.
+     * @param appliedRemedialAction      The set of additional remedial actions to apply, including both network actions and range actions.
+     * @param additionalSecurityStatuses The set of additional security statuses to apply (e.g. ANGLE or VOLTAGE).
+     * @param raoParameters              The set of parameters used for the initial RAO computation.
+     * @param reportNode                 The report node that logs the workflow and stores information related to the analysis progress.
+     * @return The updated RAO result instance containing all applied remedial actions.
+     * @apiNote Preventive remedial actions are not supported yet because {@link AppliedRemedialActions}
+     * is only defined for post-outage remedial actions.
+     */
+    public static RaoResult addAppliedRemedialActions(RaoResult raoResult,
+                                                      Crac crac,
+                                                      Network network,
+                                                      AppliedRemedialActions appliedRemedialAction,
+                                                      EnumMap<PhysicalParameter, Boolean> additionalSecurityStatuses,
+                                                      RaoParameters raoParameters,
+                                                      ReportNode reportNode) {
         String initialVariant = network.getVariantManager().getWorkingVariantId();
         Set<String> initialVariants = new HashSet<>(network.getVariantManager().getVariantIds());
 
@@ -315,6 +334,25 @@ public final class RaoResultHelper {
             final RaoResultImpl.RaoResultImplBuilder raoResultImplBuilder = RaoResultImpl.builder(crac);
             RaoUtil.fillWithActivatedRemedialActions(raoResultImplBuilder, preventivePostPerimeterResult.optimizationResult(), crac.getPreventiveState(), postMergingContingencyResults);
 
+            // add security statuses
+            raoResultImplBuilder.withSecurityStatus(
+                PhysicalParameter.FLOW,
+                RaoUtil.computeSecurityStatus(
+                    crac,
+                    preventivePostPerimeterResult.prePerimeterResultForAllFollowingStates(),
+                    postMergingContingencyResults,
+                    RaoUtil.getFlowUnit(raoParameters),
+                    RaoUtil.getOperatorsNotSharingCras(crac, raoParameters)
+                )
+            );
+
+            additionalSecurityStatuses.keySet()
+                .stream()
+                .filter(physicalParameter -> physicalParameter != PhysicalParameter.FLOW)
+                .forEach(physicalParameter ->
+                    raoResultImplBuilder.withSecurityStatus(physicalParameter, additionalSecurityStatuses.get(physicalParameter)));
+
+            // build final RAO Result
             final RaoResultImpl mergedRaoResult = raoResultImplBuilder.build();
 
             // add extensions

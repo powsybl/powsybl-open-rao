@@ -124,14 +124,9 @@ public class RaoResultDeserializer extends JsonDeserializer<RaoResult> {
                     }
 
                 case SECURE:
-                    if (version.major() == 1) {
-                        // TODO: deserialize but ignore
-                        jsonParser.nextToken();
-                        RaoResultJsonConstants.deserializeSecurityStatus(jsonParser);
-                        break;
-                    } else {
-                        throw new OpenRaoException("From version 2.0 onward, security statuses are no longer in the RAO Result.");
-                    }
+                    jsonParser.nextToken();
+                    RaoResultJsonConstants.deserializeSecurityStatus(raoResultBuilder, jsonParser);
+                    break;
 
                 case COST_RESULTS:
                     if (version.major() == 1) {

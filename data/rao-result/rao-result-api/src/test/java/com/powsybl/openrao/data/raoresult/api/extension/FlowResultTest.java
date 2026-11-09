@@ -686,9 +686,8 @@ class FlowResultTest {
         void testCurativeOverloadOperatorSharingCras() {
             flowResult = flowResultBuilder
                 .addFlowMeasurement(1500.0, curativeInstant, curativeCnec, TwoSides.ONE, Unit.MEGAWATT)
-                .withOperatorsNotSharingCras(Set.of("BE"))
                 .build();
-            assertFalse(flowResult.isSecure());
+            assertFalse(flowResult.isSecure(Set.of("BE")));
         }
 
         @Test
@@ -696,9 +695,8 @@ class FlowResultTest {
         void testCurativeOverloadOperatorNotSharingCras() {
             flowResult = flowResultBuilder
                 .addFlowMeasurement(1500.0, curativeInstant, curativeCnec, TwoSides.ONE, Unit.MEGAWATT)
-                .withOperatorsNotSharingCras(Set.of("FR"))
                 .build();
-            assertTrue(flowResult.isSecure());
+            assertTrue(flowResult.isSecure(Set.of("FR")));
         }
 
         @Test
@@ -706,9 +704,8 @@ class FlowResultTest {
         void testPreventiveOverloadOperatorNotSharingCras() {
             flowResult = flowResultBuilder
                 .addFlowMeasurement(1500.0, preventiveInstant, preventiveCnec, TwoSides.ONE, Unit.MEGAWATT)
-                .withOperatorsNotSharingCras(Set.of("FR"))
                 .build();
-            assertFalse(flowResult.isSecure());
+            assertFalse(flowResult.isSecure(Set.of("FR")));
         }
 
         @Test
@@ -718,9 +715,8 @@ class FlowResultTest {
             flowResult = flowResultBuilder
                 .addFlowMeasurement(1500.0, curativeInstant, curativeCnec, TwoSides.ONE, Unit.MEGAWATT)
                 .addFlowMeasurement(-1200.0, curativeInstant, otherCurativeCnec, TwoSides.ONE, Unit.MEGAWATT)
-                .withOperatorsNotSharingCras(Set.of("FR"))
                 .build();
-            assertFalse(flowResult.isSecure());
+            assertFalse(flowResult.isSecure(Set.of("FR")));
         }
 
         @Test
@@ -728,9 +724,8 @@ class FlowResultTest {
         void testCopyKeepsOperatorsNotSharingCras() {
             flowResult = flowResultBuilder
                 .addFlowMeasurement(1500.0, curativeInstant, curativeCnec, TwoSides.ONE, Unit.MEGAWATT)
-                .withOperatorsNotSharingCras(Set.of("FR"))
                 .build();
-            assertTrue(new FlowResult(flowResult).isSecure());
+            assertTrue(new FlowResult(flowResult).isSecure(Set.of("FR")));
         }
     }
 }

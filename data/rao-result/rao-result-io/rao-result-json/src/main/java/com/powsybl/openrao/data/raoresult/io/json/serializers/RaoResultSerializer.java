@@ -12,9 +12,7 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
-import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
-import com.powsybl.openrao.data.raoresult.api.extension.Metadata;
 import com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonUtils;
 
 import java.io.IOException;
@@ -26,6 +24,7 @@ import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.
 import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.RAO_RESULT_TYPE;
 import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.TYPE;
 import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.VERSION;
+import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.serializeSecurityStatus;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -49,10 +48,8 @@ class RaoResultSerializer extends AbstractJsonSerializer<RaoResult> {
         jsonGenerator.writeStringField(VERSION, RAO_RESULT_IO_VERSION);
         jsonGenerator.writeStringField(INFO, RAO_RESULT_INFO);
 
-        Metadata metadata = raoResult.getExtension(Metadata.class);
-        if (metadata == null || !metadata.getComputationStatus().equals(ComputationStatus.FAILURE)) {
-            RemedialActionActivationsSerializer.serialize(raoResult, crac, jsonGenerator);
-        }
+        serializeSecurityStatus(crac, raoResult, jsonGenerator);
+        RemedialActionActivationsSerializer.serialize(raoResult, crac, jsonGenerator);
 
         serializerProvider.setAttribute("crac", crac);
         serializerProvider.setAttribute("flowUnits", flowUnits);

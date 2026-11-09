@@ -8,6 +8,7 @@
 package com.powsybl.openrao.data.raoresult.impl.utils;
 
 import com.powsybl.iidm.network.TwoSides;
+import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.cnec.AngleCnec;
@@ -47,7 +48,10 @@ public final class ExhaustiveRaoResultCreation {
     }
 
     public static RaoResult create(Crac crac) {
-        RaoResultImpl.RaoResultImplBuilder raoResultBuilder = RaoResultImpl.builder(crac);
+        RaoResultImpl.RaoResultImplBuilder raoResultBuilder = RaoResultImpl.builder(crac)
+            .withSecurityStatus(PhysicalParameter.FLOW, true)
+            .withSecurityStatus(PhysicalParameter.ANGLE, false)
+            .withSecurityStatus(PhysicalParameter.VOLTAGE, true);
 
         // -----------------------------
         // --- NetworkAction results ---

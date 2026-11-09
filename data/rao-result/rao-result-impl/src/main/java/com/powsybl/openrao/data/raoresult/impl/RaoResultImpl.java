@@ -9,6 +9,7 @@ package com.powsybl.openrao.data.raoresult.impl;
 
 import com.powsybl.commons.extensions.AbstractExtendable;
 import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.commons.TemporalDataImpl;
 import com.powsybl.openrao.data.crac.api.Crac;
@@ -21,7 +22,9 @@ import com.powsybl.openrao.data.crac.api.rangeaction.StandardRangeAction;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 
 import java.time.OffsetDateTime;
+import java.util.EnumMap;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -42,15 +45,19 @@ public final class RaoResultImpl extends AbstractExtendable<RaoResult> implement
 
     private final Map<NetworkAction, NetworkActionResult> networkActionResults;
     private final Map<RangeAction<?>, RangeActionResult> rangeActionResults;
+    private final EnumMap<PhysicalParameter, Boolean> securityStatuses;
 
     private RaoResultImpl(TemporalData<Crac> cracs,
                           Map<NetworkAction, NetworkActionResult> networkActionResults,
-                          Map<RangeAction<?>, RangeActionResult> rangeActionResults) {
+                          Map<RangeAction<?>, RangeActionResult> rangeActionResults,
+                          EnumMap<PhysicalParameter, Boolean> securityStatuses) {
         this.cracs = cracs;
         this.networkActionResults = new HashMap<>();
         this.networkActionResults.putAll(networkActionResults);
         this.rangeActionResults = new HashMap<>();
         this.rangeActionResults.putAll(rangeActionResults);
+        this.securityStatuses = new EnumMap<>(PhysicalParameter.class);
+        this.securityStatuses.putAll(securityStatuses);
     }
 
     @Override
@@ -154,6 +161,15 @@ public final class RaoResultImpl extends AbstractExtendable<RaoResult> implement
         return getCrac(state).getRangeActions().stream().collect(Collectors.toMap(Function.identity(), ra -> getOptimizedSetPointOnState(state, ra)));
     }
 
+    @Override
+    public boolean isSecure(PhysicalParameter... physicalParameters) {
+        List<PhysicalParameter> parametersToAssess = List.of(physicalParameters);
+        if (parametersToAssess.isEmpty()) {
+            throw new OpenRaoException("At least one physical parameter must be provided");
+        }
+        return parametersToAssess.stream().allMatch(physicalParameter -> securityStatuses.getOrDefault(physicalParameter, true));
+    }
+
     private State stateBefore(State state) {
         if (state.getContingency().isPresent()) {
             return stateBefore(state.getContingency().orElseThrow().getId(), state.getInstant(), state.getTimestamp().orElse(DEFAULT_TIMESTAMP));
@@ -202,6 +218,7 @@ public final class RaoResultImpl extends AbstractExtendable<RaoResult> implement
         private final TemporalData<Crac> cracs;
         private final Map<NetworkAction, NetworkActionResult> networkActionResults = new HashMap<>();
         private final Map<RangeAction<?>, RangeActionResult> rangeActionResults = new HashMap<>();
+        private final EnumMap<PhysicalParameter, Boolean> securityStatuses = new EnumMap<>(PhysicalParameter.class);
 
         private RaoResultImplBuilder(TemporalData<Crac> cracs) {
             this.cracs = cracs;
@@ -210,6 +227,11 @@ public final class RaoResultImpl extends AbstractExtendable<RaoResult> implement
         private RaoResultImplBuilder(Crac crac) {
             this.cracs = new TemporalDataImpl<>();
             this.cracs.put(crac.getTimestamp().orElse(DEFAULT_TIMESTAMP), crac);
+        }
+
+        public RaoResultImplBuilder withSecurityStatus(PhysicalParameter physicalParameter, boolean securityStatus) {
+            securityStatuses.put(physicalParameter, securityStatus);
+            return this;
         }
 
         public RaoResultImplBuilder addNetworkActionActivation(NetworkAction networkAction, State state) {
@@ -231,7 +253,7 @@ public final class RaoResultImpl extends AbstractExtendable<RaoResult> implement
         }
 
         public RaoResultImpl build() {
-            return new RaoResultImpl(cracs, networkActionResults, rangeActionResults);
+            return new RaoResultImpl(cracs, networkActionResults, rangeActionResults, securityStatuses);
         }
     }
 }

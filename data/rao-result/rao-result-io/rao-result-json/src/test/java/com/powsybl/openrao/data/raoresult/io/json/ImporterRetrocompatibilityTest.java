@@ -938,11 +938,11 @@ class ImporterRetrocompatibilityTest {
 
         // test security status
 
-        assertFalse(importedRaoResult.isSecure(PhysicalParameter.FLOW));
+        assertTrue(importedRaoResult.isSecure(PhysicalParameter.FLOW));
         assertFalse(importedRaoResult.isSecure(PhysicalParameter.ANGLE));
         assertTrue(importedRaoResult.isSecure(PhysicalParameter.VOLTAGE));
 
-        assertFalse(importedRaoResult.isSecure(PhysicalParameter.FLOW, PhysicalParameter.VOLTAGE));
+        assertTrue(importedRaoResult.isSecure(PhysicalParameter.FLOW, PhysicalParameter.VOLTAGE));
         assertFalse(importedRaoResult.isSecure(PhysicalParameter.FLOW, PhysicalParameter.ANGLE));
         assertFalse(importedRaoResult.isSecure(PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE));
 
