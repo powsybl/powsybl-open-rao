@@ -8,8 +8,8 @@ Feature: 5.1.1.4: Handle LSKs for PTDF computation
 
   @fast @loopflow-computation @ac @loopflow
   Scenario: 5.1.1.4.1 : LoopFlow computation with LSKs
-    Given network file is "common/TestCase12Nodes.uct"
-    Given crac file is "epic7/crac_lf.json"
+    Given network file is "common/network_12nodes.uct"
+    Given crac file is "5_special_features/5_1_loopflow/5_1_1_loopflow_computation/crac_5_1_1_1_2.json"
     Given loopflow glsk file is "common/glsk_with_lsks.xml"
     When I launch loopflow_computation with OpenLoadFlow
     Then the loopflow on cnec "BBE1AA1  BBE2AA1  1 - preventive" after loopflow computation should be -763.0 MW
@@ -30,10 +30,10 @@ Feature: 5.1.1.4: Handle LSKs for PTDF computation
 
   @fast @loopflow-computation @ac @loopflow
   Scenario: 5.1.1.4.2 : LoopFLow computation with LSKs and refProg
-    Given network file is "common/TestCase12Nodes.uct"
-    Given crac file is "epic7/crac_lf.json"
+    Given network file is "common/network_12nodes.uct"
+    Given crac file is "5_special_features/5_1_loopflow/5_1_1_loopflow_computation/crac_5_1_1_1_2.json"
     Given loopflow glsk file is "common/glsk_with_lsks.xml"
-    Given RefProg file is "epic7/refProg_12nodes.xml"
+    Given RefProg file is "common/ref_prog_12nodes.xml"
     When I launch loopflow_computation with OpenLoadFlow at "2019-01-08 21:30"
     Then the loopflow on cnec "BBE1AA1  BBE2AA1  1 - preventive" after loopflow computation should be -738.0 MW
     Then the loopflow on cnec "BBE1AA1  BBE3AA1  1 - preventive" after loopflow computation should be -561.0 MW
