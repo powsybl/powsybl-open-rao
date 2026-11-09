@@ -9,6 +9,7 @@ package com.powsybl.openrao.data.crac.util;
 
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TwoSides;
+import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.InstantKind;
@@ -23,10 +24,7 @@ import com.powsybl.openrao.data.crac.api.usagerule.OnFlowConstraintInCountry;
 import com.powsybl.openrao.data.crac.api.usagerule.OnInstant;
 import com.powsybl.openrao.data.crac.api.usagerule.UsageRule;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Misc features that clean up a CRAC to prepare it for the RAO
@@ -112,19 +110,28 @@ public final class CracValidator {
     }
 
     private static void copyThresholds(FlowCnec cnec, FlowCnecAdder adder) {
-        cnec.getThresholds().forEach(tr -> {
-                BranchThresholdAdder trAdder = adder.newThreshold()
-                    .withSide(tr.getSide())
-                    .withUnit(tr.getUnit());
-                if (tr.limitsByMax()) {
-                    trAdder.withMax(tr.max().orElseThrow());
+        for (Unit unit : Set.of(Unit.AMPERE, Unit.MEGAWATT)) {
+            for (TwoSides side : Set.of(TwoSides.ONE, TwoSides.TWO)) {
+                Optional<Double> lowerBound = cnec.getRawLowerBound(side, unit);
+                Optional<Double> upperBound = cnec.getRawUpperBound(side, unit);
+                if (upperBound.isPresent() || lowerBound.isPresent()) {
+
+                    BranchThresholdAdder tr = adder.newThreshold()
+                        .withSide(side)
+                        .withUnit(unit);
+
+                    if (lowerBound.isPresent()) {
+                        tr.withMin(lowerBound.get());
+                    }
+
+                    if (upperBound.isPresent()) {
+                        tr.withMax(upperBound.get());
+                    }
+                    tr.add();
                 }
-                if (tr.limitsByMin()) {
-                    trAdder.withMin(tr.min().orElseThrow());
-                }
-                trAdder.add();
             }
-        );
+        }
+
     }
 
     /**

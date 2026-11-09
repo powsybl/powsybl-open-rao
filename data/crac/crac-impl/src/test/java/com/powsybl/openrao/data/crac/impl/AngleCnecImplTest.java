@@ -205,6 +205,35 @@ class AngleCnecImplTest {
     }
 
     @Test
+    void equalityUsesBoundsAndEndpointDirection() {
+        AngleCnec cnec = angleCnec("export", "import", -200., 500.);
+        AngleCnec equal = angleCnec("export", "import", -200., 500.);
+        assertEquals(cnec, equal);
+        assertEquals(equal, cnec);
+        assertEquals(cnec.hashCode(), equal.hashCode());
+        //Different threshold
+        assertNotEquals(cnec, angleCnec("export", "import", -201., 500.));
+        assertNotEquals(cnec, angleCnec("export", "import", -200., 501.));
+        assertNotEquals(cnec, angleCnec("export", "import2", -200., 500.));
+        assertNotEquals(cnec, angleCnec("export2", "import", -200., 500.));
+        assertFalse(cnec.equals(null));
+        assertNotEquals(cnec, "angle-cnec");
+
+        for (Double[] bounds : new Double[][] {{null, null}, {null, 500.}, {-200., null}}) {
+            AngleCnec first = angleCnec("export", "import", bounds[0], bounds[1]);
+            AngleCnec second = angleCnec("export", "import", bounds[0], bounds[1]);
+            assertEquals(first, second);
+            assertEquals(first.hashCode(), second.hashCode());
+            assertNotEquals(cnec, first);
+        }
+    }
+
+    private AngleCnecImpl angleCnec(String exporting, String importing, Double min, Double max) {
+        return new AngleCnecImpl("id", "name", exporting, importing, "FR", null, crac.getPreventiveState(),
+            false, true, Set.of(new Threshold(Unit.DEGREE, min, max)), 0.);
+    }
+
+    @Test
     void testComputeSecurityStatus() {
         AngleCnec cnec = initPreventiveCnecAdder()
             .newThreshold().withUnit(Unit.DEGREE).withMin(-200.).withMax(500.).add()

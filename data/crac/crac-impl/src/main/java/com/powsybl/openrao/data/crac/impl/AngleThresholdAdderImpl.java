@@ -37,7 +37,7 @@ public class AngleThresholdAdderImpl extends AbstractThresholdAdderImpl<AngleThr
     public AngleCnecAdder add() {
         super.checkThreshold();
 
-        ownerAdder.addThreshold(new ThresholdImpl(unit, min, max));
+        ownerAdder.addThreshold(new Threshold(unit, min, max));
         return ownerAdder;
     }
 }

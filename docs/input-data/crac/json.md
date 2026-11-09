@@ -535,6 +535,7 @@ An AngleCnec has the following specificities:
 - it contains two network elements, an importing node and an exporting node, that represent the importing and exporting ends of the branch.
 - the physical parameter which is monitored by the CNEC is the **angle**.
 - it must contain at least one threshold, defined in degrees. A threshold has a minimum and/or a maximum value.
+The minimum or the maximum can only be defined once.
 
 > 💡  **NOTE**
 > Angle CNECs currently cannot be optimized by the RAO, but they are monitored by an independent
@@ -639,7 +640,8 @@ cnec2 = crac.newAngleCnec()
 A VoltageCnec is a CNEC on which we monitor the voltage on substations. It has the following specificities:
 - it contains one network element (a [VoltageLevel](inv:powsyblcore:*:*#voltage-level))
 - the physical parameter which is monitored by the CNEC is the **voltage**.
-- it must contain at least one threshold, defined in kilovolts. A threshold has a minimum and/or a maximum value.
+- it must contain at least one threshold, defined in kilovolts. A threshold has a minimum and/or a maximum value. 
+The minimum or the maximum can only be defined once.
 
 > 💡  **NOTE**
 > Voltage CNECs currently cannot be optimized by the RAO, but they are monitored by an independent
