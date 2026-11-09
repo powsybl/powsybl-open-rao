@@ -282,8 +282,8 @@ public final class TimeCoupledRaoSteps {
             networkFolderPathPostIcsImport.concat(inputs.getFirst().get("Network")).split(".uct")[0]));
     }
 
-    @When("I launch marmot")
-    public void iLaunchMarmot() {
+    @When("I launch rao in time-coupled mode")
+    public void iLaunchRaoTimeCoupled() {
         CommonTestData.setReportNode(
             ReportNode.newRootReportNode()
                 .withAllResourceBundlesFromClasspath()
