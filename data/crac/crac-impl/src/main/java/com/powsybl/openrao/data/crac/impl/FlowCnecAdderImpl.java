@@ -14,7 +14,6 @@ import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnecAdder;
-import com.powsybl.openrao.data.crac.api.threshold.BranchThreshold;
 import com.powsybl.openrao.data.crac.api.threshold.BranchThresholdAdder;
 
 import java.util.HashSet;
@@ -27,7 +26,7 @@ import java.util.stream.Collectors;
  */
 public class FlowCnecAdderImpl extends AbstractCnecAdderImpl<FlowCnecAdder> implements FlowCnecAdder {
 
-    private final Set<BranchThresholdImpl> thresholds = new HashSet<>();
+    private final Set<BranchThreshold> thresholds = new HashSet<>();
     private Double iMaxLeft = null;
     private Double iMaxRight = null;
     private Double nominalVLeft = Double.NaN;
@@ -85,7 +84,7 @@ public class FlowCnecAdderImpl extends AbstractCnecAdderImpl<FlowCnecAdder> impl
         return new BranchThresholdAdderImpl(this);
     }
 
-    void addThreshold(BranchThresholdImpl threshold) {
+    void addThreshold(BranchThreshold threshold) {
         thresholds.add(threshold);
     }
 
@@ -143,12 +142,12 @@ public class FlowCnecAdderImpl extends AbstractCnecAdderImpl<FlowCnecAdder> impl
             ));
         }
 
-        for (BranchThresholdImpl branchThreshold : thresholds) {
+        for (BranchThreshold branchThreshold : thresholds) {
             checkImax(branchThreshold);
         }
     }
 
-    private void checkImax(BranchThresholdImpl branchThreshold) {
+    private void checkImax(BranchThreshold branchThreshold) {
 
         if (branchThreshold.getUnit().equals(Unit.PERCENT_IMAX)
             && branchThreshold.getSide().equals(TwoSides.ONE)

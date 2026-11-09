@@ -13,7 +13,6 @@ import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.AngleCnec;
 import com.powsybl.openrao.data.crac.api.cnec.AngleCnecAdder;
 import com.powsybl.openrao.data.crac.api.threshold.AngleThresholdAdder;
-import com.powsybl.openrao.data.crac.api.threshold.Threshold;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -58,7 +57,7 @@ public class AngleCnecAdderImpl extends AbstractCnecAdderImpl<AngleCnecAdder> im
         return new AngleThresholdAdderImpl(this);
     }
 
-    void addThreshold(ThresholdImpl threshold) {
+    void addThreshold(Threshold threshold) {
         thresholds.add(threshold);
     }
 
