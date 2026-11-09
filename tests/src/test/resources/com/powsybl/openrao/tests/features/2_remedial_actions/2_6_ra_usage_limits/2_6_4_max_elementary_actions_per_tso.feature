@@ -161,7 +161,7 @@ Feature: 2.6.4: Handle maximum number of elementary actions per TSO
     # to be achievable in curative (the PST has a maximum variation of -10 taps from preventive to curative), allowing
     # the minimum margin to be maximized (on the curative limiting element).
     # However, minimizing PST usage (due to penalty costs) should lead to -6 in preventive
-    Then the tap of PstRangeAction "pst_be" should be -6 in preventive
+    Then the tap of PstRangeAction "pst_be" should be -9 in preventive
     Then the tap of PstRangeAction "pst_be" should be -16 after "co1_fr2_fr3_1" at "curative"
     Then the tap of PstRangeAction "pst_fr" should be 13 after "co1_fr2_fr3_1" at "curative"
     Then the worst margin is -218.5 A

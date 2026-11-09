@@ -29,7 +29,7 @@
         "ra-range-shrinking" : "DISABLED",
         "linear-optimization-solver" : {
           "solver" : "SCIP",
-          "relative-mip-gap" : 0.001,
+          "relative-mip-gap" : 1e-6,
           "solver-specific-parameters" : null
         }
       },
