@@ -84,8 +84,8 @@ class FlowCnecAdderImplTest {
         assertEquals(outageInstant, cnec1.getState().getInstant());
         assertEquals("cnec1Operator", cnec1.getOperator());
         assertEquals("neId1", cnec1.getNetworkElementId());
-        assertEquals(1000.0, cnec1.getUpperBound(ONE, Unit.MEGAWATT).orElseThrow(), DOUBLE_TOLERANCE);
-        assertEquals(-1000.0, cnec1.getLowerBound(ONE, Unit.MEGAWATT).orElseThrow(), DOUBLE_TOLERANCE);
+        assertEquals(1000.0, cnec1.getRawUpperBound(ONE, Unit.MEGAWATT).orElseThrow(), DOUBLE_TOLERANCE);
+        assertEquals(-1000.0, cnec1.getRawLowerBound(ONE, Unit.MEGAWATT).orElseThrow(), DOUBLE_TOLERANCE);
 
         // Verify 2nd cnec content
         assertEquals(cnec2, crac.getFlowCnec("cnecId2"));
@@ -94,8 +94,8 @@ class FlowCnecAdderImplTest {
         assertEquals("cnec2Operator", cnec2.getOperator());
         assertEquals(Optional.empty(), cnec2.getState().getContingency());
         assertEquals("neId2", cnec2.getNetworkElementId());
-        assertEquals(500.0, cnec2.getUpperBound(ONE, Unit.MEGAWATT).orElseThrow(), DOUBLE_TOLERANCE);
-        assertFalse(cnec2.getLowerBound(ONE, Unit.MEGAWATT).isPresent());
+        assertEquals(500.0, cnec2.getRawUpperBound(ONE, Unit.MEGAWATT).orElseThrow(), DOUBLE_TOLERANCE);
+        assertFalse(cnec2.getRawLowerBound(ONE, Unit.MEGAWATT).isPresent());
 
         // Verify that network elements were created
         crac.newFlowCnec()

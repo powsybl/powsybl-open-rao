@@ -12,6 +12,7 @@ import com.powsybl.computation.ComputationManager;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControl;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.PhysicalParameter;
@@ -260,7 +261,11 @@ public final class RaoUtil {
         Crac crac = raoInput.getCrac();
         if (!getSensitivityWithLoadFlowParameters(raoParameters).getLoadFlowParameters().isDc()) {
             crac.getFlowCnecs().forEach(flowCnec -> {
-                if (flowCnec.getThresholds().stream().anyMatch(branchThreshold -> branchThreshold.getUnit().equals(Unit.MEGAWATT))) {
+                if (flowCnec.getRawLowerBound(TwoSides.ONE, Unit.MEGAWATT).isPresent() ||
+                    flowCnec.getRawUpperBound(TwoSides.ONE, Unit.MEGAWATT).isPresent() ||
+                    flowCnec.getRawLowerBound(TwoSides.TWO, Unit.MEGAWATT).isPresent() ||
+                    flowCnec.getRawUpperBound(TwoSides.TWO, Unit.MEGAWATT).isPresent()
+                ) {
                     CommonReports.reportThresholdForFlowCnecDefinedInMwButLoadflowComputationIsInAc(reportNode, flowCnec.getId());
                 }
             });
