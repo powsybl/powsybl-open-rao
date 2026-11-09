@@ -20,10 +20,12 @@ Feature: 4.2.2: Time-coupled curative network actions synchronization
   when optimized independently, timestamp 10:30 is secured by close_de1de3_2 alone and timestamp 11:30 by
   open_be2fr3 alone. In the time-coupled search tree, both actions are applied simultaneously on both timestamps.
     Given configuration file is "4_time_coupled/4_2_curative_synchronization/RaoParameters_default_curativeTopologicalActionsSynchronization.json"
-    Given time-coupled constraints are in file "epic93/empty-time-coupled-constraints.json" and rao inputs are:
-      | Timestamp        | Network                                                                               | CRAC                                                                                       |
-      | 2026-03-25 10:30 | 4_time_coupled/4_2_curative_synchronization/TestCase12Nodes2PSTsWithParallelLines.uct | 4_time_coupled/4_2_curative_synchronization/crac_20260325_1030_topological_only_union.json |
-      | 2026-03-25 11:30 | 4_time_coupled/4_2_curative_synchronization/TestCase12Nodes2PSTsWithParallelLines.uct | 4_time_coupled/4_2_curative_synchronization/crac_20260325_1130_topological_only_union.json |
+    Given crac files are in folder "4_time_coupled/4_2_curative_synchronization"
+    Given network files are in folder "4_time_coupled/4_2_curative_synchronization"
+    Given time-coupled constraints are in file "4_time_coupled/empty-time-coupled-constraints.json" and rao inputs are:
+      | Timestamp        | Network                              | CRAC                                           |
+      | 2026-03-25 10:30 | 12Nodes_2pst_with_parallel_lines.uct | crac_20260325_1030_topological_only_union.json |
+      | 2026-03-25 11:30 | 12Nodes_2pst_with_parallel_lines.uct | crac_20260325_1130_topological_only_union.json |
     When I launch marmot
     # the same combination is applied on both timestamps
     Then the remedial action "close_de1de3_2" is used at timestamp "2026-03-25 10:30" after "common_contingency" at "curative"
@@ -42,10 +44,12 @@ Feature: 4.2.2: Time-coupled curative network actions synchronization
   Since close_de1de3_2 cannot secure timestamp 11:30, the time-coupled search tree applies open_be2fr3 alone on both
   timestamps, even though it is not timestamp 10:30's own preference.
     Given configuration file is "4_time_coupled/4_2_curative_synchronization/RaoParameters_default_curativeTopologicalActionsSynchronization.json"
-    Given time-coupled constraints are in file "epic93/empty-time-coupled-constraints.json" and rao inputs are:
-      | Timestamp        | Network                                                                               | CRAC                                                                                 |
-      | 2026-03-25 10:30 | 4_time_coupled/4_2_curative_synchronization/TestCase12Nodes2PSTsWithParallelLines.uct | 4_time_coupled/4_2_curative_synchronization/crac_20260325_1030_topological_only.json |
-      | 2026-03-25 11:30 | 4_time_coupled/4_2_curative_synchronization/TestCase12Nodes2PSTsWithParallelLines.uct | 4_time_coupled/4_2_curative_synchronization/crac_20260325_1130_topological_only.json |
+    Given crac files are in folder "4_time_coupled/4_2_curative_synchronization"
+    Given network files are in folder "4_time_coupled/4_2_curative_synchronization"
+    Given time-coupled constraints are in file "4_time_coupled/empty-time-coupled-constraints.json" and rao inputs are:
+      | Timestamp        | Network                              | CRAC                                     |
+      | 2026-03-25 10:30 | 12Nodes_2pst_with_parallel_lines.uct | crac_20260325_1030_topological_only.json |
+      | 2026-03-25 11:30 | 12Nodes_2pst_with_parallel_lines.uct | crac_20260325_1130_topological_only.json |
     When I launch marmot
     # only "open_be2fr2" is activated on both timestamps
     Then the remedial action "open_be2fr3" is used at timestamp "2026-03-25 10:30" after "common_contingency" at "curative"

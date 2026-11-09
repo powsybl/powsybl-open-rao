@@ -20,10 +20,12 @@ Feature: 4.2.1: Time-coupled curative range actions synchronization
   The synchronization forces a single tap on both timestamps. Therefore, the two opposite optimums are not both
   reachable at the same time and the MIP settles on a compromise on pst_be and pst_de is optimized freely.
     Given configuration file is "4_time_coupled/4_2_curative_synchronization/RaoParameters_default_curativeRangeActionsSynchronization.json"
-    Given time-coupled constraints are in file "epic93/empty-time-coupled-constraints.json" and rao inputs are:
-      | Timestamp        | Network                         | CRAC                                                                         |
-      | 2026-03-25 10:30 | common/TestCase12Nodes2PSTs.uct | 4_time_coupled/4_2_curative_synchronization/crac_20260325_1030_pst_only.json |
-      | 2026-03-25 11:30 | common/TestCase12Nodes2PSTs.uct | 4_time_coupled/4_2_curative_synchronization/crac_20260325_1130_pst_only.json |
+    Given crac files are in folder "4_time_coupled/4_2_curative_synchronization"
+    Given network files are in folder "common"
+    Given time-coupled constraints are in file "4_time_coupled/empty-time-coupled-constraints.json" and rao inputs are:
+      | Timestamp        | Network                   | CRAC                             |
+      | 2026-03-25 10:30 | network_12nodes_2psts.uct | crac_20260325_1030_pst_only.json |
+      | 2026-03-25 11:30 | network_12nodes_2psts.uct | crac_20260325_1130_pst_only.json |
     When I launch marmot
     # the shared PST is synchronized
     Then the remedial action "pst_be" is used at timestamp "2026-03-25 10:30" after "common_contingency" at "curative"
