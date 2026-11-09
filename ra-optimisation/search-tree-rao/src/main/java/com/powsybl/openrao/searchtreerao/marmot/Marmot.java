@@ -723,8 +723,8 @@ public class Marmot implements TimeCoupledRaoProvider {
                 Map<State, Set<RangeAction<?>>> availableRangeActions = new HashMap<>();
                 State preventiveState = crac.getPreventiveState();
                 // set of range actions optimized by the mip
-                // only consider preventive or curative states and its related range actions if the state contains CNECs that are considered
-                // this way we avoid creating range actions variable for range actions that are not going to impact any CNEC.
+                // only consider preventive or curative states and their related range actions if the state contains CNECs that are considered
+                // this way we avoid creating range actions variables for range actions that are do not have any impact on any CNEC.
                 Set<State> statesWithCnecs = new HashSet<>();
                 consideredCnecs.getData(timestamp).orElseThrow().stream().forEach(cnec -> statesWithCnecs.add(cnec.getState()));
                 statesWithCnecs.stream()
