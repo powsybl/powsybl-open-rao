@@ -16,11 +16,13 @@ Feature: 4.3.1: Time-coupled PST tap gradient constraints
     Reference scenario, with no time-coupled constraints. Each timestamp moves the PST as much as they need.
     The network is a 2 Node network with one PST available. The timestamps only differ by the CNEC thresholds.
     Given configuration file is "common/rao_parameters_min_cost_megawatt_dc.json"
+    Given crac files are in folder "4_time_coupled/4_3_pst_constraints"
+    Given network files are in folder "4_time_coupled/4_3_pst_constraints"
     Given time-coupled constraints are in file "4_time_coupled/empty-time-coupled-constraints.json" and rao inputs are:
-      | Timestamp        | Network                                                   | CRAC                                                       |
-      | 2026-03-25 19:30 | 4_time_coupled/4_3_pst_constraints/network_2nodes_pst.uct | 4_time_coupled/4_3_pst_constraints/crac-20260325-1930.json |
-      | 2026-03-25 20:30 | 4_time_coupled/4_3_pst_constraints/network_2nodes_pst.uct | 4_time_coupled/4_3_pst_constraints/crac-20260325-2030.json |
-      | 2026-03-25 21:30 | 4_time_coupled/4_3_pst_constraints/network_2nodes_pst.uct | 4_time_coupled/4_3_pst_constraints/crac-20260325-2130.json |
+      | Timestamp        | Network                | CRAC                    |
+      | 2026-03-25 19:30 | network_2nodes_pst.uct | crac-20260325-1930.json |
+      | 2026-03-25 20:30 | network_2nodes_pst.uct | crac-20260325-2030.json |
+      | 2026-03-25 21:30 | network_2nodes_pst.uct | crac-20260325-2130.json |
     When I launch marmot
     Then the time-coupled security status should be "SECURED"
     # 19:30 is secured without any action
@@ -39,11 +41,13 @@ Feature: 4.3.1: Time-coupled PST tap gradient constraints
   constraints. The network is secure at 19:30 and 20:30, then overloaded at 21:30 where the PST must be at 3
   in order to solve it. The MIP starts moving the PST one tap at a time for it to reach 3 by 21:30.
     Given configuration file is "common/rao_parameters_min_cost_megawatt_dc.json"
+    Given crac files are in folder "4_time_coupled/4_3_pst_constraints"
+    Given network files are in folder "4_time_coupled/4_3_pst_constraints"
     Given time-coupled constraints are in file "4_time_coupled/time-coupled-pst-constraints-with-one-tap-per-hour.json" and rao inputs are:
       | Timestamp        | Network                                                   | CRAC                                                       |
-      | 2026-03-25 19:30 | 4_time_coupled/4_3_pst_constraints/network_2nodes_pst.uct | 4_time_coupled/4_3_pst_constraints/crac-20260325-1930.json |
-      | 2026-03-25 20:30 | 4_time_coupled/4_3_pst_constraints/network_2nodes_pst.uct | 4_time_coupled/4_3_pst_constraints/crac-20260325-2030.json |
-      | 2026-03-25 21:30 | 4_time_coupled/4_3_pst_constraints/network_2nodes_pst.uct | 4_time_coupled/4_3_pst_constraints/crac-20260325-2130.json |
+      | 2026-03-25 19:30 | network_2nodes_pst.uct | crac-20260325-1930.json |
+      | 2026-03-25 20:30 | network_2nodes_pst.uct | crac-20260325-2030.json |
+      | 2026-03-25 21:30 | network_2nodes_pst.uct | crac-20260325-2130.json |
     When I launch marmot
     Then the time-coupled security status should be "SECURED"
     # 19:30 is secure but the PST is prepared at tap 1, it will solve 21:30
@@ -60,10 +64,12 @@ Feature: 4.3.1: Time-coupled PST tap gradient constraints
   Scenario: 4.3.1.3: Tap gradient with 30 minute gaps between timestamps
   Same case as before with a constraint of +/-2 tap/h with the timestamps at 30 minutes apart instead of 1 hour.
     Given configuration file is "common/rao_parameters_min_cost_megawatt_dc.json"
+    Given crac files are in folder "4_time_coupled/4_3_pst_constraints"
+    Given network files are in folder "4_time_coupled/4_3_pst_constraints"
     Given time-coupled constraints are in file "4_time_coupled/time-coupled-pst-constraints-with-two-taps-per-hour.json" and rao inputs are:
       | Timestamp        | Network                                                   | CRAC                                                       |
-      | 2026-03-25 19:30 | 4_time_coupled/4_3_pst_constraints/network_2nodes_pst.uct | 4_time_coupled/4_3_pst_constraints/crac-20260325-1930.json |
-      | 2026-03-25 20:00 | 4_time_coupled/4_3_pst_constraints/network_2nodes_pst.uct | 4_time_coupled/4_3_pst_constraints/crac-20260325-2000.json |
+      | 2026-03-25 19:30 | network_2nodes_pst.uct | crac-20260325-1930.json |
+      | 2026-03-25 20:00 | network_2nodes_pst.uct | crac-20260325-2000.json |
     When I launch marmot
     Then the time-coupled security status should be "SECURED"
     Then the remedial action "pst_be_fr" is used at timestamp "2026-03-25 19:30" in preventive

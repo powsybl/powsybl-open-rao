@@ -15,32 +15,34 @@ From 20:30 to 23:30, 3000 MW of redispatching
   The generator starts at 10h30 instead of 8h30 -> 2200MW overload
   The generator stops at 13h30 instead of 15h30 -> 2200MW overload
     Given configuration file is "4_time_coupled/rao_parameters_min_cost_megawatt_dc_0_shift_penalty_100.json"
+    Given crac files are in folder "4_time_coupled/4_1_generator_constraints/4_1_2_6"
+    Given network files are in folder "4_time_coupled"
     Given time-coupled constraints are in file "4_time_coupled/time-coupled-constraints-4_1_5_1.json" and rao inputs are:
       | Timestamp        | Network                      | CRAC                                   |
-      | 2025-11-04 00:30 | 4_time_coupled/6Nodes_Pmin1000.xiidm | 4_time_coupled/4_1_generator_constraints/4_1_2_6/crac_202511040030.json |
-      | 2025-11-04 01:30 | 4_time_coupled/6Nodes_Pmin1000.xiidm | 4_time_coupled/4_1_generator_constraints/4_1_2_6/crac_202511040130.json |
-      | 2025-11-04 02:30 | 4_time_coupled/6Nodes_Pmin1000.xiidm | 4_time_coupled/4_1_generator_constraints/4_1_2_6/crac_202511040230.json |
-      | 2025-11-04 03:30 | 4_time_coupled/6Nodes_Pmin1000.xiidm | 4_time_coupled/4_1_generator_constraints/4_1_2_6/crac_202511040330.json |
-      | 2025-11-04 04:30 | 4_time_coupled/6Nodes_Pmin1000.xiidm | 4_time_coupled/4_1_generator_constraints/4_1_2_6/crac_202511040430.json |
-      | 2025-11-04 06:30 | 4_time_coupled/6Nodes_Pmin1000.xiidm | 4_time_coupled/4_1_generator_constraints/4_1_2_6/crac_202511040630.json |
-      | 2025-11-04 07:30 | 4_time_coupled/6Nodes_Pmin1000.xiidm | 4_time_coupled/4_1_generator_constraints/4_1_2_6/crac_202511040730.json |
-      | 2025-11-04 05:30 | 4_time_coupled/6Nodes_Pmin1000.xiidm | 4_time_coupled/4_1_generator_constraints/4_1_2_6/crac_202511040530.json |
-      | 2025-11-04 08:30 | 4_time_coupled/6Nodes_Pmin1000.xiidm | 4_time_coupled/4_1_generator_constraints/4_1_2_6/crac_202511040830.json |
-      | 2025-11-04 09:30 | 4_time_coupled/6Nodes_Pmin1000.xiidm | 4_time_coupled/4_1_generator_constraints/4_1_2_6/crac_202511040930.json |
-      | 2025-11-04 10:30 | 4_time_coupled/6Nodes_Pmin1000.xiidm | 4_time_coupled/4_1_generator_constraints/4_1_2_6/crac_202511041030.json |
-      | 2025-11-04 11:30 | 4_time_coupled/6Nodes_Pmin1000.xiidm | 4_time_coupled/4_1_generator_constraints/4_1_2_6/crac_202511041130.json |
-      | 2025-11-04 12:30 | 4_time_coupled/6Nodes_Pmin1000.xiidm | 4_time_coupled/4_1_generator_constraints/4_1_2_6/crac_202511041230.json |
-      | 2025-11-04 13:30 | 4_time_coupled/6Nodes_Pmin1000.xiidm | 4_time_coupled/4_1_generator_constraints/4_1_2_6/crac_202511041330.json |
-      | 2025-11-04 14:30 | 4_time_coupled/6Nodes_Pmin1000.xiidm | 4_time_coupled/4_1_generator_constraints/4_1_2_6/crac_202511041430.json |
-      | 2025-11-04 15:30 | 4_time_coupled/6Nodes_Pmin1000.xiidm | 4_time_coupled/4_1_generator_constraints/4_1_2_6/crac_202511041530.json |
-      | 2025-11-04 16:30 | 4_time_coupled/6Nodes_Pmin1000.xiidm | 4_time_coupled/4_1_generator_constraints/4_1_2_6/crac_202511041630.json |
-      | 2025-11-04 17:30 | 4_time_coupled/6Nodes_Pmin1000.xiidm | 4_time_coupled/4_1_generator_constraints/4_1_2_6/crac_202511041730.json |
-      | 2025-11-04 18:30 | 4_time_coupled/6Nodes_Pmin1000.xiidm | 4_time_coupled/4_1_generator_constraints/4_1_2_6/crac_202511041830.json |
-      | 2025-11-04 19:30 | 4_time_coupled/6Nodes_Pmin1000.xiidm | 4_time_coupled/4_1_generator_constraints/4_1_2_6/crac_202511041930.json |
-      | 2025-11-04 20:30 | 4_time_coupled/6Nodes_Pmin1000.xiidm | 4_time_coupled/4_1_generator_constraints/4_1_2_6/crac_202511042030.json |
-      | 2025-11-04 21:30 | 4_time_coupled/6Nodes_Pmin1000.xiidm | 4_time_coupled/4_1_generator_constraints/4_1_2_6/crac_202511042130.json |
-      | 2025-11-04 22:30 | 4_time_coupled/6Nodes_Pmin1000.xiidm | 4_time_coupled/4_1_generator_constraints/4_1_2_6/crac_202511042230.json |
-      | 2025-11-04 23:30 | 4_time_coupled/6Nodes_Pmin1000.xiidm | 4_time_coupled/4_1_generator_constraints/4_1_2_6/crac_202511042330.json |
+      | 2025-11-04 00:30 | 6Nodes_Pmin1000.xiidm | crac_202511040030.json |
+      | 2025-11-04 01:30 | 6Nodes_Pmin1000.xiidm | crac_202511040130.json |
+      | 2025-11-04 02:30 | 6Nodes_Pmin1000.xiidm | crac_202511040230.json |
+      | 2025-11-04 03:30 | 6Nodes_Pmin1000.xiidm | crac_202511040330.json |
+      | 2025-11-04 04:30 | 6Nodes_Pmin1000.xiidm | crac_202511040430.json |
+      | 2025-11-04 06:30 | 6Nodes_Pmin1000.xiidm | crac_202511040630.json |
+      | 2025-11-04 07:30 | 6Nodes_Pmin1000.xiidm | crac_202511040730.json |
+      | 2025-11-04 05:30 | 6Nodes_Pmin1000.xiidm | crac_202511040530.json |
+      | 2025-11-04 08:30 | 6Nodes_Pmin1000.xiidm | crac_202511040830.json |
+      | 2025-11-04 09:30 | 6Nodes_Pmin1000.xiidm | crac_202511040930.json |
+      | 2025-11-04 10:30 | 6Nodes_Pmin1000.xiidm | crac_202511041030.json |
+      | 2025-11-04 11:30 | 6Nodes_Pmin1000.xiidm | crac_202511041130.json |
+      | 2025-11-04 12:30 | 6Nodes_Pmin1000.xiidm | crac_202511041230.json |
+      | 2025-11-04 13:30 | 6Nodes_Pmin1000.xiidm | crac_202511041330.json |
+      | 2025-11-04 14:30 | 6Nodes_Pmin1000.xiidm | crac_202511041430.json |
+      | 2025-11-04 15:30 | 6Nodes_Pmin1000.xiidm | crac_202511041530.json |
+      | 2025-11-04 16:30 | 6Nodes_Pmin1000.xiidm | crac_202511041630.json |
+      | 2025-11-04 17:30 | 6Nodes_Pmin1000.xiidm | crac_202511041730.json |
+      | 2025-11-04 18:30 | 6Nodes_Pmin1000.xiidm | crac_202511041830.json |
+      | 2025-11-04 19:30 | 6Nodes_Pmin1000.xiidm | crac_202511041930.json |
+      | 2025-11-04 20:30 | 6Nodes_Pmin1000.xiidm | crac_202511042030.json |
+      | 2025-11-04 21:30 | 6Nodes_Pmin1000.xiidm | crac_202511042130.json |
+      | 2025-11-04 22:30 | 6Nodes_Pmin1000.xiidm | crac_202511042230.json |
+      | 2025-11-04 23:30 | 6Nodes_Pmin1000.xiidm | crac_202511042330.json |
     When I launch marmot
     # Timestamp 00:30: 10 (activation) + 50 * 3000 MW (variation) = 150010
     Then the total cost for timestamp "2025-11-04 00:30" is 150010.0
@@ -145,32 +147,34 @@ From 20:30 to 23:30, 3000 MW of redispatching
     Between a stop and a restart of the generator, we need to wait at least 5.75h -> 6h.
     We end up in the same situation as 4.5.2.1. The generator stays off for more than minOffTime because of the lead and lag time constraints.
     Given configuration file is "4_time_coupled/rao_parameters_min_cost_megawatt_dc_0_shift_penalty_100.json"
+    Given crac files are in folder "4_time_coupled/4_1_generator_constraints/4_1_2_6"
+    Given network files are in folder "4_time_coupled"
     Given time-coupled constraints are in file "4_time_coupled/time-coupled-constraints-4_1_5_2.json" and rao inputs are:
-      | Timestamp        | Network                              | CRAC                                                                    |
-      | 2025-11-04 00:30 | 4_time_coupled/6Nodes_Pmin1000.xiidm | 4_time_coupled/4_1_generator_constraints/4_1_2_6/crac_202511040030.json |
-      | 2025-11-04 01:30 | 4_time_coupled/6Nodes_Pmin1000.xiidm | 4_time_coupled/4_1_generator_constraints/4_1_2_6/crac_202511040130.json |
-      | 2025-11-04 02:30 | 4_time_coupled/6Nodes_Pmin1000.xiidm | 4_time_coupled/4_1_generator_constraints/4_1_2_6/crac_202511040230.json |
-      | 2025-11-04 03:30 | 4_time_coupled/6Nodes_Pmin1000.xiidm | 4_time_coupled/4_1_generator_constraints/4_1_2_6/crac_202511040330.json |
-      | 2025-11-04 04:30 | 4_time_coupled/6Nodes_Pmin1000.xiidm | 4_time_coupled/4_1_generator_constraints/4_1_2_6/crac_202511040430.json |
-      | 2025-11-04 06:30 | 4_time_coupled/6Nodes_Pmin1000.xiidm | 4_time_coupled/4_1_generator_constraints/4_1_2_6/crac_202511040630.json |
-      | 2025-11-04 07:30 | 4_time_coupled/6Nodes_Pmin1000.xiidm | 4_time_coupled/4_1_generator_constraints/4_1_2_6/crac_202511040730.json |
-      | 2025-11-04 05:30 | 4_time_coupled/6Nodes_Pmin1000.xiidm | 4_time_coupled/4_1_generator_constraints/4_1_2_6/crac_202511040530.json |
-      | 2025-11-04 08:30 | 4_time_coupled/6Nodes_Pmin1000.xiidm | 4_time_coupled/4_1_generator_constraints/4_1_2_6/crac_202511040830.json |
-      | 2025-11-04 09:30 | 4_time_coupled/6Nodes_Pmin1000.xiidm | 4_time_coupled/4_1_generator_constraints/4_1_2_6/crac_202511040930.json |
-      | 2025-11-04 10:30 | 4_time_coupled/6Nodes_Pmin1000.xiidm | 4_time_coupled/4_1_generator_constraints/4_1_2_6/crac_202511041030.json |
-      | 2025-11-04 11:30 | 4_time_coupled/6Nodes_Pmin1000.xiidm | 4_time_coupled/4_1_generator_constraints/4_1_2_6/crac_202511041130.json |
-      | 2025-11-04 12:30 | 4_time_coupled/6Nodes_Pmin1000.xiidm | 4_time_coupled/4_1_generator_constraints/4_1_2_6/crac_202511041230.json |
-      | 2025-11-04 13:30 | 4_time_coupled/6Nodes_Pmin1000.xiidm | 4_time_coupled/4_1_generator_constraints/4_1_2_6/crac_202511041330.json |
-      | 2025-11-04 14:30 | 4_time_coupled/6Nodes_Pmin1000.xiidm | 4_time_coupled/4_1_generator_constraints/4_1_2_6/crac_202511041430.json |
-      | 2025-11-04 15:30 | 4_time_coupled/6Nodes_Pmin1000.xiidm | 4_time_coupled/4_1_generator_constraints/4_1_2_6/crac_202511041530.json |
-      | 2025-11-04 16:30 | 4_time_coupled/6Nodes_Pmin1000.xiidm | 4_time_coupled/4_1_generator_constraints/4_1_2_6/crac_202511041630.json |
-      | 2025-11-04 17:30 | 4_time_coupled/6Nodes_Pmin1000.xiidm | 4_time_coupled/4_1_generator_constraints/4_1_2_6/crac_202511041730.json |
-      | 2025-11-04 18:30 | 4_time_coupled/6Nodes_Pmin1000.xiidm | 4_time_coupled/4_1_generator_constraints/4_1_2_6/crac_202511041830.json |
-      | 2025-11-04 19:30 | 4_time_coupled/6Nodes_Pmin1000.xiidm | 4_time_coupled/4_1_generator_constraints/4_1_2_6/crac_202511041930.json |
-      | 2025-11-04 20:30 | 4_time_coupled/6Nodes_Pmin1000.xiidm | 4_time_coupled/4_1_generator_constraints/4_1_2_6/crac_202511042030.json |
-      | 2025-11-04 21:30 | 4_time_coupled/6Nodes_Pmin1000.xiidm | 4_time_coupled/4_1_generator_constraints/4_1_2_6/crac_202511042130.json |
-      | 2025-11-04 22:30 | 4_time_coupled/6Nodes_Pmin1000.xiidm | 4_time_coupled/4_1_generator_constraints/4_1_2_6/crac_202511042230.json |
-      | 2025-11-04 23:30 | 4_time_coupled/6Nodes_Pmin1000.xiidm | 4_time_coupled/4_1_generator_constraints/4_1_2_6/crac_202511042330.json |
+      | Timestamp        | Network               | CRAC                   |
+      | 2025-11-04 00:30 | 6Nodes_Pmin1000.xiidm | crac_202511040030.json |
+      | 2025-11-04 01:30 | 6Nodes_Pmin1000.xiidm | crac_202511040130.json |
+      | 2025-11-04 02:30 | 6Nodes_Pmin1000.xiidm | crac_202511040230.json |
+      | 2025-11-04 03:30 | 6Nodes_Pmin1000.xiidm | crac_202511040330.json |
+      | 2025-11-04 04:30 | 6Nodes_Pmin1000.xiidm | crac_202511040430.json |
+      | 2025-11-04 06:30 | 6Nodes_Pmin1000.xiidm | crac_202511040630.json |
+      | 2025-11-04 07:30 | 6Nodes_Pmin1000.xiidm | crac_202511040730.json |
+      | 2025-11-04 05:30 | 6Nodes_Pmin1000.xiidm | crac_202511040530.json |
+      | 2025-11-04 08:30 | 6Nodes_Pmin1000.xiidm | crac_202511040830.json |
+      | 2025-11-04 09:30 | 6Nodes_Pmin1000.xiidm | crac_202511040930.json |
+      | 2025-11-04 10:30 | 6Nodes_Pmin1000.xiidm | crac_202511041030.json |
+      | 2025-11-04 11:30 | 6Nodes_Pmin1000.xiidm | crac_202511041130.json |
+      | 2025-11-04 12:30 | 6Nodes_Pmin1000.xiidm | crac_202511041230.json |
+      | 2025-11-04 13:30 | 6Nodes_Pmin1000.xiidm | crac_202511041330.json |
+      | 2025-11-04 14:30 | 6Nodes_Pmin1000.xiidm | crac_202511041430.json |
+      | 2025-11-04 15:30 | 6Nodes_Pmin1000.xiidm | crac_202511041530.json |
+      | 2025-11-04 16:30 | 6Nodes_Pmin1000.xiidm | crac_202511041630.json |
+      | 2025-11-04 17:30 | 6Nodes_Pmin1000.xiidm | crac_202511041730.json |
+      | 2025-11-04 18:30 | 6Nodes_Pmin1000.xiidm | crac_202511041830.json |
+      | 2025-11-04 19:30 | 6Nodes_Pmin1000.xiidm | crac_202511041930.json |
+      | 2025-11-04 20:30 | 6Nodes_Pmin1000.xiidm | crac_202511042030.json |
+      | 2025-11-04 21:30 | 6Nodes_Pmin1000.xiidm | crac_202511042130.json |
+      | 2025-11-04 22:30 | 6Nodes_Pmin1000.xiidm | crac_202511042230.json |
+      | 2025-11-04 23:30 | 6Nodes_Pmin1000.xiidm | crac_202511042330.json |
     When I launch marmot
     # Timestamp 00:30: 10 (activation) + 50 * 3000 MW (variation) = 150010
     Then the total cost for timestamp "2025-11-04 00:30" is 150010.0
