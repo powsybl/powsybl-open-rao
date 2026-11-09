@@ -17,7 +17,7 @@ import com.powsybl.openrao.commons.Unit;
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
-public class BranchThreshold extends Threshold {
+class BranchThreshold extends Threshold {
 
     /**
      * Side of the network element which is monitored
@@ -33,7 +33,7 @@ public class BranchThreshold extends Threshold {
         this.side = side;
     }
 
-    public TwoSides getSide() {
+    TwoSides getSide() {
         return side;
     }
 

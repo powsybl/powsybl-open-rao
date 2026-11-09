@@ -16,7 +16,7 @@ import java.util.Optional;
  *
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
-public class Threshold {
+class Threshold {
 
     protected Unit unit;
     protected Double min;
@@ -28,24 +28,24 @@ public class Threshold {
         this.max = max;
     }
 
-    public double getMin() {
+    double getMin() {
         return min == null ? Double.NaN : min;
     }
 
-    public double getMax() {
+    double getMax() {
         return max == null ? Double.NaN : max;
     }
 
-    public Unit getUnit() {
+    Unit getUnit() {
         return unit;
     }
 
-    public Optional<Double> min() {
+    Optional<Double> min() {
         // So that it returns Optional.empty() if min value is null or NaN
         return Optional.ofNullable(Double.isNaN(getMin()) ? null : min);
     }
 
-    public Optional<Double> max() {
+    Optional<Double> max() {
         // So that it returns Optional.empty() if max value is null or NaN
         return Optional.ofNullable(Double.isNaN(getMax()) ? null : max);
     }
