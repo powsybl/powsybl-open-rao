@@ -223,7 +223,7 @@ public final class HvdcUtils {
         for (HvdcRangeAction hvdcRa : hvdcRangeActionsWithHvdcLineInAcEmulation) {
             String hvdcLineId = hvdcRa.getNetworkElementId();
             HvdcLine hvdcLine = IidmHvdcHelper.getHvdcLine(network, hvdcLineId);
-            double activePowerSetpoint = controls.get(hvdcLineId);
+            double activePowerSetpoint = Math.round(controls.get(hvdcLineId));
 
             // Valid only if not NaN and within admissible range
             boolean isValid = !Double.isNaN(activePowerSetpoint) // NaN if HVDC line is disconnected
@@ -277,21 +277,6 @@ public final class HvdcUtils {
         network.getVariantManager().removeVariant(tmpVariant);
 
         return controls;
-    }
-
-    public static Map<State, Set<HvdcRangeAction>> getHvdcRangeActionsPerStateAssociatedWithHvdcLine(
-        Map<State, Set<RangeAction<?>>> rangeActionsPerState,
-        String hvdcLineId
-    ) {
-        return rangeActionsPerState.entrySet().stream()
-            .collect(Collectors.toMap(
-                Map.Entry::getKey,
-                entry -> entry.getValue().stream()
-                    .filter(HvdcRangeAction.class::isInstance)
-                    .map(HvdcRangeAction.class::cast)
-                    .filter(hvdcRangeAction -> hvdcRangeAction.getNetworkElementId().equals(hvdcLineId))
-                    .collect(Collectors.toSet())
-            ));
     }
 
     public static boolean isAcEmulationDeactivationAction(NetworkAction networkAction) {

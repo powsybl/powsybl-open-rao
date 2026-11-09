@@ -37,14 +37,8 @@ import com.powsybl.openrao.searchtreerao.result.impl.RemedialActionActivationRes
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 import org.apache.commons.lang3.tuple.Pair;
 
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
 import static com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.getPstModel;
-import static com.powsybl.openrao.searchtreerao.commons.HvdcUtils.getHvdcRangeActionsPerStateAssociatedWithHvdcLine;
-import static com.powsybl.openrao.searchtreerao.commons.HvdcUtils.isAcEmulationDeactivationAction;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -96,7 +90,6 @@ public final class IteratingLinearOptimizer {
             RangeActionActivationResult linearProblemResult = new LinearProblemResult(linearProblem, input.prePerimeterSetpoints(), input.optimizationPerimeter());
             RangeActionActivationResult currentRangeActionActivationResult = roundResult(linearProblemResult, bestResult, input, parameters);
             currentRangeActionActivationResult = resolveIfApproximatedPstTaps(bestResult, linearProblem, iteration, currentRangeActionActivationResult, input, parameters);
-            currentRangeActionActivationResult = updateWithHvdcRangeActionIfNecessary((RangeActionActivationResultImpl) currentRangeActionActivationResult, input);
 
             if (!hasAnyRangeActionChanged(currentRangeActionActivationResult, previousResult, input.optimizationPerimeter())) {
                 // If the solution has not changed, no need to run a new sensitivity computation and iteration can stop
@@ -151,42 +144,6 @@ public final class IteratingLinearOptimizer {
         }
         runSensitivityAnalysis(tmpSensitivityComputer, input.network(), iteration, reportNode);
         return tmpSensitivityComputer;
-    }
-
-    // If an AcEmulationDeactivation action was used in the leaf, add the associated HVDC range action to the list of activated range actions automatically
-    // even if MIP did not activate the range action
-    private static RangeActionActivationResult updateWithHvdcRangeActionIfNecessary(RangeActionActivationResultImpl currentRangeActionActivationResult,
-                                                                                    IteratingLinearOptimizerInput input) {
-
-        Set<NetworkAction> acEmulationDeactivationActions = input.appliedNetworkActionsInPrimaryState()
-            .getActivatedNetworkActions()
-            .stream()
-            .filter(action -> isAcEmulationDeactivationAction(action))
-            .collect(Collectors.toSet());
-
-        for (NetworkAction action : acEmulationDeactivationActions) {
-            for (String hvdcLineId : action.getNetworkElementsIds()) {
-                Map<State, Set<HvdcRangeAction>> hvdcRangeActionsPerState =
-                    getHvdcRangeActionsPerStateAssociatedWithHvdcLine(
-                        input.optimizationPerimeter().getRangeActionsPerState(),
-                        hvdcLineId
-                    );
-
-                hvdcRangeActionsPerState.forEach((state, hvdcRangeActions) ->
-                    hvdcRangeActions.forEach(hvdcRangeAction -> {
-                        if (!currentRangeActionActivationResult.getActivatedRangeActions(state).contains(hvdcRangeAction)) {
-                            currentRangeActionActivationResult.putResult(
-                                hvdcRangeAction,
-                                state,
-                                hvdcRangeAction.getCurrentSetpoint(input.network())
-                            );
-                        }
-                    })
-                );
-            }
-        }
-
-        return currentRangeActionActivationResult;
     }
 
     private static RangeActionActivationResult resolveIfApproximatedPstTaps(final IteratingLinearOptimizationResultImpl bestResult,
