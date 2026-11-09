@@ -223,7 +223,7 @@ public final class HvdcUtils {
         for (HvdcRangeAction hvdcRa : hvdcRangeActionsWithHvdcLineInAcEmulation) {
             String hvdcLineId = hvdcRa.getNetworkElementId();
             HvdcLine hvdcLine = IidmHvdcHelper.getHvdcLine(network, hvdcLineId);
-            double activePowerSetpoint = Math.round(controls.get(hvdcLineId));
+            double activePowerSetpoint = controls.get(hvdcLineId);
 
             // Valid only if not NaN and within admissible range
             boolean isValid = !Double.isNaN(activePowerSetpoint) // NaN if HVDC line is disconnected
