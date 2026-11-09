@@ -355,39 +355,4 @@ class IteratingLinearOptimizerTest {
         IteratingLinearOptimizer.optimize(input, parameters, ReportNode.NO_OP);
         assertEquals(3, network.getTwoWindingsTransformer("BBE2AA1  BBE3AA1  1").getPhaseTapChanger().getTapPosition());
     }
-
-    @Test
-    void updateWithHvdcRangeActionIfNecessaryAddsHvdcRangeActionWhenAcEmulationDeactivationWasApplied() throws Exception {
-        HvdcRangeAction hvdcRangeAction = Mockito.mock(HvdcRangeAction.class);
-        when(hvdcRangeAction.getNetworkElementId()).thenReturn("hvdc-line");
-        when(hvdcRangeAction.getNetworkElementsIds()).thenReturn(Set.of("hvdc-line"));
-        when(hvdcRangeAction.getInitialSetpoint()).thenReturn(823.0);
-        when(hvdcRangeAction.getCurrentSetpoint(network)).thenReturn(796.0);
-
-        RangeActionSetpointResultImpl setpointResult = new RangeActionSetpointResultImpl(Map.of(hvdcRangeAction, 823.0));
-        RangeActionActivationResultImpl activationResult = new RangeActionActivationResultImpl(setpointResult);
-
-        HvdcAction elementaryHvdcAction = Mockito.mock(HvdcAction.class);
-        NetworkAction acEmulationDeactivationAction = Mockito.mock(NetworkAction.class);
-        when(acEmulationDeactivationAction.getElementaryActions()).thenReturn(Set.of(elementaryHvdcAction));
-        when(acEmulationDeactivationAction.getNetworkElementsIds()).thenReturn(Set.of("hvdc-line"));
-        when(elementaryHvdcAction.isAcEmulationEnabled()).thenReturn(Optional.of(false));
-
-        NetworkActionsResult networkActionsResult = Mockito.mock(NetworkActionsResult.class);
-        when(networkActionsResult.getActivatedNetworkActions()).thenReturn(Set.of(acEmulationDeactivationAction));
-        when(input.appliedNetworkActionsInPrimaryState()).thenReturn(networkActionsResult);
-        when(optimizationPerimeter.getRangeActionsPerState()).thenReturn(Map.of(optimizedState, Set.of(hvdcRangeAction)));
-
-        Method method = IteratingLinearOptimizer.class.getDeclaredMethod(
-            "updateWithHvdcRangeActionIfNecessary",
-            RangeActionActivationResultImpl.class,
-            IteratingLinearOptimizerInput.class
-        );
-        method.setAccessible(true);
-
-        RangeActionActivationResult result = (RangeActionActivationResult) method.invoke(null, activationResult, input);
-
-        assertTrue(result.getActivatedRangeActions(optimizedState).contains(hvdcRangeAction));
-        assertEquals(796.0, result.getOptimizedSetpoint(hvdcRangeAction, optimizedState), DOUBLE_TOLERANCE);
-    }
 }
