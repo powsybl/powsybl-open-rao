@@ -9,9 +9,9 @@ Feature: 2.2.1.6: Read PST min impact threshold from config
   @fast @rao @ac @preventive-only @max-min-margin
   Scenario: 2.2.1.6.1: Run a linear RAO with default PST min impact threshold (Same as 2.2.5)
   Two PST range actions are activated, to increase the min margin.
-    Given network file is "common/TestCase12Nodes2PSTs.uct"
-    Given crac file is "epic2/SL_ep2us2case5.json"
-    Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
+    Given network file is "common/network_12nodes_2psts.uct"
+    Given crac file is "2_remedial_actions/2_2_range_actions_optimisation/2_2_1_pst_range_actions/crac_2_2_1_1_5.json"
+    Given configuration file is "common/rao_parameters_max_margin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -26,9 +26,9 @@ Feature: 2.2.1.6: Read PST min impact threshold from config
   # appears to be enough.
   @fast @rao @ac @preventive-only @max-min-margin
   Scenario: 2.2.1.6.2: Run a linear RAO with high PST min impact threshold
-    Given network file is "common/TestCase12Nodes2PSTs.uct"
-    Given crac file is "epic2/SL_ep2us2case5.json"
-    Given configuration file is "rao1/RaoParameters_maxMargin_ampere_highPSTcost.json"
+    Given network file is "common/network_12nodes_2psts.uct"
+    Given crac file is "2_remedial_actions/2_2_range_actions_optimisation/2_2_1_pst_range_actions/crac_2_2_1_1_5.json"
+    Given configuration file is "2_remedial_actions/2_2_range_actions_optimisation/2_2_1_pst_range_actions/rao_parameters_max_margin_ampere_high_ps_tcost.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
