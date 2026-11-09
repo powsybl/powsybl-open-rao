@@ -23,7 +23,7 @@ jobs:
     if: >-
       always() && (github.event_name != 'pull_request' ||
       github.event.pull_request.head.repo.fork == false)
-    # Docs-only PRs: skip all build cells except ubuntu/java, which still runs so that the
+    # Docs-only PRs: skip all build cells except ubuntu+java, which still runs so that the
     # SonarCloud analysis (and its quality-gate check) executes and reports the real result.
     # If the path-filter job FAILS, treat it as "code changed" and build everything (fail-safe).
     env:
