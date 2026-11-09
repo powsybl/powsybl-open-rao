@@ -19,6 +19,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.Optional;
+import java.util.Set;
 
 import static com.powsybl.iidm.network.TwoSides.ONE;
 import static com.powsybl.iidm.network.TwoSides.TWO;
@@ -83,8 +84,8 @@ class FlowCnecAdderImplTest {
         assertEquals(outageInstant, cnec1.getState().getInstant());
         assertEquals("cnec1Operator", cnec1.getOperator());
         assertEquals("neId1", cnec1.getNetworkElementId());
-        assertEquals(1000.0, cnec1.getUpperBound(ONE, Unit.MEGAWATT).orElseThrow(), DOUBLE_TOLERANCE);
-        assertEquals(-1000.0, cnec1.getLowerBound(ONE, Unit.MEGAWATT).orElseThrow(), DOUBLE_TOLERANCE);
+        assertEquals(1000.0, cnec1.getRawUpperBound(ONE, Unit.MEGAWATT).orElseThrow(), DOUBLE_TOLERANCE);
+        assertEquals(-1000.0, cnec1.getRawLowerBound(ONE, Unit.MEGAWATT).orElseThrow(), DOUBLE_TOLERANCE);
 
         // Verify 2nd cnec content
         assertEquals(cnec2, crac.getFlowCnec("cnecId2"));
@@ -93,8 +94,8 @@ class FlowCnecAdderImplTest {
         assertEquals("cnec2Operator", cnec2.getOperator());
         assertEquals(Optional.empty(), cnec2.getState().getContingency());
         assertEquals("neId2", cnec2.getNetworkElementId());
-        assertEquals(500.0, cnec2.getUpperBound(ONE, Unit.MEGAWATT).orElseThrow(), DOUBLE_TOLERANCE);
-        assertFalse(cnec2.getLowerBound(ONE, Unit.MEGAWATT).isPresent());
+        assertEquals(500.0, cnec2.getRawUpperBound(ONE, Unit.MEGAWATT).orElseThrow(), DOUBLE_TOLERANCE);
+        assertFalse(cnec2.getRawLowerBound(ONE, Unit.MEGAWATT).isPresent());
 
         // Verify that network elements were created
         crac.newFlowCnec()
@@ -200,8 +201,18 @@ class FlowCnecAdderImplTest {
             .withIMax(2000.)
             .add();
 
-        assertEquals(3, cnec.getThresholds().size());
-        assertTrue(cnec.getThresholds().stream().allMatch(th -> th.getSide().equals(ONE)));
+        assertEquals(100., cnec.getUpperBound(ONE, Unit.AMPERE).get());
+        assertEquals(-100., cnec.getLowerBound(ONE, Unit.AMPERE).get());
+        assertFalse(cnec.getUpperBound(TWO, Unit.AMPERE).isPresent());
+        assertFalse(cnec.getLowerBound(TWO, Unit.AMPERE).isPresent());
+
+        assertEquals(100. * 380. * Math.sqrt(3) / 1000, cnec.getUpperBound(ONE, Unit.MEGAWATT).get());
+        assertEquals(-100. * 380. * Math.sqrt(3) / 1000, cnec.getLowerBound(ONE, Unit.MEGAWATT).get());
+        assertFalse(cnec.getUpperBound(TWO, Unit.MEGAWATT).isPresent());
+        assertFalse(cnec.getLowerBound(TWO, Unit.MEGAWATT).isPresent());
+
+        assertEquals(Set.of(ONE), cnec.getMonitoredSides());
+
     }
 
     @Test
@@ -220,8 +231,17 @@ class FlowCnecAdderImplTest {
             .withIMax(2000.)
             .add();
 
-        assertEquals(3, cnec.getThresholds().size());
-        assertTrue(cnec.getThresholds().stream().allMatch(th -> th.getSide().equals(TWO)));
+        assertEquals(100.0, cnec.getUpperBound(TWO, Unit.MEGAWATT).get());
+        assertEquals(-100., cnec.getLowerBound(TWO, Unit.MEGAWATT).get());
+        assertFalse(cnec.getUpperBound(ONE, Unit.MEGAWATT).isPresent());
+        assertFalse(cnec.getLowerBound(ONE, Unit.MEGAWATT).isPresent());
+
+        assertEquals(100.0 * 1000 / (220. * Math.sqrt(3)), cnec.getUpperBound(TWO, Unit.AMPERE).get());
+        assertEquals(-100.0 * 1000 / (220. * Math.sqrt(3)), cnec.getLowerBound(TWO, Unit.AMPERE).get());
+        assertFalse(cnec.getUpperBound(ONE, Unit.AMPERE).isPresent());
+        assertFalse(cnec.getLowerBound(ONE, Unit.AMPERE).isPresent());
+
+        assertEquals(Set.of(TWO), cnec.getMonitoredSides());
     }
 
     @Test

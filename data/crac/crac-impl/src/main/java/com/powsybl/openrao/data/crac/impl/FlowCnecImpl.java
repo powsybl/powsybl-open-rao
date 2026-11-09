@@ -18,24 +18,21 @@ import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
-import com.powsybl.openrao.data.crac.api.threshold.BranchThreshold;
-import com.powsybl.openrao.data.crac.api.threshold.Threshold;
 
-import java.util.Collections;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.powsybl.openrao.commons.UnitConverter.getFlowUnitMultiplier;
+import static java.lang.String.format;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 public class FlowCnecImpl extends AbstractCnec<FlowCnec> implements FlowCnec {
 
-    private Set<BranchThreshold> thresholds;
+    // mw_lower_1, mw_lower_2, mw_upper_1, mw_upper_2, ampere_lower_1, ampere_lower_2, ampere_upper_1, ampere_upper_2
+    private double[] boundValues = {Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN};
     private final Double[] nominalVoltages = new Double[2];
-    private BranchBoundsCache bounds = new BranchBoundsCache();
     private final Double[] iMax = new Double[2];
 
     FlowCnecImpl(String id,
@@ -53,11 +50,11 @@ public class FlowCnecImpl extends AbstractCnec<FlowCnec> implements FlowCnec {
                  Double iMaxLeft,
                  Double iMaxRight) {
         super(id, name, Collections.singleton(networkElementId), operator, border, state, optimized, monitored, frm);
-        this.thresholds = thresholds;
         this.nominalVoltages[0] = nominalVLeft;
         this.nominalVoltages[1] = nominalVRight;
         this.iMax[0] = iMaxLeft;
         this.iMax[1] = iMaxRight;
+        computeBoundsFromThresholds(thresholds);
     }
 
     @Override
@@ -70,11 +67,6 @@ public class FlowCnecImpl extends AbstractCnec<FlowCnec> implements FlowCnec {
         double marginOnLowerBound = actualValue - getLowerBound(side, unit).orElse(Double.NEGATIVE_INFINITY);
         double marginOnUpperBound = getUpperBound(side, unit).orElse(Double.POSITIVE_INFINITY) - actualValue;
         return Math.min(marginOnLowerBound, marginOnUpperBound);
-    }
-
-    @Override
-    public final Set<BranchThreshold> getThresholds() {
-        return thresholds;
     }
 
     @Override
@@ -92,72 +84,135 @@ public class FlowCnecImpl extends AbstractCnec<FlowCnec> implements FlowCnec {
     }
 
     @Override
-    public Optional<Double> getLowerBound(TwoSides side, Unit requestedUnit) {
-
+    public Optional<Double> getRawLowerBound(TwoSides side, Unit requestedUnit) {
         if (!requestedUnit.equals(Unit.AMPERE) && !requestedUnit.equals(Unit.MEGAWATT)) {
             throw new OpenRaoException("FlowCnec lowerBound can only be requested in AMPERE or MEGAWATT");
         }
-        if (!bounds.isLowerBoundComputed(side, requestedUnit)) {
-            Set<BranchThreshold> limitingThresholds = thresholds.stream()
-                .filter(Threshold::limitsByMin)
-                .filter(branchThreshold -> branchThreshold.getSide().equals(side))
-                .collect(Collectors.toSet());
+        return Double.isNaN(boundValues[getIndex(side, requestedUnit, Bound.LOWER)])
+            ? Optional.empty()
+            : Optional.of(boundValues[getIndex(side, requestedUnit, Bound.LOWER)] - reliabilityMargin * getFlowUnitMultiplier(getNominalVoltage(side), Unit.MEGAWATT, requestedUnit));
 
-            if (!limitingThresholds.isEmpty()) {
-                double lowerBound = Double.NEGATIVE_INFINITY;
-                for (BranchThreshold threshold : limitingThresholds) {
-                    double currentBound = getRawBound(threshold, threshold.min().orElseThrow());
-                    Unit initialUnit = threshold.getUnit();
-                    if (initialUnit.equals(Unit.PERCENT_IMAX)) {
-                        initialUnit = Unit.AMPERE;
-                    }
-                    currentBound = currentBound * getFlowUnitMultiplier(getNominalVoltage(threshold.getSide()), initialUnit, requestedUnit);
-                    currentBound += reliabilityMargin * getFlowUnitMultiplier(getNominalVoltage(side), Unit.MEGAWATT, requestedUnit);
-                    if (currentBound > lowerBound) {
-                        lowerBound = currentBound;
-                    }
-                }
-                bounds.setLowerBound(lowerBound, side, requestedUnit);
-            } else {
-                bounds.setLowerBound(null, side, requestedUnit);
-            }
-        }
-        return Optional.ofNullable(bounds.getLowerBound(side, requestedUnit));
     }
 
     @Override
-    public Optional<Double> getUpperBound(TwoSides side, Unit requestedUnit) {
+    public Optional<Double> getLowerBound(TwoSides side, Unit requestedUnit) {
+        Double lowerBound = boundValues[getIndex(side, requestedUnit, Bound.LOWER)];
+        Unit otherUnit = requestedUnit.equals(Unit.MEGAWATT) ? Unit.AMPERE : Unit.MEGAWATT;
+        Double lowerBoundInOtherUnit = boundValues[getIndex(side, otherUnit, Bound.LOWER)];
+        if (!lowerBound.isNaN()) {
+            return Optional.of(lowerBound);
+        }
+        if (lowerBound.isNaN() && !lowerBoundInOtherUnit.isNaN()) {
+            return Optional.of(lowerBoundInOtherUnit * getFlowUnitMultiplier(getNominalVoltage(side), otherUnit, requestedUnit));
+        }
+        return Optional.empty();
+    }
+
+    @Override
+    public Set<TwoSides> getMonitoredSides() {
+        // A side is considered monitored if at least one bound was defined on this side
+        Set<TwoSides> sides = new TreeSet<>();
+        if (getLowerBound(TwoSides.ONE, Unit.MEGAWATT).isPresent() ||
+            getUpperBound(TwoSides.ONE, Unit.MEGAWATT).isPresent()) {
+            sides.add(TwoSides.ONE);
+        }
+
+        if (getLowerBound(TwoSides.TWO, Unit.MEGAWATT).isPresent() ||
+            getUpperBound(TwoSides.TWO, Unit.MEGAWATT).isPresent()) {
+            sides.add(TwoSides.TWO);
+        }
+        return sides;
+    }
+
+    private void computeBoundsFromThresholds(Set<BranchThreshold> thresholds) {
+        for (TwoSides side : Set.of(TwoSides.ONE, TwoSides.TWO)) {
+            for (Unit unit : Set.of(Unit.AMPERE, Unit.MEGAWATT)) {
+                computeLowerBound(side, unit, thresholds);
+                computeUpperBound(side, unit, thresholds);
+            }
+        }
+    }
+
+    private void computeLowerBound(TwoSides side, Unit requestedUnit, Set<BranchThreshold> thresholds) {
+        Set<BranchThreshold> limitingThresholds = thresholds.stream()
+            .filter(Threshold::limitsByMin)
+            .filter(branchThreshold -> branchThreshold.getSide().equals(side))
+            .collect(Collectors.toSet());
+        if (!limitingThresholds.isEmpty()) {
+            double lowerBound = Double.NEGATIVE_INFINITY;
+            Unit lowerBoundInitialUnit = null;
+            for (BranchThreshold threshold : limitingThresholds) {
+                double currentBound = getRawBound(threshold, threshold.min().orElseThrow());
+                Unit initialUnit = threshold.getUnit();
+                if (initialUnit.equals(Unit.PERCENT_IMAX)) {
+                    initialUnit = Unit.AMPERE;
+                }
+                currentBound = currentBound * getFlowUnitMultiplier(getNominalVoltage(threshold.getSide()), initialUnit, requestedUnit);
+                currentBound += reliabilityMargin * getFlowUnitMultiplier(getNominalVoltage(side), Unit.MEGAWATT, requestedUnit);
+                if (currentBound > lowerBound) {
+                    lowerBound = currentBound;
+                    lowerBoundInitialUnit = initialUnit;
+                }
+            }
+            if (lowerBoundInitialUnit == requestedUnit) {
+                boundValues[getIndex(side, requestedUnit, Bound.LOWER)] = lowerBound;
+            }
+        }
+    }
+
+    @Override
+    public Optional<Double> getRawUpperBound(TwoSides side, Unit requestedUnit) {
 
         if (!requestedUnit.equals(Unit.AMPERE) && !requestedUnit.equals(Unit.MEGAWATT)) {
             throw new OpenRaoException("FlowCnec upperBound can only be requested in AMPERE or MEGAWATT");
         }
 
+        return Double.isNaN(boundValues[getIndex(side, requestedUnit, Bound.UPPER)])
+            ? Optional.empty()
+            : Optional.of(boundValues[getIndex(side, requestedUnit, Bound.UPPER)] + reliabilityMargin * getFlowUnitMultiplier(getNominalVoltage(side), Unit.MEGAWATT, requestedUnit));
+    }
+
+    @Override
+    public Optional<Double> getUpperBound(TwoSides side, Unit requestedUnit) {
+        Double upperBound = boundValues[getIndex(side, requestedUnit, Bound.UPPER)];
+        Unit otherUnit = requestedUnit.equals(Unit.MEGAWATT) ? Unit.AMPERE : Unit.MEGAWATT;
+        Double upperBoundInOtherUnit = boundValues[getIndex(side, otherUnit, Bound.UPPER)];
+        if (!upperBound.isNaN()) {
+            return Optional.of(upperBound);
+        }
+        if (upperBound.isNaN() && !upperBoundInOtherUnit.isNaN()) {
+            return Optional.of(upperBoundInOtherUnit * getFlowUnitMultiplier(getNominalVoltage(side), otherUnit, requestedUnit));
+        }
+        return Optional.empty();
+    }
+
+    private void computeUpperBound(TwoSides side, Unit requestedUnit, Set<BranchThreshold> thresholds) {
         requestedUnit.checkPhysicalParameter(getPhysicalParameter());
-        if (!bounds.isUpperBoundComputed(side, requestedUnit)) {
-            Set<BranchThreshold> limitingThresholds = thresholds.stream()
-                .filter(Threshold::limitsByMax)
-                .filter(branchThreshold -> branchThreshold.getSide().equals(side))
-                .collect(Collectors.toSet());
-            if (!limitingThresholds.isEmpty()) {
-                double upperBound = Double.POSITIVE_INFINITY;
-                for (BranchThreshold threshold : limitingThresholds) {
-                    double currentBound = getRawBound(threshold, threshold.max().orElseThrow());
-                    Unit initialUnit = threshold.getUnit();
-                    if (initialUnit.equals(Unit.PERCENT_IMAX)) {
-                        initialUnit = Unit.AMPERE;
-                    }
-                    currentBound = currentBound * getFlowUnitMultiplier(getNominalVoltage(threshold.getSide()), initialUnit, requestedUnit);
-                    currentBound -= reliabilityMargin * getFlowUnitMultiplier(getNominalVoltage(side), Unit.MEGAWATT, requestedUnit);
-                    if (currentBound < upperBound) {
-                        upperBound = currentBound;
-                    }
+        Set<BranchThreshold> limitingThresholds = thresholds.stream()
+            .filter(Threshold::limitsByMax)
+            .filter(branchThreshold -> branchThreshold.getSide().equals(side))
+            .collect(Collectors.toSet());
+        if (!limitingThresholds.isEmpty()) {
+            double upperBound = Double.POSITIVE_INFINITY;
+            Unit upperBoundInitialUnit = null;
+            for (BranchThreshold threshold : limitingThresholds) {
+                double currentBound = getRawBound(threshold, threshold.max().orElseThrow());
+                Unit initialUnit = threshold.getUnit();
+                if (initialUnit.equals(Unit.PERCENT_IMAX)) {
+                    initialUnit = Unit.AMPERE;
                 }
-                bounds.setUpperBound(upperBound, side, requestedUnit);
-            } else {
-                bounds.setUpperBound(null, side, requestedUnit);
+                currentBound = currentBound * getFlowUnitMultiplier(getNominalVoltage(threshold.getSide()), initialUnit, requestedUnit);
+                currentBound -= reliabilityMargin * getFlowUnitMultiplier(getNominalVoltage(side), Unit.MEGAWATT, requestedUnit);
+                if (currentBound < upperBound) {
+                    upperBound = currentBound;
+                    upperBoundInitialUnit = initialUnit;
+                }
+            }
+
+            if (upperBoundInitialUnit == requestedUnit) {
+                boundValues[getIndex(side, requestedUnit, Bound.UPPER)] = upperBound;
             }
         }
-        return Optional.ofNullable(bounds.getUpperBound(side, requestedUnit));
     }
 
     private double getRawBound(BranchThreshold threshold, double thresholdValue) {
@@ -301,4 +356,34 @@ public class FlowCnecImpl extends AbstractCnec<FlowCnec> implements FlowCnec {
         return super.hashCode();
     }
 
+    private static int getIndex(TwoSides side, Unit unit, Bound bound) {
+        if (unit.equals(Unit.AMPERE)) {
+            return getAmpereIndex(side, bound);
+        } else if (unit.equals(Unit.MEGAWATT)) {
+            return getMegawattIndex(side, bound);
+        } else {
+            throw new UnsupportedOperationException(format("Unit %s not supported", unit));
+        }
+    }
+
+    private static int getMegawattIndex(TwoSides side, Bound bound) {
+        if (bound.equals(Bound.LOWER)) {
+            return side.equals(TwoSides.ONE) ? 0 : 1;
+        } else {
+            return side.equals(TwoSides.ONE) ? 2 : 3;
+        }
+    }
+
+    private static int getAmpereIndex(TwoSides side, Bound bound) {
+        if (bound.equals(Bound.LOWER)) {
+            return side.equals(TwoSides.ONE) ? 4 : 5;
+        } else {
+            return side.equals(TwoSides.ONE) ? 6 : 7;
+        }
+    }
+
+    private enum Bound {
+        LOWER,
+        UPPER
+    }
 }

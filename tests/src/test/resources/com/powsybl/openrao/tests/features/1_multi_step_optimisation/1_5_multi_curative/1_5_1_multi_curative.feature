@@ -9,9 +9,9 @@ Feature: 1.5.1: Multi-curative
   @fast @rao @ac @max-min-margin
   Scenario: 1.5.1.1: All combinations of auto and curative states
     # Test state tree algorithm
-    Given network file is "epic91/TestCase12Nodes_16ParallelLines.uct"
-    Given crac file is "epic91/crac_12Nodes_16ParallelLines.json"
-    Given configuration file is "epic91/RaoParameters_case_91_1_12.json"
+    Given network file is "1_multi_step_optimisation/1_5_multi_curative/network_1_5_1_1.uct"
+    Given crac file is "1_multi_step_optimisation/1_5_multi_curative/crac_1_5_1_1.json"
+    Given configuration file is "common/rao_parameters_case_common.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "UNSECURED"
@@ -33,21 +33,21 @@ Feature: 1.5.1: Multi-curative
     Then the flow on cnec "DDE1AA1  DDE2AA1  1 - Contingency NL2 BE3 C - curative" after CRA should be 0 A on side 2
     Then the flow on cnec "DDE1AA1  DDE2AA1  1 - Contingency NL2 BE3 G - curative" after CRA should be 0 A on side 2
 
-  @fast @rao @ac @multi-curative @secure-flow
+  @fast @rao @dc @multi-curative @secure-flow
   Scenario: 1.5.1.2: Multi-curative with PST range actions and Topological actions
-    The network has three parallel lines. Initially, two of them are opened and the third one is a CNEC
-    The flow on the CNEC is initially smaller than the PATL and the first TATL so no PRA is needed
-    1. First a PST is activated to go under the first curative TATL (500 MW)
-    2. One of the two other lines is parallel is closed to divide the flow by 2 and make it go under the second curative TATL (300 MW)
-    3. The second line is closed to go under the third curative TATL (250 MW)
+  The network has three parallel lines. Initially, two of them are opened and the third one is a CNEC
+  The flow on the CNEC is initially smaller than the PATL and the first TATL so no PRA is needed
+  1. First a PST is activated to go under the first curative TATL (500 MW)
+  2. One of the two other lines is parallel is closed to divide the flow by 2 and make it go under the second curative TATL (300 MW)
+  3. The second line is closed to go under the third curative TATL (250 MW)
     #
-    Given network file is "1_multi_step_optimisation/1_5_multi_curative/12Nodes3ParallelLines_disconnected.uct"
-    Given crac file is "epic91/crac_91_12_2.json"
-    Given configuration file is "epic91/RaoParameters_case_91_12_secure.json"
+    Given network file is "1_multi_step_optimisation/1_5_multi_curative/network_12nodes_3_parallel_lines_disconnected.uct"
+    Given crac file is "1_multi_step_optimisation/1_5_multi_curative/crac_1_5_1_2.json"
+    Given configuration file is "1_multi_step_optimisation/1_5_multi_curative/rao_parameters_1_5_1_secure.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
-    Then the worst margin is 10.08 A
+    Then the worst margin is 6.63 MW
     # Basecase / After PRA
     Then 0 remedial actions are used in preventive
     Then the flow on cnec "NNL2AA1  BBE3AA1  1 - preventive" after PRA should be 500.0 MW on side 1
@@ -68,15 +68,15 @@ Feature: 1.5.1: Multi-curative
     Then the remedial action "CRA_CLOSE_NL2_BE3_3" is used after "Contingency DE2 DE3 1" at "curative3"
     Then the flow on cnec "NNL2AA1  BBE3AA1  1 - Contingency DE2 DE3 1 - curative3" after "curative3" instant remedial actions should be 179.0 MW on side 1
 
-  @fast @rao @ac @multi-curative @secure-flow
+  @fast @rao @dc @multi-curative @secure-flow
   Scenario: 1.5.1.3: Multi-curative with AUTO + curative instant 1 without CRAs
-    Given network file is "epic91/TestCase16Nodes_multi_curative.uct"
-    Given crac file is "epic91/crac_91_12_auto_curative1_noCRA.json"
-    Given configuration file is "epic91/RaoParameters_case_91_12_secure.json"
+    Given network file is "1_multi_step_optimisation/1_5_multi_curative/network_16nodes_multi_curative.uct"
+    Given crac file is "1_multi_step_optimisation/1_5_multi_curative/crac_1_5_1_3.json"
+    Given configuration file is "1_multi_step_optimisation/1_5_multi_curative/rao_parameters_1_5_1_secure.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
-    Then the worst margin is 0 A
+    Then the worst margin is 0 MW
     # Basecase / After PRA (PATL 500 MW)
     Then 0 remedial actions are used in preventive
     Then the flow on cnec "BBE1AA1  BBE3AA1  1 - preventive" after PRA should be -326.0 MW on side 1
@@ -109,43 +109,43 @@ Feature: 1.5.1: Multi-curative
     Then the flow on cnec "BBE1AA1  BBE3AA1  1 - Contingency DE2 NL3 1 - curative3" after "curative3" instant remedial actions should be -283.0 MW on side 1
     And the value of the objective function after CRA should be 0.0
 
-  @fast @rao @ac @multi-curative @secure-flow
+  @fast @rao @dc @multi-curative @secure-flow
   Scenario: 1.5.1.4: Same case as previous one with ra limitations : 0 curative1 RAs, 0 curative2 RAs
-    Given network file is "1_multi_step_optimisation/1_5_multi_curative/12Nodes3ParallelLines_disconnected.uct"
-    Given crac file is "epic91/crac_91_12_2_with_ra_limits.json"
-    Given configuration file is "epic91/RaoParameters_case_91_12_secure.json"
+    Given network file is "1_multi_step_optimisation/1_5_multi_curative/network_12nodes_3_parallel_lines_disconnected.uct"
+    Given crac file is "1_multi_step_optimisation/1_5_multi_curative/crac_1_5_1_4_with_ra_limits.json"
+    Given configuration file is "1_multi_step_optimisation/1_5_multi_curative/rao_parameters_1_5_1_secure.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "UNSECURED"
-    Then the worst margin is -430.48 A
+    Then the worst margin is -283.33 MW
     Then 0 remedial actions are used after "Contingency DE2 DE3 1" at "curative1"
     Then 0 remedial actions are used after "Contingency DE2 DE3 1" at "curative2"
     Then 1 remedial actions are used after "Contingency DE2 DE3 1" at "curative3"
 
-  @fast @rao @ac @multi-curative
-  Scenario: US 91.12.5: Same case as previous one with ra limitations : 0 curative1 RAs, 1 curative2 RAs, 1 curative3 RAs
-  Same case as 91.12.3 and 91.12.4, but this time curative3 is also limited to 1 RAs.
+  @fast @rao @dc @multi-curative
+  Scenario: 1.5.1.4.bis: Same case as previous one with ra limitations : 0 curative1 RAs, 1 curative2 RAs, 1 curative3 RAs
+  Same case as 1.5.1.3 and 1.5.1.4, but this time curative3 is also limited to 1 RAs.
   This should test that the RAO is able to take into account the cumulative effect of the max-ra-usage-limit in multi-curative.
   Since one RA is used in curative2 we reached the limit and since the limit in curative3 is set to 1 no more RAs can be used in curative3.
-  Without the curative3 max-ra-usage-limit, we would have been able to secure the case (see 19.12.3).
-    Given network file is "1_multi_step_optimisation/1_5_multi_curative/12Nodes3ParallelLines_disconnected.uct"
-    Given crac file is "epic91/crac_91_12_2_with_ra_limits_2.json"
-    Given configuration file is "epic91/RaoParameters_case_91_12_secure.json"
+  Without the curative3 max-ra-usage-limit, we would have been able to secure the case (see 1.5.1.3).
+    Given network file is "1_multi_step_optimisation/1_5_multi_curative/network_12nodes_3_parallel_lines_disconnected.uct"
+    Given crac file is "1_multi_step_optimisation/1_5_multi_curative/crac_1_5_1_5_with_ra_limits.json"
+    Given configuration file is "1_multi_step_optimisation/1_5_multi_curative/rao_parameters_1_5_1_secure.json"
     When I launch rao
     Then 0 remedial actions are used after "Contingency DE2 DE3 1" at "curative1"
     Then 1 remedial actions are used after "Contingency DE2 DE3 1" at "curative2"
     Then 0 remedial actions are used after "Contingency DE2 DE3 1" at "curative3"
     And the value of the objective function after CRA should be 83.23
 
-  @fast @rao @ac @multi-curative @secure-flow
+  @fast @rao @dc @multi-curative @secure-flow
   Scenario: 1.5.1.5: Multi-curative with AUTO + curative instant 2 without CRAs
-    Given network file is "epic91/TestCase16Nodes_multi_curative.uct"
-    Given crac file is "epic91/crac_91_12_auto_curative2_noCRA.json"
-    Given configuration file is "epic91/RaoParameters_case_91_12_secure.json"
+    Given network file is "1_multi_step_optimisation/1_5_multi_curative/network_16nodes_multi_curative.uct"
+    Given crac file is "1_multi_step_optimisation/1_5_multi_curative/crac_1_5_1_5.json"
+    Given configuration file is "1_multi_step_optimisation/1_5_multi_curative/rao_parameters_1_5_1_secure.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
-    Then the worst margin is 0 A
+    Then the worst margin is 0 MW
     # Basecase / After PRA (PATL 500 MW)
     Then 0 remedial actions are used in preventive
     Then the flow on cnec "BBE1AA1  BBE3AA1  1 - preventive" after PRA should be -326.0 MW on side 1
@@ -177,15 +177,15 @@ Feature: 1.5.1: Multi-curative
     Then the remedial action "CRA_CLOSE_BE3_BE4_1" is used after "Contingency DE2 NL3 1" at "curative3"
     Then the flow on cnec "BBE1AA1  BBE3AA1  1 - Contingency DE2 NL3 1 - curative3" after "curative3" instant remedial actions should be -283.0 MW on side 1
 
-  @fast @rao @ac @multi-curative @secure-flow
+  @fast @rao @dc @multi-curative @secure-flow
   Scenario: 1.5.1.6: Multi-curative with AUTO + curative instant 3 without CRAs
-    Given network file is "epic91/TestCase16Nodes_multi_curative.uct"
-    Given crac file is "epic91/crac_91_12_auto_curative3_noCRA.json"
-    Given configuration file is "epic91/RaoParameters_case_91_12_secure.json"
+    Given network file is "1_multi_step_optimisation/1_5_multi_curative/network_16nodes_multi_curative.uct"
+    Given crac file is "1_multi_step_optimisation/1_5_multi_curative/crac_1_5_1_6.json"
+    Given configuration file is "1_multi_step_optimisation/1_5_multi_curative/rao_parameters_1_5_1_secure.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
-    Then the worst margin is 0 A
+    Then the worst margin is 0 MW
     # Basecase / After PRA (PATL 500 MW)
     Then 0 remedial actions are used in preventive
     Then the flow on cnec "BBE1AA1  BBE3AA1  1 - preventive" after PRA should be -326.0 MW on side 1
@@ -217,15 +217,15 @@ Feature: 1.5.1: Multi-curative
     Then 0 remedial actions are used after "Contingency DE2 NL3 1" at "curative3"
     Then the flow on cnec "BBE1AA1  BBE3AA1  1 - Contingency DE2 NL3 1 - curative3" after "curative3" instant remedial actions should be -283.0 MW on side 1
 
-  @fast @rao @ac @multi-curative @secure-flow
+  @fast @rao @dc @multi-curative @secure-flow
   Scenario: 1.5.1.7: Multi-curative with curative instant 1 without CRAs
-    Given network file is "epic91/TestCase16Nodes_multi_curative.uct"
-    Given crac file is "epic91/crac_91_12_curative1_noCRA.json"
-    Given configuration file is "epic91/RaoParameters_case_91_12_secure.json"
+    Given network file is "1_multi_step_optimisation/1_5_multi_curative/network_16nodes_multi_curative.uct"
+    Given crac file is "1_multi_step_optimisation/1_5_multi_curative/crac_1_5_1_7.json"
+    Given configuration file is "1_multi_step_optimisation/1_5_multi_curative/rao_parameters_1_5_1_secure.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
-    Then the worst margin is 32.7 A
+    Then the worst margin is 21.52 MW
     # Basecase / After PRA (PATL 500 MW)
     Then the initial flow on cnec "BBE1AA1  BBE3AA1  1 - preventive" should be -326.0 MW on side 1
     Then 1 remedial actions are used in preventive
@@ -251,15 +251,15 @@ Feature: 1.5.1: Multi-curative
     Then the remedial action "CRA_CLOSE_BE3_BE4_1" is used after "Contingency DE2 NL3 1" at "curative3"
     Then the flow on cnec "BBE1AA1  BBE3AA1  1 - Contingency DE2 NL3 1 - curative3" after "curative3" instant remedial actions should be -283.0 MW on side 1
 
-  @fast @rao @ac @multi-curative @max-min-margin
+  @fast @rao @dc @multi-curative @max-min-margin
   Scenario: 1.5.1.8: Multi-curative with curative instant 2 without CRAs
-    Given network file is "epic91/TestCase16Nodes_multi_curative.uct"
-    Given crac file is "epic91/crac_91_12_curative2_noCRA.json"
-    Given configuration file is "epic91/RaoParameters_case_91_12_search_tree.json"
+    Given network file is "1_multi_step_optimisation/1_5_multi_curative/network_16nodes_multi_curative.uct"
+    Given crac file is "1_multi_step_optimisation/1_5_multi_curative/crac_1_5_1_8.json"
+    Given configuration file is "1_multi_step_optimisation/1_5_multi_curative/rao_parameters_1_5_1_search_tree.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
-    Then the worst margin is 25.37 A
+    Then the worst margin is 16.7 MW
     # Basecase / After PRA (PATL 300 MW)
     Then the initial flow on cnec "BBE1AA1  BBE3AA1  1 - preventive" should be -326.0 MW on side 1
     Then 1 remedial actions are used in preventive
@@ -285,17 +285,17 @@ Feature: 1.5.1: Multi-curative
     Then the remedial action "CRA_CLOSE_BE3_BE4_1" is used after "Contingency DE2 NL3 1" at "curative3"
     Then the flow on cnec "BBE1AA1  BBE3AA1  1 - Contingency DE2 NL3 1 - curative3" after "curative3" instant remedial actions should be -283.0 MW on side 1
 
-  @fast @rao @ac @multi-curative @secure-flow
+  @fast @rao @dc @multi-curative @secure-flow
   Scenario: 1.5.1.9: Multi-curative with curative instant 3 without CRAs
     # CNECs are already secure when entering curative2 perimeter
     # C2RAs must be activated anyway in anticipation of curative3
-    Given network file is "epic91/TestCase16Nodes_multi_curative.uct"
-    Given crac file is "epic91/crac_91_12_curative3_noCRA.json"
-    Given configuration file is "epic91/RaoParameters_case_91_12_secure.json"
+    Given network file is "1_multi_step_optimisation/1_5_multi_curative/network_16nodes_multi_curative.uct"
+    Given crac file is "1_multi_step_optimisation/1_5_multi_curative/crac_1_5_1_9.json"
+    Given configuration file is "1_multi_step_optimisation/1_5_multi_curative/rao_parameters_1_5_1_secure.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
-    Then the worst margin is 25.37 A
+    Then the worst margin is 16.7 MW
     # Basecase / After PRA (PATL 300 MW)
     Then the initial flow on cnec "BBE1AA1  BBE3AA1  1 - preventive" should be -326.0 MW on side 1
     Then 1 remedial actions are used in preventive
@@ -321,15 +321,15 @@ Feature: 1.5.1: Multi-curative
     Then 0 remedial actions are used after "Contingency DE2 NL3 1" at "curative3"
     Then the flow on cnec "BBE1AA1  BBE3AA1  1 - Contingency DE2 NL3 1 - curative3" after "curative3" instant remedial actions should be -283.0 MW on side 1
 
-  @fast @rao @ac @multi-curative @secure-flow
+  @fast @rao @dc @multi-curative @secure-flow
   Scenario: 1.5.1.10: Multi-curative with ARA and no CRAs
-    Given network file is "epic91/TestCase16Nodes_multi_curative.uct"
-    Given crac file is "epic91/crac_91_12_ARA_noCRA.json"
-    Given configuration file is "epic91/RaoParameters_case_91_12_secure.json"
+    Given network file is "1_multi_step_optimisation/1_5_multi_curative/network_16nodes_multi_curative.uct"
+    Given crac file is "1_multi_step_optimisation/1_5_multi_curative/crac_1_5_1_10.json"
+    Given configuration file is "1_multi_step_optimisation/1_5_multi_curative/rao_parameters_1_5_1_secure.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
-    Then the worst margin is 0 A
+    Then the worst margin is 0 MW
     # Basecase / After PRA (PATL 300 MW)
     Then the initial flow on cnec "BBE1AA1  BBE3AA1  1 - preventive" should be -326.0 MW on side 1
     Then 0 remedial actions are used in preventive
@@ -360,15 +360,15 @@ Feature: 1.5.1: Multi-curative
     Then 0 remedial actions are used after "Contingency DE2 NL3 1" at "curative3"
     Then the flow on cnec "BBE1AA1  BBE3AA1  1 - Contingency DE2 NL3 1 - curative3" after "curative3" instant remedial actions should be -667.0 MW on side 1
 
-  @fast @rao @ac @multi-curative @secure-flow
+  @fast @rao @dc @multi-curative @secure-flow
   Scenario: 1.5.1.11: Multi-curative without CRAs
-    Given network file is "epic91/TestCase16Nodes_multi_curative.uct"
-    Given crac file is "epic91/crac_91_12_noCRA.json"
-    Given configuration file is "epic91/RaoParameters_case_91_12_secure.json"
+    Given network file is "1_multi_step_optimisation/1_5_multi_curative/network_16nodes_multi_curative.uct"
+    Given crac file is "1_multi_step_optimisation/1_5_multi_curative/crac_1_5_1_11.json"
+    Given configuration file is "1_multi_step_optimisation/1_5_multi_curative/rao_parameters_1_5_1_secure.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
-    Then the worst margin is 50.64 A
+    Then the worst margin is 33.33 MW
     # Basecase / After PRA (PATL 300 MW)
     Then the initial flow on cnec "BBE1AA1  BBE3AA1  1 - preventive" should be -326.0 MW on side 1
     Then 1 remedial actions are used in preventive
@@ -392,15 +392,15 @@ Feature: 1.5.1: Multi-curative
     Then 0 remedial actions are used after "Contingency DE2 NL3 1" at "curative3"
     Then the flow on cnec "BBE1AA1  BBE3AA1  1 - Contingency DE2 NL3 1 - curative3" after "curative3" instant remedial actions should be -667.0 MW on side 1
 
-  @fast @rao @ac @multi-curative @max-min-margin
+  @fast @rao @dc @multi-curative @max-min-margin
   Scenario: 1.5.1.12: Multi-curative with ARA and only C1RA
-    Given network file is "epic91/TestCase16Nodes_multi_curative.uct"
-    Given crac file is "epic91/crac_91_12_auto_C1RA.json"
-    Given configuration file is "epic91/RaoParameters_case_91_12_search_tree.json"
+    Given network file is "1_multi_step_optimisation/1_5_multi_curative/network_16nodes_multi_curative.uct"
+    Given crac file is "1_multi_step_optimisation/1_5_multi_curative/crac_1_5_1_12.json"
+    Given configuration file is "1_multi_step_optimisation/1_5_multi_curative/rao_parameters_1_5_1_search_tree.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
-    Then the worst margin is 0 A
+    Then the worst margin is 0 MW
     # Basecase / After PRA (PATL 500 MW)
     Then 0 remedial actions are used in preventive
     Then the flow on cnec "BBE1AA1  BBE3AA1  1 - preventive" after PRA should be -326.0 MW on side 1
@@ -432,15 +432,15 @@ Feature: 1.5.1: Multi-curative
     Then 0 remedial actions are used after "Contingency DE2 NL3 1" at "curative3"
     Then the flow on cnec "BBE1AA1  BBE3AA1  1 - Contingency DE2 NL3 1 - curative3" after "curative3" instant remedial actions should be -283.0 MW on side 1
 
-  @fast @rao @ac @multi-curative @max-min-margin
+  @fast @rao @dc @multi-curative @max-min-margin
   Scenario: 1.5.1.13: Multi-curative with ARA and only C2RA
-    Given network file is "epic91/TestCase16Nodes_multi_curative.uct"
-    Given crac file is "epic91/crac_91_12_auto_C2RA.json"
-    Given configuration file is "epic91/RaoParameters_case_91_12_search_tree.json"
+    Given network file is "1_multi_step_optimisation/1_5_multi_curative/network_16nodes_multi_curative.uct"
+    Given crac file is "1_multi_step_optimisation/1_5_multi_curative/crac_1_5_1_13.json"
+    Given configuration file is "1_multi_step_optimisation/1_5_multi_curative/rao_parameters_1_5_1_search_tree.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
-    Then the worst margin is 0 A
+    Then the worst margin is 0 MW
     # Basecase / After PRA (PATL 500 MW)
     Then 0 remedial actions are used in preventive
     Then the flow on cnec "BBE1AA1  BBE3AA1  1 - preventive" after PRA should be -326.0 MW on side 1
@@ -472,15 +472,15 @@ Feature: 1.5.1: Multi-curative
     Then 0 remedial actions are used after "Contingency DE2 NL3 1" at "curative3"
     Then the flow on cnec "BBE1AA1  BBE3AA1  1 - Contingency DE2 NL3 1 - curative3" after "curative3" instant remedial actions should be -283.0 MW on side 1
 
-  @fast @rao @ac @multi-curative @max-min-margin
+  @fast @rao @dc @multi-curative @max-min-margin
   Scenario: 1.5.1.14: Multi-curative with ARA and only C3RA
-    Given network file is "epic91/TestCase16Nodes_multi_curative.uct"
-    Given crac file is "epic91/crac_91_12_auto_C3RA.json"
-    Given configuration file is "epic91/RaoParameters_case_91_12_search_tree.json"
+    Given network file is "1_multi_step_optimisation/1_5_multi_curative/network_16nodes_multi_curative.uct"
+    Given crac file is "1_multi_step_optimisation/1_5_multi_curative/crac_1_5_1_14.json"
+    Given configuration file is "1_multi_step_optimisation/1_5_multi_curative/rao_parameters_1_5_1_search_tree.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
-    Then the worst margin is 0 A
+    Then the worst margin is 0 MW
     # Basecase / After PRA (PATL 400 MW)
     Then 0 remedial actions are used in preventive
     Then the flow on cnec "BBE1AA1  BBE3AA1  1 - preventive" after PRA should be -326.0 MW on side 1
@@ -512,15 +512,15 @@ Feature: 1.5.1: Multi-curative
     Then the tap of PstRangeAction "CRA_PST_BE" should be 3 after "Contingency DE2 NL3 1" at "curative3"
     Then the flow on cnec "BBE1AA1  BBE3AA1  1 - Contingency DE2 NL3 1 - curative3" after "curative3" instant remedial actions should be -283.0 MW on side 1
 
-  @fast @rao @ac @multi-curative @max-min-margin
+  @fast @rao @dc @multi-curative @max-min-margin
   Scenario: 1.5.1.15: Multi-curative with only C1RA
-    Given network file is "epic91/TestCase16Nodes_multi_curative.uct"
-    Given crac file is "epic91/crac_91_12_C1RA.json"
-    Given configuration file is "epic91/RaoParameters_case_91_12_search_tree.json"
+    Given network file is "1_multi_step_optimisation/1_5_multi_curative/network_16nodes_multi_curative.uct"
+    Given crac file is "1_multi_step_optimisation/1_5_multi_curative/crac_1_5_1_15.json"
+    Given configuration file is "1_multi_step_optimisation/1_5_multi_curative/rao_parameters_1_5_1_search_tree.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
-    Then the worst margin is 329.24 A
+    Then the worst margin is 216.7 MW
     # Basecase / After PRA (PATL 500 MW)
     Then the initial flow on cnec "BBE1AA1  BBE3AA1  1 - preventive" should be -326.0 MW on side 1
     Then 1 remedial actions are used in preventive
@@ -546,15 +546,15 @@ Feature: 1.5.1: Multi-curative
     Then 0 remedial actions are used after "Contingency DE2 NL3 1" at "curative3"
     Then the flow on cnec "BBE1AA1  BBE3AA1  1 - Contingency DE2 NL3 1 - curative3" after "curative3" instant remedial actions should be -283.0 MW on side 1
 
-  @fast @rao @ac @multi-curative @max-min-margin
+  @fast @rao @dc @multi-curative @max-min-margin
   Scenario: 1.5.1.16: Multi-curative with only C2RA
-    Given network file is "epic91/TestCase16Nodes_multi_curative.uct"
-    Given crac file is "epic91/crac_91_12_C2RA.json"
-    Given configuration file is "epic91/RaoParameters_case_91_12_search_tree.json"
+    Given network file is "1_multi_step_optimisation/1_5_multi_curative/network_16nodes_multi_curative.uct"
+    Given crac file is "1_multi_step_optimisation/1_5_multi_curative/crac_1_5_1_16.json"
+    Given configuration file is "1_multi_step_optimisation/1_5_multi_curative/rao_parameters_1_5_1_search_tree.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
-    Then the worst margin is 50.64 A
+    Then the worst margin is 33.33 MW
     # Basecase / After PRA (PATL 500 MW)
     Then the initial flow on cnec "BBE1AA1  BBE3AA1  1 - preventive" should be -326.0 MW on side 1
     Then 1 remedial actions are used in preventive
@@ -580,15 +580,15 @@ Feature: 1.5.1: Multi-curative
     Then 0 remedial actions are used after "Contingency DE2 NL3 1" at "curative3"
     Then the flow on cnec "BBE1AA1  BBE3AA1  1 - Contingency DE2 NL3 1 - curative3" after "curative3" instant remedial actions should be -283.0 MW on side 1
 
-  @fast @rao @ac @multi-curative @max-min-margin
+  @fast @rao @dc @multi-curative @max-min-margin
   Scenario: 1.5.1.17: Multi-curative with only C3RA
-    Given network file is "epic91/TestCase16Nodes_multi_curative.uct"
-    Given crac file is "epic91/crac_91_12_C3RA.json"
-    Given configuration file is "epic91/RaoParameters_case_91_12_search_tree.json"
+    Given network file is "1_multi_step_optimisation/1_5_multi_curative/network_16nodes_multi_curative.uct"
+    Given crac file is "1_multi_step_optimisation/1_5_multi_curative/crac_1_5_1_17.json"
+    Given configuration file is "1_multi_step_optimisation/1_5_multi_curative/rao_parameters_1_5_1_search_tree.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
-    Then the worst margin is 35.45 A
+    Then the worst margin is 23.33 MW
     # Basecase / After PRA (PATL 500 MW)
     Then the initial flow on cnec "BBE1AA1  BBE3AA1  1 - preventive" should be -326.0 MW on side 1
     Then 1 remedial actions are used in preventive
@@ -614,19 +614,19 @@ Feature: 1.5.1: Multi-curative
     Then the tap of PstRangeAction "CRA_PST_BE" should be 3 after "Contingency DE2 NL3 1" at "curative3"
     Then the flow on cnec "BBE1AA1  BBE3AA1  1 - Contingency DE2 NL3 1 - curative3" after "curative3" instant remedial actions should be -283.0 MW on side 1
 
-  @fast @rao @ac @multi-curative @secure-flow
+  @fast @rao @dc @multi-curative @secure-flow
   Scenario: 1.5.1.18: Multi-curative CNECs with PRAs only
-    This is a copy of 1.5.1.2 but CRAs are transformed into PRAs
-    Curative CNECs are now part of the preventive perimeter
-    -> Then the 3 RAs should be applied in preventive in order to solve curative constraints
+  This is a copy of 1.5.1.2 but CRAs are transformed into PRAs
+  Curative CNECs are now part of the preventive perimeter
+  -> Then the 3 RAs should be applied in preventive in order to solve curative constraints
     #
-    Given network file is "1_multi_step_optimisation/1_5_multi_curative/12Nodes3ParallelLines_disconnected.uct"
-    Given crac file is "epic91/crac_91_12_16.json"
-    Given configuration file is "epic91/RaoParameters_case_91_12_secure.json"
+    Given network file is "1_multi_step_optimisation/1_5_multi_curative/network_12nodes_3_parallel_lines_disconnected.uct"
+    Given crac file is "1_multi_step_optimisation/1_5_multi_curative/crac_1_5_1_18.json"
+    Given configuration file is "1_multi_step_optimisation/1_5_multi_curative/rao_parameters_1_5_1_secure.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
-    Then the worst margin is 107.26 A
+    Then the worst margin is 70.59 MW
     Then 3 remedial actions are used in preventive
     Then the remedial action "PRA_PST_BE" is used in preventive
     Then the tap of PstRangeAction "PRA_PST_BE" should be -11 in preventive
@@ -637,18 +637,18 @@ Feature: 1.5.1: Multi-curative
     Then the margin on cnec "NNL2AA1  BBE3AA1  1 - Contingency DE2 DE3 1 - curative2" after PRA should be 120.6 MW
     Then the margin on cnec "NNL2AA1  BBE3AA1  1 - Contingency DE2 DE3 1 - curative3" after PRA should be 70.6 MW
 
-  @fast @rao @ac @multi-curative @secure-flow
+  @fast @rao @dc @multi-curative @secure-flow
   Scenario: 1.5.1.19: Multi-curative CNECs with simple 2nd PRAO
-    This is a copy of previous case, but some useless CRAs are added to keep curative perimeters
-    -> Then the same PRAs should be applied in 2nd PRAO
+  This is a copy of previous case, but some useless CRAs are added to keep curative perimeters
+  -> Then the same PRAs should be applied in 2nd PRAO
     #
-    Given network file is "1_multi_step_optimisation/1_5_multi_curative/12Nodes3ParallelLines_disconnected.uct"
-    Given crac file is "epic91/crac_91_12_17.json"
-    Given configuration file is "1_multi_step_optimisation/1_5_multi_curative/RaoParameters_case_91_12_secure_2PRAO.json"
+    Given network file is "1_multi_step_optimisation/1_5_multi_curative/network_12nodes_3_parallel_lines_disconnected.uct"
+    Given crac file is "1_multi_step_optimisation/1_5_multi_curative/crac_1_5_1_19.json"
+    Given configuration file is "1_multi_step_optimisation/1_5_multi_curative/rao_parameters_case_1_5_2_1_secure_2prao.json"
     When I launch rao
     Then the execution details should be "Second preventive improved first preventive results"
     Then its security status should be "SECURED"
-    Then the worst margin is 107.26 A
+    Then the worst margin is 70.59 MW
     Then 3 remedial actions are used in preventive
     Then the remedial action "PRA_PST_BE" is used in preventive
     Then the tap of PstRangeAction "PRA_PST_BE" should be -11 in preventive
@@ -659,14 +659,14 @@ Feature: 1.5.1: Multi-curative
     Then the margin on cnec "NNL2AA1  BBE3AA1  1 - Contingency DE2 DE3 1 - curative2" after PRA should be 120.6 MW
     Then the margin on cnec "NNL2AA1  BBE3AA1  1 - Contingency DE2 DE3 1 - curative3" after PRA should be 70.6 MW
 
-  @fast @rao @ac @multi-curative @secure-flow
+  @fast @rao @dc @multi-curative @secure-flow
   Scenario: 1.5.1.20: Multi-curative CNECs with no CRA for curative1 and 2nd PRAO
-    This is a copy of 1.5.1.2 but only CRA that was available in curative1 is made a PRA
-    (a useless CRA is added to keep all curative perimeters)
-    Thus the other 2 CRAs should be applied as before, but the PST should be applied in 2nd PRAO
-    Given network file is "1_multi_step_optimisation/1_5_multi_curative/12Nodes3ParallelLines_disconnected.uct"
-    Given crac file is "epic91/crac_91_12_18.json"
-    Given configuration file is "1_multi_step_optimisation/1_5_multi_curative/RaoParameters_case_91_12_secure_2PRAO.json"
+  This is a copy of 1.5.1.2 but only CRA that was available in curative1 is made a PRA
+  (a useless CRA is added to keep all curative perimeters)
+  Thus the other 2 CRAs should be applied as before, but the PST should be applied in 2nd PRAO
+    Given network file is "1_multi_step_optimisation/1_5_multi_curative/network_12nodes_3_parallel_lines_disconnected.uct"
+    Given crac file is "1_multi_step_optimisation/1_5_multi_curative/crac_1_5_1_20.json"
+    Given configuration file is "1_multi_step_optimisation/1_5_multi_curative/rao_parameters_case_1_5_2_1_secure_2prao.json"
     When I launch rao
     Then the execution details should be "Second preventive improved first preventive results"
     Then its security status should be "SECURED"
@@ -700,18 +700,18 @@ Feature: 1.5.1: Multi-curative
     Then the remedial action "CRA_CLOSE_NL2_BE3_3" is used after "Contingency DE2 DE3 1" at "curative3"
     Then the flow on cnec "NNL2AA1  BBE3AA1  1 - Contingency DE2 DE3 1 - curative3" after "curative3" instant remedial actions should be 179.4 MW on side 1
 
-  @fast @rao @ac @multi-curative @secure-flow
+  @fast @rao @dc @multi-curative @secure-flow
   Scenario: 1.5.1.21: Multi-curative CNECs with no CRA for curative2 and 2nd PRAO
-    This is a copy of 1.5.1.2 but only CRA that was available in curative2 is made a PRA
-    (a useless CRA is added to keep all curative perimeters)
-    Thus the other 2 CRAs should be applied as before, but the RA_CLOSE_NL2_BE3_2 should be applied in 2nd PRAO
-    Given network file is "1_multi_step_optimisation/1_5_multi_curative/12Nodes3ParallelLines_disconnected.uct"
-    Given crac file is "epic91/crac_91_12_19.json"
-    Given configuration file is "1_multi_step_optimisation/1_5_multi_curative/RaoParameters_case_91_12_secure_2PRAO.json"
+  This is a copy of 1.5.1.2 but only CRA that was available in curative2 is made a PRA
+  (a useless CRA is added to keep all curative perimeters)
+  Thus the other 2 CRAs should be applied as before, but the RA_CLOSE_NL2_BE3_2 should be applied in 2nd PRAO
+    Given network file is "1_multi_step_optimisation/1_5_multi_curative/network_12nodes_3_parallel_lines_disconnected.uct"
+    Given crac file is "1_multi_step_optimisation/1_5_multi_curative/crac_1_5_1_21.json"
+    Given configuration file is "1_multi_step_optimisation/1_5_multi_curative/rao_parameters_case_1_5_2_1_secure_2prao.json"
     When I launch rao
     Then the execution details should be "Second preventive improved first preventive results"
     Then its security status should be "SECURED"
-    Then the worst margin is 56.02 A
+    Then the worst margin is 36.87 MW
     # Preventive
     Then 1 remedial actions are used in preventive
     Then the remedial action "PRA_CLOSE_NL2_BE3_2" is used in preventive
@@ -736,14 +736,14 @@ Feature: 1.5.1: Multi-curative
     Then the remedial action "CRA_CLOSE_NL2_BE3_3" is used after "Contingency DE2 DE3 1" at "curative3"
     Then the flow on cnec "NNL2AA1  BBE3AA1  1 - Contingency DE2 DE3 1 - curative3" after "curative3" instant remedial actions should be 179.4 MW on side 1
 
-  @fast @rao @ac @multi-curative @secure-flow
+  @fast @rao @dc @multi-curative @secure-flow
   Scenario: 1.5.1.22: Multi-curative CNECs with no CRA for curative3 and 2nd PRAO
-    This is a copy of 1.5.1.2 but only CRA that was available in curative3 is made a PRA
-    (a useless CRA is added to keep all curative perimeters)
-    Thus the other 2 CRAs should be applied as before, but the RA_CLOSE_NL2_BE3_3 should be applied in 2nd PRAO
-    Given network file is "1_multi_step_optimisation/1_5_multi_curative/12Nodes3ParallelLines_disconnected.uct"
-    Given crac file is "epic91/crac_91_12_20.json"
-    Given configuration file is "1_multi_step_optimisation/1_5_multi_curative/RaoParameters_case_91_12_secure_2PRAO.json"
+  This is a copy of 1.5.1.2 but only CRA that was available in curative3 is made a PRA
+  (a useless CRA is added to keep all curative perimeters)
+  Thus the other 2 CRAs should be applied as before, but the RA_CLOSE_NL2_BE3_3 should be applied in 2nd PRAO
+    Given network file is "1_multi_step_optimisation/1_5_multi_curative/network_12nodes_3_parallel_lines_disconnected.uct"
+    Given crac file is "1_multi_step_optimisation/1_5_multi_curative/crac_1_5_1_22.json"
+    Given configuration file is "1_multi_step_optimisation/1_5_multi_curative/rao_parameters_case_1_5_2_1_secure_2prao.json"
     When I launch rao
     Then the execution details should be "Second preventive improved first preventive results"
     Then its security status should be "SECURED"

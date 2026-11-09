@@ -12,7 +12,6 @@ import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.VoltageCnec;
 import com.powsybl.openrao.data.crac.api.cnec.VoltageCnecAdder;
-import com.powsybl.openrao.data.crac.api.threshold.Threshold;
 import com.powsybl.openrao.data.crac.api.threshold.VoltageThresholdAdder;
 
 import java.util.HashSet;
@@ -46,7 +45,7 @@ public class VoltageCnecAdderImpl extends AbstractCnecAdderImpl<VoltageCnecAdder
         return new VoltageThresholdAdderImpl(this);
     }
 
-    void addThreshold(ThresholdImpl threshold) {
+    void addThreshold(Threshold threshold) {
         thresholds.add(threshold);
     }
 

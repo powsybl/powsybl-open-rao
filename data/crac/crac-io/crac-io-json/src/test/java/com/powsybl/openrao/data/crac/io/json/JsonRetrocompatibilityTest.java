@@ -38,8 +38,6 @@ import com.powsybl.openrao.data.crac.api.range.TapRange;
 import com.powsybl.openrao.data.crac.api.rangeaction.CounterTradeRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.VariationDirection;
-import com.powsybl.openrao.data.crac.api.threshold.BranchThreshold;
-import com.powsybl.openrao.data.crac.api.threshold.Threshold;
 import com.powsybl.openrao.data.crac.api.usagerule.OnConstraint;
 import com.powsybl.openrao.data.crac.api.usagerule.OnContingencyState;
 import com.powsybl.openrao.data.crac.api.usagerule.OnFlowConstraintInCountry;
@@ -466,6 +464,15 @@ class JsonRetrocompatibilityTest {
         testContentOfV2Point12Crac(crac);
     }
 
+    @Test
+    void importV2Point13Test() throws IOException {
+        String cracFilePath = "/retrocompatibility/v2/crac-v2.13.json";
+        InputStream cracFile = getClass().getResourceAsStream(cracFilePath);
+
+        Crac crac = Crac.read(cracFilePath, cracFile, network);
+        testContentOfV2Point13Crac(crac);
+    }
+
     @ParameterizedTest
     @ValueSource(strings = {
         "/retrocompatibility/v1/crac-v1.9.json", "/retrocompatibility/v2/crac-v2.0.json", "/retrocompatibility/v2/crac-v2.1.json",
@@ -544,30 +551,36 @@ class JsonRetrocompatibilityTest {
         assertEquals("operator4", crac.getFlowCnec("cnec4prevId").getOperator());
 
         // check iMax and nominal voltage
-        assertEquals(2000., crac.getFlowCnec("cnec2prevId").getIMax(TwoSides.ONE).get(), 1e-3);
-        assertEquals(2000., crac.getFlowCnec("cnec2prevId").getIMax(TwoSides.TWO).get(), 1e-3);
         assertEquals(400., crac.getFlowCnec("cnec2prevId").getNominalVoltage(TwoSides.ONE), 1e-3);
         assertEquals(400., crac.getFlowCnec("cnec2prevId").getNominalVoltage(TwoSides.TWO), 1e-3);
-        assertTrue(crac.getFlowCnec("cnec1prevId").getIMax(TwoSides.ONE).isEmpty());
-        assertTrue(crac.getFlowCnec("cnec1prevId").getIMax(TwoSides.TWO).isEmpty());
         assertEquals(400., crac.getFlowCnec("cnec1prevId").getNominalVoltage(TwoSides.ONE), 1e-3);
         assertEquals(400., crac.getFlowCnec("cnec1prevId").getNominalVoltage(TwoSides.TWO), 1e-3);
 
         // check threshold
-        assertEquals(1, crac.getFlowCnec("cnec4prevId").getThresholds().size());
-        BranchThreshold threshold = crac.getFlowCnec("cnec4prevId").getThresholds().iterator().next();
-        assertEquals(Unit.MEGAWATT, threshold.getUnit());
-        assertEquals(TwoSides.ONE, threshold.getSide());
-        assertTrue(threshold.min().isEmpty());
-        assertEquals(500., threshold.max().orElse(0.0), 1e-3);
-        assertEquals(3, crac.getFlowCnec("cnec2prevId").getThresholds().size());
-        assertTrue(crac.getFlowCnec("cnec2prevId").getThresholds().stream()
-            .anyMatch(thr -> thr.getSide().equals(TwoSides.ONE) && thr.getUnit().equals(Unit.AMPERE) && thr.min().orElse(-999.).equals(-800.)));
-        assertTrue(crac.getFlowCnec("cnec2prevId").getThresholds().stream()
-            .anyMatch(thr -> thr.getSide().equals(TwoSides.ONE) && thr.getUnit().equals(Unit.PERCENT_IMAX) && thr.min().orElse(-999.).equals(-0.3)));
+
+        FlowCnec flowCnec1 = crac.getFlowCnec("cnec4prevId");
+        assertTrue(flowCnec1.getRawLowerBound(TwoSides.ONE, Unit.MEGAWATT).isEmpty());
+        assertTrue(flowCnec1.getRawLowerBound(TwoSides.TWO, Unit.MEGAWATT).isEmpty());
+        assertEquals(500., flowCnec1.getRawUpperBound(TwoSides.ONE, Unit.MEGAWATT).get());
+        assertTrue(flowCnec1.getRawUpperBound(TwoSides.TWO, Unit.MEGAWATT).isEmpty());
+
+        assertTrue(flowCnec1.getRawUpperBound(TwoSides.TWO, Unit.AMPERE).isEmpty());
+        assertTrue(flowCnec1.getRawUpperBound(TwoSides.ONE, Unit.AMPERE).isEmpty());
+        assertTrue(flowCnec1.getRawLowerBound(TwoSides.ONE, Unit.AMPERE).isEmpty());
+        assertTrue(flowCnec1.getRawLowerBound(TwoSides.TWO, Unit.AMPERE).isEmpty());
+
+        // lowerbound = max(-800,-800,-0.3*2000)
+        assertEquals(-600, crac.getFlowCnec("cnec2prevId").getRawLowerBound(TwoSides.ONE, Unit.AMPERE).get());
+
         // nominalV is the same on both sides so the threshold can either be defined on side ONE or TWO
-        assertTrue(crac.getFlowCnec("cnec2prevId").getThresholds().stream()
-            .anyMatch(thr -> thr.getUnit().equals(Unit.AMPERE) && thr.max().orElse(-999.).equals(1200.)));
+        assertTrue(
+            crac.getFlowCnec("cnec2prevId").getRawUpperBound(TwoSides.ONE, Unit.AMPERE)
+                .filter(bound -> bound.equals(1200.))
+                .isPresent()
+                || crac.getFlowCnec("cnec2prevId").getRawUpperBound(TwoSides.TWO, Unit.AMPERE)
+                .filter(bound -> bound.equals(1200.))
+                .isPresent()
+        );
 
         // ---------------------------
         // --- test NetworkActions ---
@@ -757,11 +770,9 @@ class JsonRetrocompatibilityTest {
         assertFalse(angleCnec.isOptimized());
         assertTrue(angleCnec.isMonitored());
         assertEquals("operator1", angleCnec.getOperator());
-        assertEquals(1, angleCnec.getThresholds().size());
-        Threshold threshold = angleCnec.getThresholds().iterator().next();
-        assertEquals(Unit.DEGREE, threshold.getUnit());
-        assertTrue(threshold.max().isEmpty());
-        assertEquals(-100., threshold.min().orElse(0.0), 1e-3);
+        assertFalse(angleCnec.getUpperBound(Unit.DEGREE).isPresent());
+        assertTrue(angleCnec.getLowerBound(Unit.DEGREE).isPresent());
+        assertEquals(-100., angleCnec.getLowerBound(Unit.DEGREE).get(), 1e-3);
 
         //test onAngleCnec range action
         RangeAction rangeAction = crac.getRangeAction("pstRange3Id");
@@ -798,11 +809,9 @@ class JsonRetrocompatibilityTest {
         assertFalse(voltageCnec.isOptimized());
         assertTrue(voltageCnec.isMonitored());
         assertEquals("operator1", voltageCnec.getOperator());
-        assertEquals(1, voltageCnec.getThresholds().size());
-        Threshold threshold = voltageCnec.getThresholds().iterator().next();
-        assertEquals(Unit.KILOVOLT, threshold.getUnit());
-        assertTrue(threshold.max().isEmpty());
-        assertEquals(380., threshold.min().orElse(0.0), 1e-3);
+        assertTrue(voltageCnec.getLowerBound(Unit.KILOVOLT).isPresent());
+        assertFalse(voltageCnec.getUpperBound(Unit.KILOVOLT).isPresent());
+        assertEquals(380., voltageCnec.getLowerBound(Unit.KILOVOLT).get(), 1e-3);
     }
 
     void testContentOfV1Point6Crac(Crac crac) {
@@ -1094,5 +1103,19 @@ class JsonRetrocompatibilityTest {
         assertEquals("FR", crac.getCounterTradeRangeAction("counterTradeRange1Id").getConnectedAreas().get(0).getAreaId());
         assertEquals(1, crac.getCounterTradeRangeAction("counterTradeRange1Id").getConnectedAreas().get(0).getBorderRanges().size());
         assertEquals("DE", crac.getCounterTradeRangeAction("counterTradeRange1Id").getConnectedAreas().get(1).getAreaId());
+    }
+
+    private void testContentOfV2Point13Crac(Crac crac) {
+        testContentOfV2Point12Crac(crac);
+
+        assertFalse(crac.getFlowCnec("cnec2prevId").getRawLowerBound(TwoSides.ONE, Unit.MEGAWATT).isPresent());
+        assertFalse(crac.getFlowCnec("cnec2prevId").getRawLowerBound(TwoSides.TWO, Unit.MEGAWATT).isPresent());
+        assertFalse(crac.getFlowCnec("cnec2prevId").getRawUpperBound(TwoSides.ONE, Unit.MEGAWATT).isPresent());
+        assertFalse(crac.getFlowCnec("cnec2prevId").getRawUpperBound(TwoSides.TWO, Unit.MEGAWATT).isPresent());
+
+        assertEquals(-600, crac.getFlowCnec("cnec2prevId").getRawLowerBound(TwoSides.ONE, Unit.AMPERE).get());
+        assertFalse(crac.getFlowCnec("cnec2prevId").getRawLowerBound(TwoSides.TWO, Unit.AMPERE).isPresent());
+        assertFalse(crac.getFlowCnec("cnec2prevId").getRawUpperBound(TwoSides.ONE, Unit.AMPERE).isPresent());
+        assertEquals(1200, crac.getFlowCnec("cnec2prevId").getRawUpperBound(TwoSides.TWO, Unit.AMPERE).get());
     }
 }

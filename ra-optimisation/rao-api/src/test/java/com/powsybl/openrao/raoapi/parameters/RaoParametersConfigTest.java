@@ -117,6 +117,16 @@ class RaoParametersConfigTest {
     }
 
     @Test
+    void checkGurobiLinearOptimizationSolverConfig() {
+        platformCfg.createModuleConfig("search-tree-range-actions-optimization");
+        MapModuleConfig linearOptimizationSolverModuleConfig = platformCfg.createModuleConfig("search-tree-linear-optimization-solver");
+        linearOptimizationSolverModuleConfig.setStringProperty("solver", "GUROBI");
+        RaoParameters parameters = RaoParameters.load(platformCfg, ReportNode.NO_OP);
+        SearchTreeRaoRangeActionsOptimizationParameters paramsExt = parameters.getExtension(OpenRaoSearchTreeParameters.class).getRangeActionsOptimizationParameters();
+        assertEquals(SearchTreeRaoRangeActionsOptimizationParameters.Solver.GUROBI, paramsExt.getLinearOptimizationSolver().getSolver());
+    }
+
+    @Test
     void checkTopoActionsOptimizationConfig() {
         MapModuleConfig topoActionsModuleConfig = platformCfg.createModuleConfig("rao-topological-actions-optimization");
         topoActionsModuleConfig.setStringProperty("relative-minimum-impact-threshold", Objects.toString(0.9));

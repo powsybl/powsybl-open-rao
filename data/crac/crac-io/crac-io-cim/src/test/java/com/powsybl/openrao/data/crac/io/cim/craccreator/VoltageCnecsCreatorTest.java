@@ -30,7 +30,6 @@ import java.io.InputStream;
 import java.nio.file.Paths;
 import java.time.OffsetDateTime;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 
@@ -240,9 +239,12 @@ class VoltageCnecsCreatorTest {
         assertNotNull(cnec);
         assertEquals(instantId, cnec.getState().getInstant().getId());
         assertEquals(contingencyId, cnec.getState().getContingency().isPresent() ? cnec.getState().getContingency().get().getId() : null);
-        assertEquals(1, cnec.getThresholds().size());
-        assertEquals(Optional.ofNullable(thresholdMin), cnec.getThresholds().iterator().next().min());
-        assertEquals(Optional.ofNullable(thresholdMax), cnec.getThresholds().iterator().next().max());
+        if (thresholdMax != null) {
+            assertEquals(thresholdMax, cnec.getUpperBound(Unit.KILOVOLT).get());
+        }
+        if (thresholdMin != null) {
+            assertEquals(thresholdMin, cnec.getLowerBound(Unit.KILOVOLT).get());
+        }
     }
 
     @Test

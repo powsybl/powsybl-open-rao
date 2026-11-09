@@ -9,9 +9,9 @@ Feature: 5.3.1.2: Handle CNEC monitored in only one direction in the optimizatio
 
   @fast @rao @ac @preventive-only @max-min-margin
   Scenario: 5.3.1.2.1: topological RA, direct CNEC unsecure initially
-    Given network file is "common/TestCase12Nodes.uct"
-    Given crac file is "epic3/SL_ep3us2_topo_direct.json"
-    Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
+    Given network file is "common/network_12nodes.uct"
+    Given crac file is "5_special_features/5_3_ac_dc_behaviour/5_3_1_ac/crac_5_3_1_2_1_topo_direct.json"
+    Given configuration file is "common/rao_parameters_max_margin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -22,9 +22,9 @@ Feature: 5.3.1.2: Handle CNEC monitored in only one direction in the optimizatio
 
   @fast @rao @ac @preventive-only @max-min-margin
   Scenario: 5.3.1.2.2: topological RA, opposite CNEC secure initially
-    Given network file is "common/TestCase12Nodes.uct"
-    Given crac file is "epic3/SL_ep3us2_topo_opposite.json"
-    Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
+    Given network file is "common/network_12nodes.uct"
+    Given crac file is "5_special_features/5_3_ac_dc_behaviour/5_3_1_ac/crac_5_3_1_2_2_topo_opposite.json"
+    Given configuration file is "common/rao_parameters_max_margin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -34,9 +34,9 @@ Feature: 5.3.1.2: Handle CNEC monitored in only one direction in the optimizatio
 
   @fast @rao @ac @preventive-only @max-min-margin
   Scenario: 5.3.1.2.3: PST range action, direct CNEC
-    Given network file is "common/TestCase12Nodes.uct"
-    Given crac file is "epic3/SL_ep3us2_pst_direct.json"
-    Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
+    Given network file is "common/network_12nodes.uct"
+    Given crac file is "5_special_features/5_3_ac_dc_behaviour/5_3_1_ac/crac_5_3_1_2_3_pst_direct.json"
+    Given configuration file is "common/rao_parameters_max_margin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "UNSECURED"
@@ -48,9 +48,9 @@ Feature: 5.3.1.2: Handle CNEC monitored in only one direction in the optimizatio
 
   @fast @rao @ac @preventive-only @max-min-margin
   Scenario: 5.3.1.2.4: PST range action, opposite CNEC
-    Given network file is "common/TestCase12Nodes.uct"
-    Given crac file is "epic3/SL_ep3us2_pst_opposite.json"
-    Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
+    Given network file is "common/network_12nodes.uct"
+    Given crac file is "5_special_features/5_3_ac_dc_behaviour/5_3_1_ac/crac_5_3_1_2_4_pst_opposite.json"
+    Given configuration file is "common/rao_parameters_max_margin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"

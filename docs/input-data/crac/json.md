@@ -322,6 +322,15 @@ one/left. The convention of OpenRAO is that a positive flow is a flow in the "di
 a flow in the "opposite" direction.
 
 #### Flow limits on a FlowCnec
+
+> JSON file:
+>  - Only **AMPERE** and **MEGAWATT** thresholds are allowed in the JSON.
+>  - For a given CNEC and a given side, and bound (max or min) -> the threshold can only be defined in one unit (the value for the other unit will be deduced by conversion)
+>
+> `FlowCNEC` Objects:
+>  - Thresholds using the **PERCENT_IMAX** unit can be defined in a `FlowCNEC` object -> however note that it will always be converted and exported in AMPERE in the JSON file 
+>  - Several threshold can be defined on the same side and bound -> only one threshold per side and bound will be kept in the JSON CRAC, the smallest max threshold and the largest min threshold will be kept
+
 A FlowCnec has flow limits, called "thresholds" in OpenRAO. These thresholds define the limits between which the power
 flow of the FlowCnec should ideally remain.
 - They can be defined in megawatt, ampere, or in percentage of the Imax of the branch (in which case the Imax is read in
@@ -383,7 +392,7 @@ crac.newFlowCnec()
     .withOperator("operator1")
     .withBorder("border")
     .newThreshold()
-      .withUnit(Unit.PERCENT_IMAX)
+      .withUnit(Unit.PERCENT_IMAX) // will be stored as AMPERE upper bound equal to 0.95 * 500
       .withSide(TwoSides.TWO)
       .withMax(0.95)
       .add()
@@ -435,8 +444,8 @@ crac.newFlowCnec()
     "min" : -450.0,
     "side" : 1
   }, {
-    "unit" : "percent_imax",
-    "max" : 0.95,
+    "unit" : "ampere",
+    "max" : 475.0,
     "side" : 2
   } ]
 } ]
@@ -526,6 +535,7 @@ An AngleCnec has the following specificities:
 - it contains two network elements, an importing node and an exporting node, that represent the importing and exporting ends of the branch.
 - the physical parameter which is monitored by the CNEC is the **angle**.
 - it must contain at least one threshold, defined in degrees. A threshold has a minimum and/or a maximum value.
+The minimum or the maximum can only be defined once.
 
 > 💡  **NOTE**
 > Angle CNECs currently cannot be optimized by the RAO, but they are monitored by an independent
@@ -630,7 +640,8 @@ cnec2 = crac.newAngleCnec()
 A VoltageCnec is a CNEC on which we monitor the voltage on substations. It has the following specificities:
 - it contains one network element (a [VoltageLevel](inv:powsyblcore:*:*#voltage-level))
 - the physical parameter which is monitored by the CNEC is the **voltage**.
-- it must contain at least one threshold, defined in kilovolts. A threshold has a minimum and/or a maximum value.
+- it must contain at least one threshold, defined in kilovolts. A threshold has a minimum and/or a maximum value. 
+The minimum or the maximum can only be defined once.
 
 > 💡  **NOTE**
 > Voltage CNECs currently cannot be optimized by the RAO, but they are monitored by an independent
@@ -1557,6 +1568,10 @@ The maximum number of applicable remedial actions defined for the third curative
 Thus, if 1 remedial action was applied during the second curative instant, only 6 remedial actions can actually be applied during the second curative instant. 
 
 ## Changelog
+
+**v2.13**
+- Remove `PERCENT_IMAX` threshold unit
+- Can only define one threshold per side and bound 
 
 **v2.12**
 - Removed counter-trade actions' `exportingArea` and `importingArea`, replaced by the mandatory `area` and the optional `connectedAreas`.
