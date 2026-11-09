@@ -64,6 +64,9 @@ public class JsonVoltageResult implements RaoResultJsonUtils.ExtensionSerializer
                     case "voltageCnecId" -> {
                         jsonParser.nextToken();
                         voltageCnec = crac.getVoltageCnec(jsonParser.getValueAsString());
+                        if (voltageCnec == null) {
+                            throw new OpenRaoException("VoltageCNEC %s does not exist in the CRAC.".formatted(jsonParser.getValueAsString()));
+                        }
                     }
                     case "initial" -> deserializeForInstant(jsonParser, voltageResultBuilder, voltageCnec, null, crac);
                     default -> deserializeForInstant(jsonParser, voltageResultBuilder, voltageCnec, jsonParser.currentName(), crac);

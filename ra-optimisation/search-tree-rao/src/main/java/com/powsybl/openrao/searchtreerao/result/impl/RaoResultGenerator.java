@@ -24,9 +24,9 @@ import com.powsybl.openrao.data.raoresult.api.extension.FlowResult;
 import com.powsybl.openrao.data.raoresult.api.extension.Metadata;
 import com.powsybl.openrao.data.raoresult.impl.RaoResultImpl;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
-import com.powsybl.openrao.searchtreerao.castor.algorithm.CastorCostResultExtensionHelper;
-import com.powsybl.openrao.searchtreerao.castor.algorithm.CastorFlowResultExtensionHelper;
-import com.powsybl.openrao.searchtreerao.castor.algorithm.CastorMetadataHelper;
+import com.powsybl.openrao.searchtreerao.castor.algorithm.CostResultExtensionHelper;
+import com.powsybl.openrao.searchtreerao.castor.algorithm.FlowResultExtensionHelper;
+import com.powsybl.openrao.searchtreerao.castor.algorithm.MetadataHelper;
 import com.powsybl.openrao.searchtreerao.castor.algorithm.Perimeter;
 import com.powsybl.openrao.searchtreerao.castor.algorithm.StateTree;
 import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
@@ -63,7 +63,7 @@ public final class RaoResultGenerator {
             .withSecurityStatus(PhysicalParameter.VOLTAGE, false)
             .build();
         raoResult.addExtension(FlowResult.class, FlowResult.builder().build()); // the extension is created by convention
-        CastorMetadataHelper.fillAndAddWithGlobalFailure(crac, raoResult, failureReason);
+        MetadataHelper.fillAndAddWithGlobalFailure(crac, raoResult, failureReason);
         return raoResult;
     }
 
@@ -77,9 +77,9 @@ public final class RaoResultGenerator {
             ))
             .build();
         Unit flowUnit = RaoUtil.getFlowUnit(raoParameters);
-        raoResult.addExtension(CostResult.class, CastorCostResultExtensionHelper.convertToExtension(initialResult));
-        raoResult.addExtension(FlowResult.class, CastorFlowResultExtensionHelper.convertToExtension(initialResult, crac, flowUnit));
-        CastorMetadataHelper.fillAndAddFromPrePerimeter(crac, raoResult, initialResult, executionDetails);
+        raoResult.addExtension(CostResult.class, CostResultExtensionHelper.convertToExtension(initialResult));
+        raoResult.addExtension(FlowResult.class, FlowResultExtensionHelper.convertToExtension(initialResult, crac, flowUnit));
+        MetadataHelper.fillAndAddFromPrePerimeter(crac, raoResult, initialResult, executionDetails);
         return raoResult;
     }
 
@@ -98,20 +98,20 @@ public final class RaoResultGenerator {
         ObjectiveFunctionResult preventiveAndOutageOnlyResult = generatePreventiveAndOutageOnlyResult(crac, initialResult, postPreventiveResult, raoParameters, reportNode);
         RaoUtil.fillWithActivatedRemedialActions(raoResultBuilder, postPreventiveResult.optimizationResult(), crac.getPreventiveState());
         RaoResultImpl raoResult = raoResultBuilder.build();
-        raoResult.addExtension(CostResult.class, CastorCostResultExtensionHelper.convertToExtension(
+        raoResult.addExtension(CostResult.class, CostResultExtensionHelper.convertToExtension(
             initialResult,
             preventiveAndOutageOnlyResult,
             postPreventiveResult.prePerimeterResultForAllFollowingStates(),
             raoParameters.getObjectiveFunctionParameters().getType().costOptimization(),
             crac.getPreventiveInstant()
         ));
-        raoResult.addExtension(FlowResult.class, CastorFlowResultExtensionHelper.convertToExtension(
+        raoResult.addExtension(FlowResult.class, FlowResultExtensionHelper.convertToExtension(
             initialResult,
             postPreventiveResult.prePerimeterResultForAllFollowingStates(),
             crac,
             raoParameters
         ));
-        CastorMetadataHelper.fillAndAddFromPrePerimeter(
+        MetadataHelper.fillAndAddFromPrePerimeter(
             crac,
             raoResult,
             postPreventiveResult.prePerimeterResultForAllFollowingStates(),
@@ -144,7 +144,7 @@ public final class RaoResultGenerator {
                 RaoUtil.getOperatorsNotSharingCras(crac, raoParameters)
             )
         ).build();
-        raoResult.addExtension(CostResult.class, CastorCostResultExtensionHelper.convertToExtension(
+        raoResult.addExtension(CostResult.class, CostResultExtensionHelper.convertToExtension(
             initialResult,
             preventiveAndOutageOnlyResult,
             postPreventiveResult.prePerimeterResultForAllFollowingStates(),
@@ -152,7 +152,7 @@ public final class RaoResultGenerator {
             raoParameters.getObjectiveFunctionParameters().getType().costOptimization(),
             crac
         ));
-        raoResult.addExtension(FlowResult.class, CastorFlowResultExtensionHelper.convertToExtension(
+        raoResult.addExtension(FlowResult.class, FlowResultExtensionHelper.convertToExtension(
             initialResult,
             postPreventiveResult.prePerimeterResultForAllFollowingStates(),
             postContingencyResults,
@@ -160,7 +160,7 @@ public final class RaoResultGenerator {
             raoParameters
         ));
         Metadata.MetadataBuilder metadataBuilder = Metadata.builder();
-        CastorMetadataHelper.fillFromPrePerimeter(metadataBuilder, crac, postPreventiveResult.prePerimeterResultForAllFollowingStates(), executionDetails);
+        MetadataHelper.fillFromPrePerimeter(metadataBuilder, crac, postPreventiveResult.prePerimeterResultForAllFollowingStates(), executionDetails);
         crac.getStates()
             .stream()
             .filter(postContingencyResults::containsKey)

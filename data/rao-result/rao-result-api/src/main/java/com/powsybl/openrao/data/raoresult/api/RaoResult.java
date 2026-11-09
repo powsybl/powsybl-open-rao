@@ -54,7 +54,7 @@ public interface RaoResult extends Extendable<RaoResult> {
     /**
      * Get the overall sensitivity computation status of the RAO
      *
-     * @deprecated since 7.5.0, use {@link Metadata} extension.
+     * @deprecated since 7.6.0, use {@link Metadata} extension.
      */
     @Deprecated(since = "7.6.0")
     default ComputationStatus getComputationStatus() {
@@ -68,7 +68,7 @@ public interface RaoResult extends Extendable<RaoResult> {
     /**
      * Get the sensitivity computation status for a given state
      *
-     * @deprecated since 7.5.0, use {@link Metadata} extension.
+     * @deprecated since 7.6.0, use {@link Metadata} extension.
      */
     @Deprecated(since = "7.6.0")
     default ComputationStatus getComputationStatus(State state) {
@@ -83,7 +83,7 @@ public interface RaoResult extends Extendable<RaoResult> {
      * It gives the flow on a {@link FlowCnec} after a given {@link Instant} and in a
      * given {@link Unit}.
      *
-     * @deprecated since 7.5.0, use {@link FlowResult} extension.
+     * @deprecated since 7.6.0, use {@link FlowResult} extension.
      *
      * @param optimizedInstant The optimized instant to be studied (set to null to access initial results)
      * @param flowCnec         The branch to be studied.
@@ -104,7 +104,7 @@ public interface RaoResult extends Extendable<RaoResult> {
      * It gives the angle on an {@link AngleCnec} at a given {@link Instant} and in a
      * given {@link Unit}.
      *
-     * @deprecated since 7.5.0, use {@link AngleResult} extension.
+     * @deprecated since 7.6.0, use {@link AngleResult} extension.
      *
      * @param optimizedInstant The optimized instant to be studied (set to null to access initial results)
      * @param angleCnec        The angle cnec to be studied.
@@ -124,7 +124,7 @@ public interface RaoResult extends Extendable<RaoResult> {
      * It gives the minimum voltage on a {@link VoltageCnec} at a given {@link Instant} and in a
      * given {@link Unit}.
      *
-     * @deprecated since 7.5.0, use {@link VoltageResult} extension.
+     * @deprecated since 7.6.0, use {@link VoltageResult} extension.
      *
      * @param optimizedInstant The optimized instant to be studied (set to null to access initial results)
      * @param voltageCnec      The voltage cnec to be studied.
@@ -144,7 +144,7 @@ public interface RaoResult extends Extendable<RaoResult> {
      * It gives the maximum voltage on a {@link VoltageCnec} at a given {@link Instant} and in a
      * given {@link Unit}.
      *
-     * @deprecated since 7.5.0, use {@link VoltageResult} extension.
+     * @deprecated since 7.6.0, use {@link VoltageResult} extension.
      *
      * @param optimizedInstant The optimized instant to be studied (set to null to access initial results)
      * @param voltageCnec      The voltage cnec to be studied.
@@ -165,7 +165,7 @@ public interface RaoResult extends Extendable<RaoResult> {
      * given {@link Unit}. It is basically the difference between the flow and the most constraining threshold in the
      * flow direction of the given branch. If it is negative the branch is under constraint.
      *
-     * @deprecated since 7.5.0, use {@link FlowResult} extension.
+     * @deprecated since 7.6.0, use {@link FlowResult} extension.
      *
      * @param optimizedInstant The optimized instant to be studied (set to null to access initial results)
      * @param flowCnec         The branch to be studied.
@@ -186,7 +186,7 @@ public interface RaoResult extends Extendable<RaoResult> {
      * given {@link Unit}. It is basically the difference between the angle and the most constraining threshold in the
      * angle direction of the given branch. If it is negative the cnec is under constraint.
      *
-     * @deprecated since 7.5.0, use {@link AngleResult} extension.
+     * @deprecated since 7.6.0, use {@link AngleResult} extension.
      *
      * @param optimizedInstant The optimized instant to be studied (set to null to access initial results)
      * @param angleCnec        The angle cnec to be studied.
@@ -207,7 +207,7 @@ public interface RaoResult extends Extendable<RaoResult> {
      * given {@link Unit}. It is basically the difference between the voltage and the most constraining threshold in the
      * of the given voltage level. If it is negative the cnec is under constraint.
      *
-     * @deprecated since 7.5.0, use {@link VoltageResult} extension.
+     * @deprecated since 7.6.0, use {@link VoltageResult} extension.
      *
      * @param optimizedInstant The optimized instant to be studied (set to null to access initial results)
      * @param voltageCnec      The voltage cnec to be studied.
@@ -231,7 +231,7 @@ public interface RaoResult extends Extendable<RaoResult> {
      * RAO. If it is negative the branch is under constraint. If the PTDFs are not defined in the
      * computation or the sum of them is null, this method could return {@code Double.NaN} values.
      *
-     * @deprecated since 7.5.0, use {@link FlowResult} extension.
+     * @deprecated since 7.6.0, use {@link FlowResult} extension.
      *
      * @param optimizedInstant The optimized instant to be studied (set to null to access initial results)
      * @param flowCnec         The branch to be studied.
@@ -252,7 +252,7 @@ public interface RaoResult extends Extendable<RaoResult> {
      * {@link Instant} and in a given {@link Unit}. If the branch is not considered as a branch on which the
      * loop flows are monitored, this method could return {@code Double.NaN} values.
      *
-     * @deprecated since 7.5.0, use {@link FlowResult} extension.
+     * @deprecated since 7.6.0, use {@link FlowResult} extension.
      *
      * @param optimizedInstant The optimized instant to be studied (set to null to access initial results)
      * @param flowCnec         The branch to be studied.
@@ -273,7 +273,7 @@ public interface RaoResult extends Extendable<RaoResult> {
      * {@link Instant} and in a given {@link Unit}. If the branch is not considered as a branch on which the
      * loop flows are monitored, this method could return {@code Double.NaN} values.
      *
-     * @deprecated since 7.5.0, use {@link FlowResult} extension.
+     * @deprecated since 7.6.0, use {@link FlowResult} extension.
      *
      * @param optimizedInstant The optimized instant to be studied (set to null to access initial results)
      * @param flowCnec         The branch to be studied.
@@ -294,7 +294,7 @@ public interface RaoResult extends Extendable<RaoResult> {
      * {@link Instant}. If the computation does not consider PTDF values or if the RAO does
      * not define any list of considered areas, this method could return {@code Double.NaN} values.
      *
-     * @deprecated since 7.5.0, use {@link FlowResult} extension.
+     * @deprecated since 7.6.0, use {@link FlowResult} extension.
      *
      * @param optimizedInstant The optimized instant to be studied (set to null to access initial results)
      * @param flowCnec         The branch to be studied.
@@ -313,7 +313,7 @@ public interface RaoResult extends Extendable<RaoResult> {
      * It gives the global cost of the situation at a given {@link Instant} according to the objective
      * function defined in the RAO.
      *
-     * @deprecated since 7.5.0, use {@link CostResult} extension.
+     * @deprecated since 7.6.0, use {@link CostResult} extension.
      *
      * @param optimizedInstant The optimized instant to be studied (set to null to access initial results)
      * @return The global cost of the situation state.
@@ -327,7 +327,7 @@ public interface RaoResult extends Extendable<RaoResult> {
      * It gives the functional cost of the situation at a given {@link Instant} according to the objective
      * function defined in the RAO. It represents the main part of the objective function.
      *
-     * @deprecated since 7.5.0, use {@link CostResult} extension.
+     * @deprecated since 7.6.0, use {@link CostResult} extension.
      *
      * @param optimizedInstant The optimized instant to be studied (set to null to access initial results)
      * @return The functional cost of the situation state.
@@ -346,7 +346,7 @@ public interface RaoResult extends Extendable<RaoResult> {
      * objective function defined in the RAO. It represents the secondary parts of the objective
      * function.
      *
-     * @deprecated since 7.5.0, use {@link CostResult} extension.
+     * @deprecated since 7.6.0, use {@link CostResult} extension.
      *
      * @param optimizedInstant The optimized instant to be studied (set to null to access initial results)
      * @return The global virtual cost of the situation state.
@@ -364,7 +364,7 @@ public interface RaoResult extends Extendable<RaoResult> {
      * It gives the names of the different virtual cost implied in the objective function defined in
      * the RAO.
      *
-     * @deprecated since 7.5.0, use {@link CostResult} extension.
+     * @deprecated since 7.6.0, use {@link CostResult} extension.
      *
      * @return The set of virtual cost names.
      */
@@ -382,7 +382,7 @@ public interface RaoResult extends Extendable<RaoResult> {
      * secondary parts of the objective. If the specified name is not part of the virtual costs defined in the
      * objective function, this method could return {@code Double.NaN} values.
      *
-     * @deprecated since 7.5.0, use {@link CostResult} extension.
+     * @deprecated since 7.6.0, use {@link CostResult} extension.
      *
      * @param optimizedInstant The optimized instant to be studied (set to null to access initial results)
      * @param virtualCostName  The name of the virtual cost.
@@ -584,7 +584,7 @@ public interface RaoResult extends Extendable<RaoResult> {
     /**
      * Know which RAO steps were executed by the RAO
      *
-     * @deprecated since 7.5.0, use {@link Metadata} extension.
+     * @deprecated since 7.6.0, use {@link Metadata} extension.
      */
     @Deprecated(since = "7.6.0")
     default String getExecutionDetails() {

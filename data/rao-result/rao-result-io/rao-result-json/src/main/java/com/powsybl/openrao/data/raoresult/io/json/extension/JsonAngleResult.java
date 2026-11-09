@@ -63,6 +63,9 @@ public class JsonAngleResult implements RaoResultJsonUtils.ExtensionSerializer<A
                     case "angleCnecId" -> {
                         jsonParser.nextToken();
                         angleCnec = crac.getAngleCnec(jsonParser.getValueAsString());
+                        if (angleCnec == null) {
+                            throw new OpenRaoException("AngleCNEC %s does not exist in the CRAC.".formatted(jsonParser.getValueAsString()));
+                        }
                     }
                     case "initial" -> deserializeForInstant(jsonParser, angleResultBuilder, angleCnec, null, crac);
                     default -> deserializeForInstant(jsonParser, angleResultBuilder, angleCnec, jsonParser.currentName(), crac);

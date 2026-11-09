@@ -9,7 +9,10 @@ package com.powsybl.openrao.data.raoresult.io.json.extension;
 
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.SerializerProvider;
+import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
@@ -26,7 +29,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import static com.powsybl.openrao.data.raoresult.io.json.deserializers.TestUtils.parserFrom;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -163,5 +168,26 @@ public class JsonAngleResultTest {
             + "\"instant2\":{\"degree\":{\"angle\":15.0}}"
             + "}]";
         assertEquals(expectedJson, writer.toString());
+    }
+
+    @Test
+    void deserializeForUnknownAngleCnec() {
+        String expectedJson = "[{"
+            + "\"angleCnecId\":\"cnec1\","
+            + "\"preventive\":{\"degree\":{\"angle\":40.0}}"
+            + "}]";
+        when(crac.getAngleCnec("cnec1")).thenReturn(null);
+
+        DeserializationContext context = Mockito.mock(DeserializationContext.class);
+        when(context.getAttribute("crac")).thenReturn(crac);
+        when(context.getAttribute("flowUnits")).thenReturn(Set.of(Unit.MEGAWATT));
+
+        try (JsonParser parser = parserFrom(expectedJson)) {
+            OpenRaoException ex = assertThrows(OpenRaoException.class,
+                () -> new JsonAngleResult().deserialize(parser, context));
+            assertEquals("AngleCNEC cnec1 does not exist in the CRAC.", ex.getMessage());
+        } catch (IOException e) {
+            throw new AssertionError("Failed to parse JSON content");
+        }
     }
 }

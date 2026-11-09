@@ -35,8 +35,8 @@ import com.powsybl.openrao.raoapi.RaoProvider;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.FastRaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
-import com.powsybl.openrao.searchtreerao.castor.algorithm.CastorFlowResultExtensionHelper;
-import com.powsybl.openrao.searchtreerao.castor.algorithm.CastorMetadataHelper;
+import com.powsybl.openrao.searchtreerao.castor.algorithm.FlowResultExtensionHelper;
+import com.powsybl.openrao.searchtreerao.castor.algorithm.MetadataHelper;
 import com.powsybl.openrao.searchtreerao.castor.algorithm.PostPerimeterSensitivityAnalysis;
 import com.powsybl.openrao.searchtreerao.castor.algorithm.PrePerimeterSensitivityAnalysis;
 import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
@@ -115,7 +115,7 @@ public class FastRao implements RaoProvider {
             String failure = String.format("Data initialisation failed: %s", e);
             CommonReports.reportExceptionMessage(reportNode, failure);
             RaoResult raoResult = RaoResultImpl.builder(raoInput.getCrac()).build();
-            CastorMetadataHelper.fillAndAddWithGlobalFailure(raoInput.getCrac(), raoResult, failure);
+            MetadataHelper.fillAndAddWithGlobalFailure(raoInput.getCrac(), raoResult, failure);
             return CompletableFuture.completedFuture(raoResult);
         }
 
@@ -171,7 +171,7 @@ public class FastRao implements RaoProvider {
                 CommonReports.reportInitialSensitivityAnalysisFailed(reportNode);
                 String failureReason = "Initial sensitivity analysis failed";
                 RaoResult raoResult = RaoResultImpl.builder(raoInput.getCrac()).build();
-                CastorMetadataHelper.fillAndAddWithGlobalFailure(raoInput.getCrac(), raoResult, failureReason);
+                MetadataHelper.fillAndAddWithGlobalFailure(raoInput.getCrac(), raoResult, failureReason);
                 return raoResult;
             }
 
@@ -405,10 +405,13 @@ public class FastRao implements RaoProvider {
         RaoResultImpl fastRaoResult = fastRaoResultBuilder.build();
 
         // TODO: this is not quite proper since CASTOR may not be the inner loop provider
-        fastRaoResult.addExtension(CostResult.class, new CostResult(raoResult.getExtension(CostResult.class)));
+        CostResult costResult = raoResult.getExtension(CostResult.class);
+        if (costResult != null) {
+            fastRaoResult.addExtension(CostResult.class, new CostResult(raoResult.getExtension(CostResult.class)));
+        }
         fastRaoResult.addExtension(
             com.powsybl.openrao.data.raoresult.api.extension.FlowResult.class,
-            regenerateFlowResult(
+            generateFlowResult(
                 initialResult,
                 crac,
                 postPraSensi.get().prePerimeterResultForAllFollowingStates(),
@@ -428,12 +431,12 @@ public class FastRao implements RaoProvider {
 
     }
 
-    private static com.powsybl.openrao.data.raoresult.api.extension.FlowResult regenerateFlowResult(PrePerimeterResult initialResult,
-                                                                                                    Crac crac,
-                                                                                                    PrePerimeterResult postPraSensi,
-                                                                                                    PostPerimeterResult postAraSensi,
-                                                                                                    PostPerimeterResult postCraSensi,
-                                                                                                    RaoParameters raoParameters) {
+    private static com.powsybl.openrao.data.raoresult.api.extension.FlowResult generateFlowResult(PrePerimeterResult initialResult,
+                                                                                                  Crac crac,
+                                                                                                  PrePerimeterResult postPraSensi,
+                                                                                                  PostPerimeterResult postAraSensi,
+                                                                                                  PostPerimeterResult postCraSensi,
+                                                                                                  RaoParameters raoParameters) {
         Map<State, PostPerimeterResult> postContingencyResults = new HashMap<>();
         for (State state : crac.getStates()) {
             switch (state.getInstant().getKind()) {
@@ -447,7 +450,7 @@ public class FastRao implements RaoProvider {
                     break;
             }
         }
-        return CastorFlowResultExtensionHelper.convertToExtension(
+        return FlowResultExtensionHelper.convertToExtension(
             initialResult,
             postPraSensi,
             postContingencyResults,

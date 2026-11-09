@@ -139,7 +139,6 @@ public class FlowResult extends AbstractExtension<RaoResult> {
     public boolean isSecure(Set<String> operatorsNotSharingCras) {
         return results.keySet()
             .stream()
-            .filter(flowCnec -> safeGetResult(flowCnec).isPresent())
             .filter(FlowCnec::isOptimized)
             .filter(flowCnec -> !flowCnec.getId().contains("OUTAGE DUPLICATE"))
             .filter(flowCnec -> !operatorsNotSharingCras.contains(flowCnec.getOperator())

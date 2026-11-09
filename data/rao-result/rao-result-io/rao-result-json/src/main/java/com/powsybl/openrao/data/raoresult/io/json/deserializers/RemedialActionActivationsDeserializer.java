@@ -128,13 +128,13 @@ final class RemedialActionActivationsDeserializer {
 
     private static void checkNoTap(RemedialAction<?> remedialAction, Integer tap, JsonParser jsonParser) throws IOException {
         if (tap != null) {
-            throw new JsonParseException(jsonParser, "Cannot define a tap for remedial action '%s' because is not a PST range action.".formatted(remedialAction.getId()));
+            throw new JsonParseException(jsonParser, "Cannot define a tap for remedial action '%s' because it is not a PST range action.".formatted(remedialAction.getId()));
         }
     }
 
     private static void checkNoSetPoint(RemedialAction<?> remedialAction, Double setPoint, JsonParser jsonParser) throws IOException {
         if (setPoint != null) {
-            throw new JsonParseException(jsonParser, "Cannot define a set-point for remedial action '%s' because is not a standard range action.".formatted(remedialAction.getId()));
+            throw new JsonParseException(jsonParser, "Cannot define a set-point for remedial action '%s' because it is not a standard range action.".formatted(remedialAction.getId()));
         }
     }
 }

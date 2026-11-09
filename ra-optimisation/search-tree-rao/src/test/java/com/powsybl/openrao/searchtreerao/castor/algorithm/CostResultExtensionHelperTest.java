@@ -26,6 +26,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+/**
+ * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
+ */
 class CostResultExtensionHelperTest {
 
     private Crac crac;
@@ -62,7 +65,7 @@ class CostResultExtensionHelperTest {
         when(initialResult.getVirtualCostNames()).thenReturn(Set.of("v1"));
         when(initialResult.getVirtualCost("v1")).thenReturn(10.0);
 
-        CostResult result = CastorCostResultExtensionHelper.convertToExtension(initialResult);
+        CostResult result = CostResultExtensionHelper.convertToExtension(initialResult);
 
         assertEquals(100.0, result.getFunctionalCost(null));
         assertEquals(10.0, result.getVirtualCost(null, "v1"));
@@ -80,7 +83,7 @@ class CostResultExtensionHelperTest {
         when(postPraResult.getVirtualCostNames()).thenReturn(Set.of("v1"));
         when(postPraResult.getVirtualCost("v1")).thenReturn(5.0);
 
-        CostResult result = CastorCostResultExtensionHelper.convertToExtension(
+        CostResult result = CostResultExtensionHelper.convertToExtension(
             initialResult,
             postPraResult,
             postPraResult,
@@ -111,7 +114,7 @@ class CostResultExtensionHelperTest {
 
         Map<State, PostPerimeterResult> postContingencyResults = Map.of(stateAuto, postPerimAuto);
 
-        CostResult result = CastorCostResultExtensionHelper.convertToExtension(
+        CostResult result = CostResultExtensionHelper.convertToExtension(
             initialResult, preventiveAndOutageOnlyResult, postPraResult, postContingencyResults, true, crac
         );
 
@@ -152,7 +155,7 @@ class CostResultExtensionHelperTest {
 
         Map<State, PostPerimeterResult> postContingencyResults = Map.of(stateAuto, postPerimAuto);
 
-        CostResult result = CastorCostResultExtensionHelper.convertToExtension(
+        CostResult result = CostResultExtensionHelper.convertToExtension(
             initialResult, preventiveAndOutageOnlyResult, postPraResult, postContingencyResults, false, crac
         );
 
@@ -192,7 +195,7 @@ class CostResultExtensionHelperTest {
         PostPerimeterResult postPerimAuto = new PostPerimeterResult(optResAuto, preResAuto);
         Map<State, PostPerimeterResult> postContingencyResults = Map.of(stateAuto, postPerimAuto);
 
-        CostResult result = CastorCostResultExtensionHelper.convertToExtension(
+        CostResult result = CostResultExtensionHelper.convertToExtension(
             initialResult, preventiveAndOutageOnlyResult, postPraResult, postContingencyResults, true, crac
         );
 
@@ -209,7 +212,7 @@ class CostResultExtensionHelperTest {
         ObjectiveFunctionResult initialResult = createMockResult(0, Map.of("v1", Double.NaN));
         ObjectiveFunctionResult postPraResult = createMockResult(0, Map.of("v1", Double.NaN));
 
-        CostResult result = CastorCostResultExtensionHelper.convertToExtension(
+        CostResult result = CostResultExtensionHelper.convertToExtension(
             initialResult,
             postPraResult,
             postPraResult,
@@ -230,7 +233,7 @@ class CostResultExtensionHelperTest {
         when(crac.getSortedInstants()).thenReturn(List.of(preventiveInstant, outageInstant, autoInstant));
 
         ObjectiveFunctionResult initialResult = createMockResult(100, Map.of());
-        CostResult result = CastorCostResultExtensionHelper.convertToExtension(initialResult);
+        CostResult result = CostResultExtensionHelper.convertToExtension(initialResult);
 
         // Outage instant should not have result
         // CostResult.getFunctionalCost(outageInstant) would return the previous instant's result (preventive)

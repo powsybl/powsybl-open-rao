@@ -9,8 +9,11 @@ package com.powsybl.openrao.data.raoresult.io.json.extension;
 
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.powsybl.iidm.network.TwoSides;
+import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
@@ -29,7 +32,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import static com.powsybl.openrao.data.raoresult.io.json.deserializers.TestUtils.parserFrom;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -261,6 +266,27 @@ public class JsonFlowResultTest {
                 + "\"preventive\":{\"megawatt\":{\"side1\":{\"flow\":300.0}}}"
                 + "}]";
             assertEquals(expectedJson, serializeToJson());
+        }
+    }
+
+    @Test
+    void deserializeForUnknownFlowCnec() {
+        String expectedJson = "[{"
+            + "\"flowCnecId\":\"cnec1\","
+            + "\"preventive\":{\"megawatt\":{\"side1\":{\"flow\":300.0}}}"
+            + "}]";
+        when(crac.getFlowCnec("cnec1")).thenReturn(null);
+
+        DeserializationContext context = Mockito.mock(DeserializationContext.class);
+        when(context.getAttribute("crac")).thenReturn(crac);
+        when(context.getAttribute("flowUnits")).thenReturn(Set.of(Unit.MEGAWATT));
+
+        try (JsonParser parser = parserFrom(expectedJson)) {
+            OpenRaoException ex = assertThrows(OpenRaoException.class,
+                () -> new JsonFlowResult().deserialize(parser, context));
+            assertEquals("FlowCNEC cnec1 does not exist in the CRAC.", ex.getMessage());
+        } catch (IOException e) {
+            throw new AssertionError("Failed to parse JSON content");
         }
     }
 }

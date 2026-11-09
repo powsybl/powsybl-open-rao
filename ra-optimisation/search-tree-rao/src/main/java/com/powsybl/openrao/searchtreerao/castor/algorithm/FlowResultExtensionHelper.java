@@ -26,9 +26,9 @@ import java.util.Map;
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public final class CastorFlowResultExtensionHelper {
+public final class FlowResultExtensionHelper {
 
-    private CastorFlowResultExtensionHelper() {
+    private FlowResultExtensionHelper() {
     }
 
     public static FlowResult convertToExtension(PrePerimeterResult initialResult, Crac crac, Unit flowUnit) {

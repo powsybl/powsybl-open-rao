@@ -75,6 +75,9 @@ public class JsonFlowResult implements RaoResultJsonUtils.ExtensionSerializer<Fl
                     case "flowCnecId" -> {
                         jsonParser.nextToken();
                         flowCnec = crac.getFlowCnec(jsonParser.getValueAsString());
+                        if (flowCnec == null) {
+                            throw new OpenRaoException("FlowCNEC %s does not exist in the CRAC.".formatted(jsonParser.getValueAsString()));
+                        }
                     }
                     case "initial" -> deserializeForInstant(jsonParser, flowResultBuilder, flowCnec, null, crac);
                     default ->

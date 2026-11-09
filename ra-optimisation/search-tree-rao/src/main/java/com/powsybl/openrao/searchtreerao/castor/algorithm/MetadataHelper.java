@@ -17,8 +17,8 @@ import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public final class CastorMetadataHelper {
-    private CastorMetadataHelper() {
+public final class MetadataHelper {
+    private MetadataHelper() {
     }
 
     public static void fillAndAddFromPrePerimeter(Crac crac,

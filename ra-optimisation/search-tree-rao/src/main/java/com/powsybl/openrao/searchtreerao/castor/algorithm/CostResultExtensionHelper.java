@@ -25,8 +25,8 @@ import java.util.function.BinaryOperator;
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
-public final class CastorCostResultExtensionHelper {
-    private CastorCostResultExtensionHelper() {
+public final class CostResultExtensionHelper {
+    private CostResultExtensionHelper() {
     }
 
     public static CostResult convertToExtension(ObjectiveFunctionResult initialResult) {

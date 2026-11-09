@@ -9,7 +9,10 @@ package com.powsybl.openrao.data.raoresult.io.json.extension;
 
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.SerializerProvider;
+import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
@@ -26,7 +29,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import static com.powsybl.openrao.data.raoresult.io.json.deserializers.TestUtils.parserFrom;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -155,5 +160,26 @@ public class JsonVoltageResultTest {
             + "\"instant1\":{\"kilovolt\":{\"minVoltage\":405.0,\"maxVoltage\":410.0}},"
             + "\"instant2\":{\"kilovolt\":{\"minVoltage\":415.0,\"maxVoltage\":425.0}}}]";
         assertEquals(expectedJson, writer.toString());
+    }
+
+    @Test
+    void deserializeForUnknownVoltageCnec() {
+        String expectedJson = "[{"
+            + "\"voltageCnecId\":\"cnec1\","
+            + "\"preventive\":{\"kilovolt\":{\"lowVoltage\":400.0, \"highVoltage\":400.0}}"
+            + "}]";
+        when(crac.getVoltageCnec("cnec1")).thenReturn(null);
+
+        DeserializationContext context = Mockito.mock(DeserializationContext.class);
+        when(context.getAttribute("crac")).thenReturn(crac);
+        when(context.getAttribute("flowUnits")).thenReturn(Set.of(Unit.MEGAWATT));
+
+        try (JsonParser parser = parserFrom(expectedJson)) {
+            OpenRaoException ex = assertThrows(OpenRaoException.class,
+                () -> new JsonVoltageResult().deserialize(parser, context));
+            assertEquals("VoltageCNEC cnec1 does not exist in the CRAC.", ex.getMessage());
+        } catch (IOException e) {
+            throw new AssertionError("Failed to parse JSON content");
+        }
     }
 }

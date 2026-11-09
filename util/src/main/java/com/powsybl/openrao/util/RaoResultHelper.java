@@ -31,7 +31,7 @@ import com.powsybl.openrao.data.raoresult.api.extension.VoltageResult;
 import com.powsybl.openrao.data.raoresult.impl.RaoResultImpl;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
-import com.powsybl.openrao.searchtreerao.castor.algorithm.CastorFlowResultExtensionHelper;
+import com.powsybl.openrao.searchtreerao.castor.algorithm.FlowResultExtensionHelper;
 import com.powsybl.openrao.searchtreerao.castor.algorithm.PostPerimeterSensitivityAnalysis;
 import com.powsybl.openrao.searchtreerao.castor.algorithm.PrePerimeterSensitivityAnalysis;
 import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
@@ -356,7 +356,7 @@ public final class RaoResultHelper {
             final RaoResultImpl mergedRaoResult = raoResultImplBuilder.build();
 
             // add extensions
-            mergedRaoResult.addExtension(FlowResult.class, CastorFlowResultExtensionHelper.convertToExtension(
+            mergedRaoResult.addExtension(FlowResult.class, FlowResultExtensionHelper.convertToExtension(
                 initialFlowResult,
                 preventivePostPerimeterResult.prePerimeterResultForAllFollowingStates(),
                 postMergingContingencyResults,
