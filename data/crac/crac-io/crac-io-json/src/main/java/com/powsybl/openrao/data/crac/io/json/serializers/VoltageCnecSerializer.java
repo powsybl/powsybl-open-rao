@@ -11,13 +11,12 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.contingency.Contingency;
+import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.cnec.VoltageCnec;
-import com.powsybl.openrao.data.crac.api.threshold.Threshold;
 import com.powsybl.openrao.data.crac.io.json.ExtensionsHandler;
 import com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.Optional;
 
 /**
@@ -51,12 +50,17 @@ public class VoltageCnecSerializer<I extends VoltageCnec> extends AbstractJsonSe
 
     private void serializeThresholds(VoltageCnec voltageCnec, JsonGenerator gen) throws IOException {
         gen.writeArrayFieldStart(JsonSerializationConstants.THRESHOLDS);
-        List<Threshold> sortedListOfThresholds = voltageCnec.getThresholds().stream()
-            .sorted(new JsonSerializationConstants.ThresholdComparator())
-            .toList();
-        for (Threshold threshold : sortedListOfThresholds) {
-            gen.writeObject(threshold);
+        gen.writeStartObject();
+        gen.writeStringField(JsonSerializationConstants.UNIT, JsonSerializationConstants.serializeUnit(Unit.KILOVOLT));
+        Optional<Double> min = voltageCnec.getLowerBound(Unit.KILOVOLT);
+        if (min.isPresent()) {
+            gen.writeNumberField(JsonSerializationConstants.MIN, min.get() - voltageCnec.getReliabilityMargin());
         }
+        Optional<Double> max = voltageCnec.getUpperBound(Unit.KILOVOLT);
+        if (max.isPresent()) {
+            gen.writeNumberField(JsonSerializationConstants.MAX, max.get() + voltageCnec.getReliabilityMargin());
+        }
+        gen.writeEndObject();
         gen.writeEndArray();
     }
 }

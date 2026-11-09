@@ -18,8 +18,6 @@ import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
-import com.powsybl.openrao.data.crac.api.threshold.BranchThreshold;
-import com.powsybl.openrao.data.crac.api.threshold.Threshold;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -34,8 +32,6 @@ public class FlowCnecImpl extends AbstractCnec<FlowCnec> implements FlowCnec {
 
     // mw_lower_1, mw_lower_2, mw_upper_1, mw_upper_2, ampere_lower_1, ampere_lower_2, ampere_upper_1, ampere_upper_2
     private double[] boundValues = {Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN};
-    // indicate if the bound was provided or if it was converted from an unit to another
-    private boolean[] boundProvided = {false, false, false, false, false, false, false, false};
     private final Double[] nominalVoltages = new Double[2];
     private final Double[] iMax = new Double[2];
 
@@ -67,38 +63,6 @@ public class FlowCnecImpl extends AbstractCnec<FlowCnec> implements FlowCnec {
     }
 
     @Override
-    public Set<BranchThreshold> getThresholds() {
-        // Reconstruct from lower and upper bound the BranchThreshold objects
-        // Only return the thresholds in the unit they were declared in
-        Set<BranchThreshold> listBranchThresholds = new HashSet<>();
-
-        for (TwoSides side : TwoSides.values()) {
-            for (Unit unit : List.of(Unit.MEGAWATT, Unit.AMPERE)) {
-
-                Double lowerBound = null;
-                Double upperBound = null;
-
-                if (getUpperBound(side, unit).isPresent() && boundProvided[getIndex(side, unit, Bound.UPPER)]) {
-                    upperBound = getUpperBound(side, unit).get();
-                }
-                if (getLowerBound(side, unit).isPresent() && boundProvided[getIndex(side, unit, Bound.LOWER)]) {
-                    lowerBound = getLowerBound(side, unit).get();
-                }
-
-                if (lowerBound != null || upperBound != null) {
-                    listBranchThresholds.add(new BranchThresholdImpl(
-                        side,
-                        unit,
-                        lowerBound != null ? lowerBound - reliabilityMargin * getFlowUnitMultiplier(getNominalVoltage(side), Unit.MEGAWATT, unit) : null,
-                        upperBound != null ? upperBound + reliabilityMargin * getFlowUnitMultiplier(getNominalVoltage(side), Unit.MEGAWATT, unit) : null
-                    ));
-                }
-            }
-        }
-        return listBranchThresholds;
-    }
-
-    @Override
     public double computeMargin(double actualValue, TwoSides side, Unit unit) {
         double marginOnLowerBound = actualValue - getLowerBound(side, unit).orElse(Double.NEGATIVE_INFINITY);
         double marginOnUpperBound = getUpperBound(side, unit).orElse(Double.POSITIVE_INFINITY) - actualValue;
@@ -120,30 +84,41 @@ public class FlowCnecImpl extends AbstractCnec<FlowCnec> implements FlowCnec {
     }
 
     @Override
-    public Optional<Double> getLowerBound(TwoSides side, Unit requestedUnit) {
+    public Optional<Double> getRawLowerBound(TwoSides side, Unit requestedUnit) {
         if (!requestedUnit.equals(Unit.AMPERE) && !requestedUnit.equals(Unit.MEGAWATT)) {
             throw new OpenRaoException("FlowCnec lowerBound can only be requested in AMPERE or MEGAWATT");
         }
         return Double.isNaN(boundValues[getIndex(side, requestedUnit, Bound.LOWER)])
             ? Optional.empty()
-            : Optional.of(boundValues[getIndex(side, requestedUnit, Bound.LOWER)]);
+            : Optional.of(boundValues[getIndex(side, requestedUnit, Bound.LOWER)] - reliabilityMargin * getFlowUnitMultiplier(getNominalVoltage(side), Unit.MEGAWATT, requestedUnit));
 
+    }
+
+    @Override
+    public Optional<Double> getLowerBound(TwoSides side, Unit requestedUnit) {
+        Double lowerBound = boundValues[getIndex(side, requestedUnit, Bound.LOWER)];
+        Unit otherUnit = requestedUnit.equals(Unit.MEGAWATT) ? Unit.AMPERE : Unit.MEGAWATT;
+        Double lowerBoundInOtherUnit = boundValues[getIndex(side, otherUnit, Bound.LOWER)];
+        if (!lowerBound.isNaN()) {
+            return Optional.of(lowerBound);
+        }
+        if (lowerBound.isNaN() && !lowerBoundInOtherUnit.isNaN()) {
+            return Optional.of(lowerBoundInOtherUnit * getFlowUnitMultiplier(getNominalVoltage(side), otherUnit, requestedUnit));
+        }
+        return Optional.empty();
     }
 
     @Override
     public Set<TwoSides> getMonitoredSides() {
         // A side is considered monitored if at least one bound was defined on this side
         Set<TwoSides> sides = new TreeSet<>();
-        if (boundProvided[getIndex(TwoSides.ONE, Unit.MEGAWATT, Bound.LOWER)] ||
-            boundProvided[getIndex(TwoSides.ONE, Unit.MEGAWATT, Bound.UPPER)] ||
-            boundProvided[getIndex(TwoSides.ONE, Unit.AMPERE, Bound.LOWER)] ||
-            boundProvided[getIndex(TwoSides.ONE, Unit.AMPERE, Bound.UPPER)]) {
+        if (getLowerBound(TwoSides.ONE, Unit.MEGAWATT).isPresent() ||
+            getUpperBound(TwoSides.ONE, Unit.MEGAWATT).isPresent()) {
             sides.add(TwoSides.ONE);
         }
-        if (boundProvided[getIndex(TwoSides.TWO, Unit.MEGAWATT, Bound.LOWER)] ||
-            boundProvided[getIndex(TwoSides.TWO, Unit.MEGAWATT, Bound.UPPER)] ||
-            boundProvided[getIndex(TwoSides.TWO, Unit.AMPERE, Bound.LOWER)] ||
-            boundProvided[getIndex(TwoSides.TWO, Unit.AMPERE, Bound.UPPER)]) {
+
+        if (getLowerBound(TwoSides.TWO, Unit.MEGAWATT).isPresent() ||
+            getUpperBound(TwoSides.TWO, Unit.MEGAWATT).isPresent()) {
             sides.add(TwoSides.TWO);
         }
         return sides;
@@ -179,15 +154,14 @@ public class FlowCnecImpl extends AbstractCnec<FlowCnec> implements FlowCnec {
                     lowerBoundInitialUnit = initialUnit;
                 }
             }
-            boundValues[getIndex(side, requestedUnit, Bound.LOWER)] = lowerBound;
             if (lowerBoundInitialUnit == requestedUnit) {
-                boundProvided[getIndex(side, requestedUnit, Bound.LOWER)] = true;
+                boundValues[getIndex(side, requestedUnit, Bound.LOWER)] = lowerBound;
             }
         }
     }
 
     @Override
-    public Optional<Double> getUpperBound(TwoSides side, Unit requestedUnit) {
+    public Optional<Double> getRawUpperBound(TwoSides side, Unit requestedUnit) {
 
         if (!requestedUnit.equals(Unit.AMPERE) && !requestedUnit.equals(Unit.MEGAWATT)) {
             throw new OpenRaoException("FlowCnec upperBound can only be requested in AMPERE or MEGAWATT");
@@ -195,7 +169,21 @@ public class FlowCnecImpl extends AbstractCnec<FlowCnec> implements FlowCnec {
 
         return Double.isNaN(boundValues[getIndex(side, requestedUnit, Bound.UPPER)])
             ? Optional.empty()
-            : Optional.of(boundValues[getIndex(side, requestedUnit, Bound.UPPER)]);
+            : Optional.of(boundValues[getIndex(side, requestedUnit, Bound.UPPER)] + reliabilityMargin * getFlowUnitMultiplier(getNominalVoltage(side), Unit.MEGAWATT, requestedUnit));
+    }
+
+    @Override
+    public Optional<Double> getUpperBound(TwoSides side, Unit requestedUnit) {
+        Double upperBound = boundValues[getIndex(side, requestedUnit, Bound.UPPER)];
+        Unit otherUnit = requestedUnit.equals(Unit.MEGAWATT) ? Unit.AMPERE : Unit.MEGAWATT;
+        Double upperBoundInOtherUnit = boundValues[getIndex(side, otherUnit, Bound.UPPER)];
+        if (!upperBound.isNaN()) {
+            return Optional.of(upperBound);
+        }
+        if (upperBound.isNaN() && !upperBoundInOtherUnit.isNaN()) {
+            return Optional.of(upperBoundInOtherUnit * getFlowUnitMultiplier(getNominalVoltage(side), otherUnit, requestedUnit));
+        }
+        return Optional.empty();
     }
 
     private void computeUpperBound(TwoSides side, Unit requestedUnit, Set<BranchThreshold> thresholds) {
@@ -220,9 +208,9 @@ public class FlowCnecImpl extends AbstractCnec<FlowCnec> implements FlowCnec {
                     upperBoundInitialUnit = initialUnit;
                 }
             }
-            boundValues[getIndex(side, requestedUnit, Bound.UPPER)] = upperBound;
+
             if (upperBoundInitialUnit == requestedUnit) {
-                boundProvided[getIndex(side, requestedUnit, Bound.UPPER)] = true;
+                boundValues[getIndex(side, requestedUnit, Bound.UPPER)] = upperBound;
             }
         }
     }
