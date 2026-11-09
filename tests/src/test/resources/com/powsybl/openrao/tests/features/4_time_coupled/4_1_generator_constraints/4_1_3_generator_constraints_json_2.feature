@@ -17,10 +17,10 @@ Feature: 4.1.3: Time-coupled generator constraints with MARMOT based on JSON tim
   From 04:30 onwards, redispatching is required.
     Given configuration file is "4_time_coupled/rao_parameters_min_cost_megawatt_dc_0_shift.json"
     Given time-coupled constraints are in file "4_time_coupled/time-coupled-constraints-without-constraints.json" and rao inputs are:
-      | Timestamp        | Network                      | CRAC                                 |
-      | 2025-11-04 03:30 | 4_time_coupled/6Nodes_Pmax2500.xiidm | 4_time_coupled/4_3/crac_202511040330.json |
-      | 2025-11-04 04:30 | 4_time_coupled/6Nodes_Pmax2500.xiidm | 4_time_coupled/4_3/crac_202511040430.json |
-      | 2025-11-04 05:30 | 4_time_coupled/6Nodes_Pmax2500.xiidm | 4_time_coupled/4_3/crac_202511040530.json |
+      | Timestamp        | Network                              | CRAC                                        |
+      | 2025-11-04 03:30 | 4_time_coupled/6Nodes_Pmax2500.xiidm | 4_time_coupled/4_1_generator_constraints/4_1_3/crac_202511040330.json |
+      | 2025-11-04 04:30 | 4_time_coupled/6Nodes_Pmax2500.xiidm | 4_time_coupled/4_1_generator_constraints/4_1_3/crac_202511040430.json |
+      | 2025-11-04 05:30 | 4_time_coupled/6Nodes_Pmax2500.xiidm | 4_time_coupled/4_1_generator_constraints/4_1_3/crac_202511040530.json |
     When I launch marmot
     # Timestamp 03:30
     Then the total cost for timestamp "2025-11-04 03:30" is 0.0
@@ -43,10 +43,10 @@ Feature: 4.1.3: Time-coupled generator constraints with MARMOT based on JSON tim
     since startup is prohibited.
     Given configuration file is "4_time_coupled/rao_parameters_min_cost_megawatt_dc_0_shift.json"
     Given time-coupled constraints are in file "4_time_coupled/time-coupled-constraints-startup-prohibited.json" and rao inputs are:
-      | Timestamp        | Network                      | CRAC                                 |
-      | 2025-11-04 03:30 | 4_time_coupled/6Nodes_Pmax2500.xiidm | 4_time_coupled/4_3/crac_202511040330.json |
-      | 2025-11-04 04:30 | 4_time_coupled/6Nodes_Pmax2500.xiidm | 4_time_coupled/4_3/crac_202511040430.json |
-      | 2025-11-04 05:30 | 4_time_coupled/6Nodes_Pmax2500.xiidm | 4_time_coupled/4_3/crac_202511040530.json |
+      | Timestamp        | Network                              | CRAC                                        |
+      | 2025-11-04 03:30 | 4_time_coupled/6Nodes_Pmax2500.xiidm | 4_time_coupled/4_1_generator_constraints/4_1_3/crac_202511040330.json |
+      | 2025-11-04 04:30 | 4_time_coupled/6Nodes_Pmax2500.xiidm | 4_time_coupled/4_1_generator_constraints/4_1_3/crac_202511040430.json |
+      | 2025-11-04 05:30 | 4_time_coupled/6Nodes_Pmax2500.xiidm | 4_time_coupled/4_1_generator_constraints/4_1_3/crac_202511040530.json |
     When I launch marmot
     # Timestamp 03:30
     Then the total cost for timestamp "2025-11-04 03:30" is 0.0
@@ -68,10 +68,10 @@ Feature: 4.1.3: Time-coupled generator constraints with MARMOT based on JSON tim
   Redispatching action is necessary at 19:30 but not afterwards.
     Given configuration file is "4_time_coupled/rao_parameters_min_cost_megawatt_dc_0_shift.json"
     Given time-coupled constraints are in file "4_time_coupled/time-coupled-constraints-without-constraints.json" and rao inputs are:
-      | Timestamp        | Network                      | CRAC                                 |
-      | 2025-11-04 19:30 | 4_time_coupled/6Nodes_Pmax2500.xiidm | 4_time_coupled/4_3/crac_202511041930.json |
-      | 2025-11-04 20:30 | 4_time_coupled/6Nodes_Pmax2500.xiidm | 4_time_coupled/4_3/crac_202511042030.json |
-      | 2025-11-04 21:30 | 4_time_coupled/6Nodes_Pmax2500.xiidm | 4_time_coupled/4_3/crac_202511042130.json |
+      | Timestamp        | Network                              | CRAC                                        |
+      | 2025-11-04 19:30 | 4_time_coupled/6Nodes_Pmax2500.xiidm | 4_time_coupled/4_1_generator_constraints/4_1_3/crac_202511041930.json |
+      | 2025-11-04 20:30 | 4_time_coupled/6Nodes_Pmax2500.xiidm | 4_time_coupled/4_1_generator_constraints/4_1_3/crac_202511042030.json |
+      | 2025-11-04 21:30 | 4_time_coupled/6Nodes_Pmax2500.xiidm | 4_time_coupled/4_1_generator_constraints/4_1_3/crac_202511042130.json |
     When I launch marmot
     # Timestamp 19:30: 10 (activation) + 50 * 2500 MW (variation) + 500 MW * 1000 (overload of 500 MW, shifted violation penalty of 1000) = 625010
     Then the total cost for timestamp "2025-11-04 19:30" is 625010.0
@@ -94,10 +94,10 @@ Feature: 4.1.3: Time-coupled generator constraints with MARMOT based on JSON tim
   is set at its Pmin afterwards.
     Given configuration file is "4_time_coupled/rao_parameters_min_cost_megawatt_dc_0_shift.json"
     Given time-coupled constraints are in file "4_time_coupled/time-coupled-constraints-shutdown-prohibited.json" and rao inputs are:
-      | Timestamp        | Network                      | CRAC                                 |
-      | 2025-11-04 19:30 | 4_time_coupled/6Nodes_Pmax2500.xiidm | 4_time_coupled/4_3/crac_202511041930.json |
-      | 2025-11-04 20:30 | 4_time_coupled/6Nodes_Pmax2500.xiidm | 4_time_coupled/4_3/crac_202511042030.json |
-      | 2025-11-04 21:30 | 4_time_coupled/6Nodes_Pmax2500.xiidm | 4_time_coupled/4_3/crac_202511042130.json |
+      | Timestamp        | Network                              | CRAC                                        |
+      | 2025-11-04 19:30 | 4_time_coupled/6Nodes_Pmax2500.xiidm | 4_time_coupled/4_1_generator_constraints/4_1_3/crac_202511041930.json |
+      | 2025-11-04 20:30 | 4_time_coupled/6Nodes_Pmax2500.xiidm | 4_time_coupled/4_1_generator_constraints/4_1_3/crac_202511042030.json |
+      | 2025-11-04 21:30 | 4_time_coupled/6Nodes_Pmax2500.xiidm | 4_time_coupled/4_1_generator_constraints/4_1_3/crac_202511042130.json |
     When I launch marmot
     # Timestamp 19:30: 10 (activation) + 50 * 2500 MW (variation) + 500 MW * 1000 (overload of 500 MW, shifted violation penalty of 1000) = 625010
     Then the total cost for timestamp "2025-11-04 19:30" is 625010.0
