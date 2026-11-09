@@ -107,8 +107,10 @@ class RaoTest {
         Rao.Runner runner = new Rao.Runner(mockTimeCoupledProvider(Mockito.mock(TimeCoupledRaoResult.class)));
         TimeCoupledRaoInput input = Mockito.mock(TimeCoupledRaoInput.class);
         RaoParameters parameters = new RaoParameters(ReportNode.NO_OP);
-        assertThrows(NullPointerException.class, () -> runner.run((TimeCoupledRaoInput) null, parameters, ReportNode.NO_OP));
-        assertThrows(NullPointerException.class, () -> runner.run(input, (RaoParameters) null, ReportNode.NO_OP));
+        NullPointerException exception = assertThrows(NullPointerException.class, () -> runner.run((TimeCoupledRaoInput) null, parameters, ReportNode.NO_OP));
+        assertEquals("RAO input should not be null", exception.getMessage());
+        exception = assertThrows(NullPointerException.class, () -> runner.run(input, (RaoParameters) null, ReportNode.NO_OP));
+        assertEquals("parameters should not be null", exception.getMessage());
     }
 
     @Test
@@ -116,7 +118,8 @@ class RaoTest {
         Rao.Runner runner = Rao.find(null, List.of(new RaoProviderMock()), platformConfig);
         TimeCoupledRaoInput input = Mockito.mock(TimeCoupledRaoInput.class);
         RaoParameters parameters = new RaoParameters(ReportNode.NO_OP);
-        assertThrows(OpenRaoException.class, () -> runner.run(input, parameters));
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> runner.run(input, parameters));
+        assertEquals("Time-coupled optimization is not supported", exception.getMessage());
     }
 
     @Test
@@ -138,11 +141,16 @@ class RaoTest {
     void testRunWithNullArgumentsThrows() {
         Rao.Runner runner = Rao.find(null, List.of(new RaoProviderMock()), platformConfig);
         RaoParameters parameters = new RaoParameters(ReportNode.NO_OP);
-        assertThrows(NullPointerException.class, () -> runner.run((RaoInput) null, parameters));
-        assertThrows(NullPointerException.class, () -> runner.run(raoInput, (RaoParameters) null));
-        assertThrows(NullPointerException.class, () -> runner.run(raoInput, parameters, null, null));
-        assertThrows(NullPointerException.class, () -> runner.runAsync((RaoInput) null, parameters));
-        assertThrows(NullPointerException.class, () -> runner.runAsync(raoInput, (RaoParameters) null));
+        NullPointerException exception = assertThrows(NullPointerException.class, () -> runner.run((RaoInput) null, parameters));
+        assertEquals("RAO input should not be null", exception.getMessage());
+        exception = assertThrows(NullPointerException.class, () -> runner.run(raoInput, (RaoParameters) null));
+        assertEquals("parameters should not be null", exception.getMessage());
+        exception = assertThrows(NullPointerException.class, () -> runner.run(raoInput, parameters, null, null));
+        assertEquals("ReportNode should not be null", exception.getMessage());
+        exception = assertThrows(NullPointerException.class, () -> runner.runAsync((RaoInput) null, parameters));
+        assertEquals("RAO input should not be null", exception.getMessage());
+        exception = assertThrows(NullPointerException.class, () -> runner.runAsync(raoInput, (RaoParameters) null));
+        assertEquals("parameters should not be null", exception.getMessage());
     }
 
     @Test
