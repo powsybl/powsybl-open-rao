@@ -12,10 +12,7 @@ import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import java.util.Optional;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
 /**
@@ -101,17 +98,5 @@ class MetadataTest {
         // Unknown state still returns DEFAULT
         State state3 = Mockito.mock(State.class);
         assertEquals(ComputationStatus.DEFAULT, metadata.getComputationStatus(state3));
-    }
-
-    @Test
-    void testSetAndGetExecutionDetails() {
-        metadata = Metadata.builder().build();
-
-        String details = "Step 1: Success\nStep 2: Warning";
-        metadata.setExecutionDetails(details);
-        assertEquals(Optional.of(details), metadata.getExecutionDetails());
-
-        metadata.setExecutionDetails(null);
-        assertTrue(metadata.getExecutionDetails().isEmpty());
     }
 }

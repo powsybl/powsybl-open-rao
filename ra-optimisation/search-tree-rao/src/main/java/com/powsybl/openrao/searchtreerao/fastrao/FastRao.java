@@ -420,8 +420,14 @@ public class FastRao implements RaoProvider {
                 parameters
             )
         );
+
+        String executionDetails = null;
+        Metadata metadata = raoResult.getExtension(Metadata.class);
+        if (metadata != null) {
+            executionDetails = metadata.getExecutionDetails().orElse(null);
+        }
         fastRaoResult.addExtension(Metadata.class, regenerateMetadata(
-            raoResult.getExtension(Metadata.class),
+            executionDetails,
             crac,
             postPraSensi.get().prePerimeterResultForAllFollowingStates(),
             postAraSensi.get().prePerimeterResultForAllFollowingStates(),
@@ -459,13 +465,12 @@ public class FastRao implements RaoProvider {
         );
     }
 
-    private static Metadata regenerateMetadata(Metadata metadata,
+    private static Metadata regenerateMetadata(String executionDetails,
                                                Crac crac,
                                                PrePerimeterResult postPraSensi,
                                                PrePerimeterResult postAraSensi,
                                                PrePerimeterResult postCraSensi) {
-        Metadata.MetadataBuilder metadataBuilder = Metadata.builder();
-        metadata.getExecutionDetails().ifPresent(metadataBuilder::withExecutionDetails);
+        Metadata.MetadataBuilder metadataBuilder = Metadata.builder().withExecutionDetails(executionDetails);
         for (State state : crac.getStates()) {
             ComputationStatus computationStatus = getAppropriateResult(state, postPraSensi, postAraSensi, postCraSensi).getComputationStatus(state);
             if (computationStatus != ComputationStatus.DEFAULT) {

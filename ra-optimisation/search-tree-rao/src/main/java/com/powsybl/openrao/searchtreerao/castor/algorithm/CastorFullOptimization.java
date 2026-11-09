@@ -382,7 +382,11 @@ public class CastorFullOptimization {
             }
 
             Metadata metadata = mergedRaoResults.getExtension(Metadata.class);
-            metadata.setExecutionDetails(executionDetails);
+            if (metadata != null) {
+                mergedRaoResults.removeExtension(Metadata.class);
+                metadata = new Metadata(metadata, executionDetails);
+                mergedRaoResults.addExtension(Metadata.class, metadata);
+            }
 
             context.setMergedRaoResults(mergedRaoResults);
             context.setFinalSecondPreventiveResult(finalSecondPreventiveResult);

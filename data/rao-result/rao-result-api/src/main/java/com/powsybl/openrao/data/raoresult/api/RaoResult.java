@@ -598,10 +598,11 @@ public interface RaoResult extends Extendable<RaoResult> {
     @Deprecated(since = "7.6.0")
     default void setExecutionDetails(String executionDetails) {
         Metadata metadata = getExtension(Metadata.class);
+        removeExtension(Metadata.class);
         if (metadata == null) {
             throw new OpenRaoException("RaoResult does not contain a Metadata extension.");
         }
-        metadata.setExecutionDetails(executionDetails);
+        addExtension(Metadata.class, new Metadata(metadata, executionDetails));
     }
 
     boolean isSecure(PhysicalParameter... physicalParameters);

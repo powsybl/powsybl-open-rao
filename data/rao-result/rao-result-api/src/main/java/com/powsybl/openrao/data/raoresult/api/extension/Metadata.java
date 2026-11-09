@@ -30,6 +30,11 @@ public final class Metadata extends AbstractExtension<RaoResult> {
         this.executionDetails = executionDetails;
     }
 
+    public Metadata(Metadata metadata, String executionDetails) {
+        this.computationStatusPerState = new HashMap<>(metadata.computationStatusPerState);
+        this.executionDetails = executionDetails;
+    }
+
     /**
      * Returns the overall sensitivity computation status of the RAO.
      */
@@ -63,10 +68,6 @@ public final class Metadata extends AbstractExtension<RaoResult> {
      */
     public Optional<String> getExecutionDetails() {
         return Optional.ofNullable(executionDetails);
-    }
-
-    public void setExecutionDetails(String executionDetails) {
-        this.executionDetails = executionDetails;
     }
 
     @Override

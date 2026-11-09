@@ -32,6 +32,7 @@ import com.powsybl.openrao.util.RaoResultHelper;
 
 import java.util.EnumMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 
 /**
@@ -207,16 +208,21 @@ public class Monitoring {
         if (raoResultWithMonitoring.getExtension(Metadata.class) == null) {
             raoResultWithMonitoring.addExtension(Metadata.class, Metadata.builder().build());
         }
+
         Metadata metadata = raoResultWithMonitoring.getExtension(Metadata.class);
-        metadata.getExecutionDetails().ifPresentOrElse(
-            executionDetails -> metadata.setExecutionDetails(
-                executionDetails
+        if (metadata != null) {
+            raoResultWithMonitoring.removeExtension(Metadata.class);
+            Optional<String> executionDetails = metadata.getExecutionDetails();
+            if (executionDetails.isPresent()) {
+                metadata = new Metadata(metadata, executionDetails
                     + " and went through %s monitoring".formatted(physicalParameter.toString().toLowerCase())
-            ),
-            () -> metadata.setExecutionDetails(
-                "RAO went through %s monitoring".formatted(physicalParameter.toString().toLowerCase())
-            )
-        );
+                );
+            } else {
+                metadata = new Metadata(metadata, "RAO went through %s monitoring".formatted(physicalParameter.toString().toLowerCase()));
+            }
+            raoResultWithMonitoring.addExtension(Metadata.class, metadata);
+        }
+
         raoResultWithMonitoring.addExtension(
             extensionClass,
             extensionAdapter.apply(monitoringResult)
