@@ -103,7 +103,7 @@ This network action allows the RAO to identify the optimal solution between:
 #### HVDC Range Action Initially in AC Emulation — Initial Setpoint
 
 At the very beginning of the RAO, a **load flow** is run to update the **initial setpoint** of HVDC range actions starting in AC Emulation mode.  
-Since the initial setpoint is now read from the network during CRAC deserialization, this step ensures a **meaningful and realistic initial setpoint**. 
+Since the initial setpoint is now read from the network during CRAC deserialization, this step ensures a **meaningful and realistic initial setpoint**.
 
 
 ### HVDC Range Action Optimization in Preventive and Curative Instants
