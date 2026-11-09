@@ -34,12 +34,10 @@ class RaoResultSerializer extends AbstractJsonSerializer<RaoResult> {
 
     private final Crac crac;
     private final Set<Unit> flowUnits;
-    private final boolean withOperatorsNotSharingCras;
 
-    RaoResultSerializer(Crac crac, Set<Unit> flowUnits, boolean withOperatorsNotSharingCras) {
+    RaoResultSerializer(Crac crac, Set<Unit> flowUnits) {
         this.crac = crac;
         this.flowUnits = flowUnits;
-        this.withOperatorsNotSharingCras = withOperatorsNotSharingCras;
     }
 
     @Override
@@ -58,7 +56,6 @@ class RaoResultSerializer extends AbstractJsonSerializer<RaoResult> {
 
         serializerProvider.setAttribute("crac", crac);
         serializerProvider.setAttribute("flowUnits", flowUnits);
-        serializerProvider.setAttribute("withOperatorsNotSharingCras", withOperatorsNotSharingCras);
         JsonUtil.writeExtensions(raoResult, jsonGenerator, serializerProvider, RaoResultJsonUtils.getExtensionSerializers());
 
         jsonGenerator.writeEndObject();

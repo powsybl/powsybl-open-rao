@@ -605,6 +605,7 @@ public interface RaoResult extends Extendable<RaoResult> {
         metadata.setExecutionDetails(executionDetails);
     }
 
+    @Deprecated(since = "7.6.0")
     default boolean isSecure(PhysicalParameter... physicalParameters) {
         List<PhysicalParameter> parameters = Arrays.asList(physicalParameters);
         if (parameters.isEmpty()) {

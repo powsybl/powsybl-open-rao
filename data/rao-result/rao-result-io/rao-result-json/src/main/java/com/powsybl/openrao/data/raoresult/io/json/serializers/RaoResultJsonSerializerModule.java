@@ -19,8 +19,8 @@ import java.util.Set;
  */
 public class RaoResultJsonSerializerModule extends SimpleModule {
 
-    public RaoResultJsonSerializerModule(Crac crac, Set<Unit> flowUnits, boolean withOperatorsNotSharingCras) {
+    public RaoResultJsonSerializerModule(Crac crac, Set<Unit> flowUnits) {
         super();
-        this.addSerializer(RaoResult.class, new RaoResultSerializer(crac, flowUnits, withOperatorsNotSharingCras));
+        this.addSerializer(RaoResult.class, new RaoResultSerializer(crac, flowUnits));
     }
 }

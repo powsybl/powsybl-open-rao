@@ -135,6 +135,10 @@ public class FlowResult extends AbstractExtension<RaoResult> {
         return Optional.ofNullable(results.get(flowCnec));
     }
 
+    // FIXME: having `operatorsNotSharingCras` is not very clean, what about passing it as an attribute of `isSecure` at first
+    // FIXME: this behavior will have to be updated soon, basically two options are possible:
+    // FIXME: - either put it in the CRAC or flag the CNECs accordingly
+    // FIXME: - either do consider them in the security status because it makes sense
     public boolean isSecure() {
         return results.keySet()
             .stream()

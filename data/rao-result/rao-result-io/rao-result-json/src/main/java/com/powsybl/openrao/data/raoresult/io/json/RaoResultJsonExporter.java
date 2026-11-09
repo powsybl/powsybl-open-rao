@@ -48,7 +48,6 @@ public class RaoResultJsonExporter implements Exporter {
     private static final String JSON_EXPORT_PROPERTIES_PREFIX = "rao-result.export.json.";
     private static final String FLOWS_IN_AMPERES = "flows-in-amperes";
     private static final String FLOWS_IN_MEGAWATTS = "flows-in-megawatts";
-    private static final String NOT_OPTIMIZED_CNECS_FOR_OPERATORS_NOT_SHARING_CRAS = "not-optimized-cnecs-for-operators-not-sharing-cras";
 
     @Override
     public String getFormat() {
@@ -75,7 +74,6 @@ public class RaoResultJsonExporter implements Exporter {
     public void exportData(RaoResult raoResult, Crac crac, Properties properties, OutputStream outputStream) {
         boolean flowsInAmperes = Boolean.parseBoolean(properties.getProperty(JSON_EXPORT_PROPERTIES_PREFIX + FLOWS_IN_AMPERES, "false"));
         boolean flowsInMegawatts = Boolean.parseBoolean(properties.getProperty(JSON_EXPORT_PROPERTIES_PREFIX + FLOWS_IN_MEGAWATTS, "false"));
-        boolean withOperatorsNotSharingCras = Boolean.parseBoolean(properties.getProperty(JSON_EXPORT_PROPERTIES_PREFIX + NOT_OPTIMIZED_CNECS_FOR_OPERATORS_NOT_SHARING_CRAS, "false"));
         if (!flowsInAmperes && !flowsInMegawatts) {
             throw new OpenRaoException(
                 "At least one flow unit should be used. Please provide %s and/or %s in the properties."
@@ -91,7 +89,7 @@ public class RaoResultJsonExporter implements Exporter {
         }
         try {
             ObjectMapper objectMapper = JsonUtil.createObjectMapper();
-            SimpleModule module = new RaoResultJsonSerializerModule(crac, flowUnits, withOperatorsNotSharingCras);
+            SimpleModule module = new RaoResultJsonSerializerModule(crac, flowUnits);
             objectMapper.registerModule(module);
             ObjectWriter writer = objectMapper.writerWithDefaultPrettyPrinter();
             writer.writeValue(outputStream, raoResult);

@@ -119,10 +119,6 @@ public final class RaoUtils {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         Properties properties = new Properties();
         getUnitsForExport(CommonTestData.getRaoParameters()).forEach(unit -> addUnitExportProperty(properties, unit));
-        properties.put(
-            "rao-result.export.json.not-optimized-cnecs-for-operators-not-sharing-cras",
-            Boolean.toString(CommonTestData.getRaoParameters().getNotOptimizedCnecsParameters().getDoNotOptimizeCurativeCnecsForTsosWithoutCras())
-        );
         raoResult.write("JSON", crac, properties, outputStream);
 
         // import RaoResult

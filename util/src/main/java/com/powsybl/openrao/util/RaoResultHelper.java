@@ -74,12 +74,15 @@ public final class RaoResultHelper {
     /**
      * Indicates whether all the CNECs of a given type are secure (i.e. with a margin >= 0) at the last instant (i.e. after RAO).
      *
+     * @deprecated since 7.6.0, rely directly on flow/angle/voltage extensions for security statuses
+     *
      * @param raoResult     The RaoResult for which to check security.
      * @param crac          The CRAC for which to check security.
      * @param raoParameters The RaoParameters for which to check security.
      * @param u             The types of CNECs to check (FLOW -> FlowCNECs, ANGLE -> AngleCNECs, VOLTAGE -> VoltageCNECs). 1 to 3 arguments can be provided.
      * @return whether all the CNECs of the given type(s) are secure at the last instant (i.e. after RAO).
      */
+    @Deprecated(since = "7.6.0")
     public static boolean isSecure(RaoResult raoResult, Crac crac, RaoParameters raoParameters, PhysicalParameter... u) {
         boolean excludeCnecsForTsosWithoutCras = raoParameters.getNotOptimizedCnecsParameters().getDoNotOptimizeCurativeCnecsForTsosWithoutCras();
         Unit flowUnit = getSensitivityWithLoadFlowParameters(raoParameters).getLoadFlowParameters().isDc() ? Unit.MEGAWATT : Unit.AMPERE;
@@ -90,12 +93,15 @@ public final class RaoResultHelper {
     /**
      * Indicates whether all the CNECs of a given type are secure (i.e. with a margin >= 0) at the last instant (i.e. after RAO).
      *
+     * @deprecated since 7.6.0, rely directly on flow/angle/voltage extensions for security statuses
+     *
      * @param raoResult     The RaoResult for which to check security.
      * @param cracs         The CRACs for which to check security.
      * @param raoParameters The RaoParameters for which to check security.
      * @param u             The types of CNECs to check (FLOW -> FlowCNECs, ANGLE -> AngleCNECs, VOLTAGE -> VoltageCNECs). 1 to 3 arguments can be provided.
      * @return whether all the CNECs of the given type(s) are secure at the last instant (i.e. after RAO).
      */
+    @Deprecated(since = "7.6.0")
     public static boolean isSecure(RaoResult raoResult, TemporalData<Crac> cracs, RaoParameters raoParameters, PhysicalParameter... u) {
 
         for (OffsetDateTime timestamp : cracs.getTimestamps()) {
@@ -106,6 +112,7 @@ public final class RaoResultHelper {
         return true;
     }
 
+    @Deprecated(since = "7.6.0")
     public static boolean isSecure(RaoResult raoResult, Crac crac, boolean excludeCnecsForTsosWithoutCras, Unit flowUnit, PhysicalParameter... u) {
         Set<PhysicalParameter> parameters = new HashSet<>(Arrays.asList(u));
         if (parameters.isEmpty()) {

@@ -43,7 +43,6 @@ Where:
 - **`properties`** is a set of specific parameters for the JSON export, currently two are defined:
   - `"rao-result.export.json.flows-in-amperes"` (optional, default is `"false"`): whether to export the flow measurements in `AMPERE`
   - `"rao-result.export.json.flows-in-megawatts"` (optional, default is `"false"`): whether to export the flow measurements in `MEGAWATT`
-  - `"rao-result.export.json.not-optimized-cnecs-for-operators-not-sharing-cras"` (optional, default is `"false"`): whether the FlowCNECs that belong to operators not sharing CRAs were taken into account in the optimzation
 - **`outputStream`** is the `java.io.OutputStream` you want to write the JSON file into.
 
 > At least one of `"rao-result.export.json.flows-in-amperes"` or `"rao-result.export.json.flows-in-megawatts"` must be true for the export to work properly.

@@ -63,13 +63,11 @@ public class JsonFlowResult implements RaoResultJsonUtils.ExtensionSerializer<Fl
     @Override
     public FlowResult deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
         Crac crac = (Crac) deserializationContext.getAttribute("crac");
-        Boolean withOperatorsNotSharingCras = (Boolean) deserializationContext.getAttribute("withOperatorsNotSharingCras");
         if (crac == null) {
             throw new OpenRaoException("FlowResult cannot be deserialized because the deserializationContext does not contain a 'crac' attribute.");
         }
-        FlowResult.FlowResultBuilder flowResultBuilder = FlowResult.builder().withOperatorsNotSharingCras(
-            withOperatorsNotSharingCras == null || withOperatorsNotSharingCras ? crac.findOperatorsNotSharingCras() : Set.of()
-        );
+        // TODO: see how to determine whether to use the operators not sharing CRAs or not
+        FlowResult.FlowResultBuilder flowResultBuilder = FlowResult.builder();
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             FlowCnec flowCnec = null;
             while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
