@@ -131,4 +131,8 @@ public final class NcCracUtils {
     public static Optional<String> getTsoNameFromUrl(String url) {
         return TsoEICode.fromEICode(getEicFromUrl(url)).map(TsoEICode::getDisplayName);
     }
+
+    public static String safeGetOperator(String url) {
+        return getTsoNameFromUrl(url).orElse(getEicFromUrl(url));
+    }
 }

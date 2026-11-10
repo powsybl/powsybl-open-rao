@@ -123,4 +123,14 @@ class NcCracUtilsTest {
         // No EIC code in the URL
         assertEquals(Optional.empty(), NcCracUtils.getTsoNameFromUrl("http://example.com/operator/RTE"));
     }
+
+    @Test
+    void testSafeGetOperator() {
+        // Known TSO: display name
+        assertEquals("RTE", NcCracUtils.safeGetOperator("http://energy.referencedata.eu/EIC/10XFR-RTE------Q"));
+        // Valid EIC code but not a known TSO: EIC code
+        assertEquals("10XDE-VE-------2", NcCracUtils.safeGetOperator("http://energy.referencedata.eu/EIC/10XDE-VE-------2"));
+        // No EIC code in the URL
+        assertNull(NcCracUtils.safeGetOperator("http://example.com/operator/RTE"));
+    }
 }

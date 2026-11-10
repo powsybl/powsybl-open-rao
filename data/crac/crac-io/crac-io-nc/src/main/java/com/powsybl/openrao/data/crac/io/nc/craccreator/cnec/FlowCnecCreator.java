@@ -238,7 +238,7 @@ public class FlowCnecCreator extends AbstractCnecCreator {
             Optional<String> operatorName = NcCracUtils.getTsoNameFromUrl(nativeAssessedElement.operator());
             Map<TwoSides, Map<String, Integer>> instantToDurationMaps = Arrays.stream(TwoSides.values()).collect(Collectors.toMap(
                 twoSides -> twoSides,
-                twoSides -> instantHelper.mapPostContingencyInstantsAndLimitDurations(networkElement, twoSides, operatorName.orElse(NcCracUtils.getEicFromUrl(nativeAssessedElement.operator())))
+                twoSides -> instantHelper.mapPostContingencyInstantsAndLimitDurations(networkElement, twoSides, NcCracUtils.safeGetOperator(nativeAssessedElement.operator()))
             ));
 
             // SWE specific rule -> TODO: think of how to handle this more properly
@@ -298,7 +298,7 @@ public class FlowCnecCreator extends AbstractCnecCreator {
                 ncCnecCreationContexts.add(StandardElementaryCreationContext.imported(
                     nativeAssessedElement.mrid(), cnecName, cnecName, true,
                     "TSO %s does not use PATL in final state but has no TATL defined for branch %s on at least one of its sides, PATL will be used"
-                        .formatted(NcCracUtils.getTsoNameFromUrl(nativeAssessedElement.operator()).orElse(nativeAssessedElement.operator()), networkElement.getId())));
+                        .formatted(NcCracUtils.safeGetOperator(nativeAssessedElement.operator()), networkElement.getId())));
             } else {
                 ncCnecCreationContexts.add(StandardElementaryCreationContext.imported(nativeAssessedElement.mrid(), cnecName, cnecName, false, ""));
             }

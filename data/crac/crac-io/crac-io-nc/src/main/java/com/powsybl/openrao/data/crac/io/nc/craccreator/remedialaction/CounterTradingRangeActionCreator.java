@@ -10,6 +10,8 @@ package com.powsybl.openrao.data.crac.io.nc.craccreator.remedialaction;
 import com.powsybl.glsk.commons.CountryEICode;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.Substation;
+import com.powsybl.iidm.network.Terminal;
 import com.powsybl.networkarea.BorderBasedCountryArea;
 import com.powsybl.openrao.commons.TsoEICode;
 import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
@@ -25,6 +27,10 @@ import com.powsybl.openrao.data.crac.io.nc.parameters.NcCracCreationParameters;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @author Víctor Cardozo {@literal <victor.cardozo at artelys.com>}
@@ -96,7 +102,7 @@ public class CounterTradingRangeActionCreator {
         CounterTradeRangeActionAdder counterTradeRangeActionAdder = crac.newCounterTradeRangeAction()
                 .withId(remedialActionId)
                 .withName(countertradeRemedialAction.name())
-                .withOperator(NcCracUtils.getTsoNameFromUrl(countertradeRemedialAction.operator()).orElse(NcCracUtils.getEicFromUrl(countertradeRemedialAction.operator())))
+                .withOperator(NcCracUtils.safeGetOperator(countertradeRemedialAction.operator()))
                 .newRange().withMin(minRange).withMax(maxRange).add()
                 .withInitialSetpoint(0.)
                 .withAreaId(area);
@@ -111,16 +117,45 @@ public class CounterTradingRangeActionCreator {
      *
      * @param area       Country code of the area
      * @param neighbors  Country codes of the areas sharing a border with the area
-     * @return the net position, or NaN if it cannot be computed (no neighbor in the network, or no load flow result)
+     * @return the net position, or NaN if it cannot be computed (no neighbor in the network, or no load flow result on a border)
      */
     private double computeInitialNetPosition(String area, List<String> neighbors) {
         if (neighbors.isEmpty()) {
             return Double.NaN;
         }
         Country country = Country.valueOf(area);
+        Set<Country> neighborCountries = neighbors.stream().map(Country::valueOf).collect(Collectors.toSet());
+        if (isBorderFlowMissing(country, neighborCountries)) {
+            return Double.NaN;
+        }
         return neighbors.stream()
                 .mapToDouble(neighbor -> getBorderExchange(country, Country.valueOf(neighbor)))
                 .sum();
+    }
+
+    /**
+     * Check whether the flow is missing (NaN) on a connected terminal of a line, tie-line or HVDC line between the country
+     * and one of its neighbors. BorderBasedCountryArea silently counts such flows as 0, so they must be detected beforehand.
+     */
+    private boolean isBorderFlowMissing(Country country, Set<Country> neighbors) {
+        return Stream.of(
+                network.getLineStream().map(line -> List.of(line.getTerminal1(), line.getTerminal2())),
+                network.getTieLineStream().map(tieLine -> List.of(tieLine.getTerminal1(), tieLine.getTerminal2())),
+                network.getHvdcLineStream().map(hvdcLine -> List.of(hvdcLine.getConverterStation1().getTerminal(), hvdcLine.getConverterStation2().getTerminal())))
+            .flatMap(Function.identity())
+            .filter(terminals -> isBorder(terminals.get(0), terminals.get(1), country, neighbors))
+            .flatMap(List::stream)
+            .anyMatch(terminal -> terminal.isConnected() && Double.isNaN(terminal.getP()));
+    }
+
+    private static boolean isBorder(Terminal terminal1, Terminal terminal2, Country country, Set<Country> neighbors) {
+        Country country1 = getCountry(terminal1);
+        Country country2 = getCountry(terminal2);
+        return country1 == country && neighbors.contains(country2) || country2 == country && neighbors.contains(country1);
+    }
+
+    private static Country getCountry(Terminal terminal) {
+        return terminal.getVoltageLevel().getSubstation().flatMap(Substation::getCountry).orElse(null);
     }
 
     /**
@@ -173,8 +208,10 @@ public class CounterTradingRangeActionCreator {
         }
 
         // A negative net position cannot become positive
-        if (initialNetPosition < 0) {
-            maxRange = Math.min(maxRange, -initialNetPosition);
+        if (initialNetPosition < 0 && maxRange > -initialNetPosition) {
+            alterations.add(String.format("the maximum range %s would make the negative initial net position %s positive. It has been set to %s",
+                    maxRange, initialNetPosition, -initialNetPosition));
+            maxRange = -initialNetPosition;
         }
         return maxRange;
     }
@@ -218,8 +255,10 @@ public class CounterTradingRangeActionCreator {
         }
 
         // A positive net position cannot become negative
-        if (initialNetPosition > 0) {
-            minRange = Math.max(minRange, -initialNetPosition);
+        if (initialNetPosition > 0 && minRange < -initialNetPosition) {
+            alterations.add(String.format("the minimum range %s would make the positive initial net position %s negative. It has been set to %s",
+                    minRange, initialNetPosition, -initialNetPosition));
+            minRange = -initialNetPosition;
         }
         return minRange;
     }
@@ -259,14 +298,14 @@ public class CounterTradingRangeActionCreator {
 
         if (!countertradeRemedialAction.normalAvailable()) {
             throw new OpenRaoImportException(ImportStatus.NOT_FOR_RAO,
-                    String.format("Remedial action %s will not be imported it is not set to be available.", remedialActionId));
+                    String.format("Remedial action %s will not be imported because it is not set to be available.", remedialActionId));
         }
 
         // Check for null conditions
         String operatorUrl = countertradeRemedialAction.operator();
         if (operatorUrl == null) {
             throw new OpenRaoImportException(ImportStatus.INCOMPLETE_DATA,
-                    String.format("Remedial action %s will not be imported the counter trading remedial action has null operator code.", remedialActionId));
+                    String.format("Remedial action %s will not be imported because the counter trading remedial action has a null operator code.", remedialActionId));
         }
 
         String operatorEic = NcCracUtils.getEicFromUrl(operatorUrl);
@@ -291,7 +330,7 @@ public class CounterTradingRangeActionCreator {
         String biddingZoneUrl = countertradeRemedialAction.biddingZone();
         if (biddingZoneUrl == null) {
             throw new OpenRaoImportException(ImportStatus.INCOMPLETE_DATA,
-                    String.format("Remedial action %s will not be imported the counter trading remedial action has null bidding zone code.", remedialActionId));
+                    String.format("Remedial action %s will not be imported because the counter trading remedial action has a null bidding zone code.", remedialActionId));
         }
 
         // SSI values may be provided by the CountertradeRemedialAction or by the RemedialActionGroup, but not with different values

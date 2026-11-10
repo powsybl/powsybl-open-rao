@@ -95,6 +95,12 @@ class CounterTradingRangeActionCreatorTest {
         ElementaryCreationContext notAlteredContext = cracCreationContext.getRemedialActionCreationContext("ct-mixed-limits");
         assertTrue(notAlteredContext.isImported());
         assertFalse(notAlteredContext.isAltered());
+
+        // The physical limit for min (-1500) is capped so that the FR net position does not become negative
+        ElementaryCreationContext cappedMinRangeContext = cracCreationContext.getRemedialActionCreationContext("ct-ssi-limits");
+        assertTrue(cappedMinRangeContext.isAltered());
+        assertEquals("the minimum range -1500.0 would make the positive initial net position 500.0 negative. It has been set to -500.0",
+                cappedMinRangeContext.getImportStatusDetail());
     }
 
     @Test
@@ -111,6 +117,11 @@ class CounterTradingRangeActionCreatorTest {
         assertRange(cracCreationContext, "ct-ssi-only", -200, 300);
         // Economic limit for min (500) is the tightest, physical limit for max (1000) is capped
         assertRange(cracCreationContext, "ct-mixed-limits", 500, 500);
+
+        ElementaryCreationContext cappedMaxRangeContext = cracCreationContext.getRemedialActionCreationContext("ct-ssi-limits");
+        assertTrue(cappedMaxRangeContext.isAltered());
+        assertEquals("the maximum range 1000.0 would make the negative initial net position -500.0 positive. It has been set to 500.0",
+                cappedMaxRangeContext.getImportStatusDetail());
     }
 
     @Test
@@ -171,9 +182,9 @@ class CounterTradingRangeActionCreatorTest {
 
         // Availability
         assertRaNotImported(cracCreationContext, "ct-unavailable", ImportStatus.NOT_FOR_RAO,
-                "Remedial action ct-unavailable will not be imported it is not set to be available.");
+                "Remedial action ct-unavailable will not be imported because it is not set to be available.");
         assertRaNotImported(cracCreationContext, "ct-unavailable-in-ssi", ImportStatus.NOT_FOR_RAO,
-                "Remedial action ct-unavailable-in-ssi will not be imported it is not set to be available.");
+                "Remedial action ct-unavailable-in-ssi will not be imported because it is not set to be available.");
 
         // Kind
         assertRaNotImported(cracCreationContext, "ct-curative", ImportStatus.NOT_YET_HANDLED_BY_OPEN_RAO,
@@ -185,7 +196,7 @@ class CounterTradingRangeActionCreatorTest {
 
         // Operator
         assertRaNotImported(cracCreationContext, "ct-no-operator", ImportStatus.INCOMPLETE_DATA,
-                "Remedial action ct-no-operator will not be imported the counter trading remedial action has null operator code.");
+                "Remedial action ct-no-operator will not be imported because the counter trading remedial action has a null operator code.");
         assertRaNotImported(cracCreationContext, "ct-operator-without-eic", ImportStatus.INCOMPLETE_DATA,
                 "Remedial action ct-operator-without-eic will not be imported because operator http://example.com/operator/RTE does not contain a valid EIC code.");
         assertRaNotImported(cracCreationContext, "ct-unsupported-operator", ImportStatus.NOT_FOR_RAO,
@@ -193,7 +204,7 @@ class CounterTradingRangeActionCreatorTest {
 
         // Bidding zone
         assertRaNotImported(cracCreationContext, "ct-missing-bidding-zone", ImportStatus.INCOMPLETE_DATA,
-                "Remedial action ct-missing-bidding-zone will not be imported the counter trading remedial action has null bidding zone code.");
+                "Remedial action ct-missing-bidding-zone will not be imported because the counter trading remedial action has a null bidding zone code.");
         assertRaNotImported(cracCreationContext, "ct-bidding-zone-without-eic", ImportStatus.INCOMPLETE_DATA,
                 "Remedial action ct-bidding-zone-without-eic will not be imported because the bidding zone is invalid.");
         assertRaNotImported(cracCreationContext, "ct-unknown-bidding-zone", ImportStatus.INCONSISTENCY_IN_DATA,
@@ -216,16 +227,16 @@ class CounterTradingRangeActionCreatorTest {
         // The availability of the first SIS time point at or after the import timestamp overrides normalAvailable,
         // whatever the order in which the time points are defined
         assertRaNotImported(cracCreationContext, "ct-unavailable-in-sis", ImportStatus.NOT_FOR_RAO,
-                "Remedial action ct-unavailable-in-sis will not be imported it is not set to be available.");
+                "Remedial action ct-unavailable-in-sis will not be imported because it is not set to be available.");
         assertRange(cracCreationContext, "ct-available-in-sis", -500, 500);
         // The SSI availability overrides the SIS one
         assertRange(cracCreationContext, "ct-sis-overridden-by-ssi", -500, 500);
         // The applicable SIS time point has no availability: normalAvailable is kept
         assertRaNotImported(cracCreationContext, "ct-sis-without-availability", ImportStatus.NOT_FOR_RAO,
-                "Remedial action ct-sis-without-availability will not be imported it is not set to be available.");
+                "Remedial action ct-sis-without-availability will not be imported because it is not set to be available.");
         // Several SIS schedules: only the "next" one with the smallest id is read
         assertRaNotImported(cracCreationContext, "ct-sis-several-schedules", ImportStatus.NOT_FOR_RAO,
-                "Remedial action ct-sis-several-schedules will not be imported it is not set to be available.");
+                "Remedial action ct-sis-several-schedules will not be imported because it is not set to be available.");
     }
 
     @Test
@@ -260,6 +271,16 @@ class CounterTradingRangeActionCreatorTest {
     void doNotImportCounterTradeRangeActionWithoutInitialNetPosition() {
         Network network = NcCracCreationTestUtil.getNetworkFromResource("/networks/16Nodes.zip");
         List.copyOf(network.getLineStream().toList()).forEach(Line::remove);
+        NcCracCreationContext cracCreationContext = NcCracCreationTestUtil.getNcCracCreationContext(CT_ARCHIVE, network, NcCracCreationTestUtil.cracCreationDefaultParametersWithSweCsaExtension());
+
+        assertRaNotImported(cracCreationContext, "ct-economic-limits", ImportStatus.INCOMPLETE_DATA,
+                "Remedial action ct-economic-limits will not be imported because the initial net position of area FR could not be computed from the network.");
+    }
+
+    @Test
+    void doNotImportCounterTradeRangeActionWithoutBorderFlow() {
+        Network network = getNetworkWithFrNetPosition(FR_NET_POSITION);
+        network.getLine(FR_TO_DE_LINE).getTerminal1().setP(Double.NaN);
         NcCracCreationContext cracCreationContext = NcCracCreationTestUtil.getNcCracCreationContext(CT_ARCHIVE, network, NcCracCreationTestUtil.cracCreationDefaultParametersWithSweCsaExtension());
 
         assertRaNotImported(cracCreationContext, "ct-economic-limits", ImportStatus.INCOMPLETE_DATA,

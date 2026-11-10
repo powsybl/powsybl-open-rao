@@ -190,7 +190,8 @@ name, instant(s) and operator information.
 The CNEC is imported only if the `normalEnabled` fields is set to `true` or missing. If the `inBaseCase` field is set
 to `true` a **preventive** CNEC is created from this assessed element (but this does not mean that a curative CNEC
 cannot be created as well). The `AssessedSystemOperator` and the `name` are concatenated together with the CNEC's
-instant (with the pattern *TSO_name - instant*) to create the CNEC's name.
+instant (with the pattern *TSO_name - instant*) to create the CNEC's name. The CNEC's operator is the friendly name of
+the `AssessedSystemOperator` if it is a known TSO, its EIC code otherwise.
 
 > The CNEC can still be imported if `normalEnabled` is set to `false` if the AssessedElement is also defined in the SSI
 > profile with its field `enabled` set to `true`.
@@ -530,7 +531,8 @@ The remedial action is imported only if the `normalAvailable` field is set to `t
 
 As for the [contingencies](#contingencies), the `mRID` is used as the remedial action's identifier and
 the `RemedialActionSystemOperator` and `name` are concatenated together to create the remedial action's name. The
-instant of the remedial action is determined by the `kind` which can be either `preventive` or `curative`.
+remedial action's operator is the friendly name of the `RemedialActionSystemOperator` if it is a known TSO, its EIC
+code otherwise. The instant of the remedial action is determined by the `kind` which can be either `preventive` or `curative`.
 
 > If the remedial action has its `kind` field set to `curative`, the remedial action will be imported for all curative instants at once.
 
@@ -1040,9 +1042,13 @@ Moreover, the counter-trade cannot change the sign of the net position:
 - if the initial net position is positive, `NP0` + lower bound cannot be negative;
 - if the initial net position is negative, `NP0` + upper bound cannot be positive.
 
+When this constraint limits a bound, the remedial action is still imported but flagged as altered, and its import 
+status detail gives both the original and the limited value of the bound.
+
 If neither the economic limit nor the physical limit is provided for the lower (resp. upper) bound, the 
 `counter-trading-min-range` (resp. `counter-trading-max-range`) creation parameter is used as is (the sign constraint 
-above is not applied to it). If this parameter is not set either, the remedial action is not imported.
+above is not applied to it), and the remedial action is flagged as altered, with its import status detail giving the 
+value taken from the parameter. If this parameter is not set either, the remedial action is not imported.
 
 If the resulting lower bound is greater than the upper bound, the remedial action is not imported.
 

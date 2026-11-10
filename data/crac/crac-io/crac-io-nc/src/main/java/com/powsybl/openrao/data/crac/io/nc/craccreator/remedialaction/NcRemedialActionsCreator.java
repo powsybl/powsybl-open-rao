@@ -263,8 +263,7 @@ public class NcRemedialActionsCreator {
 
         remedialActionAdder.withName(remedialActionName);
         if (gridStateAlterationRemedialAction.operator() != null) {
-            remedialActionAdder.withOperator(NcCracUtils.getTsoNameFromUrl(gridStateAlterationRemedialAction.operator())
-                .orElse(NcCracUtils.getEicFromUrl(gridStateAlterationRemedialAction.operator())));
+            remedialActionAdder.withOperator(NcCracUtils.safeGetOperator(gridStateAlterationRemedialAction.operator()));
         }
         if (gridStateAlterationRemedialAction.getTimeToImplementInSeconds() != null) {
             remedialActionAdder.withSpeed(gridStateAlterationRemedialAction.getTimeToImplementInSeconds());
