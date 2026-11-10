@@ -51,7 +51,7 @@ Feature: 4.2: Time-coupled generator constraints with MARMOT based on JSON time-
       | 2025-11-04 21:30 | 4_time_coupled/6Nodes.xiidm | 4_time_coupled/4_3/crac_202511042130.json |
       | 2025-11-04 22:30 | 4_time_coupled/6Nodes.xiidm | 4_time_coupled/4_3/crac_202511042230.json |
       | 2025-11-04 23:30 | 4_time_coupled/6Nodes.xiidm | 4_time_coupled/4_3/crac_202511042330.json |
-    When I launch rao in time-coupled mode
+    When I launch rao
     # Timestamp 00:30
     Then the total cost for timestamp "2025-11-04 00:30" is 0.0
     Then the preventive power of generator "BBE1AA1 _generator" at timestamp "2025-11-04 00:30" is 0.0 MW
@@ -180,7 +180,7 @@ Feature: 4.2: Time-coupled generator constraints with MARMOT based on JSON time-
       | 2025-11-04 21:30 | 4_time_coupled/6Nodes_Pmax2500.xiidm | 4_time_coupled/4_3/crac_202511042130.json |
       | 2025-11-04 22:30 | 4_time_coupled/6Nodes_Pmax2500.xiidm | 4_time_coupled/4_3/crac_202511042230.json |
       | 2025-11-04 23:30 | 4_time_coupled/6Nodes_Pmax2500.xiidm | 4_time_coupled/4_3/crac_202511042330.json |
-    When I launch rao in time-coupled mode
+    When I launch rao
     # Timestamp 00:30
     Then the total cost for timestamp "2025-11-04 00:30" is 0.0
     Then the preventive power of generator "BBE1AA1 _generator" at timestamp "2025-11-04 00:30" is 0.0 MW
@@ -313,7 +313,7 @@ Feature: 4.2: Time-coupled generator constraints with MARMOT based on JSON time-
       | 2025-11-04 21:30 | 4_time_coupled/6Nodes.xiidm | 4_time_coupled/4_3/crac_202511042130.json |
       | 2025-11-04 22:30 | 4_time_coupled/6Nodes.xiidm | 4_time_coupled/4_3/crac_202511042230.json |
       | 2025-11-04 23:30 | 4_time_coupled/6Nodes.xiidm | 4_time_coupled/4_3/crac_202511042330.json |
-    When I launch rao in time-coupled mode
+    When I launch rao
     # Timestamp 00:30
     Then the total cost for timestamp "2025-11-04 00:30" is 0.0
     Then the preventive power of generator "BBE1AA1 _generator" at timestamp "2025-11-04 00:30" is 0.0 MW
@@ -442,7 +442,7 @@ Feature: 4.2: Time-coupled generator constraints with MARMOT based on JSON time-
       | 2025-11-04 21:30 | 4_time_coupled/6Nodes_Pmin1000_Pmax3000.xiidm | 4_time_coupled/4_3/crac_202511042130.json |
       | 2025-11-04 22:30 | 4_time_coupled/6Nodes_Pmin1000_Pmax3000.xiidm | 4_time_coupled/4_3/crac_202511042230.json |
       | 2025-11-04 23:30 | 4_time_coupled/6Nodes_Pmin1000_Pmax3000.xiidm | 4_time_coupled/4_3/crac_202511042330.json |
-    When I launch rao in time-coupled mode
+    When I launch rao
     # Timestamp 00:30
     Then the total cost for timestamp "2025-11-04 00:30" is 0.0
     Then the preventive power of generator "BBE1AA1 _generator" at timestamp "2025-11-04 00:30" is 0.0 MW
@@ -572,7 +572,7 @@ Feature: 4.2: Time-coupled generator constraints with MARMOT based on JSON time-
       | 2025-11-04 21:30 | 4_time_coupled/6Nodes_Pmin1000.xiidm | 4_time_coupled/4_3/crac_202511042130.json |
       | 2025-11-04 22:30 | 4_time_coupled/6Nodes_Pmin1000.xiidm | 4_time_coupled/4_3/crac_202511042230.json |
       | 2025-11-04 23:30 | 4_time_coupled/6Nodes_Pmin1000.xiidm | 4_time_coupled/4_3/crac_202511042330.json |
-    When I launch rao in time-coupled mode
+    When I launch rao
     # Timestamp 00:30
     Then the total cost for timestamp "2025-11-04 00:30" is 0.0
     Then the preventive power of generator "BBE1AA1 _generator" at timestamp "2025-11-04 00:30" is 0.0 MW
@@ -706,7 +706,7 @@ Feature: 4.2: Time-coupled generator constraints with MARMOT based on JSON time-
       | 2025-11-04 21:30 | 4_time_coupled/6Nodes_Pmin1000.xiidm | 4_time_coupled/4_5_min_off/crac_202511042130.json |
       | 2025-11-04 22:30 | 4_time_coupled/6Nodes_Pmin1000.xiidm | 4_time_coupled/4_5_min_off/crac_202511042230.json |
       | 2025-11-04 23:30 | 4_time_coupled/6Nodes_Pmin1000.xiidm | 4_time_coupled/4_5_min_off/crac_202511042330.json |
-    When I launch rao in time-coupled mode
+    When I launch rao
     # Timestamp 00:30: 10 (activation) + 50 * 3000 MW (variation) = 150010
     Then the total cost for timestamp "2025-11-04 00:30" is 150010.0
     Then the preventive power of generator "BBE1AA1 _generator" at timestamp "2025-11-04 00:30" is 3000.0 MW
@@ -839,7 +839,7 @@ Feature: 4.2: Time-coupled generator constraints with MARMOT based on JSON time-
       | 2025-11-04 21:30 | 4_time_coupled/6Nodes_targetP_1500.xiidm | 4_time_coupled/4_5_min_off/crac_202511042130.json |
       | 2025-11-04 22:30 | 4_time_coupled/6Nodes_targetP_1500.xiidm | 4_time_coupled/4_5_min_off/crac_202511042230.json |
       | 2025-11-04 23:30 | 4_time_coupled/6Nodes_targetP_1500.xiidm  | 4_time_coupled/4_5_min_off/crac_202511042330.json |
-    When I launch rao in time-coupled mode
+    When I launch rao
     # Timestamp 00:30: 10 (activation) + 50 * 1500 MW (variation) = 75010
     Then the total cost for timestamp "2025-11-04 00:30" is 75010.0
     Then the preventive power of generator "BBE1AA1 _generator" at timestamp "2025-11-04 00:30" is 3000.0 MW
@@ -971,7 +971,7 @@ Feature: 4.2: Time-coupled generator constraints with MARMOT based on JSON time-
       | 2025-11-04 21:30 | 4_time_coupled/6Nodes_Pmin1000.xiidm | 4_time_coupled/4_5_min_off/crac_202511042130.json |
       | 2025-11-04 22:30 | 4_time_coupled/6Nodes_Pmin1000.xiidm | 4_time_coupled/4_5_min_off/crac_202511042230.json |
       | 2025-11-04 23:30 | 4_time_coupled/6Nodes_Pmin1000.xiidm | 4_time_coupled/4_5_min_off/crac_202511042330.json |
-    When I launch rao in time-coupled mode
+    When I launch rao
     # Timestamp 00:30: 10 (activation) + 50 * 3000 MW (variation) = 150010
     Then the total cost for timestamp "2025-11-04 00:30" is 150010.0
     Then the preventive power of generator "BBE1AA1 _generator" at timestamp "2025-11-04 00:30" is 3000.0 MW
@@ -1101,7 +1101,7 @@ Feature: 4.2: Time-coupled generator constraints with MARMOT based on JSON time-
       | 2025-11-04 21:30 | 4_time_coupled/6Nodes_Pmin1000.xiidm | 4_time_coupled/4_5_min_off/crac_202511042130.json |
       | 2025-11-04 22:30 | 4_time_coupled/6Nodes_Pmin1000.xiidm | 4_time_coupled/4_5_min_off/crac_202511042230.json |
       | 2025-11-04 23:30 | 4_time_coupled/6Nodes_Pmin1000.xiidm | 4_time_coupled/4_5_min_off/crac_202511042330.json |
-    When I launch rao in time-coupled mode
+    When I launch rao
     # Timestamp 00:30: 10 (activation) + 50 * 3000 MW (variation) = 150010
     Then the total cost for timestamp "2025-11-04 00:30" is 150010.0
     Then the preventive power of generator "BBE1AA1 _generator" at timestamp "2025-11-04 00:30" is 3000.0 MW
@@ -1228,7 +1228,7 @@ Feature: 4.2: Time-coupled generator constraints with MARMOT based on JSON time-
       | 2025-11-04 21:30 | 4_time_coupled/6Nodes_Pmin1000.xiidm | 4_time_coupled/4_5_min_off/crac_202511042130.json |
       | 2025-11-04 22:30 | 4_time_coupled/6Nodes_Pmin1000.xiidm | 4_time_coupled/4_5_min_off/crac_202511042230.json |
       | 2025-11-04 23:30 | 4_time_coupled/6Nodes_Pmin1000.xiidm | 4_time_coupled/4_5_min_off/crac_202511042330.json |
-    When I launch rao in time-coupled mode
+    When I launch rao
     # Timestamp 00:30: 10 (activation) + 50 * 3000 MW (variation) = 150010
     Then the total cost for timestamp "2025-11-04 00:30" is 150010.0
     Then the preventive power of generator "BBE1AA1 _generator" at timestamp "2025-11-04 00:30" is 3000.0 MW
