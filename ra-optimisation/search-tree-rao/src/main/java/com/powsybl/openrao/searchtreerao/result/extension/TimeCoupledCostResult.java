@@ -7,36 +7,41 @@
 
 package com.powsybl.openrao.searchtreerao.result.extension;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.SerializerProvider;
 import com.powsybl.commons.extensions.AbstractExtension;
+import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.commons.TemporalDataImpl;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.raoresult.api.extension.CostResult;
-import com.powsybl.openrao.data.raoresult.io.json.extension.JsonCostResult;
 
-import java.io.IOException;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public class TimeCoupledCostResult extends AbstractExtension<RaoResult> {
+public final class TimeCoupledCostResult extends AbstractExtension<RaoResult> {
     private static final String EXTENSION_NAME = "time-coupled-cost-results";
 
     private final TemporalData<CostResult> costResults;
 
-    public TimeCoupledCostResult() {
+    private TimeCoupledCostResult(TemporalData<CostResult> costResults) {
         this.costResults = new TemporalDataImpl<>();
+        costResults.getDataPerTimestamp().forEach(this.costResults::put);
     }
 
-    public void add(CostResult costResult, OffsetDateTime timestamp) {
-        costResults.put(timestamp, costResult);
+    public List<OffsetDateTime> getTimestamps() {
+        return costResults.getTimestamps();
+    }
+
+    public CostResult getCostResult(OffsetDateTime timestamp) {
+        return costResults.getData(timestamp).orElseThrow(
+            () -> new OpenRaoException("No cost result found for timestamp " + DateTimeFormatter.ISO_DATE_TIME.format(timestamp))
+        );
     }
 
     /**
@@ -120,15 +125,24 @@ public class TimeCoupledCostResult extends AbstractExtension<RaoResult> {
         return EXTENSION_NAME;
     }
 
-    // TODO: move to JsonTimeCoupledCostResult directly
-    public void serialize(JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
-        jsonGenerator.writeStartObject();
-        for (OffsetDateTime timestamp : costResults.getTimestamps()) {
-            jsonGenerator.writeFieldName(DateTimeFormatter.ISO_DATE_TIME.format(timestamp));
-            new JsonCostResult().serialize(costResults.getData(timestamp).orElseThrow(), jsonGenerator, serializerProvider);
-        }
-        jsonGenerator.writeEndObject();
+    public static TimeCoupledCostResultBuilder builder() {
+        return new TimeCoupledCostResultBuilder();
     }
 
-    // TODO: define builder like other extensions
+    public static final class TimeCoupledCostResultBuilder {
+        TemporalData<CostResult> costResults;
+
+        private TimeCoupledCostResultBuilder() {
+            this.costResults = new TemporalDataImpl<>();
+        }
+
+        public TimeCoupledCostResultBuilder addCostResult(OffsetDateTime timestamp, CostResult costResult) {
+            costResults.put(timestamp, costResult);
+            return this;
+        }
+
+        public TimeCoupledCostResult build() {
+            return new TimeCoupledCostResult(costResults);
+        }
+    }
 }

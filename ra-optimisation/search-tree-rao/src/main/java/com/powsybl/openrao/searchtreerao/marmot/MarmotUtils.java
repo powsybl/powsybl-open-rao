@@ -135,7 +135,7 @@ public final class MarmotUtils {
 
     public static void fillRaoResult(TemporalData<Crac> cracs,
                                      RaoResultImpl.RaoResultImplBuilder raoResultBuilder,
-                                     TimeCoupledCostResult costResult,
+                                     TimeCoupledCostResult.TimeCoupledCostResultBuilder costResultBuilder,
                                      TemporalData<PrePerimeterResult> initialResults,
                                      GlobalLinearOptimizationResult globalLinearOptimizationResult,
                                      TemporalData<Set<NetworkAction>> preventiveNetworkActions,
@@ -160,7 +160,7 @@ public final class MarmotUtils {
                 raoParameters,
                 reportNode
             );
-            costResult.add(individualCostResult, timestamp);
+            costResultBuilder.addCostResult(timestamp, individualCostResult);
         }
     }
 
