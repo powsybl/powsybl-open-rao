@@ -45,7 +45,7 @@ Feature: 4.2.1: Time-coupled PST tap gradient constraints
     Given crac files are in folder "4_time_coupled/4_2_pst_constraints"
     Given network files are in folder "4_time_coupled/4_2_pst_constraints"
     Given time-coupled constraints are in file "4_time_coupled/4_2_pst_constraints/time-coupled-pst-constraints-with-one-tap-per-hour.json" and rao inputs are:
-      | Timestamp        | Network                                                   | CRAC                                                       |
+      | Timestamp        | Network                | CRAC                    |
       | 2026-03-25 19:30 | network_2nodes_pst.uct | crac-20260325-1930.json |
       | 2026-03-25 20:30 | network_2nodes_pst.uct | crac-20260325-2030.json |
       | 2026-03-25 21:30 | network_2nodes_pst.uct | crac-20260325-2130.json |
@@ -68,7 +68,7 @@ Feature: 4.2.1: Time-coupled PST tap gradient constraints
     Given crac files are in folder "4_time_coupled/4_2_pst_constraints"
     Given network files are in folder "4_time_coupled/4_2_pst_constraints"
     Given time-coupled constraints are in file "4_time_coupled/4_2_pst_constraints/time-coupled-pst-constraints-with-two-taps-per-hour.json" and rao inputs are:
-      | Timestamp        | Network                                                   | CRAC                                                       |
+      | Timestamp        | Network                | CRAC                    |
       | 2026-03-25 19:30 | network_2nodes_pst.uct | crac-20260325-1930.json |
       | 2026-03-25 20:00 | network_2nodes_pst.uct | crac-20260325-2000.json |
     When I launch marmot

@@ -18,7 +18,7 @@ From 20:30 to 23:30, 3000 MW of redispatching
     Given crac files are in folder "4_time_coupled/4_1_generator_constraints/4_1_2_6"
     Given network files are in folder "4_time_coupled"
     Given time-coupled constraints are in file "4_time_coupled/4_1_generator_constraints/time-coupled-constraints-4_1_5_1.json" and rao inputs are:
-      | Timestamp        | Network                      | CRAC                                   |
+      | Timestamp        | Network               | CRAC                   |
       | 2025-11-04 00:30 | 6Nodes_Pmin1000.xiidm | crac_202511040030.json |
       | 2025-11-04 01:30 | 6Nodes_Pmin1000.xiidm | crac_202511040130.json |
       | 2025-11-04 02:30 | 6Nodes_Pmin1000.xiidm | crac_202511040230.json |
@@ -150,7 +150,7 @@ From 20:30 to 23:30, 3000 MW of redispatching
     Given crac files are in folder "4_time_coupled/4_1_generator_constraints/4_1_2_6"
     Given network files are in folder "4_time_coupled"
     Given time-coupled constraints are in file "4_time_coupled/4_1_generator_constraints/time-coupled-constraints-4_1_5_2.json" and rao inputs are:
-      | Timestamp        | Network                      | CRAC                                   |
+      | Timestamp        | Network               | CRAC                   |
       | 2025-11-04 00:30 | 6Nodes_Pmin1000.xiidm | crac_202511040030.json |
       | 2025-11-04 01:30 | 6Nodes_Pmin1000.xiidm | crac_202511040130.json |
       | 2025-11-04 02:30 | 6Nodes_Pmin1000.xiidm | crac_202511040230.json |
@@ -284,7 +284,7 @@ From 20:30 to 23:30, 3000 MW of redispatching
     Given crac files are in folder "4_time_coupled/4_1_generator_constraints/4_1_2_6"
     Given network files are in folder "4_time_coupled"
     Given time-coupled constraints are in file "4_time_coupled/4_1_generator_constraints/time-coupled-constraints-4_1_6_3.json" and rao inputs are:
-      | Timestamp        | Network                      | CRAC                                   |
+      | Timestamp        | Network               | CRAC                   |
       | 2025-11-04 00:30 | 6Nodes_Pmin1000.xiidm | crac_202511040030.json |
       | 2025-11-04 01:30 | 6Nodes_Pmin1000.xiidm | crac_202511040130.json |
       | 2025-11-04 02:30 | 6Nodes_Pmin1000.xiidm | crac_202511040230.json |
@@ -430,7 +430,7 @@ From 20:30 to 23:30, 3000 MW of redispatching
     Given crac files are in folder "4_time_coupled/4_1_generator_constraints/4_1_2_6"
     Given network files are in folder "4_time_coupled"
     Given time-coupled constraints are in file "4_time_coupled/4_1_generator_constraints/time-coupled-constraints-4_1_6_4.json" and rao inputs are:
-      | Timestamp        | Network                              | CRAC                                                                    |
+      | Timestamp        | Network               | CRAC                   |
       | 2025-11-04 00:30 | 6Nodes_Pmin1000.xiidm | crac_202511040030.json |
       | 2025-11-04 01:30 | 6Nodes_Pmin1000.xiidm | crac_202511040130.json |
       | 2025-11-04 02:30 | 6Nodes_Pmin1000.xiidm | crac_202511040230.json |
