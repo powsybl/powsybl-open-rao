@@ -28,6 +28,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 
+import static com.powsybl.openrao.commons.MeasurementRounding.roundValueBasedOnMargin;
+
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
@@ -134,24 +136,25 @@ public class JsonFlowResult implements RaoResultJsonUtils.ExtensionSerializer<Fl
 
     private static void serializeForSide(JsonGenerator jsonGenerator, FlowCnec flowCnec, FlowResult flowResult, Instant instant, Unit unit, TwoSides side) throws IOException {
         jsonGenerator.writeObjectFieldStart("side" + side.getNum());
+        double margin = flowResult.getMargin(instant, flowCnec, unit);
 
         // serialize flow
         double flow = flowResult.getFlow(instant, flowCnec, side, unit);
         if (!Double.isNaN(flow)) {
-            jsonGenerator.writeNumberField("flow", flow);
+            jsonGenerator.writeNumberField("flow", roundValueBasedOnMargin(flow, margin, 2));
         }
 
         // serialize commercial flow
         double commercialFlow = flowResult.getCommercialFlow(instant, flowCnec, side, unit);
         if (!Double.isNaN(commercialFlow)) {
-            jsonGenerator.writeNumberField("commercialFlow", commercialFlow);
+            jsonGenerator.writeNumberField("commercialFlow", roundValueBasedOnMargin(commercialFlow, margin, 2));
         }
 
         // serialize PTDF zonal sum -> TODO: kept here to mimic RAO Result, might have a better place
         if (unit == Unit.MEGAWATT) {
             double ptdfZonalSum = flowResult.getPtdfZonalSum(instant, flowCnec, side);
             if (!Double.isNaN(ptdfZonalSum)) {
-                jsonGenerator.writeNumberField("zonalPtdfSum", ptdfZonalSum);
+                jsonGenerator.writeNumberField("zonalPtdfSum", roundValueBasedOnMargin(ptdfZonalSum, margin, 2));
             }
         }
 

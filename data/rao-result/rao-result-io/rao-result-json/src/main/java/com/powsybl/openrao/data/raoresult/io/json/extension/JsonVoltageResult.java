@@ -26,6 +26,8 @@ import java.io.IOException;
 import java.util.Comparator;
 import java.util.List;
 
+import static com.powsybl.openrao.commons.MeasurementRounding.roundValueBasedOnMargin;
+
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
@@ -103,8 +105,11 @@ public class JsonVoltageResult implements RaoResultJsonUtils.ExtensionSerializer
     private static void serializeForInstant(JsonGenerator jsonGenerator, VoltageCnec voltageCnec, VoltageResult voltageResult, Instant instant) throws IOException {
         jsonGenerator.writeObjectFieldStart(instant == null ? "initial" : instant.getId());
         jsonGenerator.writeObjectFieldStart(Unit.KILOVOLT.name().toLowerCase());
-        jsonGenerator.writeNumberField("minVoltage", voltageResult.getMinVoltage(instant, voltageCnec, Unit.KILOVOLT));
-        jsonGenerator.writeNumberField("maxVoltage", voltageResult.getMaxVoltage(instant, voltageCnec, Unit.KILOVOLT));
+        double minVoltage = voltageResult.getMinVoltage(instant, voltageCnec, Unit.KILOVOLT);
+        double maxVoltage = voltageResult.getMaxVoltage(instant, voltageCnec, Unit.KILOVOLT);
+        double margin = voltageResult.getMargin(instant, voltageCnec, Unit.KILOVOLT);
+        jsonGenerator.writeNumberField("minVoltage", roundValueBasedOnMargin(minVoltage, margin, 2));
+        jsonGenerator.writeNumberField("maxVoltage", roundValueBasedOnMargin(maxVoltage, margin, 2));
         jsonGenerator.writeEndObject();
         jsonGenerator.writeEndObject();
     }

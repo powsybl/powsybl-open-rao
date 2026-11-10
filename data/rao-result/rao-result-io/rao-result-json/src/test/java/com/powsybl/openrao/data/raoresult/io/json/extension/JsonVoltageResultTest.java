@@ -82,8 +82,8 @@ public class JsonVoltageResultTest {
         }
 
         String expectedJson = "[{\"voltageCnecId\":\"cnec1\","
-            + "\"initial\":{\"kilovolt\":{\"minVoltage\":400.0,\"maxVoltage\":405.0}},"
-            + "\"preventive\":{\"kilovolt\":{\"minVoltage\":417.0,\"maxVoltage\":437.0}}}]";
+            + "\"initial\":{\"kilovolt\":{\"minVoltage\":400.00,\"maxVoltage\":405.00}},"
+            + "\"preventive\":{\"kilovolt\":{\"minVoltage\":417.00,\"maxVoltage\":437.00}}}]";
         assertEquals(expectedJson, writer.toString());
     }
 
@@ -122,9 +122,9 @@ public class JsonVoltageResultTest {
 
         // Should be sorted by ID: cnec1 then cnec2
         String expectedJson = "[{\"voltageCnecId\":\"cnec1\","
-            + "\"initial\":{\"kilovolt\":{\"minVoltage\":400.0,\"maxVoltage\":405.0}}},"
+            + "\"initial\":{\"kilovolt\":{\"minVoltage\":400.00,\"maxVoltage\":405.00}}},"
             + "{\"voltageCnecId\":\"cnec2\","
-            + "\"initial\":{\"kilovolt\":{\"minVoltage\":215.0,\"maxVoltage\":220.0}}}]";
+            + "\"initial\":{\"kilovolt\":{\"minVoltage\":215.00,\"maxVoltage\":220.00}}}]";
         assertEquals(expectedJson, writer.toString());
     }
 
@@ -156,17 +156,66 @@ public class JsonVoltageResultTest {
 
         // Instants should be sorted: initial, then instant1, then instant2
         String expectedJson = "[{\"voltageCnecId\":\"cnec1\","
-            + "\"initial\":{\"kilovolt\":{\"minVoltage\":400.0,\"maxVoltage\":405.0}},"
-            + "\"instant1\":{\"kilovolt\":{\"minVoltage\":405.0,\"maxVoltage\":410.0}},"
-            + "\"instant2\":{\"kilovolt\":{\"minVoltage\":415.0,\"maxVoltage\":425.0}}}]";
+            + "\"initial\":{\"kilovolt\":{\"minVoltage\":400.00,\"maxVoltage\":405.00}},"
+            + "\"instant1\":{\"kilovolt\":{\"minVoltage\":405.00,\"maxVoltage\":410.00}},"
+            + "\"instant2\":{\"kilovolt\":{\"minVoltage\":415.00,\"maxVoltage\":425.00}}}]";
         assertEquals(expectedJson, writer.toString());
+    }
+
+    private String serializeInitialVoltages(double minVoltage, double maxVoltage) throws IOException {
+        Mockito.when(voltageCnec.getUpperBound(Unit.KILOVOLT)).thenReturn(Optional.of(440.0));
+        Mockito.when(voltageCnec.getLowerBound(Unit.KILOVOLT)).thenReturn(Optional.of(380.0));
+        Mockito.when(crac.getSortedInstants()).thenReturn(List.of());
+        voltageResultBuilder.addMeasurement(minVoltage, maxVoltage, null, voltageCnec, Unit.KILOVOLT);
+
+        StringWriter writer = new StringWriter();
+        JsonFactory factory = new JsonFactory();
+        try (JsonGenerator jsonGenerator = factory.createGenerator(writer)) {
+            new JsonVoltageResult().serialize(voltageResultBuilder.build(), jsonGenerator, serializerProvider);
+        }
+        return writer.toString();
+    }
+
+    @Test
+    void testSerializeRoundingWithPositiveMargin() throws IOException {
+        // margin = 9.544 kV -> default 2 decimals
+        assertEquals("[{\"voltageCnecId\":\"cnec1\",\"initial\":{\"kilovolt\":{\"minVoltage\":420.12,\"maxVoltage\":430.46}}}]",
+            serializeInitialVoltages(420.123, 430.456));
+    }
+
+    @Test
+    void testSerializeRoundingWithStrongNegativeMargin() throws IOException {
+        // margin = -10.123 kV -> default 2 decimals
+        assertEquals("[{\"voltageCnecId\":\"cnec1\",\"initial\":{\"kilovolt\":{\"minVoltage\":400.00,\"maxVoltage\":450.12}}}]",
+            serializeInitialVoltages(400.0, 450.123));
+    }
+
+    @Test
+    void testSerializeRoundingWithOneDecimalMargin() throws IOException {
+        // margin = -0.05 kV -> 1 relevant decimal, bounded by default 2 decimals
+        assertEquals("[{\"voltageCnecId\":\"cnec1\",\"initial\":{\"kilovolt\":{\"minVoltage\":400.00,\"maxVoltage\":440.05}}}]",
+            serializeInitialVoltages(400.0, 440.05));
+    }
+
+    @Test
+    void testSerializeRoundingWithThreeDecimalsMargin() throws IOException {
+        // margin = -0.005 kV -> 3 decimals
+        assertEquals("[{\"voltageCnecId\":\"cnec1\",\"initial\":{\"kilovolt\":{\"minVoltage\":400.000,\"maxVoltage\":440.005}}}]",
+            serializeInitialVoltages(400.0, 440.005));
+    }
+
+    @Test
+    void testSerializeRoundingWithFiveDecimalsMargin() throws IOException {
+        // margin = -0.00002 kV on lower bound -> 5 decimals
+        assertEquals("[{\"voltageCnecId\":\"cnec1\",\"initial\":{\"kilovolt\":{\"minVoltage\":379.99998,\"maxVoltage\":400.00000}}}]",
+            serializeInitialVoltages(379.99998, 400.0));
     }
 
     @Test
     void deserializeForUnknownVoltageCnec() {
         String expectedJson = "[{"
             + "\"voltageCnecId\":\"cnec1\","
-            + "\"preventive\":{\"kilovolt\":{\"lowVoltage\":400.0, \"highVoltage\":400.0}}"
+            + "\"preventive\":{\"kilovolt\":{\"lowVoltage\":400.00, \"highVoltage\":400.00}}"
             + "}]";
         when(crac.getVoltageCnec("cnec1")).thenReturn(null);
 

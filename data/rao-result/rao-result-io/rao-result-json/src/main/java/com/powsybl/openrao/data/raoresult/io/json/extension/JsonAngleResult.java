@@ -26,6 +26,8 @@ import java.io.IOException;
 import java.util.Comparator;
 import java.util.List;
 
+import static com.powsybl.openrao.commons.MeasurementRounding.roundValueBasedOnMargin;
+
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
@@ -102,7 +104,9 @@ public class JsonAngleResult implements RaoResultJsonUtils.ExtensionSerializer<A
     private static void serializeForInstant(JsonGenerator jsonGenerator, AngleCnec angleCnec, AngleResult angleResult, Instant instant) throws IOException {
         jsonGenerator.writeObjectFieldStart(instant == null ? "initial" : instant.getId());
         jsonGenerator.writeObjectFieldStart(Unit.DEGREE.name().toLowerCase());
-        jsonGenerator.writeNumberField("angle", angleResult.getAngle(instant, angleCnec, Unit.DEGREE));
+        double angle = angleResult.getAngle(instant, angleCnec, Unit.DEGREE);
+        double margin = angleResult.getMargin(instant, angleCnec, Unit.DEGREE);
+        jsonGenerator.writeNumberField("angle", roundValueBasedOnMargin(angle, margin, 2));
         jsonGenerator.writeEndObject();
         jsonGenerator.writeEndObject();
     }

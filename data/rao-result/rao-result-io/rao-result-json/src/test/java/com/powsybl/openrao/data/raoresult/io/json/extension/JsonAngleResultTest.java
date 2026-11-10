@@ -83,8 +83,8 @@ public class JsonAngleResultTest {
 
         String expectedJson = "[{"
             + "\"angleCnecId\":\"cnec1\","
-            + "\"initial\":{\"degree\":{\"angle\":25.0}},"
-            + "\"preventive\":{\"degree\":{\"angle\":17.0}}" +
+            + "\"initial\":{\"degree\":{\"angle\":25.00}},"
+            + "\"preventive\":{\"degree\":{\"angle\":17.00}}" +
             "}]";
         assertEquals(expectedJson, writer.toString());
     }
@@ -124,8 +124,8 @@ public class JsonAngleResultTest {
 
         // Should be sorted by ID: cnec1 then cnec2
         String expectedJson = "["
-            + "{\"angleCnecId\":\"cnec1\",\"initial\":{\"degree\":{\"angle\":25.0}}},"
-            + "{\"angleCnecId\":\"cnec2\",\"initial\":{\"degree\":{\"angle\":10.0}}}"
+            + "{\"angleCnecId\":\"cnec1\",\"initial\":{\"degree\":{\"angle\":25.00}}},"
+            + "{\"angleCnecId\":\"cnec2\",\"initial\":{\"degree\":{\"angle\":10.00}}}"
             + "]";
         assertEquals(expectedJson, writer.toString());
     }
@@ -163,18 +163,62 @@ public class JsonAngleResultTest {
         // Instants should be sorted: initial, then instant1, then instant2
         String expectedJson = "[{"
             + "\"angleCnecId\":\"cnec1\","
-            + "\"initial\":{\"degree\":{\"angle\":20.0}},"
-            + "\"instant1\":{\"degree\":{\"angle\":10.0}},"
-            + "\"instant2\":{\"degree\":{\"angle\":15.0}}"
+            + "\"initial\":{\"degree\":{\"angle\":20.00}},"
+            + "\"instant1\":{\"degree\":{\"angle\":10.00}},"
+            + "\"instant2\":{\"degree\":{\"angle\":15.00}}"
             + "}]";
         assertEquals(expectedJson, writer.toString());
+    }
+
+    private String serializeInitialAngle(double angle) throws IOException {
+        Mockito.when(angleCnec.getUpperBound(Unit.DEGREE)).thenReturn(Optional.of(30.0));
+        Mockito.when(angleCnec.getLowerBound(Unit.DEGREE)).thenReturn(Optional.of(0.0));
+        Mockito.when(crac.getSortedInstants()).thenReturn(List.of());
+        angleResultBuilder.addMeasurement(angle, null, angleCnec, Unit.DEGREE);
+
+        StringWriter writer = new StringWriter();
+        JsonFactory factory = new JsonFactory();
+        try (JsonGenerator jsonGenerator = factory.createGenerator(writer)) {
+            new JsonAngleResult().serialize(angleResultBuilder.build(), jsonGenerator, serializerProvider);
+        }
+        return writer.toString();
+    }
+
+    @Test
+    void testSerializeRoundingWithPositiveMargin() throws IOException {
+        // margin = 4.544 degrees -> default 2 decimals
+        assertEquals("[{\"angleCnecId\":\"cnec1\",\"initial\":{\"degree\":{\"angle\":25.46}}}]", serializeInitialAngle(25.456));
+    }
+
+    @Test
+    void testSerializeRoundingWithStrongNegativeMargin() throws IOException {
+        // margin = -10.123 degrees -> default 2 decimals
+        assertEquals("[{\"angleCnecId\":\"cnec1\",\"initial\":{\"degree\":{\"angle\":40.12}}}]", serializeInitialAngle(40.123));
+    }
+
+    @Test
+    void testSerializeRoundingWithOneDecimalMargin() throws IOException {
+        // margin = -0.05 degrees -> 1 relevant decimal, bounded by default 2 decimals
+        assertEquals("[{\"angleCnecId\":\"cnec1\",\"initial\":{\"degree\":{\"angle\":30.05}}}]", serializeInitialAngle(30.05));
+    }
+
+    @Test
+    void testSerializeRoundingWithThreeDecimalsMargin() throws IOException {
+        // margin = -0.005 degrees -> 3 decimals
+        assertEquals("[{\"angleCnecId\":\"cnec1\",\"initial\":{\"degree\":{\"angle\":30.005}}}]", serializeInitialAngle(30.005));
+    }
+
+    @Test
+    void testSerializeRoundingWithFiveDecimalsMargin() throws IOException {
+        // margin = -0.00002 degrees -> 5 decimals
+        assertEquals("[{\"angleCnecId\":\"cnec1\",\"initial\":{\"degree\":{\"angle\":-0.00002}}}]", serializeInitialAngle(-0.00002));
     }
 
     @Test
     void deserializeForUnknownAngleCnec() {
         String expectedJson = "[{"
             + "\"angleCnecId\":\"cnec1\","
-            + "\"preventive\":{\"degree\":{\"angle\":40.0}}"
+            + "\"preventive\":{\"degree\":{\"angle\":40.00}}"
             + "}]";
         when(crac.getAngleCnec("cnec1")).thenReturn(null);
 

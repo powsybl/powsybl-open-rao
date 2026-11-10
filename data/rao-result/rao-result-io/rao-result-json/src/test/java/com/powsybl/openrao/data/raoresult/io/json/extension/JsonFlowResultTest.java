@@ -103,7 +103,7 @@ public class JsonFlowResultTest {
                 + "\"flowCnecId\":\"cnec1\","
                 + "\"initial\":{"
                 + "\"megawatt\":{"
-                + "\"side1\":{\"flow\":200.0}"
+                + "\"side1\":{\"flow\":200.00}"
                 + "}"
                 + "}"
                 + "}]";
@@ -123,9 +123,9 @@ public class JsonFlowResultTest {
                 + "\"initial\":{"
                 + "\"megawatt\":{"
                 + "\"side1\":{"
-                + "\"flow\":300.0,"
-                + "\"commercialFlow\":100.0,"
-                + "\"zonalPtdfSum\":0.5"
+                + "\"flow\":300.00,"
+                + "\"commercialFlow\":100.00,"
+                + "\"zonalPtdfSum\":0.50"
                 + "}"
                 + "}"
                 + "}"
@@ -146,8 +146,8 @@ public class JsonFlowResultTest {
                 + "\"initial\":{"
                 + "\"ampere\":{"
                 + "\"side2\":{"
-                + "\"flow\":500.0,"
-                + "\"commercialFlow\":200.0"
+                + "\"flow\":500.00,"
+                + "\"commercialFlow\":200.00"
                 + "}"
                 + "}"
                 + "}"
@@ -166,8 +166,8 @@ public class JsonFlowResultTest {
 
             // Verify structure includes flowCnecId, initial, megawatt, margin = 750.0, side1 flow = 200.0, side2 flow = 250.0
             assertTrue(json.contains("\"flowCnecId\":\"cnec1\""));
-            assertTrue(json.contains("\"side1\":{\"flow\":200.0}"));
-            assertTrue(json.contains("\"side2\":{\"flow\":250.0}"));
+            assertTrue(json.contains("\"side1\":{\"flow\":200.00}"));
+            assertTrue(json.contains("\"side2\":{\"flow\":250.00}"));
         }
 
         @Test
@@ -178,8 +178,8 @@ public class JsonFlowResultTest {
             flowResultBuilder.addFlowMeasurement(400.0, null, flowCnec, TwoSides.ONE, Unit.AMPERE);
 
             String json = serializeToJson();
-            assertTrue(json.contains("\"megawatt\":{\"side1\":{\"flow\":200.0}}"));
-            assertTrue(json.contains("\"ampere\":{\"side1\":{\"flow\":400.0}}"));
+            assertTrue(json.contains("\"megawatt\":{\"side1\":{\"flow\":200.00}}"));
+            assertTrue(json.contains("\"ampere\":{\"side1\":{\"flow\":400.00}}"));
         }
 
         @Test
@@ -203,8 +203,8 @@ public class JsonFlowResultTest {
             flowResultBuilder.addFlowMeasurement(100.0, null, cnecA, TwoSides.ONE, Unit.MEGAWATT);
 
             String expectedJson = "["
-                + "{\"flowCnecId\":\"cnec-a\",\"initial\":{\"megawatt\":{\"side1\":{\"flow\":100.0}}}},"
-                + "{\"flowCnecId\":\"cnec-b\",\"initial\":{\"megawatt\":{\"side1\":{\"flow\":200.0}}}}"
+                + "{\"flowCnecId\":\"cnec-a\",\"initial\":{\"megawatt\":{\"side1\":{\"flow\":100.00}}}},"
+                + "{\"flowCnecId\":\"cnec-b\",\"initial\":{\"megawatt\":{\"side1\":{\"flow\":200.00}}}}"
                 + "]";
             assertEquals(expectedJson, serializeToJson());
         }
@@ -240,9 +240,9 @@ public class JsonFlowResultTest {
             // instant3 is outage so it should not be serialized
             String expectedJson = "[{"
                 + "\"flowCnecId\":\"cnec1\","
-                + "\"initial\":{\"megawatt\":{\"side1\":{\"flow\":100.0}}},"
-                + "\"instant1\":{\"megawatt\":{\"side1\":{\"flow\":200.0}}},"
-                + "\"instant2\":{\"megawatt\":{\"side1\":{\"flow\":300.0}}}"
+                + "\"initial\":{\"megawatt\":{\"side1\":{\"flow\":100.00}}},"
+                + "\"instant1\":{\"megawatt\":{\"side1\":{\"flow\":200.00}}},"
+                + "\"instant2\":{\"megawatt\":{\"side1\":{\"flow\":300.00}}}"
                 + "}]";
             assertEquals(expectedJson, serializeToJson());
         }
@@ -263,9 +263,53 @@ public class JsonFlowResultTest {
             // Initial has no flows, so only preventive instant appears
             String expectedJson = "[{"
                 + "\"flowCnecId\":\"cnec1\","
-                + "\"preventive\":{\"megawatt\":{\"side1\":{\"flow\":300.0}}}"
+                + "\"preventive\":{\"megawatt\":{\"side1\":{\"flow\":300.00}}}"
                 + "}]";
             assertEquals(expectedJson, serializeToJson());
+        }
+
+        private String serializeInitialFlowWithBounds(double flow, double commercialFlow) throws IOException {
+            when(crac.getSortedInstants()).thenReturn(List.of());
+            when(flowCnec.getLowerBound(TwoSides.ONE, Unit.MEGAWATT)).thenReturn(Optional.of(-100.0));
+            when(flowCnec.getUpperBound(TwoSides.ONE, Unit.MEGAWATT)).thenReturn(Optional.of(100.0));
+            flowResultBuilder.addCommercialFlowMeasurement(commercialFlow, null, flowCnec, TwoSides.ONE, Unit.MEGAWATT);
+            flowResultBuilder.addFlowMeasurement(flow, null, flowCnec, TwoSides.ONE, Unit.MEGAWATT);
+            return serializeToJson();
+        }
+
+        @Test
+        @DisplayName("Positive margin: values rounded with default 2 decimals")
+        void testSerializeRoundingWithPositiveMargin() throws IOException {
+            assertEquals("[{\"flowCnecId\":\"cnec1\",\"initial\":{\"megawatt\":{\"side1\":{\"flow\":50.46,\"commercialFlow\":20.12}}}}]",
+                serializeInitialFlowWithBounds(50.456, 20.123));
+        }
+
+        @Test
+        @DisplayName("Strong negative margin (<= -1): values rounded with default 2 decimals")
+        void testSerializeRoundingWithStrongNegativeMargin() throws IOException {
+            assertEquals("[{\"flowCnecId\":\"cnec1\",\"initial\":{\"megawatt\":{\"side1\":{\"flow\":-110.12,\"commercialFlow\":20.12}}}}]",
+                serializeInitialFlowWithBounds(-110.123, 20.123));
+        }
+
+        @Test
+        @DisplayName("Margin of -0.05: 1 relevant decimal, bounded by default 2 decimals")
+        void testSerializeRoundingWithOneDecimalMargin() throws IOException {
+            assertEquals("[{\"flowCnecId\":\"cnec1\",\"initial\":{\"megawatt\":{\"side1\":{\"flow\":100.05,\"commercialFlow\":20.12}}}}]",
+                serializeInitialFlowWithBounds(100.05, 20.123));
+        }
+
+        @Test
+        @DisplayName("Margin of -0.005: values rounded with 3 decimals")
+        void testSerializeRoundingWithThreeDecimalsMargin() throws IOException {
+            assertEquals("[{\"flowCnecId\":\"cnec1\",\"initial\":{\"megawatt\":{\"side1\":{\"flow\":100.005,\"commercialFlow\":20.123}}}}]",
+                serializeInitialFlowWithBounds(100.005, 20.123));
+        }
+
+        @Test
+        @DisplayName("Margin of -0.00002: values rounded with 5 decimals")
+        void testSerializeRoundingWithFiveDecimalsMargin() throws IOException {
+            assertEquals("[{\"flowCnecId\":\"cnec1\",\"initial\":{\"megawatt\":{\"side1\":{\"flow\":-100.00002,\"commercialFlow\":20.12300}}}}]",
+                serializeInitialFlowWithBounds(-100.00002, 20.123));
         }
     }
 
@@ -273,7 +317,7 @@ public class JsonFlowResultTest {
     void deserializeForUnknownFlowCnec() {
         String expectedJson = "[{"
             + "\"flowCnecId\":\"cnec1\","
-            + "\"preventive\":{\"megawatt\":{\"side1\":{\"flow\":300.0}}}"
+            + "\"preventive\":{\"megawatt\":{\"side1\":{\"flow\":300.00}}}"
             + "}]";
         when(crac.getFlowCnec("cnec1")).thenReturn(null);
 
