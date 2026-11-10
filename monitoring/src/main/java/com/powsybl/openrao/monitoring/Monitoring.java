@@ -214,7 +214,7 @@ public class Monitoring {
             raoResultWithMonitoring.removeExtension(Metadata.class);
             Optional<String> executionDetails = metadata.getExecutionDetails();
             if (executionDetails.isPresent()) {
-                metadata = new Metadata(metadata, executionDetails
+                metadata = new Metadata(metadata, executionDetails.get()
                     + " and went through %s monitoring".formatted(physicalParameter.toString().toLowerCase())
                 );
             } else {

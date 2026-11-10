@@ -125,7 +125,7 @@ public class JsonFlowResultTest {
                 + "\"side1\":{"
                 + "\"flow\":300.00,"
                 + "\"commercialFlow\":100.00,"
-                + "\"zonalPtdfSum\":0.50"
+                + "\"zonalPtdfSum\":0.500000"
                 + "}"
                 + "}"
                 + "}"

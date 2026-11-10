@@ -154,7 +154,7 @@ public class JsonFlowResult implements RaoResultJsonUtils.ExtensionSerializer<Fl
         if (unit == Unit.MEGAWATT) {
             double ptdfZonalSum = flowResult.getPtdfZonalSum(instant, flowCnec, side);
             if (!Double.isNaN(ptdfZonalSum)) {
-                jsonGenerator.writeNumberField("zonalPtdfSum", roundValueBasedOnMargin(ptdfZonalSum, margin, 2));
+                jsonGenerator.writeNumberField("zonalPtdfSum", roundValueBasedOnMargin(ptdfZonalSum, margin, 6));
             }
         }
 
