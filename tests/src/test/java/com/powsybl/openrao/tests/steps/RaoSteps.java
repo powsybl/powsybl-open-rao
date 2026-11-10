@@ -123,7 +123,6 @@ public class RaoSteps {
     private Network network;
     private State preventiveState;
     private final String raoImplementation;
-    private final String timeCoupledRaoImplementation;
     private final boolean forceFastRao;
 
     private static String networkFolderPath;
@@ -143,7 +142,6 @@ public class RaoSteps {
             final InputStream inputStream = this.getClass().getClassLoader().getResourceAsStream("steps-config.properties");
             configProperties.load(inputStream);
             raoImplementation = (String) configProperties.get("rao-implementation");
-            timeCoupledRaoImplementation = (String) configProperties.get("time-coupled-rao-implementation");
             forceFastRao = Boolean.parseBoolean((String) configProperties.get("force-fast-rao"));
         } catch (final IOException e) {
             throw new OpenRaoException("Unable to load steps-config.properties", e);
@@ -873,7 +871,7 @@ public class RaoSteps {
                     .withMessageTemplate("test.rootnode")
                     .build()
             );
-            timeCoupledRaoResult = Rao.find(timeCoupledRaoImplementation)
+            timeCoupledRaoResult = Rao.find(raoImplementation)
                 .run(CommonTestData.getTimeCoupledRaoInput(), getRaoParameters(), CommonTestData.getReportNode());
         } else {
             try {
