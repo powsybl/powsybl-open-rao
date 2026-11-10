@@ -278,7 +278,7 @@ Run the RAO using the following code to produce a [`RaoResult`](../output-data/r
 
  ```java
 RaoInput.RaoInputBuilder raoInputBuilder = RaoInput.build(network, crac);
-RaoResult raoResult = Rao.find("SearchTreeRao").run(raoInputBuilder.build(), raoParameters);
+RaoResult raoResult = Rao.find("OpenRAO").run(raoInputBuilder.build(), raoParameters);
  
  
  // To use FastRAO instead of the regular CASTOR 
@@ -567,7 +567,7 @@ public class Main {
 
         // Run RAO
         RaoInput.RaoInputBuilder raoInputBuilder = RaoInput.build(network, crac);
-        RaoResult raoResult = Rao.find("SearchTreeRao").run(raoInputBuilder.build(), raoParameters);
+        RaoResult raoResult = Rao.find("OpenRAO").run(raoInputBuilder.build(), raoParameters);
 
         System.exit(0);
     }

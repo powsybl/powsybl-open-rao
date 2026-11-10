@@ -11,6 +11,7 @@ import com.google.auto.service.AutoService;
 import com.google.common.annotations.Beta;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.TwoSides;
+import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.commons.TemporalDataImpl;
 import com.powsybl.openrao.commons.Unit;
@@ -30,6 +31,7 @@ import com.powsybl.openrao.data.raoresult.impl.RaoResultImpl;
 import com.powsybl.openrao.raoapi.LazyNetwork;
 import com.powsybl.openrao.raoapi.Rao;
 import com.powsybl.openrao.raoapi.RaoInput;
+import com.powsybl.openrao.raoapi.RaoProvider;
 import com.powsybl.openrao.raoapi.TimeCoupledRaoInput;
 import com.powsybl.openrao.raoapi.TimeCoupledRaoProvider;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
@@ -84,13 +86,22 @@ import static com.powsybl.openrao.searchtreerao.marmot.MarmotUtils.runInitialPre
 import static com.powsybl.openrao.searchtreerao.marmot.MarmotUtils.runSensitivityAnalysisBasedOnInitialResult;
 
 /**
+ * Time-coupled RAO provider based on a two-step workflow:
+ * <ol>
+ *     <li>Independent topological optimizations of the timestamps with relaxed constraints (if needed)</li>
+ *     <li>Global time-coupled linear optimization of the range actions</li>
+ * </ol>
+ *
+ * @deprecated since 7.6.0, use {@link com.powsybl.openrao.searchtreerao.OpenRao} as the default RAO provider.
+ *
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  * @author Roxane Chen {@literal <roxane.chen at rte-france.com>}
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
 @Beta
-@AutoService(TimeCoupledRaoProvider.class)
-public class Marmot implements TimeCoupledRaoProvider {
+@Deprecated(since = "7.6.0")
+@AutoService({RaoProvider.class, TimeCoupledRaoProvider.class})
+public class Marmot implements RaoProvider, TimeCoupledRaoProvider {
 
     private static final String TIME_COUPLED_RAO = "TimeCoupledRao";
     private static final String MIN_MARGIN_VIOLATION_EVALUATOR = "min-margin-violation-evaluator";
@@ -916,5 +927,15 @@ public class Marmot implements TimeCoupledRaoProvider {
     @Override
     public String getName() {
         return TIME_COUPLED_RAO;
+    }
+
+    @Override
+    public CompletableFuture<RaoResult> run(RaoInput raoInput, RaoParameters parameters, ReportNode reportNode) {
+        return run(raoInput, parameters, null, reportNode);
+    }
+
+    @Override
+    public CompletableFuture<RaoResult> run(RaoInput raoInput, RaoParameters parameters, java.time.Instant targetEndInstant, ReportNode reportNode) {
+        throw new OpenRaoException("MARMOT should not be used for single timestamp cases; use CASTOR instead");
     }
 }

@@ -131,6 +131,31 @@ public final class Rao {
             return run(raoInput, ReportNode.NO_OP);
         }
 
+        public RaoResult run(TimeCoupledRaoInput raoInput, RaoParameters parameters, ReportNode reportNode) {
+            Objects.requireNonNull(raoInput, "RAO input should not be null");
+            Objects.requireNonNull(parameters, "parameters should not be null");
+
+            Version openRaoVersion = ServiceLoader.load(Version.class).stream()
+                .map(ServiceLoader.Provider::get)
+                .filter(version -> version.getRepositoryName().equals("open-rao"))
+                .findFirst().orElseThrow();
+            RaoApiReports.reportRaoVersionAndGitCommit(reportNode, openRaoVersion.getMavenProjectVersion(), openRaoVersion.getGitVersion());
+
+            return provider.run(raoInput, parameters, reportNode).join();
+        }
+
+        public RaoResult run(TimeCoupledRaoInput raoInput, ReportNode reportNode) {
+            return run(raoInput, RaoParameters.load(reportNode), reportNode);
+        }
+
+        public RaoResult run(TimeCoupledRaoInput raoInput, RaoParameters parameters) {
+            return run(raoInput, parameters, ReportNode.NO_OP);
+        }
+
+        public RaoResult run(TimeCoupledRaoInput raoInput) {
+            return run(raoInput, ReportNode.NO_OP);
+        }
+
         public String getName() {
             return provider.getName();
         }
@@ -154,7 +179,7 @@ public final class Rao {
      * @return a runner for default RAO implementation
      */
     public static Runner find() {
-        return find("SearchTreeRao");
+        return find("OpenRAO");
     }
 
     /**
@@ -220,5 +245,13 @@ public final class Rao {
 
     public static RaoResult run(RaoInput raoInput) {
         return find().run(raoInput);
+    }
+
+    public static RaoResult run(TimeCoupledRaoInput raoInput, RaoParameters parameters, final ReportNode reportNode) {
+        return find().run(raoInput, parameters, reportNode);
+    }
+
+    public static RaoResult run(TimeCoupledRaoInput raoInput, final ReportNode reportNode) {
+        return find().run(raoInput, reportNode);
     }
 }

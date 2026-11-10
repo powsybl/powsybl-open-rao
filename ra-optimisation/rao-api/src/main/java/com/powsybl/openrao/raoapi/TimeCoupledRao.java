@@ -24,7 +24,10 @@ import java.util.ServiceLoader;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
+ * @deprecated since 7.6.0, {@link Rao} supports time-coupled remedial action optimization and is preferred as the main
+ * optimization interface.
  */
+@Deprecated(since = "7.6.0")
 public final class TimeCoupledRao {
     private TimeCoupledRao() {
         throw new AssertionError("Utility class should not been instantiated");
@@ -83,11 +86,11 @@ public final class TimeCoupledRao {
     /**
      * Get a runner for default time-coupled RAO implementation.
      *
-     * @throws OpenRaoException in case we cannot find a default implementation
      * @return a runner for default RAO implementation
+     * @throws OpenRaoException in case we cannot find a default implementation
      */
     public static TimeCoupledRao.Runner find(final ReportNode reportNode) {
-        return find(null, reportNode);
+        return find("OpenRAO", reportNode);
     }
 
     /**
@@ -95,15 +98,15 @@ public final class TimeCoupledRao {
      * an explicit provider list instead of relying on service loader and an explicit {@link PlatformConfig}
      * instead of global one.
      *
-     * @param name name of the RAO implementation, null if we want to use default one
-     * @param providers flowbased provider list
+     * @param name           name of the RAO implementation, null if we want to use default one
+     * @param providers      flowbased provider list
      * @param platformConfig platform config to look for default flowbased implementation name
      * @return a runner for flowbased implementation named {@code name}
      */
     public static TimeCoupledRao.Runner find(final String name,
-                                               final List<TimeCoupledRaoProvider> providers,
-                                               final PlatformConfig platformConfig,
-                                               final ReportNode reportNode) {
+                                             final List<TimeCoupledRaoProvider> providers,
+                                             final PlatformConfig platformConfig,
+                                             final ReportNode reportNode) {
         Objects.requireNonNull(providers);
         Objects.requireNonNull(platformConfig);
 

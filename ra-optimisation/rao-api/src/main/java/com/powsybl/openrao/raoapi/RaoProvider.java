@@ -8,6 +8,7 @@
 package com.powsybl.openrao.raoapi;
 
 import com.powsybl.commons.report.ReportNode;
+import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 
@@ -24,9 +25,19 @@ public interface RaoProvider {
      * @param raoInput Data to optimize. Contains a Crac, a Network, the ID of the current network variant, and more
      * @param parameters RAO parameters.
      * @param reportNode Parent reportNode.
-     * @return A completable future of a RaoComputationResult it gathers all the optimization results.
+     * @return A completable future of a RaoResult it gathers all the optimization results.
      */
     CompletableFuture<RaoResult> run(RaoInput raoInput, RaoParameters parameters, ReportNode reportNode);
 
     CompletableFuture<RaoResult> run(RaoInput raoInput, RaoParameters parameters, Instant targetEndInstant, ReportNode reportNode);
+
+    /**
+     * @param raoInput Data to optimize. Contains Cracs and Networks for each timestamp and gradient constraints
+     * @param parameters RAO parameters.
+     * @return A completable future of a TimeCoupledRaoResult for each timestamp.
+     */
+    default CompletableFuture<RaoResult> run(TimeCoupledRaoInput raoInput, RaoParameters parameters, ReportNode reportNode) {
+        // note: default behavior not to break external implementers
+        throw new OpenRaoException("Time-coupled optimization is not supported");
+    }
 }

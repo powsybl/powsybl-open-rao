@@ -489,7 +489,7 @@ expected.
 Running the RAO can be performed with the following code:
 
 ```java
-TimeCoupledRao.find("TimeCoupledRao").run(inputNoConstraints, raoParameters);
+TimeCoupledRao.find("OpenRAO").run(inputNoConstraints, raoParameters);
 ```
 
 Now let's have a look at the logs:
@@ -526,7 +526,7 @@ activation, 50000 for variation).
 Let's run the RAO with the time-coupled constraints:
 
 ```java
-TimeCoupledRao.find("TimeCoupledRao").run(inputWithConstraints, raoParameters);
+TimeCoupledRao.find("OpenRAO").run(inputWithConstraints, raoParameters);
 ```
 
 As previously, let us have a look at the logs:
@@ -570,7 +570,7 @@ import com.powsybl.openrao.commons.TemporalDataImpl;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.timecoupledconstraints.TimeCoupledConstraints;
 import com.powsybl.openrao.data.timecoupledconstraints.io.JsonTimeCoupledConstraints;
-import com.powsybl.openrao.raoapi.TimeCoupledRao;
+import com.powsybl.openrao.raoapi.Rao;
 import com.powsybl.openrao.raoapi.TimeCoupledRaoInputWithNetworkPaths;
 import com.powsybl.openrao.raoapi.RaoInputWithNetworkPaths;
 import com.powsybl.openrao.raoapi.json.JsonRaoParameters;
@@ -607,11 +607,11 @@ public class Main {
 
         // run time-coupled RAO without time-coupled constraints
 
-        TimeCoupledRao.find("TimeCoupledRao").run(inputNoConstraints, raoParameters);
+        Rao.find("OpenRAO").run(inputNoConstraints, raoParameters);
 
         // add time-coupled constraints and re-run time-coupled RAO
 
-        TimeCoupledRao.find("TimeCoupledRao").run(inputWithConstraints, raoParameters);
+        Rao.find("OpenRAO").run(inputWithConstraints, raoParameters);
     }
 }
 ```
