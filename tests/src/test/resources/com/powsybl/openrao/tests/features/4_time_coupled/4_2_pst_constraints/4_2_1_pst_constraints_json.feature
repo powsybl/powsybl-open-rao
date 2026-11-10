@@ -24,7 +24,7 @@ Feature: 4.2.1: Time-coupled PST tap gradient constraints
       | 2026-03-25 19:30 | network_2nodes_pst.uct | crac-20260325-1930.json |
       | 2026-03-25 20:30 | network_2nodes_pst.uct | crac-20260325-2030.json |
       | 2026-03-25 21:30 | network_2nodes_pst.uct | crac-20260325-2130.json |
-    When I launch marmot
+    When I launch rao
     Then the time-coupled security status should be "SECURED"
     # 19:30 is secured without any action
     Then the remedial action "pst_be_fr" is not used at timestamp "2026-03-25 19:30" in preventive
@@ -49,7 +49,7 @@ Feature: 4.2.1: Time-coupled PST tap gradient constraints
       | 2026-03-25 19:30 | network_2nodes_pst.uct | crac-20260325-1930.json |
       | 2026-03-25 20:30 | network_2nodes_pst.uct | crac-20260325-2030.json |
       | 2026-03-25 21:30 | network_2nodes_pst.uct | crac-20260325-2130.json |
-    When I launch marmot
+    When I launch rao
     Then the time-coupled security status should be "SECURED"
     # 19:30 is secure but the PST is prepared at tap 1, it will solve 21:30
     Then the remedial action "pst_be_fr" is used at timestamp "2026-03-25 19:30" in preventive
@@ -71,7 +71,7 @@ Feature: 4.2.1: Time-coupled PST tap gradient constraints
       | Timestamp        | Network                | CRAC                    |
       | 2026-03-25 19:30 | network_2nodes_pst.uct | crac-20260325-1930.json |
       | 2026-03-25 20:00 | network_2nodes_pst.uct | crac-20260325-2000.json |
-    When I launch marmot
+    When I launch rao
     Then the time-coupled security status should be "SECURED"
     Then the remedial action "pst_be_fr" is used at timestamp "2026-03-25 19:30" in preventive
     Then the preventive tap of PstRangeAction "pst_be_fr" at timestamp "2026-03-25 19:30" should be 2
