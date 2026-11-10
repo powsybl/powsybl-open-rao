@@ -9,20 +9,17 @@ package com.powsybl.openrao.data.raoresult.api.extension;
 
 import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.iidm.network.TwoSides;
-import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
@@ -130,29 +127,6 @@ public class FlowResult extends AbstractExtension<RaoResult> {
 
     private Optional<FlowCnecResult> safeGetResult(FlowCnec flowCnec) {
         return Optional.ofNullable(results.get(flowCnec));
-    }
-
-    public boolean isSecure() {
-        return isSecure(Collections.emptySet());
-    }
-
-    public boolean isSecure(Set<String> operatorsNotSharingCras) {
-        return results.keySet()
-            .stream()
-            .filter(FlowCnec::isOptimized)
-            .filter(flowCnec -> !flowCnec.getId().contains("OUTAGE DUPLICATE"))
-            .filter(flowCnec -> !operatorsNotSharingCras.contains(flowCnec.getOperator())
-                || !flowCnec.getState().getInstant().isCurative())
-            .allMatch(this::hasPositiveMargin);
-    }
-
-    private boolean hasPositiveMargin(FlowCnec flowCnec) {
-        Optional<Double> marginAmpere = safeGetResult(flowCnec).flatMap(result -> result.getMargin(flowCnec.getState().getInstant(), Unit.AMPERE));
-        Optional<Double> marginMegawatt = safeGetResult(flowCnec).flatMap(result -> result.getMargin(flowCnec.getState().getInstant(), Unit.MEGAWATT));
-        if (marginAmpere.isEmpty() && marginMegawatt.isEmpty()) {
-            throw new OpenRaoException("No flow margin available for FlowCNEC %s".formatted(flowCnec.getId()));
-        }
-        return marginAmpere.orElse(Double.MAX_VALUE) >= 0 && marginMegawatt.orElse(Double.MAX_VALUE) >= 0;
     }
 
     @Override

@@ -1343,3 +1343,108 @@ Example:
 
 :::
 ::::
+
+###### Time-Coupled Cost Result
+
+This extension is a time-coupled version of the [Cost Result extension](#objective-function-cost-results), with the
+difference that costs are retrieved using timestamps.
+
+::::{tabs}
+:::{group-tab} JAVA API
+
+```java
+// src/main/java/com/powsybl/openrao/searchtreerao/result/extension/JsonTimeCoupledCostResult.java
+
+// get the functional cost after optimization of a given instant for a given timestamp
+double getFunctionalCost(Instant optimizedInstant, OffsetDateTime timestamp);
+
+// get the total virtual cost after optimization of a given instant for a given timestamp
+double getVirtualCost(Instant optimizedInstant, OffsetDateTime timestamp);
+
+// get a specific virtual cost after optimization of a given instant for a given timestamp
+double getVirtualCost(Instant optimizedInstant, String virtualCostName, OffsetDateTime timestamp);
+
+// get all the virtual cost names in the RAO
+Set<String> getVirtualCostNames();
+
+// get all the virtual cost names in the RAO for a given timestamp
+Set<String> getVirtualCostNames(OffsetDateTime timestamp);
+
+// get the overall cost (functional + total virtual) after optimization of a given instant for a given timestamp
+double getCost(Instant optimizedInstant, OffsetDateTime timestamp);
+```
+
+:::
+:::{group-tab} JSON File
+
+Example:
+
+```json
+{
+  "time-coupled-cost-results": {
+    "2026-31-12T00:00:00Z": {
+      "initial": {
+        "functionalCost": 100.0,
+        "virtualCost": {
+          "loopFlow": 0.0,
+          "MNEC": 0.0
+        }
+      },
+      "preventive": {
+        "functionalCost": 80.0,
+        "virtualCost": {
+          "loopFlow": 0.0,
+          "MNEC": 0.0
+        }
+      },
+      "auto": {
+        "functionalCost": -20.0,
+        "virtualCost": {
+          "loopFlow": 15.0,
+          "MNEC": 20.0
+        }
+      },
+      "curative": {
+        "functionalCost": -50.0,
+        "virtualCost": {
+          "loopFlow": 10.0,
+          "MNEC": 2.0
+        }
+      }
+    },
+    "2026-31-12T23:59:59Z": {
+      "initial": {
+        "functionalCost": 1000.0,
+        "virtualCost": {
+          "loopFlow": 0.0,
+          "MNEC": 100.0
+        }
+      },
+      "preventive": {
+        "functionalCost": 50.0,
+        "virtualCost": {
+          "loopFlow": 0.0,
+          "MNEC": 0.0
+        }
+      },
+      "auto": {
+        "functionalCost": -250.0,
+        "virtualCost": {
+          "loopFlow": 17.0,
+          "MNEC": 0.0
+        }
+      },
+      "curative": {
+        "functionalCost": 12.0,
+        "virtualCost": {
+          "loopFlow": 10.0,
+          "MNEC": 0.0
+        }
+      }
+    }
+  }
+}
+```
+
+:::
+::::

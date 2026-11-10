@@ -306,7 +306,6 @@ public class Marmot implements TimeCoupledRaoProvider {
             raoParameters,
             mergingTopoAndLinearRaReportNode
         );
-        // TODO: add metadata?
 
         // 8. Log initial and final results
         MarmotReports.reportMarmotInitialResults(reportNode, initialObjectiveFunctionResult, raoParameters, 10);
