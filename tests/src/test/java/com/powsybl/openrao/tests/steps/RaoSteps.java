@@ -1049,8 +1049,6 @@ public class RaoSteps {
     public static void loadDataForTimeCoupledRao(String timeCoupledConstraintsPath, DataTable arg1) throws IOException {
         raoParameters = buildConfig(getFile(raoParametersPath));
 
-        networkFolderPath = getResourcesPath().concat("cases/");
-        cracFolderPath = getResourcesPath().concat("crac/");
         String timeCoupledConstraintsFolderPath = getResourcesPath().concat("timeCoupledConstraints/");
 
         TemporalData<RaoInput> raoInputs = new TemporalDataImpl<>();
