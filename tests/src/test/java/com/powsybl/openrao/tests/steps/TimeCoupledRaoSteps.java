@@ -294,23 +294,6 @@ public final class TimeCoupledRaoSteps {
             .run(CommonTestData.getTimeCoupledRaoInput(), getRaoParameters(), CommonTestData.getReportNode());
     }
 
-    @When("I export marmot results to {string}")
-    public static void iExportMarmotResults(String outputPath) throws IOException {
-        FileOutputStream fileOutputStream = new FileOutputStream(getFile(getResourcesPath().concat(outputPath)));
-        Properties properties = new Properties();
-        properties.put("rao-result.export.json.flows-in-megawatts", "true");
-        properties.put("time-coupled-rao-result.export.filename-template", "'RAO_RESULT_'yyyy-MM-dd'T'HH:mm:ss'.json'");
-        properties.put("time-coupled-rao-result.export.summary-filename", "summary.json");
-        try (ZipOutputStream zipOutputStream = new ZipOutputStream(fileOutputStream)) {
-            timeCoupledRaoResult.write(zipOutputStream, CommonTestData.getTimeCoupledRaoInput().getRaoInputs().map(RaoInput::getCrac), properties);
-        }
-    }
-
-    @When("I export marmot reports to {string}")
-    public static void iExportMarmotReports(String outputPath) throws IOException {
-        CommonTestData.getReportNode().print(Path.of(getResourcesPath().concat(outputPath)));
-    }
-
     @When("I export RefProg after redispatching to {string} based on raoResults zip {string}")
     public static void generateRefProg(String outputPath, String raoResultsZipPath) throws IOException {
 
