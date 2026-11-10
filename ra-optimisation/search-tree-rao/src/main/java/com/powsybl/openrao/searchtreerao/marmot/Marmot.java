@@ -935,7 +935,7 @@ public class Marmot implements RaoProvider, TimeCoupledRaoProvider {
     }
 
     @Override
-    public CompletableFuture<RaoResult> run(RaoInput raoInput, RaoParameters parameters, Instant targetEndInstant, ReportNode reportNode) {
+    public CompletableFuture<RaoResult> run(RaoInput raoInput, RaoParameters parameters, java.time.Instant targetEndInstant, ReportNode reportNode) {
         throw new OpenRaoException("MARMOT should not be used for single timestamp cases; use CASTOR instead");
     }
 }

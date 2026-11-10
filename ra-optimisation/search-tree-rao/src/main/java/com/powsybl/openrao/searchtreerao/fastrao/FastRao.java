@@ -12,6 +12,7 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VariantManager;
 import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Identifiable;
@@ -399,7 +400,16 @@ public class FastRao implements RaoProvider {
 
         FastRaoReports.reportFastRaoIterationRunFullSensitivityAnalysisEnd(counter);
 
-        RaoResultImpl.RaoResultImplBuilder fastRaoResultBuilder = RaoResultImpl.builder(crac);
+        RaoResultImpl.RaoResultImplBuilder fastRaoResultBuilder = RaoResultImpl.builder(crac)
+            .withSecurityStatus(
+                PhysicalParameter.FLOW,
+                RaoUtil.computeSecurityStatus(
+                    crac.getFlowCnecs(),
+                    postPraSensi.get().prePerimeterResultForAllFollowingStates(),
+                    RaoUtil.getFlowUnit(parameters),
+                    RaoUtil.getOperatorsNotSharingCras(crac, parameters)
+                )
+            );
         crac.getStates().forEach(state -> {
             raoResult.getActivatedNetworkActionsDuringState(state)
                 .forEach(networkAction -> fastRaoResultBuilder.addNetworkActionActivation(networkAction, state));

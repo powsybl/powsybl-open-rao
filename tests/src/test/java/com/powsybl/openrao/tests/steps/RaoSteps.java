@@ -36,7 +36,6 @@ import com.powsybl.openrao.data.icsimporter.IcsData;
 import com.powsybl.openrao.data.icsimporter.IcsDataImporter;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
-import com.powsybl.openrao.data.raoresult.api.TimeCoupledRaoResult;
 import com.powsybl.openrao.data.raoresult.api.extension.CostResult;
 import com.powsybl.openrao.data.raoresult.api.extension.FlowResult;
 import com.powsybl.openrao.data.raoresult.api.extension.Metadata;
@@ -53,6 +52,7 @@ import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.TimeCoupledRaoInput;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.searchtreerao.marmot.results.extensions.PreTimeCouplingOverloadedCnecs;
+import com.powsybl.openrao.searchtreerao.result.extension.TimeCoupledCostResult;
 import com.powsybl.openrao.tests.utils.CoreCcPreprocessor;
 import com.powsybl.openrao.tests.utils.RaoUtils;
 import com.powsybl.sensitivity.SensitivityAnalysisParameters;
@@ -136,7 +136,7 @@ public class RaoSteps {
     private static String icsSeriesPath;
     private static String icsGskPath;
     private static String refProgPath;
-    private static TimeCoupledRaoResult timeCoupledRaoResult;
+    private static RaoResult timeCoupledRaoResult;
     private static Map<OffsetDateTime, CracCreationContext> cracCreationContexts;
 
     {
@@ -1214,7 +1214,7 @@ public class RaoSteps {
         FlowCnec flowCnec = CommonTestData.getTimeCoupledRaoInput().getRaoInputs().getData(offsetDateTime).orElseThrow().getCrac().getFlowCnec(cnecId);
         Instant afterCra = CommonTestData.getTimeCoupledRaoInput().getRaoInputs().getData(offsetDateTime).orElseThrow().getCrac().getLastInstant();
         assertEquals(margin,
-            timeCoupledRaoResult.getIndividualRaoResult(offsetDateTime).getMargin(afterCra, flowCnec, Unit.MEGAWATT),
+            timeCoupledRaoResult.getExtension(FlowResult.class).getMargin(afterCra, flowCnec, Unit.MEGAWATT),
             RaoSteps.TOLERANCE_FLOW_IN_MEGAWATT);
     }
 
@@ -1223,7 +1223,7 @@ public class RaoSteps {
         OffsetDateTime offsetDateTime = getOffsetDateTimeFromBrusselsTimestamp(timestamp);
         Instant afterCra = CommonTestData.getTimeCoupledRaoInput().getRaoInputs().getData(offsetDateTime).orElseThrow().getCrac().getLastInstant();
         assertEquals(functionalCost,
-            timeCoupledRaoResult.getFunctionalCost(afterCra, offsetDateTime),
+            timeCoupledRaoResult.getExtension(TimeCoupledCostResult.class).getFunctionalCost(afterCra, offsetDateTime),
             RaoSteps.TOLERANCE_FLOW_IN_MEGAWATT);
     }
 
@@ -1232,7 +1232,7 @@ public class RaoSteps {
         OffsetDateTime offsetDateTime = getOffsetDateTimeFromBrusselsTimestamp(timestamp);
         Instant afterCra = CommonTestData.getTimeCoupledRaoInput().getRaoInputs().getData(offsetDateTime).orElseThrow().getCrac().getLastInstant();
         assertEquals(totalCost,
-            timeCoupledRaoResult.getCost(afterCra, offsetDateTime),
+            timeCoupledRaoResult.getExtension(TimeCoupledCostResult.class).getCost(afterCra, offsetDateTime),
             RaoSteps.TOLERANCE_FLOW_IN_MEGAWATT);
     }
 
@@ -1240,18 +1240,20 @@ public class RaoSteps {
     public static void theFunctionalCostForAllTimestampsIs(double functionalCost) {
         OffsetDateTime firstTimestamp = CommonTestData.getTimeCoupledRaoInput().getRaoInputs().getTimestamps().getFirst();
         Instant lastInstant = CommonTestData.getTimeCoupledRaoInput().getRaoInputs().getData(firstTimestamp).orElseThrow().getCrac().getLastInstant();
-        assertEquals(functionalCost,
-            timeCoupledRaoResult.getGlobalFunctionalCost(lastInstant),
-            RaoSteps.TOLERANCE_FLOW_IN_MEGAWATT);
+        double globalFunctionalCost = CommonTestData.getTimeCoupledRaoInput().getRaoInputs().getTimestamps().stream()
+            .mapToDouble(timestamp -> timeCoupledRaoResult.getExtension(TimeCoupledCostResult.class).getFunctionalCost(lastInstant, timestamp))
+            .sum();
+        assertEquals(functionalCost, globalFunctionalCost, RaoSteps.TOLERANCE_FLOW_IN_MEGAWATT);
     }
 
     @Then("the total cost for all timestamps is {double}")
     public static void theTotalCostForAllTimestampsIs(double totalCost) {
         OffsetDateTime firstTimestamp = CommonTestData.getTimeCoupledRaoInput().getRaoInputs().getTimestamps().getFirst();
         Instant lastInstant = CommonTestData.getTimeCoupledRaoInput().getRaoInputs().getData(firstTimestamp).orElseThrow().getCrac().getLastInstant();
-        assertEquals(totalCost,
-            timeCoupledRaoResult.getGlobalCost(lastInstant),
-            RaoSteps.TOLERANCE_FLOW_IN_MEGAWATT);
+        double globalCost = CommonTestData.getTimeCoupledRaoInput().getRaoInputs().getTimestamps().stream()
+            .mapToDouble(timestamp -> timeCoupledRaoResult.getExtension(TimeCoupledCostResult.class).getCost(lastInstant, timestamp))
+            .sum();
+        assertEquals(totalCost, globalCost, RaoSteps.TOLERANCE_FLOW_IN_MEGAWATT);
     }
 
     @Then("the preventive power of generator {string} at timestamp {string} is {double} MW")
@@ -1294,7 +1296,6 @@ public class RaoSteps {
         assertEquals(
             chosenPstTap,
             timeCoupledRaoResult
-                .getIndividualRaoResult(offsetDateTime)
                 .getOptimizedTapOnState(crac.getState(contingencyId, crac.getInstant(instant)), (PstRangeAction) crac.getRangeAction(pstRangeActionId))
         );
     }
@@ -1306,7 +1307,6 @@ public class RaoSteps {
         assertEquals(
             chosenPstTap,
             timeCoupledRaoResult
-                .getIndividualRaoResult(offsetDateTime)
                 .getOptimizedTapOnState(crac.getPreventiveState(), (PstRangeAction) crac.getRangeAction(pstRangeActionId)));
     }
 
@@ -1338,7 +1338,7 @@ public class RaoSteps {
         OffsetDateTime offsetDateTime = getOffsetDateTimeFromBrusselsTimestamp(timestamp);
         Crac crac = CommonTestData.getTimeCoupledRaoInput().getRaoInputs().getData(offsetDateTime).orElseThrow().getCrac();
         State state = getState(crac, contingencyId, instant);
-        return timeCoupledRaoResult.getIndividualRaoResult(offsetDateTime).isActivatedDuringState(state, crac.getRemedialAction(rangeActionId));
+        return timeCoupledRaoResult.isActivatedDuringState(state, crac.getRemedialAction(rangeActionId));
     }
 
     private static State getState(Crac crac, String contingencyId, String instantId) {
