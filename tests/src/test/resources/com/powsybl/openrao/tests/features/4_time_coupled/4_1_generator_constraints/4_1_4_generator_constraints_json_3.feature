@@ -3,7 +3,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-Feature: 4.4 : Time-coupled generator constraints with MARMOT based on JSON time-coupled constraints - Part 3
+Feature: 4.1.4 : Time-coupled generator constraints with MARMOT based on JSON time-coupled constraints - Part 3
 
   Presentation of the US
   ----------------------
@@ -15,7 +15,8 @@ Feature: 4.4 : Time-coupled generator constraints with MARMOT based on JSON time
 
   ----------------------
 
-  Scenario: 4.4.1 : Global MIP changes curative pst tap to adapt to a startup not allowed generator constraint
+  Scenario: 4.1.4.1 : Global MIP changes curative pst tap to adapt to a startup not allowed generator constraint
+
   This scenario shows how the global MIP respects the time coupled Start-Up not allowed constraint by adjusting curative
   and preventive remedial actions to accommodate the redispatching.
 
@@ -30,11 +31,13 @@ Feature: 4.4 : Time-coupled generator constraints with MARMOT based on JSON time
   forces the generator to stay OFF and relies heavily on the other generator pushing it to 580MW. This change of power
   leads to the re-optimization of the curative PST tap from 14 to 2 in order to keep the curative CNEC secure.
   Given configuration file is "common/rao_parameters_min_cost_megawatt_dc.json"
-  Given time-coupled constraints are in file "4_time_coupled/time-coupled-constraints-startup-not-allowed.json" and rao inputs are:
-    | Network                                    | Timestamp        | CRAC                                   |
-    | 4_time_coupled/TestCases_4_5_1/3NodesPST_1930.uct | 2025-11-04 19:30 | 4_time_coupled/4_5_1/crac_202511041930.json |
-    | 4_time_coupled/TestCases_4_5_1/3NodesPST_2030.uct | 2025-11-04 20:30 | 4_time_coupled/4_5_1/crac_202511042030.json |
-  When I launch marmot
+  Given crac files are in folder "4_time_coupled/4_1_generator_constraints/4_1_4_1"
+  Given network files are in folder "4_time_coupled/4_1_generator_constraints/4_1_4_1"
+  Given time-coupled constraints are in file "4_time_coupled/4_1_generator_constraints/time-coupled-constraints-startup-not-allowed.json" and rao inputs are:
+    | Network            | Timestamp        | CRAC                   |
+    | 3NodesPST_1930.uct | 2025-11-04 19:30 | crac_202511041930.json |
+    | 3NodesPST_2030.uct | 2025-11-04 20:30 | crac_202511042030.json |
+    When I launch marmot
   # Timestamp 19:30 : basecase, no overloads, no actions needed
   Then the preventive power of generator "FFR2AA1 _generator" at timestamp "2025-11-04 19:30" is 0.0 MW
   Then the preventive power of generator "FFR3AA1 _generator" at timestamp "2025-11-04 19:30" is 0.0 MW
@@ -50,9 +53,9 @@ Feature: 4.4 : Time-coupled generator constraints with MARMOT based on JSON time
   # 10(activation) + 100(variation) * 580MW = 58010
   Then the total cost for all timestamps is 58010.0
 
-  Scenario: 4.4.2 : Global MIP changes curative pst tap to adapt to power gradient constraint redispatching changes
+  Scenario: 4.1.4.2 : Global MIP changes curative pst tap to adapt to power gradient constraint redispatching changes
 
-  There are 3 timestamps separated by 1 hour (19:30, 20:30 and 21:30), 1 preventive costly redispatching
+  In this scenario, there are 3 timestamps separated by 1 hour (19:30, 20:30 and 21:30), 1 preventive costly redispatching
   action and 1 curative PST. The generator has a strict power gradient constraint of maximum 200MW per hour.
   3 CNECs are defined : 1 preventive CNEC on line 3, 2 curative CNECs (one on line 2 and the other on line 3)
   At 19:30, the network is secure, there is no overload. At 20:30 the loss of line 1 occurs which creates an overload
@@ -72,12 +75,14 @@ Feature: 4.4 : Time-coupled generator constraints with MARMOT based on JSON time
   reoptimizing the pst tap to +1 in curative to avoid new overloads.
   - 21:30 : it reaches the 500MW needed to solve the overload on line 2 by adding 104MW < 200MW.
   Given configuration file is "common/rao_parameters_min_cost_megawatt_dc.json"
-  Given time-coupled constraints are in file "4_time_coupled/time-coupled-power-gradient-constraint.json" and rao inputs are:
-    | Network                                    | Timestamp        | CRAC                                   |
-    | 4_time_coupled/TestCases_4_5_2/2NodesPST_1930.uct | 2025-11-04 19:30 | 4_time_coupled/4_5_2/crac_202511041930.json |
-    | 4_time_coupled/TestCases_4_5_2/2NodesPST_2030.uct | 2025-11-04 20:30 | 4_time_coupled/4_5_2/crac_202511042030.json |
-    | 4_time_coupled/TestCases_4_5_2/2NodesPST_2130.uct | 2025-11-04 21:30 | 4_time_coupled/4_5_2/crac_202511042130.json |
-  When I launch marmot
+    Given crac files are in folder "4_time_coupled/4_1_generator_constraints/4_1_4_2"
+    Given network files are in folder "4_time_coupled/4_1_generator_constraints/4_1_4_2"
+    Given time-coupled constraints are in file "4_time_coupled/4_1_generator_constraints/time-coupled-power-gradient-constraint.json" and rao inputs are:
+      | Network            | Timestamp        | CRAC                   |
+      | 2NodesPST_1930.uct | 2025-11-04 19:30 | crac_202511041930.json |
+      | 2NodesPST_2030.uct | 2025-11-04 20:30 | crac_202511042030.json |
+      | 2NodesPST_2130.uct | 2025-11-04 21:30 | crac_202511042130.json |
+    When I launch marmot
   # Timestamp 19:30: pre-heating the generator to 196MW, cost = 10(activation) + 196MW * 10(variation) = 1970
   Then the total cost for timestamp "2025-11-04 19:30" is 1970.0
   Then the preventive power of generator "FFR2AA1 _generator" at timestamp "2025-11-04 19:30" is 196.0 MW
