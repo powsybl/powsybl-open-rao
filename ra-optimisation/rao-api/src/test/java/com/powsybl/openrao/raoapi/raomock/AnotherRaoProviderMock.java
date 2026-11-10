@@ -9,10 +9,12 @@ package com.powsybl.openrao.raoapi.raomock;
 
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.report.ReportNode;
+import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.raoresult.impl.RaoResultImpl;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.RaoProvider;
+import com.powsybl.openrao.raoapi.TimeCoupledRaoInput;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 
 import java.time.Instant;
@@ -43,5 +45,10 @@ public class AnotherRaoProviderMock implements RaoProvider {
     @Override
     public String getName() {
         return "GlobalRAOptimizer";
+    }
+
+    @Override
+    public CompletableFuture<RaoResult> run(TimeCoupledRaoInput raoInput, RaoParameters parameters, ReportNode reportNode) {
+        throw new OpenRaoException("Time-coupled optimization is not supported");
     }
 }

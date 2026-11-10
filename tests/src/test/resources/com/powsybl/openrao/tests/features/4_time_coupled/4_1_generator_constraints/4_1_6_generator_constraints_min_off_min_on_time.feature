@@ -43,7 +43,7 @@ From 20:30 to 23:30, 3000 MW of redispatching
       | 2025-11-04 21:30 | 6Nodes_Pmin1000.xiidm | crac_202511042130.json |
       | 2025-11-04 22:30 | 6Nodes_Pmin1000.xiidm | crac_202511042230.json |
       | 2025-11-04 23:30 | 6Nodes_Pmin1000.xiidm | crac_202511042330.json |
-    When I launch marmot
+    When I launch rao
     # Timestamp 00:30: 10 (activation) + 50 * 3000 MW (variation) = 150010
     Then the total cost for timestamp "2025-11-04 00:30" is 150010.0
     Then the preventive power of generator "BBE1AA1 _generator" at timestamp "2025-11-04 00:30" is 3000.0 MW
@@ -175,7 +175,7 @@ From 20:30 to 23:30, 3000 MW of redispatching
       | 2025-11-04 21:30 | 6Nodes_Pmin1000.xiidm | crac_202511042130.json |
       | 2025-11-04 22:30 | 6Nodes_Pmin1000.xiidm | crac_202511042230.json |
       | 2025-11-04 23:30 | 6Nodes_Pmin1000.xiidm | crac_202511042330.json |
-    When I launch marmot
+    When I launch rao
     # Timestamp 00:30: 10 (activation) + 50 * 3000 MW (variation) = 150010
     Then the total cost for timestamp "2025-11-04 00:30" is 150010.0
     Then the preventive power of generator "BBE1AA1 _generator" at timestamp "2025-11-04 00:30" is 3000.0 MW
@@ -309,7 +309,7 @@ From 20:30 to 23:30, 3000 MW of redispatching
       | 2025-11-04 21:30 | 6Nodes_Pmin1000.xiidm | crac_202511042130.json |
       | 2025-11-04 22:30 | 6Nodes_Pmin1000.xiidm | crac_202511042230.json |
       | 2025-11-04 23:30 | 6Nodes_Pmin1000.xiidm | crac_202511042330.json |
-    When I launch marmot
+    When I launch rao
     # Timestamp 00:30: 10 (activation) + 50 * 3000 MW (variation) = 150010
     Then the total cost for timestamp "2025-11-04 00:30" is 150010.0
     Then the preventive power of generator "BBE1AA1 _generator" at timestamp "2025-11-04 00:30" is 3000.0 MW
@@ -455,7 +455,7 @@ From 20:30 to 23:30, 3000 MW of redispatching
       | 2025-11-04 21:30 | 6Nodes_Pmin1000.xiidm | crac_202511042130.json |
       | 2025-11-04 22:30 | 6Nodes_Pmin1000.xiidm | crac_202511042230.json |
       | 2025-11-04 23:30 | 6Nodes_Pmin1000.xiidm | crac_202511042330.json |
-    When I launch marmot
+    When I launch rao
     # Timestamp 00:30: 10 (activation) + 50 * 3000 MW (variation) = 150010
     Then the total cost for timestamp "2025-11-04 00:30" is 150010.0
     Then the preventive power of generator "BBE1AA1 _generator" at timestamp "2025-11-04 00:30" is 3000.0 MW

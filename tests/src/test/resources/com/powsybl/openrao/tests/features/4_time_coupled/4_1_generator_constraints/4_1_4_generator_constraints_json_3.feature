@@ -37,7 +37,7 @@ Feature: 4.1.4 : Time-coupled generator constraints with MARMOT based on JSON ti
     | Network            | Timestamp        | CRAC                   |
     | 3NodesPST_1930.uct | 2025-11-04 19:30 | crac_202511041930.json |
     | 3NodesPST_2030.uct | 2025-11-04 20:30 | crac_202511042030.json |
-    When I launch marmot
+    When I launch rao
   # Timestamp 19:30 : basecase, no overloads, no actions needed
   Then the preventive power of generator "FFR2AA1 _generator" at timestamp "2025-11-04 19:30" is 0.0 MW
   Then the preventive power of generator "FFR3AA1 _generator" at timestamp "2025-11-04 19:30" is 0.0 MW
@@ -82,7 +82,7 @@ Feature: 4.1.4 : Time-coupled generator constraints with MARMOT based on JSON ti
       | 2NodesPST_1930.uct | 2025-11-04 19:30 | crac_202511041930.json |
       | 2NodesPST_2030.uct | 2025-11-04 20:30 | crac_202511042030.json |
       | 2NodesPST_2130.uct | 2025-11-04 21:30 | crac_202511042130.json |
-    When I launch marmot
+    When I launch rao
   # Timestamp 19:30: pre-heating the generator to 196MW, cost = 10(activation) + 196MW * 10(variation) = 1970
   Then the total cost for timestamp "2025-11-04 19:30" is 1970.0
   Then the preventive power of generator "FFR2AA1 _generator" at timestamp "2025-11-04 19:30" is 196.0 MW

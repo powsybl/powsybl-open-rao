@@ -23,6 +23,7 @@ import com.powsybl.openrao.data.refprog.referenceprogram.ReferenceProgram;
 import com.powsybl.openrao.raoapi.Rao;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.FastRaoParameters;
 import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
 import com.powsybl.openrao.tests.steps.CommonTestData;
 import com.powsybl.sensitivity.SensitivityVariableSet;
@@ -68,13 +69,21 @@ public final class RaoUtils {
     }
 
     public static RaoResult runRao(String raoType, Double loopflowAsPmaxPercentage,
-                                   Integer timeLimitInSeconds, final ReportNode reportNode) throws IOException {
+                                   Integer timeLimitInSeconds, final ReportNode reportNode,
+                                   boolean forceFastRao) throws IOException {
         RaoParameters raoParameters = CommonTestData.getRaoParameters();
         ZonalData<SensitivityVariableSet> glsks = CommonTestData.getLoopflowGlsks();
         // Rao with loop-flows
         if (raoParameters.getLoopFlowParameters().isPresent() && glsks != null) {
             double effectiveLfPercentage = loopflowAsPmaxPercentage == null ? 0.0 : loopflowAsPmaxPercentage;
             buildLoopFlowExtensions(CommonTestData.getCrac(), CommonTestData.getNetwork(), effectiveLfPercentage);
+        }
+        // Force FastRAO
+        if (forceFastRao) {
+            FastRaoParameters fastRaoParameters = raoParameters.getExtension(FastRaoParameters.class);
+            if (fastRaoParameters == null) {
+                raoParameters.addExtension(FastRaoParameters.class, new FastRaoParameters());
+            }
         }
 
         return runRaoInMemory(

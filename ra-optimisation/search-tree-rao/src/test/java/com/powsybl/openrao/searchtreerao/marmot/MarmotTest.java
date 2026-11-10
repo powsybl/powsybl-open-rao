@@ -12,6 +12,7 @@ import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.commons.TemporalDataImpl;
 import com.powsybl.openrao.commons.logs.TechnicalLogs;
@@ -30,6 +31,7 @@ import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.searchtreerao.marmot.results.extensions.PreTimeCouplingOverloadedCnecs;
 import com.powsybl.openrao.searchtreerao.result.extension.TimeCoupledCostResult;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
@@ -45,6 +47,7 @@ import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -721,5 +724,15 @@ class MarmotTest {
         assertEquals(Set.of(crac01.getPstRangeAction("pstFr2Fr3")), timeCoupledRaoResult.getActivatedRangeActionsDuringState(crac01.getState("Contingency FR2 FR3 2", crac01.getLastInstant())));
         assertEquals(Set.of(crac00.getNetworkAction("closeFr2Fr3")), timeCoupledRaoResult.getActivatedNetworkActionsDuringState(crac00.getState("Contingency FR2 FR3 2", crac00.getLastInstant())));
         assertEquals(Set.of(crac01.getNetworkAction("closeFr2Fr3")), timeCoupledRaoResult.getActivatedNetworkActionsDuringState(crac01.getState("Contingency FR2 FR3 2", crac01.getLastInstant())));
+    }
+
+    @Test
+    void runSingleTimestamp() {
+        RaoInput raoInput = Mockito.mock(RaoInput.class);
+        OpenRaoException exception = assertThrows(
+            OpenRaoException.class,
+            () -> new Marmot().run(raoInput, new RaoParameters(ReportNode.NO_OP), ReportNode.NO_OP).get()
+        );
+        assertEquals("MARMOT should not be used for single timestamp cases; use CASTOR instead", exception.getMessage());
     }
 }
