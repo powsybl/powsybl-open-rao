@@ -29,8 +29,8 @@ Feature: 4.1: Time-coupled generator constraints with MARMOT with ICS files
   They're applied at 02:30 because of upward gradient on DDE1AA1
     Given network files are in folder "4_time_coupled/4_1_generator_constraints/4_1_1_1"
     Given crac file is "4_time_coupled/4_1_generator_constraints/cbcora_4_1_1_1.xml"
-    Given ics static file is "4_time_coupled/static_4_1_1_1.csv"
-    Given ics series file is "4_time_coupled/series_4_1_1_1.csv"
+    Given ics static file is "4_time_coupled/4_1_generator_constraints/static_4_1_1_1.csv"
+    Given ics series file is "4_time_coupled/4_1_generator_constraints/series_4_1_1_1.csv"
     Given configuration file is "common/rao_parameters_min_cost_megawatt_dc.json"
     Given time-coupled rao inputs for CORE are:
       | Timestamp        | Network          |
@@ -74,8 +74,8 @@ Feature: 4.1: Time-coupled generator constraints with MARMOT with ICS files
   resulting in the application of topological action PRA_topo 1 at 01:30.
     Given network files are in folder "4_time_coupled/4_1_generator_constraints/4_1_1_2"
     Given crac file is "common/cbcora_3_4_13.xml"
-    Given ics static file is "4_time_coupled/static_4_1_1_1.csv"
-    Given ics series file is "4_time_coupled/series_4_1_1_1.csv"
+    Given ics static file is "4_time_coupled/4_1_generator_constraints/static_4_1_1_1.csv"
+    Given ics series file is "4_time_coupled/4_1_generator_constraints/series_4_1_1_1.csv"
     Given configuration file is "common/rao_parameters_min_cost_megawatt_dc.json"
     Given time-coupled rao inputs for CORE are:
       | Timestamp        | Network          |
@@ -104,8 +104,8 @@ Feature: 4.1: Time-coupled generator constraints with MARMOT with ICS files
   Scenario: 4.1.1.3: PST and redispatching solve overload
     Given network files are in folder "4_time_coupled/4_1_generator_constraints/4_1_1_1"
     Given crac file is "4_time_coupled/4_1_generator_constraints/cbcora_4_1_1_3.xml"
-    Given ics static file is "4_time_coupled/static_4_1_1_1.csv"
-    Given ics series file is "4_time_coupled/series_4_1_1_1.csv"
+    Given ics static file is "4_time_coupled/4_1_generator_constraints/static_4_1_1_1.csv"
+    Given ics series file is "4_time_coupled/4_1_generator_constraints/series_4_1_1_1.csv"
     Given configuration file is "common/rao_parameters_min_cost_megawatt_dc.json"
     Given time-coupled rao inputs for CORE are:
       | Timestamp        | Network          |
@@ -137,8 +137,8 @@ Feature: 4.1: Time-coupled generator constraints with MARMOT with ICS files
   Here, global range actions optimization doesn't change results.
     Given network files are in folder "4_time_coupled/4_1_generator_constraints/4_1_1_4"
     Given crac file is "4_time_coupled/4_1_generator_constraints/cbcora_4_1_1_4.xml"
-    Given ics static file is "4_time_coupled/static_4_1_1_1.csv"
-    Given ics series file is "4_time_coupled/series_4_1_1_1.csv"
+    Given ics static file is "4_time_coupled/4_1_generator_constraints/static_4_1_1_1.csv"
+    Given ics series file is "4_time_coupled/4_1_generator_constraints/series_4_1_1_1.csv"
     Given configuration file is "common/rao_parameters_min_cost_megawatt_dc.json"
     Given time-coupled rao inputs for CORE are:
       | Timestamp        | Network          |
@@ -171,8 +171,8 @@ Feature: 4.1: Time-coupled generator constraints with MARMOT with ICS files
   curative PST is optimized, whereas in global optimization curative PST is applied in sensi computations.
     Given network files are in folder "4_time_coupled/4_1_generator_constraints/4_1_1_4"
     Given crac file is "4_time_coupled/4_1_generator_constraints/cbcora_4_1_1_4_b.xml"
-    Given ics static file is "4_time_coupled/static_4_1_1_1.csv"
-    Given ics series file is "4_time_coupled/series_4_1_1_1.csv"
+    Given ics static file is "4_time_coupled/4_1_generator_constraints/static_4_1_1_1.csv"
+    Given ics series file is "4_time_coupled/4_1_generator_constraints/series_4_1_1_1.csv"
     Given configuration file is "common/rao_parameters_min_cost_megawatt_dc.json"
     Given time-coupled rao inputs for CORE are:
       | Timestamp        | Network          |
@@ -208,8 +208,8 @@ Feature: 4.1: Time-coupled generator constraints with MARMOT with ICS files
   Since MNEC was only previously limiting at 01:30, it was not yet considered in MIP's considered cnecs, and MIP performs 2 iterations.
     Given network files are in folder "4_time_coupled/4_1_generator_constraints/4_1_1_5"
     Given crac file is "4_time_coupled/4_1_generator_constraints/cbcora_4_1_1_5.xml"
-    Given ics static file is "4_time_coupled/static_4_1_1_5.csv"
-    Given ics series file is "4_time_coupled/series_4_1_1_5.csv"
+    Given ics static file is "4_time_coupled/4_1_generator_constraints/static_4_1_1_5.csv"
+    Given ics series file is "4_time_coupled/4_1_generator_constraints/series_4_1_1_5.csv"
     Given configuration file is "common/rao_parameters_min_cost_megawatt_dc.json"
     Given time-coupled rao inputs for CORE are:
       | Timestamp        | Network          |
@@ -242,8 +242,8 @@ Feature: 4.1: Time-coupled generator constraints with MARMOT with ICS files
   FR generator's program starts up even though startUp is not allowed.
     Given network files are in folder "4_time_coupled/4_1_generator_constraints/4_1_1_6"
     Given crac file is "4_time_coupled/4_1_generator_constraints/cbcora_4_1_1_6.xml"
-    Given ics static file is "4_time_coupled/static_4_1_1_6.csv"
-    Given ics series file is "4_time_coupled/series_4_1_1_6.csv"
+    Given ics static file is "4_time_coupled/4_1_generator_constraints/static_4_1_1_6.csv"
+    Given ics series file is "4_time_coupled/4_1_generator_constraints/series_4_1_1_6.csv"
     Given configuration file is "common/rao_parameters_min_cost_megawatt_dc.json"
     Given time-coupled rao inputs for CORE are:
       | Timestamp        | Network         |

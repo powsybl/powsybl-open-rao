@@ -27,7 +27,7 @@ Feature: 4.1.2: Time-coupled generator constraints with MARMOT based on JSON tim
     Given configuration file is "4_time_coupled/rao_parameters_min_cost_megawatt_dc_0_shift.json"
     Given crac files are in folder "4_time_coupled/4_1_generator_constraints/4_1_3"
     Given network files are in folder "4_time_coupled"
-    Given time-coupled constraints are in file "4_time_coupled/empty-time-coupled-constraints.json" and rao inputs are:
+    Given time-coupled constraints are in file "common/empty-time-coupled-constraints.json" and rao inputs are:
       | Timestamp        | Network                     | CRAC                                        |
       | 2025-11-04 00:30 | 6Nodes.xiidm | crac_202511040030.json |
       | 2025-11-04 01:30 | 6Nodes.xiidm | crac_202511040130.json |
@@ -158,7 +158,7 @@ Feature: 4.1.2: Time-coupled generator constraints with MARMOT based on JSON tim
     Given configuration file is "4_time_coupled/rao_parameters_min_cost_megawatt_dc_0_shift.json"
     Given crac files are in folder "4_time_coupled/4_1_generator_constraints/4_1_3"
     Given network files are in folder "4_time_coupled"
-    Given time-coupled constraints are in file "4_time_coupled/time-coupled-constraints-without-constraints.json" and rao inputs are:
+    Given time-coupled constraints are in file "common/time-coupled-constraints-without-constraints.json" and rao inputs are:
       | Timestamp        | Network               | CRAC                   |
       | 2025-11-04 00:30 | 6Nodes_Pmax2500.xiidm | crac_202511040030.json |
       | 2025-11-04 01:30 | 6Nodes_Pmax2500.xiidm | crac_202511040130.json |
@@ -293,7 +293,7 @@ Feature: 4.1.2: Time-coupled generator constraints with MARMOT based on JSON tim
     Given configuration file is "4_time_coupled/rao_parameters_min_cost_megawatt_dc_0_shift.json"
     Given crac files are in folder "4_time_coupled/4_1_generator_constraints/4_1_3"
     Given network files are in folder "4_time_coupled"
-    Given time-coupled constraints are in file "4_time_coupled/time-coupled-constraints-with-gradients.json" and rao inputs are:
+    Given time-coupled constraints are in file "4_time_coupled/4_1_generator_constraints/time-coupled-constraints-with-gradients.json" and rao inputs are:
       | Timestamp        | Network      | CRAC                   |
       | 2025-11-04 00:30 | 6Nodes.xiidm | crac_202511040030.json |
       | 2025-11-04 01:30 | 6Nodes.xiidm | crac_202511040130.json |
@@ -424,7 +424,7 @@ Feature: 4.1.2: Time-coupled generator constraints with MARMOT based on JSON tim
     Given configuration file is "4_time_coupled/rao_parameters_min_cost_megawatt_dc_0_shift.json"
     Given crac files are in folder "4_time_coupled/4_1_generator_constraints/4_1_3"
     Given network files are in folder "4_time_coupled"
-    Given time-coupled constraints are in file "4_time_coupled/time-coupled-constraints-with-long-lead-and-long-lag-times.json" and rao inputs are:
+    Given time-coupled constraints are in file "4_time_coupled/4_1_generator_constraints/time-coupled-constraints-with-long-lead-and-long-lag-times.json" and rao inputs are:
       | Timestamp        | Network                        | CRAC                   |
       | 2025-11-04 00:30 | 6Nodes_Pmin1000_Pmax3000.xiidm | crac_202511040030.json |
       | 2025-11-04 01:30 | 6Nodes_Pmin1000_Pmax3000.xiidm | crac_202511040130.json |
@@ -556,7 +556,7 @@ Feature: 4.1.2: Time-coupled generator constraints with MARMOT based on JSON tim
     Given configuration file is "4_time_coupled/rao_parameters_min_cost_megawatt_dc_0_shift.json"
     Given crac files are in folder "4_time_coupled/4_1_generator_constraints/4_1_3"
     Given network files are in folder "4_time_coupled"
-    Given time-coupled constraints are in file "4_time_coupled/time-coupled-constraints-with-small-gradients.json" and rao inputs are:
+    Given time-coupled constraints are in file "4_time_coupled/4_1_generator_constraints/time-coupled-constraints-with-small-gradients.json" and rao inputs are:
       | Timestamp        | Network                              | CRAC                                                                  |
       | 2025-11-04 00:30 | 6Nodes_Pmin1000.xiidm | crac_202511040030.json |
       | 2025-11-04 01:30 | 6Nodes_Pmin1000.xiidm | crac_202511040130.json |
@@ -692,7 +692,7 @@ Feature: 4.1.2: Time-coupled generator constraints with MARMOT based on JSON tim
     Given configuration file is "4_time_coupled/rao_parameters_min_cost_megawatt_dc_0_shift_penalty_100.json"
     Given crac files are in folder "4_time_coupled/4_1_generator_constraints/4_1_2_6"
     Given network files are in folder "4_time_coupled"
-    Given time-coupled constraints are in file "4_time_coupled/empty-time-coupled-constraints.json" and rao inputs are:
+    Given time-coupled constraints are in file "common/empty-time-coupled-constraints.json" and rao inputs are:
       | Timestamp        | Network                              | CRAC                   |
       | 2025-11-04 00:30 | 6Nodes_Pmin1000.xiidm | crac_202511040030.json |
       | 2025-11-04 01:30 | 6Nodes_Pmin1000.xiidm | crac_202511040130.json |
@@ -827,7 +827,7 @@ Feature: 4.1.2: Time-coupled generator constraints with MARMOT based on JSON tim
     Given configuration file is "4_time_coupled/rao_parameters_min_cost_megawatt_dc_0_shift_penalty_100.json"
     Given crac files are in folder "4_time_coupled/4_1_generator_constraints/4_1_2_6"
     Given network files are in folder "4_time_coupled"
-    Given time-coupled constraints are in file "4_time_coupled/time-coupled-constraints-with-lead-and-lag-times-4_2_7.json" and rao inputs are:
+    Given time-coupled constraints are in file "4_time_coupled/4_1_generator_constraints/time-coupled-constraints-with-lead-and-lag-times-4_2_7.json" and rao inputs are:
       | Timestamp        | Network                   | CRAC                   |
       | 2025-11-04 00:30 | 6Nodes_targetP_1500.xiidm | crac_202511040030.json |
       | 2025-11-04 01:30 | 6Nodes_targetP_1500.xiidm | crac_202511040130.json |
@@ -961,7 +961,7 @@ Feature: 4.1.2: Time-coupled generator constraints with MARMOT based on JSON tim
     Given configuration file is "4_time_coupled/rao_parameters_min_cost_megawatt_dc_0_shift_penalty_100.json"
     Given crac files are in folder "4_time_coupled/4_1_generator_constraints/4_1_2_6"
     Given network files are in folder "4_time_coupled"
-    Given time-coupled constraints are in file "4_time_coupled/time-coupled-constraints-with-lead-and-lag-times.json" and rao inputs are:
+    Given time-coupled constraints are in file "4_time_coupled/4_1_generator_constraints/time-coupled-constraints-with-lead-and-lag-times.json" and rao inputs are:
       | Timestamp        | Network                              | CRAC                   |
       | 2025-11-04 00:30 | 6Nodes_Pmin1000.xiidm | crac_202511040030.json |
       | 2025-11-04 01:30 | 6Nodes_Pmin1000.xiidm | crac_202511040130.json |
@@ -1093,7 +1093,7 @@ Feature: 4.1.2: Time-coupled generator constraints with MARMOT based on JSON tim
     Given configuration file is "4_time_coupled/rao_parameters_min_cost_megawatt_dc_0_shift_penalty_100.json"
     Given crac files are in folder "4_time_coupled/4_1_generator_constraints/4_1_2_6"
     Given network files are in folder "4_time_coupled"
-    Given time-coupled constraints are in file "4_time_coupled/time-coupled-constraints-with-lead-and-lag-times-and-gradients.json" and rao inputs are:
+    Given time-coupled constraints are in file "4_time_coupled/4_1_generator_constraints/time-coupled-constraints-with-lead-and-lag-times-and-gradients.json" and rao inputs are:
       | Timestamp        | Network                              | CRAC                   |
       | 2025-11-04 00:30 | 6Nodes_Pmin1000.xiidm | crac_202511040030.json |
       | 2025-11-04 01:30 | 6Nodes_Pmin1000.xiidm | crac_202511040130.json |
@@ -1222,7 +1222,7 @@ Feature: 4.1.2: Time-coupled generator constraints with MARMOT based on JSON tim
     Given configuration file is "4_time_coupled/rao_parameters_min_cost_megawatt_dc_0_shift.json"
     Given crac files are in folder "4_time_coupled/4_1_generator_constraints/4_1_2_6"
     Given network files are in folder "4_time_coupled"
-    Given time-coupled constraints are in file "4_time_coupled/time-coupled-constraints-with-lead-and-lag-times.json" and rao inputs are:
+    Given time-coupled constraints are in file "4_time_coupled/4_1_generator_constraints/time-coupled-constraints-with-lead-and-lag-times.json" and rao inputs are:
       | Timestamp        | Network                              | CRAC                   |
       | 2025-11-04 00:30 | 6Nodes_Pmin1000.xiidm | crac_202511040030.json |
       | 2025-11-04 01:30 | 6Nodes_Pmin1000.xiidm | crac_202511040130.json |
