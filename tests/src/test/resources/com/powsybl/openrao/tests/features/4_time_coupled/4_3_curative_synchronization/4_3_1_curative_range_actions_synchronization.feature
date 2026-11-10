@@ -3,7 +3,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-Feature: 4.2.1: Time-coupled curative range actions synchronization
+Feature: 4.3.1: Time-coupled curative range actions synchronization
 
   Presentation of the US
   ----------------------
@@ -12,17 +12,17 @@ Feature: 4.2.1: Time-coupled curative range actions synchronization
   ----------------------
 
   @fast @rao @marmot @curative-synchronization
-  Scenario: 4.2.1.1: A shared PST takes the same tap on both timestamps
+  Scenario: 4.3.1.1: A shared PST takes the same tap on both timestamps
   In this scenario, two PSTs exist on the network. One of them is available to use in both timestamps
   (pst_be) while the other one is only usable at 10:30 (pst_de).
   when optimized independently, the two timestamps drive the shared PST pst_be at opposite signs : timestamp 10:30 needs
   it to be positive to relieve the CNEC on BE1-BE3 while timestamp 11:30 needs it to be negative to relieve the CNEC on BE1-BE2.
   The synchronization forces a single tap on both timestamps. Therefore, the two opposite optimums are not both
   reachable at the same time and the MIP settles on a compromise on pst_be and pst_de is optimized freely.
-    Given configuration file is "4_time_coupled/4_2_curative_synchronization/RaoParameters_default_curativeRangeActionsSynchronization.json"
-    Given crac files are in folder "4_time_coupled/4_2_curative_synchronization"
+    Given configuration file is "4_time_coupled/4_3_curative_synchronization/RaoParameters_default_curativeRangeActionsSynchronization.json"
+    Given crac files are in folder "4_time_coupled/4_3_curative_synchronization"
     Given network files are in folder "common"
-    Given time-coupled constraints are in file "4_time_coupled/empty-time-coupled-constraints.json" and rao inputs are:
+    Given time-coupled constraints are in file "common/empty-time-coupled-constraints.json" and rao inputs are:
       | Timestamp        | Network                   | CRAC                             |
       | 2026-03-25 10:30 | network_12nodes_2psts.uct | crac_20260325_1030_pst_only.json |
       | 2026-03-25 11:30 | network_12nodes_2psts.uct | crac_20260325_1130_pst_only.json |

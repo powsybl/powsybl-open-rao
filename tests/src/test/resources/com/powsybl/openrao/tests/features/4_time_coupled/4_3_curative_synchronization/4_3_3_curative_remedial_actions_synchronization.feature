@@ -18,10 +18,10 @@ Feature: 4.2.3: Time-coupled curative remedial actions synchronization
   The search tree picks one combination of topological actions applied on both (here it is union of the two available
   network actions), and the MIP optimizes the range actions with pst_be forced to the same tap on both timestamps while pst_de
   is under no constraint.
-    Given configuration file is "4_time_coupled/4_2_curative_synchronization/RaoParameters_default_curativeSynchronization.json"
-    Given crac files are in folder "4_time_coupled/4_2_curative_synchronization"
-    Given network files are in folder "4_time_coupled/4_2_curative_synchronization"
-    Given time-coupled constraints are in file "4_time_coupled/empty-time-coupled-constraints.json" and rao inputs are:
+    Given configuration file is "4_time_coupled/4_3_curative_synchronization/RaoParameters_default_curativeSynchronization.json"
+    Given crac files are in folder "4_time_coupled/4_3_curative_synchronization"
+    Given network files are in folder "4_time_coupled/4_3_curative_synchronization"
+    Given time-coupled constraints are in file "common/empty-time-coupled-constraints.json" and rao inputs are:
       | Timestamp        | Network                                   | CRAC                    |
       | 2026-03-25 10:30 | 12Nodes_2pst_with_parallel_lines.uct | crac_20260325_1030.json |
       | 2026-03-25 11:30 | 12Nodes_2pst_with_parallel_lines.uct | crac_20260325_1130.json |

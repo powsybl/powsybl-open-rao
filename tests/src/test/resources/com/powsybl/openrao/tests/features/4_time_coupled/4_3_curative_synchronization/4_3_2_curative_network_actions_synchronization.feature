@@ -19,10 +19,10 @@ Feature: 4.2.2: Time-coupled curative network actions synchronization
   thresholds differ.
   when optimized independently, timestamp 10:30 is secured by close_de1de3_2 alone and timestamp 11:30 by
   open_be2fr3 alone. In the time-coupled search tree, both actions are applied simultaneously on both timestamps.
-    Given configuration file is "4_time_coupled/4_2_curative_synchronization/RaoParameters_default_curativeTopologicalActionsSynchronization.json"
-    Given crac files are in folder "4_time_coupled/4_2_curative_synchronization"
-    Given network files are in folder "4_time_coupled/4_2_curative_synchronization"
-    Given time-coupled constraints are in file "4_time_coupled/empty-time-coupled-constraints.json" and rao inputs are:
+    Given configuration file is "4_time_coupled/4_3_curative_synchronization/RaoParameters_default_curativeTopologicalActionsSynchronization.json"
+    Given crac files are in folder "4_time_coupled/4_3_curative_synchronization"
+    Given network files are in folder "4_time_coupled/4_3_curative_synchronization"
+    Given time-coupled constraints are in file "common/empty-time-coupled-constraints.json" and rao inputs are:
       | Timestamp        | Network                              | CRAC                                           |
       | 2026-03-25 10:30 | 12Nodes_2pst_with_parallel_lines.uct | crac_20260325_1030_topological_only_union.json |
       | 2026-03-25 11:30 | 12Nodes_2pst_with_parallel_lines.uct | crac_20260325_1130_topological_only_union.json |
@@ -43,10 +43,10 @@ Feature: 4.2.2: Time-coupled curative network actions synchronization
   when optimized independently, timestamp 10:30 still prefers close_de1de3_2 and timestamp 11:30 needs open_be2fr3.
   Since close_de1de3_2 cannot secure timestamp 11:30, the time-coupled search tree applies open_be2fr3 alone on both
   timestamps, even though it is not timestamp 10:30's own preference.
-    Given configuration file is "4_time_coupled/4_2_curative_synchronization/RaoParameters_default_curativeTopologicalActionsSynchronization.json"
-    Given crac files are in folder "4_time_coupled/4_2_curative_synchronization"
-    Given network files are in folder "4_time_coupled/4_2_curative_synchronization"
-    Given time-coupled constraints are in file "4_time_coupled/empty-time-coupled-constraints.json" and rao inputs are:
+    Given configuration file is "4_time_coupled/4_3_curative_synchronization/RaoParameters_default_curativeTopologicalActionsSynchronization.json"
+    Given crac files are in folder "4_time_coupled/4_3_curative_synchronization"
+    Given network files are in folder "4_time_coupled/4_3_curative_synchronization"
+    Given time-coupled constraints are in file "common/empty-time-coupled-constraints.json" and rao inputs are:
       | Timestamp        | Network                              | CRAC                                     |
       | 2026-03-25 10:30 | 12Nodes_2pst_with_parallel_lines.uct | crac_20260325_1030_topological_only.json |
       | 2026-03-25 11:30 | 12Nodes_2pst_with_parallel_lines.uct | crac_20260325_1130_topological_only.json |
