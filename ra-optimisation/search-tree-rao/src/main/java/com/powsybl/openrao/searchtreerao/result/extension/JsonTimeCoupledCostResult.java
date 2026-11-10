@@ -28,19 +28,24 @@ import java.time.format.DateTimeFormatter;
 public class JsonTimeCoupledCostResult implements RaoResultJsonUtils.ExtensionSerializer<TimeCoupledCostResult> {
     @Override
     public void serialize(TimeCoupledCostResult extension, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
-        extension.serialize(jsonGenerator, serializerProvider);
+        jsonGenerator.writeStartObject();
+        for (OffsetDateTime timestamp : extension.getTimestamps()) {
+            jsonGenerator.writeFieldName(DateTimeFormatter.ISO_DATE_TIME.format(timestamp));
+            new JsonCostResult().serialize(extension.getCostResult(timestamp), jsonGenerator, serializerProvider);
+        }
+        jsonGenerator.writeEndObject();
     }
 
     @Override
     public TimeCoupledCostResult deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
-        TimeCoupledCostResult timeCoupledCostResult = new TimeCoupledCostResult();
+        TimeCoupledCostResult.TimeCoupledCostResultBuilder timeCoupledCostResult = TimeCoupledCostResult.builder();
         while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
             OffsetDateTime timestamp = OffsetDateTime.parse(jsonParser.currentName(), DateTimeFormatter.ISO_DATE_TIME);
             jsonParser.nextToken();
             CostResult costResult = new JsonCostResult().deserialize(jsonParser, deserializationContext);
-            timeCoupledCostResult.add(costResult, timestamp);
+            timeCoupledCostResult.addCostResult(timestamp, costResult);
         }
-        return timeCoupledCostResult;
+        return timeCoupledCostResult.build();
     }
 
     @Override

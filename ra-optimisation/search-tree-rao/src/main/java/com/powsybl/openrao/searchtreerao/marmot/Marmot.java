@@ -761,11 +761,11 @@ public class Marmot implements TimeCoupledRaoProvider {
                                                                           final RaoParameters raoParameters,
                                                                           final ReportNode reportNode) {
         RaoResultImpl.RaoResultImplBuilder raoResultBuilder = RaoResultImpl.builder(cracs);
-        TimeCoupledCostResult costResult = new TimeCoupledCostResult();
+        TimeCoupledCostResult.TimeCoupledCostResultBuilder costResultBuilder = TimeCoupledCostResult.builder();
         MarmotUtils.fillRaoResult(
             cracs,
             raoResultBuilder,
-            costResult,
+            costResultBuilder,
             initialResults,
             globalLinearOptimizationResult,
             preventiveNetworkActions,
@@ -788,7 +788,7 @@ public class Marmot implements TimeCoupledRaoProvider {
             createFlowResultExtension(initialResults, globalLinearOptimizationResult, cracs, RaoUtil.getFlowUnit(raoParameters))
         );
         raoResult.addExtension(Metadata.class, getMetadataExtension(cracs, globalLinearOptimizationResult));
-        raoResult.addExtension(TimeCoupledCostResult.class, costResult);
+        raoResult.addExtension(TimeCoupledCostResult.class, costResultBuilder.build());
         Set<String> allCriticalCnecs = new HashSet<>();
         consideredCnecs.getDataPerTimestamp()
             .values()
