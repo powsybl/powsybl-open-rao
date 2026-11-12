@@ -216,8 +216,8 @@ class CounterTradingRangeActionCreatorTest {
 
         // Different physical limits in the CountertradeRemedialAction and the RemedialActionGroup
         assertRaNotImported(cracCreationContext, "ct-different-ctra-and-group-limits", ImportStatus.INCONSISTENCY_IN_DATA,
-                "Remedial action ct-different-ctra-and-group-limits will not be imported because the maxRegulatingUp/maxRegulatingDown values of the CountertradeRemedialAction"
-                    + " (1000.0/1500.0) and of the RemedialActionGroup (1000.0/10.0) are different.");
+                "Remedial action ct-different-ctra-and-group-limits will not be imported because its maxRegulatingUp/maxRegulatingDown values are inconsistent: "
+                    + "they are defined both in the CountertradeRemedialAction (1000.0/1500.0) and in the RemedialActionGroup (1000.0/10.0), with different values.");
     }
 
     @Test

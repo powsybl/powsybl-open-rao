@@ -341,8 +341,8 @@ public class CounterTradingRangeActionCreator {
         if (hasAnyValue(maxRegulatingUp, maxRegulatingDown) && hasAnyValue(groupMaxRegulatingUp, groupMaxRegulatingDown)
                 && (Double.compare(maxRegulatingUp, groupMaxRegulatingUp) != 0 || Double.compare(maxRegulatingDown, groupMaxRegulatingDown) != 0)) {
             throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA,
-                    String.format("Remedial action %s will not be imported because the maxRegulatingUp/maxRegulatingDown values of the CountertradeRemedialAction "
-                            + "(%s/%s) and of the RemedialActionGroup (%s/%s) are different.",
+                    String.format("Remedial action %s will not be imported because its maxRegulatingUp/maxRegulatingDown values are inconsistent: "
+                            + "they are defined both in the CountertradeRemedialAction (%s/%s) and in the RemedialActionGroup (%s/%s), with different values.",
                             remedialActionId, maxRegulatingUp, maxRegulatingDown, groupMaxRegulatingUp, groupMaxRegulatingDown));
         }
     }
