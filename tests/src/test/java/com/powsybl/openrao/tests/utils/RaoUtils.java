@@ -9,6 +9,7 @@ package com.powsybl.openrao.tests.utils;
 
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.glsk.commons.ZonalData;
+import com.powsybl.iidm.modification.scalable.Scalable;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
@@ -91,6 +92,7 @@ public final class RaoUtils {
             CommonTestData.getNetwork(),
             CommonTestData.getCrac(),
             glsks,
+            CommonTestData.getCtGlsks(),
             CommonTestData.getReferenceProgram(),
             raoParameters,
             timeLimitInSeconds,
@@ -99,11 +101,12 @@ public final class RaoUtils {
     }
 
     private static RaoResult runRaoInMemory(Rao.Runner raoRunner, Network network, Crac crac,
-                                            ZonalData<SensitivityVariableSet> glsks, ReferenceProgram referenceProgram, RaoParameters config,
+                                            ZonalData<SensitivityVariableSet> glsks, ZonalData<Scalable> ctGlsks, ReferenceProgram referenceProgram, RaoParameters config,
                                             Integer timeLimitInSeconds, final ReportNode reportNode) throws IOException {
 
         RaoInput.RaoInputBuilder raoInputBuilder = RaoInput.build(network, crac);
         raoInputBuilder.withGlskProvider(glsks);
+        raoInputBuilder.withCtGlskProvider(ctGlsks);
         raoInputBuilder.withRefProg(referenceProgram);
 
         RaoResult raoResult;

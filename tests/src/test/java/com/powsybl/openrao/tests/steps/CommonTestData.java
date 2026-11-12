@@ -87,7 +87,9 @@ public final class CommonTestData {
 
     private static String loopflowGlskPath;
     private static String monitoringGlskPath;
+    private static String ctGlskPath;
     private static ZonalData<Scalable> monitoringGlsks;
+    private static ZonalData<Scalable> ctGlsks;
     private static ZonalData<SensitivityVariableSet> loopflowGlsks;
 
     private static String raoResultPath;
@@ -162,6 +164,7 @@ public final class CommonTestData {
         cracCreationParametersPath = null;
         loopflowGlskPath = null;
         monitoringGlskPath = null;
+        ctGlskPath = null;
         refProgPath = null;
         cracPath = null;
         raoResultPath = null;
@@ -172,6 +175,7 @@ public final class CommonTestData {
         raoParameters = null;
         loopflowGlsks = null;
         monitoringGlsks = null;
+        ctGlsks = null;
         referenceProgram = null;
         raoResult = null;
         monitoringResult = null;
@@ -219,6 +223,11 @@ public final class CommonTestData {
     @Given("monitoring glsk file is {string}")
     public static void monitoringGlskFileIs(String path) {
         monitoringGlskPath = getResourcesPath().concat("glsks/").concat(path);
+    }
+
+    @Given("countertrading glsk file is {string}")
+    public static void ctGlskFileIs(String path) {
+        ctGlskPath = getResourcesPath().concat("glsks/").concat(path);
     }
 
     @Given("RefProg file is {string}")
@@ -272,6 +281,10 @@ public final class CommonTestData {
 
     public static ZonalData<Scalable> getMonitoringGlsks() {
         return monitoringGlsks;
+    }
+
+    public static ZonalData<Scalable> getCtGlsks() {
+        return ctGlsks;
     }
 
     public static ReferenceProgram getReferenceProgram() {
@@ -393,6 +406,11 @@ public final class CommonTestData {
         // Monitoring GLSK
         if (monitoringGlskPath != null) {
             monitoringGlsks = importMonitoringGlskFile(getFile(monitoringGlskPath), offsetDateTime, network);
+        }
+
+        // CT GLSK
+        if (ctGlskPath != null) {
+            ctGlsks = importMonitoringGlskFile(getFile(ctGlskPath), offsetDateTime, network);
         }
 
         // RaoResult

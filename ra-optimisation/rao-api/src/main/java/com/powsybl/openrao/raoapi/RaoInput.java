@@ -8,6 +8,7 @@
 package com.powsybl.openrao.raoapi;
 
 import com.powsybl.glsk.commons.ZonalData;
+import com.powsybl.iidm.modification.scalable.Scalable;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.State;
@@ -33,6 +34,7 @@ public final class RaoInput {
         private Set<State> perimeter;
         private ReferenceProgram referenceProgram;
         private ZonalData<SensitivityVariableSet> glsk;
+        private ZonalData<Scalable> ctGlsk;
 
         private RaoInputBuilder() {
         }
@@ -67,6 +69,11 @@ public final class RaoInput {
             return this;
         }
 
+        public RaoInputBuilder withCtGlskProvider(ZonalData<Scalable> ctGlsk) {
+            this.ctGlsk = ctGlsk;
+            return this;
+        }
+
         public RaoInput build() {
             RaoInput raoInput = new RaoInput();
             raoInput.crac = Objects.requireNonNull(crac, format(REQUIRED_ARGUMENT_MESSAGE, "CRAC"));
@@ -75,6 +82,7 @@ public final class RaoInput {
             raoInput.perimeter = perimeter;
             raoInput.referenceProgram = referenceProgram;
             raoInput.glsk = glsk;
+            raoInput.ctGlsk = ctGlsk;
             return raoInput;
         }
     }
@@ -85,6 +93,7 @@ public final class RaoInput {
     private String networkVariantId;
     private ReferenceProgram referenceProgram;
     private ZonalData<SensitivityVariableSet> glsk;
+    private ZonalData<Scalable> ctGlsk;
 
     private RaoInput() {
     }
@@ -120,5 +129,9 @@ public final class RaoInput {
 
     public ZonalData<SensitivityVariableSet> getGlskProvider() {
         return glsk;
+    }
+
+    public ZonalData<Scalable> getCtGlskProvider() {
+        return ctGlsk;
     }
 }
