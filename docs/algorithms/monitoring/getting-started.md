@@ -50,7 +50,7 @@ RaoParameters raoParameters = RaoParameters();
 RaoInput raoInput = RaoInput.build(network, crac).build();
 
 // Run RAO
-RaoResult raoResult = Rao.find("SearchTreeRao").run(raoInputBuilder, raoParameters);
+RaoResult raoResult = Rao.find("OpenRAO").run(raoInputBuilder, raoParameters);
 
 LoadFlowParameters loadFlowParameters = getSensitivityWithLoadFlowParameters(raoParameters).getLoadFlowParameters();
 
