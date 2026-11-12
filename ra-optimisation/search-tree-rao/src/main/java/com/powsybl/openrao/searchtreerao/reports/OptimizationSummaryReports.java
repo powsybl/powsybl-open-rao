@@ -74,15 +74,18 @@ public final class OptimizationSummaryReports {
                                                  final Leaf leaf,
                                                  final SearchTreeInput input,
                                                  final ObjectiveFunctionResult preOptimObjectiveFunctionResult) {
-        final State state = input.getOptimizationPerimeter().getMainOptimizationState();
-        final Map<RangeAction<?>, Double> rangeActionsAndTheirTapsAppliedOnState = getRangeActionsAndTheirTapsAppliedOnState(leaf, state);
-        final Set<NetworkAction> networkActions = leaf.getActivatedNetworkActions();
-        reportOptimizationSummary(parentNode,
-            state,
-            networkActions,
-            rangeActionsAndTheirTapsAppliedOnState,
-            preOptimObjectiveFunctionResult,
-            leaf);
+        // one summary per timestamp, in a time-coupled search tree, every timestamp has its own main optimization state
+        input.getAllOptimizationPerimeters().getDataPerTimestamp().values().forEach(optimizationPerimeter -> {
+            final State state = optimizationPerimeter.getMainOptimizationState();
+            final Map<RangeAction<?>, Double> rangeActionsAndTheirTapsAppliedOnState = getRangeActionsAndTheirTapsAppliedOnState(leaf, state);
+            final Set<NetworkAction> networkActions = leaf.getActivatedNetworkActions();
+            reportOptimizationSummary(parentNode,
+                state,
+                networkActions,
+                rangeActionsAndTheirTapsAppliedOnState,
+                preOptimObjectiveFunctionResult,
+                leaf);
+        });
     }
 
     public static void logOptimizationSummary(final OpenRaoLogger logger,

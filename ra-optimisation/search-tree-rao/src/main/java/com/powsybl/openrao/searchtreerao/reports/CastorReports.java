@@ -228,18 +228,26 @@ public final class CastorReports {
     }
 
     public static ReportNode reportPreventivePerimeterOptimization(final ReportNode parentNode) {
+        return reportPreventivePerimeterOptimization(parentNode, "");
+    }
+
+    public static ReportNode reportPreventivePerimeterOptimization(final ReportNode parentNode, final String prefix) {
         final ReportNode addedNode = parentNode.newReportNode()
             .withMessageTemplate("openrao.searchtreerao.reportPreventivePerimeterOptimization")
             .withSeverity(INFO_SEVERITY)
             .add();
 
-        BUSINESS_LOGS.info("----- Preventive perimeter optimization [start]");
+        BUSINESS_LOGS.info("{} ----- Preventive perimeter optimization [start]", prefix);
 
         return addedNode;
     }
 
     public static void reportPreventivePerimeterOptimizationEnd() {
-        BUSINESS_LOGS.info("----- Preventive perimeter optimization [end]");
+        reportPreventivePerimeterOptimizationEnd("");
+    }
+
+    public static void reportPreventivePerimeterOptimizationEnd(final String prefix) {
+        BUSINESS_LOGS.info("{} ----- Preventive perimeter optimization [end]", prefix);
     }
 
     public static ReportNode reportPostPraSensiAnalysis(final ReportNode parentNode) {
@@ -264,21 +272,29 @@ public final class CastorReports {
     }
 
     public static void reportSecondPreventivePerimeterOptimizationStart(final ReportNode parentNode) {
+        reportSecondPreventivePerimeterOptimizationStart(parentNode, "");
+    }
+
+    public static void reportSecondPreventivePerimeterOptimizationStart(final ReportNode parentNode, final String prefix) {
         parentNode.newReportNode()
             .withMessageTemplate("openrao.searchtreerao.reportSecondPreventivePerimeterOptimizationStart")
             .withSeverity(INFO_SEVERITY)
             .add();
 
-        BUSINESS_LOGS.info("----- Second preventive perimeter optimization [start]");
+        BUSINESS_LOGS.info("{} ----- Second preventive perimeter optimization [start]", prefix);
     }
 
     public static void reportSecondPreventivePerimeterOptimizationEnd(final ReportNode parentNode) {
+        reportSecondPreventivePerimeterOptimizationEnd(parentNode, "");
+    }
+
+    public static void reportSecondPreventivePerimeterOptimizationEnd(final ReportNode parentNode, final String prefix) {
         parentNode.newReportNode()
             .withMessageTemplate("openrao.searchtreerao.reportSecondPreventivePerimeterOptimizationEnd")
             .withSeverity(INFO_SEVERITY)
             .add();
 
-        BUSINESS_LOGS.info("----- Second preventive perimeter optimization [end]");
+        BUSINESS_LOGS.info("{} ----- Second preventive perimeter optimization [end]", prefix);
     }
 
     public static void reportSystematicSensitivityAnalysisAfterPraFailed(final ReportNode parentNode) {
@@ -300,27 +316,39 @@ public final class CastorReports {
     }
 
     public static ReportNode reportPostContingencyPerimeterOptimization(final ReportNode parentNode) {
+        return reportPostContingencyPerimeterOptimization(parentNode, "");
+    }
+
+    public static ReportNode reportPostContingencyPerimeterOptimization(final ReportNode parentNode, final String prefix) {
         final ReportNode addedNode = parentNode.newReportNode()
             .withMessageTemplate("openrao.searchtreerao.reportPostContingencyPerimeterOptimization")
             .withSeverity(INFO_SEVERITY)
             .add();
 
-        BUSINESS_LOGS.info("----- Post-contingency perimeters optimization [start]");
+        BUSINESS_LOGS.info("{} ----- Post-contingency perimeters optimization [start]", prefix);
 
         return addedNode;
     }
 
     public static void reportPostContingencyPerimeterOptimizationEnd() {
-        BUSINESS_LOGS.info("----- Post-contingency perimeters optimization [end]");
+        reportPostContingencyPerimeterOptimizationEnd("");
+    }
+
+    public static void reportPostContingencyPerimeterOptimizationEnd(final String prefix) {
+        BUSINESS_LOGS.info("{} ----- Post-contingency perimeters optimization [end]", prefix);
     }
 
     public static ReportNode reportMergingPreventiveAndPostContingencyRaoResults(final ReportNode parentNode) {
+        return reportMergingPreventiveAndPostContingencyRaoResults(parentNode, "");
+    }
+
+    public static ReportNode reportMergingPreventiveAndPostContingencyRaoResults(final ReportNode parentNode, final String prefix) {
         final ReportNode addedNode = parentNode.newReportNode()
             .withMessageTemplate("openrao.searchtreerao.reportMergingPreventiveAndPostContingencyRaoResults")
             .withSeverity(INFO_SEVERITY)
             .add();
 
-        BUSINESS_LOGS.info("Merging preventive and post-contingency RAO results:");
+        BUSINESS_LOGS.info("{} Merging preventive and post-contingency RAO results:", prefix);
 
         return addedNode;
     }
@@ -519,12 +547,16 @@ public final class CastorReports {
     }
 
     public static void reportMergingFirstSecondPreventiveAndPostContingencyRaoResults(final ReportNode parentNode) {
+        reportMergingFirstSecondPreventiveAndPostContingencyRaoResults(parentNode, "");
+    }
+
+    public static void reportMergingFirstSecondPreventiveAndPostContingencyRaoResults(final ReportNode parentNode, final String prefix) {
         parentNode.newReportNode()
             .withMessageTemplate("openrao.searchtreerao.reportMergingFirstSecondPreventiveAndPostContingencyRaoResults")
             .withSeverity(INFO_SEVERITY)
             .add();
 
-        BUSINESS_LOGS.info("Merging first, second preventive and post-contingency RAO results:");
+        BUSINESS_LOGS.info("{} Merging first, second preventive and post-contingency RAO results:", prefix);
     }
 
     public static void reportSystematicSensitivityAnalysisAfterCraAfterSecondPreventiveFailed(final ReportNode parentNode) {
