@@ -110,6 +110,19 @@ Since the initial setpoint is now read from the network during CRAC deserializat
 
 The **HVDC Range Action** is available in the MIP only if the HVDC line is *not* in AC Emulation mode; otherwise, it is **filtered out before each MIP**.
 
+Also even if the setpoint of the HVDC range action is not moved by the MIP, if the associated acEmulationDeactivationAction is activated, the HVDC range action will be reported as activated. So you might get in the RAO Result :
+
+```json
+{
+    "rangeActionId" : "hvdcRangeAction",
+    "initialSetpoint" : 100.0,
+    "activatedStates" : [ {
+      "instant" : "preventive",
+      "setpoint" : 100.0
+    } ]
+}
+```
+
 
 ### HVDC Range Action in Auto Instant
 
