@@ -1209,6 +1209,11 @@ public class RaoSteps {
         assertFalse(isRemedialActionUsed(remedialActionId, timestamp, "", "preventive"));
     }
 
+    @Then("the remedial action {string} is not used at timestamp {string} after {string} at {string}")
+    public void remedialActionNotUsedPostContingency(String remedialActionId, String timestamp, String contingencyId, String instant) {
+        assertFalse(isRemedialActionUsed(remedialActionId, timestamp, contingencyId, instant));
+    }
+
     @Then("the time-coupled security status should be {string}")
     public void timeCoupledStatusShouldBe(String status) {
         assertEquals(

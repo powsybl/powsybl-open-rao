@@ -26,7 +26,7 @@ Feature: 4.3.1: Time-coupled curative range actions synchronization
       | Timestamp        | Network                   | CRAC                             |
       | 2026-03-25 10:30 | network_12nodes_2psts.uct | crac_20260325_1030_pst_only.json |
       | 2026-03-25 11:30 | network_12nodes_2psts.uct | crac_20260325_1130_pst_only.json |
-    When I launch marmot
+    When I launch rao
     # the shared PST is synchronized
     Then the remedial action "pst_be" is used at timestamp "2026-03-25 10:30" after "common_contingency" at "curative"
     Then the remedial action "pst_be" is used at timestamp "2026-03-25 11:30" after "common_contingency" at "curative"

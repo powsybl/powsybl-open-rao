@@ -26,7 +26,7 @@ Feature: 4.2.2: Time-coupled curative network actions synchronization
       | Timestamp        | Network                              | CRAC                                           |
       | 2026-03-25 10:30 | 12Nodes_2pst_with_parallel_lines.uct | crac_20260325_1030_topological_only_union.json |
       | 2026-03-25 11:30 | 12Nodes_2pst_with_parallel_lines.uct | crac_20260325_1130_topological_only_union.json |
-    When I launch marmot
+    When I launch rao
     # the same combination is applied on both timestamps
     Then the remedial action "close_de1de3_2" is used at timestamp "2026-03-25 10:30" after "common_contingency" at "curative"
     Then the remedial action "open_be2fr3" is used at timestamp "2026-03-25 10:30" after "common_contingency" at "curative"
@@ -50,7 +50,7 @@ Feature: 4.2.2: Time-coupled curative network actions synchronization
       | Timestamp        | Network                              | CRAC                                     |
       | 2026-03-25 10:30 | 12Nodes_2pst_with_parallel_lines.uct | crac_20260325_1030_topological_only.json |
       | 2026-03-25 11:30 | 12Nodes_2pst_with_parallel_lines.uct | crac_20260325_1130_topological_only.json |
-    When I launch marmot
+    When I launch rao
     # only "open_be2fr2" is activated on both timestamps
     Then the remedial action "open_be2fr3" is used at timestamp "2026-03-25 10:30" after "common_contingency" at "curative"
     Then the remedial action "open_be2fr3" is used at timestamp "2026-03-25 11:30" after "common_contingency" at "curative"
