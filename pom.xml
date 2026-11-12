@@ -321,11 +321,6 @@
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>open-rao-util</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
                 <artifactId>open-rao-virtual-hubs-api</artifactId>
                 <version>${project.version}</version>
             </dependency>
