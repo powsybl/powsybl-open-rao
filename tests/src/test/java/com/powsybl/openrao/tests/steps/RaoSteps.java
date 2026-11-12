@@ -25,6 +25,7 @@ import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.crac.loopflowextension.LoopFlowThreshold;
+import com.powsybl.openrao.data.crac.util.CracValidator;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.refprog.referenceprogram.ReferenceProgram;
@@ -109,6 +110,11 @@ public class RaoSteps {
         iLaunchRao(null);
     }
 
+    @When("I launch rao with crac validator")
+    public void iLaunchRaoWithCracValidator() {
+        launchRao(null, 0.0, raoImplementation, null, true);
+    }
+
     @When("I launch rao with a time limit of {int} seconds")
     public void iLaunchRaoWithTimeLimit(int timeLimit) {
         launchRao(timeLimit);
@@ -121,12 +127,12 @@ public class RaoSteps {
 
     @When("I launch loopflow rao with default loopflow limit as {double} percent of pmax")
     public void iLaunchRaoWithDefaultLoopflowLimit(double percentage) {
-        launchRao(null, percentage, raoImplementation, null);
+        launchRao(null, percentage, raoImplementation, null, false);
     }
 
     @When("I launch loopflow rao at {string} with default loopflow limit as {double} percent of pmax")
     public void iLaunchRaoWithDefaultLoopflowLimit(String timestamp, double percentage) {
-        launchRao(timestamp, percentage, raoImplementation, null);
+        launchRao(timestamp, percentage, raoImplementation, null, false);
     }
 
     @When("I launch loopflow_computation with OpenLoadFlow")
@@ -796,18 +802,21 @@ public class RaoSteps {
     }
 
     private void launchRao(int timeLimit) {
-        launchRao(null, null, raoImplementation, timeLimit);
+        launchRao(null, null, raoImplementation, timeLimit, false);
     }
 
     private void launchRao(String timestamp, String raoType) {
-        launchRao(timestamp, 0.0, raoType, null);
+        launchRao(timestamp, 0.0, raoType, null, false);
     }
 
-    private void launchRao(String timestamp, Double loopflowLimitAsPmaxPercentageInput, String raoType, Integer timeLimit) {
+    private void launchRao(String timestamp, Double loopflowLimitAsPmaxPercentageInput, String raoType, Integer timeLimit, boolean validateCrac) {
         try {
             CommonTestData.loadData(timestamp);
             network = CommonTestData.getNetwork();
             crac = CommonTestData.getCrac();
+            if (validateCrac) {
+                CracValidator.validateCrac(crac, network);
+            }
             preventiveState = crac.getPreventiveState();
             CommonTestData.setReportNode(
                 ReportNode.newRootReportNode()
