@@ -82,6 +82,8 @@ This field contains the security status of the network **after RAO** for a given
 > - This method only deals with the final flows of the CNECs;
 > - Outage-duplicated CNECs, MNECs and curative FlowCNECs belonging to TSOs not sharing CRAs are excluded from the
 >   security status computation.
+> - If the RAO failed, the security status defaults to `false` since it cannot be assessed
+> - In any other case, the security status defaults to `true` for unassessed physical parameters
 
 ::::{tabs}
 :::{group-tab} JAVA API

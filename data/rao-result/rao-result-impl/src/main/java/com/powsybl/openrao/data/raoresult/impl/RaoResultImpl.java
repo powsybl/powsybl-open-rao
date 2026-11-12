@@ -12,6 +12,7 @@ import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.commons.TemporalDataImpl;
+import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.State;
@@ -19,7 +20,9 @@ import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.StandardRangeAction;
+import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
+import com.powsybl.openrao.data.raoresult.api.extension.Metadata;
 
 import java.time.OffsetDateTime;
 import java.util.EnumMap;
@@ -167,7 +170,23 @@ public final class RaoResultImpl extends AbstractExtendable<RaoResult> implement
         if (parametersToAssess.isEmpty()) {
             throw new OpenRaoException("At least one physical parameter must be provided");
         }
-        return parametersToAssess.stream().allMatch(physicalParameter -> securityStatuses.getOrDefault(physicalParameter, true));
+
+        Metadata metadata = getExtension(Metadata.class);
+        if (metadata != null && metadata.getComputationStatus() == ComputationStatus.FAILURE) {
+            OpenRaoLoggerProvider.BUSINESS_WARNS.warn("Impossible to assess security status because RAO failed");
+            return false;
+        }
+
+        boolean isSecure = true;
+        for (PhysicalParameter physicalParameter : parametersToAssess) {
+            if (!securityStatuses.containsKey(physicalParameter)) {
+                OpenRaoLoggerProvider.TECHNICAL_LOGS.info("Security status for {} was not assessed during RAO and will default to true", physicalParameter);
+            } else {
+                isSecure &= securityStatuses.get(physicalParameter);
+            }
+        }
+
+        return isSecure;
     }
 
     private State stateBefore(State state) {

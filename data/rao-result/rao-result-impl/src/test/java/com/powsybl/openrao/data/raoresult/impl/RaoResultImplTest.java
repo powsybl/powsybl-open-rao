@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.data.raoresult.impl;
 
+import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.State;
@@ -150,5 +151,18 @@ class RaoResultImplTest {
         Metadata metadata = raoResult.getExtension(Metadata.class);
         assertNotNull(metadata);
         assertEquals(ComputationStatus.DEFAULT, metadata.getComputationStatus());
+    }
+
+    @Test
+    void testNotSecureIfRaoFailed() {
+        setUp();
+        RaoResultImpl raoResult = RaoResultImpl.builder(crac).build();
+        Metadata metadata = Metadata.builder()
+            .addComputationStatus(crac.getPreventiveState(), ComputationStatus.FAILURE)
+            .build();
+        raoResult.addExtension(Metadata.class, metadata);
+        assertFalse(raoResult.isSecure(PhysicalParameter.FLOW));
+        assertFalse(raoResult.isSecure(PhysicalParameter.ANGLE));
+        assertFalse(raoResult.isSecure(PhysicalParameter.VOLTAGE));
     }
 }

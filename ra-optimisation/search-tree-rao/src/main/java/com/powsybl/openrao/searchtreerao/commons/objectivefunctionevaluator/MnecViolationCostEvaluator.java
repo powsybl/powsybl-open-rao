@@ -47,7 +47,9 @@ public class MnecViolationCostEvaluator implements CostEvaluator {
         this.mnecViolationCost = mnecViolationCost;
     }
 
-    public static String getEvaluatorName() {return "mnec-cost";}
+    public static String getEvaluatorName() {
+        return "mnec-cost";
+    }
 
     @Override
     public String getName() {

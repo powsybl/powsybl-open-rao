@@ -17,7 +17,6 @@ import com.powsybl.openrao.searchtreerao.result.api.ObjectiveFunctionResult;
 import com.powsybl.openrao.searchtreerao.result.impl.PostPerimeterResult;
 
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BinaryOperator;
 

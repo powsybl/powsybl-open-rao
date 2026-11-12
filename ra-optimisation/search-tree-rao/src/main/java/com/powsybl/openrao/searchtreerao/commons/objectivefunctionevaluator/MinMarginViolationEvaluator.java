@@ -32,7 +32,9 @@ public class MinMarginViolationEvaluator extends MinMarginEvaluator implements C
         this.shiftedViolationPenalty = shiftedViolationPenalty;
     }
 
-    public static String getEvaluatorName() {return "min-margin-violation-evaluator";}
+    public static String getEvaluatorName() {
+        return "min-margin-violation-evaluator";
+    }
 
     @Override
     public String getName() {

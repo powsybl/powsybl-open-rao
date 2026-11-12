@@ -34,7 +34,9 @@ public class SensitivityFailureOvercostEvaluator implements CostEvaluator {
         this.states = flowCnecs.stream().map(Cnec::getState).collect(Collectors.toSet());
     }
 
-    public static String getEvaluatorName() {return "sensitivity-failure-cost";}
+    public static String getEvaluatorName() {
+        return "sensitivity-failure-cost";
+    }
 
     @Override
     public String getName() {

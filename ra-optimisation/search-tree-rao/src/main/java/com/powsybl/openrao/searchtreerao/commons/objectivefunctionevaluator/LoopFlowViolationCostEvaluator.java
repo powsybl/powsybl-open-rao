@@ -42,7 +42,7 @@ public class LoopFlowViolationCostEvaluator implements CostEvaluator {
                                           double loopFlowAcceptableAugmentation,
                                           double loopFlowViolationCost,
                                           Unit unit
-                                          ) {
+    ) {
         this.loopflowCnecs = loopflowCnecs;
         this.initialLoopFlowResult = initialLoopFlowResult;
         this.loopFlowViolationCost = loopFlowViolationCost;
@@ -50,7 +50,9 @@ public class LoopFlowViolationCostEvaluator implements CostEvaluator {
         this.unit = unit;
     }
 
-    public static String getEvaluatorName() {return "loop-flow-cost";}
+    public static String getEvaluatorName() {
+        return "loop-flow-cost";
+    }
 
     @Override
     public String getName() {
