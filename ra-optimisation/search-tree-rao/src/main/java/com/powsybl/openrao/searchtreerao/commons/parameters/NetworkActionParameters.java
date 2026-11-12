@@ -31,6 +31,7 @@ import static com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoTopo
 public class NetworkActionParameters {
 
     private final List<NetworkActionCombination> predefinedCombinations;
+    private NetworkActionCombination forcedCombination;
 
     private final double absoluteNetworkActionMinimumImpactThreshold;
     private final double relativeNetworkActionMinimumImpactThreshold;
@@ -98,6 +99,17 @@ public class NetworkActionParameters {
         this.predefinedCombinations.add(networkActionCombination);
     }
 
+    /**
+     * The search tree evaluates only this combination at depth 1, instead of blooming the root leaf.
+     */
+    public void setForcedCombination(NetworkActionCombination forcedCombination) {
+        this.forcedCombination = forcedCombination;
+    }
+
+    public Optional<NetworkActionCombination> getForcedCombination() {
+        return Optional.ofNullable(forcedCombination);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -111,13 +123,15 @@ public class NetworkActionParameters {
             && Double.compare(that.relativeNetworkActionMinimumImpactThreshold, relativeNetworkActionMinimumImpactThreshold) == 0
             && skipNetworkActionFarFromMostLimitingElements == that.skipNetworkActionFarFromMostLimitingElements
             && maxNumberOfBoundariesForSkippingNetworkActions == that.maxNumberOfBoundariesForSkippingNetworkActions
-            && Objects.equals(predefinedCombinations, that.predefinedCombinations);
+            && Objects.equals(predefinedCombinations, that.predefinedCombinations)
+            && Objects.equals(forcedCombination, that.forcedCombination);
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(
             predefinedCombinations,
+            forcedCombination,
             absoluteNetworkActionMinimumImpactThreshold,
             relativeNetworkActionMinimumImpactThreshold,
             skipNetworkActionFarFromMostLimitingElements,

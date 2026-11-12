@@ -27,6 +27,7 @@ import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -74,6 +75,24 @@ class NetworkActionParametersTest {
         assertEquals(2, nap.getNetworkActionCombinations().size());
         assertTrue(nap.getNetworkActionCombinations().contains(naCombinationDetectedInRao));
         assertFalse(nap.getNetworkActionCombinations().contains(naCombination));
+    }
+
+    @Test
+    void testForcedCombination() {
+        NetworkActionParameters nap = new NetworkActionParameters(new ArrayList<>(), 0., 0., false, 0, true);
+        NetworkActionParameters otherNap = new NetworkActionParameters(new ArrayList<>(), 0., 0., false, 0, true);
+        assertTrue(nap.getForcedCombination().isEmpty());
+        assertEquals(nap, otherNap);
+
+        NetworkActionCombination naCombination = new NetworkActionCombination(Set.of(Mockito.mock(NetworkAction.class)));
+        nap.setForcedCombination(naCombination);
+        assertEquals(naCombination, nap.getForcedCombination().orElseThrow());
+        assertTrue(nap.getNetworkActionCombinations().isEmpty());
+        assertNotEquals(nap, otherNap);
+
+        otherNap.setForcedCombination(naCombination);
+        assertEquals(nap, otherNap);
+        assertEquals(nap.hashCode(), otherNap.hashCode());
     }
 
     @Test
