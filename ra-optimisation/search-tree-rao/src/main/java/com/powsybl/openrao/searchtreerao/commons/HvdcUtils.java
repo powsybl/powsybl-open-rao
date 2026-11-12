@@ -279,6 +279,21 @@ public final class HvdcUtils {
         return controls;
     }
 
+    public static Map<State, Set<HvdcRangeAction>> getHvdcRangeActionsPerStateAssociatedWithHvdcLine(
+        Map<State, Set<RangeAction<?>>> rangeActionsPerState,
+        String hvdcLineId
+    ) {
+        return rangeActionsPerState.entrySet().stream()
+            .collect(Collectors.toMap(
+                Map.Entry::getKey,
+                entry -> entry.getValue().stream()
+                    .filter(HvdcRangeAction.class::isInstance)
+                    .map(HvdcRangeAction.class::cast)
+                    .filter(hvdcRangeAction -> hvdcRangeAction.getNetworkElementId().equals(hvdcLineId))
+                    .collect(Collectors.toSet())
+            ));
+    }
+
     public static boolean isAcEmulationDeactivationAction(NetworkAction networkAction) {
         return networkAction.getElementaryActions().stream().allMatch(HvdcAction.class::isInstance)
             && networkAction.getElementaryActions().stream().allMatch(action -> ((HvdcAction) action).isAcEmulationEnabled().isPresent())

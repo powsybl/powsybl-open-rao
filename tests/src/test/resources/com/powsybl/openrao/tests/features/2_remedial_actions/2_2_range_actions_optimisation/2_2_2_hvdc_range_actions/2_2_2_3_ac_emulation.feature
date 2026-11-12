@@ -45,18 +45,19 @@ Feature: 2.2.2.3: Optimize HVDC range actions initially in AC emulation mode
     # Copy of test case 2.2.2.1.3, except HVDC is initially in AC emulation mode
     # deactivating ac emulation + PST_PRA_PST_be_BBE2AA11 BBE3AA11 1 at 14 and PRA_HVDC at 807 => yield slightly better cost -273 vs -259.
     # But the MIP didn't find the solution. Why ?
-    # Instead of starting with the HVDC's active setpoint = 0.0 here the MIP start with the active setpoint = 820.
-    # Find the same result in 2.2.2.1.3 if we set initial active setpoint to 820 too.
+    # Instead of starting with the HVDC's active setpoint = 0.0 here the MIP start with the active setpoint = 823.
+    # Find the same result in 2.2.2.1.3 if we set initial active setpoint to 823 too.
     Given network file is "common/network_16nodes_with_hvdc_ac_emulation.xiidm"
     Given crac file is "2_remedial_actions/2_2_range_actions_optimisation/2_2_2_hvdc_range_actions/crac_2_2_2_1_3.json"
     Given configuration file is "common/rao_parameters_max_margin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
-    Then the initial setpoint of RangeAction "PRA_HVDC" should be 820
-    Then 2 remedial actions are used in preventive
+    Then the initial setpoint of RangeAction "PRA_HVDC" should be 823
+    Then 3 remedial actions are used in preventive
     Then the remedial action "acEmulationDeactivation_BBE2AA11 FFR3AA11 1" is used in preventive
     Then the tap of PstRangeAction "PST_PRA_PST_be_BBE2AA11 BBE3AA11 1" should be 14 in preventive
+    Then the setpoint of RangeAction "PRA_HVDC" should be 823 MW in preventive
     Then the worst margin is 259 A
     Then the margin on cnec "be1_be2_n - BBE1AA11->BBE2AA11 - preventive" after PRA should be 259 A
     Then the margin on cnec "be1_fr5_n - BBE1AA11->FFR5AA11 - preventive" after PRA should be 296 A
@@ -235,7 +236,7 @@ Feature: 2.2.2.3: Optimize HVDC range actions initially in AC emulation mode
     Then the initial tap of PstRangeAction "PST_PRA_PST_be_BBE2AA11 BBE3AA11 1" should be 0
     Then the initial setpoint of RangeAction "PRA_HVDC" should be 823
     # After optimisation
-    Then 2 remedial actions are used in preventive
+    Then 3 remedial actions are used in preventive
     Then the remedial action "acEmulationDeactivation_BBE2AA11 FFR3AA11 1" is used in preventive
     Then the tap of PstRangeAction "PST_PRA_PST_be_BBE2AA11 BBE3AA11 1" should be 7 in preventive
     Then the setpoint of RangeAction "PRA_HVDC" should be 823 MW in preventive
@@ -258,7 +259,7 @@ Feature: 2.2.2.3: Optimize HVDC range actions initially in AC emulation mode
     When I launch rao
     Then the initial setpoint of RangeAction "CRA_HVDC" should be 823
     Then 0 remedial actions are used in preventive
-    Then 2 remedial actions are used after "CO_0001" at "curative"
+    Then 3 remedial actions are used after "CO_0001" at "curative"
     Then the remedial action "acEmulationDeactivation_BBE2AA11 FFR3AA11 1" is used after "CO_0001" at "curative"
     Then the tap of PstRangeAction "PST_PRA_PST_be_BBE2AA11 BBE3AA11 1" should be 7 after "CO_0001" at "curative"
     Then the setpoint of RangeAction "CRA_HVDC" should be 823 MW after "CO_0001" at "curative"

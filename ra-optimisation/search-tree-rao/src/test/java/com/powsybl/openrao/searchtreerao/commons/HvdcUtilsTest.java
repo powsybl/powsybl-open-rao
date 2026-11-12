@@ -32,6 +32,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.powsybl.openrao.searchtreerao.commons.HvdcUtils.addNetworkActionAssociatedWithHvdcRangeAction;
+import static com.powsybl.openrao.searchtreerao.commons.HvdcUtils.getHvdcRangeActionsPerStateAssociatedWithHvdcLine;
 import static com.powsybl.openrao.searchtreerao.commons.HvdcUtils.runLoadFlowAndUpdateHvdcActivePowerSetpoint;
 import static com.powsybl.openrao.searchtreerao.commons.HvdcUtils.updateHvdcRangeActionInitialSetpoint;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -197,6 +198,31 @@ public class HvdcUtilsTest {
         );
         assertTrue(hvdcRangeActionActivePowerSetpoint.isEmpty());
         assertEquals(0, crac.getHvdcRangeAction("HVDC_RA1").getCurrentSetpoint(network));
+    }
+
+    @Test
+    void testGetHvdcRangeActionsPerStateAssociatedWithHvdcLine() {
+        State state1 = Mockito.mock(State.class);
+        State state2 = Mockito.mock(State.class);
+
+        HvdcRangeAction hvdcRangeActionOnTargetLine = Mockito.mock(HvdcRangeAction.class);
+        when(hvdcRangeActionOnTargetLine.getNetworkElementId()).thenReturn("hvdc-1");
+
+        HvdcRangeAction hvdcRangeActionOnOtherLine = Mockito.mock(HvdcRangeAction.class);
+        when(hvdcRangeActionOnOtherLine.getNetworkElementId()).thenReturn("hvdc-2");
+
+        RangeAction<?> nonHvdcRangeAction = Mockito.mock(RangeAction.class);
+
+        Map<State, Set<RangeAction<?>>> rangeActionsPerState = Map.of(
+            state1, Set.of(hvdcRangeActionOnTargetLine, hvdcRangeActionOnOtherLine, nonHvdcRangeAction),
+            state2, Set.of(hvdcRangeActionOnTargetLine, hvdcRangeActionOnOtherLine, nonHvdcRangeAction)
+        );
+
+        Map<State, Set<HvdcRangeAction>> result = getHvdcRangeActionsPerStateAssociatedWithHvdcLine(rangeActionsPerState, "hvdc-1");
+
+        assertEquals(Set.of(state1, state2), result.keySet());
+        assertEquals(Set.of(hvdcRangeActionOnTargetLine), result.get(state1));
+        assertEquals(Set.of(hvdcRangeActionOnTargetLine), result.get(state2));
     }
 
     @Test
