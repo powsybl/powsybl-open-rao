@@ -52,7 +52,8 @@ public class VoltageMonitoring extends AbstractMonitoring<VoltageCnec> {
     public static RaoResult runAndUpdateRaoResult(String loadFlowProvider,
                                                   RaoParameters raoParameters,
                                                   int numberOfLoadFlowsInParallel,
-                                                  MonitoringInput monitoringInput) {
+                                                  MonitoringInput monitoringInput,
+                                                  boolean recomputeFlows) {
 
         checkPhysicalParameter(monitoringInput, PhysicalParameter.VOLTAGE);
         final MonitoringResult voltageMonitoringResult = new VoltageMonitoring(
@@ -70,7 +71,8 @@ public class VoltageMonitoring extends AbstractMonitoring<VoltageCnec> {
                                                   RaoParameters raoParameters,
                                                   ComputationManager computationManager,
                                                   int numberOfLoadFlowsInParallel,
-                                                  MonitoringInput monitoringInput) {
+                                                  MonitoringInput monitoringInput,
+                                                  boolean recomputeFlows) {
 
         checkPhysicalParameter(monitoringInput, PhysicalParameter.VOLTAGE);
         final MonitoringResult voltageMonitoringResult = new VoltageMonitoring(

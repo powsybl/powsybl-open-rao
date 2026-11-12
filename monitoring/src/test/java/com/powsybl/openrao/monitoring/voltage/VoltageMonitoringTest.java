@@ -537,7 +537,7 @@ class VoltageMonitoringTest {
         final CountDownLatch latch = new CountDownLatch(2);
         final ComputationManager computationManager = MonitoringTestUtil.getComputationManager(referenceValue, latch);
 
-        final RaoResult raoResultWithVoltageMonitoring = VoltageMonitoring.runAndUpdateRaoResult("OpenLoadFlow", raoParameters, computationManager, 1, monitoringInput);
+        final RaoResult raoResultWithVoltageMonitoring = VoltageMonitoring.runAndUpdateRaoResult("OpenLoadFlow", raoParameters, computationManager, 1, monitoringInput, false);
 
         // Loadflow is expected to be run 2 times: 2+2=4. Once to evaluate preventive state and another time to evaluate curative state
         assertEquals(4, referenceValue.get());
@@ -562,7 +562,8 @@ class VoltageMonitoringTest {
             "OpenLoadFlow",
             raoParameters,
             1,
-            monitoringInput
+            monitoringInput,
+            false
         );
 
         assertTrue(raoResultWithVoltageMonitoring.isSecure(PhysicalParameter.FLOW, PhysicalParameter.VOLTAGE));
@@ -601,7 +602,8 @@ class VoltageMonitoringTest {
             "OpenLoadFlow",
             raoParameters,
             1,
-            monitoringInput
+            monitoringInput,
+            false
         ));
         assertEquals("Can't run VOLTAGE monitoring if physical parameter is ANGLE in the monitoring input", e.getMessage());
 
@@ -610,7 +612,8 @@ class VoltageMonitoringTest {
             raoParameters,
             Mockito.mock(),
             1,
-            monitoringInput
+            monitoringInput,
+            false
         ));
         assertEquals("Can't run VOLTAGE monitoring if physical parameter is ANGLE in the monitoring input", e.getMessage());
     }

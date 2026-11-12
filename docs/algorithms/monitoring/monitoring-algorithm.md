@@ -50,3 +50,8 @@ To evaluate a monitoring state:
 3. Re-evaluate the state after applying those additional network actions
 
 ![Monitoring algorithm details 2](../../_static/img/monitoring-algo-3.png){.forced-white-background}
+
+## RAO Result update
+
+By default, the flows of the RAO Result are not recomputed after monitoring, even if new remedial actions were applied.
+The flows recomputation can be enabled by setting the `recomputeFlows` parameter to `true` in the `MonitoringInput` object.

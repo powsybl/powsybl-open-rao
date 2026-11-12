@@ -14,21 +14,27 @@ import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.loadflow.LoadFlowRunParameters;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.PhysicalParameter;
+import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.Cnec;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
+import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.raoresult.api.extension.AngleResult;
+import com.powsybl.openrao.data.raoresult.api.extension.CostResult;
+import com.powsybl.openrao.data.raoresult.api.extension.FlowResult;
 import com.powsybl.openrao.data.raoresult.api.extension.Metadata;
 import com.powsybl.openrao.data.raoresult.api.extension.VoltageResult;
+import com.powsybl.openrao.data.raoresult.impl.RaoResultImpl;
 import com.powsybl.openrao.monitoring.angle.AngleMonitoring;
 import com.powsybl.openrao.monitoring.results.AngleMonitoringResultAdapter;
 import com.powsybl.openrao.monitoring.results.MonitoringResult;
+import com.powsybl.openrao.monitoring.results.RaoResultHelper;
 import com.powsybl.openrao.monitoring.results.VoltageMonitoringResultAdapter;
 import com.powsybl.openrao.monitoring.voltage.VoltageMonitoring;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters;
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
-import com.powsybl.openrao.util.RaoResultHelper;
+import org.jspecify.annotations.NonNull;
 
 import java.util.EnumMap;
 import java.util.Map;
@@ -195,18 +201,31 @@ public class Monitoring {
                 .map(NetworkAction.class::cast)
                 .forEach(networkAction -> appliedRemedialActions.addAppliedNetworkAction(state, networkAction))
         );
-        RaoResult raoResultWithMonitoring = RaoResultHelper.addAppliedRemedialActions(
-            monitoringInput.getRaoResult(),
-            monitoringInput.getCrac(),
-            monitoringInput.getNetwork(),
-            appliedRemedialActions,
-            new EnumMap<>(Map.of(physicalParameter, monitoringResult.getStatus() == Cnec.SecurityStatus.SECURE)),
-            raoParameters,
-            ReportNode.NO_OP
-        );
+
+        RaoResult raoResultWithMonitoring;
+        if (monitoringInput.needToRecomputeFlows()) {
+            raoResultWithMonitoring = RaoResultHelper.addAppliedRemedialActions(
+                monitoringInput.getRaoResult(),
+                monitoringInput.getCrac(),
+                monitoringInput.getNetwork(),
+                appliedRemedialActions,
+                new EnumMap<>(Map.of(physicalParameter, monitoringResult.getStatus() == Cnec.SecurityStatus.SECURE)),
+                raoParameters,
+                ReportNode.NO_OP
+            );
+        } else {
+            raoResultWithMonitoring = includeMonitoringRemedialActions(monitoringResult, monitoringInput, physicalParameter);
+        }
 
         if (raoResultWithMonitoring.getExtension(Metadata.class) == null) {
-            raoResultWithMonitoring.addExtension(Metadata.class, Metadata.builder().build());
+            raoResultWithMonitoring.addExtension(Metadata.class, Metadata.builder()
+                .addComputationStatus(
+                    monitoringInput.getCrac().getPreventiveState(),
+                    monitoringResult.getStatus() == Cnec.SecurityStatus.FAILURE
+                        ? ComputationStatus.FAILURE
+                        : ComputationStatus.DEFAULT
+                )
+                .build());
         }
 
         Metadata metadata = raoResultWithMonitoring.getExtension(Metadata.class);
@@ -228,5 +247,70 @@ public class Monitoring {
             extensionAdapter.apply(monitoringResult)
         );
         return raoResultWithMonitoring;
+    }
+
+    private static @NonNull RaoResult includeMonitoringRemedialActions(MonitoringResult monitoringResult, MonitoringInput monitoringInput, PhysicalParameter physicalParameter) {
+        RaoResult raoResultWithMonitoring;
+        RaoResultImpl.RaoResultImplBuilder builder = RaoResultImpl.builder(monitoringInput.getCrac())
+            .withSecurityStatus(PhysicalParameter.FLOW, monitoringInput.getRaoResult().isSecure(PhysicalParameter.FLOW))
+            .withSecurityStatus(physicalParameter, monitoringResult.getStatus() == Cnec.SecurityStatus.SECURE);
+
+        if (physicalParameter == PhysicalParameter.ANGLE && monitoringInput.getRaoResult().getExtension(VoltageResult.class) != null) {
+            builder.withSecurityStatus(PhysicalParameter.VOLTAGE, monitoringInput.getRaoResult().isSecure(PhysicalParameter.VOLTAGE));
+        } else if (physicalParameter == PhysicalParameter.VOLTAGE && monitoringInput.getRaoResult().getExtension(AngleResult.class) != null) {
+            builder.withSecurityStatus(PhysicalParameter.ANGLE, monitoringInput.getRaoResult().isSecure(PhysicalParameter.ANGLE));
+        }
+
+        monitoringInput.getCrac().getStates().forEach(
+            state -> {
+                monitoringInput.getRaoResult().getActivatedNetworkActionsDuringState(state)
+                    .forEach(networkAction -> builder.addNetworkActionActivation(networkAction, state));
+                monitoringInput.getRaoResult().getActivatedRangeActionsDuringState(state)
+                    .forEach(rangeAction -> builder.addRangeActionActivation(
+                        rangeAction, state, monitoringInput.getRaoResult().getOptimizedSetPointOnState(state, rangeAction)));
+                monitoringResult.getAppliedRas(state).forEach(
+                    remedialAction -> builder.addNetworkActionActivation((NetworkAction) remedialAction, state));
+            }
+        );
+        raoResultWithMonitoring = builder.build();
+
+        // clone extensions
+
+        FlowResult flowResult = monitoringInput.getRaoResult().getExtension(FlowResult.class);
+        if (flowResult != null) {
+            raoResultWithMonitoring.addExtension(FlowResult.class, new FlowResult(flowResult));
+        }
+
+        AngleResult angleResult = monitoringInput.getRaoResult().getExtension(AngleResult.class);
+        if (angleResult != null) {
+            raoResultWithMonitoring.addExtension(AngleResult.class, new AngleResult(angleResult));
+        }
+
+        VoltageResult voltageResult = monitoringInput.getRaoResult().getExtension(VoltageResult.class);
+        if (voltageResult != null) {
+            raoResultWithMonitoring.addExtension(VoltageResult.class, new VoltageResult(voltageResult));
+        }
+
+        CostResult costResult = monitoringInput.getRaoResult().getExtension(CostResult.class);
+        if (costResult != null) {
+            raoResultWithMonitoring.addExtension(CostResult.class, new CostResult(costResult));
+        }
+
+        Metadata metadata = monitoringInput.getRaoResult().getExtension(Metadata.class);
+        if (metadata != null) {
+            Metadata.MetadataBuilder metadataBuilder = Metadata.builder();
+            metadata.getExecutionDetails().ifPresent(metadataBuilder::withExecutionDetails);
+            monitoringInput.getCrac().getStates().forEach(
+                state -> metadataBuilder.addComputationStatus(state, getComputationStatus(state, metadata, monitoringResult)));
+            raoResultWithMonitoring.addExtension(Metadata.class, new Metadata(metadata, metadata.getExecutionDetails().orElse(null)));
+        }
+        return raoResultWithMonitoring;
+    }
+
+    private static ComputationStatus getComputationStatus(State state, Metadata metadata, MonitoringResult monitoringResult) {
+        if (monitoringResult.getStatus() == Cnec.SecurityStatus.FAILURE) {
+            return ComputationStatus.FAILURE;
+        }
+        return metadata.getComputationStatus(state);
     }
 }

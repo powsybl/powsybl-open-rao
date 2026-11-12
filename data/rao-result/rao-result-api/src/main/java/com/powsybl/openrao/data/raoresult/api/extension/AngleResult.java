@@ -33,6 +33,12 @@ public final class AngleResult extends AbstractExtension<RaoResult> {
             this.results.put(angleCnec, new AngleCnecResult(angleCnecResult)));
     }
 
+    public AngleResult(AngleResult angleResult) {
+        this.results = new HashMap<>();
+        angleResult.results.forEach((angleCnec, angleCnecResult) ->
+            this.results.put(angleCnec, new AngleCnecResult(angleCnecResult)));
+    }
+
     @Override
     public String getName() {
         return EXTENSION_NAME;

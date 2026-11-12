@@ -32,6 +32,12 @@ public final class VoltageResult extends AbstractExtension<RaoResult> {
             this.results.put(voltageCnec, new VoltageCnecResult(voltageCnecResult)));
     }
 
+    public VoltageResult(VoltageResult voltageResult) {
+        this.results = new HashMap<>();
+        voltageResult.results.forEach((voltageCnec, voltageCnecResult) ->
+            this.results.put(voltageCnec, new VoltageCnecResult(voltageCnecResult)));
+    }
+
     @Override
     public String getName() {
         return EXTENSION_NAME;

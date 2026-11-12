@@ -518,8 +518,7 @@ class AngleMonitoringTest {
 
         Metadata metadata = raoResultWithAngleMonitoring.getExtension(Metadata.class);
         assertNotNull(metadata);
-        // sensi failed because no curative FlowCNEC provided
-        assertEquals(ComputationStatus.PARTIAL_FAILURE, metadata.getComputationStatus());
+        assertEquals(ComputationStatus.DEFAULT, metadata.getComputationStatus());
     }
 
     @Test

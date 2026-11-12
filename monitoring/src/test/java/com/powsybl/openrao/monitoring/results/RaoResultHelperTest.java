@@ -1,4 +1,4 @@
-package com.powsybl.openrao.util;
+package com.powsybl.openrao.monitoring.results;
 /*
  * Copyright (c) 2026, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
@@ -222,7 +222,7 @@ class RaoResultHelperTest {
         Network simpleNetwork = Network.read("3NodesPst.uct", RaoResultHelperTest.class.getResourceAsStream("/3NodesPst.uct"));
         Crac simpleCrac = Crac.read("crac.json", RaoResultHelperTest.class.getResourceAsStream("/crac.json"), simpleNetwork);
         RaoParameters raoParameters = setUpDcRaoParameters();
-        RaoResult originalRaoResult = RaoResult.read(RaoResultHelperTest.class.getResourceAsStream("/rao-result.json"), simpleCrac);
+        RaoResult originalRaoResult = RaoResult.read(RaoResultHelperTest.class.getResourceAsStream("/rao-result-to-override.json"), simpleCrac);
 
         // get objects from CRAC
         Instant cracPreventiveInstant = simpleCrac.getInstant("preventive");

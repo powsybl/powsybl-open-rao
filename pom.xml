@@ -78,7 +78,6 @@
         <module>loopflow-computation</module>
         <module>ra-optimisation</module>
         <module>sensitivity-analysis</module>
-        <module>util</module>
         <module>monitoring</module>
         <module>tests</module>
     </modules>

@@ -1,4 +1,4 @@
-package com.powsybl.openrao.util;
+package com.powsybl.openrao.monitoring.results;
 
 /*
  * Copyright (c) 2026, RTE (http://www.rte-france.com)
