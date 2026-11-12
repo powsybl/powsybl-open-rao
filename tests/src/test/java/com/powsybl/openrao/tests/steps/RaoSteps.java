@@ -127,7 +127,7 @@ public class RaoSteps {
 
     private static String networkFolderPath;
     private static String cracFolderPath;
-    private static Boolean useIndividualCracs = false;
+    private static boolean useIndividualCracs = false;
     private static String networkFolderPathPostIcsImport;
     private static String icsStaticPath;
     private static String icsSeriesPath;
