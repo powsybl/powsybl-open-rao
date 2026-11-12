@@ -503,7 +503,7 @@ This extension (`marmot-parameters`) is used to configure Marmot specific parame
 :::{group-tab} JSON
 ~~~json
 {
-  "version" : "3.5",
+  "version" : "3.6",
   "extensions" : {
     "fast-rao-parameters" : {
       "number-of-cnecs-to-add" : 20,

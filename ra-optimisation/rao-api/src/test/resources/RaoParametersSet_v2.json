@@ -1,5 +1,5 @@
 {
-  "version" : "3.5",
+  "version" : "3.6",
   "objective-function" : {
     "type" : "MAX_MIN_MARGIN",
     "enforce-curative-security" : true
@@ -61,6 +61,10 @@
       "topological-actions-optimization" : {
         "max-preventive-search-tree-depth" : 10,
         "max-curative-search-tree-depth" : 10,
+        "max-preventive-search-tree-depth-dc" : 3,
+        "max-curative-search-tree-depth-dc" : 2,
+        "preventive-dc-solution-usage" : "FORCED",
+        "curative-dc-solution-usage" : "HINT",
         "predefined-combinations" : [ [ "na-id-1", "na-id-2" ], [ "na-id-1", "na-id-3", "na-id-4" ] ],
         "skip-actions-far-from-most-limiting-element" : false,
         "max-number-of-boundaries-for-skipping-actions" : 2,

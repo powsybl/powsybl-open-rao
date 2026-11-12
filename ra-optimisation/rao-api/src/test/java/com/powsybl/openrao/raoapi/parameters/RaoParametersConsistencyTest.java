@@ -105,6 +105,18 @@ class RaoParametersConsistencyTest {
     }
 
     @Test
+    void testNegativeMaxSearchTreeDepthDc() {
+        stParameters.getTopoOptimizationParameters().setMaxPreventiveSearchTreeDepthDc(3);
+        stParameters.getTopoOptimizationParameters().setMaxCurativeSearchTreeDepthDc(2);
+        assertEquals(3, stParameters.getTopoOptimizationParameters().getMaxPreventiveSearchTreeDepthDc());
+        assertEquals(2, stParameters.getTopoOptimizationParameters().getMaxCurativeSearchTreeDepthDc());
+        stParameters.getTopoOptimizationParameters().setMaxPreventiveSearchTreeDepthDc(-1);
+        stParameters.getTopoOptimizationParameters().setMaxCurativeSearchTreeDepthDc(-5);
+        assertEquals(0, stParameters.getTopoOptimizationParameters().getMaxPreventiveSearchTreeDepthDc());
+        assertEquals(0, stParameters.getTopoOptimizationParameters().getMaxCurativeSearchTreeDepthDc());
+    }
+
+    @Test
     void testNegativeCurativeRaoMinObjImprovement() {
         stParameters.getObjectiveFunctionParameters().setCurativeMinObjImprovement(100, ReportNode.NO_OP);
         assertEquals(100, stParameters.getObjectiveFunctionParameters().getCurativeMinObjImprovement(), 1e-6);

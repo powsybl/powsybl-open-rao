@@ -30,6 +30,7 @@ import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeAction
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.PstModel;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.RaRangeShrinking;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRelativeMarginsParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoTopoOptimizationParameters.DcSolutionUsage;
 import com.powsybl.openrao.raoapi.parameters.extensions.SecondPreventiveRaoParameters;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -91,6 +92,10 @@ class JsonRaoParametersTest extends AbstractSerDeTest {
         // TopologicalActions optimization parameters
         searchTreeParameters.getTopoOptimizationParameters().setMaxPreventiveSearchTreeDepth(10);
         searchTreeParameters.getTopoOptimizationParameters().setMaxCurativeSearchTreeDepth(10);
+        searchTreeParameters.getTopoOptimizationParameters().setMaxPreventiveSearchTreeDepthDc(3);
+        searchTreeParameters.getTopoOptimizationParameters().setMaxCurativeSearchTreeDepthDc(2);
+        searchTreeParameters.getTopoOptimizationParameters().setPreventiveDcSolutionUsage(DcSolutionUsage.FORCED);
+        searchTreeParameters.getTopoOptimizationParameters().setCurativeDcSolutionUsage(DcSolutionUsage.HINT);
         parameters.getTopoOptimizationParameters().setRelativeMinImpactThreshold(0.1);
         parameters.getTopoOptimizationParameters().setAbsoluteMinImpactThreshold(20);
         searchTreeParameters.getTopoOptimizationParameters().setPredefinedCombinations(List.of(List.of("na-id-1", "na-id-2"), List.of("na-id-1", "na-id-3", "na-id-4")));
@@ -194,6 +199,25 @@ class JsonRaoParametersTest extends AbstractSerDeTest {
         InputStream inputStream = new ByteArrayInputStream(json.getBytes(StandardCharsets.UTF_8));
         OpenRaoException e = assertThrows(OpenRaoException.class, () -> JsonRaoParameters.read(inputStream, ReportNode.NO_OP));
         assertEquals("Unknown solver: GUROB", e.getMessage());
+    }
+
+    @Test
+    void readUnknownDcSolutionUsage() {
+        String json = """
+                {
+                  "version": "%s",
+                  "extensions": {
+                    "open-rao-search-tree-parameters": {
+                      "topological-actions-optimization": {
+                        "preventive-dc-solution-usage": "FORCE"
+                      }
+                    }
+                  }
+                }
+                """.formatted(RAO_PARAMETERS_VERSION);
+        InputStream inputStream = new ByteArrayInputStream(json.getBytes(StandardCharsets.UTF_8));
+        OpenRaoException e = assertThrows(OpenRaoException.class, () -> JsonRaoParameters.read(inputStream, ReportNode.NO_OP));
+        assertEquals("Unknown DC solution usage: FORCE", e.getMessage());
     }
 
     @Test

@@ -184,7 +184,7 @@ See also: [Modeling the maximum minimum relative margin objective function](../a
 :::{group-tab} JSON
 ~~~json
 {
-  "version" : "3.5",
+  "version" : "3.6",
   "objective-function" : {
     "type" : "SECURE_FLOW",
     "enforce-curative-security" : true

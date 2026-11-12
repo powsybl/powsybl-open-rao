@@ -26,9 +26,10 @@ public final class RaoParametersCommons {
         3.3: remove objective function unit field
         3.4: add marmot-parameters
         3.5: add curative remedial actions synchronization parameters in marmot parameters && add allow-electrical-island-creation, remove pst-regulation-parameters
+        3.6: add DC pre-solve parameters (max-preventive-search-tree-depth-dc, max-curative-search-tree-depth-dc, preventive-dc-solution-usage, curative-dc-solution-usage)
     */
 
-    public static final String RAO_PARAMETERS_VERSION = "3.5";
+    public static final String RAO_PARAMETERS_VERSION = "3.6";
 
     // header
     public static final String VERSION = "version";
@@ -69,6 +70,10 @@ public final class RaoParametersCommons {
 
     public static final String MAX_PREVENTIVE_SEARCH_TREE_DEPTH = "max-preventive-search-tree-depth";
     public static final String MAX_CURATIVE_SEARCH_TREE_DEPTH = "max-curative-search-tree-depth";
+    public static final String MAX_PREVENTIVE_SEARCH_TREE_DEPTH_DC = "max-preventive-search-tree-depth-dc";
+    public static final String MAX_CURATIVE_SEARCH_TREE_DEPTH_DC = "max-curative-search-tree-depth-dc";
+    public static final String PREVENTIVE_DC_SOLUTION_USAGE = "preventive-dc-solution-usage";
+    public static final String CURATIVE_DC_SOLUTION_USAGE = "curative-dc-solution-usage";
     public static final String PREDEFINED_COMBINATIONS = "predefined-combinations";
     public static final String RELATIVE_MINIMUM_IMPACT_THRESHOLD = "relative-minimum-impact-threshold";
     public static final String ABSOLUTE_MINIMUM_IMPACT_THRESHOLD = "absolute-minimum-impact-threshold";
