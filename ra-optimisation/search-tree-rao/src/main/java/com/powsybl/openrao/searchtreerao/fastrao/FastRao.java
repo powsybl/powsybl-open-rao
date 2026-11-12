@@ -83,7 +83,7 @@ import static com.powsybl.openrao.searchtreerao.commons.RaoUtil.getFlowUnit;
 @AutoService(RaoProvider.class)
 public class FastRao implements RaoProvider {
     private static final String FAST_RAO = "FastRao";
-    private static final int NUMBER_LOGGED_ELEMENTS_DURING_RAO = 2;
+    private static final int NUMBER_LOGGED_ELEMENTS_DURING_RAO = 100;
     // TODO the RAO implementation to use inside the loop should be a parameter
     private static final String INNER_LOOP_RAO_IMPLEMENTATION = "SearchTreeRao";
     // Do not store any big object in this class as it is a static RaoProvider
@@ -176,7 +176,7 @@ public class FastRao implements RaoProvider {
             FlowCnec worstCnec;
             FastRaoResultImpl raoResult;
             com.powsybl.openrao.data.crac.api.Instant lastInstant = raoInput.getCrac().getLastInstant();
-            AbstractNetworkPool networkPool = AbstractNetworkPool.create(raoInput.getNetwork(), raoInput.getNetworkVariantId(), 3, true);
+            AbstractNetworkPool networkPool = AbstractNetworkPool.create(raoInput.getNetwork(), raoInput.getNetworkVariantId(), 2, true);
             int counter = 1;
 
             do {
@@ -314,13 +314,13 @@ public class FastRao implements RaoProvider {
 
         // Compute sensitivity analyses after PRA, after ARA, after CRA to build RaoResult
         Network networkCopyPra = networkPool.getAvailableNetwork();
-        Network networkCopyAra = networkPool.getAvailableNetwork();
-        Network networkCopyCra = networkPool.getAvailableNetwork();
+        //Network networkCopyAra = networkPool.getAvailableNetwork();
+        //Network networkCopyCra = networkPool.getAvailableNetwork();
         Set<String> operatorsNotSharingCras = crac.findOperatorsNotSharingCras();
 
         // 1) Post PRA
         CompletableFuture<PostPerimeterResult> postPraSensi = runPostPerimeterAnalysis(
-            networkCopyPra,
+            raoInput.getNetwork(),
             crac,
             raoResult,
             initialResult,
@@ -333,38 +333,38 @@ public class FastRao implements RaoProvider {
             fullSensiAnalysisReportNode
         );
 
-        // 2) Post ARA
-        CompletableFuture<PostPerimeterResult> postAraSensi = runPostPerimeterAnalysis(
-            networkCopyAra,
-            crac,
-            raoResult,
-            initialResult,
-            initialRangeActionSetpointResult,
-            postPraSensi.thenApply(PostPerimeterResult::prePerimeterResultForAllFollowingStates),
-            operatorsNotSharingCras,
-            parameters,
-            toolProvider,
-            InstantKind.AUTO,
-            fullSensiAnalysisReportNode
-        );
-
-        // 3) Post CRA
-        CompletableFuture<PostPerimeterResult> postCraSensi = runPostPerimeterAnalysis(
-            networkCopyCra,
-            crac,
-            raoResult,
-            initialResult,
-            initialRangeActionSetpointResult,
-            postAraSensi.thenApply(PostPerimeterResult::prePerimeterResultForAllFollowingStates),
-            operatorsNotSharingCras,
-            parameters,
-            toolProvider,
-            InstantKind.CURATIVE,
-            fullSensiAnalysisReportNode
-        );
+//        // 2) Post ARA
+//        CompletableFuture<PostPerimeterResult> postAraSensi = runPostPerimeterAnalysis(
+//            networkCopyAra,
+//            crac,
+//            raoResult,
+//            initialResult,
+//            initialRangeActionSetpointResult,
+//            postPraSensi.thenApply(PostPerimeterResult::prePerimeterResultForAllFollowingStates),
+//            operatorsNotSharingCras,
+//            parameters,
+//            toolProvider,
+//            InstantKind.AUTO,
+//            fullSensiAnalysisReportNode
+//        );
+//
+//        // 3) Post CRA
+//        CompletableFuture<PostPerimeterResult> postCraSensi = runPostPerimeterAnalysis(
+//            networkCopyCra,
+//            crac,
+//            raoResult,
+//            initialResult,
+//            initialRangeActionSetpointResult,
+//            postAraSensi.thenApply(PostPerimeterResult::prePerimeterResultForAllFollowingStates),
+//            operatorsNotSharingCras,
+//            parameters,
+//            toolProvider,
+//            InstantKind.CURATIVE,
+//            fullSensiAnalysisReportNode
+//        );
 
         // Wait for all futures to finish before releasing the network
-        for (Future<?> future : List.of(postPraSensi, postAraSensi, postCraSensi)) {
+        for (Future<?> future : List.of(postPraSensi)) {
             try {
                 future.get(); // This blocks until the task is complete
             } catch (InterruptedException e) {
@@ -376,8 +376,8 @@ public class FastRao implements RaoProvider {
 
         // Now it's safe to release the network copy
         networkPool.releaseUsedNetwork(networkCopyPra);
-        networkPool.releaseUsedNetwork(networkCopyAra);
-        networkPool.releaseUsedNetwork(networkCopyCra);
+//        networkPool.releaseUsedNetwork(networkCopyAra);
+//        networkPool.releaseUsedNetwork(networkCopyCra);
 
         raoInput.getNetwork().getVariantManager().setWorkingVariant(finalVariantId);
 
@@ -386,8 +386,8 @@ public class FastRao implements RaoProvider {
         return new FastRaoResultImpl(
             initialResult,
             postPraSensi.get().prePerimeterResultForAllFollowingStates(),
-            postAraSensi.get().prePerimeterResultForAllFollowingStates(),
-            postCraSensi.get().prePerimeterResultForAllFollowingStates(),
+            postPraSensi.get().prePerimeterResultForAllFollowingStates(),
+            postPraSensi.get().prePerimeterResultForAllFollowingStates(),
             raoResult,
             raoInput.getCrac()
         );
