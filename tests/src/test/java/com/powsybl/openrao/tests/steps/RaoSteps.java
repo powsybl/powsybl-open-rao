@@ -1079,7 +1079,7 @@ public class RaoSteps {
             throw new RuntimeException(e);
         }
         File cracFile = null;
-        if (!useIndividualCracs) {
+        if (!useIndividualCracs || cracPath != null) {
             cracFile = getFile(cracPath);
         }
 
@@ -1095,7 +1095,7 @@ public class RaoSteps {
             LazyNetwork lazyNetwork = new LazyNetwork(network);
             // Crac
             Pair<Crac, CracCreationContext> cracImportResult;
-            if (useIndividualCracs) { // only works with json
+            if (useIndividualCracs && cracPath == null) { // only works with json
                 cracImportResult = importCrac(getFile(cracFolderPath.concat(tsInput.get("Crac"))), lazyNetwork, null);
             } else {
                 cracCreationParameters.getExtension(FbConstraintCracCreationParameters.class).setTimestamp(offsetDateTime);
