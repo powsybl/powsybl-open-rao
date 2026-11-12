@@ -24,7 +24,7 @@ import java.util.Optional;
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public class FlowResult extends AbstractExtension<RaoResult> {
+public final class FlowResult extends AbstractExtension<RaoResult> {
     private static final String EXTENSION_NAME = "flow-results";
     private static final List<Unit> UNITS = List.of(Unit.AMPERE, Unit.MEGAWATT);
 
@@ -136,7 +136,7 @@ public class FlowResult extends AbstractExtension<RaoResult> {
 
     // result data model
 
-    private static class FlowCnecResult {
+    static class FlowCnecResult {
         private final FlowCnec flowCnec;
         private final ElementaryFlowCnecMeasurement initialMeasurement;
         private final Map<Instant, ElementaryFlowCnecMeasurement> measurementsPerInstant;

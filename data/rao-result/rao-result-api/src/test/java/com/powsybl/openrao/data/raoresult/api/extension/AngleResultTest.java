@@ -17,6 +17,7 @@ import org.mockito.Mockito;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
@@ -71,5 +72,20 @@ public class AngleResultTest {
 
         OpenRaoException exception = assertThrows(OpenRaoException.class, () -> AngleResult.builder().addMeasurement(25.0, null, angleCnec, Unit.MEGAWATT));
         assertEquals("AngleCNEC results are only allowed for degrees.", exception.getMessage());
+    }
+
+    @Test
+    void testAngleCnecResultEqualsAndHashCode() {
+        AngleCnec angleCnec1 = Mockito.mock(AngleCnec.class);
+        AngleCnec angleCnec2 = Mockito.mock(AngleCnec.class);
+        AngleResult.AngleCnecResult angleCnecResult1 = new AngleResult.AngleCnecResult(angleCnec1);
+        AngleResult.AngleCnecResult angleCnecResult2 = new AngleResult.AngleCnecResult(angleCnec1);
+        AngleResult.AngleCnecResult angleCnecResult3 = new AngleResult.AngleCnecResult(angleCnec2);
+        assertEquals(angleCnecResult1, angleCnecResult2);
+        assertNotEquals(null, angleCnecResult1);
+        assertNotEquals(new Object(), angleCnecResult1);
+        assertEquals(angleCnecResult1.hashCode(), angleCnecResult2.hashCode());
+        assertNotEquals(angleCnecResult1, angleCnecResult3);
+        assertNotEquals(angleCnecResult1.hashCode(), angleCnecResult3.hashCode());
     }
 }

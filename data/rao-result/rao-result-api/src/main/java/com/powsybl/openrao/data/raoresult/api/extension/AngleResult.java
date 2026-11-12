@@ -75,7 +75,7 @@ public final class AngleResult extends AbstractExtension<RaoResult> {
 
     // result data model
 
-    private static class AngleCnecResult {
+    static class AngleCnecResult {
         private final AngleCnec angleCnec;
         private Double initialAngle;
         private Double initialMargin;

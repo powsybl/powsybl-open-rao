@@ -10,6 +10,7 @@ package com.powsybl.openrao.data.raoresult.io.json;
 import com.powsybl.contingency.ContingencyElementType;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.CracFactory;
@@ -115,6 +116,20 @@ class RaoResultRoundTripTest {
         Instant outageInstant = crac.getInstant(OUTAGE_INSTANT_ID);
         Instant autoInstant = crac.getInstant(AUTO_INSTANT_ID);
         Instant curativeInstant = crac.getInstant(CURATIVE_INSTANT_ID);
+
+        // --------------------------
+        // --- Security status ---
+        // --------------------------
+
+        assertTrue(raoResult.isSecure(PhysicalParameter.FLOW));
+        assertFalse(raoResult.isSecure(PhysicalParameter.ANGLE));
+        assertTrue(raoResult.isSecure(PhysicalParameter.VOLTAGE));
+
+        assertTrue(raoResult.isSecure(PhysicalParameter.FLOW, PhysicalParameter.VOLTAGE));
+        assertFalse(raoResult.isSecure(PhysicalParameter.FLOW, PhysicalParameter.ANGLE));
+        assertFalse(raoResult.isSecure(PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE));
+
+        assertFalse(raoResult.isSecure(PhysicalParameter.FLOW, PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE));
 
         // --------------------------
         // --- Computation status ---

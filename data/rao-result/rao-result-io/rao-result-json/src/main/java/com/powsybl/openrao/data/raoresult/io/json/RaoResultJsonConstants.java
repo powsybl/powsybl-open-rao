@@ -278,7 +278,13 @@ public final class RaoResultJsonConstants {
     public static void deserializeSecurityStatus(RaoResultImpl.RaoResultImplBuilder raoResultBuilder, JsonParser jsonParser) throws IOException {
         while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
             jsonParser.nextToken();
-            raoResultBuilder.withSecurityStatus(PhysicalParameter.valueOf(jsonParser.currentName().toUpperCase()), jsonParser.getBooleanValue());
+            PhysicalParameter physicalParameter;
+            try {
+                physicalParameter = PhysicalParameter.valueOf(jsonParser.currentName().toUpperCase());
+            } catch (IllegalArgumentException e) {
+                throw new OpenRaoException("Unknown physical parameter %s".formatted(jsonParser.currentName()));
+            }
+            raoResultBuilder.withSecurityStatus(physicalParameter, jsonParser.getBooleanValue());
         }
     }
 

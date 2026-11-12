@@ -20,10 +20,6 @@
             <groupId>com.powsybl</groupId>
             <artifactId>open-rao-rao-api</artifactId>
         </dependency>
-        <dependency>
-            <groupId>com.powsybl</groupId>
-            <artifactId>open-rao-sensitivity-analysis</artifactId>
-        </dependency>
         <!-- Test scope -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>

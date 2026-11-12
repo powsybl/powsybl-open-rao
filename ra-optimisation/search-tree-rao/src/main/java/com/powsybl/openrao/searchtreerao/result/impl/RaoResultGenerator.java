@@ -40,7 +40,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -188,7 +187,7 @@ public final class RaoResultGenerator {
                 State state = crac.getState(contingency, instant);
                 // States are defined in crac when there are associated cnecs or actions.
                 // When no state is defined, we still want to evaluate objective functions at given contingency/instant
-                if (Objects.isNull(state)) {
+                if (state == null) {
                     state = new PostContingencyState(contingency, instant, crac.getTimestamp().orElse(null));
                 }
                 if (!postContingencyResults.containsKey(state)) {

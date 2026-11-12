@@ -334,6 +334,15 @@ public final class MarmotReports {
         TECHNICAL_LOGS.info("[MARMOT] No preventive topological actions applied for timestamp {}", timestamp);
     }
 
+    public static void reportDoNotOptimizeCurativeCnecsForTsosWithoutCras(final ReportNode reportNode) {
+        reportNode.newReportNode()
+            .withMessageTemplate("openrao.searchtreerao.reportMarmotDoNotOptimizeCurativeCnecsForTsosWithoutCras")
+            .withSeverity(WARN_SEVERITY)
+            .add();
+
+        BUSINESS_WARNS.warn("[MARMOT] Unoptimized curative FlowCNECs for operators without CRAs are not available in MARMOT");
+    }
+
     record MarmotAddedCnecsElement(String timestamp, String vcName, String addedCnecs) {
     }
 }

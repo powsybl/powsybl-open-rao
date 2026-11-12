@@ -11,10 +11,13 @@ import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.raoresult.api.extension.CostResult;
+import com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator.MinMarginViolationEvaluator;
+import com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator.SensitivityFailureOvercostEvaluator;
 import com.powsybl.openrao.searchtreerao.result.api.ObjectiveFunctionResult;
 import com.powsybl.openrao.searchtreerao.result.impl.PostPerimeterResult;
 
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BinaryOperator;
 
@@ -106,7 +109,8 @@ public final class CostResultExtensionHelper {
                                              Map<State, PostPerimeterResult> postContingencyResults,
                                              Instant instant) {
         BinaryOperator<Double> operator;
-        if ("min-margin-violation-evaluator".equals(virtualCostName) || "sensitivity-failure-cost".equals(virtualCostName)) {
+        if (new MinMarginViolationEvaluator(Set.of(), null, null, 0.0).getName().equals(virtualCostName)
+            || new SensitivityFailureOvercostEvaluator(Set.of(), 0.0).getName().equals(virtualCostName)) {
             operator = Math::max;
         } else {
             operator = Double::sum;

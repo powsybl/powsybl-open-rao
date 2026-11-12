@@ -22,6 +22,7 @@ import org.mockito.Mockito;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -584,5 +585,20 @@ class FlowResultTest {
             assertEquals(250.0, flowResult.getFlow(curativeInstant, flowCnec, TwoSides.ONE, Unit.MEGAWATT));
             assertEquals(750.0, flowResult.getMargin(curativeInstant, flowCnec, Unit.MEGAWATT));
         }
+    }
+
+    @Test
+    void testFlowCnecResultEqualsAndHashCode() {
+        FlowResult.FlowCnecResult flowCnecResult1 = new FlowResult.FlowCnecResult(flowCnec);
+        FlowResult.FlowCnecResult flowCnecResult2 = new FlowResult.FlowCnecResult(flowCnec);
+        FlowCnec flowCnec2 = Mockito.mock(FlowCnec.class);
+        FlowResult.FlowCnecResult flowCnecResult3 = new FlowResult.FlowCnecResult(flowCnec2);
+
+        assertEquals(flowCnecResult1, flowCnecResult2);
+        assertNotEquals(null, flowCnecResult1);
+        assertNotEquals(new Object(), flowCnecResult1);
+        assertEquals(flowCnecResult1.hashCode(), flowCnecResult2.hashCode());
+        assertNotEquals(flowCnecResult1, flowCnecResult3);
+        assertNotEquals(flowCnecResult1.hashCode(), flowCnecResult3.hashCode());
     }
 }

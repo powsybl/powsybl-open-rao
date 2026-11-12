@@ -10,7 +10,6 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.loadflow.LoadFlowParameters;
-import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
@@ -24,7 +23,6 @@ import com.powsybl.openrao.data.crac.api.cnec.VoltageCnec;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.usagerule.UsageRule;
-import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.raoresult.api.extension.AngleResult;
 import com.powsybl.openrao.data.raoresult.api.extension.FlowResult;
@@ -38,9 +36,7 @@ import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 import com.powsybl.sensitivity.SensitivityAnalysisParameters;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.MethodSource;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -51,16 +47,10 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
 
-import static com.powsybl.openrao.util.RaoResultHelper.isSecure;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.CALLS_REAL_METHODS;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.withSettings;
@@ -225,51 +215,6 @@ class RaoResultHelperTest {
         }
 
         return builder.build();
-    }
-
-    @ParameterizedTest
-    @MethodSource("raoParameters")
-    void testIsSecureTrue(RaoParameters raoParameters, PhysicalParameter... parameters) {
-        mockMargins(1.0);
-        assertTrue(isSecure(raoResult, crac, raoParameters, parameters));
-    }
-
-    @ParameterizedTest
-    @MethodSource("raoParameters")
-    void testIsSecureFalse(RaoParameters raoParameters, PhysicalParameter... parameters) {
-        mockMargins(-1.0);
-        assertFalse(isSecure(raoResult, crac, raoParameters, parameters));
-    }
-
-    @ParameterizedTest
-    @MethodSource("raoParameters")
-    void testIsSecureException(RaoParameters raoParameters, PhysicalParameter... parameters) {
-        mockMargins(Double.NaN);
-        assertThrows(OpenRaoException.class, () -> isSecure(raoResult, crac, raoParameters, parameters));
-    }
-
-    private void mockMargins(double margin) {
-        // Flow
-        doReturn(margin).when(flowResult).getMargin(any(), any(FlowCnec.class), any());
-        // Angle
-        doReturn(margin).when(angleResult).getMargin(any(), any(AngleCnec.class), eq(Unit.DEGREE));
-        // Voltage
-        doReturn(margin).when(voltageResult).getMargin(any(), any(VoltageCnec.class), eq(Unit.KILOVOLT));
-    }
-
-    @ParameterizedTest
-    @MethodSource("raoParameters")
-    void testIsSecureFailureStatus(RaoParameters raoParameters, PhysicalParameter... parameters) {
-        Metadata.MetadataBuilder metadataBuilder = Metadata.builder();
-        metadataBuilder.addComputationStatus(crac.getPreventiveState(), ComputationStatus.FAILURE);
-        when(raoResult.getExtension(Metadata.class)).thenReturn(metadataBuilder.build());
-        assertFalse(isSecure(raoResult, crac, raoParameters, parameters));
-    }
-
-    @ParameterizedTest
-    @MethodSource("raoParameters")
-    void testIsSecureEmptyParams(RaoParameters raoParameters) {
-        assertThrows(OpenRaoException.class, () -> isSecure(raoResult, crac, raoParameters));
     }
 
     @Test

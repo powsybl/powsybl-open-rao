@@ -17,17 +17,12 @@ import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
-import com.powsybl.openrao.data.crac.api.RemedialAction;
 import com.powsybl.openrao.data.crac.api.State;
-import com.powsybl.openrao.data.crac.api.cnec.AngleCnec;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
-import com.powsybl.openrao.data.crac.api.cnec.VoltageCnec;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
-import com.powsybl.openrao.data.raoresult.api.extension.AngleResult;
 import com.powsybl.openrao.data.raoresult.api.extension.FlowResult;
 import com.powsybl.openrao.data.raoresult.api.extension.Metadata;
-import com.powsybl.openrao.data.raoresult.api.extension.VoltageResult;
 import com.powsybl.openrao.data.raoresult.impl.RaoResultImpl;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
@@ -45,15 +40,11 @@ import com.powsybl.openrao.searchtreerao.result.impl.PostPerimeterResult;
 import com.powsybl.openrao.searchtreerao.result.impl.RangeActionActivationResultImpl;
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 
-import java.time.OffsetDateTime;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
@@ -61,7 +52,6 @@ import java.util.concurrent.ForkJoinTask;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import static com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters.getSensitivityWithLoadFlowParameters;
 import static com.powsybl.openrao.raoapi.parameters.extensions.MultithreadingParameters.getAvailableCPUs;
 
 /**
@@ -75,21 +65,23 @@ public final class RaoResultHelper {
     /**
      * Indicates whether all the CNECs of a given type are secure (i.e. with a margin >= 0) at the last instant (i.e. after RAO).
      *
+     * @deprecated since 7.6.0, use {@link RaoResult#isSecure(PhysicalParameter...)} instead
+     *
      * @param raoResult     The RaoResult for which to check security.
      * @param crac          The CRAC for which to check security.
      * @param raoParameters The RaoParameters for which to check security.
      * @param u             The types of CNECs to check (FLOW -> FlowCNECs, ANGLE -> AngleCNECs, VOLTAGE -> VoltageCNECs). 1 to 3 arguments can be provided.
      * @return whether all the CNECs of the given type(s) are secure at the last instant (i.e. after RAO).
      */
+    @Deprecated(since = "7.6.0")
     public static boolean isSecure(RaoResult raoResult, Crac crac, RaoParameters raoParameters, PhysicalParameter... u) {
-        boolean excludeCnecsForTsosWithoutCras = raoParameters.getNotOptimizedCnecsParameters().getDoNotOptimizeCurativeCnecsForTsosWithoutCras();
-        Unit flowUnit = getSensitivityWithLoadFlowParameters(raoParameters).getLoadFlowParameters().isDc() ? Unit.MEGAWATT : Unit.AMPERE;
-
-        return isSecure(raoResult, crac, excludeCnecsForTsosWithoutCras, flowUnit, u);
+        return raoResult.isSecure(u);
     }
 
     /**
      * Indicates whether all the CNECs of a given type are secure (i.e. with a margin >= 0) at the last instant (i.e. after RAO).
+     *
+     * @deprecated since 7.6.0, use {@link RaoResult#isSecure(PhysicalParameter...)} instead
      *
      * @param raoResult     The RaoResult for which to check security.
      * @param cracs         The CRACs for which to check security.
@@ -97,111 +89,14 @@ public final class RaoResultHelper {
      * @param u             The types of CNECs to check (FLOW -> FlowCNECs, ANGLE -> AngleCNECs, VOLTAGE -> VoltageCNECs). 1 to 3 arguments can be provided.
      * @return whether all the CNECs of the given type(s) are secure at the last instant (i.e. after RAO).
      */
+    @Deprecated(since = "7.6.0")
     public static boolean isSecure(RaoResult raoResult, TemporalData<Crac> cracs, RaoParameters raoParameters, PhysicalParameter... u) {
-
-        for (OffsetDateTime timestamp : cracs.getTimestamps()) {
-            if (!isSecure(raoResult, cracs.getData(timestamp).orElseThrow(), raoParameters, u)) {
-                return false;
-            }
-        }
-        return true;
+        return raoResult.isSecure(u);
     }
 
+    @Deprecated(since = "7.6.0")
     public static boolean isSecure(RaoResult raoResult, Crac crac, boolean excludeCnecsForTsosWithoutCras, Unit flowUnit, PhysicalParameter... u) {
-        Set<PhysicalParameter> parameters = new HashSet<>(Arrays.asList(u));
-        if (parameters.isEmpty()) {
-            throw new OpenRaoException("No physical parameter provided.");
-        }
-        Metadata metadata = raoResult.getExtension(Metadata.class);
-        if (metadata != null && metadata.getComputationStatus() == ComputationStatus.FAILURE) {
-            OpenRaoLoggerProvider.BUSINESS_WARNS.warn("RAO computation failed. It is not possible to assess security.");
-            return false;
-        }
-        Set<String> tsosWithoutCras = new HashSet<>();
-
-        if (excludeCnecsForTsosWithoutCras) {
-            Set<String> allTsos = crac.getRemedialActions().stream().map(RemedialAction::getOperator).filter(Objects::nonNull).collect(Collectors.toSet());
-            Set<String> allTsosWithCras = crac.getRemedialActions()
-                .stream()
-                .filter(remedialAction ->
-                    remedialAction
-                        .getUsageRules()
-                        .stream()
-                        .anyMatch(usageRule -> usageRule.getInstant().isCurative())
-                )
-                .map(RemedialAction::getOperator)
-                .filter(Objects::nonNull)
-                .collect(Collectors.toSet());
-            tsosWithoutCras.addAll(
-                allTsos
-                    .stream()
-                    .filter(tso -> !allTsosWithCras.contains(tso)).collect(Collectors.toSet())
-            );
-        }
-        if (parameters.contains(PhysicalParameter.FLOW)) {
-            FlowResult flowResult = raoResult.getExtension(FlowResult.class);
-            // use the same flow unit as the one use for the LF
-            // some FlowCNECs shall not be taken into account for the security assessment:
-            // - MNECs
-            // - CNECs for TSOS without CRAs (if excludeCnecsForTsosWithoutCras is true)
-            // - outage CNECs that were duplicated from auto CNECs
-            if (flowResult == null) {
-                throw new OpenRaoException("No FlowResult extension found in the RaoResult. Impossible to compute flow security status.");
-            } else {
-                for (FlowCnec flowCnec : crac.getFlowCnecs()) {
-                    if (flowCnec.isOptimized() && !tsosWithoutCras.contains(flowCnec.getOperator()) && !flowCnec.getId().contains("OUTAGE DUPLICATE")) {
-                        Optional<Double> minMargin = safeGetDouble(flowResult.getMargin(flowCnec.getState().getInstant(), flowCnec, flowUnit));
-                        if (minMargin.isPresent()) {
-                            if (minMargin.get() < 0) {
-                                return false;
-                            }
-                        } else {
-                            // no flow value available: assume it is secure
-                            throw new OpenRaoException("No flow value available for FlowCNEC %s.".formatted(flowCnec.getId()));
-                        }
-                    }
-                }
-            }
-        }
-        if (parameters.contains(PhysicalParameter.ANGLE)) {
-            AngleResult angleResult = raoResult.getExtension(AngleResult.class);
-            if (angleResult == null) {
-                throw new OpenRaoException("No AngleResult extension found in the RaoResult. Impossible to compute angle security status.");
-            } else {
-                for (AngleCnec angleCnec : crac.getAngleCnecs()) {
-                    Optional<Double> minDegreeMargin = safeGetDouble(angleResult.getMargin(angleCnec.getState().getInstant(), angleCnec, Unit.DEGREE));
-                    if (minDegreeMargin.isPresent()) {
-                        if (minDegreeMargin.get() < 0) {
-                            return false;
-                        }
-                    } else {
-                        throw new OpenRaoException("No angle value available for AngleCNEC %s.".formatted(angleCnec.getId()));
-                    }
-                }
-            }
-        }
-        if (parameters.contains(PhysicalParameter.VOLTAGE)) {
-            VoltageResult voltageResult = raoResult.getExtension(VoltageResult.class);
-            if (voltageResult == null) {
-                throw new OpenRaoException("No VoltageResult extension found in the RaoResult. Impossible to compute voltage security status.");
-            } else {
-                for (VoltageCnec voltageCnec : crac.getVoltageCnecs()) {
-                    Optional<Double> minKiloVoltMargin = safeGetDouble(voltageResult.getMargin(voltageCnec.getState().getInstant(), voltageCnec, Unit.KILOVOLT));
-                    if (minKiloVoltMargin.isPresent()) {
-                        if (minKiloVoltMargin.get() < 0) {
-                            return false;
-                        }
-                    } else {
-                        throw new OpenRaoException("No voltage value available for VoltageCNEC %s.".formatted(voltageCnec.getId()));
-                    }
-                }
-            }
-        }
-        return true;
-    }
-
-    private static Optional<Double> safeGetDouble(double value) {
-        return Double.isNaN(value) ? Optional.empty() : Optional.of(value);
+        return raoResult.isSecure(u);
     }
 
     /**

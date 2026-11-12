@@ -116,6 +116,11 @@ public class Marmot implements RaoProvider, TimeCoupledRaoProvider {
             MarmotReports.reportMissingMarmotParametersExtension(reportNode);
             raoParameters.addExtension(MarmotParameters.class, new MarmotParameters());
         }
+
+        if (raoParameters.getNotOptimizedCnecsParameters().getDoNotOptimizeCurativeCnecsForTsosWithoutCras()) {
+            MarmotReports.reportDoNotOptimizeCurativeCnecsForTsosWithoutCras(reportNode);
+        }
+
         final MarmotParameters marmotParameters = raoParameters.getExtension(MarmotParameters.class);
 
         // Initiate lazy networks

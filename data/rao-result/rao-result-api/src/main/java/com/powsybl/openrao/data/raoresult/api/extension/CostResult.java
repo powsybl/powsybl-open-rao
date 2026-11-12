@@ -20,7 +20,7 @@ import java.util.Set;
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public class CostResult extends AbstractExtension<RaoResult> {
+public final class CostResult extends AbstractExtension<RaoResult> {
     private static final String EXTENSION_NAME = "cost-results";
 
     private final ElementaryCostResult initialCostResult;
