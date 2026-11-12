@@ -50,9 +50,11 @@ public class LoopFlowViolationCostEvaluator implements CostEvaluator {
         this.unit = unit;
     }
 
+    public static String getEvaluatorName() {return "loop-flow-cost";}
+
     @Override
     public String getName() {
-        return "loop-flow-cost";
+        return getEvaluatorName();
     }
 
     @Override

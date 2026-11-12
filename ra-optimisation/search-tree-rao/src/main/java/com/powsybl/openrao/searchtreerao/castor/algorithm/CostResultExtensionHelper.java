@@ -109,8 +109,8 @@ public final class CostResultExtensionHelper {
                                              Map<State, PostPerimeterResult> postContingencyResults,
                                              Instant instant) {
         BinaryOperator<Double> operator;
-        if (new MinMarginViolationEvaluator(Set.of(), null, null, 0.0).getName().equals(virtualCostName)
-            || new SensitivityFailureOvercostEvaluator(Set.of(), 0.0).getName().equals(virtualCostName)) {
+        if (MinMarginViolationEvaluator.getEvaluatorName().equals(virtualCostName)
+            || SensitivityFailureOvercostEvaluator.getEvaluatorName().equals(virtualCostName)) {
             operator = Math::max;
         } else {
             operator = Double::sum;

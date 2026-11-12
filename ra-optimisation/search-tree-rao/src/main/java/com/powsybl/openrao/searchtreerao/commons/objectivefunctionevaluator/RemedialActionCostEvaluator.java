@@ -34,9 +34,11 @@ public class RemedialActionCostEvaluator implements CostEvaluator {
         this.optimizedStates = optimizedStates;
     }
 
+    public static String getEvaluatorName() {return "remedial-action-cost-evaluator";}
+
     @Override
     public String getName() {
-        return "remedial-action-cost-evaluator";
+        return getEvaluatorName();
     }
 
     @Override
