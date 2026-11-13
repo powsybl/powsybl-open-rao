@@ -14,6 +14,8 @@ import os
 import sys
 from datetime import datetime
 
+from docutils import nodes
+
 # Path to python sources, for doc generation on readthedocs
 source_path = os.path.abspath('..')
 sys.path.insert(0, source_path)
@@ -46,7 +48,7 @@ myst_enable_extensions = [
     "amsmath",
     "colon_fence",
     "dollarmath",
-    "attrs_inline"
+    "attrs_inline",
 ]
 myst_heading_anchors = 6
 
@@ -78,6 +80,8 @@ html_context = {
 
 html_theme_options = {
     # the following 3 lines enable edit button
+    # always "main": only the main branch is editable, so the button must not follow
+    # the published version (tags / PR branches are not editable on GitHub)
     "source_repository": "https://github.com/powsybl/powsybl-open-rao/",
     "source_branch": "main",
     "source_directory": "docs/"
@@ -108,3 +112,43 @@ copybutton_prompt_is_regexp = True
 
 copybutton_copy_text = "Copy"
 copybutton_success_text = "Copied!"
+
+# Version for dynamic links to the GitHub source.
+# readthedocs version slugs: the exact tag name (e.g. "v7.5.0"), "latest"/"stable" for
+# branch builds, and the bare PR number (e.g. "2027") for pull-request previews
+# (READTHEDOCS_VERSION_TYPE is "external" then — and READTHEDOCS_VERSION_NAME is the
+# PR number too, not a git ref).
+release_version = os.environ.get("READTHEDOCS_VERSION", "main")
+if os.environ.get("READTHEDOCS_VERSION_TYPE") == "external":
+    # pull-request preview: link to the exact PR head commit (valid GitHub ref, works
+    # even when the PR comes from a fork)
+    github_ref = os.environ.get("READTHEDOCS_GIT_COMMIT_HASH") or "main"
+elif release_version in ("latest", "stable") or release_version.startswith("pr/") or release_version.isdigit():
+    github_ref = os.environ.get("READTHEDOCS_VERSION_NAME") or "main"
+else:
+    # tag build: the readthedocs version slug is the exact tag name
+    github_ref = release_version
+
+def _github_source_role(name, rawtext, text, lineno, inliner, options=None, content=None):
+    """Build a link to a source file or directory of this repo at the published version.
+
+    Usage in Markdown/MyST:
+        {src}`data/path/to/File.java`
+        {src}`DisplayLabel<data/path/to/File.java>`
+
+    The path is relative to the root of the repository. Files (a dot in the last
+    path segment) use GitHub ``blob`` URLs, directories use ``tree`` URLs.
+    """
+    if "<" in text:
+        label, _, path = text.partition("<")
+        path = path[:-1]
+    else:
+        label = path = text
+    path = path.strip().lstrip("/")
+    mode = "blob" if "." in path.rsplit("/", 1)[-1] else "tree"
+    url = f"https://github.com/powsybl/powsybl-open-rao/{mode}/{github_ref}/{path}"
+    return [nodes.reference(refuri=url, text=label)], []
+
+
+def setup(app):
+    app.add_role("src", _github_source_role)

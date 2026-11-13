@@ -12,7 +12,7 @@ OpenRAO (Remedial Action Optimizer) is an open-source toolbox that aims to provi
 ### Java
 
 - [GitHub](https://github.com/powsybl/powsybl-open-rao)
-- [![Slack](https://img.shields.io/badge/slack-powsybl-blueviolet.svg?logo=slack)](https://powsybl.slack.com/archives/C06D799R51T)
+- [![Slack](https://img.shields.io/badge/slack-powsybl-blueviolet.svg?logo=slack)](https://powsybl.slack.com)
 
 A Java tutorial is available [here](getting-started/tutorial.md).
 
