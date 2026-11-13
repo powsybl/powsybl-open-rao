@@ -111,7 +111,7 @@ public class PreventiveOptimizationPerimeter extends AbstractOptimizationPerimet
         // include auto FlowCNECs that are not protected by any ARA in the preventive perimeter
         if (crac.getInstants(InstantKind.AUTO).size() == 1) {
             crac.getStates(crac.getInstant(InstantKind.AUTO))
-                .forEach(autoState -> flowCnecs.addAll(getAutoCnecsToDuplicate(autoState, crac, network, reportNode)));
+                .forEach(autoState -> flowCnecs.addAll(getAutoCnecsToInclude(autoState, crac, network, reportNode)));
         }
 
         return new PreventiveOptimizationPerimeter(
@@ -123,10 +123,10 @@ public class PreventiveOptimizationPerimeter extends AbstractOptimizationPerimet
         );
     }
 
-    private static Set<FlowCnec> getAutoCnecsToDuplicate(final State autoState,
-                                                         final Crac crac,
-                                                         final Network network,
-                                                         final ReportNode reportNode) {
+    private static Set<FlowCnec> getAutoCnecsToInclude(final State autoState,
+                                                       final Crac crac,
+                                                       final Network network,
+                                                       final ReportNode reportNode) {
         Set<RemedialAction<?>> remedialActions = new HashSet<>();
         remedialActions.addAll(crac.getRangeActions(autoState));
         remedialActions.addAll(crac.getNetworkActions(autoState));
@@ -137,7 +137,7 @@ public class PreventiveOptimizationPerimeter extends AbstractOptimizationPerimet
         Set<FlowCnec> autoCnecsToDuplicate = new HashSet<>();
         crac.getFlowCnecs(autoState)
             .stream()
-            .filter(flowCnec -> shouldDuplicateAutoCnecInOutageState(remedialActions, flowCnec, network))
+            .filter(flowCnec -> shouldInclideAutoCnecInPreventivePerimeter(remedialActions, flowCnec, network))
             .forEach(flowCnec -> {
                 autoCnecsToDuplicate.add(flowCnec);
                 // TODO: add report node
@@ -149,9 +149,9 @@ public class PreventiveOptimizationPerimeter extends AbstractOptimizationPerimet
         return autoCnecsToDuplicate;
     }
 
-    private static boolean shouldDuplicateAutoCnecInOutageState(final Set<RemedialAction<?>> remedialActions,
-                                                                final FlowCnec flowCnec,
-                                                                final Network network) {
+    private static boolean shouldInclideAutoCnecInPreventivePerimeter(final Set<RemedialAction<?>> remedialActions,
+                                                                      final FlowCnec flowCnec,
+                                                                      final Network network) {
         boolean raForOtherCnecs = false;
         for (RemedialAction<?> remedialAction : remedialActions) {
             for (UsageRule usageRule : remedialAction.getUsageRules()) {
