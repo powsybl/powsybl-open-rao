@@ -20,7 +20,6 @@ import com.powsybl.openrao.data.crac.api.parameters.CracCreationParameters;
 import com.powsybl.openrao.data.crac.api.range.RangeType;
 import com.powsybl.openrao.data.crac.api.range.TapRange;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
-import com.powsybl.openrao.data.crac.api.threshold.BranchThreshold;
 import com.powsybl.openrao.data.crac.api.usagerule.OnContingencyState;
 import com.powsybl.openrao.data.crac.api.usagerule.OnInstant;
 import com.powsybl.openrao.data.crac.impl.NetworkActionImpl;
@@ -35,7 +34,6 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.time.OffsetDateTime;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -278,18 +276,31 @@ class FbConstraintCracCreatorTest {
     }
 
     private void assertHasThresholds(FlowCnec cnec, Set<TwoSides> monitoredSides, Unit unit, Double min, Double max) {
-        assertEquals(monitoredSides.size(), cnec.getThresholds().size());
-        monitoredSides.forEach(side -> checkThreshold(cnec, side, unit, min, max));
+        monitoredSides.forEach(side -> checkBounds(cnec, side, unit, min, max));
     }
 
-    private void checkThreshold(FlowCnec cnec, TwoSides monitoredSide, Unit unit, Double min, Double max) {
-        Set<BranchThreshold> thresholds = cnec.getThresholds().stream()
-            .filter(branchThreshold -> branchThreshold.getSide() == monitoredSide && branchThreshold.getUnit() == unit).collect(Collectors.toSet());
-        assertEquals(1, thresholds.size());
-        thresholds.forEach(branchThreshold -> {
-            assertEquals(min, branchThreshold.min().orElse(Double.NaN), TOLERANCE);
-            assertEquals(max, branchThreshold.max().orElse(Double.NaN), TOLERANCE);
-        });
+    private void checkBounds(FlowCnec cnec, TwoSides monitoredSide, Unit unit, Double min, Double max) {
+        if (!Double.isNaN(min)) {
+            assertEquals(min, cnec.getRawLowerBound(monitoredSide, unit).get(), TOLERANCE);
+        }
+        if (!Double.isNaN(max)) {
+            assertEquals(max, cnec.getRawUpperBound(monitoredSide, unit).get(), TOLERANCE);
+        }
+    }
+
+    private void checkNumberOfBound(FlowCnec cnec, int expectedCount) {
+        int count = 0;
+        for (Unit unit : Set.of(Unit.AMPERE, Unit.MEGAWATT)) {
+            for (TwoSides side : Set.of(TwoSides.ONE, TwoSides.TWO)) {
+                if (cnec.getRawUpperBound(side, unit).isPresent()) {
+                    count++;
+                }
+                if (cnec.getRawLowerBound(side, unit).isPresent()) {
+                    count++;
+                }
+            }
+        }
+        assertEquals(expectedCount, count);
     }
 
     @Test
@@ -325,8 +336,8 @@ class FbConstraintCracCreatorTest {
         assertHasThresholds(crac.getFlowCnec("CBCO_000006 - preventive"), Set.of(TwoSides.ONE), Unit.AMPERE, Double.NaN, 1. * 714);
 
         // ImaxA, PermanentImaxA and TemporaryImaxA set to 300, 200 and 100
-        assertEquals(1, crac.getFlowCnec("CBCO_000008 - preventive").getThresholds().size());
-        assertEquals(300., crac.getFlowCnec("CBCO_000008 - preventive").getUpperBound(TwoSides.ONE, Unit.AMPERE).orElseThrow(), 0.1);
+        checkNumberOfBound(crac.getFlowCnec("CBCO_000008 - preventive"), 1);
+        assertEquals(300., crac.getFlowCnec("CBCO_000008 - preventive").getRawUpperBound(TwoSides.ONE, Unit.AMPERE).orElseThrow(), 0.1);
     }
 
     @Test
@@ -359,8 +370,8 @@ class FbConstraintCracCreatorTest {
         assertHasThresholds(crac.getFlowCnec("CBCO_000006 - preventive"), Set.of(TwoSides.TWO), Unit.AMPERE, Double.NaN, 1. * 714);
 
         // ImaxA, PermanentImaxA and TemporaryImaxA set to 300, 200 and 100
-        assertEquals(1, crac.getFlowCnec("CBCO_000008 - preventive").getThresholds().size());
-        assertEquals(300., crac.getFlowCnec("CBCO_000008 - preventive").getUpperBound(TwoSides.TWO, Unit.AMPERE).orElseThrow(), 0.1);
+        checkNumberOfBound(crac.getFlowCnec("CBCO_000008 - preventive"), 1);
+        assertEquals(300., crac.getFlowCnec("CBCO_000008 - preventive").getRawUpperBound(TwoSides.TWO, Unit.AMPERE).orElseThrow(), 0.1);
     }
 
     @Test
@@ -393,9 +404,10 @@ class FbConstraintCracCreatorTest {
         assertHasThresholds(crac.getFlowCnec("CBCO_000006 - preventive"), Set.of(TwoSides.ONE, TwoSides.TWO), Unit.AMPERE, Double.NaN, 1. * 714);
 
         // ImaxA, PermanentImaxA and TemporaryImaxA set to 300, 200 and 100
-        assertEquals(2, crac.getFlowCnec("CBCO_000008 - preventive").getThresholds().size());
-        assertEquals(300., crac.getFlowCnec("CBCO_000008 - preventive").getUpperBound(TwoSides.ONE, Unit.AMPERE).orElseThrow(), 0.1);
-        assertEquals(300., crac.getFlowCnec("CBCO_000008 - preventive").getUpperBound(TwoSides.TWO, Unit.AMPERE).orElseThrow(), 0.1);
+
+        checkNumberOfBound(crac.getFlowCnec("CBCO_000008 - preventive"), 2);
+        assertEquals(300., crac.getFlowCnec("CBCO_000008 - preventive").getRawUpperBound(TwoSides.ONE, Unit.AMPERE).orElseThrow(), 0.1);
+        assertEquals(300., crac.getFlowCnec("CBCO_000008 - preventive").getRawUpperBound(TwoSides.TWO, Unit.AMPERE).orElseThrow(), 0.1);
     }
 
     @Test
@@ -683,8 +695,8 @@ class FbConstraintCracCreatorTest {
         parameters.setDefaultMonitoredLineSide(CracCreationParameters.MonitoredLineSide.MONITOR_LINES_ON_BOTH_SIDES);
         Crac crac = Crac.read("transformers.xml", getClass().getResourceAsStream("/merged_cb/transformers.xml"), network, parameters);
         // CBCO_1 - preventive has iMax side One != iMax side Two
-        checkThreshold(crac.getFlowCnec("CBCO_1 - preventive"), TwoSides.ONE, Unit.AMPERE, -1727.273, Double.NaN);
-        checkThreshold(crac.getFlowCnec("CBCO_1 - preventive"), TwoSides.TWO, Unit.AMPERE, -1000., Double.NaN);
+        checkBounds(crac.getFlowCnec("CBCO_1 - preventive"), TwoSides.ONE, Unit.AMPERE, -1727.273, Double.NaN);
+        checkBounds(crac.getFlowCnec("CBCO_1 - preventive"), TwoSides.TWO, Unit.AMPERE, -1000., Double.NaN);
         assertHasThresholds(crac.getFlowCnec("CBCO_2 - preventive"), Set.of(TwoSides.ONE), Unit.AMPERE, -100., Double.NaN);
 
         parameters.setDefaultMonitoredLineSide(CracCreationParameters.MonitoredLineSide.MONITOR_LINES_ON_SIDE_ONE);

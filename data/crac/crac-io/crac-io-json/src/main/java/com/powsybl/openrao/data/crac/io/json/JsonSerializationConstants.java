@@ -18,8 +18,6 @@ import com.powsybl.openrao.data.crac.api.networkaction.ActionType;
 import com.powsybl.openrao.data.crac.api.range.RangeType;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.VariationDirection;
-import com.powsybl.openrao.data.crac.api.threshold.BranchThreshold;
-import com.powsybl.openrao.data.crac.api.threshold.Threshold;
 import com.powsybl.openrao.data.crac.api.usagerule.OnConstraint;
 import com.powsybl.openrao.data.crac.api.usagerule.OnContingencyState;
 import com.powsybl.openrao.data.crac.api.usagerule.OnFlowConstraintInCountry;
@@ -423,26 +421,6 @@ public final class JsonSerializationConstants {
                 return ActionType.CLOSE;
             default:
                 throw new OpenRaoException(String.format("Unrecognized action type %s", stringValue));
-        }
-    }
-
-    public static class ThresholdComparator implements Comparator<Threshold> {
-        @Override
-        public int compare(Threshold o1, Threshold o2) {
-            String unit1 = serializeUnit(o1.getUnit());
-            String unit2 = serializeUnit(o2.getUnit());
-            if (unit1.equals(unit2)) {
-                if (o1 instanceof BranchThreshold bt1 && o2 instanceof BranchThreshold bt2 &&
-                    !bt1.getSide().equals(bt2.getSide())) {
-                    return Integer.compare(serializeSide(bt1.getSide()), serializeSide(bt2.getSide()));
-                }
-                if (o1.min().isPresent()) {
-                    return -1;
-                }
-                return 1;
-            } else {
-                return unit1.compareTo(unit2);
-            }
         }
     }
 
