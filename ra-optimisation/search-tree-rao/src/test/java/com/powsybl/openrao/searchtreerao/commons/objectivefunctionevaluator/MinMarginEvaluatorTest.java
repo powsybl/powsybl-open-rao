@@ -113,8 +113,8 @@ class MinMarginEvaluatorTest {
     }
 
     private void mockCnecThresholds(FlowCnec cnec, double threshold) {
-        when(cnec.getUpperBound(any(), any())).thenReturn(Optional.of(threshold));
-        when(cnec.getLowerBound(any(), any())).thenReturn(Optional.of(-threshold));
+        when(cnec.getRawUpperBound(any(), any())).thenReturn(Optional.of(threshold));
+        when(cnec.getRawLowerBound(any(), any())).thenReturn(Optional.of(-threshold));
     }
 
     @Test

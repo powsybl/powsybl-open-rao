@@ -11,7 +11,6 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
-import com.powsybl.openrao.data.crac.api.threshold.BranchThreshold;
 
 import java.util.Optional;
 import java.util.Set;
@@ -30,15 +29,6 @@ public interface FlowCnec extends Cnec<FlowCnec> {
     String getNetworkElementId();
 
     /**
-     * Getter of the {@link BranchThreshold}s that the {@link PhysicalParameter} of this {@code FlowCnec}
-     * should ideally meet.
-     *
-     * @deprecated since 7.4.0, use {@link #getUpperBound(TwoSides, Unit)} and/or {@link #getLowerBound(TwoSides, Unit)} instead.
-     */
-    @Deprecated(since = "7.4.0")
-    Set<BranchThreshold> getThresholds();
-
-    /**
      * Getter of the nominal voltage on each {@link TwoSides} of the {@code FlowCnec}.
      *
      * @param side The {@link TwoSides} on which the nominal voltage is queried.
@@ -50,10 +40,22 @@ public interface FlowCnec extends Cnec<FlowCnec> {
      * Getter that returns the lower acceptable value of the {@link PhysicalParameter} with the given {@link Unit}.
      * The {@code unit} must match the {@link PhysicalParameter} of the {@code FlowCnec}. It returns an optional
      * because the {@code FlowCnec} is not necessarily bounded by a lower value. This value would take
+     * {@code reliabilityMargin} into account. If no bound is declared in the requested unit, an empty optional will
+     * be returned, no conversion is carried out and the FRM is not applied.
+     *
+     * @param side The side on which the lower bound is queried.
+     * @param unit The unit in which the bound would be returned.
+     * @return The lower bound of the {@link PhysicalParameter} on this {@code FlowCnec}.
+     */
+    Optional<Double> getRawLowerBound(TwoSides side, Unit unit);
+
+    /**
+     * Getter that returns the lower acceptable value of the {@link PhysicalParameter} with the given {@link Unit}.
+     * The {@code unit} must match the {@link PhysicalParameter} of the {@code FlowCnec}. It returns an optional
+     * because the {@code FlowCnec} is not necessarily bounded by a lower value. This value would take
      * {@code reliabilityMargin} into account.
      *
-     * @param side The side on which the lower bound is queried. It could require conversions if the thresholds are
-     *            defined on a different side that the one requested.
+     * @param side The side on which the lower bound is queried.
      * @param unit The unit in which the bound would be returned. It could require conversions if the thresholds are
      *            defined in a different unit that the one requested.
      * @return The lower bound of the {@link PhysicalParameter} on this {@code FlowCnec}.
@@ -64,10 +66,22 @@ public interface FlowCnec extends Cnec<FlowCnec> {
      * Getter that returns the upper acceptable value of the {@link PhysicalParameter} with the given {@link Unit}.
      * The {@code unit} must match the {@link PhysicalParameter} of the {@code FlowCnec}. It returns an optional
      * because the {@code FlowCnec} is not necessarily bounded by an upper value. This value would take
+     * {@code reliabilityMargin} into account. If no bound is declared in the requested unit, an empty optional will
+     * be returned, no conversion is carried out and the FRM is not applied.
+     *
+     * @param side The side on which the upper bound is queried.
+     * @param unit The unit in which the upper bound would be returned.
+     * @return The upper bound of the {@link PhysicalParameter} on this {@code FlowCnec}.
+     */
+    Optional<Double> getRawUpperBound(TwoSides side, Unit unit);
+
+    /**
+     * Getter that returns the upper acceptable value of the {@link PhysicalParameter} with the given {@link Unit}.
+     * The {@code unit} must match the {@link PhysicalParameter} of the {@code FlowCnec}. It returns an optional
+     * because the {@code FlowCnec} is not necessarily bounded by an upper value. This value would take
      * {@code reliabilityMargin} into account.
      *
-     * @param side The side on which the upper bound is queried. It could require conversions if the thresholds are
-     *            defined on a different side that the one requested.
+     * @param side The side on which the upper bound is queried.
      * @param unit The unit in which the upper bound would be returned. It could require conversions if the thresholds are
      *            defined in a different unit that the one requested.
      * @return The upper bound of the {@link PhysicalParameter} on this {@code FlowCnec}.

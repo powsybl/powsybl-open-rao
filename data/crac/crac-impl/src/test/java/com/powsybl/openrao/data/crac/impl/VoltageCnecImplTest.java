@@ -185,6 +185,33 @@ class VoltageCnecImplTest {
         assertNotEquals(cnec1.hashCode(), cnec2.hashCode());
     }
 
+    @Test
+    void equalityUsesBounds() {
+        VoltageCnec cnec = voltageCnec("element", 200., 500.);
+        VoltageCnec equal = voltageCnec("element", 200., 500.);
+        assertEquals(cnec, equal);
+        assertEquals(equal, cnec);
+        assertEquals(cnec.hashCode(), equal.hashCode());
+        assertNotEquals(cnec, voltageCnec("element", 201., 500.));
+        assertNotEquals(cnec, voltageCnec("element", 200., 501.));
+        assertNotEquals(cnec, voltageCnec("other", 200., 500.));
+        assertFalse(cnec.equals(null));
+        assertNotEquals(cnec, "voltage-cnec");
+
+        for (Double[] bounds : new Double[][] {{null, null}, {null, 500.}, {200., null}}) {
+            VoltageCnec first = voltageCnec("element", bounds[0], bounds[1]);
+            VoltageCnec second = voltageCnec("element", bounds[0], bounds[1]);
+            assertEquals(first, second);
+            assertEquals(first.hashCode(), second.hashCode());
+            assertNotEquals(cnec, first);
+        }
+    }
+
+    private VoltageCnecImpl voltageCnec(String element, Double min, Double max) {
+        return new VoltageCnecImpl("id", "name", element, "FR", null, crac.getPreventiveState(),
+            false, true, Set.of(new Threshold(Unit.KILOVOLT, min, max)), 0.);
+    }
+
     private static Network mockBusVoltagesInNetwork(String elementId, double voltage) {
         Network network = Mockito.mock(Network.class);
         VoltageLevel voltageLevel = Mockito.mock(VoltageLevel.class);

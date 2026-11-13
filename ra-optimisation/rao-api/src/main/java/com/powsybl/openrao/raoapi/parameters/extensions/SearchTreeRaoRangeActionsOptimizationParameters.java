@@ -108,7 +108,8 @@ public class SearchTreeRaoRangeActionsOptimizationParameters {
     public enum Solver {
         CBC,
         SCIP,
-        XPRESS
+        XPRESS,
+        GUROBI
     }
 
     // Getters and setters
