@@ -99,7 +99,7 @@
         <!-- Dependencies versions -->
         <commons-collections4.version>4.5.0</commons-collections4.version>
         <cucumber.bom.version>7.34.3</cucumber.bom.version>
-        <google.ortools.version>9.11.4210</google.ortools.version>
+        <google.ortools.version>9.15.6755</google.ortools.version>
         <jackson.version>2.21.4</jackson.version>
         <jakarta.xml.bind.version>4.0.5</jakarta.xml.bind.version>
         <jaxb-runtime.version>4.0.7</jaxb-runtime.version>
