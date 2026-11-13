@@ -7,19 +7,35 @@
 
 package com.powsybl.openrao.searchtreerao.castor.algorithm;
 
+import com.powsybl.openrao.commons.TemporalData;
+import com.powsybl.openrao.commons.TemporalDataImpl;
+import com.powsybl.openrao.data.crac.api.Crac;
+import com.powsybl.openrao.data.crac.api.Instant;
+import com.powsybl.openrao.data.crac.api.RaUsageLimits;
+import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.searchtreerao.commons.parameters.TreeParameters;
 import com.powsybl.openrao.searchtreerao.result.api.ObjectiveFunctionResult;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.util.Map;
+import java.util.Set;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
+ * @author Atena Amnache {@literal <atena.amnache at rte-france.com>}
  */
 class CastorContingencyScenariosTest {
+
+    private static final OffsetDateTime TIMESTAMP = OffsetDateTime.of(2026, 1, 9, 0, 0, 0, 0, ZoneOffset.UTC);
 
     @Test
     void testIsStopCriterionChecked() {
@@ -56,5 +72,45 @@ class CastorContingencyScenariosTest {
         when(treeParameters.stopCriterion()).thenReturn(TreeParameters.StopCriterion.AT_TARGET_OBJECTIVE_VALUE);
         when(treeParameters.targetObjectiveValue()).thenReturn(0.);
         assertTrue(CastorContingencyScenarios.isStopCriterionChecked(objectiveFunctionResult, treeParameters));
+
+        when(treeParameters.stopCriterion()).thenReturn(null);
+        assertThrows(NullPointerException.class, () -> CastorContingencyScenarios.isStopCriterionChecked(objectiveFunctionResult, treeParameters));
+    }
+
+    @Test
+    void testMergeRaUsageLimits() {
+        Instant curativeInstant1 = Mockito.mock(Instant.class);
+        Instant curativeInstant2 = Mockito.mock(Instant.class);
+        RaUsageLimits raUsageLimits1 = new RaUsageLimits();
+        RaUsageLimits raUsageLimits2 = new RaUsageLimits();
+        Crac crac1 = Mockito.mock(Crac.class);
+        Crac crac2 = Mockito.mock(Crac.class);
+        when(crac1.getRaUsageLimitsPerInstant()).thenReturn(Map.of(curativeInstant1, raUsageLimits1));
+        when(crac2.getRaUsageLimitsPerInstant()).thenReturn(Map.of(curativeInstant2, raUsageLimits2));
+        Map<Instant, RaUsageLimits> mergedRaUsageLimits = CastorContingencyScenarios.mergeRaUsageLimits(new TemporalDataImpl<>(Map.of(TIMESTAMP, crac1, TIMESTAMP.plusHours(1), crac2)));
+        assertEquals(2, mergedRaUsageLimits.size());
+        assertEquals(raUsageLimits1, mergedRaUsageLimits.get(curativeInstant1));
+        assertEquals(raUsageLimits2, mergedRaUsageLimits.get(curativeInstant2));
+    }
+
+    @Test
+    void testGetSameNetworkActionsOfTimestamp() {
+        NetworkAction sharedNetworkActionOfTimestamp1 = Mockito.mock(NetworkAction.class);
+        NetworkAction sharedNetworkActionOfTimestamp2 = Mockito.mock(NetworkAction.class);
+        NetworkAction timestamp1OnlyNetworkAction = Mockito.mock(NetworkAction.class);
+        when(sharedNetworkActionOfTimestamp1.getId()).thenReturn("sharedNa");
+        when(timestamp1OnlyNetworkAction.getId()).thenReturn("notSharedNa");
+        Crac crac = Mockito.mock(Crac.class);
+        when(crac.getNetworkAction("sharedNa")).thenReturn(sharedNetworkActionOfTimestamp2);
+        when(crac.getNetworkAction("notSharedNa")).thenReturn(null);
+        Set<NetworkAction> networkActions = createContingencyScenarios(crac).getSameNetworkActionsOfTimestamp(
+                Set.of(sharedNetworkActionOfTimestamp1, timestamp1OnlyNetworkAction), TIMESTAMP
+        );
+        assertEquals(Set.of(sharedNetworkActionOfTimestamp2), networkActions);
+    }
+
+    private static CastorContingencyScenarios createContingencyScenarios(Crac crac) {
+        TemporalData<Crac> cracs = new TemporalDataImpl<>(Map.of(TIMESTAMP, crac));
+        return new CastorContingencyScenarios(cracs, null, null, null, null, null);
     }
 }

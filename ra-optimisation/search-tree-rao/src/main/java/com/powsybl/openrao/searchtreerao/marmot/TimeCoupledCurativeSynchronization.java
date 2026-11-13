@@ -28,11 +28,11 @@ import com.powsybl.openrao.raoapi.TimeCoupledRaoInput;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.MarmotParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SecondPreventiveRaoParameters;
+import com.powsybl.openrao.searchtreerao.castor.algorithm.CastorContingencyScenarios;
 import com.powsybl.openrao.searchtreerao.castor.algorithm.CastorFullOptimization;
 import com.powsybl.openrao.searchtreerao.castor.algorithm.PostPerimeterSensitivityAnalysis;
 import com.powsybl.openrao.searchtreerao.castor.algorithm.PrePerimeterSensitivityAnalysis;
 import com.powsybl.openrao.searchtreerao.castor.algorithm.StateTree;
-import com.powsybl.openrao.searchtreerao.castor.algorithm.TimeCoupledCastorContingencyScenarios;
 import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
 import com.powsybl.openrao.searchtreerao.commons.ToolProvider;
 import com.powsybl.openrao.searchtreerao.commons.objectivefunction.ObjectiveFunction;
@@ -302,7 +302,7 @@ public class TimeCoupledCurativeSynchronization {
                 });
         double globalPreventiveCost = preventiveOptimizationResults.getDataPerTimestamp().values().stream().mapToDouble(OptimizationResult::getCost).sum();
         TreeParameters curativeTreeParameters = TreeParameters.buildForCurativePerimeter(raoParameters, globalPreventiveCost);
-        TimeCoupledCastorContingencyScenarios castorContingencyScenarios = new TimeCoupledCastorContingencyScenarios(
+        CastorContingencyScenarios castorContingencyScenarios = new CastorContingencyScenarios(
             cracs,
             raoParameters,
             toolProviders,
