@@ -36,9 +36,13 @@ public class MinMarginEvaluator implements CostEvaluator {
         this.marginEvaluator = marginEvaluator;
     }
 
+    public static String getEvaluatorName() {
+        return "min-margin-evaluator";
+    }
+
     @Override
     public String getName() {
-        return "min-margin-evaluator";
+        return getEvaluatorName();
     }
 
     @Override

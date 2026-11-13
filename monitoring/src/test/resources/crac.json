@@ -1,0 +1,121 @@
+{
+  "type": "CRAC",
+  "version": "2.11",
+  "id": "crac",
+  "name": "crac",
+  "instants": [
+    {
+      "id": "preventive",
+      "kind": "PREVENTIVE"
+    },
+    {
+      "id": "outage",
+      "kind": "OUTAGE"
+    },
+    {
+      "id": "curative",
+      "kind": "CURATIVE"
+    }
+  ],
+  "contingencies": [
+    {
+      "id": "CO:FR1-FR2-2",
+      "networkElementsIds": [
+        "FFR1AA1  FFR2AA1  2"
+      ]
+    }
+  ],
+  "flowCnecs": [
+    {
+      "id": "CNEC:FR1-FR2-1@preventive",
+      "name": "CNEC:FR1-FR2-1@preventive",
+      "networkElementId": "FFR1AA1  FFR2AA1  1",
+      "operator": "FR",
+      "thresholds": [
+        {
+          "unit": "megawatt",
+          "max": 750.0,
+          "min": -750.0,
+          "side": 1
+        }
+      ],
+      "contingencyId": null,
+      "instant": "preventive",
+      "optimized": true
+    },
+    {
+      "id": "CNEC:FR1-FR2-1@curative",
+      "name": "CNEC:FR1-FR2-1@curative",
+      "networkElementId": "FFR1AA1  FFR2AA1  1",
+      "operator": "FR",
+      "thresholds": [
+        {
+          "unit": "megawatt",
+          "max": 750.0,
+          "min": -750.0,
+          "side": 1
+        }
+      ],
+      "contingencyId": "CO:FR1-FR2-2",
+      "instant": "curative",
+      "optimized": true
+    }
+  ],
+  "pstRangeActions": [
+    {
+      "id": "PST:FR1-FR2-5",
+      "name": "PST:FR1-FR2-5",
+      "operator": "FR",
+      "onInstantUsageRules": [
+        {
+          "instant": "preventive"
+        },
+        {
+          "instant": "curative"
+        }
+      ],
+      "ranges": [
+        {
+          "min": -16,
+          "max": 16,
+          "rangeType": "absolute"
+        }
+      ],
+      "networkElementId": "FFR1AA1  FFR2AA1  5"
+    }
+  ],
+  "networkActions": [
+    {
+      "id": "TOPO:FR1-FR2-3",
+      "name": "TOPO:FR1-FR2-3",
+      "operator": "FR",
+      "onInstantUsageRules": [
+        {
+          "instant": "curative"
+        }
+      ],
+      "terminalsConnectionActions": [
+        {
+          "networkElementId": "FFR1AA1  FFR2AA1  3",
+          "actionType": "close"
+        }
+      ]
+    },
+    {
+      "id": "TOPO:FR1-FR2-4",
+      "name": "TOPO:FR1-FR2-4",
+      "operator": "FR",
+      "onInstantUsageRules": [
+        {
+          "instant": "curative"
+        }
+      ],
+      "terminalsConnectionActions": [
+        {
+          "networkElementId": "FFR1AA1  FFR2AA1  4",
+          "actionType": "close"
+        }
+      ]
+    }
+  ]
+}

@@ -7,8 +7,10 @@
 
 package com.powsybl.openrao.data.raoresult.io.cne.commons;
 
+import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
+import com.powsybl.openrao.data.raoresult.api.extension.FlowResult;
 
 import java.util.Properties;
 
@@ -35,12 +37,17 @@ public class CneHelper {
     private final RaoResult raoResult;
     private final Properties properties;
     private final String propertiesPrefix;
+    private final FlowResult flowResult;
 
     public CneHelper(Crac crac, RaoResult raoResult, Properties properties, String propertiesPrefix) {
         this.crac = crac;
         this.raoResult = raoResult;
         this.properties = properties;
         this.propertiesPrefix = propertiesPrefix;
+        this.flowResult = raoResult.getExtension(FlowResult.class);
+        if (flowResult == null) {
+            throw new OpenRaoException("No FlowResult extension found in the RaoResult. Impossible to generate a CNE file.");
+        }
     }
 
     public Crac getCrac() {
@@ -97,5 +104,9 @@ public class CneHelper {
 
     public String getTimeInterval() {
         return properties.getProperty(propertiesPrefix + TIME_INTERVAL);
+    }
+
+    public FlowResult getFlowResult() {
+        return flowResult;
     }
 }

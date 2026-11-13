@@ -14,8 +14,10 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.commons.Version;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
+import com.powsybl.openrao.data.raoresult.api.extension.Metadata;
 import com.powsybl.openrao.data.raoresult.impl.RaoResultImpl;
 import com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants;
 import com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonUtils;
@@ -23,7 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.ANGLECNEC_RESULTS;
@@ -39,11 +41,11 @@ import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.
 import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.RANGEACTION_RESULTS;
 import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.RAO_RESULT_IO_VERSION;
 import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.RAO_RESULT_TYPE;
+import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.REMEDIAL_ACTION_ACTIVATIONS;
 import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.SECURE;
 import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.STANDARDRANGEACTION_RESULTS;
 import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.VERSION;
 import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.VOLTAGECNEC_RESULTS;
-import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.deserializeStatus;
 import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.getPrimaryVersionNumber;
 import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.getSubVersionNumber;
 import static com.powsybl.openrao.data.raoresult.io.json.deserializers.Utils.checkDeprecatedField;
@@ -71,13 +73,18 @@ public class RaoResultDeserializer extends JsonDeserializer<RaoResult> {
     @Override
     public RaoResult deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
 
-        RaoResultImpl raoResult = new RaoResultImpl(crac);
-        List<Extension<RaoResult>> extensions = Collections.emptyList();
+        List<Extension<RaoResult>> extensions = new ArrayList<>();
 
-        String jsonFileVersion = isValid(jsonParser, raoResult);
+        Metadata.MetadataBuilder metadataBuilder = Metadata.builder();
+
+        String jsonFileVersion = isValid(jsonParser);
+        Version version = Version.parse(jsonFileVersion);
         if (checkHeaderOnly) {
             return null;
         }
+
+        RaoResultImpl extensionHolder = RaoResultImpl.builder(crac).build(); // used to deserialize extensions
+        RaoResultImpl.RaoResultImplBuilder raoResultBuilder = RaoResultImpl.builder(crac);
 
         while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
             switch (jsonParser.currentName()) {
@@ -87,79 +94,130 @@ public class RaoResultDeserializer extends JsonDeserializer<RaoResult> {
                     break;
 
                 case COMPUTATION_STATUS:
-                    raoResult.setComputationStatus(deserializeStatus(jsonParser.nextTextValue()));
+                    if (version.major() == 1) {
+                        jsonParser.nextToken();
+                    } else {
+                        throw new OpenRaoException("From version 2.0 onward, computation status is no longer in the RAO Result but in the 'metadata' extension.");
+                    }
                     break;
 
                 case OPTIMIZATION_STEPS_EXECUTED:
                     checkDeprecatedField(jsonParser, RAO_RESULT_TYPE, jsonFileVersion, "1.6");
-                    raoResult.setExecutionDetails(jsonParser.nextTextValue());
+                    metadataBuilder.withExecutionDetails(jsonParser.nextTextValue());
                     break;
 
                 case EXECUTION_DETAILS:
-                    raoResult.setExecutionDetails(jsonParser.nextTextValue());
-                    break;
+                    if (version.major() == 1) {
+                        metadataBuilder.withExecutionDetails(jsonParser.nextTextValue());
+                        break;
+                    } else {
+                        throw new OpenRaoException("From version 2.0 onward, execution details are no longer in the RAO Result but in the 'metadata' extension.");
+                    }
 
                 case COMPUTATION_STATUS_MAP:
-                    jsonParser.nextToken();
-                    ComputationStatusMapDeserializer.deserialize(jsonParser, raoResult, crac);
-                    break;
+                    if (version.major() == 1) {
+                        jsonParser.nextToken();
+                        ComputationStatusMapDeserializer.deserialize(jsonParser, crac, metadataBuilder);
+                        break;
+                    } else {
+                        throw new OpenRaoException("From version 2.0 onward, computation statuses are no longer in the RAO Result but in the 'metadata' extension.");
+                    }
 
                 case SECURE:
                     jsonParser.nextToken();
-                    RaoResultJsonConstants.deserializeSecurityStatus(raoResult, jsonParser);
+                    RaoResultJsonConstants.deserializeSecurityStatus(raoResultBuilder, jsonParser);
                     break;
 
                 case COST_RESULTS:
-                    jsonParser.nextToken();
-                    CostResultMapDeserializer.deserialize(jsonParser, raoResult, jsonFileVersion, crac);
-                    break;
+                    if (version.major() == 1) {
+                        jsonParser.nextToken();
+                        CostResultMapDeserializer.deserialize(jsonParser, extensionHolder, jsonFileVersion, crac);
+                        break;
+                    } else {
+                        throw new OpenRaoException("From version 2.0 onward, cost results are no longer in the RAO Result but in the 'cost-results' extension.");
+                    }
 
                 case FLOWCNEC_RESULTS:
-                    jsonParser.nextToken();
-                    FlowCnecResultArrayDeserializer.deserialize(jsonParser, raoResult, crac, jsonFileVersion);
-                    break;
+                    if (version.major() == 1) {
+                        jsonParser.nextToken();
+                        FlowCnecResultArrayDeserializer.deserialize(jsonParser, extensionHolder, crac, jsonFileVersion);
+                        break;
+                    } else {
+                        throw new OpenRaoException("From version 2.0 onward, FlowCNEC results are no longer in the RAO Result but in the 'flow-results' extension");
+                    }
 
                 case ANGLECNEC_RESULTS:
-                    jsonParser.nextToken();
-                    AngleCnecResultArrayDeserializer.deserialize(jsonParser, raoResult, crac, jsonFileVersion);
-                    break;
+                    if (version.major() == 1) {
+                        jsonParser.nextToken();
+                        AngleCnecResultArrayDeserializer.deserialize(jsonParser, extensionHolder, crac, jsonFileVersion);
+                        break;
+                    } else {
+                        throw new OpenRaoException("From version 2.0 onward, AngleCNEC results are no longer in the RAO Result but in the 'angle-results' extension.");
+                    }
 
                 case VOLTAGECNEC_RESULTS:
+                    if (version.major() == 1) {
+                        jsonParser.nextToken();
+                        VoltageCnecResultArrayDeserializer.deserialize(jsonParser, extensionHolder, crac, jsonFileVersion);
+                        break;
+                    } else {
+                        throw new OpenRaoException("From version 2.0 onward, VoltageCNEC results are no longer in the RAO Result but in the 'voltage-results' extension.");
+                    }
+
+                case REMEDIAL_ACTION_ACTIVATIONS:
                     jsonParser.nextToken();
-                    VoltageCnecResultArrayDeserializer.deserialize(jsonParser, raoResult, crac, jsonFileVersion);
+                    RemedialActionActivationsDeserializer.deserialize(jsonParser, raoResultBuilder, crac);
                     break;
 
                 case NETWORKACTION_RESULTS:
-                    jsonParser.nextToken();
-                    NetworkActionResultArrayDeserializer.deserialize(jsonParser, raoResult, crac);
-                    break;
+                    if (version.major() == 1) {
+                        jsonParser.nextToken();
+                        NetworkActionResultArrayDeserializer.deserialize(jsonParser, raoResultBuilder, crac);
+                        break;
+                    } else {
+                        throw new OpenRaoException(String.format("Cannot deserialize RaoResult: unexpected field (%s)", NETWORKACTION_RESULTS));
+                    }
 
                 case DeprecatedRaoResultJsonConstants.HVDCRANGEACTION_RESULTS:
                     checkDeprecatedField(jsonParser, RAO_RESULT_TYPE, jsonFileVersion, "1.1");
-                    importRangeAction(jsonParser, raoResult, jsonFileVersion);
+                    importRangeAction(jsonParser, raoResultBuilder, jsonFileVersion);
                     break;
 
                 case STANDARDRANGEACTION_RESULTS, PSTRANGEACTION_RESULTS:
                     checkDeprecatedField(jsonParser, RAO_RESULT_TYPE, jsonFileVersion, "1.2");
-                    importRangeAction(jsonParser, raoResult, jsonFileVersion);
+                    importRangeAction(jsonParser, raoResultBuilder, jsonFileVersion);
                     break;
 
                 case RANGEACTION_RESULTS:
-                    importRangeAction(jsonParser, raoResult, jsonFileVersion);
-                    break;
+                    if (version.major() == 1) {
+                        importRangeAction(jsonParser, raoResultBuilder, jsonFileVersion);
+                        break;
+                    } else {
+                        throw new OpenRaoException(String.format("Cannot deserialize RaoResult: unexpected field (%s)", RANGEACTION_RESULTS));
+                    }
+
                 case "extensions":
                     jsonParser.nextToken();
-                    extensions = JsonUtil.updateExtensions(jsonParser, deserializationContext, RaoResultJsonUtils.getExtensionSerializers(), raoResult);
+                    deserializationContext.setAttribute("crac", crac);
+                    extensions = JsonUtil.updateExtensions(jsonParser, deserializationContext, RaoResultJsonUtils.getExtensionSerializers(), extensionHolder);
                     break;
                 default:
                     throw new OpenRaoException(String.format("Cannot deserialize RaoResult: unexpected field (%s)", jsonParser.currentName()));
             }
         }
+
+        RaoResult raoResult = raoResultBuilder.build();
+        if (version.major() == 1) {
+            raoResult.addExtension(Metadata.class, metadataBuilder.build());
+        }
+
+        extensions.addAll(extensionHolder.getExtensions());
+        extensions.forEach(extension -> extensionHolder.removeExtension((Class) extension.getClass()));
         extensions.forEach(extension -> raoResult.addExtension((Class) extension.getClass(), extension));
         return raoResult;
     }
 
-    public static String isValid(JsonParser jsonParser, RaoResultImpl raoResult) throws IOException {
+    public static String isValid(JsonParser jsonParser) throws IOException {
         String firstFieldName = jsonParser.nextFieldName();
         String jsonFileVersion;
 
@@ -169,7 +227,7 @@ public class RaoResultDeserializer extends JsonDeserializer<RaoResult> {
              at this time, there were not the headers with TYPE, VERSION and INFO of the document
              */
             jsonFileVersion = "1.0";
-            raoResult.setComputationStatus(deserializeStatus(jsonParser.nextTextValue()));
+            jsonParser.nextToken();
         } else {
             if (!jsonParser.nextTextValue().equals(RAO_RESULT_TYPE)) {
                 throw new OpenRaoException(String.format("type of document must be %s", RAO_RESULT_TYPE));
@@ -184,16 +242,13 @@ public class RaoResultDeserializer extends JsonDeserializer<RaoResult> {
         return jsonFileVersion;
     }
 
-    private void importRangeAction(JsonParser jsonParser, RaoResultImpl raoResult, String jsonFileVersion) throws IOException {
+    private void importRangeAction(JsonParser jsonParser, RaoResultImpl.RaoResultImplBuilder raoResultBuilder, String jsonFileVersion) throws IOException {
         jsonParser.nextToken();
-        RangeActionResultArrayDeserializer.deserialize(jsonParser, raoResult, crac, jsonFileVersion);
+        RangeActionResultArrayDeserializer.deserialize(jsonParser, raoResultBuilder, crac, jsonFileVersion);
     }
 
     private static void checkVersion(String raoResultVersion) {
 
-        if (getPrimaryVersionNumber(RAO_RESULT_IO_VERSION) > getPrimaryVersionNumber(raoResultVersion)) {
-            throw new OpenRaoException(String.format("RAO-result importer %s is no longer compatible with json RAO-result version %s", RAO_RESULT_IO_VERSION, raoResultVersion));
-        }
         if (getPrimaryVersionNumber(RAO_RESULT_IO_VERSION) < getPrimaryVersionNumber(raoResultVersion)) {
             throw new OpenRaoException(String.format("RAO-result importer %s cannot handle json RAO-result version %s, consider upgrading open-rao version", RAO_RESULT_IO_VERSION, raoResultVersion));
         }

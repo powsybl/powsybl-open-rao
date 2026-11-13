@@ -13,12 +13,14 @@ import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
+import com.powsybl.openrao.data.raoresult.api.extension.FlowResult;
 import com.powsybl.openrao.data.raoresult.impl.RaoResultImpl;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
 import java.io.IOException;
+import java.util.Optional;
 
 import static com.powsybl.openrao.data.raoresult.io.json.deserializers.TestUtils.parserFrom;
 import static org.junit.jupiter.api.Assertions.*;
@@ -34,26 +36,28 @@ class FlowCnecResultArrayDeserializerTest {
         Crac crac = mock(Crac.class);
         FlowCnec flowCnec = mock(FlowCnec.class);
         when(crac.getFlowCnec("fc1")).thenReturn(flowCnec);
+        when(flowCnec.getUpperBound(TwoSides.ONE, Unit.MEGAWATT)).thenReturn(Optional.of(600.0));
 
-        RaoResultImpl raoResult = spy(new RaoResultImpl(crac));
+        RaoResultImpl raoResult = spy(RaoResultImpl.builder(crac).build());
 
         try (JsonParser parser = parserFrom(json)) {
             assertDoesNotThrow(() -> FlowCnecResultArrayDeserializer.deserialize(parser, raoResult, crac, "1.4"));
         }
 
-        verify(raoResult, atLeastOnce()).getAndCreateIfAbsentFlowCnecResult(flowCnec);
-        verifyNoMoreInteractions(raoResult);
-        assertEquals(100., raoResult.getMargin(null, flowCnec, Unit.MEGAWATT));
-        assertEquals(500., raoResult.getFlow(null, flowCnec, TwoSides.ONE, Unit.MEGAWATT));
-        assertEquals(50., raoResult.getCommercialFlow(null, flowCnec, TwoSides.ONE, Unit.MEGAWATT));
-        assertEquals(490., raoResult.getFlow(null, flowCnec, TwoSides.TWO, Unit.MEGAWATT));
+        FlowResult flowResult = raoResult.getExtension(FlowResult.class);
+        assertNotNull(flowResult);
+
+        assertEquals(100., flowResult.getMargin(null, flowCnec, Unit.MEGAWATT));
+        assertEquals(500., flowResult.getFlow(null, flowCnec, TwoSides.ONE, Unit.MEGAWATT));
+        assertEquals(50., flowResult.getCommercialFlow(null, flowCnec, TwoSides.ONE, Unit.MEGAWATT));
+        assertEquals(490., flowResult.getFlow(null, flowCnec, TwoSides.TWO, Unit.MEGAWATT));
     }
 
     @Test
     void deserializeThrowsWhenFirstFieldIsNotId() {
         String json = "[{\"notFlowCnecId\":1}]";
         Crac crac = mock(Crac.class);
-        RaoResultImpl raoResult = new RaoResultImpl(crac);
+        RaoResultImpl raoResult = RaoResultImpl.builder(crac).build();
 
         try (JsonParser parser = parserFrom(json)) {
             OpenRaoException ex = assertThrows(OpenRaoException.class,
@@ -69,7 +73,7 @@ class FlowCnecResultArrayDeserializerTest {
         String json = "[{\"flowCnecId\":\"unknown\",\"initial\":{\"megawatt\":{}}}]";
         Crac crac = mock(Crac.class);
         when(crac.getFlowCnec("unknown")).thenReturn(null);
-        RaoResultImpl raoResult = new RaoResultImpl(crac);
+        RaoResultImpl raoResult = RaoResultImpl.builder(crac).build();
 
         try (JsonParser parser = parserFrom(json)) {
             OpenRaoException ex = assertThrows(OpenRaoException.class,
@@ -89,7 +93,7 @@ class FlowCnecResultArrayDeserializerTest {
     void deserializeThrowsOnUnexpectedField(String fieldName, String json) {
         Crac crac = mock(Crac.class);
         when(crac.getFlowCnec("fc1")).thenReturn(mock(FlowCnec.class));
-        RaoResultImpl raoResult = new RaoResultImpl(crac);
+        RaoResultImpl raoResult = RaoResultImpl.builder(crac).build();
 
         try (JsonParser parser = parserFrom(json)) {
             OpenRaoException ex = assertThrows(OpenRaoException.class,
@@ -108,16 +112,17 @@ class FlowCnecResultArrayDeserializerTest {
         FlowCnec flowCnec = mock(FlowCnec.class);
         when(crac.getFlowCnec("fc1")).thenReturn(flowCnec);
 
-        RaoResultImpl raoResult = spy(new RaoResultImpl(crac));
+        RaoResultImpl raoResult = spy(RaoResultImpl.builder(crac).build());
 
         try (JsonParser parser = parserFrom(json)) {
             assertDoesNotThrow(() -> FlowCnecResultArrayDeserializer.deserialize(parser, raoResult, crac, "1.3"));
         }
 
-        verify(raoResult, atLeastOnce()).getAndCreateIfAbsentFlowCnecResult(flowCnec);
-        verifyNoMoreInteractions(raoResult);
-        assertEquals(500., raoResult.getFlow(null, flowCnec, TwoSides.ONE, Unit.MEGAWATT));
-        assertEquals(490., raoResult.getFlow(null, flowCnec, TwoSides.TWO, Unit.MEGAWATT));
+        FlowResult flowResult = raoResult.getExtension(FlowResult.class);
+        assertNotNull(flowResult);
+
+        assertEquals(500., flowResult.getFlow(null, flowCnec, TwoSides.ONE, Unit.MEGAWATT));
+        assertEquals(490., flowResult.getFlow(null, flowCnec, TwoSides.TWO, Unit.MEGAWATT));
     }
 
     @ParameterizedTest
@@ -131,7 +136,7 @@ class FlowCnecResultArrayDeserializerTest {
     void deserializeThrowsWithDeprecatedBehavior(String fieldName, String currentVersion, String lastSupportedVersion, String json) {
         Crac crac = mock(Crac.class);
         when(crac.getFlowCnec("fc1")).thenReturn(mock(FlowCnec.class));
-        RaoResultImpl raoResult = new RaoResultImpl(crac);
+        RaoResultImpl raoResult = RaoResultImpl.builder(crac).build();
 
         try (JsonParser parser = parserFrom(json)) {
             OpenRaoException ex = assertThrows(OpenRaoException.class,
@@ -154,15 +159,15 @@ class FlowCnecResultArrayDeserializerTest {
         FlowCnec flowCnec = mock(FlowCnec.class);
         when(crac.getFlowCnec("fc1")).thenReturn(flowCnec);
 
-        RaoResultImpl raoResult = spy(new RaoResultImpl(crac));
+        RaoResultImpl raoResult = spy(RaoResultImpl.builder(crac).build());
 
         try (JsonParser parser = parserFrom(json)) {
             assertDoesNotThrow(() -> FlowCnecResultArrayDeserializer.deserialize(parser, raoResult, crac, "1.0"));
         }
+        FlowResult flowResult = raoResult.getExtension(FlowResult.class);
+        assertNotNull(flowResult);
 
-        verify(raoResult, atLeastOnce()).getAndCreateIfAbsentFlowCnecResult(flowCnec);
-        verifyNoMoreInteractions(raoResult);
-        assertEquals(500., raoResult.getFlow(null, flowCnec, TwoSides.ONE, Unit.MEGAWATT));
+        assertEquals(500., flowResult.getFlow(null, flowCnec, TwoSides.ONE, Unit.MEGAWATT));
     }
 
     @Test
@@ -173,16 +178,17 @@ class FlowCnecResultArrayDeserializerTest {
         FlowCnec flowCnec = mock(FlowCnec.class);
         when(crac.getFlowCnec("fc1")).thenReturn(flowCnec);
 
-        RaoResultImpl raoResult = spy(new RaoResultImpl(crac));
+        RaoResultImpl raoResult = spy(RaoResultImpl.builder(crac).build());
 
         try (JsonParser parser = parserFrom(json)) {
             assertDoesNotThrow(() -> FlowCnecResultArrayDeserializer.deserialize(parser, raoResult, crac, "1.0"));
         }
 
-        verify(raoResult, atLeastOnce()).getAndCreateIfAbsentFlowCnecResult(flowCnec);
-        verifyNoMoreInteractions(raoResult);
-        assertEquals(50., raoResult.getCommercialFlow(null, flowCnec, TwoSides.ONE, Unit.MEGAWATT));
-        assertEquals(50., raoResult.getCommercialFlow(null, flowCnec, TwoSides.TWO, Unit.MEGAWATT));
+        FlowResult flowResult = raoResult.getExtension(FlowResult.class);
+        assertNotNull(flowResult);
+
+        assertEquals(50., flowResult.getCommercialFlow(null, flowCnec, TwoSides.ONE, Unit.MEGAWATT));
+        assertEquals(50., flowResult.getCommercialFlow(null, flowCnec, TwoSides.TWO, Unit.MEGAWATT));
     }
 
     @Test
@@ -193,16 +199,17 @@ class FlowCnecResultArrayDeserializerTest {
         FlowCnec flowCnec = mock(FlowCnec.class);
         when(crac.getFlowCnec("fc1")).thenReturn(flowCnec);
 
-        RaoResultImpl raoResult = spy(new RaoResultImpl(crac));
+        RaoResultImpl raoResult = spy(RaoResultImpl.builder(crac).build());
 
         try (JsonParser parser = parserFrom(json)) {
             assertDoesNotThrow(() -> FlowCnecResultArrayDeserializer.deserialize(parser, raoResult, crac, "1.0"));
         }
 
-        verify(raoResult, atLeastOnce()).getAndCreateIfAbsentFlowCnecResult(flowCnec);
-        verifyNoMoreInteractions(raoResult);
-        assertEquals(30., raoResult.getLoopFlow(null, flowCnec, TwoSides.ONE, Unit.MEGAWATT));
-        assertEquals(30., raoResult.getLoopFlow(null, flowCnec, TwoSides.TWO, Unit.MEGAWATT));
+        FlowResult flowResult = raoResult.getExtension(FlowResult.class);
+        assertNotNull(flowResult);
+
+        assertEquals(Double.NaN, flowResult.getLoopFlow(null, flowCnec, TwoSides.ONE, Unit.MEGAWATT));
+        assertEquals(Double.NaN, flowResult.getLoopFlow(null, flowCnec, TwoSides.TWO, Unit.MEGAWATT));
     }
 
     @Test
@@ -213,16 +220,17 @@ class FlowCnecResultArrayDeserializerTest {
         FlowCnec flowCnec = mock(FlowCnec.class);
         when(crac.getFlowCnec("fc1")).thenReturn(flowCnec);
 
-        RaoResultImpl raoResult = spy(new RaoResultImpl(crac));
+        RaoResultImpl raoResult = spy(RaoResultImpl.builder(crac).build());
 
         try (JsonParser parser = parserFrom(json)) {
             assertDoesNotThrow(() -> FlowCnecResultArrayDeserializer.deserialize(parser, raoResult, crac, "1.0"));
         }
 
-        verify(raoResult, atLeastOnce()).getAndCreateIfAbsentFlowCnecResult(flowCnec);
-        verifyNoMoreInteractions(raoResult);
-        assertEquals(0.85, raoResult.getPtdfZonalSum(null, flowCnec, TwoSides.ONE));
-        assertEquals(0.85, raoResult.getPtdfZonalSum(null, flowCnec, TwoSides.TWO));
+        FlowResult flowResult = raoResult.getExtension(FlowResult.class);
+        assertNotNull(flowResult);
+
+        assertEquals(0.85, flowResult.getPtdfZonalSum(null, flowCnec, TwoSides.ONE));
+        assertEquals(0.85, flowResult.getPtdfZonalSum(null, flowCnec, TwoSides.TWO));
     }
 
     @Test
@@ -231,7 +239,7 @@ class FlowCnecResultArrayDeserializerTest {
         String json = "[{\"flowCnecId\":\"fc1\",\"initial\":{\"zonalPtdfSum\":0.85}}]";
         Crac crac = mock(Crac.class);
         when(crac.getFlowCnec("fc1")).thenReturn(mock(FlowCnec.class));
-        RaoResultImpl raoResult = new RaoResultImpl(crac);
+        RaoResultImpl raoResult = RaoResultImpl.builder(crac).build();
 
         try (JsonParser parser = parserFrom(json)) {
             OpenRaoException ex = assertThrows(OpenRaoException.class,
@@ -250,15 +258,16 @@ class FlowCnecResultArrayDeserializerTest {
         FlowCnec flowCnec = mock(FlowCnec.class);
         when(crac.getFlowCnec("fc1")).thenReturn(flowCnec);
 
-        RaoResultImpl raoResult = spy(new RaoResultImpl(crac));
+        RaoResultImpl raoResult = spy(RaoResultImpl.builder(crac).build());
 
         try (JsonParser parser = parserFrom(json)) {
             assertDoesNotThrow(() -> FlowCnecResultArrayDeserializer.deserialize(parser, raoResult, crac, "1.4"));
         }
 
-        verify(raoResult, atLeastOnce()).getAndCreateIfAbsentFlowCnecResult(flowCnec);
-        verifyNoMoreInteractions(raoResult);
-        assertEquals(0.85, raoResult.getPtdfZonalSum(null, flowCnec, TwoSides.ONE));
+        FlowResult flowResult = raoResult.getExtension(FlowResult.class);
+        assertNotNull(flowResult);
+
+        assertEquals(0.85, flowResult.getPtdfZonalSum(null, flowCnec, TwoSides.ONE));
     }
 
     @Test
@@ -267,7 +276,7 @@ class FlowCnecResultArrayDeserializerTest {
         String json = "[{\"flowCnecId\":\"fc1\",\"initial\":{\"ampere\":{\"side1\":{\"zonalPtdfSum\":0.85}}}}]";
         Crac crac = mock(Crac.class);
         when(crac.getFlowCnec("fc1")).thenReturn(mock(FlowCnec.class));
-        RaoResultImpl raoResult = new RaoResultImpl(crac);
+        RaoResultImpl raoResult = RaoResultImpl.builder(crac).build();
 
         try (JsonParser parser = parserFrom(json)) {
             OpenRaoException ex = assertThrows(OpenRaoException.class,

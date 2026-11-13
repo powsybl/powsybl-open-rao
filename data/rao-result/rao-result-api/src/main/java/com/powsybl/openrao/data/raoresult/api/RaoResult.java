@@ -24,6 +24,11 @@ import com.powsybl.openrao.data.crac.api.cnec.VoltageCnec;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
+import com.powsybl.openrao.data.raoresult.api.extension.AngleResult;
+import com.powsybl.openrao.data.raoresult.api.extension.CostResult;
+import com.powsybl.openrao.data.raoresult.api.extension.FlowResult;
+import com.powsybl.openrao.data.raoresult.api.extension.Metadata;
+import com.powsybl.openrao.data.raoresult.api.extension.VoltageResult;
 import com.powsybl.openrao.data.raoresult.api.io.Exporter;
 import com.powsybl.openrao.data.raoresult.api.io.Importer;
 
@@ -45,17 +50,34 @@ import java.util.Set;
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 public interface RaoResult extends Extendable<RaoResult> {
-    String INITIAL_INSTANT_ID = "initial";
 
     /**
      * Get the overall sensitivity computation status of the RAO
+     *
+     * @deprecated since 7.6.0, use {@link Metadata} extension.
      */
-    ComputationStatus getComputationStatus();
+    @Deprecated(since = "7.6.0")
+    default ComputationStatus getComputationStatus() {
+        Metadata metadata = getExtension(Metadata.class);
+        if (metadata == null) {
+            throw new OpenRaoException("RaoResult does not contain a Metadata extension.");
+        }
+        return metadata.getComputationStatus();
+    }
 
     /**
      * Get the sensitivity computation status for a given state
+     *
+     * @deprecated since 7.6.0, use {@link Metadata} extension.
      */
-    ComputationStatus getComputationStatus(State state);
+    @Deprecated(since = "7.6.0")
+    default ComputationStatus getComputationStatus(State state) {
+        Metadata metadata = getExtension(Metadata.class);
+        if (metadata == null) {
+            throw new OpenRaoException("RaoResult does not contain a Metadata extension.");
+        }
+        return metadata.getComputationStatus(state);
+    }
 
     /**
      * It gives the flow on a {@link FlowCnec} after a given {@link Instant} and in a
@@ -66,8 +88,16 @@ public interface RaoResult extends Extendable<RaoResult> {
      * @param side             The side of the branch to be queried.
      * @param unit             The unit in which the flow is queried. Only accepted values are MEGAWATT or AMPERE.
      * @return The flow on the branch at the optimization state in the given unit.
+     * @deprecated since 7.6.0, use {@link FlowResult} extension.
      */
-    double getFlow(Instant optimizedInstant, FlowCnec flowCnec, TwoSides side, Unit unit);
+    @Deprecated(since = "7.6.0")
+    default double getFlow(Instant optimizedInstant, FlowCnec flowCnec, TwoSides side, Unit unit) {
+        FlowResult flowResult = getExtension(FlowResult.class);
+        if (flowResult == null) {
+            throw new OpenRaoException("RaoResult does not contain a FlowResult extension.");
+        }
+        return flowResult.getFlow(optimizedInstant, flowCnec, side, unit);
+    }
 
     /**
      * It gives the angle on an {@link AngleCnec} at a given {@link Instant} and in a
@@ -77,9 +107,15 @@ public interface RaoResult extends Extendable<RaoResult> {
      * @param angleCnec        The angle cnec to be studied.
      * @param unit             The unit in which the flow is queried. Only accepted value for now is DEGREE.
      * @return The angle on the cnec at the optimization state in the given unit.
+     * @deprecated since 7.6.0, use {@link AngleResult} extension.
      */
+    @Deprecated(since = "7.6.0")
     default double getAngle(Instant optimizedInstant, AngleCnec angleCnec, Unit unit) {
-        throw new OpenRaoException("Angle cnecs are not computed in the rao");
+        AngleResult angleResult = getExtension(AngleResult.class);
+        if (angleResult == null) {
+            throw new OpenRaoException("RaoResult does not contain an AngleResult extension.");
+        }
+        return angleResult.getAngle(optimizedInstant, angleCnec, unit);
     }
 
     /**
@@ -90,9 +126,15 @@ public interface RaoResult extends Extendable<RaoResult> {
      * @param voltageCnec      The voltage cnec to be studied.
      * @param unit             The unit in which the voltage is queried. Only accepted value for now is KILOVOLT.
      * @return The min or max voltage on the cnec at the optimization state in the given unit.
+     * @deprecated since 7.6.0, use {@link VoltageResult} extension.
      */
+    @Deprecated(since = "7.6.0")
     default double getMinVoltage(Instant optimizedInstant, VoltageCnec voltageCnec, Unit unit) {
-        throw new OpenRaoException("Voltage cnecs are not computed in the rao");
+        VoltageResult voltageResult = getExtension(VoltageResult.class);
+        if (voltageResult == null) {
+            throw new OpenRaoException("RaoResult does not contain a VoltageResult extension.");
+        }
+        return voltageResult.getMinVoltage(optimizedInstant, voltageCnec, unit);
     }
 
     /**
@@ -103,9 +145,15 @@ public interface RaoResult extends Extendable<RaoResult> {
      * @param voltageCnec      The voltage cnec to be studied.
      * @param unit             The unit in which the voltage is queried. Only accepted value for now is KILOVOLT.
      * @return The min or max voltage on the cnec at the optimization state in the given unit.
+     * @deprecated since 7.6.0, use {@link VoltageResult} extension.
      */
+    @Deprecated(since = "7.6.0")
     default double getMaxVoltage(Instant optimizedInstant, VoltageCnec voltageCnec, Unit unit) {
-        throw new OpenRaoException("Voltage cnecs are not computed in the rao");
+        VoltageResult voltageResult = getExtension(VoltageResult.class);
+        if (voltageResult == null) {
+            throw new OpenRaoException("RaoResult does not contain a VoltageResult extension.");
+        }
+        return voltageResult.getMaxVoltage(optimizedInstant, voltageCnec, unit);
     }
 
     /**
@@ -117,8 +165,16 @@ public interface RaoResult extends Extendable<RaoResult> {
      * @param flowCnec         The branch to be studied.
      * @param unit             The unit in which the margin is queried. Only accepted values are MEGAWATT or AMPERE.
      * @return The margin on the branch at the optimization state in the given unit.
+     * @deprecated since 7.6.0, use {@link FlowResult} extension.
      */
-    double getMargin(Instant optimizedInstant, FlowCnec flowCnec, Unit unit);
+    @Deprecated(since = "7.6.0")
+    default double getMargin(Instant optimizedInstant, FlowCnec flowCnec, Unit unit) {
+        FlowResult flowResult = getExtension(FlowResult.class);
+        if (flowResult == null) {
+            throw new OpenRaoException("RaoResult does not contain a FlowResult extension.");
+        }
+        return flowResult.getMargin(optimizedInstant, flowCnec, unit);
+    }
 
     /**
      * It gives the margin on an {@link AngleCnec} at a given {@link Instant} and in a
@@ -129,9 +185,15 @@ public interface RaoResult extends Extendable<RaoResult> {
      * @param angleCnec        The angle cnec to be studied.
      * @param unit             The unit in which the margin is queried. Only accepted for now is DEGREE.
      * @return The margin on the angle cnec at the optimization state in the given unit.
+     * @deprecated since 7.6.0, use {@link AngleResult} extension.
      */
+    @Deprecated(since = "7.6.0")
     default double getMargin(Instant optimizedInstant, AngleCnec angleCnec, Unit unit) {
-        throw new OpenRaoException("Angle cnecs are not computed in the rao");
+        AngleResult angleResult = getExtension(AngleResult.class);
+        if (angleResult == null) {
+            throw new OpenRaoException("RaoResult does not contain an AngleResult extension.");
+        }
+        return angleResult.getMargin(optimizedInstant, angleCnec, unit);
     }
 
     /**
@@ -143,9 +205,15 @@ public interface RaoResult extends Extendable<RaoResult> {
      * @param voltageCnec      The voltage cnec to be studied.
      * @param unit             The unit in which the margin is queried. Only accepted for now is KILOVOLT.
      * @return The margin on the voltage cnec at the optimization state in the given unit.
+     * @deprecated since 7.6.0, use {@link VoltageResult} extension.
      */
+    @Deprecated(since = "7.6.0")
     default double getMargin(Instant optimizedInstant, VoltageCnec voltageCnec, Unit unit) {
-        throw new OpenRaoException("Voltage cnecs are not computed in the rao");
+        VoltageResult voltageResult = getExtension(VoltageResult.class);
+        if (voltageResult == null) {
+            throw new OpenRaoException("RaoResult does not contain a VoltageResult extension.");
+        }
+        return voltageResult.getMargin(optimizedInstant, voltageCnec, unit);
     }
 
     /**
@@ -160,8 +228,16 @@ public interface RaoResult extends Extendable<RaoResult> {
      * @param flowCnec         The branch to be studied.
      * @param unit             The unit in which the relative margin is queried. Only accepted values are MEGAWATT or AMPERE.
      * @return The relative margin on the branch at the optimization state in the given unit.
+     * @deprecated since 7.6.0, use {@link FlowResult} extension.
      */
-    double getRelativeMargin(Instant optimizedInstant, FlowCnec flowCnec, Unit unit);
+    @Deprecated(since = "7.6.0")
+    default double getRelativeMargin(Instant optimizedInstant, FlowCnec flowCnec, Unit unit) {
+        FlowResult flowResult = getExtension(FlowResult.class);
+        if (flowResult == null) {
+            throw new OpenRaoException("RaoResult does not contain a FlowResult extension.");
+        }
+        return flowResult.getRelativeMargin(optimizedInstant, flowCnec, unit);
+    }
 
     /**
      * It gives the value of commercial flow (according to CORE D-2 CC methodology) on a {@link FlowCnec} at a given
@@ -172,8 +248,16 @@ public interface RaoResult extends Extendable<RaoResult> {
      * @param flowCnec         The branch to be studied.
      * @param unit             The unit in which the commercial flow is queried. Only accepted values are MEGAWATT or AMPERE.
      * @return The commercial flow on the branch at the optimization state in the given unit.
+     * @deprecated since 7.6.0, use {@link FlowResult} extension.
      */
-    double getCommercialFlow(Instant optimizedInstant, FlowCnec flowCnec, TwoSides side, Unit unit);
+    @Deprecated(since = "7.6.0")
+    default double getCommercialFlow(Instant optimizedInstant, FlowCnec flowCnec, TwoSides side, Unit unit) {
+        FlowResult flowResult = getExtension(FlowResult.class);
+        if (flowResult == null) {
+            throw new OpenRaoException("RaoResult does not contain a FlowResult extension.");
+        }
+        return flowResult.getCommercialFlow(optimizedInstant, flowCnec, side, unit);
+    }
 
     /**
      * It gives the value of loop flow (according to CORE D-2 CC methodology) on a {@link FlowCnec} at a given
@@ -184,8 +268,16 @@ public interface RaoResult extends Extendable<RaoResult> {
      * @param flowCnec         The branch to be studied.
      * @param unit             The unit in which the loop flow is queried. Only accepted values are MEGAWATT or AMPERE.
      * @return The loop flow on the branch at the optimization state in the given unit.
+     * @deprecated since 7.6.0, use {@link FlowResult} extension.
      */
-    double getLoopFlow(Instant optimizedInstant, FlowCnec flowCnec, TwoSides side, Unit unit);
+    @Deprecated(since = "7.6.0")
+    default double getLoopFlow(Instant optimizedInstant, FlowCnec flowCnec, TwoSides side, Unit unit) {
+        FlowResult flowResult = getExtension(FlowResult.class);
+        if (flowResult == null) {
+            throw new OpenRaoException("RaoResult does not contain a FlowResult extension.");
+        }
+        return flowResult.getLoopFlow(optimizedInstant, flowCnec, side, unit);
+    }
 
     /**
      * It gives the sum of the computation areas' zonal PTDFs on a {@link FlowCnec} at a given
@@ -195,8 +287,16 @@ public interface RaoResult extends Extendable<RaoResult> {
      * @param optimizedInstant The optimized instant to be studied (set to null to access initial results)
      * @param flowCnec         The branch to be studied.
      * @return The sum of the computation areas' zonal PTDFs on the branch at the optimization state.
+     * @deprecated since 7.6.0, use {@link FlowResult} extension.
      */
-    double getPtdfZonalSum(Instant optimizedInstant, FlowCnec flowCnec, TwoSides side);
+    @Deprecated(since = "7.6.0")
+    default double getPtdfZonalSum(Instant optimizedInstant, FlowCnec flowCnec, TwoSides side) {
+        FlowResult flowResult = getExtension(FlowResult.class);
+        if (flowResult == null) {
+            throw new OpenRaoException("RaoResult does not contain a FlowResult extension.");
+        }
+        return flowResult.getPtdfZonalSum(optimizedInstant, flowCnec, side);
+    }
 
     /**
      * It gives the global cost of the situation at a given {@link Instant} according to the objective
@@ -204,7 +304,9 @@ public interface RaoResult extends Extendable<RaoResult> {
      *
      * @param optimizedInstant The optimized instant to be studied (set to null to access initial results)
      * @return The global cost of the situation state.
+     * @deprecated since 7.6.0, use {@link CostResult} extension.
      */
+    @Deprecated(since = "7.6.0")
     default double getCost(Instant optimizedInstant) {
         return getFunctionalCost(optimizedInstant) + getVirtualCost(optimizedInstant);
     }
@@ -215,8 +317,16 @@ public interface RaoResult extends Extendable<RaoResult> {
      *
      * @param optimizedInstant The optimized instant to be studied (set to null to access initial results)
      * @return The functional cost of the situation state.
+     * @deprecated since 7.6.0, use {@link CostResult} extension.
      */
-    double getFunctionalCost(Instant optimizedInstant);
+    @Deprecated(since = "7.6.0")
+    default double getFunctionalCost(Instant optimizedInstant) {
+        CostResult costResult = getExtension(CostResult.class);
+        if (costResult == null) {
+            throw new OpenRaoException("RaoResult does not contain a CostResult extension.");
+        }
+        return costResult.getFunctionalCost(optimizedInstant);
+    }
 
     /**
      * It gives the sum of virtual costs of the situation at a given {@link Instant} according to the
@@ -225,16 +335,32 @@ public interface RaoResult extends Extendable<RaoResult> {
      *
      * @param optimizedInstant The optimized instant to be studied (set to null to access initial results)
      * @return The global virtual cost of the situation state.
+     * @deprecated since 7.6.0, use {@link CostResult} extension.
      */
-    double getVirtualCost(Instant optimizedInstant);
+    @Deprecated(since = "7.6.0")
+    default double getVirtualCost(Instant optimizedInstant) {
+        CostResult costResult = getExtension(CostResult.class);
+        if (costResult == null) {
+            throw new OpenRaoException("RaoResult does not contain a CostResult extension.");
+        }
+        return costResult.getVirtualCost(optimizedInstant);
+    }
 
     /**
      * It gives the names of the different virtual cost implied in the objective function defined in
      * the RAO.
      *
      * @return The set of virtual cost names.
+     * @deprecated since 7.6.0, use {@link CostResult} extension.
      */
-    Set<String> getVirtualCostNames();
+    @Deprecated(since = "7.6.0")
+    default Set<String> getVirtualCostNames() {
+        CostResult costResult = getExtension(CostResult.class);
+        if (costResult == null) {
+            throw new OpenRaoException("RaoResult does not contain a CostResult extension.");
+        }
+        return costResult.getVirtualCostNames();
+    }
 
     /**
      * It gives the specified virtual cost of the situation at a given {@link Instant}. It represents the
@@ -244,8 +370,16 @@ public interface RaoResult extends Extendable<RaoResult> {
      * @param optimizedInstant The optimized instant to be studied (set to null to access initial results)
      * @param virtualCostName  The name of the virtual cost.
      * @return The specific virtual cost of the situation state.
+     * @deprecated since 7.6.0, use {@link CostResult} extension.
      */
-    double getVirtualCost(Instant optimizedInstant, String virtualCostName);
+    @Deprecated(since = "7.6.0")
+    default double getVirtualCost(Instant optimizedInstant, String virtualCostName) {
+        CostResult costResult = getExtension(CostResult.class);
+        if (costResult == null) {
+            throw new OpenRaoException("RaoResult does not contain a CostResult extension.");
+        }
+        return costResult.getVirtualCost(optimizedInstant, virtualCostName);
+    }
 
     /**
      * It states if the {@link RemedialAction} is activated on a specific {@link State}.
@@ -433,16 +567,36 @@ public interface RaoResult extends Extendable<RaoResult> {
 
     /**
      * Know which RAO steps were executed by the RAO
+     *
+     * @deprecated since 7.6.0, use {@link Metadata} extension.
      */
-    String getExecutionDetails();
+    @Deprecated(since = "7.6.0")
+    default String getExecutionDetails() {
+        Metadata metadata = getExtension(Metadata.class);
+        if (metadata == null) {
+            throw new OpenRaoException("RaoResult does not contain a Metadata extension.");
+        }
+        return metadata.getExecutionDetails().orElse("Not provided.");
+    }
 
-    void setExecutionDetails(String executionDetails);
+    @Deprecated(since = "7.6.0")
+    default void setExecutionDetails(String executionDetails) {
+        Metadata metadata = getExtension(Metadata.class);
+        if (metadata == null) {
+            throw new OpenRaoException("RaoResult does not contain a Metadata extension.");
+        }
+        removeExtension(Metadata.class);
+        addExtension(Metadata.class, new Metadata(metadata, executionDetails));
+    }
 
     /**
-     * Check if the RaoResult is secure for the given physical parameters.
+     * Returns the security status of the RaoResult for the given physical parameters.
      *
-     * @param physicalParameters The physical parameters to check (any non-empty combination of FLOW, ANGLE and VOLTAGE).
-     * @return True if the RaoResult is secure for the given physical parameters, false otherwise.
+     * @param physicalParameters the physical parameters for which the security status is requested
+     * @return boolean
+     * @throws OpenRaoException if no physical parameters are provided
+     * @apiNote If the RAO failed, the security status defaults to {@code false} since it cannot be assessed.
+     *          In any other case, the security status defaults to {@code true} for unassessed physical parameters
      */
     boolean isSecure(PhysicalParameter... physicalParameters);
 

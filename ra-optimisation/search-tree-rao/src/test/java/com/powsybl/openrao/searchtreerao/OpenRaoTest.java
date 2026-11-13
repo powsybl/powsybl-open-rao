@@ -14,7 +14,6 @@ import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
-import com.powsybl.openrao.data.raoresult.api.TimeCoupledRaoResult;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.TimeCoupledRaoInput;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
@@ -74,10 +73,10 @@ class OpenRaoTest {
 
     @Test
     void testTimeCoupledInputUsesMarmot() {
-        TimeCoupledRaoResult timeCoupledRaoResult = mock(TimeCoupledRaoResult.class);
+        RaoResult timeCoupledRaoResult = mock(RaoResult.class);
         try (MockedConstruction<Marmot> marmot = mockConstruction(Marmot.class,
             (m, context) -> when(m.run(any(TimeCoupledRaoInput.class), any(), any())).thenReturn(CompletableFuture.completedFuture(timeCoupledRaoResult)))) {
-            TimeCoupledRaoResult result = new OpenRao().run(mock(TimeCoupledRaoInput.class), new RaoParameters(ReportNode.NO_OP), ReportNode.NO_OP).join();
+            RaoResult result = new OpenRao().run(mock(TimeCoupledRaoInput.class), new RaoParameters(ReportNode.NO_OP), ReportNode.NO_OP).join();
             assertSame(timeCoupledRaoResult, result);
             assertEquals(1, marmot.constructed().size());
         }

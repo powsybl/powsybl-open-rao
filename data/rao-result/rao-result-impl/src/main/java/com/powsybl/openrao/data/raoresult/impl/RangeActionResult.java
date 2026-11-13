@@ -21,7 +21,6 @@ import java.util.Set;
 public class RangeActionResult {
     protected double initialSetpoint = Double.NaN;
     protected final Map<State, Double> setpointPerState;
-    protected State preventiveState = null;
 
     public RangeActionResult() {
         setpointPerState = new HashMap<>();
@@ -40,9 +39,11 @@ public class RangeActionResult {
     }
 
     private State getLastActivatedBefore(State state) {
-        return setpointPerState.keySet().stream().filter(otherState -> otherState.isPreventive() || otherState.getContingency().equals(state.getContingency()))
-                .filter(otherState -> otherState.getInstant().equals(state.getInstant()) || otherState.getInstant().comesBefore(state.getInstant()))
-                .max(Comparator.comparingInt(s -> s.getInstant().getOrder())).orElse(null);
+        return setpointPerState.keySet().stream()
+            .filter(otherState -> otherState.getTimestamp().equals(state.getTimestamp()))
+            .filter(otherState -> otherState.isPreventive() || otherState.getContingency().equals(state.getContingency()))
+            .filter(otherState -> otherState.getInstant().equals(state.getInstant()) || otherState.getInstant().comesBefore(state.getInstant()))
+            .max(Comparator.comparingInt(s -> s.getInstant().getOrder())).orElse(null);
     }
 
     public boolean isActivatedDuringState(State state) {
@@ -55,9 +56,6 @@ public class RangeActionResult {
 
     public void addActivationForState(State state, double setpoint) {
         setpointPerState.put(state, setpoint);
-        if (state.isPreventive()) {
-            preventiveState = state;
-        }
     }
 
     public void setInitialSetpoint(double initialSetpoint) {

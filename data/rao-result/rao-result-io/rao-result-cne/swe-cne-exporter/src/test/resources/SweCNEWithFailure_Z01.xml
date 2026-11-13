@@ -146,12 +146,6 @@
                 <Constraint_Series>
                     <mRID>9d89006-4ffe-405d-8454-ca00f4a70e61</mRID>
                     <businessType>B57</businessType>
-                    <AdditionalConstraint_Series>
-                        <mRID>ac1</mRID>
-                        <businessType>B87</businessType>
-                        <name>ac1-name</name>
-                        <quantity.quantity>4.0</quantity.quantity>
-                    </AdditionalConstraint_Series>
                     <Contingency_Series>
                         <mRID>Co-1</mRID>
                         <name>Contingency 1 name</name>

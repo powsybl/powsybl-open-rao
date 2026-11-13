@@ -34,9 +34,13 @@ public class RemedialActionCostEvaluator implements CostEvaluator {
         this.optimizedStates = optimizedStates;
     }
 
+    public static String getEvaluatorName() {
+        return "remedial-action-cost-evaluator";
+    }
+
     @Override
     public String getName() {
-        return "remedial-action-cost-evaluator";
+        return getEvaluatorName();
     }
 
     @Override
@@ -49,9 +53,9 @@ public class RemedialActionCostEvaluator implements CostEvaluator {
     private double getTotalNetworkActionsCost(RemedialActionActivationResult remedialActionActivationResult) {
         Map<State, Set<NetworkAction>> networkActionsPerState = remedialActionActivationResult.getActivatedNetworkActionsPerState();
         return networkActionsPerState.values().stream()
-                .flatMap(Set::stream)
-                .mapToDouble(networkAction -> networkAction.getActivationCost().orElse(0.0))
-                .sum();
+            .flatMap(Set::stream)
+            .mapToDouble(networkAction -> networkAction.getActivationCost().orElse(0.0))
+            .sum();
     }
 
     private double getTotalRangeActionsCost(final RemedialActionActivationResult remedialActionActivationResult) {
