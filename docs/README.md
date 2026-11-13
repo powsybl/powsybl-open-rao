@@ -47,10 +47,11 @@ graph TD
 
 Links from the documentation to Java sources must follow the **published version** of the
 website: the `v7.5.0` doc must link to the `v7.5.0` sources, not to `main`.  
-`conf.py` computes the GitHub reference from the `READTHEDOCS_VERSION` environment variable
-(set by readthedocs): tag builds use the exact tag (`v7.5.0`, `v7.4.0`, …), while
-`latest` / `stable` and pull-request previews (`pr/<N>`) fall back to `main`.  
-On a local build (no `READTHEDOCS_VERSION`), links point to `main`.
+`conf.py` computes the GitHub reference from the readthedocs environment variables:
+tag builds use the exact tag (`v7.5.0`, `v7.4.0`, …), branch builds and pull-request
+previews use `READTHEDOCS_VERSION_NAME` (the git ref itself — for a PR preview that is
+the PR's head branch, so the preview links to the PR branch).  
+On a local build (no readthedocs environment), links point to `main`.
 
 To link a source file (or a directory), use the `{src}` MyST role (registered in
 `conf.py`) with a path **relative to the root of the repository**:

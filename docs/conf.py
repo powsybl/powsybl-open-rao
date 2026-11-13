@@ -78,13 +78,19 @@ html_context = {
     "sidebar_logo_href": "https://powsybl.readthedocs.io"
 }
 
-# Version for dynamic links to the GitHub source
-# readthedocs exposes the exact tag name as version slug (e.g. "v7.5.0"),
-# plus "latest"/"stable" and "pr/<N>" for pull-request previews.
+# Version for dynamic links to the GitHub source.
+# readthedocs version slugs: the exact tag name (e.g. "v7.5.0"), "latest"/"stable" for
+# branch builds, and the bare PR number (e.g. "2027") for pull-request previews.
+# READTHEDOCS_VERSION_NAME is the git ref itself: the tag name, the branch name, or —
+# for PR previews — the PR's head branch, so the preview links to the PR branch.
+# (If the PR comes from a fork, that branch may not exist in this repo and the link
+# 404s — acceptable for a preview build.)
 release_version = os.environ.get("READTHEDOCS_VERSION", "main")
-if release_version in ("latest", "stable") or release_version.startswith("pr/"):
-    github_ref = "main"
+version_name = os.environ.get("READTHEDOCS_VERSION_NAME", "main")
+if release_version in ("latest", "stable") or release_version.startswith("pr/") or release_version.isdigit():
+    github_ref = version_name or "main"
 else:
+    # tag build: the readthedocs version slug is the exact tag name
     github_ref = release_version
 
 html_theme_options = {
