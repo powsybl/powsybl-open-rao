@@ -29,7 +29,6 @@ import com.powsybl.openrao.monitoring.results.RaoResultWithVoltageMonitoring;
 import com.powsybl.openrao.raoapi.TimeCoupledRaoInput;
 import com.powsybl.openrao.raoapi.json.JsonRaoParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
-import com.powsybl.openrao.raoapi.parameters.extensions.FastRaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.MarmotParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters;
@@ -393,10 +392,6 @@ public final class CommonTestData {
         if (overrideLinearSolver != null) {
             raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getRangeActionsOptimizationParameters().getLinearOptimizationSolver()
                 .setSolver(SearchTreeRaoRangeActionsOptimizationParameters.Solver.valueOf(overrideLinearSolver.toUpperCase()));
-        }
-
-        if (!raoParameters.hasExtension(FastRaoParameters.class)) {
-            raoParameters.addExtension(FastRaoParameters.class, new FastRaoParameters());
         }
 
         if (!raoParameters.hasExtension(MarmotParameters.class)) {
