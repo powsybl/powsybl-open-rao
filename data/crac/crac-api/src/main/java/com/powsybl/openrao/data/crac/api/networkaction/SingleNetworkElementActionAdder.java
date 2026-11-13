@@ -13,7 +13,5 @@ package com.powsybl.openrao.data.crac.api.networkaction;
 public interface SingleNetworkElementActionAdder<T extends SingleNetworkElementActionAdder<T>> {
     T withNetworkElement(String networkElementId);
 
-    T withNetworkElement(String networkElementId, String networkElementName);
-
     NetworkActionAdder add();
 }

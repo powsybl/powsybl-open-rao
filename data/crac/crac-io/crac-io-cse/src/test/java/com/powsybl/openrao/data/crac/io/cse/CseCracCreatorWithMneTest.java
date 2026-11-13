@@ -132,12 +132,12 @@ class CseCracCreatorWithMneTest {
         assertTrue(hasThreshold(nativeId, expectedThreshold, expectedThresholdUnit, flowCnec, direction, TwoSides.TWO));
         assertEquals(contingencyId, flowCnec.getState().getContingency().get().getId());
         assertEquals(instant, flowCnec.getState().getInstant());
-        assertEquals(flowCnec.getNetworkElement().getId(), crac.getFlowCnec(createdCnecId).getNetworkElement().getName());
+        assertEquals(flowCnec.getNetworkElementId(), crac.getFlowCnec(createdCnecId).getNetworkElementId());
         boolean directionInvertedInNetwork = cracCreationContext.getBranchCnecCreationContext(nativeId).isDirectionInvertedInNetwork();
         if (directionInvertedInNetwork) {
-            assertEquals(toNode + "  " + fromNode + "  " + suffix, flowCnec.getNetworkElement().getId());
+            assertEquals(toNode + "  " + fromNode + "  " + suffix, flowCnec.getNetworkElementId());
         } else {
-            assertEquals(fromNode + "  " + toNode + "  " + suffix, flowCnec.getNetworkElement().getId());
+            assertEquals(fromNode + "  " + toNode + "  " + suffix, flowCnec.getNetworkElementId());
         }
         assertEquals(expectedNV, flowCnec.getNominalVoltage(TwoSides.TWO), 0.00001);
         assertEquals(expectedNV, flowCnec.getNominalVoltage(TwoSides.ONE), 0.00001);
@@ -169,9 +169,9 @@ class CseCracCreatorWithMneTest {
         assertTrue(flowCnec.getState().isPreventive());
         boolean directionInvertedInNetwork = cracCreationContext.getBranchCnecCreationContext(nativeId).isDirectionInvertedInNetwork();
         if (directionInvertedInNetwork) {
-            assertEquals(toNode + "  " + fromNode + "  " + suffix, flowCnec.getNetworkElement().getId());
+            assertEquals(toNode + "  " + fromNode + "  " + suffix, flowCnec.getNetworkElementId());
         } else {
-            assertEquals(fromNode + "  " + toNode + "  " + suffix, flowCnec.getNetworkElement().getId());
+            assertEquals(fromNode + "  " + toNode + "  " + suffix, flowCnec.getNetworkElementId());
         }
         assertEquals(expectedNV, flowCnec.getNominalVoltage(TwoSides.TWO), 0.00001);
         assertEquals(expectedNV, flowCnec.getNominalVoltage(TwoSides.ONE), 0.00001);
@@ -182,36 +182,28 @@ class CseCracCreatorWithMneTest {
         if (!directionInvertedInNetwork && "DIRECT".equals(direction)
             || directionInvertedInNetwork && "OPPOSITE".equals(direction)) {
             // should have max
-            return flowCnec.getThresholds().stream().anyMatch(threshold -> threshold.getSide().equals(side)
-                    && threshold.max().isPresent() && threshold.max().get().equals(expectedThreshold)
-                    && threshold.getUnit().equals(expectedThresholdUnit)
-            );
+            return flowCnec.getRawUpperBound(side, expectedThresholdUnit).get() == expectedThreshold;
+
         }
         if (directionInvertedInNetwork && "DIRECT".equals(direction)
             || !directionInvertedInNetwork && "OPPOSITE".equals(direction)) {
             // should have min
-            return flowCnec.getThresholds().stream().anyMatch(threshold -> threshold.getSide().equals(side)
-                    && threshold.min().isPresent() && threshold.min().get().equals(-expectedThreshold)
-                    && threshold.getUnit().equals(expectedThresholdUnit)
-            );
+            return flowCnec.getRawLowerBound(side, expectedThresholdUnit).get() == -expectedThreshold;
         }
         // should have min and max
-        return flowCnec.getThresholds().stream().anyMatch(threshold ->
-                threshold.getSide().equals(side)
-                        && threshold.max().isPresent() && threshold.max().get().equals(expectedThreshold)
-                        && threshold.min().isPresent() && threshold.min().get().equals(-expectedThreshold)
-                        && threshold.getUnit().equals(expectedThresholdUnit)
-        );
+        return flowCnec.getRawLowerBound(side, expectedThresholdUnit).get() == -expectedThreshold &&
+            flowCnec.getRawUpperBound(side, expectedThresholdUnit).get() == expectedThreshold;
+
     }
 
     public void assertAllMneCorrectlyImportedInCrac() {
-        assertMneWithContingencyInCrac("mne_test", "NNL2AA1", "NNL3AA1", "1", "DIRECT", "outage_1", outageInstant, 5000, 1.1, Unit.PERCENT_IMAX, 380);
+        assertMneWithContingencyInCrac("mne_test", "NNL2AA1", "NNL3AA1", "1", "DIRECT", "outage_1", outageInstant, 5000, 1.1 * 5000, Unit.AMPERE, 380);
         assertMneWithContingencyInCrac("mne_test", "NNL2AA1", "NNL3AA1", "1", "DIRECT", "outage_1", autoInstant, 5000, 6000, Unit.AMPERE, 380);
         assertMneWithContingencyInCrac("mne_test", "NNL2AA1", "NNL3AA1", "1", "DIRECT", "outage_1", curativeInstant, 5000, 6500, Unit.AMPERE, 380);
-        assertMneWithContingencyInCrac("mne_test", "NNL2AA1", "NNL3AA1", "1", "DIRECT", "outage_2", outageInstant, 5000, 1.1, Unit.PERCENT_IMAX, 380);
+        assertMneWithContingencyInCrac("mne_test", "NNL2AA1", "NNL3AA1", "1", "DIRECT", "outage_2", outageInstant, 5000, 1.1 * 5000, Unit.AMPERE, 380);
         assertMneWithContingencyInCrac("mne_test", "NNL2AA1", "NNL3AA1", "1", "DIRECT", "outage_2", autoInstant, 5000, 6000, Unit.AMPERE, 380);
         assertMneWithContingencyInCrac("mne_test", "NNL2AA1", "NNL3AA1", "1", "DIRECT", "outage_2", curativeInstant, 5000, 6500, Unit.AMPERE, 380);
-        assertMneBaseCaseInCrac("mne_test", "NNL2AA1", "NNL3AA1", "1", "DIRECT", preventiveInstant, 5000, 1, Unit.PERCENT_IMAX, 380);
+        assertMneBaseCaseInCrac("mne_test", "NNL2AA1", "NNL3AA1", "1", "DIRECT", preventiveInstant, 5000, 1 * 5000, Unit.AMPERE, 380);
     }
 
     public void assertAllMneCorrectlyImportedInCriticalBranchesCreationContext() {

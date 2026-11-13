@@ -11,6 +11,8 @@ import com.powsybl.openrao.data.crac.api.cnec.CnecValue;
 
 /**
  * @author Mohamed Ben Rejeb {@literal <mohamed.ben-rejeb at rte-france.com>}
+ * @deprecated use voltage CNEC monitoring results instead
  */
+@Deprecated(since = "7.5.0")
 public record VoltageCnecValue(Double minValue, Double maxValue) implements CnecValue {
 }

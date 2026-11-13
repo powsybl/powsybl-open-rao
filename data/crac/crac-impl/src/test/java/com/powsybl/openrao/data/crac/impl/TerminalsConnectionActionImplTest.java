@@ -50,8 +50,8 @@ class TerminalsConnectionActionImplTest {
 
     @Test
     void basicMethods() {
-        assertEquals(1, topologyOpen.getNetworkElements().size());
-        assertEquals("FFR2AA1  DDE3AA1  1", topologyOpen.getNetworkElements().iterator().next().getId());
+        assertEquals(1, topologyOpen.getNetworkElementsIds().size());
+        assertEquals("FFR2AA1  DDE3AA1  1", topologyOpen.getNetworkElementsIds().iterator().next());
         assertTrue(topologyOpen.canBeApplied(network));
     }
 

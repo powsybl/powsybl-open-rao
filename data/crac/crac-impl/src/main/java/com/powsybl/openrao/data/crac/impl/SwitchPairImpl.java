@@ -10,7 +10,6 @@ package com.powsybl.openrao.data.crac.impl;
 import com.powsybl.action.SwitchActionBuilder;
 import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.modification.NetworkModificationList;
-import com.powsybl.openrao.data.crac.api.NetworkElement;
 import com.powsybl.openrao.data.crac.api.networkaction.SwitchPair;
 
 /**
@@ -18,10 +17,10 @@ import com.powsybl.openrao.data.crac.api.networkaction.SwitchPair;
  */
 public class SwitchPairImpl implements SwitchPair {
     private final String id;
-    private final NetworkElement switchToOpen;
-    private final NetworkElement switchToClose;
+    private final String switchToOpen;
+    private final String switchToClose;
 
-    SwitchPairImpl(String id, NetworkElement switchToOpen, NetworkElement switchToClose) {
+    SwitchPairImpl(String id, String switchToOpen, String switchToClose) {
         this.id = id;
         this.switchToOpen = switchToOpen;
         this.switchToClose = switchToClose;
@@ -32,13 +31,13 @@ public class SwitchPairImpl implements SwitchPair {
         return new NetworkModificationList(
             new SwitchActionBuilder()
                 .withId(id + "_open")
-                .withNetworkElementId(switchToOpen.getId())
+                .withNetworkElementId(switchToOpen)
                 .withOpen(true)
                 .build()
                 .toModification(),
             new SwitchActionBuilder()
                 .withId(id + "_close")
-                .withNetworkElementId(switchToClose.getId())
+                .withNetworkElementId(switchToClose)
                 .withOpen(false)
                 .build()
                 .toModification()
@@ -46,12 +45,12 @@ public class SwitchPairImpl implements SwitchPair {
     }
 
     @Override
-    public NetworkElement getSwitchToOpen() {
+    public String getSwitchToOpenId() {
         return switchToOpen;
     }
 
     @Override
-    public NetworkElement getSwitchToClose() {
+    public String getSwitchToCloseId() {
         return switchToClose;
     }
 
@@ -64,7 +63,7 @@ public class SwitchPairImpl implements SwitchPair {
             return false;
         }
         SwitchPair oSwitchPair = (SwitchPairImpl) o;
-        return this.switchToOpen.equals(oSwitchPair.getSwitchToOpen()) && this.switchToClose.equals(oSwitchPair.getSwitchToClose());
+        return this.getSwitchToOpenId().equals(oSwitchPair.getSwitchToOpenId()) && this.getSwitchToCloseId().equals(oSwitchPair.getSwitchToCloseId());
     }
 
     @Override

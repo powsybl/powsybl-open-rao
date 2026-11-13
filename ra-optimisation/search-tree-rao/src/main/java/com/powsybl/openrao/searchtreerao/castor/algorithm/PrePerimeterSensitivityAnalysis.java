@@ -27,6 +27,8 @@ import com.powsybl.openrao.searchtreerao.result.impl.RangeActionSetpointResultIm
 import com.powsybl.openrao.searchtreerao.result.impl.RemedialActionActivationResultImpl;
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 
+import java.util.Collections;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -57,7 +59,8 @@ public class PrePerimeterSensitivityAnalysis extends AbstractMultiPerimeterSensi
 
     public PrePerimeterResult runInitialSensitivityAnalysis(final Network network, final Set<State> optimizedStates, final ReportNode reportNode) {
         SensitivityComputer.SensitivityComputerBuilder sensitivityComputerBuilder = buildSensiBuilder(reportNode)
-            .withOutageInstant(crac.getOutageInstant());
+            .withOutageInstant(crac.getOutageInstant())
+            .withComputationManager(computationManager);
         if (raoParameters.getLoopFlowParameters().isPresent()) {
             sensitivityComputerBuilder.withCommercialFlowsResults(toolProvider.getLoopFlowComputation(), toolProvider.getLoopFlowCnecs(flowCnecs));
         }
@@ -85,7 +88,7 @@ public class PrePerimeterSensitivityAnalysis extends AbstractMultiPerimeterSensi
             initialFlowResult,
             operatorsNotSharingCras,
             raoParameters,
-            Set.of(crac.getPreventiveState())
+            Objects.isNull(crac.getPreventiveState()) ? Collections.emptySet() : Set.of(crac.getPreventiveState())
         );
 
         return runAndGetResult(network, objectiveFunction, reportNode);

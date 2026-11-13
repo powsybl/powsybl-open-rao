@@ -8,8 +8,8 @@
 package com.powsybl.openrao.searchtreerao.result.impl;
 
 import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.data.crac.api.Identifiable;
 import com.powsybl.openrao.data.crac.api.State;
+import com.powsybl.openrao.data.crac.api.rangeaction.HvdcRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.StandardRangeAction;
@@ -116,7 +116,7 @@ public class RangeActionActivationResultImpl implements RangeActionActivationRes
     }
 
     private String concatenateNetworkElementsIds(RangeAction<?> rangeAction) {
-        return rangeAction.getNetworkElements().stream().map(Identifiable::getId).sorted().collect(Collectors.joining("+"));
+        return rangeAction.getNetworkElementsIds().stream().sorted().collect(Collectors.joining("+"));
     }
 
     @Override
@@ -130,6 +130,10 @@ public class RangeActionActivationResultImpl implements RangeActionActivationRes
         return elementaryResultMap.entrySet().stream()
             .filter(e -> e.getValue().isExplicitlyActivatedDuringState(state))
             .filter(e -> {
+                if (e.getKey() instanceof HvdcRangeAction) {
+                    return true;
+                }
+
                 Optional<State> pState = getPreviousState(state);
                 if (pState.isEmpty()) {
                     return Math.abs(getOptimizedSetpoint(e.getKey(), state) - e.getValue().refSetpoint) > 1e-6; // TODO : use same parameter as min variation of MIP here?

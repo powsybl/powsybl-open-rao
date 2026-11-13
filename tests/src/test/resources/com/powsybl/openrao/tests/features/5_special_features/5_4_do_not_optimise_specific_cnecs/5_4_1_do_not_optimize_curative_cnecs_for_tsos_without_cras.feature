@@ -4,16 +4,17 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 Feature: 5.4.1: Handle CNECs belonging to TSOs that don't share CRAs
+  # FIXME: impossible to access the list of CNECs to exclude without the parameters -> update importer?
   This feature covers the parameter "not-optimized-cnecs"/"do-not-optimize-curative-cnecs-for-tsos-without-cras",
   from the RaoParameters.
 
   @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: 5.4.1.1.A: All CNECs belong to one operator not sharing CRAs - AMP
   The worst margin is on a curative CNEC (not taken into account since all CNECs belong to an operator not sharing CRAs)
-  The "limiting" one for the objective function is the worst preventive CNECs
-    Given network file is "epic19/TestCase16Nodes_with_different_imax_v2.uct" for CORE CC
-    Given crac file is "epic19/CBCORA_ep19us7case1.xml"
-    Given configuration file is "epic19/RaoParameters_maxMargin_ampere_shareCra.json"
+  The "limiting" one for the objective function is the worst preventive CNEC
+    Given network file is "5_special_features/5_4_do_not_optimise_specific_cnecs/network_16nodes_with_different_imax_v2.uct" for CORE CC
+    Given crac file is "5_special_features/5_4_do_not_optimise_specific_cnecs/cbcora_5_4_1_1.xml"
+    Given configuration file is "5_special_features/5_4_do_not_optimise_specific_cnecs/rao_parameters_max_margin_ampere_share_cra.json"
     When I launch rao at "2019-01-08 12:00"
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -28,9 +29,9 @@ Feature: 5.4.1: Handle CNECs belonging to TSOs that don't share CRAs
 
   @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: 5.4.1.2.A: All CNECs belong to one operator sharing one CRA - AMP
-    Given network file is "epic19/TestCase16Nodes_with_different_imax_v2.uct" for CORE CC
-    Given crac file is "epic19/CBCORA_ep19us7case2.xml"
-    Given configuration file is "epic19/RaoParameters_maxMargin_ampere_shareCra.json"
+    Given network file is "5_special_features/5_4_do_not_optimise_specific_cnecs/network_16nodes_with_different_imax_v2.uct" for CORE CC
+    Given crac file is "5_special_features/5_4_do_not_optimise_specific_cnecs/cbcora_5_4_1_2.xml"
+    Given configuration file is "5_special_features/5_4_do_not_optimise_specific_cnecs/rao_parameters_max_margin_ampere_share_cra.json"
     When I launch rao at "2019-01-08 12:00"
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -47,9 +48,9 @@ Feature: 5.4.1: Handle CNECs belonging to TSOs that don't share CRAs
 
   @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: 5.4.1.3.A: Most limiting CNEC belongs to operator not sharing CRAs - AMP
-    Given network file is "epic19/TestCase16Nodes_with_different_imax_v2.uct" for CORE CC
-    Given crac file is "epic19/CBCORA_ep19us7case3.xml"
-    Given configuration file is "epic19/RaoParameters_maxMargin_ampere_shareCra.json"
+    Given network file is "5_special_features/5_4_do_not_optimise_specific_cnecs/network_16nodes_with_different_imax_v2.uct" for CORE CC
+    Given crac file is "5_special_features/5_4_do_not_optimise_specific_cnecs/cbcora_5_4_1_3.xml"
+    Given configuration file is "5_special_features/5_4_do_not_optimise_specific_cnecs/rao_parameters_max_margin_ampere_share_cra.json"
     When I launch rao at "2019-01-08 12:00"
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -66,9 +67,9 @@ Feature: 5.4.1: Handle CNECs belonging to TSOs that don't share CRAs
 
   @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: 5.4.1.4.A: Second most limiting CNEC belongs to operator not sharing CRAs - AMP
-    Given network file is "epic19/TestCase16Nodes_with_different_imax_v2.uct" for CORE CC
-    Given crac file is "epic19/CBCORA_ep19us7case4.xml"
-    Given configuration file is "epic19/RaoParameters_maxMargin_ampere_shareCra.json"
+    Given network file is "5_special_features/5_4_do_not_optimise_specific_cnecs/network_16nodes_with_different_imax_v2.uct" for CORE CC
+    Given crac file is "5_special_features/5_4_do_not_optimise_specific_cnecs/cbcora_5_4_1_4.xml"
+    Given configuration file is "5_special_features/5_4_do_not_optimise_specific_cnecs/rao_parameters_max_margin_ampere_share_cra.json"
     When I launch rao at "2019-01-08 12:00"
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -85,9 +86,9 @@ Feature: 5.4.1: Handle CNECs belonging to TSOs that don't share CRAs
 
   @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: 5.4.1.5.A: Second most limiting CNEC after PRA belongs to operator not sharing CRAs, and is improved in CRAO - AMP
-    Given network file is "epic19/TestCase16Nodes_with_different_imax_v2.uct" for CORE CC
-    Given crac file is "epic19/CBCORA_ep19us7case5.xml"
-    Given configuration file is "epic19/RaoParameters_maxMargin_ampere_shareCra.json"
+    Given network file is "5_special_features/5_4_do_not_optimise_specific_cnecs/network_16nodes_with_different_imax_v2.uct" for CORE CC
+    Given crac file is "5_special_features/5_4_do_not_optimise_specific_cnecs/cbcora_5_4_1_5.xml"
+    Given configuration file is "5_special_features/5_4_do_not_optimise_specific_cnecs/rao_parameters_max_margin_ampere_share_cra.json"
     When I launch rao at "2019-01-08 12:00"
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -105,9 +106,9 @@ Feature: 5.4.1: Handle CNECs belonging to TSOs that don't share CRAs
 
   @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: 5.4.1.6.A: Second most limiting CNEC after PRA belongs to operator not sharing CRAs, and can become most limiting in CRAO - AMP
-    Given network file is "epic19/TestCase16Nodes_with_different_imax_v2.uct" for CORE CC
-    Given crac file is "epic19/CBCORA_ep19us7case6.xml"
-    Given configuration file is "epic19/RaoParameters_maxMargin_ampere_shareCra.json"
+    Given network file is "5_special_features/5_4_do_not_optimise_specific_cnecs/network_16nodes_with_different_imax_v2.uct" for CORE CC
+    Given crac file is "5_special_features/5_4_do_not_optimise_specific_cnecs/cbcora_5_4_1_6.xml"
+    Given configuration file is "5_special_features/5_4_do_not_optimise_specific_cnecs/rao_parameters_max_margin_ampere_share_cra.json"
     When I launch rao at "2019-01-08 12:00"
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -125,9 +126,9 @@ Feature: 5.4.1: Handle CNECs belonging to TSOs that don't share CRAs
 
   @fast @rao @ac @contingency-scenarios @search-tree-rao @max-min-margin
   Scenario: 5.4.1.7.A: Only PSTs - All CNECs belong to one operator sharing a CRA - AMP
-    Given network file is "epic19/TestCase16Nodes_with_different_imax_v2.uct" for CORE CC
-    Given crac file is "epic19/CBCORA_ep19us7case7.xml"
-    Given configuration file is "epic19/RaoParameters_maxMargin_ampere_shareCra.json"
+    Given network file is "5_special_features/5_4_do_not_optimise_specific_cnecs/network_16nodes_with_different_imax_v2.uct" for CORE CC
+    Given crac file is "5_special_features/5_4_do_not_optimise_specific_cnecs/cbcora_5_4_1_7.xml"
+    Given configuration file is "5_special_features/5_4_do_not_optimise_specific_cnecs/rao_parameters_max_margin_ampere_share_cra.json"
     When I launch rao at "2019-01-08 12:00"
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -141,9 +142,9 @@ Feature: 5.4.1: Handle CNECs belonging to TSOs that don't share CRAs
 
   @fast @rao @ac @contingency-scenarios @search-tree-rao @max-min-margin
   Scenario: 5.4.1.8.A: Only PSTs - Most limiting CNEC belongs to an operator not sharing CRAs - AMP
-    Given network file is "epic19/TestCase16Nodes_with_different_imax_v2.uct" for CORE CC
-    Given crac file is "epic19/CBCORA_ep19us7case8.xml"
-    Given configuration file is "epic19/RaoParameters_maxMargin_ampere_shareCra.json"
+    Given network file is "5_special_features/5_4_do_not_optimise_specific_cnecs/network_16nodes_with_different_imax_v2.uct" for CORE CC
+    Given crac file is "5_special_features/5_4_do_not_optimise_specific_cnecs/cbcora_5_4_1_8.xml"
+    Given configuration file is "5_special_features/5_4_do_not_optimise_specific_cnecs/rao_parameters_max_margin_ampere_share_cra.json"
     When I launch rao at "2019-01-08 12:00"
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -158,9 +159,9 @@ Feature: 5.4.1: Handle CNECs belonging to TSOs that don't share CRAs
 
   @fast @rao @ac @contingency-scenarios @search-tree-rao @max-min-margin
   Scenario: 5.4.1.9.A: Only PSTs - Second most limiting CNEC belongs to an operator not sharing CRAs - AMP
-    Given network file is "epic19/TestCase16Nodes_with_different_imax_v2.uct" for CORE CC
-    Given crac file is "epic19/CBCORA_ep19us7case9.xml"
-    Given configuration file is "epic19/RaoParameters_maxMargin_ampere_shareCra.json"
+    Given network file is "5_special_features/5_4_do_not_optimise_specific_cnecs/network_16nodes_with_different_imax_v2.uct" for CORE CC
+    Given crac file is "5_special_features/5_4_do_not_optimise_specific_cnecs/cbcora_5_4_1_9.xml"
+    Given configuration file is "5_special_features/5_4_do_not_optimise_specific_cnecs/rao_parameters_max_margin_ampere_share_cra.json"
     When I launch rao at "2019-01-08 12:00"
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -174,16 +175,16 @@ Feature: 5.4.1: Handle CNECs belonging to TSOs that don't share CRAs
 
   @fast @rao @dc @contingency-scenarios @max-min-margin
   Scenario: 5.4.1.1.MW: All CNECs belong to one operator not sharing CRAs - MW
-    Given network file is "epic19/TestCase16Nodes_with_different_imax_v2.uct" for CORE CC
-    Given crac file is "epic19/CBCORA_ep19us7case1.xml"
-    Given configuration file is "epic19/RaoParameters_maxMargin_megawatt_shareCra.json"
+    Given network file is "5_special_features/5_4_do_not_optimise_specific_cnecs/network_16nodes_with_different_imax_v2.uct" for CORE CC
+    Given crac file is "5_special_features/5_4_do_not_optimise_specific_cnecs/cbcora_5_4_1_1.xml"
+    Given configuration file is "5_special_features/5_4_do_not_optimise_specific_cnecs/rao_parameters_max_margin_megawatt_share_cra.json"
     When I launch rao at "2019-01-08 12:00"
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
     Then 1 remedial actions are used in preventive
     Then the tap of PstRangeAction "pst_fr" should be 9 in preventive
     Then 0 remedial actions are used after "CO1_fr2_fr3_1" at "curative"
-    Then the worst margin is -81 A
+    Then the worst margin is -54.91 MW
     Then the value of the objective function after CRA should be -616.0
     Then the margin on cnec "fr1_fr4_CO1 - curative" after CRA should be -54 MW
     Then the margin on cnec "fr3_fr5_CO1 - OPP - curative" after CRA should be 478 MW
@@ -191,9 +192,9 @@ Feature: 5.4.1: Handle CNECs belonging to TSOs that don't share CRAs
 
   @fast @rao @dc @contingency-scenarios @max-min-margin
   Scenario: 5.4.1.2.MW: All CNECs belong to one operator sharing one CRA - MW
-    Given network file is "epic19/TestCase16Nodes_with_different_imax_v2.uct" for CORE CC
-    Given crac file is "epic19/CBCORA_ep19us7case2.xml"
-    Given configuration file is "epic19/RaoParameters_maxMargin_megawatt_shareCra.json"
+    Given network file is "5_special_features/5_4_do_not_optimise_specific_cnecs/network_16nodes_with_different_imax_v2.uct" for CORE CC
+    Given crac file is "5_special_features/5_4_do_not_optimise_specific_cnecs/cbcora_5_4_1_2.xml"
+    Given configuration file is "5_special_features/5_4_do_not_optimise_specific_cnecs/rao_parameters_max_margin_megawatt_share_cra.json"
     When I launch rao at "2019-01-08 12:00"
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -210,9 +211,9 @@ Feature: 5.4.1: Handle CNECs belonging to TSOs that don't share CRAs
 
   @fast @rao @dc @contingency-scenarios @max-min-margin
   Scenario: 5.4.1.3.MW: Most limiting CNEC belongs to operator not sharing CRAs - MW
-    Given network file is "epic19/TestCase16Nodes_with_different_imax_v2.uct" for CORE CC
-    Given crac file is "epic19/CBCORA_ep19us7case3.xml"
-    Given configuration file is "epic19/RaoParameters_maxMargin_megawatt_shareCra.json"
+    Given network file is "5_special_features/5_4_do_not_optimise_specific_cnecs/network_16nodes_with_different_imax_v2.uct" for CORE CC
+    Given crac file is "5_special_features/5_4_do_not_optimise_specific_cnecs/cbcora_5_4_1_3.xml"
+    Given configuration file is "5_special_features/5_4_do_not_optimise_specific_cnecs/rao_parameters_max_margin_megawatt_share_cra.json"
     When I launch rao at "2019-01-08 12:00"
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -229,9 +230,9 @@ Feature: 5.4.1: Handle CNECs belonging to TSOs that don't share CRAs
 
   @fast @rao @dc @contingency-scenarios @max-min-margin
   Scenario: 5.4.1.4.MW: Second most limiting CNEC belongs to operator not sharing CRAs - MW
-    Given network file is "epic19/TestCase16Nodes_with_different_imax_v2.uct" for CORE CC
-    Given crac file is "epic19/CBCORA_ep19us7case4.xml"
-    Given configuration file is "epic19/RaoParameters_maxMargin_megawatt_shareCra.json"
+    Given network file is "5_special_features/5_4_do_not_optimise_specific_cnecs/network_16nodes_with_different_imax_v2.uct" for CORE CC
+    Given crac file is "5_special_features/5_4_do_not_optimise_specific_cnecs/cbcora_5_4_1_4.xml"
+    Given configuration file is "5_special_features/5_4_do_not_optimise_specific_cnecs/rao_parameters_max_margin_megawatt_share_cra.json"
     When I launch rao at "2019-01-08 12:00"
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -248,9 +249,9 @@ Feature: 5.4.1: Handle CNECs belonging to TSOs that don't share CRAs
 
   @fast @rao @dc @contingency-scenarios @max-min-margin
   Scenario: 5.4.1.5.MW: Second most limiting CNEC after PRA belongs to operator not sharing CRAs, and is improved in CRAO - MW
-    Given network file is "epic19/TestCase16Nodes_with_different_imax_v2.uct" for CORE CC
-    Given crac file is "epic19/CBCORA_ep19us7case5.xml"
-    Given configuration file is "epic19/RaoParameters_maxMargin_megawatt_shareCra.json"
+    Given network file is "5_special_features/5_4_do_not_optimise_specific_cnecs/network_16nodes_with_different_imax_v2.uct" for CORE CC
+    Given crac file is "5_special_features/5_4_do_not_optimise_specific_cnecs/cbcora_5_4_1_5.xml"
+    Given configuration file is "5_special_features/5_4_do_not_optimise_specific_cnecs/rao_parameters_max_margin_megawatt_share_cra.json"
     When I launch rao at "2019-01-08 12:00"
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -268,9 +269,9 @@ Feature: 5.4.1: Handle CNECs belonging to TSOs that don't share CRAs
 
   @fast @rao @dc @contingency-scenarios @max-min-margin
   Scenario: 5.4.1.6.MW: Second most limiting CNEC after PRA belongs to operator not sharing CRAs, and can become most limiting in CRAO - MW
-    Given network file is "epic19/TestCase16Nodes_with_different_imax_v2.uct" for CORE CC
-    Given crac file is "epic19/CBCORA_ep19us7case6.xml"
-    Given configuration file is "epic19/RaoParameters_maxMargin_megawatt_shareCra.json"
+    Given network file is "5_special_features/5_4_do_not_optimise_specific_cnecs/network_16nodes_with_different_imax_v2.uct" for CORE CC
+    Given crac file is "5_special_features/5_4_do_not_optimise_specific_cnecs/cbcora_5_4_1_6.xml"
+    Given configuration file is "5_special_features/5_4_do_not_optimise_specific_cnecs/rao_parameters_max_margin_megawatt_share_cra.json"
     When I launch rao at "2019-01-08 12:00"
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -288,9 +289,9 @@ Feature: 5.4.1: Handle CNECs belonging to TSOs that don't share CRAs
 
   @fast @rao @dc @contingency-scenarios @search-tree-rao @max-min-margin
   Scenario: 5.4.1.7.MW: Only PSTs - All CNECs belong to one operator sharing a CRA - MW
-    Given network file is "epic19/TestCase16Nodes_with_different_imax_v2.uct" for CORE CC
-    Given crac file is "epic19/CBCORA_ep19us7case7.xml"
-    Given configuration file is "epic19/RaoParameters_maxMargin_megawatt_shareCra.json"
+    Given network file is "5_special_features/5_4_do_not_optimise_specific_cnecs/network_16nodes_with_different_imax_v2.uct" for CORE CC
+    Given crac file is "5_special_features/5_4_do_not_optimise_specific_cnecs/cbcora_5_4_1_7.xml"
+    Given configuration file is "5_special_features/5_4_do_not_optimise_specific_cnecs/rao_parameters_max_margin_megawatt_share_cra.json"
     When I launch rao at "2019-01-08 12:00"
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -304,9 +305,9 @@ Feature: 5.4.1: Handle CNECs belonging to TSOs that don't share CRAs
 
   @fast @rao @dc @contingency-scenarios @search-tree-rao @max-min-margin
   Scenario: 5.4.1.8.MW: Only PSTs - Most limiting CNEC belongs to an operator not sharing CRAs - MW
-    Given network file is "epic19/TestCase16Nodes_with_different_imax_v2.uct" for CORE CC
-    Given crac file is "epic19/CBCORA_ep19us7case8.xml"
-    Given configuration file is "epic19/RaoParameters_maxMargin_megawatt_shareCra.json"
+    Given network file is "5_special_features/5_4_do_not_optimise_specific_cnecs/network_16nodes_with_different_imax_v2.uct" for CORE CC
+    Given crac file is "5_special_features/5_4_do_not_optimise_specific_cnecs/cbcora_5_4_1_8.xml"
+    Given configuration file is "5_special_features/5_4_do_not_optimise_specific_cnecs/rao_parameters_max_margin_megawatt_share_cra.json"
     When I launch rao at "2019-01-08 12:00"
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -321,9 +322,9 @@ Feature: 5.4.1: Handle CNECs belonging to TSOs that don't share CRAs
 
   @fast @rao @dc @contingency-scenarios @search-tree-rao @max-min-margin
   Scenario: 5.4.1.9.MW: Only PSTs - Second most limiting CNEC belongs to an operator not sharing CRAs - MW
-    Given network file is "epic19/TestCase16Nodes_with_different_imax_v2.uct" for CORE CC
-    Given crac file is "epic19/CBCORA_ep19us7case9.xml"
-    Given configuration file is "epic19/RaoParameters_maxMargin_megawatt_shareCra.json"
+    Given network file is "5_special_features/5_4_do_not_optimise_specific_cnecs/network_16nodes_with_different_imax_v2.uct" for CORE CC
+    Given crac file is "5_special_features/5_4_do_not_optimise_specific_cnecs/cbcora_5_4_1_9.xml"
+    Given configuration file is "5_special_features/5_4_do_not_optimise_specific_cnecs/rao_parameters_max_margin_megawatt_share_cra.json"
     When I launch rao at "2019-01-08 12:00"
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -337,9 +338,9 @@ Feature: 5.4.1: Handle CNECs belonging to TSOs that don't share CRAs
 
   @fast @rao @ac @contingency-scenarios @max-min-relative-margin
   Scenario: 5.4.1.1.A.R: All CNECs belong to one operator not sharing CRAs - AMP - relative
-    Given network file is "epic19/TestCase16Nodes_with_different_imax_v2.uct" for CORE CC
-    Given crac file is "epic19/CBCORA_ep19us7case1.xml"
-    Given configuration file is "epic19/RaoParameters_maxRelMargin_ampere_shareCra.json"
+    Given network file is "5_special_features/5_4_do_not_optimise_specific_cnecs/network_16nodes_with_different_imax_v2.uct" for CORE CC
+    Given crac file is "5_special_features/5_4_do_not_optimise_specific_cnecs/cbcora_5_4_1_1.xml"
+    Given configuration file is "5_special_features/5_4_do_not_optimise_specific_cnecs/rao_parameters_max_rel_margin_ampere_share_cra.json"
     Given loopflow glsk file is "common/glsk_proportional_16nodes.xml"
     When I launch rao at "2019-01-08 12:00"
     Then the execution details should be "The RAO only went through first preventive"
@@ -357,9 +358,9 @@ Feature: 5.4.1: Handle CNECs belonging to TSOs that don't share CRAs
 
   @fast @rao @ac @contingency-scenarios @max-min-relative-margin
   Scenario: 5.4.1.2.A.R: All CNECs belong to one operator sharing one CRA - AMP - relative
-    Given network file is "epic19/TestCase16Nodes_with_different_imax_v2.uct" for CORE CC
-    Given crac file is "epic19/CBCORA_ep19us7case2.xml"
-    Given configuration file is "epic19/RaoParameters_maxRelMargin_ampere_shareCra.json"
+    Given network file is "5_special_features/5_4_do_not_optimise_specific_cnecs/network_16nodes_with_different_imax_v2.uct" for CORE CC
+    Given crac file is "5_special_features/5_4_do_not_optimise_specific_cnecs/cbcora_5_4_1_2.xml"
+    Given configuration file is "5_special_features/5_4_do_not_optimise_specific_cnecs/rao_parameters_max_rel_margin_ampere_share_cra.json"
     Given loopflow glsk file is "common/glsk_proportional_16nodes.xml"
     When I launch rao at "2019-01-08 12:00"
     Then the execution details should be "The RAO only went through first preventive"
@@ -379,9 +380,9 @@ Feature: 5.4.1: Handle CNECs belonging to TSOs that don't share CRAs
 
   @fast @rao @ac @contingency-scenarios @max-min-relative-margin
   Scenario: 5.4.1.3.A.R: Most limiting CNEC belongs to operator not sharing CRAs - AMP - relative
-    Given network file is "epic19/TestCase16Nodes_with_different_imax_v2.uct" for CORE CC
-    Given crac file is "epic19/CBCORA_ep19us7case3.xml"
-    Given configuration file is "epic19/RaoParameters_maxRelMargin_ampere_shareCra.json"
+    Given network file is "5_special_features/5_4_do_not_optimise_specific_cnecs/network_16nodes_with_different_imax_v2.uct" for CORE CC
+    Given crac file is "5_special_features/5_4_do_not_optimise_specific_cnecs/cbcora_5_4_1_3.xml"
+    Given configuration file is "5_special_features/5_4_do_not_optimise_specific_cnecs/rao_parameters_max_rel_margin_ampere_share_cra.json"
     Given loopflow glsk file is "common/glsk_proportional_16nodes.xml"
     When I launch rao at "2019-01-08 12:00"
     Then the execution details should be "The RAO only went through first preventive"
@@ -401,9 +402,9 @@ Feature: 5.4.1: Handle CNECs belonging to TSOs that don't share CRAs
 
   @fast @rao @ac @contingency-scenarios @max-min-relative-margin
   Scenario: 5.4.1.4.A.R: Second most limiting CNEC belongs to operator not sharing CRAs - AMP - relative
-    Given network file is "epic19/TestCase16Nodes_with_different_imax_v2.uct" for CORE CC
-    Given crac file is "epic19/CBCORA_ep19us7case4.xml"
-    Given configuration file is "epic19/RaoParameters_maxRelMargin_ampere_shareCra.json"
+    Given network file is "5_special_features/5_4_do_not_optimise_specific_cnecs/network_16nodes_with_different_imax_v2.uct" for CORE CC
+    Given crac file is "5_special_features/5_4_do_not_optimise_specific_cnecs/cbcora_5_4_1_4.xml"
+    Given configuration file is "5_special_features/5_4_do_not_optimise_specific_cnecs/rao_parameters_max_rel_margin_ampere_share_cra.json"
     Given loopflow glsk file is "common/glsk_proportional_16nodes.xml"
     When I launch rao at "2019-01-08 12:00"
     Then the execution details should be "The RAO only went through first preventive"
@@ -424,9 +425,9 @@ Feature: 5.4.1: Handle CNECs belonging to TSOs that don't share CRAs
 
   @fast @rao @ac @contingency-scenarios @max-min-relative-margin
   Scenario: 5.4.1.5.A.R: Second most limiting CNEC after PRA belongs to operator not sharing CRAs, and is improved in CRAO - AMP - relative
-    Given network file is "epic19/TestCase16Nodes_with_different_imax_v2.uct" for CORE CC
-    Given crac file is "epic19/CBCORA_ep19us7case5R.xml"
-    Given configuration file is "epic19/RaoParameters_maxRelMargin_ampere_shareCra.json"
+    Given network file is "5_special_features/5_4_do_not_optimise_specific_cnecs/network_16nodes_with_different_imax_v2.uct" for CORE CC
+    Given crac file is "5_special_features/5_4_do_not_optimise_specific_cnecs/cbcora_5_4_1_5_R.xml"
+    Given configuration file is "5_special_features/5_4_do_not_optimise_specific_cnecs/rao_parameters_max_rel_margin_ampere_share_cra.json"
     Given loopflow glsk file is "common/glsk_proportional_16nodes.xml"
     When I launch rao at "2019-01-08 12:00"
     Then the execution details should be "The RAO only went through first preventive"
@@ -447,9 +448,9 @@ Feature: 5.4.1: Handle CNECs belonging to TSOs that don't share CRAs
 
   @fast @rao @ac @contingency-scenarios @max-min-relative-margin
   Scenario: 5.4.1.6.A.R: Second most limiting CNEC after PRA belongs to operator not sharing CRAs, and can become most limiting in CRAO - AMP - relative
-    Given network file is "epic19/TestCase16Nodes_with_different_imax_v2.uct" for CORE CC
-    Given crac file is "epic19/CBCORA_ep19us7case6R.xml"
-    Given configuration file is "epic19/RaoParameters_maxRelMargin_ampere_shareCra.json"
+    Given network file is "5_special_features/5_4_do_not_optimise_specific_cnecs/network_16nodes_with_different_imax_v2.uct" for CORE CC
+    Given crac file is "5_special_features/5_4_do_not_optimise_specific_cnecs/cbcora_5_4_1_6_R.xml"
+    Given configuration file is "5_special_features/5_4_do_not_optimise_specific_cnecs/rao_parameters_max_rel_margin_ampere_share_cra.json"
     Given loopflow glsk file is "common/glsk_proportional_16nodes.xml"
     When I launch rao at "2019-01-08 12:00"
     Then the execution details should be "The RAO only went through first preventive"
@@ -469,9 +470,9 @@ Feature: 5.4.1: Handle CNECs belonging to TSOs that don't share CRAs
 
   @fast @rao @ac @contingency-scenarios @search-tree-rao @max-min-relative-margin
   Scenario: 5.4.1.7.A.R: Only PSTs - All CNECs belong to one operator sharing a CRA - AMP - relative
-    Given network file is "epic19/TestCase16Nodes_with_different_imax_v2.uct" for CORE CC
-    Given crac file is "epic19/CBCORA_ep19us7case7.xml"
-    Given configuration file is "epic19/RaoParameters_maxRelMargin_ampere_shareCra_mip.json"
+    Given network file is "5_special_features/5_4_do_not_optimise_specific_cnecs/network_16nodes_with_different_imax_v2.uct" for CORE CC
+    Given crac file is "5_special_features/5_4_do_not_optimise_specific_cnecs/cbcora_5_4_1_7.xml"
+    Given configuration file is "5_special_features/5_4_do_not_optimise_specific_cnecs/rao_parameters_max_rel_margin_ampere_share_cra_mip.json"
     Given loopflow glsk file is "common/glsk_proportional_16nodes.xml"
     When I launch rao at "2019-01-08 12:00"
     Then the execution details should be "The RAO only went through first preventive"
@@ -486,9 +487,9 @@ Feature: 5.4.1: Handle CNECs belonging to TSOs that don't share CRAs
 
   @fast @rao @ac @contingency-scenarios @search-tree-rao @max-min-relative-margin
   Scenario: 5.4.1.8.A.R: Only PSTs - Most limiting CNEC belongs to an operator not sharing CRAs - AMP - relative
-    Given network file is "epic19/TestCase16Nodes_with_different_imax_v2.uct" for CORE CC
-    Given crac file is "epic19/CBCORA_ep19us7case8.xml"
-    Given configuration file is "epic19/RaoParameters_maxRelMargin_ampere_shareCra_mip.json"
+    Given network file is "5_special_features/5_4_do_not_optimise_specific_cnecs/network_16nodes_with_different_imax_v2.uct" for CORE CC
+    Given crac file is "5_special_features/5_4_do_not_optimise_specific_cnecs/cbcora_5_4_1_8.xml"
+    Given configuration file is "5_special_features/5_4_do_not_optimise_specific_cnecs/rao_parameters_max_rel_margin_ampere_share_cra_mip.json"
     Given loopflow glsk file is "common/glsk_proportional_16nodes.xml"
     When I launch rao at "2019-01-08 12:00"
     Then the execution details should be "The RAO only went through first preventive"
@@ -504,9 +505,9 @@ Feature: 5.4.1: Handle CNECs belonging to TSOs that don't share CRAs
 
   @fast @rao @ac @contingency-scenarios @search-tree-rao @max-min-relative-margin
   Scenario: 5.4.1.9.A.R: Only PSTs - Second most limiting CNEC belongs to an operator not sharing CRAs - AMP - relative
-    Given network file is "epic19/TestCase16Nodes_with_different_imax_v2.uct" for CORE CC
-    Given crac file is "epic19/CBCORA_ep19us7case9.xml"
-    Given configuration file is "epic19/RaoParameters_maxRelMargin_ampere_shareCra_mip.json"
+    Given network file is "5_special_features/5_4_do_not_optimise_specific_cnecs/network_16nodes_with_different_imax_v2.uct" for CORE CC
+    Given crac file is "5_special_features/5_4_do_not_optimise_specific_cnecs/cbcora_5_4_1_9.xml"
+    Given configuration file is "5_special_features/5_4_do_not_optimise_specific_cnecs/rao_parameters_max_rel_margin_ampere_share_cra_mip.json"
     Given loopflow glsk file is "common/glsk_proportional_16nodes.xml"
     When I launch rao at "2019-01-08 12:00"
     Then the execution details should be "The RAO only went through first preventive"
@@ -521,9 +522,9 @@ Feature: 5.4.1: Handle CNECs belonging to TSOs that don't share CRAs
 
   @fast @rao @dc @contingency-scenarios @max-min-relative-margin
   Scenario: 5.4.1.1.MW.R: All CNECs belong to one operator not sharing CRAs - MW - relative
-    Given network file is "epic19/TestCase16Nodes_with_different_imax_v2.uct" for CORE CC
-    Given crac file is "epic19/CBCORA_ep19us7case1.xml"
-    Given configuration file is "epic19/RaoParameters_maxRelMargin_megawatt_shareCra.json"
+    Given network file is "5_special_features/5_4_do_not_optimise_specific_cnecs/network_16nodes_with_different_imax_v2.uct" for CORE CC
+    Given crac file is "5_special_features/5_4_do_not_optimise_specific_cnecs/cbcora_5_4_1_1.xml"
+    Given configuration file is "5_special_features/5_4_do_not_optimise_specific_cnecs/rao_parameters_max_rel_margin_megawatt_share_cra.json"
     Given loopflow glsk file is "common/glsk_proportional_16nodes.xml"
     When I launch rao at "2019-01-08 12:00"
     Then the execution details should be "The RAO only went through first preventive"
@@ -541,9 +542,9 @@ Feature: 5.4.1: Handle CNECs belonging to TSOs that don't share CRAs
 
   @fast @rao @dc @contingency-scenarios @max-min-relative-margin
   Scenario: 5.4.1.2.MW.R: All CNECs belong to one operator sharing one CRA - MW - relative
-    Given network file is "epic19/TestCase16Nodes_with_different_imax_v2.uct" for CORE CC
-    Given crac file is "epic19/CBCORA_ep19us7case2.xml"
-    Given configuration file is "epic19/RaoParameters_maxRelMargin_megawatt_shareCra.json"
+    Given network file is "5_special_features/5_4_do_not_optimise_specific_cnecs/network_16nodes_with_different_imax_v2.uct" for CORE CC
+    Given crac file is "5_special_features/5_4_do_not_optimise_specific_cnecs/cbcora_5_4_1_2.xml"
+    Given configuration file is "5_special_features/5_4_do_not_optimise_specific_cnecs/rao_parameters_max_rel_margin_megawatt_share_cra.json"
     Given loopflow glsk file is "common/glsk_proportional_16nodes.xml"
     When I launch rao at "2019-01-08 12:00"
     Then the execution details should be "The RAO only went through first preventive"
@@ -563,9 +564,9 @@ Feature: 5.4.1: Handle CNECs belonging to TSOs that don't share CRAs
 
   @fast @rao @dc @contingency-scenarios @max-min-relative-margin
   Scenario: 5.4.1.3.MW.R: Most limiting CNEC belongs to operator not sharing CRAs - MW - relative
-    Given network file is "epic19/TestCase16Nodes_with_different_imax_v2.uct" for CORE CC
-    Given crac file is "epic19/CBCORA_ep19us7case3.xml"
-    Given configuration file is "epic19/RaoParameters_maxRelMargin_megawatt_shareCra.json"
+    Given network file is "5_special_features/5_4_do_not_optimise_specific_cnecs/network_16nodes_with_different_imax_v2.uct" for CORE CC
+    Given crac file is "5_special_features/5_4_do_not_optimise_specific_cnecs/cbcora_5_4_1_3.xml"
+    Given configuration file is "5_special_features/5_4_do_not_optimise_specific_cnecs/rao_parameters_max_rel_margin_megawatt_share_cra.json"
     Given loopflow glsk file is "common/glsk_proportional_16nodes.xml"
     When I launch rao at "2019-01-08 12:00"
     Then the execution details should be "The RAO only went through first preventive"
@@ -585,9 +586,9 @@ Feature: 5.4.1: Handle CNECs belonging to TSOs that don't share CRAs
 
   @fast @rao @dc @contingency-scenarios @max-min-relative-margin
   Scenario: 5.4.1.4.MW.R: Second most limiting CNEC belongs to operator not sharing CRAs - MW - relative
-    Given network file is "epic19/TestCase16Nodes_with_different_imax_v2.uct" for CORE CC
-    Given crac file is "epic19/CBCORA_ep19us7case4.xml"
-    Given configuration file is "epic19/RaoParameters_maxRelMargin_megawatt_shareCra.json"
+    Given network file is "5_special_features/5_4_do_not_optimise_specific_cnecs/network_16nodes_with_different_imax_v2.uct" for CORE CC
+    Given crac file is "5_special_features/5_4_do_not_optimise_specific_cnecs/cbcora_5_4_1_4.xml"
+    Given configuration file is "5_special_features/5_4_do_not_optimise_specific_cnecs/rao_parameters_max_rel_margin_megawatt_share_cra.json"
     Given loopflow glsk file is "common/glsk_proportional_16nodes.xml"
     When I launch rao at "2019-01-08 12:00"
     Then the execution details should be "The RAO only went through first preventive"
@@ -607,9 +608,9 @@ Feature: 5.4.1: Handle CNECs belonging to TSOs that don't share CRAs
 
   @fast @rao @dc @contingency-scenarios @max-min-relative-margin
   Scenario: 5.4.1.5.MW.R: Second most limiting CNEC after PRA belongs to operator not sharing CRAs, and is improved in CRAO - MW - relative
-    Given network file is "epic19/TestCase16Nodes_with_different_imax_v2.uct" for CORE CC
-    Given crac file is "epic19/CBCORA_ep19us7case5R.xml"
-    Given configuration file is "epic19/RaoParameters_maxRelMargin_megawatt_shareCra.json"
+    Given network file is "5_special_features/5_4_do_not_optimise_specific_cnecs/network_16nodes_with_different_imax_v2.uct" for CORE CC
+    Given crac file is "5_special_features/5_4_do_not_optimise_specific_cnecs/cbcora_5_4_1_5_R.xml"
+    Given configuration file is "5_special_features/5_4_do_not_optimise_specific_cnecs/rao_parameters_max_rel_margin_megawatt_share_cra.json"
     Given loopflow glsk file is "common/glsk_proportional_16nodes.xml"
     When I launch rao at "2019-01-08 12:00"
     Then the execution details should be "The RAO only went through first preventive"
@@ -630,9 +631,9 @@ Feature: 5.4.1: Handle CNECs belonging to TSOs that don't share CRAs
 
   @fast @rao @dc @contingency-scenarios @max-min-relative-margin
   Scenario: 5.4.1.6.MW.R: Second most limiting CNEC after PRA belongs to operator not sharing CRAs, and can become most limiting in CRAO - MW - relative
-    Given network file is "epic19/TestCase16Nodes_with_different_imax_v2.uct" for CORE CC
-    Given crac file is "epic19/CBCORA_ep19us7case6R.xml"
-    Given configuration file is "epic19/RaoParameters_maxRelMargin_megawatt_shareCra.json"
+    Given network file is "5_special_features/5_4_do_not_optimise_specific_cnecs/network_16nodes_with_different_imax_v2.uct" for CORE CC
+    Given crac file is "5_special_features/5_4_do_not_optimise_specific_cnecs/cbcora_5_4_1_6_R.xml"
+    Given configuration file is "5_special_features/5_4_do_not_optimise_specific_cnecs/rao_parameters_max_rel_margin_megawatt_share_cra.json"
     Given loopflow glsk file is "common/glsk_proportional_16nodes.xml"
     When I launch rao at "2019-01-08 12:00"
     Then the execution details should be "The RAO only went through first preventive"
@@ -651,9 +652,9 @@ Feature: 5.4.1: Handle CNECs belonging to TSOs that don't share CRAs
 
   @fast @rao @dc @contingency-scenarios @search-tree-rao @max-min-relative-margin
   Scenario: 5.4.1.7.MW.R: Only PSTs - All CNECs belong to one operator sharing a CRA - MW - relative
-    Given network file is "epic19/TestCase16Nodes_with_different_imax_v2.uct" for CORE CC
-    Given crac file is "epic19/CBCORA_ep19us7case7.xml"
-    Given configuration file is "epic19/RaoParameters_maxRelMargin_megawatt_shareCra_mip.json"
+    Given network file is "5_special_features/5_4_do_not_optimise_specific_cnecs/network_16nodes_with_different_imax_v2.uct" for CORE CC
+    Given crac file is "5_special_features/5_4_do_not_optimise_specific_cnecs/cbcora_5_4_1_7.xml"
+    Given configuration file is "5_special_features/5_4_do_not_optimise_specific_cnecs/rao_parameters_max_rel_margin_megawatt_share_cra_mip.json"
     Given loopflow glsk file is "common/glsk_proportional_16nodes.xml"
     When I launch rao at "2019-01-08 12:00"
     Then the execution details should be "The RAO only went through first preventive"
@@ -668,9 +669,9 @@ Feature: 5.4.1: Handle CNECs belonging to TSOs that don't share CRAs
 
   @fast @rao @dc @contingency-scenarios @search-tree-rao @max-min-relative-margin
   Scenario: 5.4.1.8.MW.R: Only PSTs - Most limiting CNEC belongs to an operator not sharing CRAs - MW - relative
-    Given network file is "epic19/TestCase16Nodes_with_different_imax_v2.uct" for CORE CC
-    Given crac file is "epic19/CBCORA_ep19us7case8.xml"
-    Given configuration file is "epic19/RaoParameters_maxRelMargin_megawatt_shareCra_mip.json"
+    Given network file is "5_special_features/5_4_do_not_optimise_specific_cnecs/network_16nodes_with_different_imax_v2.uct" for CORE CC
+    Given crac file is "5_special_features/5_4_do_not_optimise_specific_cnecs/cbcora_5_4_1_8.xml"
+    Given configuration file is "5_special_features/5_4_do_not_optimise_specific_cnecs/rao_parameters_max_rel_margin_megawatt_share_cra_mip.json"
     Given loopflow glsk file is "common/glsk_proportional_16nodes.xml"
     When I launch rao at "2019-01-08 12:00"
     Then the execution details should be "The RAO only went through first preventive"
@@ -686,9 +687,9 @@ Feature: 5.4.1: Handle CNECs belonging to TSOs that don't share CRAs
 
   @fast @rao @dc @contingency-scenarios @search-tree-rao @max-min-relative-margin
   Scenario: 5.4.1.9.MW.R: Only PSTs - Second most limiting CNEC belongs to an operator not sharing CRAs - MW - relative
-    Given network file is "epic19/TestCase16Nodes_with_different_imax_v2.uct" for CORE CC
-    Given crac file is "epic19/CBCORA_ep19us7case9.xml"
-    Given configuration file is "epic19/RaoParameters_maxRelMargin_megawatt_shareCra_mip.json"
+    Given network file is "5_special_features/5_4_do_not_optimise_specific_cnecs/network_16nodes_with_different_imax_v2.uct" for CORE CC
+    Given crac file is "5_special_features/5_4_do_not_optimise_specific_cnecs/cbcora_5_4_1_9.xml"
+    Given configuration file is "5_special_features/5_4_do_not_optimise_specific_cnecs/rao_parameters_max_rel_margin_megawatt_share_cra_mip.json"
     Given loopflow glsk file is "common/glsk_proportional_16nodes.xml"
     When I launch rao at "2019-01-08 12:00"
     Then the execution details should be "The RAO only went through first preventive"

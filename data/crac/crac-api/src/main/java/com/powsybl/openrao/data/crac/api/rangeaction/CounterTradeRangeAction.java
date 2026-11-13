@@ -7,18 +7,25 @@
 
 package com.powsybl.openrao.data.crac.api.rangeaction;
 
+import com.google.common.annotations.Beta;
+import com.powsybl.openrao.data.crac.api.ConnectedArea;
+
+import java.util.List;
+
 /**
  * @author Gabriel Plante {@literal <gabriel.plante_externe at rte-france.com>}
  */
+@Beta
 public interface CounterTradeRangeAction extends StandardRangeAction<CounterTradeRangeAction> {
 
     /**
-     * Get the exporting area
+     * Get the area id
      */
-    String getExportingArea();
+    String getAreaId();
 
     /**
-     * Get the importing area
+     * Get connected areas
      */
-    String getImportingArea();
+    List<ConnectedArea> getConnectedAreas();
 }
+

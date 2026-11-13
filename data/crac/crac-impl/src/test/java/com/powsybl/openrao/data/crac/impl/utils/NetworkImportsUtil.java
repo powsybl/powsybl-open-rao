@@ -355,7 +355,45 @@ public final class NetworkImportsUtil {
             .setTargetV(400.0)
             .setVoltageRegulatorOn(true)
             .add();
+
+        // country boundaries FR-BE, BE-DE and FR-DE, used by counter-trade range actions' connected areas
+        addCountryBus(network, Country.BE);
+        addCountryBus(network, Country.DE);
+        addBorderLine(network, "lineFrBe", "VL1", "B1", "VL_BE", "B_BE");
+        addBorderLine(network, "lineBeDe", "VL_BE", "B_BE", "VL_DE", "B_DE");
+        addBorderLine(network, "lineFrDe", "VL1", "B1", "VL_DE", "B_DE");
         return network;
+    }
+
+    private static void addCountryBus(Network network, Country country) {
+        network.newSubstation()
+            .setId("S_" + country)
+            .setCountry(country)
+            .add()
+            .newVoltageLevel()
+            .setId("VL_" + country)
+            .setNominalV(400.0)
+            .setTopologyKind(TopologyKind.BUS_BREAKER)
+            .add()
+            .getBusBreakerView().newBus()
+            .setId("B_" + country)
+            .add();
+    }
+
+    private static void addBorderLine(Network network, String lineId, String voltageLevel1, String bus1, String voltageLevel2, String bus2) {
+        network.newLine()
+            .setId(lineId)
+            .setVoltageLevel1(voltageLevel1)
+            .setBus1(bus1)
+            .setVoltageLevel2(voltageLevel2)
+            .setBus2(bus2)
+            .setR(1.0)
+            .setX(1.0)
+            .setG1(0.0)
+            .setB1(0.0)
+            .setG2(0.0)
+            .setB2(0.0)
+            .add();
     }
 
     private static void addLine(Network network, String lineId, Double permanentLimit1, Double permanentLimit2) {

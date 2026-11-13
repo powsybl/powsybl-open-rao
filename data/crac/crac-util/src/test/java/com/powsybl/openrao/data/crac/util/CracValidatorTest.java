@@ -23,6 +23,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -103,7 +104,7 @@ class CracValidatorTest {
         assertNotNull(flowCnec);
         FlowCnec duplicate = crac.getFlowCnec(flowCnec.getId() + " - OUTAGE DUPLICATE");
         assertNotNull(duplicate);
-        assertEquals(flowCnec.getNetworkElement().getId(), duplicate.getNetworkElement().getId());
+        assertEquals(flowCnec.getNetworkElementId(), duplicate.getNetworkElementId());
         assertEquals(flowCnec.getState().getContingency(), duplicate.getState().getContingency());
         assertEquals(outageInstant, duplicate.getState().getInstant());
         assertEquals(flowCnec.isOptimized(), duplicate.isOptimized());
@@ -113,7 +114,12 @@ class CracValidatorTest {
         assertEquals(flowCnec.getIMax(TwoSides.TWO).get(), duplicate.getIMax(TwoSides.TWO).get(), 1e-6);
         assertEquals(flowCnec.getNominalVoltage(TwoSides.ONE), duplicate.getNominalVoltage(TwoSides.ONE), 1e-6);
         assertEquals(flowCnec.getNominalVoltage(TwoSides.TWO), duplicate.getNominalVoltage(TwoSides.TWO), 1e-6);
-        assertEquals(flowCnec.getThresholds(), duplicate.getThresholds());
+        for (TwoSides side : Set.of(TwoSides.ONE, TwoSides.TWO)) {
+            for (Unit unit : Set.of(Unit.AMPERE, Unit.MEGAWATT)) {
+                assertEquals(flowCnec.getUpperBound(side, unit), duplicate.getUpperBound(side, unit));
+                assertEquals(flowCnec.getLowerBound(side, unit), duplicate.getLowerBound(side, unit));
+            }
+        }
     }
 
     @Test

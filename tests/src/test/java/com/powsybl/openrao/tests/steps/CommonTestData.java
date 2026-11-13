@@ -29,7 +29,6 @@ import com.powsybl.openrao.monitoring.results.RaoResultWithVoltageMonitoring;
 import com.powsybl.openrao.raoapi.TimeCoupledRaoInput;
 import com.powsybl.openrao.raoapi.json.JsonRaoParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
-import com.powsybl.openrao.raoapi.parameters.extensions.FastRaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.MarmotParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters;
@@ -66,8 +65,8 @@ import static com.powsybl.openrao.tests.utils.Helpers.importUcteGlskFile;
  */
 public final class CommonTestData {
 
-    private static final String DEFAULT_CRAC_CREATION_PARAMETERS_PATH = "cracCreationParameters/common/CracCreationParameters_default.json";
-    private static final String DEFAULT_RAO_PARAMETERS_PATH = "configurations/common/RaoParameters_default.json";
+    private static final String DEFAULT_CRAC_CREATION_PARAMETERS_PATH = "cracCreationParameters/common/crac_creation_parameters_default.json";
+    private static final String DEFAULT_RAO_PARAMETERS_PATH = "configurations/common/rao_parameters_default.json";
 
     private static String dataPrefix = "src/test/resources/files/";
 
@@ -380,10 +379,6 @@ public final class CommonTestData {
         if (overrideLinearSolver != null) {
             raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getRangeActionsOptimizationParameters().getLinearOptimizationSolver()
                 .setSolver(SearchTreeRaoRangeActionsOptimizationParameters.Solver.valueOf(overrideLinearSolver.toUpperCase()));
-        }
-
-        if (!raoParameters.hasExtension(FastRaoParameters.class)) {
-            raoParameters.addExtension(FastRaoParameters.class, new FastRaoParameters());
         }
 
         if (!raoParameters.hasExtension(MarmotParameters.class)) {

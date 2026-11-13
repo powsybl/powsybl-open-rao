@@ -24,10 +24,12 @@ import com.powsybl.openrao.data.crac.io.json.JsonExport;
 import com.powsybl.openrao.data.crac.io.json.JsonImport;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
+import com.powsybl.openrao.data.raoresult.api.TimeCoupledRaoResult;
 import com.powsybl.openrao.data.raoresult.api.extension.CriticalCnecsResult;
 import com.powsybl.openrao.raoapi.Rao;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.RaoProvider;
+import com.powsybl.openrao.raoapi.TimeCoupledRaoInput;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.FastRaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
@@ -57,11 +59,13 @@ import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -72,6 +76,10 @@ import java.util.stream.Collectors;
 import static com.powsybl.openrao.searchtreerao.commons.RaoUtil.getFlowUnit;
 
 /**
+ * Meta-RAO provider using inner loops of light RAO computations only taking in account overloaded {@link FlowCnec}s.
+ *
+ * @deprecated since 7.6.0, use {@link com.powsybl.openrao.searchtreerao.OpenRao} as the default RAO provider.
+ *
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
@@ -79,6 +87,7 @@ import static com.powsybl.openrao.searchtreerao.commons.RaoUtil.getFlowUnit;
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 @AutoService(RaoProvider.class)
+@Deprecated(since = "7.6.0")
 public class FastRao implements RaoProvider {
     private static final String FAST_RAO = "FastRao";
     private static final int NUMBER_LOGGED_ELEMENTS_DURING_RAO = 2;
@@ -155,7 +164,7 @@ public class FastRao implements RaoProvider {
             );
 
             if (crac.getFlowCnecs().isEmpty()) {
-                return new UnoptimizedRaoResultImpl(initialResult);
+                return new UnoptimizedRaoResultImpl(initialResult, Set.of(), RaoUtil.getFlowUnit(parameters), Set.of());
             }
 
             if (initialResult.getSensitivityStatus() == ComputationStatus.FAILURE) {
@@ -184,8 +193,6 @@ public class FastRao implements RaoProvider {
                     consideredCnecs.addAll(getUnsecureFunctionalCnecs(stepResult, getFlowUnit(parameters), parameters.getExtension(FastRaoParameters.class).getMarginLimit()));
                 }
                 consideredCnecs.addAll(getCostlyVirtualCnecs(stepResult));
-                // Add worst preventive cnec to considered cnecs to ensure preventive state is defined
-                consideredCnecs.add(getWorstPreventiveCnec(stepResult, crac));
                 cleanVariants(raoInput.getNetwork(), initialNetworkVariants, raoInput.getNetworkVariantId());
 
                 raoResult = runFilteredRao(
@@ -246,14 +253,6 @@ public class FastRao implements RaoProvider {
         network.getVariantManager().setWorkingVariant(initialNetworkVariantId);
     }
 
-    private static FlowCnec getWorstPreventiveCnec(ObjectiveFunctionResult ofResult, Crac crac) {
-        List<FlowCnec> orderedCnecs = ofResult.getMostLimitingElements(Integer.MAX_VALUE);
-        return orderedCnecs.stream().filter(cnec -> cnec.getState().isPreventive()).findFirst().orElse(
-            // If only MNECs are present previous list will be empty
-            crac.getFlowCnecs(crac.getPreventiveState()).stream().findFirst().orElseThrow(() -> new OpenRaoException("No flow cnecs found in preventive state"))
-        );
-    }
-
     private static Set<FlowCnec> getUnsecureFunctionalCnecs(PrePerimeterResult prePerimeterResult, Unit unit, Double marginLimit) {
         List<FlowCnec> orderedCnecs = prePerimeterResult.getMostLimitingElements(Integer.MAX_VALUE);
         Set<FlowCnec> flowCnecs = new HashSet<>();
@@ -293,9 +292,12 @@ public class FastRao implements RaoProvider {
         RaoResult raoResult;
         try {
             raoResult = Rao.find(INNER_LOOP_RAO_IMPLEMENTATION).runAsync(filteredRaoInput, parameters, targetEndInstant, filteredRaoReportNode).get();
-            List<String> preventiveNetworkActions = raoResult.getActivatedNetworkActionsDuringState(crac.getPreventiveState()).stream()
-                .map(Identifiable::getId)
-                .toList();
+            List<String> preventiveNetworkActions = new ArrayList<>();
+            if (!Objects.isNull(crac.getPreventiveState())) {
+                preventiveNetworkActions = raoResult.getActivatedNetworkActionsDuringState(crac.getPreventiveState()).stream()
+                    .map(Identifiable::getId)
+                    .toList();
+            }
             // Define combinations to improve performance
             if (preventiveNetworkActions.size() >= 2) {
                 List<List<String>> predefinedCombinations = parameters.getExtension(OpenRaoSearchTreeParameters.class).getTopoOptimizationParameters().getPredefinedCombinations();
@@ -394,7 +396,9 @@ public class FastRao implements RaoProvider {
             postAraSensi.get().prePerimeterResultForAllFollowingStates(),
             postCraSensi.get().prePerimeterResultForAllFollowingStates(),
             raoResult,
-            raoInput.getCrac()
+            raoInput.getCrac(),
+            RaoUtil.getFlowUnit(parameters),
+            operatorsNotSharingCras
         );
 
     }
@@ -416,7 +420,9 @@ public class FastRao implements RaoProvider {
         RemedialActionActivationResult remedialActionActivationResult = createRemedialActionsActivationResults(instantKind, raoResult, crac, initialRangeActionSetpointResult);
 
         // Apply Preventive Remedial Actions
-        applyOptimalPreventiveRemedialActions(networkCopy, crac.getPreventiveState(), raoResult);
+        if (!Objects.isNull(crac.getPreventiveState())) {
+            applyOptimalPreventiveRemedialActions(networkCopy, crac.getPreventiveState(), raoResult);
+        }
 
         AppliedRemedialActions appliedRemedialActions;
         if (instantKind.equals(InstantKind.PREVENTIVE)) {
@@ -509,6 +515,11 @@ public class FastRao implements RaoProvider {
             }
         );
         return appliedRemedialActions;
+    }
+
+    @Override
+    public CompletableFuture<TimeCoupledRaoResult> run(TimeCoupledRaoInput raoInput, RaoParameters parameters, ReportNode reportNode) {
+        throw new OpenRaoException("Time-coupled optimization is not supported by FastRAO");
     }
 
 }

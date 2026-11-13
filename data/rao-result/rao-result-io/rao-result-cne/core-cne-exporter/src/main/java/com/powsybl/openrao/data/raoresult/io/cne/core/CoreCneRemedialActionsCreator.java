@@ -280,7 +280,7 @@ public final class CoreCneRemedialActionsCreator {
         rangeActions.stream()
             .filter(action -> isRemedialActionDefinedForState(action, state))
             .filter(action -> isRangeActionActivatedDuringState(action, state))
-            .filter(action -> !action.getNetworkElements().isEmpty())
+            .filter(action -> !action.getNetworkElementsIds().isEmpty())
             .map(action -> {
                 final int optimizedTap = cneHelper.getRaoResult().getOptimizedTapOnState(state, action);
                 return createPstRangeActionSeries(action, instant, optimizedTap);
@@ -295,7 +295,7 @@ public final class CoreCneRemedialActionsCreator {
         rangeActions.stream()
             .filter(action -> isRemedialActionDefinedForState(action, state))
             .filter(action -> isRangeActionActivatedDuringState(action, state))
-            .filter(action -> !action.getNetworkElements().isEmpty())
+            .filter(action -> !action.getNetworkElementsIds().isEmpty())
             .map(action -> {
                 final Double optimizedSetpoint = cneHelper.getRaoResult().getOptimizedSetPointOnState(state, action);
                 return createInjectionRangeActionSeries(action, instant, optimizedSetpoint);

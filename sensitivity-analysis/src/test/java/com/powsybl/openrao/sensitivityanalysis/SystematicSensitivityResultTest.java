@@ -221,7 +221,7 @@ class SystematicSensitivityResultTest {
     @Test
     void testPostTreatHvdcNoEffect() {
         setUpForHvdc();
-        Map<String, HvdcRangeAction> hvdcs = Map.of(hvdcRangeAction.getNetworkElement().getId(), hvdcRangeAction);
+        Map<String, HvdcRangeAction> hvdcs = Map.of(hvdcRangeAction.getNetworkElementId(), hvdcRangeAction);
         SensitivityAnalysisResult sensitivityAnalysisResult = SensitivityAnalysis.find().run(network,
             rangeActionSensitivityProvider.getAllFactors(network),
             rangeActionSensitivityProvider.getContingencies(network),
@@ -244,7 +244,7 @@ class SystematicSensitivityResultTest {
     @Test
     void testPostTreatHvdcInvert() {
         setUpForHvdc();
-        Map<String, HvdcRangeAction> hvdcs = Map.of(hvdcRangeAction.getNetworkElement().getId(), hvdcRangeAction);
+        Map<String, HvdcRangeAction> hvdcs = Map.of(hvdcRangeAction.getNetworkElementId(), hvdcRangeAction);
         network.getHvdcLine("BBE2AA11 FFR3AA11 1").setConvertersMode(HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER);
         SensitivityAnalysisResult sensitivityAnalysisResult = SensitivityAnalysis.find().run(network,
             rangeActionSensitivityProvider.getAllFactors(network),
@@ -340,7 +340,7 @@ class SystematicSensitivityResultTest {
         Contingency outageContingency = outageCnec.getState().getContingency().orElseThrow();
         SensitivityFactor outageSensitivityFactor = new SensitivityFactor(
             SensitivityFunctionType.BRANCH_ACTIVE_POWER_1,
-            outageCnec.getNetworkElement().getId(),
+            outageCnec.getNetworkElementId(),
             SensitivityVariableType.TRANSFORMER_PHASE,
             "BBE2AA1  BBE3AA1  1",
             false,
@@ -358,7 +358,7 @@ class SystematicSensitivityResultTest {
         Contingency curativeContingency = curativeCnec.getState().getContingency().orElseThrow();
         SensitivityFactor curativeSensitivityFactor = new SensitivityFactor(
             SensitivityFunctionType.BRANCH_ACTIVE_POWER_1,
-            curativeCnec.getNetworkElement().getId(),
+            curativeCnec.getNetworkElementId(),
             SensitivityVariableType.TRANSFORMER_PHASE,
             "BBE2AA1  BBE3AA1  1",
             false,
