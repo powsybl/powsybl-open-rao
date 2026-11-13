@@ -94,7 +94,7 @@ public class FarFromMostLimitingElementFilter implements NetworkActionCombinatio
         }
         CountryGraph countryGraph = countryGraphs.getData(timestampAndActionCountries.get().getKey()).orElseThrow();
         Set<Country> networkActionCountries = timestampAndActionCountries.get().getValue();
-        // the action is considered close enough when of its countries is within the allowed number of boundaries of one of the limiting elements' countries
+        // the action is considered close enough when one of its countries is within the allowed number of boundaries of one of the limiting elements' countries
         return locations.stream().anyMatch(
             location ->
                 networkActionCountries.stream().anyMatch(

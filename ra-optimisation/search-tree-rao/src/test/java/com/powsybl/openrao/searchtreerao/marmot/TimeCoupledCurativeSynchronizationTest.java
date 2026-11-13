@@ -9,9 +9,12 @@ package com.powsybl.openrao.searchtreerao.marmot;
 
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.commons.TemporalDataImpl;
 import com.powsybl.openrao.data.crac.api.Crac;
+import com.powsybl.openrao.data.crac.api.CracFactory;
+import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.raoresult.api.TimeCoupledRaoResult;
 import com.powsybl.openrao.data.timecoupledconstraints.TimeCoupledConstraints;
@@ -27,6 +30,7 @@ import java.time.ZoneOffset;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -34,6 +38,24 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 class TimeCoupledCurativeSynchronizationTest {
     private static final String CONTINGENCY = "Contingency L1";
+
+    @Test
+    void testRejectsMultiCurativeOptimization() throws IOException {
+        String networkFilePath = "/network/3NodesPST.uct";
+        Network network = Network.read(networkFilePath, TimeCoupledCurativeSynchronizationTest.class.getResourceAsStream(networkFilePath));
+        Crac crac = CracFactory.findDefault().create("crac")
+            .newInstant("preventive", InstantKind.PREVENTIVE)
+            .newInstant("outage", InstantKind.OUTAGE)
+            .newInstant("curative1", InstantKind.CURATIVE)
+            .newInstant("curative2", InstantKind.CURATIVE);
+        OffsetDateTime timestamp = OffsetDateTime.of(2025, 11, 4, 19, 30, 0, 0, ZoneOffset.UTC);
+        TemporalData<RaoInput> raoInputs = new TemporalDataImpl<>(Map.of(timestamp, RaoInput.build(network, crac).build()));
+        TimeCoupledRaoInput inputs = new TimeCoupledRaoInput(raoInputs, new TimeCoupledConstraints());
+
+        OpenRaoException exception = assertThrows(OpenRaoException.class,
+            () -> new TimeCoupledCurativeSynchronization().run(inputs, new RaoParameters(ReportNode.NO_OP), ReportNode.NO_OP));
+        assertEquals("Time-coupled curative synchronization does not support multi-curative optimization.", exception.getMessage());
+    }
 
     /**
      * This is a test case with 2 timestamps, sharing the exact same network, 1 curative PST and 1 preventive redispatching
@@ -80,7 +102,7 @@ class TimeCoupledCurativeSynchronizationTest {
         // the common pst is not activated at all.
         assertEquals(0, results.getOptimizedSetPointOnState(getCurativeState(crac1), crac1.getRangeAction("pstCurativeAction")));
         assertEquals(0, results.getOptimizedSetPointOnState(getCurativeState(crac2), crac2.getRangeAction("pstCurativeAction")));
-        // global MIP activates preventive redispatching to solve the overloadss
+        // global MIP activates preventive redispatching to solve the overloads
         assertTrue(results.isActivatedDuringState(crac1.getPreventiveState(), crac1.getRangeAction("redispatchingAction")));
         assertTrue(results.isActivatedDuringState(crac2.getPreventiveState(), crac2.getRangeAction("redispatchingAction")));
         // 120 MW per timestamp
@@ -91,7 +113,7 @@ class TimeCoupledCurativeSynchronizationTest {
     }
 
     /**
-     * Same case a above, the oly difference is that both timestamps have the same curative CNEC which is the line with the PST
+     * Same case as above, the only difference is that both timestamps have the same curative CNEC which is the line with the PST
      * with a slightly different threshold. Meaning it's almost the same situation at both timestamps.
      * <p>
      *     Both timestamps now need the PST to behave in the same way. In this case, the curative synchronization is useful and

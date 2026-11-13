@@ -265,7 +265,7 @@ public class SearchTree {
     /**
      * Evaluate all the leaves. We use OpenRaoNetworkPool to parallelize the computation.
      * <p>
-     * In time coupled, tasks are submitted to the first timestamp's pool, which provides the execution threads. each
+     * In time coupled, tasks are submitted to the first timestamp's pool, which provides the execution threads.
      * Then, every task borrows one network clone from every timestamp's pool.
      */
     private void updateOptimalLeafWithNextDepthBestLeaf(final TemporalData<AbstractNetworkPool> networkPools,
@@ -602,7 +602,7 @@ public class SearchTree {
         networkPools.getDataPerTimestamp().values().forEach(AbstractNetworkPool::close);
     }
 
-    /** Applies on every timestamp's network clone the given setpoint of the range actions, skipping the the HVDC range
+    /** Applies on every timestamp's network clone the given setpoint of the range actions, skipping the HVDC range
      * actions whose line is in AC emulation as their setpoint cannot be applied. */
     private void resetRangeActionsToSetpoints(TemporalData<Network> networkClones,
                                               TemporalData<Set<RangeAction<?>>> rangeActions,

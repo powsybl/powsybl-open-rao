@@ -76,6 +76,8 @@ import static com.powsybl.openrao.searchtreerao.reports.MarmotReports.CURATIVE_S
  */
 @Beta
 public class TimeCoupledCurativeSynchronization {
+    private static final int NUMBER_LOGGED_ELEMENTS_FINAL_RESULTS = 10;
+
     public CompletableFuture<TimeCoupledRaoResult> run(TimeCoupledRaoInput timeCoupledRaoInput, RaoParameters raoParameters, ReportNode reportNode) {
 
         if (!raoParameters.hasExtension(MarmotParameters.class)) {
@@ -157,7 +159,7 @@ public class TimeCoupledCurativeSynchronization {
         CastorReports.reportPostContingencyPerimeterOptimizationEnd(CURATIVE_SYNCHRONIZATION_PREFIX);
 
         // 6. Global MIP launched when second preventive is enabled : all the range actions (curative and preventive) are re-optimized, with
-        // only the curative ones being synchronized and the preventive ones being re-optimized freeely.
+        // only the curative ones being synchronized and the preventive ones being re-optimized freely.
         LinearOptimizationResult finalObjectiveFunctionResult;
         TimeCoupledRaoResult timeCoupledRaoResult;
         if (!getSecondPreventiveExecutionCondition(raoParameters).equals(SecondPreventiveRaoParameters.ExecutionCondition.DISABLED)) {
@@ -228,7 +230,7 @@ public class TimeCoupledCurativeSynchronization {
         }
 
         // log final results
-        MarmotReports.reportCurativeSynchronizationFinalResults(reportNode, finalObjectiveFunctionResult, raoParameters, 10);
+        MarmotReports.reportCurativeSynchronizationFinalResults(reportNode, finalObjectiveFunctionResult, raoParameters, NUMBER_LOGGED_ELEMENTS_FINAL_RESULTS);
         Instant lastInstant = cracs.getData(cracs.getTimestamps().getFirst()).orElseThrow().getLastInstant();
         // report global optimization cost
         MarmotReports.reportCurativeSynchronizationGlobalCost(
@@ -400,14 +402,14 @@ public class TimeCoupledCurativeSynchronization {
      * Gets, for every timestamp, the post-contingency optimization remedial actions that are applied on the networks
      * before the global range actions optimization. The curative range actions are left out in order for them to be
      * re-optimized in the global MIP when second preventive is enabled.
-     * Automan range actions are included because no second automaton simulation is done for now.
+     * Automaton range actions are included because no second automaton simulation is done for now.
      * the marmot one is not used because we don't have RaoResults at that point.
      */
     private static TemporalData<AppliedRemedialActions> getAppliedPostContingencyRemedialActions(TemporalData<Map<State, PostPerimeterResult>> postCurativeOptimizationResults) {
         return postCurativeOptimizationResults.map(TimeCoupledCurativeSynchronization::getAppliedRemedialActions);
     }
 
-    /** Gets one timestamp's applied post-contingency remedial actions (network actions + automaton range actions */
+    /** Gets one timestamp's applied post-contingency remedial actions (network actions + automaton range actions). */
     private static AppliedRemedialActions getAppliedRemedialActions(Map<State, PostPerimeterResult> statePostPerimeterResultMap) {
         AppliedRemedialActions appliedRemedialActions = new AppliedRemedialActions();
         for (Map.Entry<State, PostPerimeterResult> entry : statePostPerimeterResultMap.entrySet()) {
