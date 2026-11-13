@@ -56,8 +56,13 @@ jobs:
         uses: lycheeverse/lychee-action@e7477775783ea5526144ba13e8db5eec57747ce8 # v2.9.0
         with:
           fail: true
-          # Checks every generated HTML page (local + external links); fails on any non-2xx status,
-          # except 403 (the Slack workspace home page 403s headless clients).
+          # Checks every generated HTML page (local + external links); fails on any status outside
+          # 2xx + 403 (the Slack workspace home page 403s headless clients) + 429 (transient rate
+          # limiting by the target host — never a broken link; a real 404 still fails).
+          # NOTE: lychee's -a flag REPLACES the default accepted list, so the 2xx range must be
+          # spelled out explicitly (a CI run with only "-a 403" rejected every 200 link).
+          # --cache=false: cache is disabled in CI because GitHub reuses runner VMs across runs and a
+          # stale .lycheecache replayed cached failures from a previous run (verified on a CI run).
           # HTML only: Sphinx's _sources/*.md.txt dumps are covered by their HTML equivalent, and scanning the
           # raw sources would pick up bare URIs that are not links (XML namespace identifiers inside code blocks).
-          args: --no-progress -a 403 './build-docs/**/*.html'
+          args: --no-progress --cache=false -a 200..=299,403,429 './build-docs/**/*.html'
