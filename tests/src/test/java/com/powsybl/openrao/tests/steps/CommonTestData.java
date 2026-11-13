@@ -29,7 +29,6 @@ import com.powsybl.openrao.monitoring.results.RaoResultWithVoltageMonitoring;
 import com.powsybl.openrao.raoapi.TimeCoupledRaoInput;
 import com.powsybl.openrao.raoapi.json.JsonRaoParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
-import com.powsybl.openrao.raoapi.parameters.extensions.FastRaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.MarmotParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters;
@@ -87,7 +86,9 @@ public final class CommonTestData {
 
     private static String loopflowGlskPath;
     private static String monitoringGlskPath;
+    private static String counterTradeGlskPath;
     private static ZonalData<Scalable> monitoringGlsks;
+    private static ZonalData<Scalable> counterTradeGlsks;
     private static ZonalData<SensitivityVariableSet> loopflowGlsks;
 
     private static String raoResultPath;
@@ -162,6 +163,7 @@ public final class CommonTestData {
         cracCreationParametersPath = null;
         loopflowGlskPath = null;
         monitoringGlskPath = null;
+        counterTradeGlskPath = null;
         refProgPath = null;
         cracPath = null;
         raoResultPath = null;
@@ -172,6 +174,7 @@ public final class CommonTestData {
         raoParameters = null;
         loopflowGlsks = null;
         monitoringGlsks = null;
+        counterTradeGlsks = null;
         referenceProgram = null;
         raoResult = null;
         monitoringResult = null;
@@ -219,6 +222,11 @@ public final class CommonTestData {
     @Given("monitoring glsk file is {string}")
     public static void monitoringGlskFileIs(String path) {
         monitoringGlskPath = getResourcesPath().concat("glsks/").concat(path);
+    }
+
+    @Given("counterTrade glsk file is {string}")
+    public static void counterTradeGlskFileIs(String path) {
+        counterTradeGlskPath = getResourcesPath().concat("glsks/").concat(path);
     }
 
     @Given("RefProg file is {string}")
@@ -272,6 +280,10 @@ public final class CommonTestData {
 
     public static ZonalData<Scalable> getMonitoringGlsks() {
         return monitoringGlsks;
+    }
+
+    public static ZonalData<Scalable> getCounterTradeGlsks() {
+        return counterTradeGlsks;
     }
 
     public static ReferenceProgram getReferenceProgram() {
@@ -382,10 +394,6 @@ public final class CommonTestData {
                 .setSolver(SearchTreeRaoRangeActionsOptimizationParameters.Solver.valueOf(overrideLinearSolver.toUpperCase()));
         }
 
-        if (!raoParameters.hasExtension(FastRaoParameters.class)) {
-            raoParameters.addExtension(FastRaoParameters.class, new FastRaoParameters());
-        }
-
         if (!raoParameters.hasExtension(MarmotParameters.class)) {
             raoParameters.addExtension(MarmotParameters.class, new MarmotParameters());
         }
@@ -393,6 +401,11 @@ public final class CommonTestData {
         // Monitoring GLSK
         if (monitoringGlskPath != null) {
             monitoringGlsks = importMonitoringGlskFile(getFile(monitoringGlskPath), offsetDateTime, network);
+        }
+
+        // CounterTrade GLSK
+        if (counterTradeGlskPath != null) {
+            counterTradeGlsks = importMonitoringGlskFile(getFile(counterTradeGlskPath), offsetDateTime, network);
         }
 
         // RaoResult
