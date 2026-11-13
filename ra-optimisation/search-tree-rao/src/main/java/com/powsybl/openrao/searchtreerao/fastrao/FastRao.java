@@ -478,6 +478,7 @@ public class FastRao implements RaoProvider {
         return RaoInput.build(raoInput.getNetwork(), filteredCrac)
             .withPerimeter(raoInput.getPerimeter())
             .withGlskProvider(raoInput.getGlskProvider())
+            .withCounterTradeGlskProvider(raoInput.getCounterTradeGlskProvider())
             .withRefProg(raoInput.getReferenceProgram())
             .withNetworkVariantId(raoInput.getNetworkVariantId())
             .build();
