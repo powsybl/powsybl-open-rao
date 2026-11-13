@@ -43,6 +43,41 @@ graph TD
     C -->|Two| E[Result 2]
 ~~~
 
+### Linking to source code
+
+Links from the documentation to Java sources must follow the **published version** of the
+website: the `v7.5.0` doc must link to the `v7.5.0` sources, not to `main`.  
+`conf.py` computes the GitHub reference from the `READTHEDOCS_VERSION` environment variable
+(set by readthedocs): tag builds use the exact tag (`v7.5.0`, `v7.4.0`, …), while
+`latest` / `stable` and pull-request previews (`pr/<N>`) fall back to `main`.  
+On a local build (no `READTHEDOCS_VERSION`), links point to `main`.
+
+To link a source file (or a directory), use the `{src}` MyST role (registered in
+`conf.py`) with a path **relative to the root of the repository**:
+~~~markdown
+See {src}`data/crac/crac-api/src/main/java/com/powsybl/openrao/data/crac/api/parameters/CracCreationParameters.java`.
+
+With a display label:
+OpenRAO's {src}`CracCreationParameters<data/crac/crac-api/src/main/java/com/powsybl/openrao/data/crac/api/parameters/CracCreationParameters.java>`.
+
+For a directory (GitHub `tree` URL):
+The {src}`Monitoring<monitoring>` package.
+~~~
+
+Rules:
+- **Do not hardcode** `https://github.com/powsybl/powsybl-open-rao/blob/main/...` in the
+docs: it drifts after the next release.
+- **Do not use relative links** (`../../data/...`): the file exists in the repository, so
+the `broken_links_check` CI job passes, but the source tree is *not* published on
+readthedocs and the link 404s on the website.
+- `{src}` links are resolved **at build time**, so the `broken_links_check` CI job does
+not see them: verify links in the pull-request's readthedocs preview ("Build documentation"
+check).
+- A plain `[label](url)` Markdown link cannot be versioned: neither `myst_substitutions`
+nor `rst_epilog` substitute inside a link's URL, which is why the `{src}` role exists.
+To test a specific version locally, prefix the build, e.g.
+`READTHEDOCS_VERSION=v7.5.0 sphinx-build -a docs ./build-docs`.
+
 ### Building the website locally
 
 When modifying the website content, you can easily preview the result on your PC by navigating to the root of the

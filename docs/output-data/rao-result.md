@@ -13,19 +13,19 @@ In this page, we present:
 
 ## Accessing the RAO result
 
-The [RaoResult](https://github.com/powsybl/powsybl-open-rao/blob/main/data/rao-result/rao-result-api/src/main/java/com/powsybl/openrao/data/raoresult/api/RaoResult.java) java object is actually an interface that is implemented by many OpenRAO classes. However, one only needs to use the interface's functions.
+The {src}`RaoResult<data/rao-result/rao-result-api/src/main/java/com/powsybl/openrao/data/raoresult/api/RaoResult.java>` java object is actually an interface that is implemented by many OpenRAO classes. However, one only needs to use the interface's functions.
 A RaoResult object is returned by OpenRAO's main optimization method:
 
 ~~~java
 CompletableFuture<RaoResult> RaoProvider::run(RaoInput raoInput, RaoParameters parameters, Instant targetEndInstant)
 ~~~
 
-Where RaoProvider is the chosen implementation of the RAO, such as [CASTOR](https://github.com/powsybl/powsybl-open-rao/blob/main/ra-optimisation/search-tree-rao/src/main/java/com/powsybl/openrao/searchtreerao/castor/algorithm/Castor.java).
+Where RaoProvider is the chosen implementation of the RAO, such as {src}`CASTOR<ra-optimisation/search-tree-rao/src/main/java/com/powsybl/openrao/searchtreerao/castor/algorithm/Castor.java>`.
 
 ## Exporting and importing a JSON file
 
 A RaoResult object can be saved into a JSON file (no matter what implementation it is).
-A RaoResult JSON file can be imported into a [RaoResultImpl](https://github.com/powsybl/powsybl-open-rao/blob/main/data/rao-result/rao-result-impl/src/main/java/com/powsybl/openrao/data/raoresult/impl/RaoResultImpl.java), and used as a RaoResult java object.
+A RaoResult JSON file can be imported into a {src}`RaoResultImpl<data/rao-result/rao-result-impl/src/main/java/com/powsybl/openrao/data/raoresult/impl/RaoResultImpl.java>`, and used as a RaoResult java object.
 
 ### Export
 
@@ -263,7 +263,7 @@ Example:
 
 These results contain important RAO information about flow CNECs.  
 Note that you have to use [FlowCnec](../input-data/crac/json.md#flow-cnecs) objects from the CRAC in order to query the RaoResult Java API.
-Most results are power flow results (like flows & margins), and can be queried in two [units](https://github.com/powsybl/powsybl-open-rao/blob/main/commons/src/main/java/com/powsybl/openrao/commons/Unit.java)
+Most results are power flow results (like flows & margins), and can be queried in two {src}`units<commons/src/main/java/com/powsybl/openrao/commons/Unit.java>`
 (AMPERE & MEGAWATT) and on one or two sides (ONE & TWO).
 
 #### Flow
