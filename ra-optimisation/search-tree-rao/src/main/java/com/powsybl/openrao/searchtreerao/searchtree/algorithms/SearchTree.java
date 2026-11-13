@@ -12,8 +12,6 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
-import com.powsybl.openrao.data.crac.api.rangeaction.HvdcRangeAction;
-import com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters;
 import com.powsybl.openrao.searchtreerao.commons.HvdcUtils;
 import com.powsybl.openrao.searchtreerao.commons.NetworkActionCombination;
 import com.powsybl.openrao.searchtreerao.commons.SensitivityComputer;
@@ -45,10 +43,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ForkJoinTask;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
-import static com.powsybl.openrao.searchtreerao.commons.HvdcUtils.runLoadFlowAndUpdateHvdcActivePowerSetpoint;
 import static com.powsybl.openrao.searchtreerao.commons.RaoUtil.getNumberOfConnectedComponent;
 
 /**
@@ -121,33 +117,6 @@ public class SearchTree {
             initLeaves(input);
 
             TECHNICAL_LOGS.debug("Evaluating root leaf");
-
-            // Run load flow here, update HVDC lines' active power setpoint in network that will be used
-            // if we deactivate AC emulation on a HVDC line in one of the leaf.
-
-            // Get all the range actions that are HVDC range actions and are not in AC emulation
-            Set<HvdcRangeAction> hvdcRasOnHvdcLineInAcEmulation = HvdcUtils.getHvdcRangeActionsOnHvdcLineInAcEmulation(
-                input.getOptimizationPerimeter()
-                    .getRangeActions()
-                    .stream()
-                    .filter(HvdcRangeAction.class::isInstance)
-                    .map(HvdcRangeAction.class::cast)
-                    .collect(Collectors.toSet()),
-                input.getNetwork());
-
-            // Get Loadflow and sensitivity parameters
-            LoadFlowAndSensitivityParameters loadFlowAndSensitivityParameters = parameters.getLoadFlowAndSensitivityParameters().orElse(new LoadFlowAndSensitivityParameters(reportNode));
-
-            if (!hvdcRasOnHvdcLineInAcEmulation.isEmpty()) {
-                runLoadFlowAndUpdateHvdcActivePowerSetpoint(
-                    input.getNetwork(),
-                    input.getOptimizationPerimeter().getMainOptimizationState(),
-                    loadFlowAndSensitivityParameters.getLoadFlowProvider(),
-                    loadFlowAndSensitivityParameters.getSensitivityWithLoadFlowParameters().getLoadFlowParameters(),
-                    hvdcRasOnHvdcLineInAcEmulation,
-                    reportNode
-                );
-            }
 
             rootLeaf.evaluate(input.getObjectiveFunction(), getSensitivityComputerForEvaluation(true, reportNode), reportNode);
             if (rootLeaf.getStatus().equals(Leaf.Status.ERROR)) {
