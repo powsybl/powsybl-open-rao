@@ -52,7 +52,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 import static com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters.getLoadFlowProvider;
@@ -376,13 +375,6 @@ public final class RaoUtil {
             }
             contingency.toModification().apply(network, (ComputationManager) null);
         }
-    }
-
-    public static Set<String> getDuplicateCnecs(Set<FlowCnec> flowcnecs) {
-        return flowcnecs.stream()
-            .map(FlowCnec::getId)
-            .filter(id -> id.contains("OUTAGE DUPLICATE"))
-            .collect(Collectors.toSet());
     }
 
     public static int getNumberOfConnectedComponent(Network network) {

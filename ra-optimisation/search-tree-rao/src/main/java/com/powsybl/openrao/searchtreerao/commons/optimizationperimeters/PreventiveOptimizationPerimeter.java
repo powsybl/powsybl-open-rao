@@ -10,11 +10,19 @@ package com.powsybl.openrao.searchtreerao.commons.optimizationperimeters;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.openrao.data.crac.api.Crac;
+import com.powsybl.openrao.data.crac.api.InstantKind;
+import com.powsybl.openrao.data.crac.api.RemedialAction;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
+import com.powsybl.openrao.data.crac.api.usagerule.OnConstraint;
+import com.powsybl.openrao.data.crac.api.usagerule.OnContingencyState;
+import com.powsybl.openrao.data.crac.api.usagerule.OnFlowConstraintInCountry;
+import com.powsybl.openrao.data.crac.api.usagerule.OnInstant;
+import com.powsybl.openrao.data.crac.api.usagerule.UsageRule;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.searchtreerao.castor.algorithm.Perimeter;
@@ -22,6 +30,7 @@ import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
 import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -99,11 +108,75 @@ public class PreventiveOptimizationPerimeter extends AbstractOptimizationPerimet
             .collect(Collectors.toSet());
         removeAlignedRangeActionsWithDifferentInitialSetpoints(availableRangeActions, prePerimeterResult, reportNode);
 
-        return new PreventiveOptimizationPerimeter(preventiveState,
+        // include auto FlowCNECs that are not protected by any ARA in the preventive perimeter
+        if (crac.getInstants(InstantKind.AUTO).size() == 1) {
+            crac.getStates(crac.getInstant(InstantKind.AUTO))
+                .forEach(autoState -> flowCnecs.addAll(getAutoCnecsToInclude(autoState, crac, network, reportNode)));
+        }
+
+        return new PreventiveOptimizationPerimeter(
+            preventiveState,
             flowCnecs,
             loopFlowCnecs,
             availableNetworkActions,
-            availableRangeActions);
+            availableRangeActions
+        );
+    }
+
+    private static Set<FlowCnec> getAutoCnecsToInclude(final State autoState,
+                                                       final Crac crac,
+                                                       final Network network,
+                                                       final ReportNode reportNode) {
+        Set<RemedialAction<?>> remedialActions = new HashSet<>();
+        remedialActions.addAll(crac.getRangeActions(autoState));
+        remedialActions.addAll(crac.getNetworkActions(autoState));
+        if (remedialActions.isEmpty()) {
+            return Collections.emptySet();
+        }
+
+        Set<FlowCnec> autoCnecsToDuplicate = new HashSet<>();
+        crac.getFlowCnecs(autoState)
+            .stream()
+            .filter(flowCnec -> shouldInclideAutoCnecInPreventivePerimeter(remedialActions, flowCnec, network))
+            .forEach(flowCnec -> {
+                autoCnecsToDuplicate.add(flowCnec);
+                // TODO: add report node
+                OpenRaoLoggerProvider.BUSINESS_LOGS.info(
+                    "FlowCnec {} is not protected by any automaton and will be included in the preventive optimization perimeter",
+                    flowCnec.getId()
+                );
+            });
+        return autoCnecsToDuplicate;
+    }
+
+    private static boolean shouldInclideAutoCnecInPreventivePerimeter(final Set<RemedialAction<?>> remedialActions,
+                                                                      final FlowCnec flowCnec,
+                                                                      final Network network) {
+        boolean raForOtherCnecs = false;
+        for (RemedialAction<?> remedialAction : remedialActions) {
+            for (UsageRule usageRule : remedialAction.getUsageRules()) {
+                if (usageRule instanceof OnInstant onInstant && onInstant.getInstant().equals(flowCnec.getState().getInstant())) {
+                    return false;
+                } else if (usageRule instanceof OnContingencyState onContingencyState && onContingencyState.getState().equals(flowCnec.getState())) {
+                    return false;
+                } else if (usageRule instanceof OnConstraint<?> onConstraint && onConstraint.getCnec() instanceof FlowCnec && onConstraint.getCnec().getState().equals(flowCnec.getState())) {
+                    if (onConstraint.getCnec().equals(flowCnec)) {
+                        return false;
+                    } else {
+                        raForOtherCnecs = true;
+                    }
+                } else if (usageRule instanceof OnFlowConstraintInCountry onFlowConstraintInCountry
+                    && onFlowConstraintInCountry.getInstant().equals(flowCnec.getState().getInstant())
+                    && (onFlowConstraintInCountry.getContingency().isEmpty() || flowCnec.getState().getContingency().equals(onFlowConstraintInCountry.getContingency()))) {
+                    if (flowCnec.getLocation(network).contains(onFlowConstraintInCountry.getCountry())) {
+                        return false;
+                    } else {
+                        raForOtherCnecs = true;
+                    }
+                }
+            }
+        }
+        return raForOtherCnecs;
     }
 
     @Override
