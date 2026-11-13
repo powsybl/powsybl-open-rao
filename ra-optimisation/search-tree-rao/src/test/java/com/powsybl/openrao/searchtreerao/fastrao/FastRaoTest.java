@@ -16,6 +16,7 @@ import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.raoresult.api.extension.CriticalCnecsResult;
 import com.powsybl.openrao.raoapi.RaoInput;
+import com.powsybl.openrao.raoapi.TimeCoupledRaoInput;
 import com.powsybl.openrao.raoapi.json.JsonRaoParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.FastRaoParameters;
@@ -34,6 +35,7 @@ import java.util.concurrent.ExecutionException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
 /**
@@ -133,5 +135,15 @@ class FastRaoTest {
         // Run RAO
         RaoResult raoResult = new FastRao().run(raoInput, raoParameters, ReportNode.NO_OP).get();
         assertInstanceOf(FailedRaoResultImpl.class, raoResult);
+    }
+
+    @Test
+    void runTimeCoupled() {
+        TimeCoupledRaoInput timeCoupledRaoInput = Mockito.mock(TimeCoupledRaoInput.class);
+        OpenRaoException exception = assertThrows(
+            OpenRaoException.class,
+            () -> new FastRao().run(timeCoupledRaoInput, new RaoParameters(ReportNode.NO_OP), ReportNode.NO_OP).get()
+        );
+        assertEquals("Time-coupled optimization is not supported by FastRAO", exception.getMessage());
     }
 }

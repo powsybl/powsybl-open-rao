@@ -23,14 +23,14 @@ Feature: 4.1: Time-coupled generator constraints with MARMOT with ICS files
   ----------------------
 
   @fast @rao @dc @redispatching @marmot @costly
-  Scenario: 4.1.1: Test simple upward gradient
-    Redispatching actions are only necessary at 01:30.
-    They're applied as soon as 00:30 because of upward gradient on BBE1AA1
-    They're applied at 02:30 because of upward gradient on DDE1AA1
-    Given network files are in folder "4_time_coupled/TestCases_4_1_1"
-    Given crac file is "4_time_coupled/cbcora_4_1_1.xml"
-    Given ics static file is "4_time_coupled/static_4_1_1.csv"
-    Given ics series file is "4_time_coupled/series_4_1_1.csv"
+  Scenario: 4.1.1.1: Test simple upward gradient
+  Redispatching actions are only necessary at 01:30.
+  They're applied as soon as 00:30 because of upward gradient on BBE1AA1
+  They're applied at 02:30 because of upward gradient on DDE1AA1
+    Given network files are in folder "4_time_coupled/4_1_generator_constraints/4_1_1_1"
+    Given crac file is "4_time_coupled/4_1_generator_constraints/cbcora_4_1_1_1.xml"
+    Given ics static file is "4_time_coupled/4_1_generator_constraints/static_4_1_1_1.csv"
+    Given ics series file is "4_time_coupled/4_1_generator_constraints/series_4_1_1_1.csv"
     Given configuration file is "common/rao_parameters_min_cost_megawatt_dc.json"
     Given time-coupled rao inputs for CORE are:
       | Timestamp        | Network          |
@@ -38,7 +38,7 @@ Feature: 4.1: Time-coupled generator constraints with MARMOT with ICS files
       | 2019-01-08 01:30 | 12Nodes_0130.uct |
       | 2019-01-08 02:30 | 12Nodes_0230.uct |
       | 2019-01-08 03:30 | 12Nodes_0330.uct |
-    When I launch marmot
+    When I launch rao
     # Timestamp 00:30: 0 (activation) + 10 * 54 MW * 2 (BBE1 and DDE1) (variation) = 108
     Then the functional cost for timestamp "2019-01-08 00:30" is 1080
     Then the total cost for timestamp "2019-01-08 00:30" is 1080
@@ -69,19 +69,19 @@ Feature: 4.1: Time-coupled generator constraints with MARMOT with ICS files
     Then the time-coupled security status should be "SECURED"
 
   @fast @rao @dc @redispatching @marmot @costly
-  Scenario: 4.1.2: Topological action and redispatching solve overload
-    At 01:30, MNEC is overloaded. During topological optimization, 2 runs of FastRAO are performed to resolve MNEC constraint,
-    resulting in the application of topological action PRA_topo 1 at 01:30.
-    Given network files are in folder "4_time_coupled/TestCases_4_1_2"
+  Scenario: 4.1.1.2: Topological action and redispatching solve overload
+  At 01:30, MNEC is overloaded. During topological optimization, 2 runs of FastRAO are performed to resolve MNEC constraint,
+  resulting in the application of topological action PRA_topo 1 at 01:30.
+    Given network files are in folder "4_time_coupled/4_1_generator_constraints/4_1_1_2"
     Given crac file is "common/cbcora_3_4_13.xml"
-    Given ics static file is "4_time_coupled/static_4_1_1.csv"
-    Given ics series file is "4_time_coupled/series_4_1_1.csv"
+    Given ics static file is "4_time_coupled/4_1_generator_constraints/static_4_1_1_1.csv"
+    Given ics series file is "4_time_coupled/4_1_generator_constraints/series_4_1_1_1.csv"
     Given configuration file is "common/rao_parameters_min_cost_megawatt_dc.json"
     Given time-coupled rao inputs for CORE are:
       | Timestamp        | Network          |
       | 2019-01-08 00:30 | 12Nodes_0030.uct |
       | 2019-01-08 01:30 | 12Nodes_0130.uct |
-    When I launch marmot
+    When I launch rao
     Then the CNEC "DDE2AA1  NNL3AA1  1 - preventive" is overloaded before time-coupled optimization
      # Timestamp 00:30: 0
     Then the functional cost for timestamp "2019-01-08 00:30" is 0
@@ -101,17 +101,17 @@ Feature: 4.1: Time-coupled generator constraints with MARMOT with ICS files
     Then the time-coupled security status should be "SECURED"
 
   @fast @rao @dc @redispatching @marmot @costly
-  Scenario: 4.1.3: PST and redispatching solve overload
-    Given network files are in folder "4_time_coupled/TestCases_4_1_1"
-    Given crac file is "4_time_coupled/cbcora_4_1_3.xml"
-    Given ics static file is "4_time_coupled/static_4_1_1.csv"
-    Given ics series file is "4_time_coupled/series_4_1_1.csv"
+  Scenario: 4.1.1.3: PST and redispatching solve overload
+    Given network files are in folder "4_time_coupled/4_1_generator_constraints/4_1_1_1"
+    Given crac file is "4_time_coupled/4_1_generator_constraints/cbcora_4_1_1_3.xml"
+    Given ics static file is "4_time_coupled/4_1_generator_constraints/static_4_1_1_1.csv"
+    Given ics series file is "4_time_coupled/4_1_generator_constraints/series_4_1_1_1.csv"
     Given configuration file is "common/rao_parameters_min_cost_megawatt_dc.json"
     Given time-coupled rao inputs for CORE are:
       | Timestamp        | Network          |
       | 2019-01-08 00:30 | 12Nodes_0030.uct |
       | 2019-01-08 01:30 | 12Nodes_0130.uct |
-    When I launch marmot
+    When I launch rao
      # Timestamp 00:30: 0
     Then the functional cost for timestamp "2019-01-08 00:30" is 0
     Then the total cost for timestamp "2019-01-08 00:30" is 0
@@ -131,20 +131,20 @@ Feature: 4.1: Time-coupled generator constraints with MARMOT with ICS files
     Then the time-coupled security status should be "SECURED"
 
   @fast @rao @dc @redispatching @marmot @costly
-  Scenario: 4.1.4: Curative topological action taken into account
-    Curative topo action and redispatching actions solved 01:30 overload during topological optimization, and 
-    were applied during sensi computation in global range actions optimization.
-    Here, global range actions optimization doesn't change results.
-    Given network files are in folder "4_time_coupled/TestCases_4_1_4"
-    Given crac file is "4_time_coupled/cbcora_4_1_4.xml"
-    Given ics static file is "4_time_coupled/static_4_1_1.csv"
-    Given ics series file is "4_time_coupled/series_4_1_1.csv"
+  Scenario: 4.1.1.4: Curative topological action taken into account
+  Curative topo action and redispatching actions solved 01:30 overload during topological optimization, and
+  were applied during sensi computation in global range actions optimization.
+  Here, global range actions optimization doesn't change results.
+    Given network files are in folder "4_time_coupled/4_1_generator_constraints/4_1_1_4"
+    Given crac file is "4_time_coupled/4_1_generator_constraints/cbcora_4_1_1_4.xml"
+    Given ics static file is "4_time_coupled/4_1_generator_constraints/static_4_1_1_1.csv"
+    Given ics series file is "4_time_coupled/4_1_generator_constraints/series_4_1_1_1.csv"
     Given configuration file is "common/rao_parameters_min_cost_megawatt_dc.json"
     Given time-coupled rao inputs for CORE are:
       | Timestamp        | Network          |
       | 2019-01-08 00:30 | 12Nodes_0030.uct |
       | 2019-01-08 01:30 | 12Nodes_0130.uct |
-    When I launch marmot
+    When I launch rao
     # Timestamp 00:30: 0
     Then the functional cost for timestamp "2019-01-08 00:30" is 0
     Then the total cost for timestamp "2019-01-08 00:30" is 0
@@ -165,20 +165,20 @@ Feature: 4.1: Time-coupled generator constraints with MARMOT with ICS files
     Then the time-coupled security status should be "SECURED"
 
   @fast @rao @dc @redispatching @marmot @costly
-  Scenario: 4.1.4.bis: Curative PST and preventive redispatching
-    Similar to 4.1.3, but PST is curative. Overload is on curative cnec.
-    Topological optimization finds a different result for redispatching: redispatching is optimized in basecase, before
-    curative PST is optimized, whereas in global optimization curative PST is applied in sensi computations.
-    Given network files are in folder "4_time_coupled/TestCases_4_1_4"
-    Given crac file is "4_time_coupled/cbcora_4_1_4_b.xml"
-    Given ics static file is "4_time_coupled/static_4_1_1.csv"
-    Given ics series file is "4_time_coupled/series_4_1_1.csv"
+  Scenario: 4.1.1.4.bis: Curative PST and preventive redispatching
+  Similar to 4.1.3, but PST is curative. Overload is on curative cnec.
+  Topological optimization finds a different result for redispatching: redispatching is optimized in basecase, before
+  curative PST is optimized, whereas in global optimization curative PST is applied in sensi computations.
+    Given network files are in folder "4_time_coupled/4_1_generator_constraints/4_1_1_4"
+    Given crac file is "4_time_coupled/4_1_generator_constraints/cbcora_4_1_1_4_b.xml"
+    Given ics static file is "4_time_coupled/4_1_generator_constraints/static_4_1_1_1.csv"
+    Given ics series file is "4_time_coupled/4_1_generator_constraints/series_4_1_1_1.csv"
     Given configuration file is "common/rao_parameters_min_cost_megawatt_dc.json"
     Given time-coupled rao inputs for CORE are:
       | Timestamp        | Network          |
       | 2019-01-08 00:30 | 12Nodes_0030.uct |
       | 2019-01-08 01:30 | 12Nodes_0130.uct |
-    When I launch marmot
+    When I launch rao
     # Timestamp 00:30: 0
     Then the functional cost for timestamp "2019-01-08 00:30" is 0
     Then the total cost for timestamp "2019-01-08 00:30" is 0
@@ -200,22 +200,22 @@ Feature: 4.1: Time-coupled generator constraints with MARMOT with ICS files
     Then the time-coupled security status should be "SECURED"
 
   @fast @rao @dc @redispatching @marmot @costly
-  Scenario: 4.1.5: 2 iterations of MARMOT via MNEC overloads
-    At 01:30, MNEC is overloaded. During topological optimization, 2 runs of FastRAO are performed to solve MNEC constraint,
-    resulting in the application of topological action PRA_topo 1 and redispatching actions at 01:30.
-    Nevertheless these redispatching actions have gradient constraints; upon entering global optimization, topological optimization
-    solution is no longer viable. First MIP iteration creates constraints on MNEC at 00:30. 
-    Since MNEC was only previously limiting at 01:30, it was not yet considered in MIP's considered cnecs, and MIP performs 2 iterations. 
-    Given network files are in folder "4_time_coupled/TestCases_4_1_5"
-    Given crac file is "4_time_coupled/cbcora_4_1_5.xml"
-    Given ics static file is "4_time_coupled/static_4_1_5.csv"
-    Given ics series file is "4_time_coupled/series_4_1_5.csv"
+  Scenario: 4.1.1.5: 2 iterations of MARMOT via MNEC overloads
+  At 01:30, MNEC is overloaded. During topological optimization, 2 runs of FastRAO are performed to solve MNEC constraint,
+  resulting in the application of topological action PRA_topo 1 and redispatching actions at 01:30.
+  Nevertheless these redispatching actions have gradient constraints; upon entering global optimization, topological optimization
+  solution is no longer viable. First MIP iteration creates constraints on MNEC at 00:30.
+  Since MNEC was only previously limiting at 01:30, it was not yet considered in MIP's considered cnecs, and MIP performs 2 iterations.
+    Given network files are in folder "4_time_coupled/4_1_generator_constraints/4_1_1_5"
+    Given crac file is "4_time_coupled/4_1_generator_constraints/cbcora_4_1_1_5.xml"
+    Given ics static file is "4_time_coupled/4_1_generator_constraints/static_4_1_1_5.csv"
+    Given ics series file is "4_time_coupled/4_1_generator_constraints/series_4_1_1_5.csv"
     Given configuration file is "common/rao_parameters_min_cost_megawatt_dc.json"
     Given time-coupled rao inputs for CORE are:
       | Timestamp        | Network          |
       | 2019-01-08 00:30 | 12Nodes_0030.uct |
       | 2019-01-08 01:30 | 12Nodes_0130.uct |
-    When I launch marmot
+    When I launch rao
     Then the CNEC "NNL2AA1  BBE3AA1  1 - preventive" is overloaded before time-coupled optimization
     And the CNEC "BBE1AA1  BBE3AA1  1 - preventive" is overloaded before time-coupled optimization
     # Timestamp 00:30: 0 (activation) + 10 * 94 MW * 2 (BBE1 and DDE1) (variation) = 1880
@@ -236,19 +236,19 @@ Feature: 4.1: Time-coupled generator constraints with MARMOT with ICS files
     Then the total cost for all timestamps is 26890.25
     Then the time-coupled security status should be "UNSECURED"
 
-    # TODO to be modified when check on generator constraint is performed at import
+  # TODO to be modified when check on generator constraint is performed at import
   @fast @rao @dc @redispatching @marmot @costly
-  Scenario: 4.1.6: Inconsistent data : BE generator's program shuts down even though shutDown is not allowed,
-    FR generator's program starts up even though startUp is not allowed.
-    Given network files are in folder "4_time_coupled/TestCases_4_1_6"
-    Given crac file is "4_time_coupled/cbcora_4_1_6.xml"
-    Given ics static file is "4_time_coupled/static_4_1_6.csv"
-    Given ics series file is "4_time_coupled/series_4_1_6.csv"
+  Scenario: 4.1.1.6: Inconsistent data : BE generator's program shuts down even though shutDown is not allowed,
+  FR generator's program starts up even though startUp is not allowed.
+    Given network files are in folder "4_time_coupled/4_1_generator_constraints/4_1_1_6"
+    Given crac file is "4_time_coupled/4_1_generator_constraints/cbcora_4_1_1_6.xml"
+    Given ics static file is "4_time_coupled/4_1_generator_constraints/static_4_1_1_6.csv"
+    Given ics series file is "4_time_coupled/4_1_generator_constraints/series_4_1_1_6.csv"
     Given configuration file is "common/rao_parameters_min_cost_megawatt_dc.json"
     Given time-coupled rao inputs for CORE are:
       | Timestamp        | Network         |
       | 2019-01-08 00:30 | 2Nodes_0030.uct |
       | 2019-01-08 01:30 | 2Nodes_0130.uct |
       | 2019-01-08 02:30 | 2Nodes_0230.uct |
-    When I launch marmot
+    When I launch rao
     Then the time-coupled security status should be "UNSECURED"

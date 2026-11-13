@@ -24,10 +24,12 @@ import com.powsybl.openrao.data.crac.io.json.JsonExport;
 import com.powsybl.openrao.data.crac.io.json.JsonImport;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
+import com.powsybl.openrao.data.raoresult.api.TimeCoupledRaoResult;
 import com.powsybl.openrao.data.raoresult.api.extension.CriticalCnecsResult;
 import com.powsybl.openrao.raoapi.Rao;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.RaoProvider;
+import com.powsybl.openrao.raoapi.TimeCoupledRaoInput;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.FastRaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
@@ -74,6 +76,10 @@ import java.util.stream.Collectors;
 import static com.powsybl.openrao.searchtreerao.commons.RaoUtil.getFlowUnit;
 
 /**
+ * Meta-RAO provider using inner loops of light RAO computations only taking in account overloaded {@link FlowCnec}s.
+ *
+ * @deprecated since 7.6.0, use {@link com.powsybl.openrao.searchtreerao.OpenRao} as the default RAO provider.
+ *
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
@@ -81,6 +87,7 @@ import static com.powsybl.openrao.searchtreerao.commons.RaoUtil.getFlowUnit;
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 @AutoService(RaoProvider.class)
+@Deprecated(since = "7.6.0")
 public class FastRao implements RaoProvider {
     private static final String FAST_RAO = "FastRao";
     private static final int NUMBER_LOGGED_ELEMENTS_DURING_RAO = 2;
@@ -508,6 +515,11 @@ public class FastRao implements RaoProvider {
             }
         );
         return appliedRemedialActions;
+    }
+
+    @Override
+    public CompletableFuture<TimeCoupledRaoResult> run(TimeCoupledRaoInput raoInput, RaoParameters parameters, ReportNode reportNode) {
+        throw new OpenRaoException("Time-coupled optimization is not supported by FastRAO");
     }
 
 }
