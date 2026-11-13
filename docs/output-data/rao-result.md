@@ -13,7 +13,7 @@ In this page, we present:
 
 ## Accessing the RAO result
 
-The [RaoResult](https://github.com/powsybl/powsybl-open-rao/blob/main/data/rao-result/rao-result-api/src/main/java/com/powsybl/openrao/data/raoresult/api/RaoResult.java) java object is actually an interface that is implemented by many OpenRAO classes. However, one only needs to use the interface's functions.
+The {src}`RaoResult<data/rao-result/rao-result-api/src/main/java/com/powsybl/openrao/data/raoresult/api/RaoResult.java>` java object is actually an interface that is implemented by many OpenRAO classes. However, one only needs to use the interface's functions.
 A RaoResult object is returned by OpenRAO's main optimization method:
 
 ~~~java

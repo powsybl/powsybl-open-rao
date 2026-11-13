@@ -36,10 +36,10 @@ OpenRAO's {src}`CracCreationParameters<data/crac/crac-api/src/main/java/com/pows
 
 ### crac-factory
 
-OpenRAO's [Crac](https://github.com/powsybl/powsybl-open-rao/blob/main/data/crac/crac-api/src/main/java/com/powsybl/openrao/data/crac/api/Crac.java) 
-object is actually just an interface, with a default implementation in [CracImpl](https://github.com/powsybl/powsybl-open-rao/tree/main/data/crac/crac-impl/src/main/java/com/powsybl/openrao/data/crac/impl).  
-As a OpenRAO toolbox user, you are allowed to define your own custom Crac implementation. This implementation shall be instanced using a [CracFactory](https://github.com/powsybl/powsybl-open-rao/blob/main/data/crac/crac-api/src/main/java/com/powsybl/openrao/data/crac/api/CracFactory.java).  
-OpenRAO's default implementation is [CracImplFactory](https://github.com/powsybl/powsybl-open-rao/blob/main/data/crac/crac-impl/src/main/java/com/powsybl/openrao/data/crac/impl/CracImplFactory.java).  
+OpenRAO's {src}`Crac<data/crac/crac-api/src/main/java/com/powsybl/openrao/data/crac/api/Crac.java>` 
+object is actually just an interface, with a default implementation in {src}`CracImpl<data/crac/crac-impl/src/main/java/com/powsybl/openrao/data/crac/impl>`.  
+As a OpenRAO toolbox user, you are allowed to define your own custom Crac implementation. This implementation shall be instanced using a {src}`CracFactory<data/crac/crac-api/src/main/java/com/powsybl/openrao/data/crac/api/CracFactory.java>`.  
+OpenRAO's default implementation is {src}`CracImplFactory<data/crac/crac-impl/src/main/java/com/powsybl/openrao/data/crac/impl/CracImplFactory.java>`.  
 Parameter `crac-factory` allows the user to define which CracFactory implementation (thus which Crac implementation) to 
 use. If you do not have a custom implementation (which should be the case of most users), set it to `CracImplFactory`.  
 
