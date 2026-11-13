@@ -9,7 +9,7 @@ These are constraints that ensure that the angle/voltage values on given network
 OpenRAO allows modelling these constraints in [VoltageCnec](../input-data/crac/json.md#voltage-cnecs) and [AngleCnec](../input-data/crac/json.md#angle-cnecs) objects.  
 However, modelling the impact of remedial actions on angle/voltage values is highly complex and non-linear. This is why CASTOR
 does not inherently support  angle/voltage constraints.  
-The [Monitoring](https://github.com/powsybl/powsybl-open-rao/tree/main/monitoring)
+The {src}`Monitoring<monitoring>`
 package allows monitoring angle/voltage values after a RAO has been run.
 
 > ⚠️ WARNING️ ⚠️
@@ -23,7 +23,7 @@ package allows monitoring angle/voltage values after a RAO has been run.
 
 ## The Java API
 
-You can easily call the monitoring module using the [JAVA API](https://github.com/powsybl/powsybl-open-rao/blob/main/monitoring/src/main/java/com/powsybl/openrao/monitoring/Monitoring.java):
+You can easily call the monitoring module using the {src}`JAVA API<monitoring/src/main/java/com/powsybl/openrao/monitoring/Monitoring.java>`:
 1. Build a MonitoringInput object using the MonitoringInputBuilder:
 
 For angle monitoring :

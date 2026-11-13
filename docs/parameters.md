@@ -20,7 +20,7 @@ rao search tree extension. These extensions allow to fine-tune the search algori
 quality of results.
 
 RAO parameters can be constructed using:
-- The Java API (see [source code](https://github.com/powsybl/powsybl-open-rao/blob/main/ra-optimisation/rao-api/src/main/java/com/powsybl/openrao/raoapi/parameters/RaoParameters.java))
+- The Java API (see {src}`source code<ra-optimisation/rao-api/src/main/java/com/powsybl/openrao/raoapi/parameters/RaoParameters.java>`) 
 - A JSON file (see [example](#examples))
 - A PowSyBl configuration file (see [example](#examples))
 

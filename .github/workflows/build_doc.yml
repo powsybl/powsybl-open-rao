@@ -31,28 +31,9 @@ jobs:
       - name: Build doc
         run: sphinx-build -a docs ./build-docs
 
-  broken_links_check:
-    name: 🔗 Look for broken links
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout sources
-        uses: actions/checkout@v1
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
+      - name: Check all links in the generated HTML
+        uses: lycheeverse/lychee-action@e7477775783ea5526144ba13e8db5eec57747ce8 # v2.9.0
         with:
-          node-version: '24'
-
-      - name: Install markdown-link-check
-        run: npm install --ignore-scripts -g markdown-link-check@3.13.7
-
-      - name: Check all Markdown links
-        run: |
-          BROKEN_LINKS=$(markdown-link-check -q -a 200,201,202,203,204,205,206,207,208,226,403,429 ./docs)
-          if [ -n "$BROKEN_LINKS" ]; then
-            echo "❌ Found broken links: $BROKEN_LINKS"
-            exit 1
-          else
-            echo "✔️ No broken links found"
-            exit 0
-          fi
+          fail: true
+          # Crawls every generated HTML page (local + external links); fails on any non-2xx status (no accepted codes).
+          args: --no-progress ./build-docs

@@ -14,6 +14,8 @@ import os
 import sys
 from datetime import datetime
 
+from docutils import nodes
+
 # Path to python sources, for doc generation on readthedocs
 source_path = os.path.abspath('..')
 sys.path.insert(0, source_path)
@@ -47,7 +49,6 @@ myst_enable_extensions = [
     "colon_fence",
     "dollarmath",
     "attrs_inline",
-    "substitution"
 ]
 myst_heading_anchors = 6
 
@@ -110,8 +111,36 @@ copybutton_prompt_is_regexp = True
 copybutton_copy_text = "Copy"
 copybutton_success_text = "Copied!"
 
-# Version for dynamic links
-myst_substitutions = {
-    "version": "test",
-}
-release_version = os.environ.get("READTHEDOCS_VERSION", "latest")
+# Version for dynamic links to the GitHub source
+# readthedocs exposes the exact tag name as version slug (e.g. "v7.5.0"),
+# plus "latest"/"stable" and "pr/<N>" for pull-request previews.
+release_version = os.environ.get("READTHEDOCS_VERSION", "main")
+if release_version in ("latest", "stable") or release_version.startswith("pr/"):
+    github_ref = "main"
+else:
+    github_ref = release_version
+
+
+def _github_source_role(name, rawtext, text, lineno, inliner, options=None, content=None):
+    """Build a link to a source file or directory of this repo at the published version.
+
+    Usage in Markdown/MyST:
+        {src}`data/path/to/File.java`
+        {src}`DisplayLabel<data/path/to/File.java>`
+
+    The path is relative to the root of the repository. Files (a dot in the last
+    path segment) use GitHub ``blob`` URLs, directories use ``tree`` URLs.
+    """
+    if "<" in text:
+        label, _, path = text.partition("<")
+        path = path[:-1]
+    else:
+        label = path = text
+    path = path.strip().lstrip("/")
+    mode = "blob" if "." in path.rsplit("/", 1)[-1] else "tree"
+    url = f"https://github.com/powsybl/powsybl-open-rao/{mode}/{github_ref}/{path}"
+    return [nodes.reference(refuri=url, text=label)], []
+
+
+def setup(app):
+    app.add_role("src", _github_source_role)

@@ -32,15 +32,14 @@ parameters = JsonCracCreationParameters.read(jsonFilePath);
   
 ## Non-specific parameters
 
-OpenRAO's [CracCreationParameters](../../../data/crac/crac-api/src/main/java/com/powsybl/openrao/data/crac/api/parameters/CracCreationParameters.java) 
-defines a few parameters needed for all native CRAC formats.
+OpenRAO's {src}`CracCreationParameters<data/crac/crac-api/src/main/java/com/powsybl/openrao/data/crac/api/parameters/CracCreationParameters.java>` defines a few parameters needed for all native CRAC formats.
 
 ### crac-factory
 
-OpenRAO's [Crac](https://github.com/powsybl/powsybl-open-rao/blob/main/data/crac/crac-api/src/main/java/com/powsybl/openrao/data/crac/api/Crac.java) 
-object is actually just an interface, with a default implementation in [CracImpl](https://github.com/powsybl/powsybl-open-rao/tree/main/data/crac/crac-impl/src/main/java/com/powsybl/openrao/data/crac/impl).  
-As a OpenRAO toolbox user, you are allowed to define your own custom Crac implementation. This implementation shall be instanced using a [CracFactory](https://github.com/powsybl/powsybl-open-rao/blob/main/data/crac/crac-api/src/main/java/com/powsybl/openrao/data/crac/api/CracFactory.java).  
-OpenRAO's default implementation is [CracImplFactory](https://github.com/powsybl/powsybl-open-rao/blob/main/data/crac/crac-impl/src/main/java/com/powsybl/openrao/data/crac/impl/CracImplFactory.java).  
+OpenRAO's {src}`Crac<data/crac/crac-api/src/main/java/com/powsybl/openrao/data/crac/api/Crac.java>` 
+object is actually just an interface, with a default implementation in {src}`CracImpl<data/crac/crac-impl/src/main/java/com/powsybl/openrao/data/crac/impl>`.  
+As a OpenRAO toolbox user, you are allowed to define your own custom Crac implementation. This implementation shall be instanced using a {src}`CracFactory<data/crac/crac-api/src/main/java/com/powsybl/openrao/data/crac/api/CracFactory.java>`.  
+OpenRAO's default implementation is {src}`CracImplFactory<data/crac/crac-impl/src/main/java/com/powsybl/openrao/data/crac/impl/CracImplFactory.java>`.  
 Parameter "crac-factory" allows the user to define which CracFactory implementation (thus which Crac implementation) to 
 use. If you do not have a custom implementation (which should be the case of most users), set it to "CracImplFactory".  
 
@@ -120,7 +119,7 @@ cracCreationParameters.addRaUsageLimitsForAGivenInstant("curative", raUsageLimit
 ## CSE-specific parameters
 
 The [CSE native crac format](cse.md) lacks important information that other formats don't.  
-The user can define a [CseCracCreationParameters](https://github.com/powsybl/powsybl-open-rao/blob/main/data/crac/crac-io/crac-io-cse/src/main/java/com/powsybl/openrao/data/crac/io/cse/parameters/CseCracCreationParameters.java) 
+The user can define a {src}`CseCracCreationParameters<data/crac/crac-io/crac-io-cse/src/main/java/com/powsybl/openrao/data/crac/io/cse/parameters/CseCracCreationParameters.java>` 
 extension to the CracCreationParameters object in order to define them.  
 
 ### range-action-groups (CSE)
@@ -206,7 +205,7 @@ cracCreationParameters.addExtension(CseCracCreationParameters.class, cseParamete
 ## CIM-specific parameters
 
 The [CIM native CRAC format](cim.md) lacks important information that other formats don't.  
-The user can define a [CimCracCreationParameters](https://github.com/powsybl/powsybl-open-rao/blob/main/data/crac/crac-io/crac-io-cim/src/main/java/com/powsybl/openrao/data/crac/io/cim/parameters/CimCracCreationParameters.java)
+The user can define a {src}`CimCracCreationParameters<data/crac/crac-io/crac-io-cim/src/main/java/com/powsybl/openrao/data/crac/io/cim/parameters/CimCracCreationParameters.java>`
 extension to the CracCreationParameters object in order to define them.
 
 ### timeseries-mrids
@@ -387,7 +386,7 @@ cracCreationParameters.addExtension(CimCracCreationParameters.class, cimParamete
 
 ## NC-specific parameters
 
-The NC profiles from the [NC native CRAC format](nc.md) need additional information to be converted to the internal OpenRAO CRAC format. The user can define a [NcCracCreationParameters](https://github.com/powsybl/powsybl-open-rao/blob/main/data/crac/crac-io/crac-io-nc/src/main/java/com/powsybl/openrao/data/crac/io/nc/parameters/NcCracCreationParameters.java) extension to the CracCreationParameters object in order to define them.
+The NC profiles from the [NC native CRAC format](nc.md) need additional information to be converted to the internal OpenRAO CRAC format. The user can define a {src}`NcCracCreationParameters<data/crac/crac-io/crac-io-nc/src/main/java/com/powsybl/openrao/data/crac/io/nc/parameters/NcCracCreationParameters.java>` extension to the CracCreationParameters object in order to define them.
 
 ### capacity-calculation-region-eic-code
 
@@ -481,7 +480,7 @@ cracCreationParameters.addExtension(CsaCracCreationParameters.class, ncParameter
 ## Flow Based Constraint-specific parameters
 
 The Flow Based Constraint from the [Flow Based Constraint CRAC format](fbconstraint.md) need additional information to be converted to the internal OpenRAO CRAC format. 
-The user can define a [FbConstraintCracCreationParameters](https://github.com/powsybl/powsybl-open-rao/tree/main/data/crac/crac-io/crac-io-fb-constraint/src/main/java/com/powsybl/openrao/data/crac/io/fbconstraint/parameters/FbConstraintCracCreationParameters.java) extension to the CracCreationParameters object in order to define them.
+The user can define a {src}`FbConstraintCracCreationParameters<data/crac/crac-io/crac-io-fb-constraint/src/main/java/com/powsybl/openrao/data/crac/io/fbconstraint/parameters/FbConstraintCracCreationParameters.java>` extension to the CracCreationParameters object in order to define them.
 
 ### timestamp
 

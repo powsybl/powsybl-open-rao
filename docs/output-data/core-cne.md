@@ -3,7 +3,7 @@
 ## Introduction
 
 The CORE CNE file is the standard RAO output file for the CORE CC process.  
-The [OpenRAO toolbox](https://github.com/powsybl/powsybl-open-rao/blob/main/data/rao-result/rao-result-io/rao-result-cne/core-cne-exporter/src/main/java/com/powsybl/openrao/data/raoresult/io/cne/core/CoreCneExporter.java)
+The {src}`OpenRAO toolbox<data/rao-result/rao-result-io/rao-result-cne/core-cne-exporter/src/main/java/com/powsybl/openrao/data/raoresult/io/cne/core/CoreCneExporter.java>`
 allows exporting [RAO results](rao-result.md) in a CORE CNE file using a [UcteCracCreationContext](../input-data/crac/creation-context.md#ucte-implementation)
 and specific properties.
 
