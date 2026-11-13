@@ -141,3 +141,64 @@ See also [FastRAO parameters section](../../parameters/implementation-specific-p
 
 ---
 
+## Optimizing the search-tree in DC
+
+Sensitivity analysis (used to compute flows, margins and PTDFs) can be run in AC or DC. DC is significantly cheaper to
+compute than AC. The search-tree algorithm calls sensitivity analysis repeatedly: once per candidate network-action 
+combination, and again at every iteration of the [linear optimization](linear-problem.md) while tuning range actions. This makes it 
+the main driver of a RAO run's sensitivity-analysis cost.
+
+The [`optimize-in-dc`](../../parameters/implementation-specific-parameters.md#optimize-in-dc) parameter lets the
+*search* (deciding which remedial actions to activate) run on DC sensitivities for speed, while everything the RAO
+actually reports — the initial state, the post-PRA state, the final curative state — is still computed and validated in
+AC. In other words, DC is used to narrow down *which* remedial actions to try, and AC is used to confirm and refine the
+result before it is trusted.
+
+### Decide in DC, recompute in AC
+
+At every perimeter that gets optimized (preventive, each curative perimeter, second preventive), the same two-step
+pattern is applied:
+
+1. **Decide in DC**: a full search-tree run (network-action search and range-action optimization) against a DC-cloned
+   copy of the RAO's sensitivity/load-flow parameters.
+2. **Recompute in AC**: the *decided* network-action combination (topology is now frozen) is re-optimized against the
+   caller's original AC parameters — range-action setpoints only — warm-started with the DC-decided setpoints. This is
+   implemented as a dedicated leaf-only re-optimization.
+
+If `optimize-in-dc` is not set, if the caller's sensitivity parameters are already in DC, or if the CRAC has no network
+action at all, there is nothing to accelerate: every "DC vs AC" branch above collapses to a no-op and the RAO behaves
+exactly as it did before this mechanism existed. The last case is automatic: the search tree only branches over network
+actions (range actions are optimized once, in a single MILP solve), so with none available in the CRAC, DC sensitivity
+would only add the cost of an extra sensitivity analysis for no combinatorial search to speed up — the RAO detects this
+up front and disables the mechanism for the whole run.
+
+### Implementation notes
+
+- **One extra network variant, not a second network.** DC and AC results need separate network *variants* (so that
+  remedial-action application in one doesn't leak into the other), not separate `Network` objects.
+- **The initial sensitivity analysis runs twice, with a fail-safe.** The AC initial sensitivity analysis (over the whole
+  CRAC) always runs, since it seeds the MNEC/loop-flow constraints and the baseline cost. When `optimize-in-dc` is
+  active, a second, DC initial sensitivity analysis also runs, to give the DC searches their own reference point (a DC
+  search compared against an AC reference would read distorted margins). If that DC analysis fails, the mechanism is
+  disabled for the rest of the run and the RAO proceeds AC-only — a broken DC load-flow degrades performance, not
+  correctness.
+- **Warm-starting the AC recompute.** Only range-action setpoints that actually changed between the DC decision and the
+  pre-perimeter situation are re-applied (applying an HVDC range action's setpoint unconditionally would disable its AC
+  emulation even when the value is unchanged, silently altering the network). Leaf optimization is skipped entirely if
+  the DC leaf's stop criterion was already met with no range action activated, mirroring the rule the DC search itself
+  applies to its own leaves.
+- **Preventive and second preventive fall back to AC only on non-convergence.** If the AC recompute of the DC-decided
+  combination fails to converge at all, a full AC search is run for the perimeter as a last resort. A result that
+  converges but turns out insecure, or worse than before, is still accepted: any remaining insecurity is left for the
+  next stage to resolve (curative, or, for second preventive, the overall keep-best-of-first-or-second-preventive
+  decision).
+- **Curative falls back to AC on any remaining insecurity, not just non-convergence.** If the AC recompute of the
+  DC-decided combination isn't at least as secure and as good (cost-wise) as not optimizing at all, a full AC search
+  is run for the perimeter as a last resort — curative is the last stage to revisit a given contingency state, so
+  there is no next stage left to resolve it.
+
+---
+See also: [`optimize-in-dc` parameter](../../parameters/implementation-specific-parameters.md#optimize-in-dc)
+
+---
+

@@ -17,16 +17,15 @@ import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.OptimizationStepsExecuted;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.raoapi.RaoInput;
+import com.powsybl.openrao.raoapi.json.JsonRaoParameters;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters;
-import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
 import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
 import com.powsybl.openrao.searchtreerao.commons.ToolProvider;
 import com.powsybl.openrao.searchtreerao.commons.objectivefunction.ObjectiveFunction;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.PreventiveOptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.commons.parameters.TreeParameters;
-import com.powsybl.openrao.searchtreerao.commons.parameters.UnoptimizedCnecParameters;
 import com.powsybl.openrao.searchtreerao.reports.CastorReports;
 import com.powsybl.openrao.searchtreerao.reports.CommonReports;
 import com.powsybl.openrao.searchtreerao.reports.MostLimitingElementsReports;
@@ -40,22 +39,16 @@ import com.powsybl.openrao.searchtreerao.result.impl.PreventiveAndCurativesRaoRe
 import com.powsybl.openrao.searchtreerao.result.impl.RangeActionActivationResultImpl;
 import com.powsybl.openrao.searchtreerao.result.impl.RemedialActionActivationResultImpl;
 import com.powsybl.openrao.searchtreerao.result.impl.UnoptimizedRaoResultImpl;
-import com.powsybl.openrao.searchtreerao.searchtree.algorithms.SearchTree;
-import com.powsybl.openrao.searchtreerao.searchtree.inputs.SearchTreeInput;
 import com.powsybl.openrao.searchtreerao.searchtree.parameters.SearchTreeParameters;
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 import org.jspecify.annotations.NonNull;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.time.temporal.ChronoUnit;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
-import static com.powsybl.openrao.searchtreerao.commons.HvdcUtils.getHvdcRangeActionsOnHvdcLineInAcEmulation;
 import static com.powsybl.openrao.searchtreerao.commons.RaoUtil.applyRemedialActions;
 import static com.powsybl.openrao.searchtreerao.commons.RaoUtil.getFlowUnit;
 
@@ -69,6 +62,7 @@ import static com.powsybl.openrao.searchtreerao.commons.RaoUtil.getFlowUnit;
  */
 public class CastorFullOptimization {
     private static final String INITIAL_SCENARIO = "InitialScenario";
+    private static final String WORKING_SCENARIO = "WorkingScenario";
     private static final String PREVENTIVE_SCENARIO = "PreventiveScenario";
     private static final String SECOND_PREVENTIVE_SCENARIO_BEFORE_OPT = "SecondPreventiveScenario";
     private static final int NUMBER_LOGGED_ELEMENTS_DURING_RAO = 2;
@@ -107,6 +101,7 @@ public class CastorFullOptimization {
             }
 
             context.setStateTree(new StateTree(crac, optimizationReportNode));
+            buildWorkingToolProvider(context);
 
             currentStep = "initial sensitivity analysis";
             // ----- INITIAL SENSI -----
@@ -133,7 +128,7 @@ public class CastorFullOptimization {
             CastorReports.reportPreventivePerimeterOptimizationEnd();
 
             // ----- SENSI POST-PRA -----
-            // mutualise the pre-perimeter sensi analysis for all contingency scenario + get after-PRA result over all CNECs
+            // mutualize the pre-perimeter sensi analysis for all contingency scenario + get after-PRA result over all CNECs
             currentStep = "post-PRA sensitivity analysis";
 
             final ReportNode postPraSensiAnalysisReportNode = CastorReports.reportPostPraSensiAnalysis(optimizationReportNode);
@@ -167,8 +162,6 @@ public class CastorFullOptimization {
                         optimizationReportNode, flowUnit, context.getStateTree().getOperatorsNotSharingCras());
             }
 
-            RaoResult mergedRaoResults;
-
             // ----- CURATIVE PERIMETERS OPTIMIZATION -----
             // optimize contingency scenarios (auto + curative instants)
             currentStep = "contingency scenarios";
@@ -179,7 +172,7 @@ public class CastorFullOptimization {
             // (however RAO could continue depending on parameter enforce-curative-if-basecase-unsecure)
             if (shouldStopOptimisationIfPreventiveUnsecure(context.getPreventiveResult().getCost())) {
                 CastorReports.reportPreventivePerimeterNotSecure(curativePerimeterOptimReportNode);
-                mergedRaoResults = new PreventiveAndCurativesRaoResultImpl(
+                RaoResult mergedRaoResults = new PreventiveAndCurativesRaoResultImpl(
                         context.getStateTree(), context.getInitialOutput(), context.getPostPreventiveResult(), crac, raoParameters, curativePerimeterOptimReportNode);
                 // log results
                 MostLimitingElementsReports.reportBusinessMostLimitingElements(
@@ -241,25 +234,75 @@ public class CastorFullOptimization {
         return new RaoRunContext(ToolProvider.buildFromRaoInputAndParameters(raoInput, raoParameters));
     }
 
+    private void buildWorkingToolProvider(final RaoRunContext context) {
+        context.setWorkingToolProvider(context.getToolProvider());
+        context.setDcRaoParameters(raoParameters);
+        context.setUseWorkingVars(LoadFlowAndSensitivityParameters.getOptimizeInDc(raoParameters)
+                && !crac.getNetworkActions().isEmpty()
+                && !LoadFlowAndSensitivityParameters.getSensitivityWithLoadFlowParameters(raoParameters).getLoadFlowParameters().isDc());
+        if (context.useWorkingVars()) {
+            // clone RaoParameters and setDc(true)
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            JsonRaoParameters.write(raoParameters, baos, reportNode);
+            context.setDcRaoParameters(JsonRaoParameters.read(new ByteArrayInputStream(baos.toByteArray()), reportNode));
+            LoadFlowAndSensitivityParameters.getSensitivityWithLoadFlowParameters(context.getDcRaoParameters()).getLoadFlowParameters().setDc(true);
+            context.setWorkingToolProvider(ToolProvider.buildFromRaoInputAndParameters(raoInput, context.getDcRaoParameters()));
+            network.getVariantManager().cloneVariant(network.getVariantManager().getWorkingVariantId(), WORKING_SCENARIO);
+        }
+    }
+
     /**
      * Compute initial sensitivity on all CNECs (necessary to have initial flows for MNEC and loopflow
-     * constraints on CNECs, in preventive and curative perimeters).
+     * constraints on CNECs, in preventive and curative perimeters), both in AC and, when relevant, in the
+     * DC working variant used to speed up the search tree.
      */
-    private void runInitialSensitivityAnalysis(final RaoRunContext context, final ReportNode optimizationReportNode) {
+    void runInitialSensitivityAnalysis(final RaoRunContext context, final ReportNode optimizationReportNode) {
         PrePerimeterSensitivityAnalysis prePerimeterSensitivityAnalysis = new PrePerimeterSensitivityAnalysis(
             crac, crac.getFlowCnecs(), crac.getRangeActions(), raoParameters, context.getToolProvider(), true);
         context.setPrePerimeterSensitivityAnalysis(prePerimeterSensitivityAnalysis);
 
         context.setInitialOutput(prePerimeterSensitivityAnalysis.runInitialSensitivityAnalysis(network, optimizationReportNode));
+        network.getVariantManager().cloneVariant(network.getVariantManager().getWorkingVariantId(), INITIAL_SCENARIO);
+
+        context.setWorkingInitialOutput(context.getInitialOutput());
+        if (context.useWorkingVars()) {
+            network.getVariantManager().setWorkingVariant(WORKING_SCENARIO);
+            PrePerimeterSensitivityAnalysis workingprePerimeterSensitivityAnalysis = new PrePerimeterSensitivityAnalysis(
+                    crac,
+                    crac.getFlowCnecs(),
+                    crac.getRangeActions(),
+                    context.getDcRaoParameters(),
+                    context.getWorkingToolProvider(),
+                    true);
+            context.setWorkingInitialOutput(workingprePerimeterSensitivityAnalysis.runInitialSensitivityAnalysis(network, reportNode));
+            if (context.getWorkingInitialOutput().getSensitivityStatus() == ComputationStatus.FAILURE) {
+                context.setUseWorkingVars(false);
+                context.setWorkingToolProvider(context.getToolProvider());
+                context.setDcRaoParameters(raoParameters);
+                context.setWorkingInitialOutput(context.getInitialOutput());
+                network.getVariantManager().removeVariant(WORKING_SCENARIO);
+                CastorReports.reportCastorInitialDcSensitivityAnalysisFailed(optimizationReportNode);
+            } else {
+                CastorReports.reportCastorInitialDcSensitivityAnalysisResults(optimizationReportNode,
+                        workingprePerimeterSensitivityAnalysis.getObjectiveFunction(),
+                        RemedialActionActivationResultImpl.empty(context.getWorkingInitialOutput()),
+                        context.getWorkingInitialOutput(),
+                        context.getDcRaoParameters(),
+                        NUMBER_LOGGED_ELEMENTS_DURING_RAO);
+            }
+            network.getVariantManager().setWorkingVariant(INITIAL_SCENARIO);
+        }
     }
 
     private void runFirstPreventiveOptimization(final RaoRunContext context, final ReportNode preventivePerimeterOptimReportNode) {
         java.time.Instant preventiveRaoStartInstant = java.time.Instant.now();
 
-        network.getVariantManager().cloneVariant(network.getVariantManager().getWorkingVariantId(), INITIAL_SCENARIO);
-        network.getVariantManager().cloneVariant(network.getVariantManager().getWorkingVariantId(), PREVENTIVE_SCENARIO);
-        network.getVariantManager().cloneVariant(network.getVariantManager().getWorkingVariantId(), SECOND_PREVENTIVE_SCENARIO_BEFORE_OPT);
-        network.getVariantManager().setWorkingVariant(PREVENTIVE_SCENARIO);
+        network.getVariantManager().cloneVariant(network.getVariantManager().getWorkingVariantId(), List.of(PREVENTIVE_SCENARIO, SECOND_PREVENTIVE_SCENARIO_BEFORE_OPT));
+        if (context.useWorkingVars()) {
+            network.getVariantManager().setWorkingVariant(WORKING_SCENARIO);
+        } else {
+            network.getVariantManager().setWorkingVariant(PREVENTIVE_SCENARIO);
+        }
 
         PrePerimeterResult initialOutput = context.getInitialOutput();
         OptimizationResult preventiveResult;
@@ -273,11 +316,19 @@ public class CastorFullOptimization {
                 new RangeActionActivationResultImpl(initialOutput)
             );
         } else {
-            preventiveResult = optimizePreventivePerimeter(context.getStateTree(), context.getToolProvider(), initialOutput, preventivePerimeterOptimReportNode);
+            preventiveResult = optimizePreventivePerimeter(
+                    context.getStateTree(), context.getWorkingToolProvider(), context.getWorkingToolProvider(),
+                    context.getWorkingInitialOutput(), initialOutput, preventivePerimeterOptimReportNode);
         }
         java.time.Instant preventiveRaoEndInstant = java.time.Instant.now();
         context.setPreventiveRaoTime(ChronoUnit.SECONDS.between(preventiveRaoStartInstant, preventiveRaoEndInstant));
 
+        if (network.getVariantManager().getWorkingVariantId().equals(WORKING_SCENARIO)) {
+            network.getVariantManager().setWorkingVariant(PREVENTIVE_SCENARIO);
+        }
+        if (context.useWorkingVars()) {
+            network.getVariantManager().removeVariant(WORKING_SCENARIO);
+        }
         context.setPreventiveResult(preventiveResult);
     }
 
@@ -291,7 +342,12 @@ public class CastorFullOptimization {
         applyRemedialActions(network, preventiveResult, crac.getPreventiveState());
 
         PostPerimeterResult postPreventiveResult = new PostPerimeterSensitivityAnalysis(
-                crac, crac.getFlowCnecs(), crac.getRangeActions(), raoParameters, context.getToolProvider(), true)
+                crac,
+                crac.getFlowCnecs(),
+                crac.getRangeActions(),
+                context.getToolProvider().getRaoParameters(),
+                context.getToolProvider(),
+                true)
             .runBasedOnInitialPreviousAndOptimizationResults(
                     network, initialOutput, initialOutput, Collections.emptySet(),
                     preventiveResult, null, postPraSensiAnalysisReportNode);
@@ -300,9 +356,15 @@ public class CastorFullOptimization {
     }
 
     private void runCurativePerimeterOptimization(final RaoRunContext context, final ReportNode postContingencyPerimeterOptimReportNode) {
+        // curative stop criterion must be compared against leaf costs computed by the same (working) tool provider used in the curative search,
+        // otherwise a DC search is judged against an AC-recomputed target
         TreeParameters curativeTreeParameters = TreeParameters.buildForCurativePerimeter(raoParameters, context.getPreventiveResult().getCost());
         CastorContingencyScenarios castorContingencyScenarios = new CastorContingencyScenarios(
                 crac, raoParameters, context.getToolProvider(), context.getStateTree(), curativeTreeParameters, context.getInitialOutput());
+        if (context.useWorkingVars()) {
+            castorContingencyScenarios.setWorkingToolProvider(context.getWorkingToolProvider());
+            castorContingencyScenarios.setWorkingInitialSensitivityOutput(context.getWorkingInitialOutput());
+        }
         context.setCastorContingencyScenarios(castorContingencyScenarios);
 
         context.setPostContingencyResults(castorContingencyScenarios.optimizeContingencyScenarios(
@@ -346,6 +408,11 @@ public class CastorFullOptimization {
             secondPreventivePerimeterOptimReportNode
         );
 
+        if (context.useWorkingVars()) {
+            castorSecondPreventive.setWorkingToolProvider(context.getWorkingToolProvider());
+            castorSecondPreventive.setWorkingInitialOutput(context.getWorkingInitialOutput());
+        }
+
         // define variables to set with second preventive results only if it improves first
         PostPerimeterResult finalSecondPreventiveResult = postPreventiveResult;
         PostPerimeterResult intermediateSecondPreventiveResult = postPreventiveResult;
@@ -369,7 +436,7 @@ public class CastorFullOptimization {
                     intermediateSecondPreventiveResult,
                     secondPreventiveRaoResultsHolder.postContingencyResults(),
                     crac,
-                    raoParameters,
+                    context.getDcRaoParameters(),
                     secondPreventivePerimeterOptimReportNode);
             }
             if (secondPreventiveImprovesResults(secondPreventiveRaoResults, mergedRaoResults, secondPreventivePerimeterOptimReportNode)) {
@@ -479,34 +546,27 @@ public class CastorFullOptimization {
         return CompletableFuture.completedFuture(finalRaoResult);
     }
 
-    private OptimizationResult optimizePreventivePerimeter(final StateTree stateTree,
-                                                           final ToolProvider toolProvider,
+    OptimizationResult optimizePreventivePerimeter(final StateTree stateTree,
+                                                           final ToolProvider workingToolProvider,
+                                                           final ToolProvider baseToolProvider,
+                                                           final PrePerimeterResult workingInitialResult,
                                                            final PrePerimeterResult initialResult,
                                                            final ReportNode preventivePerimeterOptimReportNode) {
+
+        RaoParameters currentRaoParameters = workingToolProvider != null ? workingToolProvider.getRaoParameters() : this.raoParameters;
 
         PreventiveOptimizationPerimeter optPerimeter = PreventiveOptimizationPerimeter.buildFromBasecaseScenario(
             stateTree.getBasecaseScenario(),
             crac,
             network,
-            raoParameters,
-            initialResult,
+            currentRaoParameters,
+            workingInitialResult,
             preventivePerimeterOptimReportNode
         );
 
-        SearchTreeParameters.SearchTreeParametersBuilder searchTreeParametersBuilder = SearchTreeParameters.create(reportNode)
-            .withConstantParametersOverAllRao(raoParameters, crac)
-            .withTreeParameters(TreeParameters.buildForPreventivePerimeter(raoParameters))
-            .withUnoptimizedCnecParameters(UnoptimizedCnecParameters.build(raoParameters.getNotOptimizedCnecsParameters(), stateTree.getOperatorsNotSharingCras()));
-
-        if (!getHvdcRangeActionsOnHvdcLineInAcEmulation(crac.getHvdcRangeActions(), network).isEmpty()) {
-            LoadFlowAndSensitivityParameters loadFlowAndSensitivityParameters =
-                raoParameters.hasExtension(OpenRaoSearchTreeParameters.class)
-                    ? raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getLoadFlowAndSensitivityParameters()
-                    : new LoadFlowAndSensitivityParameters(preventivePerimeterOptimReportNode);
-            searchTreeParametersBuilder.withLoadFlowAndSensitivityParameters(loadFlowAndSensitivityParameters);
-        }
-
-        SearchTreeParameters searchTreeParameters = searchTreeParametersBuilder.build();
+        SearchTreeParameters searchTreeParameters = CastorSearchTreeHelper.buildSearchTreeParameters(currentRaoParameters,
+            TreeParameters.buildForPreventivePerimeter(currentRaoParameters), crac, network,
+            stateTree.getOperatorsNotSharingCras(), preventivePerimeterOptimReportNode);
 
         Set<State> statesToOptimize = new HashSet<>(optPerimeter.getMonitoredStates());
         statesToOptimize.add(optPerimeter.getMainOptimizationState());
@@ -514,25 +574,57 @@ public class CastorFullOptimization {
         ObjectiveFunction objectiveFunction = ObjectiveFunction.build(
             optPerimeter.getFlowCnecs(),
             optPerimeter.getLoopFlowCnecs(),
-            initialResult,
-            initialResult,
+            workingInitialResult,
+            workingInitialResult,
             Collections.emptySet(),
-            raoParameters,
+            currentRaoParameters,
             statesToOptimize
         );
-        SearchTreeInput searchTreeInput = SearchTreeInput.create()
-            .withNetwork(network)
-            .withOptimizationPerimeter(optPerimeter)
-            .withInitialFlowResult(initialResult)
-            .withPrePerimeterResult(initialResult)
-            .withPreOptimizationAppliedNetworkActions(new AppliedRemedialActions()) //no remedial Action applied
-            .withObjectiveFunction(objectiveFunction)
-            .withToolProvider(toolProvider)
-            .withOutageInstant(crac.getOutageInstant())
-            .build();
+        OptimizationResult optResult = CastorSearchTreeHelper.searchNetworkActionCombination(network, optPerimeter, objectiveFunction, workingInitialResult, workingInitialResult,
+            new AppliedRemedialActions(), workingToolProvider, crac.getOutageInstant(), searchTreeParameters, true, preventivePerimeterOptimReportNode);
+        OptimizationResult finalResult;
+        if (workingToolProvider == baseToolProvider) {
+            finalResult = optResult;
+        } else {
+            network.getVariantManager().setWorkingVariant(PREVENTIVE_SCENARIO);
+            PreventiveOptimizationPerimeter optPerimeterBase = PreventiveOptimizationPerimeter.buildFromBasecaseScenario(
+                    stateTree.getBasecaseScenario(), crac, network, baseToolProvider.getRaoParameters(), initialResult, reportNode);
+            statesToOptimize = new HashSet<>(optPerimeterBase.getMonitoredStates());
+            statesToOptimize.add(optPerimeterBase.getMainOptimizationState());
 
-        OptimizationResult optResult = new SearchTree(searchTreeInput, searchTreeParameters, true, preventivePerimeterOptimReportNode).run().join();
-        applyRemedialActions(network, optResult, crac.getPreventiveState());
-        return optResult;
+            ObjectiveFunction baseObjectiveFunction = ObjectiveFunction.build(
+                    optPerimeterBase.getFlowCnecs(),
+                    optPerimeterBase.getLoopFlowCnecs(),
+                    initialResult,
+                    initialResult,
+                    Set.of(),
+                    baseToolProvider.getRaoParameters(),
+                    statesToOptimize);
+            SearchTreeParameters acSearchTreeParameters = CastorSearchTreeHelper.buildSearchTreeParameters(baseToolProvider.getRaoParameters(),
+                TreeParameters.buildForPreventivePerimeter(baseToolProvider.getRaoParameters()), crac, network,
+                stateTree.getOperatorsNotSharingCras(), reportNode);
+
+            if (optResult.getActivatedNetworkActions().isEmpty() && optResult.getActivatedRangeActions(optPerimeterBase.getMainOptimizationState()).isEmpty()) {
+                // DC decided nothing needs to change: the AC cost of "no remedial action" is already known for free
+                // from the initial sensitivity analysis, no need to spend an extra AC sensitivity analysis call just
+                // to re-verify doing nothing
+                finalResult = new OptimizationResultImpl(initialResult, initialResult, initialResult,
+                    new NetworkActionsResultImpl(Map.of()), new RangeActionActivationResultImpl(initialResult));
+            } else {
+                finalResult = CastorSearchTreeHelper.reoptimizeNetworkActionCombination(network, optPerimeterBase, baseObjectiveFunction, initialResult, initialResult,
+                    new AppliedRemedialActions(), baseToolProvider, crac.getOutageInstant(), acSearchTreeParameters, optResult, true, reportNode);
+
+                if (finalResult.getSensitivityStatus() == ComputationStatus.FAILURE) {
+                    // the DC-decided combination does not even converge once recomputed in AC (e.g. it creates an
+                    // electrical island that is solvable in DC but not in AC): ignore the DC decision and search for a
+                    // combination directly in AC, which naturally discards candidates that fail to converge
+                    CastorReports.reportPreventiveDcDecisionFailedAcVerification(reportNode, optResult.getActivatedNetworkActions().size());
+                    finalResult = CastorSearchTreeHelper.searchNetworkActionCombination(network, optPerimeterBase, baseObjectiveFunction, initialResult, initialResult,
+                        new AppliedRemedialActions(), baseToolProvider, crac.getOutageInstant(), acSearchTreeParameters, true, reportNode);
+                }
+            }
+        }
+        applyRemedialActions(network, finalResult, crac.getPreventiveState());
+        return finalResult;
     }
 }

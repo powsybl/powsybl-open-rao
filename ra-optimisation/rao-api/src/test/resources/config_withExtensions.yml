@@ -68,6 +68,7 @@ search-tree-load-flow-and-sensitivity-computation:
   load-flow-provider: LOADFLOW_PROVIDER
   sensitivity-provider: SENSI_PROVIDER
   sensitivity-failure-overcost: 2
+  optimize-in-dc: true
 
 search-tree-multi-threading:
   available-cpus: 5

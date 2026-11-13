@@ -27,6 +27,7 @@ import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SecondPreventiveRaoParameters;
+import com.powsybl.openrao.searchtreerao.commons.ToolProvider;
 import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
 import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
 import com.powsybl.openrao.searchtreerao.result.impl.PostPerimeterResult;
@@ -48,6 +49,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -525,6 +527,98 @@ class CastorSecondPreventiveTest {
             when(firstPreventiveResult.getActivatedNetworkActions()).thenReturn(Set.of());
             castorSecondPreventive.optimizeSecondPreventivePerimeter(initialOutput, prePerimeterResult, firstPreventiveResult, new AppliedRemedialActions());
             assertTrue(capturedParameters.get().getNetworkActionParameters().getNetworkActionCombinations().isEmpty());
+        }
+    }
+
+    /**
+     * Builds a CastorSecondPreventive configured with a distinct working (DC) ToolProvider, so
+     * optimizeSecondPreventivePerimeter takes its DC-decide/AC-recompute branch, plus a mocked PrePerimeterResult
+     * usable by the real GlobalOptimizationPerimeter/ObjectiveFunction construction
+     */
+    private CastorSecondPreventive buildDcModeCastorSecondPreventive(RaoParameters raoParameters, StateTree stateTree) {
+        setUpCracWithRealRAs(false);
+        network.getVariantManager().cloneVariant(network.getVariantManager().getWorkingVariantId(), "SecondPreventiveScenario");
+
+        CastorSecondPreventive castorSecondPreventive = new CastorSecondPreventive(crac, raoParameters, network, stateTree, null, null, ReportNode.NO_OP);
+        ToolProvider dcToolProvider = Mockito.mock(ToolProvider.class);
+        when(dcToolProvider.getRaoParameters()).thenReturn(raoParameters);
+        castorSecondPreventive.setWorkingToolProvider(dcToolProvider);
+        return castorSecondPreventive;
+    }
+
+    private PrePerimeterResult mockPrePerimeterResultForRealPerimeterBuild() {
+        PrePerimeterResult prePerimeterResult = Mockito.mock(PrePerimeterResult.class);
+        when(prePerimeterResult.getSetpoint(ra1)).thenReturn(0.);
+        return prePerimeterResult;
+    }
+
+    @Test
+    void optimizeSecondPreventiveDcDecidesNothingReusesPrePerimeterResult() {
+        RaoParameters raoParameters = new RaoParameters(ReportNode.NO_OP);
+        raoParameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters(ReportNode.NO_OP));
+        StateTree stateTree = Mockito.mock(StateTree.class);
+        when(stateTree.getOperatorsNotSharingCras()).thenReturn(Set.of());
+        CastorSecondPreventive castorSecondPreventive = buildDcModeCastorSecondPreventive(raoParameters, stateTree);
+
+        PrePerimeterResult initialOutput = mockPrePerimeterResultForRealPerimeterBuild();
+        PrePerimeterResult prePerimeterResult = mockPrePerimeterResultForRealPerimeterBuild();
+        OptimizationResult firstPreventiveResult = Mockito.mock(OptimizationResult.class);
+        when(firstPreventiveResult.getActivatedNetworkActions()).thenReturn(Set.of());
+
+        OptimizationResult decidedResult = Mockito.mock(OptimizationResult.class);
+        when(decidedResult.getActivatedNetworkActions()).thenReturn(Collections.emptySet());
+        when(decidedResult.getActivatedRangeActions(any())).thenReturn(Collections.emptySet());
+        CompletableFuture<OptimizationResult> futureDecidedResult = CompletableFuture.completedFuture(decidedResult);
+
+        try (MockedConstruction<SearchTree> mockedSearchTree = Mockito.mockConstruction(SearchTree.class,
+                (mock, context) -> when(mock.run()).thenReturn(futureDecidedResult))) {
+
+            OptimizationResult result = castorSecondPreventive.optimizeSecondPreventivePerimeter(
+                initialOutput, prePerimeterResult, firstPreventiveResult, new AppliedRemedialActions()).join();
+
+            // the "DC decided nothing" shortcut builds its result directly instead of calling
+            // reoptimizeNetworkActionCombination, so only the DC-decide SearchTree gets constructed
+            assertEquals(1, mockedSearchTree.constructed().size());
+            assertTrue(result.getActivatedNetworkActions().isEmpty());
+        }
+    }
+
+    @Test
+    void optimizeSecondPreventiveDcDecidesActionsRecomputesInAc() {
+        RaoParameters raoParameters = new RaoParameters(ReportNode.NO_OP);
+        raoParameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters(ReportNode.NO_OP));
+        StateTree stateTree = Mockito.mock(StateTree.class);
+        when(stateTree.getOperatorsNotSharingCras()).thenReturn(Set.of());
+        CastorSecondPreventive castorSecondPreventive = buildDcModeCastorSecondPreventive(raoParameters, stateTree);
+
+        PrePerimeterResult initialOutput = mockPrePerimeterResultForRealPerimeterBuild();
+        PrePerimeterResult prePerimeterResult = mockPrePerimeterResultForRealPerimeterBuild();
+        OptimizationResult firstPreventiveResult = Mockito.mock(OptimizationResult.class);
+        when(firstPreventiveResult.getActivatedNetworkActions()).thenReturn(Set.of());
+
+        OptimizationResult decidedResult = Mockito.mock(OptimizationResult.class);
+        when(decidedResult.getActivatedNetworkActions()).thenReturn(Set.of(na1));
+        CompletableFuture<OptimizationResult> futureDecidedResult = CompletableFuture.completedFuture(decidedResult);
+        OptimizationResult acRecomputedResult = Mockito.mock(OptimizationResult.class);
+        when(acRecomputedResult.getActivatedNetworkActions()).thenReturn(Set.of());
+        when(acRecomputedResult.getActivatedRangeActions(any())).thenReturn(Set.of());
+
+        try (MockedConstruction<SearchTree> mockedSearchTree = Mockito.mockConstruction(SearchTree.class,
+                (mock, context) -> {
+                    if (context.getCount() == 1) {
+                        when(mock.run()).thenReturn(futureDecidedResult);
+                    } else {
+                        when(mock.optimizeDecidedNetworkActionCombination(any(), any())).thenReturn(acRecomputedResult);
+                    }
+                })) {
+
+            OptimizationResult result = castorSecondPreventive.optimizeSecondPreventivePerimeter(
+                initialOutput, prePerimeterResult, firstPreventiveResult, new AppliedRemedialActions()).join();
+
+            // the DC-decided combination is non-empty, so it must be recomputed in AC: one SearchTree for the
+            // DC decide (run()), one for the AC recompute (optimizeDecidedNetworkActionCombination)
+            assertEquals(2, mockedSearchTree.constructed().size());
+            assertSame(acRecomputedResult, result);
         }
     }
 }
