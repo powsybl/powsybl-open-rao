@@ -44,6 +44,7 @@ From 20:30 to 23:30, 3000 MW of redispatching
       | 2025-11-04 22:30 | 6Nodes_Pmin1000.xiidm | crac_202511042230.json |
       | 2025-11-04 23:30 | 6Nodes_Pmin1000.xiidm | crac_202511042330.json |
     When I launch rao
+    Then the total cost for all timestamps is 1860120.0
     # Timestamp 00:30: 10 (activation) + 50 * 3000 MW (variation) = 150010
     Then the total cost for timestamp "2025-11-04 00:30" is 150010.0
     Then the preventive power of generator "BBE1AA1 _generator" at timestamp "2025-11-04 00:30" is 3000.0 MW
@@ -140,7 +141,6 @@ From 20:30 to 23:30, 3000 MW of redispatching
     Then the total cost for timestamp "2025-11-04 23:30" is 150010.0
     Then the preventive power of generator "BBE1AA1 _generator" at timestamp "2025-11-04 23:30" is 3000.0 MW
     Then the preventive power of load "FFR1AA1 _load" at timestamp "2025-11-04 23:30" is 3000.0 MW
-    Then the total cost for all timestamps is 1860120.0
 
   Scenario: 4.1.6.2: Min-off time + lag time + lead time
     Min-off time = 1h, lagTime = 2.5 and leadTime = 2.25.
@@ -176,6 +176,7 @@ From 20:30 to 23:30, 3000 MW of redispatching
       | 2025-11-04 22:30 | 6Nodes_Pmin1000.xiidm | crac_202511042230.json |
       | 2025-11-04 23:30 | 6Nodes_Pmin1000.xiidm | crac_202511042330.json |
     When I launch rao
+    Then the total cost for all timestamps is 1860120.0
     # Timestamp 00:30: 10 (activation) + 50 * 3000 MW (variation) = 150010
     Then the total cost for timestamp "2025-11-04 00:30" is 150010.0
     Then the preventive power of generator "BBE1AA1 _generator" at timestamp "2025-11-04 00:30" is 3000.0 MW
@@ -272,7 +273,6 @@ From 20:30 to 23:30, 3000 MW of redispatching
     Then the total cost for timestamp "2025-11-04 23:30" is 150010.0
     Then the preventive power of generator "BBE1AA1 _generator" at timestamp "2025-11-04 23:30" is 3000.0 MW
     Then the preventive power of load "FFR1AA1 _load" at timestamp "2025-11-04 23:30" is 3000.0 MW
-    Then the total cost for all timestamps is 1860120.0
 
   Scenario: 4.1.6.3: Min-on time
     Min-on Time = 9h
@@ -310,6 +310,7 @@ From 20:30 to 23:30, 3000 MW of redispatching
       | 2025-11-04 22:30 | 6Nodes_Pmin1000.xiidm | crac_202511042230.json |
       | 2025-11-04 23:30 | 6Nodes_Pmin1000.xiidm | crac_202511042330.json |
     When I launch rao
+    Then the total cost for all timestamps is 1690170.0
     # Timestamp 00:30: 10 (activation) + 50 * 3000 MW (variation) = 150010
     Then the total cost for timestamp "2025-11-04 00:30" is 150010.0
     Then the preventive power of generator "BBE1AA1 _generator" at timestamp "2025-11-04 00:30" is 3000.0 MW
@@ -406,7 +407,6 @@ From 20:30 to 23:30, 3000 MW of redispatching
     Then the total cost for timestamp "2025-11-04 23:30" is 150010.0
     Then the preventive power of generator "BBE1AA1 _generator" at timestamp "2025-11-04 23:30" is 3000.0 MW
     Then the preventive power of load "FFR1AA1 _load" at timestamp "2025-11-04 23:30" is 3000.0 MW
-    Then the total cost for all timestamps is 1690170.0
 
   Scenario: 4.1.6.4: Min-on time + Min-off time + leadTime + lagtime
     leadTime + lagTime + minOffTime = 6.2h -> the generator needs to stay off for at least 7h
@@ -456,6 +456,7 @@ From 20:30 to 23:30, 3000 MW of redispatching
       | 2025-11-04 22:30 | 6Nodes_Pmin1000.xiidm | crac_202511042230.json |
       | 2025-11-04 23:30 | 6Nodes_Pmin1000.xiidm | crac_202511042330.json |
     When I launch rao
+    Then the total cost for all timestamps is 2005169.0
     # Timestamp 00:30: 10 (activation) + 50 * 3000 MW (variation) = 150010
     Then the total cost for timestamp "2025-11-04 00:30" is 150010.0
     Then the preventive power of generator "BBE1AA1 _generator" at timestamp "2025-11-04 00:30" is 3000.0 MW
@@ -552,4 +553,3 @@ From 20:30 to 23:30, 3000 MW of redispatching
     Then the total cost for timestamp "2025-11-04 23:30" is 150010.0
     Then the preventive power of generator "BBE1AA1 _generator" at timestamp "2025-11-04 23:30" is 3000.0 MW
     Then the preventive power of load "FFR1AA1 _load" at timestamp "2025-11-04 23:30" is 3000.0 MW
-    Then the total cost for all timestamps is 2005169.0
