@@ -56,5 +56,7 @@ jobs:
         uses: lycheeverse/lychee-action@e7477775783ea5526144ba13e8db5eec57747ce8 # v2.9.0
         with:
           fail: true
-          # Crawls every generated HTML page (local + external links); fails on any non-2xx status (no accepted codes).
-          args: --no-progress ./build-docs
+          # Checks every generated HTML page (local + external links); fails on any non-2xx status (no accepted codes).
+          # HTML only: Sphinx's _sources/*.md.txt dumps are covered by their HTML equivalent, and scanning the
+          # raw sources would pick up bare URIs that are not links (XML namespace identifiers inside code blocks).
+          args: --no-progress './build-docs/**/*.html'
