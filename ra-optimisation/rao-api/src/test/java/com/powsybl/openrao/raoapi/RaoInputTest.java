@@ -86,10 +86,10 @@ class RaoInputTest {
     }
 
     @Test
-    void testCtGlsk() {
-        ZonalData<Scalable> ctGlsk = new ZonalDataImpl<>(Map.of("10YFR-RTE------C", Scalable.onGenerator("FFR1AA1 _generator")));
-        RaoInput raoInput = RaoInput.build(network, crac).withCtGlskProvider(ctGlsk).build();
-        assertSame(ctGlsk, raoInput.getCtGlskProvider());
-        assertNull(RaoInput.build(network, crac).build().getCtGlskProvider());
+    void testCounterTradeGlsk() {
+        ZonalData<Scalable> counterTradeGlsk = new ZonalDataImpl<>(Map.of("10YFR-RTE------C", Scalable.onGenerator("FFR1AA1 _generator")));
+        RaoInput raoInput = RaoInput.build(network, crac).withCounterTradeGlskProvider(counterTradeGlsk).build();
+        assertSame(counterTradeGlsk, raoInput.getCounterTradeGlskProvider());
+        assertNull(RaoInput.build(network, crac).build().getCounterTradeGlskProvider());
     }
 }

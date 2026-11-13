@@ -34,7 +34,7 @@ public final class RaoInput {
         private Set<State> perimeter;
         private ReferenceProgram referenceProgram;
         private ZonalData<SensitivityVariableSet> glsk;
-        private ZonalData<Scalable> ctGlsk;
+        private ZonalData<Scalable> counterTradeGlsk;
 
         private RaoInputBuilder() {
         }
@@ -69,8 +69,8 @@ public final class RaoInput {
             return this;
         }
 
-        public RaoInputBuilder withCtGlskProvider(ZonalData<Scalable> ctGlsk) {
-            this.ctGlsk = ctGlsk;
+        public RaoInputBuilder withCounterTradeGlskProvider(ZonalData<Scalable> counterTradeGlsk) {
+            this.counterTradeGlsk = counterTradeGlsk;
             return this;
         }
 
@@ -82,7 +82,7 @@ public final class RaoInput {
             raoInput.perimeter = perimeter;
             raoInput.referenceProgram = referenceProgram;
             raoInput.glsk = glsk;
-            raoInput.ctGlsk = ctGlsk;
+            raoInput.counterTradeGlsk = counterTradeGlsk;
             return raoInput;
         }
     }
@@ -93,7 +93,7 @@ public final class RaoInput {
     private String networkVariantId;
     private ReferenceProgram referenceProgram;
     private ZonalData<SensitivityVariableSet> glsk;
-    private ZonalData<Scalable> ctGlsk;
+    private ZonalData<Scalable> counterTradeGlsk;
 
     private RaoInput() {
     }
@@ -131,7 +131,7 @@ public final class RaoInput {
         return glsk;
     }
 
-    public ZonalData<Scalable> getCtGlskProvider() {
-        return ctGlsk;
+    public ZonalData<Scalable> getCounterTradeGlskProvider() {
+        return counterTradeGlsk;
     }
 }

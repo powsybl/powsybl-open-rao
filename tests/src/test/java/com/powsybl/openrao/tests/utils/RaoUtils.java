@@ -92,7 +92,7 @@ public final class RaoUtils {
             CommonTestData.getNetwork(),
             CommonTestData.getCrac(),
             glsks,
-            CommonTestData.getCtGlsks(),
+            CommonTestData.getCounterTradeGlsks(),
             CommonTestData.getReferenceProgram(),
             raoParameters,
             timeLimitInSeconds,
@@ -101,12 +101,12 @@ public final class RaoUtils {
     }
 
     private static RaoResult runRaoInMemory(Rao.Runner raoRunner, Network network, Crac crac,
-                                            ZonalData<SensitivityVariableSet> glsks, ZonalData<Scalable> ctGlsks, ReferenceProgram referenceProgram, RaoParameters config,
+                                            ZonalData<SensitivityVariableSet> glsks, ZonalData<Scalable> counterTradeGlsks, ReferenceProgram referenceProgram, RaoParameters config,
                                             Integer timeLimitInSeconds, final ReportNode reportNode) throws IOException {
 
         RaoInput.RaoInputBuilder raoInputBuilder = RaoInput.build(network, crac);
         raoInputBuilder.withGlskProvider(glsks);
-        raoInputBuilder.withCtGlskProvider(ctGlsks);
+        raoInputBuilder.withCounterTradeGlskProvider(counterTradeGlsks);
         raoInputBuilder.withRefProg(referenceProgram);
 
         RaoResult raoResult;
