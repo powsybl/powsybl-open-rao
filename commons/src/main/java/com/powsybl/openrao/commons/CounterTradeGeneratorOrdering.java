@@ -22,4 +22,5 @@ public record CounterTradeGeneratorOrdering(
         int downwardLastStage,
         double maxDownwardMagnitude,
         Map<String, Double> initialTargetP,
-        Set<String> zeroWeightGeneratorIds) { }
+        Set<String> zeroWeightGeneratorIds,
+        boolean meritOrder) { }

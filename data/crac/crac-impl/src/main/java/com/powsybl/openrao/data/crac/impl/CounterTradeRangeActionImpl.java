@@ -225,8 +225,14 @@ public class CounterTradeRangeActionImpl extends AbstractRangeAction<CounterTrad
     }
 
     public void computeGeneratorOrdering(Network network, double tolerance) {
+<<<<<<< HEAD
         Map<String, Double> weights = getGlsk().get(area);
         this.generatorOrdering = GeneratorOrderingComputer.compute(
+=======
+        String areaId = getArea();
+        Map<String, Double> weights = getGlsk().get(areaId);
+        this.generatorOrdering = GeneratorOrderingComputer.computeFromProportional(
+>>>>>>> dac54135f (Rename "compute" function of proportional GLSK to computeFromProportional)
                 weights,
                 network,
                 tolerance,

@@ -43,7 +43,7 @@ public final class GeneratorOrderingComputer {
      * @param maxDownwardMagnitude      the maximal admissible positive setpoint decrease
      * @param maxUpwardMagnitude        the maximal admissible positive setpoint increase
      */
-    public static CounterTradeGeneratorOrdering compute(
+    public static CounterTradeGeneratorOrdering computeFromProportional(
             Map<String, Double> glskWeights,
             Network network,
             double tolerance,
@@ -98,7 +98,70 @@ public final class GeneratorOrderingComputer {
                 downwardLastStage,
                 max(0, -maxDownwardMagnitude),
                 initialTargetP,
-                zeroWeightIds);
+                zeroWeightIds,
+                false);
+    }
+
+    public static CounterTradeGeneratorOrdering computeFromMeritOrder(
+            MeritOrderGlsk meritOrderGlsk,
+            Network network,
+            double maxDownwardMagnitude,
+            double maxUpwardMagnitude) {
+        Map<String, Double> initialTargetP = new HashMap<>();
+        Set<String> ignoredIds = new HashSet<>();
+        List<GlskGeneratorAllocation> upward = meritOrderLayers(meritOrderGlsk.upward(), true, network, initialTargetP, ignoredIds);
+        List<GlskGeneratorAllocation> downward = meritOrderLayers(meritOrderGlsk.downward(), false, network, initialTargetP, ignoredIds);
+        int upwardLastStage = lastReachableStage(upward, max(0, maxUpwardMagnitude));
+        int downwardLastStage = lastReachableStage(downward, max(0, -maxDownwardMagnitude));
+
+        return new CounterTradeGeneratorOrdering(
+                upward,
+                downward,
+                upwardLastStage,
+                max(0, maxUpwardMagnitude),
+                downwardLastStage,
+                max(0, -maxDownwardMagnitude),
+                initialTargetP,
+                ignoredIds,
+                true);
+    }
+
+    private static List<GlskGeneratorAllocation> meritOrderLayers(
+            List<MeritOrderTranche> tranches,
+            boolean upward,
+            Network network,
+            Map<String, Double> initialTargetP,
+            Set<String> ignoredIds) {
+        Map<String, Double> positions = new HashMap<>();
+        List<GlskGeneratorAllocation> layers = new ArrayList<>();
+        for (MeritOrderTranche tranche : tranches) {
+            String generatorId = tranche.generatorId();
+            Generator generator = network.getGenerator(generatorId);
+            if (generator == null || !hasUsableActivePowerRange(generator)) {
+                ignoredIds.add(generatorId);
+                continue;
+            }
+            double initialP = generator.getTargetP();
+            initialTargetP.put(generatorId, initialP);
+            double lower = max(tranche.minP(), generator.getMinP());
+            double upper = Math.min(tranche.maxP(), generator.getMaxP());
+            double position = positions.getOrDefault(generatorId, initialP);
+            if (position < lower || position > upper) {
+                continue;
+            }
+            double capacity;
+            if (upward) {
+                capacity = upper - position;
+                positions.put(generatorId, upper);
+            } else {
+                capacity = position - lower;
+                positions.put(generatorId, lower);
+            }
+            if (capacity > 0) {
+                layers.add(new GlskGeneratorAllocation(generatorId, 1.0, capacity, capacity, capacity));
+            }
+        }
+        return layers;
     }
 
     private static boolean hasUsableActivePowerRange(Generator generator) {
