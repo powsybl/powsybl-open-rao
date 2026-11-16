@@ -7,6 +7,16 @@
 
 package com.powsybl.openrao.searchtreerao.marmot;
 
+import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
+import static com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.RaRangeShrinking.ENABLED;
+import static com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.RaRangeShrinking.ENABLED_IN_FIRST_PRAO_AND_CRAO;
+import static com.powsybl.openrao.searchtreerao.commons.RaoUtil.getFlowUnit;
+import static com.powsybl.openrao.searchtreerao.marmot.MarmotUtils.*;
 import com.google.auto.service.AutoService;
 import com.google.common.annotations.Beta;
 import com.powsybl.commons.report.ReportNode;
@@ -23,18 +33,12 @@ import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.raoresult.api.TimeCoupledRaoResult;
 import com.powsybl.openrao.data.raoresult.api.extension.CriticalCnecsResult;
-import com.powsybl.openrao.raoapi.LazyNetwork;
-import com.powsybl.openrao.raoapi.Rao;
-import com.powsybl.openrao.raoapi.RaoInput;
-import com.powsybl.openrao.raoapi.RaoProvider;
-import com.powsybl.openrao.raoapi.TimeCoupledRaoInput;
-import com.powsybl.openrao.raoapi.TimeCoupledRaoProvider;
+import com.powsybl.openrao.raoapi.*;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.MarmotParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoCostlyMinMarginParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRelativeMarginsParameters;
-import com.powsybl.openrao.searchtreerao.castor.algorithm.PrePerimeterSensitivityAnalysis;
 import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
 import com.powsybl.openrao.searchtreerao.commons.ToolProvider;
 import com.powsybl.openrao.searchtreerao.commons.objectivefunction.ObjectiveFunction;
@@ -48,41 +52,11 @@ import com.powsybl.openrao.searchtreerao.marmot.results.GlobalLinearOptimization
 import com.powsybl.openrao.searchtreerao.marmot.results.TimeCoupledRaoResultImpl;
 import com.powsybl.openrao.searchtreerao.marmot.results.extensions.PreTimeCouplingOverloadedCnecs;
 import com.powsybl.openrao.searchtreerao.reports.MarmotReports;
-import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
-import com.powsybl.openrao.searchtreerao.result.api.LinearOptimizationResult;
-import com.powsybl.openrao.searchtreerao.result.api.LinearProblemStatus;
-import com.powsybl.openrao.searchtreerao.result.api.NetworkActionsResult;
-import com.powsybl.openrao.searchtreerao.result.api.ObjectiveFunctionResult;
-import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
-import com.powsybl.openrao.searchtreerao.result.api.RangeActionActivationResult;
-import com.powsybl.openrao.searchtreerao.result.api.RangeActionSetpointResult;
+import com.powsybl.openrao.searchtreerao.result.api.*;
 import com.powsybl.openrao.searchtreerao.result.impl.NetworkActionsResultImpl;
 import com.powsybl.openrao.searchtreerao.result.impl.PrePerimeterSensitivityResultImpl;
 import com.powsybl.openrao.searchtreerao.result.impl.RangeActionSetpointResultImpl;
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
-
-import java.time.Instant;
-import java.time.OffsetDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.Collectors;
-
-import static com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.RaRangeShrinking.ENABLED;
-import static com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.RaRangeShrinking.ENABLED_IN_FIRST_PRAO_AND_CRAO;
-import static com.powsybl.openrao.searchtreerao.commons.RaoUtil.getFlowUnit;
-import static com.powsybl.openrao.searchtreerao.marmot.MarmotUtils.buildGlobalObjectiveFunction;
-import static com.powsybl.openrao.searchtreerao.marmot.MarmotUtils.getInitialObjectiveFunctionResult;
-import static com.powsybl.openrao.searchtreerao.marmot.MarmotUtils.getPostOptimizationResults;
-import static com.powsybl.openrao.searchtreerao.marmot.MarmotUtils.runInitialPrePerimeterSensitivityAnalysisWithoutRangeActions;
-import static com.powsybl.openrao.searchtreerao.marmot.MarmotUtils.runSensitivityAnalysisBasedOnInitialResult;
 
 /**
  * Time-coupled RAO provider based on a two-step workflow:
@@ -91,11 +65,10 @@ import static com.powsybl.openrao.searchtreerao.marmot.MarmotUtils.runSensitivit
  *     <li>Global time-coupled linear optimization of the range actions</li>
  * </ol>
  *
- * @deprecated since 7.6.0, use {@link com.powsybl.openrao.searchtreerao.OpenRao} as the default RAO provider.
- *
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  * @author Roxane Chen {@literal <roxane.chen at rte-france.com>}
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
+ * @deprecated since 7.6.0, use {@link com.powsybl.openrao.searchtreerao.OpenRao} as the default RAO provider.
  */
 @Beta
 @Deprecated(since = "7.6.0")
@@ -535,11 +508,11 @@ public class Marmot implements RaoProvider, TimeCoupledRaoProvider {
                                                                       final int parallelism,
                                                                       final ReportNode reportNode) {
         return MarmotUtils.smartMap(raoInputs, raoInput ->
-            runSingleTopologicalOptimization(
-                raoInput,
-                consideredCnecs,
-                raoParameters.getData(MarmotUtils.getTimestamp(raoInput)).orElseThrow(), reportNode
-            ),
+                runSingleTopologicalOptimization(
+                    raoInput,
+                    consideredCnecs,
+                    raoParameters.getData(MarmotUtils.getTimestamp(raoInput)).orElseThrow(), reportNode
+                ),
             parallelism
         );
     }
@@ -731,7 +704,7 @@ public class Marmot implements RaoProvider, TimeCoupledRaoProvider {
             .withRangeActionParametersExtension(parameters.getExtension(OpenRaoSearchTreeParameters.class).getRangeActionsOptimizationParameters())
             .withMaxNumberOfIterations(parameters.getExtension(OpenRaoSearchTreeParameters.class).getRangeActionsOptimizationParameters().getMaxMipIterations())
             .withRaRangeShrinking(ENABLED.equals(parameters.getExtension(OpenRaoSearchTreeParameters.class).getRangeActionsOptimizationParameters().getRaRangeShrinking())
-                                  || ENABLED_IN_FIRST_PRAO_AND_CRAO.equals(parameters.getExtension(OpenRaoSearchTreeParameters.class).getRangeActionsOptimizationParameters().getRaRangeShrinking()))
+                || ENABLED_IN_FIRST_PRAO_AND_CRAO.equals(parameters.getExtension(OpenRaoSearchTreeParameters.class).getRangeActionsOptimizationParameters().getRaRangeShrinking()))
             .withSolverParameters(parameters.getExtension(OpenRaoSearchTreeParameters.class).getRangeActionsOptimizationParameters().getLinearOptimizationSolver())
             .withMaxMinRelativeMarginParameters(parameters.getExtension(SearchTreeRaoRelativeMarginsParameters.class))
             .withRaLimitationParameters(new RangeActionLimitationParameters())
@@ -754,14 +727,14 @@ public class Marmot implements RaoProvider, TimeCoupledRaoProvider {
                 State preventiveState = crac.getPreventiveState();
                 // set of range actions optimized by the mip
                 crac.getStates().stream()
-                        .filter(state -> state.isPreventive() || state.getInstant().isCurative())
-                        .forEach(state -> MarmotUtils.addRangeActionsPerState(availableRangeActions, crac, state));
+                    .filter(state -> state.isPreventive() || state.getInstant().isCurative())
+                    .forEach(state -> MarmotUtils.addRangeActionsPerState(availableRangeActions, crac, state));
                 return new GlobalOptimizationPerimeter(
-                        preventiveState,
-                        consideredCnecs.getData(timestamp).orElseThrow(),
-                        new HashSet<>(), // no loopflows for now
-                        new HashSet<>(), // don't re-optimize topological actions in Marmot
-                        availableRangeActions
+                    preventiveState,
+                    consideredCnecs.getData(timestamp).orElseThrow(),
+                    new HashSet<>(), // no loopflows for now
+                    new HashSet<>(), // don't re-optimize topological actions in Marmot
+                    availableRangeActions
                 );
             },
             parallelism

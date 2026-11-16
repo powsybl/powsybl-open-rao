@@ -7,6 +7,13 @@
 
 package com.powsybl.openrao.searchtreerao.marmot;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.time.OffsetDateTime;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Network;
@@ -32,33 +39,11 @@ import com.powsybl.openrao.searchtreerao.commons.ToolProvider;
 import com.powsybl.openrao.searchtreerao.commons.objectivefunction.ObjectiveFunction;
 import com.powsybl.openrao.searchtreerao.marmot.results.GlobalLinearOptimizationResult;
 import com.powsybl.openrao.searchtreerao.reports.MarmotReports;
-import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
-import com.powsybl.openrao.searchtreerao.result.api.LinearOptimizationResult;
-import com.powsybl.openrao.searchtreerao.result.api.LinearProblemStatus;
-import com.powsybl.openrao.searchtreerao.result.api.NetworkActionsResult;
-import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
-import com.powsybl.openrao.searchtreerao.result.api.RangeActionActivationResult;
-import com.powsybl.openrao.searchtreerao.result.api.RemedialActionActivationResult;
+import com.powsybl.openrao.searchtreerao.result.api.*;
 import com.powsybl.openrao.searchtreerao.result.impl.NetworkActionsResultImpl;
 import com.powsybl.openrao.searchtreerao.result.impl.RangeActionActivationResultImpl;
 import com.powsybl.openrao.searchtreerao.result.impl.RemedialActionActivationResultImpl;
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
-
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
-import java.time.OffsetDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
@@ -178,13 +163,13 @@ public final class MarmotUtils {
         activatedNetworkActionsPerState.put(crac.getPreventiveState(), preventiveNetworkActions);
         // Add curative network actions
         crac.getStates().stream()
-                .filter(state -> state.getInstant().isCurative())
-                .forEach(state -> {
-                    Set<NetworkAction> appliedCurativeNetworkActions = curativeNetworkActions.getAppliedNetworkActions(state);
-                    if (!appliedCurativeNetworkActions.isEmpty()) {
-                        activatedNetworkActionsPerState.put(state, appliedCurativeNetworkActions);
-                    }
-                });
+            .filter(state -> state.getInstant().isCurative())
+            .forEach(state -> {
+                Set<NetworkAction> appliedCurativeNetworkActions = curativeNetworkActions.getAppliedNetworkActions(state);
+                if (!appliedCurativeNetworkActions.isEmpty()) {
+                    activatedNetworkActionsPerState.put(state, appliedCurativeNetworkActions);
+                }
+            });
         return new NetworkActionsResultImpl(activatedNetworkActionsPerState);
     }
 
@@ -338,11 +323,11 @@ public final class MarmotUtils {
                                                                                    Crac crac) {
         RangeActionActivationResultImpl rangeActionActivationResult = new RangeActionActivationResultImpl(initialResult);
         crac.getStates().stream()
-                // only preventive and curative states have range actions optimized by the MIP
-                .filter(state -> state.isPreventive() || state.getInstant().isCurative())
-                .forEach(state ->
-                        postMipResult.getOptimizedSetpointsOnState(state).forEach((rangeAction, setPoint) ->
-                                rangeActionActivationResult.putResult(rangeAction, state, setPoint)));
+            // only preventive and curative states have range actions optimized by the MIP
+            .filter(state -> state.isPreventive() || state.getInstant().isCurative())
+            .forEach(state ->
+                postMipResult.getOptimizedSetpointsOnState(state).forEach((rangeAction, setPoint) ->
+                    rangeActionActivationResult.putResult(rangeAction, state, setPoint)));
         return new RemedialActionActivationResultImpl(rangeActionActivationResult, networkActionsResult);
     }
 
@@ -359,12 +344,12 @@ public final class MarmotUtils {
         Set<State> allOptimizedStates = new HashSet<>();
         cracs.map(Crac::getStates).getDataPerTimestamp().values().forEach(allOptimizedStates::addAll);
         return ObjectiveFunction.build(allFlowCnecs,
-                new HashSet<>(), // no loop flows for now
-                globalInitialFlowResult,
-                globalInitialFlowResult, // always building from preventive so prePerimeter = initial
-                Collections.emptySet(),
-                raoParameters,
-                allOptimizedStates);
+            new HashSet<>(), // no loop flows for now
+            globalInitialFlowResult,
+            globalInitialFlowResult, // always building from preventive so prePerimeter = initial
+            Collections.emptySet(),
+            raoParameters,
+            allOptimizedStates);
     }
 
     public static LinearOptimizationResult getInitialObjectiveFunctionResult(final TemporalData<PrePerimeterResult> prePerimeterResults,
@@ -373,13 +358,13 @@ public final class MarmotUtils {
         TemporalData<RangeActionActivationResult> rangeActionActivationResults = prePerimeterResults.map(RangeActionActivationResultImpl::new);
         TemporalData<NetworkActionsResult> networkActionsResults = new TemporalDataImpl<>();
         return new GlobalLinearOptimizationResult(
-                prePerimeterResults.map(PrePerimeterResult::getFlowResult),
-                prePerimeterResults.map(PrePerimeterResult::getSensitivityResult),
-                rangeActionActivationResults,
-                networkActionsResults,
-                objectiveFunction,
-                LinearProblemStatus.OPTIMAL,
-                reportNode
+            prePerimeterResults.map(PrePerimeterResult::getFlowResult),
+            prePerimeterResults.map(PrePerimeterResult::getSensitivityResult),
+            rangeActionActivationResults,
+            networkActionsResults,
+            objectiveFunction,
+            LinearProblemStatus.OPTIMAL,
+            reportNode
         );
     }
 
