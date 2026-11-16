@@ -360,7 +360,6 @@ class FastRao {
 
         RaoResultImpl fastRaoResult = fastRaoResultBuilder.build();
 
-        // TODO: this is not quite proper since CASTOR may not be the inner loop provider
         CostResult costResult = raoResult.getExtension(CostResult.class);
         if (costResult != null) {
             fastRaoResult.addExtension(CostResult.class, new CostResult(raoResult.getExtension(CostResult.class)));
