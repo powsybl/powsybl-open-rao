@@ -19,10 +19,12 @@ import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.raoresult.api.extension.CostResult;
 import com.powsybl.openrao.data.raoresult.api.extension.Metadata;
 import com.powsybl.openrao.raoapi.RaoInput;
+import com.powsybl.openrao.raoapi.json.JsonRaoParameters;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoTopoOptimizationParameters;
 import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
 import com.powsybl.openrao.searchtreerao.commons.ToolProvider;
 import com.powsybl.openrao.searchtreerao.commons.objectivefunction.ObjectiveFunction;
@@ -46,6 +48,8 @@ import com.powsybl.openrao.searchtreerao.searchtree.parameters.SearchTreeParamet
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 import org.jspecify.annotations.NonNull;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 import java.util.HashMap;
@@ -108,6 +112,10 @@ public class CastorFullOptimization {
             }
 
             context.setStateTree(new StateTree(crac, optimizationReportNode));
+            context.setDcPreSolveEnabled(isDcPreSolveUsable());
+            if (context.isDcPreSolveEnabled()) {
+                buildDcToolProvider(context);
+            }
 
             currentStep = "initial sensitivity analysis";
             // ----- INITIAL SENSI -----
@@ -235,6 +243,24 @@ public class CastorFullOptimization {
         return new RaoRunContext(ToolProvider.buildFromRaoInputAndParameters(raoInput, raoParameters));
     }
 
+    // no DC pre-solve if both DC searchtree depth parameters set to 0, no network action or the RAO already runs on DC sensitivities
+    private boolean isDcPreSolveUsable() {
+        boolean dcDepthRequested = SearchTreeRaoTopoOptimizationParameters.getMaxPreventiveSearchTreeDepthDc(raoParameters) > 0
+            || SearchTreeRaoTopoOptimizationParameters.getMaxCurativeSearchTreeDepthDc(raoParameters) > 0;
+        return dcDepthRequested
+            && !crac.getNetworkActions().isEmpty()
+            && !LoadFlowAndSensitivityParameters.getSensitivityWithLoadFlowParameters(raoParameters).getLoadFlowParameters().isDc();
+    }
+
+    private void buildDcToolProvider(final RaoRunContext context) {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        JsonRaoParameters.write(raoParameters, baos, reportNode);
+        RaoParameters dcRaoParameters = JsonRaoParameters.read(new ByteArrayInputStream(baos.toByteArray()), reportNode);
+        LoadFlowAndSensitivityParameters.getSensitivityWithLoadFlowParameters(dcRaoParameters).getLoadFlowParameters().setDc(true);
+        context.setDcRaoParameters(dcRaoParameters);
+        context.setDcToolProvider(ToolProvider.buildFromRaoInputAndParameters(raoInput, dcRaoParameters));
+    }
+
     /**
      * Compute initial sensitivity on all CNECs (necessary to have initial flows for MNEC and loopflow
      * constraints on CNECs, in preventive and curative perimeters).
@@ -245,6 +271,18 @@ public class CastorFullOptimization {
         context.setPrePerimeterSensitivityAnalysis(prePerimeterSensitivityAnalysis);
 
         context.setInitialOutput(prePerimeterSensitivityAnalysis.runInitialSensitivityAnalysis(network, optimizationReportNode));
+
+        if (context.isDcPreSolveEnabled()) {
+            PrePerimeterSensitivityAnalysis dcPrePerimeterSensitivityAnalysis = new PrePerimeterSensitivityAnalysis(
+                crac, crac.getFlowCnecs(), crac.getRangeActions(), context.getDcRaoParameters(), context.getDcToolProvider(), true);
+            PrePerimeterResult dcInitialOutput = dcPrePerimeterSensitivityAnalysis.runInitialSensitivityAnalysis(network, optimizationReportNode);
+            if (dcInitialOutput.getSensitivityStatus() == ComputationStatus.FAILURE) {
+                context.setDcPreSolveEnabled(false);
+                CastorReports.reportInitialDcSensitivityAnalysisFailed(optimizationReportNode);
+            } else {
+                context.setDcInitialOutput(dcInitialOutput);
+            }
+        }
     }
 
     private void runFirstPreventiveOptimization(final RaoRunContext context, final ReportNode preventivePerimeterOptimReportNode) {

@@ -39,7 +39,9 @@ import java.util.stream.Collectors;
 import static com.powsybl.commons.report.TypedValue.ERROR_SEVERITY;
 import static com.powsybl.commons.report.TypedValue.INFO_SEVERITY;
 import static com.powsybl.commons.report.TypedValue.TRACE_SEVERITY;
+import static com.powsybl.commons.report.TypedValue.WARN_SEVERITY;
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_LOGS;
+import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WARNS;
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
 
 /**
@@ -81,6 +83,15 @@ public final class CastorReports {
             raoParameters,
             numberOfLoggedLimitingElements
         );
+    }
+
+    public static void reportInitialDcSensitivityAnalysisFailed(final ReportNode parentNode) {
+        parentNode.newReportNode()
+            .withMessageTemplate("openrao.searchtreerao.reportInitialDcSensitivityAnalysisFailed")
+            .withSeverity(WARN_SEVERITY)
+            .add();
+
+        BUSINESS_WARNS.warn("Initial sensitivity analysis in DC failed. Disabling DC pre-solve.");
     }
 
     public static void reportCastorSystematicSensitivityAnalysisAfterPraResults(final ReportNode parentNode,
