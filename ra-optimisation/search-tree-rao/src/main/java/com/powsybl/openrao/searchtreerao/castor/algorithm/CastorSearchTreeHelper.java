@@ -11,9 +11,12 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
+import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoTopoOptimizationParameters;
+import com.powsybl.openrao.searchtreerao.commons.NetworkActionCombination;
 import com.powsybl.openrao.searchtreerao.commons.ToolProvider;
 import com.powsybl.openrao.searchtreerao.commons.objectivefunction.ObjectiveFunction;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
@@ -85,5 +88,23 @@ final class CastorSearchTreeHelper {
             .build();
 
         return new SearchTree(searchTreeInput, searchTreeParameters, verbose, reportNode).run().join();
+    }
+
+    /**
+     * HINT: the DC pre-solve combination competes at depth 1 alongside all single network actions.
+     * FORCED: depth 1 of the AC search is replaced by this combination alone.
+     */
+    static void injectDcPreSolveCombination(final SearchTreeParameters acSearchTreeParameters,
+                                            final Set<NetworkAction> dcCombination,
+                                            final SearchTreeRaoTopoOptimizationParameters.DcSolutionUsage dcSolutionUsage) {
+        if (dcCombination.isEmpty()) {
+            return;
+        }
+        NetworkActionCombination combination = new NetworkActionCombination(dcCombination, true);
+        if (dcSolutionUsage == SearchTreeRaoTopoOptimizationParameters.DcSolutionUsage.FORCED) {
+            acSearchTreeParameters.getNetworkActionParameters().setForcedCombination(combination);
+        } else {
+            acSearchTreeParameters.getNetworkActionParameters().addNetworkActionCombination(combination);
+        }
     }
 }
