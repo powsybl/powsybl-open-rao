@@ -225,8 +225,8 @@ public final class TimeCoupledIteratingLinearOptimizer {
         }
         if (isPreventiveMip && !input.synchronizeCurativeRangeActions() && !input.timeCoupledConstraints().getGeneratorConstraints().isEmpty()) {
             TemporalData<Set<InjectionRangeAction>> preventiveInjectionRangeActions = input.iteratingLinearOptimizerInputs()
-                                                                                          .map(linearOptimizerInput -> filterPreventiveRangeAction(
-                                                                                              linearOptimizerInput.optimizationPerimeter().getRangeActions(), InjectionRangeAction.class));
+                .map(linearOptimizerInput -> filterPreventiveRangeAction(
+                    linearOptimizerInput.optimizationPerimeter().getRangeActions(), InjectionRangeAction.class));
             problemFillers.add(new GeneratorConstraintsFiller(
                 input.iteratingLinearOptimizerInputs().map(IteratingLinearOptimizerInput::network),
                 mainOptimizationStates,
@@ -241,8 +241,8 @@ public final class TimeCoupledIteratingLinearOptimizer {
                 throw new OpenRaoException("The PST Model must be set to APPROXIMATED_INTEGERS in the parameters for the PST time-coupled constraints.");
             }
             TemporalData<Set<PstRangeAction>> preventivePstRangeActions = input.iteratingLinearOptimizerInputs()
-                                                                              .map(linearOptimizerInput -> filterPreventiveRangeAction(linearOptimizerInput.optimizationPerimeter().getRangeActions(),
-                                                                                  PstRangeAction.class));
+                .map(linearOptimizerInput -> filterPreventiveRangeAction(linearOptimizerInput.optimizationPerimeter().getRangeActions(),
+                    PstRangeAction.class));
             problemFillers.add(new PstConstraintsFiller(
                 mainOptimizationStates,
                 preventivePstRangeActions,
@@ -272,15 +272,15 @@ public final class TimeCoupledIteratingLinearOptimizer {
 
     private static Map<State, Set<RangeAction<?>>> getCurativeRangeActionsPerState(OptimizationPerimeter optimizationPerimeter) {
         return optimizationPerimeter.getRangeActionsPerState().entrySet().stream()
-                   .filter(statesSetEntry -> statesSetEntry.getKey().getInstant().isCurative())
-                   .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+            .filter(statesSetEntry -> statesSetEntry.getKey().getInstant().isCurative())
+            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
     private static LinearProblem buildLinearProblem(TemporalData<List<ProblemFiller>> problemFillers, List<ProblemFiller> timeCoupledProblemFillers, IteratingLinearOptimizerParameters parameters) {
         LinearProblemBuilder linearProblemBuilder = LinearProblem.create()
-                                                        .withSolver(parameters.getSolverParameters().getSolver())
-                                                        .withRelativeMipGap(parameters.getSolverParameters().getRelativeMipGap())
-                                                        .withSolverSpecificParameters(parameters.getSolverParameters().getSolverSpecificParameters());
+            .withSolver(parameters.getSolverParameters().getSolver())
+            .withRelativeMipGap(parameters.getSolverParameters().getRelativeMipGap())
+            .withSolverSpecificParameters(parameters.getSolverParameters().getSolverSpecificParameters());
 
         // add problem fillers for each timestamp and time-coupled timestamps
         problemFillers.getDataPerTimestamp().values().forEach(problemFillerOfTimestamp -> problemFillerOfTimestamp.forEach(linearProblemBuilder::withProblemFiller));
@@ -370,11 +370,11 @@ public final class TimeCoupledIteratingLinearOptimizer {
                                                                  final ReportNode reportNode) {
 
         SensitivityComputer.SensitivityComputerBuilder builder = SensitivityComputer.create(reportNode)
-                                                                     .withCnecs(input.optimizationPerimeter().getFlowCnecs())
-                                                                     .withRangeActions(input.optimizationPerimeter().getRangeActions())
-                                                                     .withAppliedRemedialActions(appliedRemedialActions)
-                                                                     .withToolProvider(input.toolProvider())
-                                                                     .withOutageInstant(input.outageInstant());
+            .withCnecs(input.optimizationPerimeter().getFlowCnecs())
+            .withRangeActions(input.optimizationPerimeter().getRangeActions())
+            .withAppliedRemedialActions(appliedRemedialActions)
+            .withToolProvider(input.toolProvider())
+            .withOutageInstant(input.outageInstant());
 
         if (parameters.isRaoWithLoopFlowLimitation() && parameters.getLoopFlowParametersExtension().getPtdfApproximation().shouldUpdatePtdfWithPstChange()) {
             builder.withCommercialFlowsResults(input.toolProvider().getLoopFlowComputation(), input.optimizationPerimeter().getLoopFlowCnecs());
@@ -447,14 +447,14 @@ public final class TimeCoupledIteratingLinearOptimizer {
                                                                                           TemporalData<List<ProblemFiller>> problemFillers,
                                                                                           int parallelism) {
         if (input.iteratingLinearOptimizerInputs().getDataPerTimestamp().values().stream()
-                .map(i -> i.prePerimeterSetpoints().getRangeActions()).flatMap(Collection::stream)
-                .noneMatch(PstRangeAction.class::isInstance)) {
+            .map(i -> i.prePerimeterSetpoints().getRangeActions()).flatMap(Collection::stream)
+            .noneMatch(PstRangeAction.class::isInstance)) {
             return currentRangeActionActivationResults;
         }
         LinearProblemStatus solveStatus;
         TemporalData<RangeActionActivationResult> rangeActionActivationResults = currentRangeActionActivationResults;
         if (rangeActionActivationResults.getDataPerTimestamp().values().stream().anyMatch(result -> result.getRangeActions().stream().anyMatch(PstRangeAction.class::isInstance)) &&
-                getPstModel(parameters.getRangeActionParametersExtension()).equals(SearchTreeRaoRangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS)) {
+            getPstModel(parameters.getRangeActionParametersExtension()).equals(SearchTreeRaoRangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS)) {
 
             // if the PST approximation is APPROXIMATED_INTEGERS, we re-solve the optimization problem
             // but first, we update it, with an adjustment of the PSTs angleToTap conversion factors, to
@@ -553,9 +553,9 @@ public final class TimeCoupledIteratingLinearOptimizer {
         }
         RangeActionActivationResultImpl roundedResult = new RangeActionActivationResultImpl(input.prePerimeterSetpoints());
         input.optimizationPerimeter().getRangeActionOptimizationStates().forEach(state -> linearProblemResult.getActivatedRangeActions(state)
-                                                                                              .stream().filter(PstRangeAction.class::isInstance).map(PstRangeAction.class::cast)
-                                                                                              .forEach(pst -> roundedResult.putResult(pst, state,
-                                                                                                  pst.convertTapToAngle(linearProblemResult.getOptimizedTap(pst, state))))
+            .stream().filter(PstRangeAction.class::isInstance).map(PstRangeAction.class::cast)
+            .forEach(pst -> roundedResult.putResult(pst, state,
+                pst.convertTapToAngle(linearProblemResult.getOptimizedTap(pst, state))))
         );
         return roundedResult;
     }
@@ -565,9 +565,9 @@ public final class TimeCoupledIteratingLinearOptimizer {
                               OptimizationPerimeter optimizationContext,
                               RangeActionActivationResultImpl roundedResult) {
         optimizationContext.getRangeActionsPerState().keySet().forEach(state -> linearProblemResult.getActivatedRangeActions(state).stream()
-                                                                                    .filter(ra -> !(ra instanceof PstRangeAction))
-                                                                                    .forEach(
-                                                                                        ra -> roundedResult.putResult(ra, state, Math.round(linearProblemResult.getOptimizedSetpoint(ra, state)))));
+            .filter(ra -> !(ra instanceof PstRangeAction))
+            .forEach(
+                ra -> roundedResult.putResult(ra, state, Math.round(linearProblemResult.getOptimizedSetpoint(ra, state)))));
     }
 
     private static TemporalData<RangeActionActivationResult> retrieveRangeActionActivationResults(LinearProblem linearProblem,
