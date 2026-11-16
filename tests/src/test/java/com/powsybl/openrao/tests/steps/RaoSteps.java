@@ -585,6 +585,11 @@ public class RaoSteps {
         assertEquals(expectedMargin, getRelativeMargin(crac.getPreventiveInstant(), crac.getFlowCnec(cnecId), Unit.MEGAWATT), flowMegawattTolerance(expectedMargin));
     }
 
+    @Then("the relative margin on cnec {string} after PRA should be infinite in MW")
+    public void afterPraInfiniteRelativeMarginInMW(String cnecId) {
+        assertEquals(Double.POSITIVE_INFINITY, getRelativeMargin(crac.getPreventiveInstant(), crac.getFlowCnec(cnecId), Unit.MEGAWATT));
+    }
+
     @Then("the relative margin on cnec {string} after ARA should be {double} MW")
     public void afterAraRelativeMarginInMW(String cnecId, Double expectedMargin) {
         assertEquals(
