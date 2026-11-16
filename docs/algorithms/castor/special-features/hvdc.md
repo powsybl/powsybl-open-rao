@@ -108,9 +108,20 @@ Since the initial setpoint is now read from the network during CRAC deserializat
 
 ### HVDC Range Action Optimization in Preventive and Curative Instants
 
-1. At the root of each search tree (preventive or curative), a **load flow** is run.
-2. For a given leaf, if an **acEmulationDeactivationAction** is applied, the HVDC line's **active setpoint** is updated in the network.
-3. The **HVDC Range Action** is available in the MIP only if the HVDC line is *not* in AC Emulation mode; otherwise, it is **filtered out before each MIP**.
+The **HVDC Range Action** is available in the MIP only if the HVDC line is *not* in AC Emulation mode; otherwise, it is **filtered out before each MIP**.
+
+Also even if the setpoint of the HVDC range action is not moved by the MIP, if the associated acEmulationDeactivationAction is activated, the HVDC range action will be reported as activated. So you might get in the RAO Result :
+
+```json
+{
+    "rangeActionId" : "hvdcRangeAction",
+    "initialSetpoint" : 100.0,
+    "activatedStates" : [ {
+      "instant" : "preventive",
+      "setpoint" : 100.0
+    } ]
+}
+```
 
 
 ### HVDC Range Action in Auto Instant
