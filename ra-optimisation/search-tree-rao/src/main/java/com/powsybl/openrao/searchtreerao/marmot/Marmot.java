@@ -116,17 +116,17 @@ public class Marmot implements RaoProvider, TimeCoupledRaoProvider {
         }
         final MarmotParameters marmotParameters = raoParameters.getExtension(MarmotParameters.class);
 
-        // Launch the time-coupled curative synchronization when the concerned parameters are enabled
-        if (marmotParameters.getCurativeRangeActionsSynchronization() || marmotParameters.getCurativeTopologicalActionsSynchronization()) {
-            return new TimeCoupledCurativeSynchronization().run(timeCoupledRaoInput, raoParameters, reportNode);
-        }
-
         // Initiate lazy networks
         TemporalData<Crac> cracs = timeCoupledRaoInput.getRaoInputs().map(RaoInput::getCrac);
         TemporalData<LazyNetwork> initialNetworks = MarmotUtils.cloneNetworks(timeCoupledRaoInput.getRaoInputs().map(RaoInput::getNetwork));
         MarmotUtils.closeAll(timeCoupledRaoInput.getRaoInputs().map(RaoInput::getNetwork));
 
         TemporalData<RaoInput> initialInputs = MarmotUtils.merge(initialNetworks, cracs);
+
+        // Launch the time-coupled curative synchronization when the concerned parameters are enabled
+        if (marmotParameters.getCurativeRangeActionsSynchronization() || marmotParameters.getCurativeTopologicalActionsSynchronization()) {
+            return new TimeCoupledCurativeSynchronization().run(timeCoupledRaoInput, raoParameters, reportNode, cracs, initialNetworks, initialInputs);
+        }
 
         // RaoParametes are stored in a TemporalData. They're the same for every timestamp, but this prevents concurrent access when multi-threading is activated
         TemporalData<RaoParameters> raoParametersDuplicates = new TemporalDataImpl<>();

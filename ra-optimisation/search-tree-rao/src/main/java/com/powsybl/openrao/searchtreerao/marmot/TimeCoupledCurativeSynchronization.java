@@ -78,19 +78,11 @@ import static com.powsybl.openrao.searchtreerao.reports.MarmotReports.CURATIVE_S
 public class TimeCoupledCurativeSynchronization {
     private static final int NUMBER_LOGGED_ELEMENTS_FINAL_RESULTS = 10;
 
-    public CompletableFuture<TimeCoupledRaoResult> run(TimeCoupledRaoInput timeCoupledRaoInput, RaoParameters raoParameters, ReportNode reportNode) {
-        timeCoupledRaoInput.getRaoInputs().getDataPerTimestamp().forEach((timestamp, raoInput) -> {
-            if (raoInput.getCrac().getInstants(InstantKind.CURATIVE).size() > 1) {
-                throw new OpenRaoException("Time-coupled curative synchronization does not support multi-curative optimization.");
-            }
-        });
+    public CompletableFuture<TimeCoupledRaoResult> run(TimeCoupledRaoInput timeCoupledRaoInput, RaoParameters raoParameters, ReportNode reportNode, TemporalData<Crac> cracs, TemporalData<LazyNetwork> initialNetworks, TemporalData<RaoInput> initialInputs) {
+        if (cracs.getDataPerTimestamp().values().stream().anyMatch(crac -> crac.getInstants(InstantKind.CURATIVE).size() > 1)) {
+            throw new OpenRaoException("Time-coupled curative synchronization does not support multiple curative instants.");
+        }
 
-        // Initiate lazy networks
-        TemporalData<Crac> cracs = timeCoupledRaoInput.getRaoInputs().map(RaoInput::getCrac);
-        TemporalData<LazyNetwork> initialNetworks = MarmotUtils.cloneNetworks(timeCoupledRaoInput.getRaoInputs().map(RaoInput::getNetwork));
-        MarmotUtils.closeAll(timeCoupledRaoInput.getRaoInputs().map(RaoInput::getNetwork));
-
-        TemporalData<RaoInput> initialInputs = MarmotUtils.merge(initialNetworks, cracs);
         TemporalData<StateTree> stateTrees = initialInputs.map(raoInput -> new StateTree(raoInput.getCrac(), reportNode));
 
         TemporalData<RaoParameters> raoParametersDuplicates = new TemporalDataImpl<>();
