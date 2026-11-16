@@ -144,7 +144,10 @@ public class PreventiveOptimizationPerimeter extends AbstractOptimizationPerimet
         crac.getFlowCnecs(autoState)
             .stream()
             .filter(flowCnec -> shouldIncludeAutoCnecInPreventivePerimeter(remedialActions, flowCnec, network))
-            .forEach(flowCnec -> CastorReports.reportUnprotectedAutoCnec(reportNode, flowCnec));
+            .forEach(flowCnec -> {
+                CastorReports.reportUnprotectedAutoCnec(reportNode, flowCnec);
+                autoCnecsToInclude.add(flowCnec);
+            });
         return autoCnecsToInclude;
     }
 
