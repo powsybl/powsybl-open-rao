@@ -41,7 +41,7 @@ final class SystematicSensitivityAdapter {
                                                       String sensitivityProvider,
                                                       Instant outageInstant,
                                                       ComputationManager computationManager) {
-        TECHNICAL_LOGS.debug("Systematic sensitivity analysis [start]");
+        TECHNICAL_LOGS.debug(String.format("Systematic sensitivity analysis (%s) [start]", sensitivityComputationParameters.getLoadFlowParameters().isDc() ? "DC" : "AC"));
         SensitivityAnalysisResult result;
         try {
             final List<SensitivityFactor> allFactors = cnecSensitivityProvider.getAllFactors(network); // This must be done before getting variable sets
@@ -60,7 +60,7 @@ final class SystematicSensitivityAdapter {
             TECHNICAL_LOGS.error(String.format("Systematic sensitivity analysis failed: %s", e.getMessage()));
             return new SystematicSensitivityResult(SystematicSensitivityResult.SensitivityComputationStatus.FAILURE);
         }
-        TECHNICAL_LOGS.debug("Systematic sensitivity analysis [end]");
+        TECHNICAL_LOGS.debug(String.format("Systematic sensitivity analysis (%s) [end]", sensitivityComputationParameters.getLoadFlowParameters().isDc() ? "DC" : "AC"));
         return new SystematicSensitivityResult().completeData(result, outageInstant.getOrder()).postTreatIntensities().postTreatHvdcs(network, cnecSensitivityProvider.getHvdcs());
     }
 
@@ -75,7 +75,7 @@ final class SystematicSensitivityAdapter {
             return runSensitivity(network, cnecSensitivityProvider, sensitivityComputationParameters, sensitivityProvider, outageInstant, computationManager);
         }
 
-        TECHNICAL_LOGS.debug("Systematic sensitivity analysis with applied RA [start]");
+        TECHNICAL_LOGS.debug(String.format("Systematic sensitivity analysis with applied RA (%s) [start]", sensitivityComputationParameters.getLoadFlowParameters().isDc() ? "DC" : "AC"));
         // Information : for contingencies with auto RA but no curative RA, SystematicSensitivityResult::getCnecStateResult will
         // retrieve sensi information for curative state from auto state to take into account auto RAs.
         // (When auto AND curative RAs are applied, they will both be included in statesWithRa and both sensis
@@ -177,7 +177,7 @@ final class SystematicSensitivityAdapter {
         // enable preventive factors for next iterations
         cnecSensitivityProvider.enableFactorsForBaseCaseSituation();
 
-        TECHNICAL_LOGS.debug("Systematic sensitivity analysis with applied RA [end]");
+        TECHNICAL_LOGS.debug(String.format("Systematic sensitivity analysis with applied RA (%s) [end]", sensitivityComputationParameters.getLoadFlowParameters().isDc() ? "DC" : "AC"));
 
         network.getVariantManager().setWorkingVariant(workingVariantId);
         return result.postTreatIntensities().postTreatHvdcs(network, cnecSensitivityProvider.getHvdcs());
