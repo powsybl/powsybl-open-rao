@@ -7,6 +7,9 @@
 
 package com.powsybl.openrao.raoapi;
 
+import com.powsybl.glsk.commons.ZonalData;
+import com.powsybl.glsk.commons.ZonalDataImpl;
+import com.powsybl.iidm.modification.scalable.Scalable;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VariantManager;
@@ -20,6 +23,7 @@ import org.mockito.Mockito;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -81,4 +85,11 @@ class RaoInputTest {
         assertEquals(-200, actualRefProg.getExchange(areaGermany, areaNetherlands), DOUBLE_TOLERANCE);
     }
 
+    @Test
+    void testCounterTradeGlsk() {
+        ZonalData<Scalable> counterTradeGlsk = new ZonalDataImpl<>(Map.of("10YFR-RTE------C", Scalable.onGenerator("FFR1AA1 _generator")));
+        RaoInput raoInput = RaoInput.build(network, crac).withCounterTradeGlskProvider(counterTradeGlsk).build();
+        assertSame(counterTradeGlsk, raoInput.getCounterTradeGlskProvider());
+        assertNull(RaoInput.build(network, crac).build().getCounterTradeGlskProvider());
+    }
 }
