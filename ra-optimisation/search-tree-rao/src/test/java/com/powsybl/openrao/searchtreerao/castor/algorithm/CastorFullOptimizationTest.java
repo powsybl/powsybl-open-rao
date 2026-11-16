@@ -145,12 +145,7 @@ class CastorFullOptimizationTest {
             .setExecutionCondition(SecondPreventiveRaoParameters.ExecutionCondition.POSSIBLE_CURATIVE_IMPROVEMENT);
     }
 
-    /**
-     * Below tests only check that DC pre-solve does not corrupt the known-good AC-only result on this fixture,
-     * and that it actually ran once per expected perimeter (via the DC pre-solve report lines): they are not
-     * meant to prove that HINT/FORCED correctly steers the AC search, which is covered by
-     * {@code CastorSearchTreeHelperTest} (injection logic) and {@code SearchTreeTest} (forced-depth-1 mechanics).
-     */
+    // Injection correctness itself is covered by CastorSearchTreeHelperTest and SearchTreeTest
     private void assertDcPreSolveLogsFiredOncePerPerimeter(List<ILoggingEvent> technicalLogs, int expectedPerimeterCount) {
         long proposalLogCount = technicalLogs.stream()
             .filter(log -> log.getFormattedMessage().startsWith("DC pre-solve proposes network action(s):")
@@ -165,8 +160,6 @@ class CastorFullOptimizationTest {
 
     @Test
     void smallRaoWithout2PAndDcPreSolveHint() throws IOException {
-        // DC pre-solve in HINT mode must not change the AC-only result, and must run once for the preventive
-        // perimeter and once for the single curative perimeter
         setup("small-network-2P.uct", "small-crac-2P.json");
         RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_2P_v2.json"), ReportNode.NO_OP);
         enableDcPreSolve(raoParameters, DcSolutionUsage.HINT);
@@ -184,7 +177,6 @@ class CastorFullOptimizationTest {
 
     @Test
     void smallRaoWithout2PAndDcPreSolveForced() throws IOException {
-        // DC pre-solve in FORCED mode must not change the AC-only result either, as the DC-proposed combination is also optimal in AC here
         setup("small-network-2P.uct", "small-crac-2P.json");
         RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_2P_v2.json"), ReportNode.NO_OP);
         enableDcPreSolve(raoParameters, DcSolutionUsage.FORCED);
@@ -202,8 +194,6 @@ class CastorFullOptimizationTest {
 
     @Test
     void smallRaoWith2PAndDcPreSolveHint() throws IOException {
-        // DC pre-solve must also run in the second preventive perimeter: 3 perimeters in total (preventive,
-        // curative, second preventive), still without changing the result
         setup("small-network-2P.uct", "small-crac-2P.json");
         RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_2P_v2.json"), ReportNode.NO_OP);
         activatePossibleCurativeImprovementSecondPreventive(raoParameters);
@@ -238,6 +228,50 @@ class CastorFullOptimizationTest {
         assertEquals(OptimizationStepsExecuted.SECOND_PREVENTIVE_IMPROVED_FIRST, raoResult.getExecutionDetails());
 
         assertDcPreSolveLogsFiredOncePerPerimeter(technicalLogs, 3);
+    }
+
+    @Test
+    void smallRaoWithShallowPreventiveDepthMissesTheBestCombination() throws IOException {
+        // Baseline for the two tests below: depth 1 can only pick one single action, missing the combination
+        setup("small-network-2P.uct", "small-crac-2P.json");
+        RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_2P_v2.json"), ReportNode.NO_OP);
+        raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getTopoOptimizationParameters().setMaxPreventiveSearchTreeDepth(1);
+
+        RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null, ReportNode.NO_OP).run().join();
+        assertEquals(Set.of(crac.getNetworkAction("close_fr1_fr5")), raoResult.getActivatedNetworkActionsDuringState(crac.getPreventiveState()));
+        assertEquals(536.82, raoResult.getFunctionalCost(crac.getPreventiveInstant()), 1.);
+    }
+
+    @Test
+    void smallRaoWithShallowPreventiveDepthAndDcPreSolveHintRecoversTheBestCombination() throws IOException {
+        // Same depth-1 cap, but a deeper DC pre-solve proposes the combination and HINT recovers it
+        setup("small-network-2P.uct", "small-crac-2P.json");
+        RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_2P_v2.json"), ReportNode.NO_OP);
+        SearchTreeRaoTopoOptimizationParameters topoOptimizationParameters =
+            raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getTopoOptimizationParameters();
+        topoOptimizationParameters.setMaxPreventiveSearchTreeDepth(1);
+        topoOptimizationParameters.setMaxPreventiveSearchTreeDepthDc(2);
+        topoOptimizationParameters.setPreventiveDcSolutionUsage(DcSolutionUsage.HINT);
+
+        RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null, ReportNode.NO_OP).run().join();
+        assertEquals(Set.of(crac.getNetworkAction("close_de3_de4"), crac.getNetworkAction("close_fr1_fr5")), raoResult.getActivatedNetworkActionsDuringState(crac.getPreventiveState()));
+        assertEquals(493.56, raoResult.getFunctionalCost(crac.getPreventiveInstant()), 1.);
+    }
+
+    @Test
+    void smallRaoWithShallowPreventiveDepthAndDcPreSolveForcedRecoversTheBestCombination() throws IOException {
+        // Same as above but in FORCED mode
+        setup("small-network-2P.uct", "small-crac-2P.json");
+        RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_2P_v2.json"), ReportNode.NO_OP);
+        SearchTreeRaoTopoOptimizationParameters topoOptimizationParameters =
+            raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getTopoOptimizationParameters();
+        topoOptimizationParameters.setMaxPreventiveSearchTreeDepth(1);
+        topoOptimizationParameters.setMaxPreventiveSearchTreeDepthDc(2);
+        topoOptimizationParameters.setPreventiveDcSolutionUsage(DcSolutionUsage.FORCED);
+
+        RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null, ReportNode.NO_OP).run().join();
+        assertEquals(Set.of(crac.getNetworkAction("close_de3_de4"), crac.getNetworkAction("close_fr1_fr5")), raoResult.getActivatedNetworkActionsDuringState(crac.getPreventiveState()));
+        assertEquals(493.56, raoResult.getFunctionalCost(crac.getPreventiveInstant()), 1.);
     }
 
     @Test
