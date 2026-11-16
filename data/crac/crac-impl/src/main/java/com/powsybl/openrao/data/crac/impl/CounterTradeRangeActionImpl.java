@@ -98,7 +98,7 @@ public class CounterTradeRangeActionImpl extends AbstractRangeAction<CounterTrad
         List<GlskGeneratorAllocation> order = upward ? generatorOrdering.upwardOrder() : generatorOrdering.downwardOrder();
 
         Map<String, Double> dispatch = GeneratorOrderingComputer.computeDispatchQuantity(
-            order, GeneratorOrderingComputer.stageAllocation(order, Math.abs(setpoint)));
+            order, GeneratorOrderingComputer.layerAllocation(order, Math.abs(setpoint)));
 
         double sign = upward ? 1.0 : -1.0;
         generatorOrdering.initialTargetP().forEach((generatorId, p0) -> {

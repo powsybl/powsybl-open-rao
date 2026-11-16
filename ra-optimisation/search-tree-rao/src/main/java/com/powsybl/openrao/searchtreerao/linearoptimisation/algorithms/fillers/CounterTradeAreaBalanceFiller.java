@@ -1,3 +1,10 @@
+/*
+ * Copyright (c) 2026, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
 package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers;
 
 import com.powsybl.iidm.network.TwoSides;
@@ -21,6 +28,9 @@ import java.util.stream.Collectors;
 
 import static com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.getCounterTradeRaSensitivityThreshold;
 
+/**
+ * @author Enrico Bettiol {@literal <enrico.bettiol at artelys.com>}
+ */
 public class CounterTradeAreaBalanceFiller implements ProblemFiller {
 
     protected final OptimizationPerimeter optimizationContext;
@@ -195,7 +205,7 @@ public class CounterTradeAreaBalanceFiller implements ProblemFiller {
         double[] sigma = GeneratorOrderingComputer.stageSensitivities(order, lastStage,
                 generatorId -> sensitivityResult.getSensitivityValue(cnec, side, generatorId, unit),
                 tailSensitivity);
-        Map<String, Double> xCurrent = GeneratorOrderingComputer.stageAllocation(order, currentMagnitude);
+        Map<String, Double> xCurrent = GeneratorOrderingComputer.layerAllocation(order, currentMagnitude);
 
         for (int h = 0; h <= lastStage; h++) {
             double sensitivity = directionSign * sigma[h];

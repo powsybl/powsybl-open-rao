@@ -1,3 +1,10 @@
+/*
+ * Copyright (c) 2026, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
 package com.powsybl.openrao.commons;
 
 import com.powsybl.iidm.network.Generator;
@@ -8,10 +15,34 @@ import java.util.function.ToDoubleFunction;
 
 import static java.lang.Math.max;
 
+/**
+ * @author Enrico Bettiol {@literal <enrico.bettiol at artelys.com>}
+ */
 public final class GeneratorOrderingComputer {
 
     private GeneratorOrderingComputer() { }
 
+    /**
+     * Builds the structure containing the different fields
+     * used to handle proportional counter trading:
+     * given the glsk weights, compute ordered lists for the upward and downward directions
+     * having all the generators, their available capacity in the corresponding direction,
+     * sorted by the saturation ratio capacity/weight;
+     * computes also the cumulative allocation corresponding to "m_k":
+     *  it is the upper bound of the variable for the corresponding layer
+     *  it is the maximal CT value that can be dispatched to generators k, ..., n
+     *  (after all previous generators are saturated)
+     *  proportionally and without overloading any other generators.
+     *
+     *  It also computes the last layer that could saturate generators, if a maximal CT values was applied
+     *  (useful for the linear model implementation).
+     *
+     * @param glskWeights               the proportional glsk weights
+     * @param network                   the network
+     * @param tolerance                 a tolerance (negligible elements could be discarded)
+     * @param maxDownwardMagnitude      the maximal admissible positive setpoint decrease
+     * @param maxUpwardMagnitude        the maximal admissible positive setpoint increase
+     */
     public static CounterTradeGeneratorOrdering compute(
             Map<String, Double> glskWeights,
             Network network,
@@ -26,6 +57,7 @@ public final class GeneratorOrderingComputer {
 
         glskWeights.forEach((generatorId, weight) -> {
             if (weight <= tolerance ||
+                    network.getGenerator(generatorId) != null ||
                     Double.isNaN(network.getGenerator(generatorId).getTargetP()) ||
                     !hasUsableActivePowerRange(network.getGenerator(generatorId))
             ) {
@@ -55,8 +87,8 @@ public final class GeneratorOrderingComputer {
         downwardRaw.sort(bySaturationThenId);
         List<GlskGeneratorAllocation> upward = withCumulativeAllocation(upwardRaw);
         List<GlskGeneratorAllocation> downward = withCumulativeAllocation(downwardRaw);
-        int upwardLastStage = lastReachableStage(upward, max(0, maxUpwardMagnitude));
-        int downwardLastStage = lastReachableStage(downward, max(0, -maxDownwardMagnitude));
+        int upwardLastStage = lastReachableLayer(upward, max(0, maxUpwardMagnitude));
+        int downwardLastStage = lastReachableLayer(downward, max(0, -maxDownwardMagnitude));
 
         return new CounterTradeGeneratorOrdering(
                 upward,
@@ -102,7 +134,7 @@ public final class GeneratorOrderingComputer {
     /**
      * Computes, for every generator i in the given (already sorted) allocation list,
      * sum_{h=0}^{i} lambda_i^h * x_h, where x_h is the solved CT level corresponding the
-     * generator h, solution of the MIP - can be recalculated with stageAllocation() below.
+     * generator h, solution of the MIP - can be recalculated with layerAllocation() below.
      * It returns the quantity to dispatch to the generators.
      */
     public static Map<String, Double> computeDispatchQuantity(
@@ -130,7 +162,7 @@ public final class GeneratorOrderingComputer {
         return result;
     }
 
-    public static Map<String, Double> stageAllocation(List<GlskGeneratorAllocation> order, double magnitude) {
+    public static Map<String, Double> layerAllocation(List<GlskGeneratorAllocation> order, double magnitude) {
         Map<String, Double> x = new LinkedHashMap<>();
         double remaining = magnitude;
         for (GlskGeneratorAllocation allocation : order) {
@@ -139,21 +171,6 @@ public final class GeneratorOrderingComputer {
             remaining -= xh;
         }
         return x; // any leftover means the setpoint exceeds total capacity
-    }
-
-    public static double[] stageSensitivities(List<GlskGeneratorAllocation> order,
-                                              ToDoubleFunction<String> sensitivityOfGenerator) {
-        int n = order.size();
-        double[] sigma = new double[n];
-        double weightedSum = 0.0; // sum_{i>=h} lambda_i * s_i
-        double suffixWeight = 0.0; // S_h
-        for (int h = n - 1; h >= 0; h--) {
-            GlskGeneratorAllocation a = order.get(h);
-            weightedSum += a.weight() * sensitivityOfGenerator.applyAsDouble(a.generatorId());
-            suffixWeight += a.weight();
-            sigma[h] = weightedSum / suffixWeight;
-        }
-        return sigma;
     }
 
     public static double[] stageSensitivities(List<GlskGeneratorAllocation> order, int lastStage,
@@ -175,7 +192,7 @@ public final class GeneratorOrderingComputer {
         return sigma;
     }
 
-    public static int lastReachableStage(List<GlskGeneratorAllocation> order, double maxMagnitude) {
+    public static int lastReachableLayer(List<GlskGeneratorAllocation> order, double maxMagnitude) {
         double cumulative = 0.0;
         for (int k = 0; k < order.size(); k++) {
             cumulative += order.get(k).cumulativeAllocation();
