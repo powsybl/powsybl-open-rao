@@ -28,7 +28,6 @@ import com.powsybl.openrao.data.raoresult.impl.RaoResultImpl;
 import com.powsybl.openrao.monitoring.angle.AngleMonitoring;
 import com.powsybl.openrao.monitoring.results.AngleMonitoringResultAdapter;
 import com.powsybl.openrao.monitoring.results.MonitoringResult;
-import com.powsybl.openrao.monitoring.results.RaoResultHelper;
 import com.powsybl.openrao.monitoring.results.VoltageMonitoringResultAdapter;
 import com.powsybl.openrao.monitoring.voltage.VoltageMonitoring;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
