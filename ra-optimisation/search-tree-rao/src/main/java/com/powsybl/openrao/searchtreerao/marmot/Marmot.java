@@ -34,6 +34,7 @@ import com.powsybl.openrao.raoapi.parameters.extensions.MarmotParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoCostlyMinMarginParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRelativeMarginsParameters;
+import com.powsybl.openrao.searchtreerao.castor.algorithm.PrePerimeterSensitivityAnalysis;
 import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
 import com.powsybl.openrao.searchtreerao.commons.ToolProvider;
 import com.powsybl.openrao.searchtreerao.commons.objectivefunction.ObjectiveFunction;
@@ -123,11 +124,6 @@ public class Marmot implements RaoProvider, TimeCoupledRaoProvider {
 
         TemporalData<RaoInput> initialInputs = MarmotUtils.merge(initialNetworks, cracs);
 
-        // Launch the time-coupled curative synchronization when the concerned parameters are enabled
-        if (marmotParameters.getCurativeRangeActionsSynchronization() || marmotParameters.getCurativeTopologicalActionsSynchronization()) {
-            return new TimeCoupledCurativeSynchronization().run(initialInputs, initialNetworks, cracs, timeCoupledRaoInput.getTimestampsToRun(), raoParameters, reportNode);
-        }
-
         // RaoParametes are stored in a TemporalData. They're the same for every timestamp, but this prevents concurrent access when multi-threading is activated
         TemporalData<RaoParameters> raoParametersDuplicates = new TemporalDataImpl<>();
         timeCoupledRaoInput.getTimestampsToRun().forEach(timestamp -> raoParametersDuplicates.put(timestamp, MarmotUtils.cloneParameters(raoParameters, reportNode)));
@@ -143,7 +139,9 @@ public class Marmot implements RaoProvider, TimeCoupledRaoProvider {
         // WARNING: initial results do not contain range actions set-points nor sensitivity results
         //  -> faster sensitivity computations
         //  -> initial set-points of MIP are computed after the independent RAOs of step 3
-        TemporalData<PrePerimeterResult> initialResults = runAllInitialSensitivityAnalyses(initialInputs, raoParametersDuplicates, parallelism, initialSensiReportNode);
+        // unless syncing curative actions
+        boolean withRangeActions = marmotParameters.getCurativeRangeActionsSynchronization() || marmotParameters.getCurativeTopologicalActionsSynchronization();
+        TemporalData<PrePerimeterResult> initialResults = runAllInitialSensitivityAnalyses(initialInputs, raoParametersDuplicates, parallelism, initialSensiReportNode, withRangeActions);
         MarmotReports.reportMarmotRunningInitialSensiAnalysesEnd();
 
         // 2. Evaluate the initial value of the global objective function
@@ -151,6 +149,12 @@ public class Marmot implements RaoProvider, TimeCoupledRaoProvider {
         ObjectiveFunction fullObjectiveFunction = buildGlobalObjectiveFunction(cracs, new GlobalFlowResult(initialResults), raoParameters);
         LinearOptimizationResult initialObjectiveFunctionResult = getInitialObjectiveFunctionResult(initialResults, fullObjectiveFunction, globalObjFuncInitialValueEvalReportNode);
         MarmotReports.reportMarmotEvaluatingInitialValueOfGlobalObjFunctionEnd();
+
+        // Launch the time-coupled curative synchronization when the concerned parameters are enabled
+        if (marmotParameters.getCurativeRangeActionsSynchronization() || marmotParameters.getCurativeTopologicalActionsSynchronization()) {
+            return new TimeCoupledCurativeSynchronization().run(initialInputs, initialNetworks, cracs, timeCoupledRaoInput.getTimestampsToRun(), raoParameters, reportNode,
+                initialResults, raoParametersDuplicates, parallelism, fullObjectiveFunction, initialObjectiveFunctionResult);
+        }
 
         // 3. Run independent RAOs to compute and apply the optimal preventive remedial actions
         final ReportNode topologicalOptimizationReportNode = MarmotReports.reportMarmotTopologicalOptimization(reportNode);
@@ -607,7 +611,8 @@ public class Marmot implements RaoProvider, TimeCoupledRaoProvider {
     private static TemporalData<PrePerimeterResult> runAllInitialSensitivityAnalyses(final TemporalData<RaoInput> raoInputs,
                                                                                      final TemporalData<RaoParameters> raoParameters,
                                                                                      final int parallelism,
-                                                                                     final ReportNode reportNode) {
+                                                                                     final ReportNode reportNode,
+                                                                                     boolean withRangeActions) {
         return MarmotUtils.smartMap(
             raoInputs,
             raoInput -> {
@@ -615,7 +620,8 @@ public class Marmot implements RaoProvider, TimeCoupledRaoProvider {
                 PrePerimeterResult sensitivityAnalysisResult = MarmotUtils.runInitialSensitivityAnalysis(
                     raoInput,
                     raoParameters.getData(timestamp).orElseThrow(),
-                    reportNode
+                    reportNode,
+                    withRangeActions
                 );
                 MarmotUtils.releaseNetworkWithoutOverwrite(raoInput.getNetwork());
                 return sensitivityAnalysisResult;

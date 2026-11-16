@@ -23,6 +23,7 @@ import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.TimeCoupledRaoInput;
 import com.powsybl.openrao.raoapi.json.JsonRaoParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.MarmotParameters;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -53,13 +54,8 @@ class TimeCoupledCurativeSynchronizationTest {
         TemporalData<RaoInput> raoInputs = new TemporalDataImpl<>(Map.of(timestamp, RaoInput.build(network, crac).build()));
         TimeCoupledRaoInput inputs = new TimeCoupledRaoInput(raoInputs, new TimeCoupledConstraints());
 
-        TemporalData<Crac> cracs = inputs.getRaoInputs().map(RaoInput::getCrac);
-        TemporalData<LazyNetwork> initialNetworks = MarmotUtils.cloneNetworks(inputs.getRaoInputs().map(RaoInput::getNetwork));
-        MarmotUtils.closeAll(inputs.getRaoInputs().map(RaoInput::getNetwork));
-
-        TemporalData<RaoInput> initialInputs = MarmotUtils.merge(initialNetworks, cracs);
         OpenRaoException exception = assertThrows(OpenRaoException.class,
-            () -> new TimeCoupledCurativeSynchronization().run(initialInputs, initialNetworks, cracs, inputs.getTimestampsToRun(), new RaoParameters(ReportNode.NO_OP), ReportNode.NO_OP));
+            () -> new TimeCoupledCurativeSynchronization().run(null, null, new TemporalDataImpl<>(Map.of(timestamp, crac)), null, null, null, null, null, 1, null,null));
         assertEquals("Time-coupled curative synchronization does not support multiple curative instants.", exception.getMessage());
     }
 
@@ -139,6 +135,7 @@ class TimeCoupledCurativeSynchronizationTest {
             TimeCoupledCurativeSynchronizationTest.class.getResourceAsStream("/parameters/RaoParameters_minCost_megawatt_dc_with_2P.json"),
             ReportNode.NO_OP
         );
+        raoParameters.getExtension(MarmotParameters.class).setCurativeTopologicalActionsSynchronization(true);
 
         OffsetDateTime timestamp1 = OffsetDateTime.of(2025, 11, 4, 19, 30, 0, 0, ZoneOffset.UTC);
         OffsetDateTime timestamp2 = OffsetDateTime.of(2025, 11, 4, 20, 30, 0, 0, ZoneOffset.UTC);

@@ -70,12 +70,13 @@ public final class MarmotUtils {
     private MarmotUtils() {
     }
 
-    public static PrePerimeterResult runInitialSensitivityAnalysis(final RaoInput raoInput, final RaoParameters raoParameters, final ReportNode reportNode) {
+    public static PrePerimeterResult runInitialSensitivityAnalysis(final RaoInput raoInput, final RaoParameters raoParameters, final ReportNode reportNode, boolean withRangeActions) {
         Crac crac = raoInput.getCrac();
         Network network = raoInput.getNetwork();
         ToolProvider toolProvider = ToolProvider.buildFromRaoInputAndParameters(raoInput, raoParameters);
         // do not use range actions for speed purposes
-        return new PrePerimeterSensitivityAnalysis(crac, crac.getFlowCnecs(), new HashSet<>(), raoParameters, toolProvider, false)
+        Set<RangeAction<?>> rangeActions = withRangeActions ? crac.getRangeActions() : new HashSet<>();
+        return new PrePerimeterSensitivityAnalysis(crac, crac.getFlowCnecs(), rangeActions, raoParameters, toolProvider, false)
             .runInitialSensitivityAnalysis(network, reportNode);
     }
 
