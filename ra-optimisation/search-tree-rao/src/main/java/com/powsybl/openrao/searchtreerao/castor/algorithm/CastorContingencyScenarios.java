@@ -370,8 +370,9 @@ public class CastorContingencyScenarios {
         SearchTreeParameters searchTreeParameters = CastorSearchTreeHelper.buildSearchTreeParameters(
             raoParameters, curativeTreeParameters, crac, network, stateTree.getOperatorsNotSharingCras(), reportNode);
 
+        Set<NetworkAction> dcCombination = Set.of();
         if (dcToolProvider != null && dcTreeParameters.maximumSearchDepth() > 0) {
-            Set<NetworkAction> dcCombination = runCurativeDcPreSolve(curativePerimeter, network, prePerimeterSensitivityOutput, reportNode);
+            dcCombination = runCurativeDcPreSolve(curativePerimeter, network, prePerimeterSensitivityOutput, reportNode);
             CastorSearchTreeHelper.injectDcPreSolveCombination(searchTreeParameters, dcCombination,
                 SearchTreeRaoTopoOptimizationParameters.getCurativeDcSolutionUsage(raoParameters));
         }
@@ -381,6 +382,9 @@ public class CastorContingencyScenarios {
         OptimizationResult result = CastorSearchTreeHelper.searchNetworkActionCombination(network, optPerimeter, objectiveFunction,
             initialSensitivityOutput, prePerimeterSensitivityOutput, new AppliedRemedialActions(), toolProvider, crac.getOutageInstant(),
             searchTreeParameters, false, reportNode);
+        if (!dcCombination.isEmpty()) {
+            CastorReports.reportDcPreSolveCombinationRetained(reportNode, result.getActivatedNetworkActions().containsAll(dcCombination));
+        }
         CastorReports.reportCurativeStateOptimized(reportNode, curativeState.getId());
         return result;
     }
@@ -423,6 +427,7 @@ public class CastorContingencyScenarios {
         OptimizationResult dcResult = CastorSearchTreeHelper.searchNetworkActionCombination(network, dcOptPerimeter, dcObjectiveFunction,
             dcInitialSensitivityOutput, dcPrePerimeterResult, new AppliedRemedialActions(), dcToolProvider, crac.getOutageInstant(),
             dcSearchTreeParameters, false, reportNode);
+        CastorReports.reportDcPreSolveProposal(reportNode, dcResult.getActivatedNetworkActions());
         return dcResult.getActivatedNetworkActions();
     }
 

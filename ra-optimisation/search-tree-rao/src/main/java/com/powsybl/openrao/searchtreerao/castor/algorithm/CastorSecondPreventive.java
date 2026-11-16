@@ -394,8 +394,9 @@ public class CastorSecondPreventive {
             searchTreeParameters.getNetworkActionParameters().addNetworkActionCombination(new NetworkActionCombination(firstPreventiveResult.getActivatedNetworkActions(), true));
         }
 
+        Set<NetworkAction> dcCombination = Set.of();
         if (dcToolProvider != null && SearchTreeRaoTopoOptimizationParameters.getMaxPreventiveSearchTreeDepthDc(raoParameters) > 0) {
-            Set<NetworkAction> dcCombination = runSecondPreventiveDcPreSolve(appliedCras, secondPreventiveReportNode);
+            dcCombination = runSecondPreventiveDcPreSolve(appliedCras, secondPreventiveReportNode);
             CastorSearchTreeHelper.injectDcPreSolveCombination(searchTreeParameters, dcCombination,
                 SearchTreeRaoTopoOptimizationParameters.getPreventiveDcSolutionUsage(raoParameters));
         }
@@ -416,6 +417,9 @@ public class CastorSecondPreventive {
         OptimizationResult result = CastorSearchTreeHelper.searchNetworkActionCombination(network, optPerimeter, objectiveFunction,
             initialOutput, prePerimeterResult, appliedCras, toolProvider, crac.getOutageInstant(), searchTreeParameters,
             true, secondPreventiveReportNode);
+        if (!dcCombination.isEmpty()) {
+            CastorReports.reportDcPreSolveCombinationRetained(secondPreventiveReportNode, result.getActivatedNetworkActions().containsAll(dcCombination));
+        }
 
         // apply PRAs
         network.getVariantManager().setWorkingVariant(SECOND_PREVENTIVE_SCENARIO_BEFORE_OPT);
@@ -459,6 +463,7 @@ public class CastorSecondPreventive {
 
         OptimizationResult dcResult = CastorSearchTreeHelper.searchNetworkActionCombination(network, dcOptPerimeter, dcObjectiveFunction,
             dcInitialOutput, dcPrePerimeterResult, appliedCras, dcToolProvider, crac.getOutageInstant(), dcSearchTreeParameters, false, reportNode);
+        CastorReports.reportDcPreSolveProposal(reportNode, dcResult.getActivatedNetworkActions());
         return dcResult.getActivatedNetworkActions();
     }
 

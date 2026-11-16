@@ -12,6 +12,7 @@ import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
+import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.raoresult.api.extension.CostResult;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
@@ -92,6 +93,37 @@ public final class CastorReports {
             .add();
 
         BUSINESS_WARNS.warn("Initial sensitivity analysis in DC failed. Disabling DC pre-solve.");
+    }
+
+    public static void reportDcPreSolveProposal(final ReportNode parentNode, final Set<NetworkAction> networkActions) {
+        if (networkActions.isEmpty()) {
+            parentNode.newReportNode()
+                .withMessageTemplate("openrao.searchtreerao.reportDcPreSolveNoProposal")
+                .withSeverity(TRACE_SEVERITY)
+                .add();
+
+            TECHNICAL_LOGS.info("DC pre-solve found no network action to propose.");
+            return;
+        }
+
+        final String concatenatedNetworkActions = networkActions.stream().map(NetworkAction::getId).collect(Collectors.joining(" + "));
+        parentNode.newReportNode()
+            .withMessageTemplate("openrao.searchtreerao.reportDcPreSolveProposal")
+            .withUntypedValue("networkActions", concatenatedNetworkActions)
+            .withSeverity(TRACE_SEVERITY)
+            .add();
+
+        TECHNICAL_LOGS.info("DC pre-solve proposes network action(s): {}", concatenatedNetworkActions);
+    }
+
+    public static void reportDcPreSolveCombinationRetained(final ReportNode parentNode, final boolean retained) {
+        parentNode.newReportNode()
+            .withMessageTemplate("openrao.searchtreerao.reportDcPreSolveCombinationRetained")
+            .withUntypedValue("retained", retained)
+            .withSeverity(TRACE_SEVERITY)
+            .add();
+
+        TECHNICAL_LOGS.info("DC pre-solve combination retained in the AC search result: {}", retained);
     }
 
     public static void reportCastorSystematicSensitivityAnalysisAfterPraResults(final ReportNode parentNode,

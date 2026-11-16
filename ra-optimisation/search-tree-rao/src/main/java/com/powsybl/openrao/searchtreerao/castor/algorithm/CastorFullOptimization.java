@@ -643,8 +643,9 @@ public class CastorFullOptimization {
             raoParameters, TreeParameters.buildForPreventivePerimeter(raoParameters), crac, network,
             stateTree.getOperatorsNotSharingCras(), preventivePerimeterOptimReportNode);
 
+        Set<NetworkAction> dcCombination = Set.of();
         if (context.isDcPreSolveEnabled() && SearchTreeRaoTopoOptimizationParameters.getMaxPreventiveSearchTreeDepthDc(raoParameters) > 0) {
-            Set<NetworkAction> dcCombination = runPreventiveDcPreSolve(context, preventivePerimeterOptimReportNode);
+            dcCombination = runPreventiveDcPreSolve(context, preventivePerimeterOptimReportNode);
             CastorSearchTreeHelper.injectDcPreSolveCombination(searchTreeParameters, dcCombination,
                 SearchTreeRaoTopoOptimizationParameters.getPreventiveDcSolutionUsage(raoParameters));
         }
@@ -664,6 +665,9 @@ public class CastorFullOptimization {
         OptimizationResult optResult = CastorSearchTreeHelper.searchNetworkActionCombination(network, optPerimeter, objectiveFunction,
             initialResult, initialResult, new AppliedRemedialActions(), context.getToolProvider(), crac.getOutageInstant(), searchTreeParameters,
             true, preventivePerimeterOptimReportNode);
+        if (!dcCombination.isEmpty()) {
+            CastorReports.reportDcPreSolveCombinationRetained(preventivePerimeterOptimReportNode, optResult.getActivatedNetworkActions().containsAll(dcCombination));
+        }
         applyRemedialActions(network, optResult, crac.getPreventiveState());
         return optResult;
     }
@@ -699,6 +703,7 @@ public class CastorFullOptimization {
         OptimizationResult dcResult = CastorSearchTreeHelper.searchNetworkActionCombination(network, dcOptPerimeter, dcObjectiveFunction,
             dcInitialOutput, dcInitialOutput, new AppliedRemedialActions(), context.getDcToolProvider(), crac.getOutageInstant(),
             dcSearchTreeParameters, false, reportNode);
+        CastorReports.reportDcPreSolveProposal(reportNode, dcResult.getActivatedNetworkActions());
         return dcResult.getActivatedNetworkActions();
     }
 }
