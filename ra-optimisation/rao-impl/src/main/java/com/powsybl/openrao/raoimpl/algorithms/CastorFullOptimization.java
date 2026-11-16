@@ -55,7 +55,7 @@ import static com.powsybl.openrao.raoimpl.commons.RaoUtil.getFlowUnit;
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public class CastorFullOptimization {
+class CastorFullOptimization {
     private static final String INITIAL_SCENARIO = "InitialScenario";
     private static final String PREVENTIVE_SCENARIO = "PreventiveScenario";
     private static final String SECOND_PREVENTIVE_SCENARIO_BEFORE_OPT = "SecondPreventiveScenario";
@@ -70,7 +70,7 @@ public class CastorFullOptimization {
     private final java.time.Instant targetEndInstant;
     private final ReportNode reportNode;
 
-    public CastorFullOptimization(final RaoInput raoInput, final RaoParameters raoParameters, final java.time.Instant targetEndInstant, final ReportNode reportNode) {
+    CastorFullOptimization(final RaoInput raoInput, final RaoParameters raoParameters, final java.time.Instant targetEndInstant, final ReportNode reportNode) {
         this.raoInput = raoInput;
         this.crac = raoInput.getCrac();
         this.network = raoInput.getNetwork();
@@ -79,7 +79,7 @@ public class CastorFullOptimization {
         this.reportNode = reportNode;
     }
 
-    public CompletableFuture<RaoResult> run() {
+    CompletableFuture<RaoResult> run() {
         final ReportNode optimizationReportNode = CastorReports.reportCastorFullOptimization(reportNode);
         String currentStep = "data initialization";
         String initialVariantName = network.getVariantManager().getWorkingVariantId();

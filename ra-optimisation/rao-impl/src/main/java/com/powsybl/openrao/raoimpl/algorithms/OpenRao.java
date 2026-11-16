@@ -5,7 +5,7 @@
  * this file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.powsybl.openrao.raoimpl;
+package com.powsybl.openrao.raoimpl.algorithms;
 
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.report.ReportNode;
@@ -17,15 +17,10 @@ import com.powsybl.openrao.data.raoresult.impl.RaoResultImpl;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.RaoProvider;
 import com.powsybl.openrao.raoapi.TimeCoupledRaoInput;
-import com.powsybl.openrao.raoapi.TimeCoupledRaoProvider;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.FastRaoParameters;
-import com.powsybl.openrao.raoimpl.algorithms.CastorFullOptimization;
-import com.powsybl.openrao.raoimpl.algorithms.FastRao;
-import com.powsybl.openrao.raoimpl.algorithms.Marmot;
 import com.powsybl.openrao.raoimpl.commons.RaoUtil;
 import com.powsybl.openrao.raoimpl.reports.CommonReports;
-
 import java.time.Instant;
 import java.util.concurrent.CompletableFuture;
 
@@ -34,8 +29,8 @@ import java.util.concurrent.CompletableFuture;
  *
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-@AutoService({RaoProvider.class, TimeCoupledRaoProvider.class})
-public class OpenRao implements RaoProvider, TimeCoupledRaoProvider {
+@AutoService({RaoProvider.class})
+public class OpenRao implements RaoProvider {
     @Override
     public String getName() {
         return "OpenRAO";

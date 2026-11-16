@@ -18,7 +18,7 @@ import com.powsybl.openrao.raoapi.RaoProvider;
 import com.powsybl.openrao.raoapi.TimeCoupledRaoInput;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.FastRaoParameters;
-import com.powsybl.openrao.raoimpl.OpenRao;
+import com.powsybl.openrao.raoimpl.algorithms.OpenRao;
 import java.time.Instant;
 import java.util.concurrent.CompletableFuture;
 

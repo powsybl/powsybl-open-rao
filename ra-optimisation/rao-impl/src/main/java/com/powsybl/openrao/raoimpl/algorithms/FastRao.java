@@ -30,8 +30,6 @@ import com.powsybl.openrao.data.raoresult.api.extension.CriticalCnecsResult;
 import com.powsybl.openrao.data.raoresult.api.extension.Metadata;
 import com.powsybl.openrao.data.raoresult.impl.RaoResultImpl;
 import com.powsybl.openrao.raoapi.RaoInput;
-import com.powsybl.openrao.raoapi.RaoProvider;
-import com.powsybl.openrao.raoapi.TimeCoupledRaoInput;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.FastRaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
@@ -58,7 +56,7 @@ import static com.powsybl.openrao.raoimpl.commons.RaoUtil.getFlowUnit;
 
 /**
  * FastRAO engine using inner loops of light RAO computations only taking in account overloaded {@link FlowCnec}s,
- * run by the default {@link com.powsybl.openrao.raoimpl.OpenRao} provider.
+ * run by the default {@link OpenRao} provider.
  *
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
@@ -66,8 +64,7 @@ import static com.powsybl.openrao.raoimpl.commons.RaoUtil.getFlowUnit;
  * @author Godelaine De-Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class FastRao implements RaoProvider {
-    private static final String FAST_RAO = "FastRao";
+class FastRao {
     private static final int NUMBER_LOGGED_ELEMENTS_DURING_RAO = 2;
     // Do not store any big object in this class as it is a static RaoProvider
     // Objects stored in memory will not be released at the end of the RAO run
@@ -531,7 +528,7 @@ public class FastRao implements RaoProvider {
             .build();
     }
 
-    public static Crac copyCrac(Crac crac, Network network) {
+    private static Crac copyCrac(Crac crac, Network network) {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         new JsonExport().exportData(crac, outputStream);
         ByteArrayInputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
@@ -539,7 +536,7 @@ public class FastRao implements RaoProvider {
     }
 
     // Caution: We might remove CNECs associated to RAs with onConstraint usageRule
-    public static void removeFlowCnecsFromCrac(Crac crac, Collection<FlowCnec> flowCnecsToKeep) {
+    private static void removeFlowCnecsFromCrac(Crac crac, Collection<FlowCnec> flowCnecsToKeep) {
         List<FlowCnec> flowCnecsToRemove = crac.getFlowCnecs().stream().filter(fc -> !flowCnecsToKeep.contains(fc)).toList();
         // Remove FlowCNECs
         Set<String> flowCnecsToRemoveIds = new HashSet<>();
@@ -565,21 +562,10 @@ public class FastRao implements RaoProvider {
         return appliedRemedialActions;
     }
 
-    @Override
-    public String getName() {
-        return FAST_RAO;
-    }
-
-    @Override
-    public CompletableFuture<RaoResult> run(final RaoInput raoInput, final RaoParameters parameters, final ReportNode reportNode) {
-        return run(raoInput, parameters, null, reportNode);
-    }
-
-    @Override
-    public CompletableFuture<RaoResult> run(final RaoInput raoInput,
-                                            final RaoParameters parameters,
-                                            final Instant targetEndInstant,
-                                            final ReportNode reportNode) {
+    CompletableFuture<RaoResult> run(final RaoInput raoInput,
+                                     final RaoParameters parameters,
+                                     final Instant targetEndInstant,
+                                     final ReportNode reportNode) {
         try {
             RaoUtil.initData(raoInput, parameters, reportNode);
         } catch (OpenRaoException e) {
@@ -592,10 +578,4 @@ public class FastRao implements RaoProvider {
 
         return CompletableFuture.completedFuture(launchFastRaoOptimization(raoInput, parameters, targetEndInstant, new HashSet<>(), reportNode));
     }
-
-    @Override
-    public CompletableFuture<RaoResult> run(TimeCoupledRaoInput raoInput, RaoParameters parameters, ReportNode reportNode) {
-        throw new OpenRaoException("Time-coupled optimization is not supported by FastRAO");
-    }
-
 }

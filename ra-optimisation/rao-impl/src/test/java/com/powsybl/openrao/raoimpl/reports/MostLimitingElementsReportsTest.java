@@ -24,8 +24,8 @@ import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.json.JsonRaoParameters;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
-import com.powsybl.openrao.raoimpl.algorithms.CastorFullOptimization;
 import com.powsybl.openrao.raoimpl.algorithms.ContingencyScenario;
+import com.powsybl.openrao.raoimpl.algorithms.OpenRao;
 import com.powsybl.openrao.raoimpl.algorithms.Perimeter;
 import com.powsybl.openrao.raoimpl.result.api.FlowResult;
 import com.powsybl.openrao.raoimpl.result.api.ObjectiveFunctionResult;
@@ -660,7 +660,7 @@ class MostLimitingElementsReportsTest {
         Crac crac = Crac.read("crac-3-curatives-no-cra.json", getClass().getResourceAsStream("/crac/crac-3-curatives-no-C3RA.json"), network);
         RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_approximated_integers.json"), reportNode);
 
-        new CastorFullOptimization(RaoInput.build(network, crac).build(), raoParameters, null, reportNode).run().join();
+        new OpenRao().run(RaoInput.build(network, crac).build(), raoParameters, null, reportNode).join();
 
         ReportNode mostLimitingElementsReportNodes = reportNode.getChildren().getFirst().getChildren().get(8).getChildren().getFirst();
         String infoPrefix = "[INFO] ";

@@ -7,10 +7,8 @@
 
 package com.powsybl.openrao.raoimpl.algorithms;
 
-import com.google.common.annotations.Beta;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.TwoSides;
-import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.commons.TemporalDataImpl;
 import com.powsybl.openrao.commons.Unit;
@@ -27,12 +25,15 @@ import com.powsybl.openrao.data.raoresult.api.extension.CostResult;
 import com.powsybl.openrao.data.raoresult.api.extension.CriticalCnecsResult;
 import com.powsybl.openrao.data.raoresult.api.extension.Metadata;
 import com.powsybl.openrao.data.raoresult.impl.RaoResultImpl;
-import com.powsybl.openrao.raoapi.*;
+import com.powsybl.openrao.raoapi.LazyNetwork;
+import com.powsybl.openrao.raoapi.RaoInput;
+import com.powsybl.openrao.raoapi.TimeCoupledRaoInput;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.MarmotParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoCostlyMinMarginParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRelativeMarginsParameters;
+import com.powsybl.openrao.raoimpl.algorithms.MarmotUtils.LoggingAddedCnecs;
 import com.powsybl.openrao.raoimpl.algorithms.linearoptimisation.inputs.IteratingLinearOptimizerInput;
 import com.powsybl.openrao.raoimpl.algorithms.linearoptimisation.parameters.IteratingLinearOptimizerParameters;
 import com.powsybl.openrao.raoimpl.commons.RaoUtil;
@@ -69,10 +70,8 @@ import static com.powsybl.openrao.raoimpl.commons.RaoUtil.getFlowUnit;
  * @author Roxane Chen {@literal <roxane.chen at rte-france.com>}
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
-@Beta
-public class Marmot implements RaoProvider, TimeCoupledRaoProvider {
+class Marmot {
 
-    private static final String TIME_COUPLED_RAO = "TimeCoupledRao";
     private static final String MIN_MARGIN_VIOLATION_EVALUATOR = "min-margin-violation-evaluator";
 
     private static void updateShouldContinue(TemporalData<PrePerimeterResult> loadFlowResults,
@@ -611,10 +610,9 @@ public class Marmot implements RaoProvider, TimeCoupledRaoProvider {
         );
     }
 
-    @Override
-    public CompletableFuture<RaoResult> run(final TimeCoupledRaoInput timeCoupledRaoInput,
-                                            final RaoParameters raoParameters,
-                                            final ReportNode reportNode) {
+    CompletableFuture<RaoResult> run(final TimeCoupledRaoInput timeCoupledRaoInput,
+                                     final RaoParameters raoParameters,
+                                     final ReportNode reportNode) {
         if (!raoParameters.hasExtension(MarmotParameters.class)) {
             MarmotReports.reportMissingMarmotParametersExtension(reportNode);
             raoParameters.addExtension(MarmotParameters.class, new MarmotParameters());
@@ -880,34 +878,5 @@ public class Marmot implements RaoProvider, TimeCoupledRaoProvider {
             LinearProblemStatus.OPTIMAL,
             reportNode
         );
-    }
-
-    @Override
-    public String getName() {
-        return TIME_COUPLED_RAO;
-    }
-
-    @Override
-    public CompletableFuture<RaoResult> run(RaoInput raoInput, RaoParameters parameters, ReportNode reportNode) {
-        return run(raoInput, parameters, null, reportNode);
-    }
-
-    @Override
-    public CompletableFuture<RaoResult> run(RaoInput raoInput, RaoParameters parameters, java.time.Instant targetEndInstant, ReportNode reportNode) {
-        throw new OpenRaoException("MARMOT should not be used for single timestamp cases; use CASTOR instead");
-    }
-
-    public record LoggingAddedCnecs(OffsetDateTime offsetDateTime,
-                                    String vcName,
-                                    List<String> addedCnecs,
-                                    Map<String, Double> margins) {
-        private void addCnec(String cnec) {
-            addedCnecs.add(cnec);
-        }
-
-        private void addCnec(String cnec, double margin) {
-            addedCnecs.add(cnec);
-            margins.put(cnec, margin);
-        }
     }
 }

@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.powsybl.openrao.raoimpl;
+package com.powsybl.openrao.raoimpl.algorithms;
 
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
@@ -18,9 +18,6 @@ import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.TimeCoupledRaoInput;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.FastRaoParameters;
-import com.powsybl.openrao.raoimpl.algorithms.CastorFullOptimization;
-import com.powsybl.openrao.raoimpl.algorithms.FastRao;
-import com.powsybl.openrao.raoimpl.algorithms.Marmot;
 import com.powsybl.openrao.raoimpl.commons.RaoUtil;
 import com.powsybl.openrao.raoimpl.reports.ReportsTestUtils;
 import org.junit.jupiter.api.AfterEach;

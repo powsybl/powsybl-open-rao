@@ -16,7 +16,8 @@ import com.powsybl.openrao.raoapi.RaoProvider;
 import com.powsybl.openrao.raoapi.TimeCoupledRaoInput;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.FastRaoParameters;
-import com.powsybl.openrao.raoimpl.OpenRao;
+import com.powsybl.openrao.raoimpl.algorithms.OpenRao;
+import com.powsybl.openrao.raoimpl.reports.FastRaoReports;
 
 import java.time.Instant;
 import java.util.concurrent.CompletableFuture;
@@ -54,6 +55,7 @@ public class FastRao implements RaoProvider {
     @Override
     public CompletableFuture<RaoResult> run(final RaoInput raoInput, final RaoParameters parameters, final Instant targetEndInstant, final ReportNode reportNode) {
         if (!parameters.hasExtension(FastRaoParameters.class)) {
+            FastRaoReports.reportMissingFastRaoParametersExtension(reportNode);
             parameters.addExtension(FastRaoParameters.class, new FastRaoParameters());
         }
         return new OpenRao().run(raoInput, parameters, targetEndInstant, reportNode);

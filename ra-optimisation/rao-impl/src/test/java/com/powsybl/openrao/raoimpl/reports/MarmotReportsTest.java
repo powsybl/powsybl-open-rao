@@ -10,7 +10,7 @@ package com.powsybl.openrao.raoimpl.reports;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
-import com.powsybl.openrao.raoimpl.algorithms.Marmot;
+import com.powsybl.openrao.raoimpl.algorithms.MarmotUtils;
 import org.junit.jupiter.api.Test;
 
 import java.time.OffsetDateTime;
@@ -30,13 +30,13 @@ class MarmotReportsTest {
         final List<ILoggingEvent> technicalLogs = ReportsTestUtils.getTechnicalLogs().list;
 
         MarmotReports.reportMarmotCnecs(reportNode, List.of(
-            new Marmot.LoggingAddedCnecs(
+            new MarmotUtils.LoggingAddedCnecs(
                 OffsetDateTime.parse("2026-06-10T11:50:30Z"),
                 "min-margin-violation-evaluator",
                 List.of("cnec1", "cnec2"),
                 Map.of("cnec1", 1., "cnec2", 2.)
             ),
-            new Marmot.LoggingAddedCnecs(
+            new MarmotUtils.LoggingAddedCnecs(
                 OffsetDateTime.parse("2026-06-10T18:00:00Z"),
                 "random-vc-name",
                 List.of("cnec3"),

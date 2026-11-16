@@ -58,6 +58,20 @@ public final class MarmotUtils {
     private MarmotUtils() {
     }
 
+    public record LoggingAddedCnecs(OffsetDateTime offsetDateTime,
+                                    String vcName,
+                                    List<String> addedCnecs,
+                                    Map<String, Double> margins) {
+        void addCnec(String cnec) {
+            addedCnecs.add(cnec);
+        }
+
+        void addCnec(String cnec, double margin) {
+            addedCnecs.add(cnec);
+            margins.put(cnec, margin);
+        }
+    }
+
     public static PrePerimeterResult runInitialSensitivityAnalysis(final RaoInput raoInput, final RaoParameters raoParameters, final ReportNode reportNode) {
         Crac crac = raoInput.getCrac();
         Network network = raoInput.getNetwork();

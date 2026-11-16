@@ -20,26 +20,16 @@ import com.powsybl.openrao.data.raoresult.api.extension.CostResult;
 import com.powsybl.openrao.data.raoresult.api.extension.CriticalCnecsResult;
 import com.powsybl.openrao.data.raoresult.api.extension.Metadata;
 import com.powsybl.openrao.raoapi.RaoInput;
-import com.powsybl.openrao.raoapi.TimeCoupledRaoInput;
 import com.powsybl.openrao.raoapi.json.JsonRaoParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.FastRaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
 /**
@@ -172,20 +162,10 @@ class FastRaoTest {
         RaoParameters raoParameters = Mockito.mock(RaoParameters.class);
         when(raoParameters.getObjectiveFunctionParameters()).thenThrow(new OpenRaoException("This exception should be caught"));
         // Run RAO
-        RaoResult raoResult = new FastRao().run(raoInput, raoParameters, ReportNode.NO_OP).get();
+        RaoResult raoResult = new FastRao().run(raoInput, raoParameters, null, ReportNode.NO_OP).get();
 
         Metadata metadata = raoResult.getExtension(Metadata.class);
         assertNotNull(metadata);
         assertEquals(ComputationStatus.FAILURE, metadata.getComputationStatus());
-    }
-
-    @Test
-    void runTimeCoupled() {
-        TimeCoupledRaoInput timeCoupledRaoInput = Mockito.mock(TimeCoupledRaoInput.class);
-        OpenRaoException exception = assertThrows(
-            OpenRaoException.class,
-            () -> new FastRao().run(timeCoupledRaoInput, new RaoParameters(ReportNode.NO_OP), ReportNode.NO_OP).get()
-        );
-        assertEquals("Time-coupled optimization is not supported by FastRAO", exception.getMessage());
     }
 }

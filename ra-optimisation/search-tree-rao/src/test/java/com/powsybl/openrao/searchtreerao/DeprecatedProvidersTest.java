@@ -13,7 +13,7 @@ import com.powsybl.openrao.raoapi.Rao;
 import com.powsybl.openrao.raoapi.RaoProvider;
 import com.powsybl.openrao.raoapi.TimeCoupledRao;
 import com.powsybl.openrao.raoapi.TimeCoupledRaoProvider;
-import com.powsybl.openrao.raoimpl.OpenRao;
+import com.powsybl.openrao.raoimpl.algorithms.OpenRao;
 import com.powsybl.openrao.searchtreerao.castor.algorithm.Castor;
 import com.powsybl.openrao.searchtreerao.fastrao.FastRao;
 import com.powsybl.openrao.searchtreerao.marmot.Marmot;

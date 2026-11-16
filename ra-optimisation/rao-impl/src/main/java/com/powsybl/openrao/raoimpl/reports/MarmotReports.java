@@ -9,18 +9,14 @@ package com.powsybl.openrao.raoimpl.reports;
 
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
-import com.powsybl.openrao.raoimpl.algorithms.Marmot;
+import com.powsybl.openrao.raoimpl.algorithms.MarmotUtils;
 import com.powsybl.openrao.raoimpl.result.api.LinearOptimizationResult;
-
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import static com.powsybl.commons.report.TypedValue.INFO_SEVERITY;
-import static com.powsybl.commons.report.TypedValue.TRACE_SEVERITY;
-import static com.powsybl.commons.report.TypedValue.WARN_SEVERITY;
+import static com.powsybl.commons.report.TypedValue.*;
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WARNS;
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
 
@@ -275,7 +271,7 @@ public final class MarmotReports {
         return addedNode;
     }
 
-    public static void reportMarmotCnecs(final ReportNode parentNode, final List<Marmot.LoggingAddedCnecs> addedCnecsForLogging) {
+    public static void reportMarmotCnecs(final ReportNode parentNode, final List<MarmotUtils.LoggingAddedCnecs> addedCnecsForLogging) {
         final StringBuilder logMessage = new StringBuilder();
         final AtomicInteger nbAddedCnecs = new AtomicInteger();
         final AtomicInteger nbTimestamps = new AtomicInteger();
