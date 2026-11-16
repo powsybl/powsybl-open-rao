@@ -62,17 +62,17 @@ import static com.powsybl.openrao.raoapi.parameters.extensions.SecondPreventiveR
 import static com.powsybl.openrao.searchtreerao.reports.MarmotReports.CURATIVE_SYNCHRONIZATION_PREFIX;
 
 /**
- * Runs a time-coupled RAO where the curative remedial actions are synchronized across the timestamps, meaning that the
+ * Runs a time-coupled RAO when the curative remedial actions are synchronized across the timestamps, meaning that the
  * same decision is applied on every timestamp at once in curative, i.e. the same set of activated network actions and
- * the same set of activated range action set at the same setpoint values.
+ * the same set of activated range actions at the same setpoint values.
  * <p>
  * Remedial actions are matched across the timestamps by their CRAC ID only. Therefore, the IDs must be consistent between
  * all the CRACs for this optimization to work properly.
  * <p>
- * Note:
- * <li> Multi-curative optimization is not supported.
- * <li> The UsageRules of the remedial actions are not managed yet.
- * <li> The RaUsageLimits are considered to be identical for all the timestamps for now.
+ * Known limitations:
+ * <li> Only one curative instant is supported.
+ * <li> The usage rules of the remedial actions are ignored.
+ * <li> The RaUsageLimits are considered to be identical for all the timestamps.
  */
 @Beta
 public class TimeCoupledCurativeSynchronization {
