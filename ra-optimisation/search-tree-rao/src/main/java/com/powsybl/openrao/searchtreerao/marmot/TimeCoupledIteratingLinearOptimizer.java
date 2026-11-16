@@ -36,27 +36,14 @@ import com.powsybl.openrao.searchtreerao.linearoptimisation.inputs.IteratingLine
 import com.powsybl.openrao.searchtreerao.linearoptimisation.parameters.IteratingLinearOptimizerParameters;
 import com.powsybl.openrao.searchtreerao.marmot.results.GlobalLinearOptimizationResult;
 import com.powsybl.openrao.searchtreerao.reports.LinearOptimizerReports;
-import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
-import com.powsybl.openrao.searchtreerao.result.api.LinearOptimizationResult;
-import com.powsybl.openrao.searchtreerao.result.api.LinearProblemStatus;
-import com.powsybl.openrao.searchtreerao.result.api.NetworkActionsResult;
-import com.powsybl.openrao.searchtreerao.result.api.RangeActionActivationResult;
-import com.powsybl.openrao.searchtreerao.result.api.RangeActionSetpointResult;
-import com.powsybl.openrao.searchtreerao.result.api.SensitivityResult;
+import com.powsybl.openrao.searchtreerao.result.api.*;
 import com.powsybl.openrao.searchtreerao.result.impl.LinearProblemResult;
 import com.powsybl.openrao.searchtreerao.result.impl.RangeActionActivationResultImpl;
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 import org.apache.commons.lang3.tuple.Pair;
-
 import java.time.OffsetDateTime;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
-
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
 import static com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.getPstModel;
 
@@ -464,7 +451,8 @@ public final class TimeCoupledIteratingLinearOptimizer {
         }
         LinearProblemStatus solveStatus;
         TemporalData<RangeActionActivationResult> rangeActionActivationResults = currentRangeActionActivationResults;
-        if (getPstModel(parameters.getRangeActionParametersExtension()).equals(SearchTreeRaoRangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS)) {
+        if (rangeActionActivationResults.getDataPerTimestamp().values().stream().anyMatch(result -> result.getRangeActions().stream().anyMatch(PstRangeAction.class::isInstance)) &&
+            getPstModel(parameters.getRangeActionParametersExtension()).equals(SearchTreeRaoRangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS)) {
 
             // if the PST approximation is APPROXIMATED_INTEGERS, we re-solve the optimization problem
             // but first, we update it, with an adjustment of the PSTs angleToTap conversion factors, to
