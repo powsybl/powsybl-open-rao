@@ -12,8 +12,6 @@ import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.PhysicalParameter;
-import com.powsybl.openrao.commons.TemporalData;
-import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
@@ -60,41 +58,6 @@ import static com.powsybl.openrao.raoapi.parameters.extensions.MultithreadingPar
 final class RaoResultHelper {
 
     private RaoResultHelper() {
-    }
-
-    /**
-     * Indicates whether all the CNECs of a given type are secure (i.e. with a margin >= 0) at the last instant (i.e. after RAO).
-     *
-     * @param raoResult     The RaoResult for which to check security.
-     * @param crac          The CRAC for which to check security.
-     * @param raoParameters The RaoParameters for which to check security.
-     * @param u             The types of CNECs to check (FLOW -> FlowCNECs, ANGLE -> AngleCNECs, VOLTAGE -> VoltageCNECs). 1 to 3 arguments can be provided.
-     * @return whether all the CNECs of the given type(s) are secure at the last instant (i.e. after RAO).
-     * @deprecated since 7.6.0, use {@link RaoResult#isSecure(PhysicalParameter...)} instead
-     */
-    @Deprecated(since = "7.6.0")
-    static boolean isSecure(RaoResult raoResult, Crac crac, RaoParameters raoParameters, PhysicalParameter... u) {
-        return raoResult.isSecure(u);
-    }
-
-    /**
-     * Indicates whether all the CNECs of a given type are secure (i.e. with a margin >= 0) at the last instant (i.e. after RAO).
-     *
-     * @param raoResult     The RaoResult for which to check security.
-     * @param cracs         The CRACs for which to check security.
-     * @param raoParameters The RaoParameters for which to check security.
-     * @param u             The types of CNECs to check (FLOW -> FlowCNECs, ANGLE -> AngleCNECs, VOLTAGE -> VoltageCNECs). 1 to 3 arguments can be provided.
-     * @return whether all the CNECs of the given type(s) are secure at the last instant (i.e. after RAO).
-     * @deprecated since 7.6.0, use {@link RaoResult#isSecure(PhysicalParameter...)} instead
-     */
-    @Deprecated(since = "7.6.0")
-    static boolean isSecure(RaoResult raoResult, TemporalData<Crac> cracs, RaoParameters raoParameters, PhysicalParameter... u) {
-        return raoResult.isSecure(u);
-    }
-
-    @Deprecated(since = "7.6.0")
-    static boolean isSecure(RaoResult raoResult, Crac crac, boolean excludeCnecsForTsosWithoutCras, Unit flowUnit, PhysicalParameter... u) {
-        return raoResult.isSecure(u);
     }
 
     /**
