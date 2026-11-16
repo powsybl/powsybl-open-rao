@@ -18,6 +18,7 @@ import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.raoresult.api.TimeCoupledRaoResult;
 import com.powsybl.openrao.data.timecoupledconstraints.TimeCoupledConstraints;
+import com.powsybl.openrao.raoapi.LazyNetwork;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.TimeCoupledRaoInput;
 import com.powsybl.openrao.raoapi.json.JsonRaoParameters;
@@ -52,9 +53,14 @@ class TimeCoupledCurativeSynchronizationTest {
         TemporalData<RaoInput> raoInputs = new TemporalDataImpl<>(Map.of(timestamp, RaoInput.build(network, crac).build()));
         TimeCoupledRaoInput inputs = new TimeCoupledRaoInput(raoInputs, new TimeCoupledConstraints());
 
+        TemporalData<Crac> cracs = inputs.getRaoInputs().map(RaoInput::getCrac);
+        TemporalData<LazyNetwork> initialNetworks = MarmotUtils.cloneNetworks(inputs.getRaoInputs().map(RaoInput::getNetwork));
+        MarmotUtils.closeAll(inputs.getRaoInputs().map(RaoInput::getNetwork));
+
+        TemporalData<RaoInput> initialInputs = MarmotUtils.merge(initialNetworks, cracs);
         OpenRaoException exception = assertThrows(OpenRaoException.class,
-            () -> new TimeCoupledCurativeSynchronization().run(inputs, new RaoParameters(ReportNode.NO_OP), ReportNode.NO_OP));
-        assertEquals("Time-coupled curative synchronization does not support multi-curative optimization.", exception.getMessage());
+            () -> new TimeCoupledCurativeSynchronization().run(initialInputs, initialNetworks, cracs, inputs.getTimestampsToRun(), new RaoParameters(ReportNode.NO_OP), ReportNode.NO_OP));
+        assertEquals("Time-coupled curative synchronization does not support multiple curative instants.", exception.getMessage());
     }
 
     /**

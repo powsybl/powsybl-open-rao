@@ -78,7 +78,7 @@ import static com.powsybl.openrao.searchtreerao.reports.MarmotReports.CURATIVE_S
 public class TimeCoupledCurativeSynchronization {
     private static final int NUMBER_LOGGED_ELEMENTS_FINAL_RESULTS = 10;
 
-    public CompletableFuture<TimeCoupledRaoResult> run(TimeCoupledRaoInput timeCoupledRaoInput, RaoParameters raoParameters, ReportNode reportNode, TemporalData<Crac> cracs, TemporalData<LazyNetwork> initialNetworks, TemporalData<RaoInput> initialInputs) {
+    public CompletableFuture<TimeCoupledRaoResult> run(TemporalData<RaoInput> initialInputs, TemporalData<LazyNetwork> initialNetworks, TemporalData<Crac> cracs, Set<OffsetDateTime> timestampsToRun, RaoParameters raoParameters, ReportNode reportNode) {
         if (cracs.getDataPerTimestamp().values().stream().anyMatch(crac -> crac.getInstants(InstantKind.CURATIVE).size() > 1)) {
             throw new OpenRaoException("Time-coupled curative synchronization does not support multiple curative instants.");
         }
@@ -86,9 +86,9 @@ public class TimeCoupledCurativeSynchronization {
         TemporalData<StateTree> stateTrees = initialInputs.map(raoInput -> new StateTree(raoInput.getCrac(), reportNode));
 
         TemporalData<RaoParameters> raoParametersDuplicates = new TemporalDataImpl<>();
-        timeCoupledRaoInput.getTimestampsToRun().forEach(timestamp -> raoParametersDuplicates.put(timestamp, MarmotUtils.cloneParameters(raoParameters, reportNode)));
+        timestampsToRun.forEach(timestamp -> raoParametersDuplicates.put(timestamp, MarmotUtils.cloneParameters(raoParameters, reportNode)));
 
-        int parallelism = Math.min(raoParameters.getExtension(MarmotParameters.class).getNumberOfThreads(), timeCoupledRaoInput.getTimestampsToRun().size());
+        int parallelism = Math.min(raoParameters.getExtension(MarmotParameters.class).getNumberOfThreads(), timestampsToRun.size());
         if (parallelism > 1) {
             MarmotReports.reportMarmotOptimizerSetToWorkOnNThreads(reportNode, parallelism, CURATIVE_SYNCHRONIZATION_PREFIX);
         }
@@ -164,7 +164,7 @@ public class TimeCoupledCurativeSynchronization {
             );
             // same global MIP as Marmot with curative range actions optimization enabled
             GlobalLinearOptimizationResult globalLinearOptimizationResult = Marmot.optimizeLinearRemedialActions(
-                new TimeCoupledRaoInput(initialInputs, timeCoupledRaoInput.getTimestampsToRun(), new TimeCoupledConstraints()),
+                new TimeCoupledRaoInput(initialInputs, timestampsToRun, new TimeCoupledConstraints()),
                 initialResults,
                 Marmot.getInitialSetpointResults(cracs, parallelism),
                 postTopologicalActionsResults,

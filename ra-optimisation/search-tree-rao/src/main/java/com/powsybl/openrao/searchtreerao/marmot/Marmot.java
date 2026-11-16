@@ -125,7 +125,7 @@ public class Marmot implements RaoProvider, TimeCoupledRaoProvider {
 
         // Launch the time-coupled curative synchronization when the concerned parameters are enabled
         if (marmotParameters.getCurativeRangeActionsSynchronization() || marmotParameters.getCurativeTopologicalActionsSynchronization()) {
-            return new TimeCoupledCurativeSynchronization().run(timeCoupledRaoInput, raoParameters, reportNode, cracs, initialNetworks, initialInputs);
+            return new TimeCoupledCurativeSynchronization().run(initialInputs, initialNetworks, cracs, timeCoupledRaoInput.getTimestampsToRun(), raoParameters, reportNode);
         }
 
         // RaoParametes are stored in a TemporalData. They're the same for every timestamp, but this prevents concurrent access when multi-threading is activated
