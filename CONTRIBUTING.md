@@ -26,8 +26,14 @@ The best way to get a quick start is to clone the project's main branch and try 
 on your PC. If everything works, then you're good to make your first contribution to the code!
 
 ### Code formatting
-OpenRAO uses a custom profile for JAVA code formatting.  
-You can download these rules for your IDE from this directory: [developer-resources](docs/_static/developer-resources).
+OpenRAO uses a custom code style profile for JAVA.  
+For IntelliJ IDEA (and other IntelliJ-based IDEs), import the code scheme from [developer-resources/Intellij.xml](docs/_static/developer-resources/Intellij.xml) (Settings › Editor › Code Style, then *Import…*).
+
+In addition to the formatting profile, the build enforces the **Checkstyle** rules inherited from [powsybl-parent](https://github.com/powsybl/powsybl-parent/blob/main/powsybl-build-tools/src/main/resources/powsybl-build-tools/checkstyle.xml) (the rule file is `powsybl-build-tools/checkstyle.xml` in the powsybl-parent repository).  
+These rules are bound to the `validate` Maven phase and apply to both main and test sources, so **every build (local or CI) fails on a Checkstyle violation** (e.g. trailing whitespace, line length, unused imports, tab characters, import order).  
+Recommended:
+- configure your IDE's Checkstyle support to use the powsybl-parent rule file above, so violations are flagged locally before you push;
+- if you need to bypass the checks locally for debugging, pass `-Dpowsybl.checks.skip=true` — note this is **not** an excuse to submit code that fails Checkstyle in CI.
 
 ### General rules (branch/pr naming convention etc)
 
@@ -68,7 +74,7 @@ Here is a set of rules your pull request must follow:
 - you can open a PR even if it's not ready to merge, but in that case you must set it as a **draft**
 - the PR must be **reviewed** by at least one other developer before it can be merged
 - you must add unit **tests** and/or [functional tests](tests/README.md) to your new features
-- the PR must pass a few **automatic checks** before it can be merged: build & unit tests, functional tests, sonar quality, sign-off check, doc build check
+- the PR must pass a few **automatic checks** before it can be merged: build & unit tests (including the powsybl-parent **Checkstyle** checks), functional tests, sonar quality, sign-off check, doc build check
 - if the PR changes a part of the code that is [documented](https://powsybl.readthedocs.io/projects/openrao/en/latest), 
   then [**documentation**](docs) must be updated before it can be merged
 - **label**[^1] the PR as much as possible, this makes addressing it much more efficient 
