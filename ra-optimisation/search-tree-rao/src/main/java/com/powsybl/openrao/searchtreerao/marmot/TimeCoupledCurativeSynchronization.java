@@ -79,13 +79,6 @@ public class TimeCoupledCurativeSynchronization {
     private static final int NUMBER_LOGGED_ELEMENTS_FINAL_RESULTS = 10;
 
     public CompletableFuture<TimeCoupledRaoResult> run(TimeCoupledRaoInput timeCoupledRaoInput, RaoParameters raoParameters, ReportNode reportNode) {
-
-        if (!raoParameters.hasExtension(MarmotParameters.class)) {
-            MarmotReports.reportMissingMarmotParametersExtension(reportNode);
-            raoParameters.addExtension(MarmotParameters.class, new MarmotParameters());
-        }
-        final MarmotParameters marmotParameters = raoParameters.getExtension(MarmotParameters.class);
-
         timeCoupledRaoInput.getRaoInputs().getDataPerTimestamp().forEach((timestamp, raoInput) -> {
             if (raoInput.getCrac().getInstants(InstantKind.CURATIVE).size() > 1) {
                 throw new OpenRaoException("Time-coupled curative synchronization does not support multi-curative optimization.");
@@ -103,7 +96,7 @@ public class TimeCoupledCurativeSynchronization {
         TemporalData<RaoParameters> raoParametersDuplicates = new TemporalDataImpl<>();
         timeCoupledRaoInput.getTimestampsToRun().forEach(timestamp -> raoParametersDuplicates.put(timestamp, MarmotUtils.cloneParameters(raoParameters, reportNode)));
 
-        int parallelism = Math.min(marmotParameters.getNumberOfThreads(), timeCoupledRaoInput.getTimestampsToRun().size());
+        int parallelism = Math.min(raoParameters.getExtension(MarmotParameters.class).getNumberOfThreads(), timeCoupledRaoInput.getTimestampsToRun().size());
         if (parallelism > 1) {
             MarmotReports.reportMarmotOptimizerSetToWorkOnNThreads(reportNode, parallelism, CURATIVE_SYNCHRONIZATION_PREFIX);
         }
