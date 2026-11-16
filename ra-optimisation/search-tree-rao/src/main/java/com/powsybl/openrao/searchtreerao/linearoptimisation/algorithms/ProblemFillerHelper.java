@@ -178,7 +178,7 @@ public final class ProblemFillerHelper {
             String areaType = counterTradeRangeActionsPerState.values().stream()
                     .flatMap(Set::stream)
                     .findFirst()
-                    .map(ra -> input.network().getArea(ra.getArea()).getAreaType())
+                    .map(ra -> input.network().getArea(ra.getAreaId()).getAreaType())
                     .orElseThrow();
 
             AreaGraph areaGraph = new AreaGraph(input.network(), areaType);

@@ -140,7 +140,7 @@ public class RangeActionSensitivityProvider extends LoadflowProvider {
                                          Set<String> glskIds) {
         CounterTradeRangeActionSensiHandler handler = new CounterTradeRangeActionSensiHandler(counterTradeRangeAction); // maybe remove it ?
         Map<String, Map<String, Double>> glsk = counterTradeRangeAction.getGlsk();
-        Map<String, Double> area = glsk.get(counterTradeRangeAction.getArea());
+        Map<String, Double> area = glsk.get(counterTradeRangeAction.getAreaId());
         if (counterTradeRangeAction.getGeneratorOrdering() == null) {
             counterTradeRangeAction.computeGeneratorOrdering(network, 1e-10);
         }

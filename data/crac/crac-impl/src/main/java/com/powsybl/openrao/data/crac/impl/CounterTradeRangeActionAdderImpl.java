@@ -45,7 +45,7 @@ class CounterTradeRangeActionAdderImpl extends AbstractStandardRangeActionAdder<
         return this;
     }
 
-
+    @Override
     public ConnectedAreaAdder newConnectedArea() {
         return new ConnectedAreaAdderImpl(this);
     }

@@ -8,7 +8,6 @@
 package com.powsybl.openrao.searchtreerao.result.impl;
 
 import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.data.crac.api.Identifiable;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.rangeaction.CounterTradeRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.HvdcRangeAction;
@@ -119,7 +118,7 @@ public class RangeActionActivationResultImpl implements RangeActionActivationRes
 
     private String concatenateNetworkElementsIds(RangeAction<?> rangeAction) {
         if (rangeAction instanceof CounterTradeRangeAction counterTradeRangeAction) {
-            return counterTradeRangeAction.getArea();
+            return counterTradeRangeAction.getAreaId();
         } else {
             return rangeAction.getNetworkElementsIds().stream().sorted().collect(Collectors.joining("+"));
         }

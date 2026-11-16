@@ -18,7 +18,5 @@ public interface CounterTradeRangeActionAdder extends StandardRangeActionAdder<C
 
     ConnectedAreaAdder newConnectedArea();
 
-    CounterTradeRangeActionAdder withArea(String area);
-
     CounterTradeRangeAction add();
 }

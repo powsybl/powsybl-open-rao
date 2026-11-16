@@ -169,18 +169,17 @@ public class CounterTradeRangeActionImpl extends AbstractRangeAction<CounterTrad
     @Override
     public void setGlsk(ZonalData<SensitivityVariableSet> zonalGlsk) {
         this.glsk = new HashMap<>();
-        this.glsk.put(getArea(), new HashMap<>());
+        this.glsk.put(getAreaId(), new HashMap<>());
 
-        zonalGlsk.getData(getArea())
+        zonalGlsk.getData(getAreaId())
                  .getVariablesById()
-                 .forEach((id, variable) -> glsk.get(getArea()).put(id, variable.getWeight()));
+                 .forEach((id, variable) -> glsk.get(getAreaId()).put(id, variable.getWeight()));
     }
 
     @Override
     public void setGlsk(Network network) {
         this.glsk = new HashMap<>();
-        String areaId = getArea();
-        this.glsk.put(getArea(), new HashMap<>());
+        String areaId = getAreaId();
         this.glsk.put(areaId, computeProportionalShares(network, areaId));
     }
 
@@ -213,7 +212,7 @@ public class CounterTradeRangeActionImpl extends AbstractRangeAction<CounterTrad
     }
 
     public void computeGeneratorOrdering(Network network, double tolerance) {
-        String areaId = getArea();
+        String areaId = getAreaId();
         Map<String, Double> weights = getGlsk().get(areaId);
         this.generatorOrdering = GeneratorOrderingComputer.compute(
                 weights,

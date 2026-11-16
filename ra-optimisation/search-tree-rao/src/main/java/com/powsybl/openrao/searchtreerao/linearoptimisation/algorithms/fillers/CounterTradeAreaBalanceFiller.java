@@ -54,7 +54,7 @@ public class CounterTradeAreaBalanceFiller implements ProblemFiller {
         Set<FlowCnec> validFlowCnecs = FillersUtil.getFlowCnecsComputationStatusOk(flowCnecs, sensitivityResult);
         counterTradeActions.forEach((state, counterTradeRangeActions) -> {
             Set<AreaPairBoundary> alreadyCreatedBorders = new HashSet<>();
-            Set<String> areasWithCt = counterTradeRangeActions.stream().map(CounterTradeRangeAction::getArea).collect(Collectors.toSet());
+            Set<String> areasWithCt = counterTradeRangeActions.stream().map(CounterTradeRangeAction::getAreaId).collect(Collectors.toSet());
 
             for (CounterTradeRangeAction ra : counterTradeRangeActions) {
                 // add the border balance constraints between CT on each area and its borders
@@ -73,7 +73,7 @@ public class CounterTradeAreaBalanceFiller implements ProblemFiller {
 
     private void fillBorderBalance(LinearProblem linearProblem, CounterTradeRangeAction ra, State state,
                                    Set<AreaPairBoundary> alreadyCreatedBorders) {
-        String area = ra.getArea();
+        String area = ra.getAreaId();
         OpenRaoMPVariable ctVar = linearProblem.getRangeActionSetpointVariable(ra, state);
         OpenRaoMPConstraint balance = linearProblem.addCounterTradeAreaBalanceConstraint(ra, state);
         balance.setCoefficient(ctVar, -1.0);
@@ -90,7 +90,7 @@ public class CounterTradeAreaBalanceFiller implements ProblemFiller {
     private void fillGeneratorDispatch(LinearProblem linearProblem, CounterTradeRangeAction ra, State state) {
         CounterTradeGeneratorOrdering ordering = ra.getGeneratorOrdering();
         OpenRaoMPVariable ctVar = linearProblem.getRangeActionSetpointVariable(ra, state);
-        String areaId = ra.getArea();
+        String areaId = ra.getAreaId();
         OpenRaoMPVariable delta = linearProblem.addCounterTradeDirectionBinary(areaId, state);
 
         // ctVar - sum(x_up) + sum(x_down) = 0
@@ -164,7 +164,7 @@ public class CounterTradeAreaBalanceFiller implements ProblemFiller {
             Set<String> alreadyConsideredAreas = new HashSet<>();
             for (State state : statesBeforeCnec) {
                 for (CounterTradeRangeAction ra : counterTradeActions.getOrDefault(state, Set.of())) {
-                    if (alreadyConsideredAreas.add(ra.getArea())) {
+                    if (alreadyConsideredAreas.add(ra.getAreaId())) {
                         CounterTradeGeneratorOrdering ordering = ra.getGeneratorOrdering();
                         double currentSetpoint = activationResult.getOptimizedSetpoint(ra, state);
                         addDirectionImpact(linearProblem, sensitivityResult, ra, state, cnec, side, flowConstraint,
@@ -204,7 +204,7 @@ public class CounterTradeAreaBalanceFiller implements ProblemFiller {
             }
             String generatorId = order.get(h).generatorId();
             OpenRaoMPVariable x = linearProblem.getCounterTradeGeneratorDispatchVariable(
-                    generatorId, ra.getArea(), state, direction);
+                    generatorId, ra.getAreaId(), state, direction);
             double xCur = xCurrent.get(generatorId);
 
             flowConstraint.setLb(flowConstraint.lb() - sensitivity * xCur);
