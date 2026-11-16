@@ -28,9 +28,7 @@ public final class GeneratorOrderingComputer {
             if (weight <= tolerance ||
                     Double.isNaN(network.getGenerator(generatorId).getTargetP()) ||
                     !hasUsableActivePowerRange(network.getGenerator(generatorId))
-             || ((network.getGenerator(generatorId).getMaxP() > 10000)
-                    && (network.getGenerator(generatorId).getMinP() < -10000) ) )
-        {
+            ) {
                 zeroWeightIds.add(generatorId);
             } else {
                 nonZeroWeights.put(generatorId, weight);
@@ -43,10 +41,8 @@ public final class GeneratorOrderingComputer {
             Generator generator = network.getGenerator(generatorId);
             double targetP = generator.getTargetP();
             initialTargetP.put(generatorId, targetP);
-//            double upCapacity = Math.clamp(generator.getMaxP() - targetP, 0, maxUpwardMagnitude);
-//            double downCapacity = Math.clamp(targetP - generator.getMinP(), 0, -maxDownwardMagnitude);
-            double upCapacity = Math.clamp(generator.getMaxP() - targetP, 0, 100000);
-            double downCapacity = Math.clamp(targetP - generator.getMinP(), 0, 100000);
+            double upCapacity = Math.clamp(generator.getMaxP() - targetP, 0, maxUpwardMagnitude);
+            double downCapacity = Math.clamp(targetP - generator.getMinP(), 0, -maxDownwardMagnitude);
             upwardRaw.add(new RawAllocation(generatorId, weight, upCapacity, upCapacity / weight));
             downwardRaw.add(new RawAllocation(generatorId, weight, downCapacity, downCapacity / weight));
         });
@@ -122,10 +118,7 @@ public final class GeneratorOrderingComputer {
         double[] ratio = new double[n + 1];
         for (int h = 0; h < n; h++) {
             String generatorId = sortedAllocations.get(h).generatorId();
-            double xh = ctXValue.getOrDefault(generatorId, -100.);
-            if (xh < 0) {
-                xh = 0.;
-            }
+            double xh = ctXValue.getOrDefault(generatorId, 0.0);
             ratio[h + 1] = ratio[h] + xh / suffixSum[h];
         }
 
@@ -144,9 +137,6 @@ public final class GeneratorOrderingComputer {
             double xh = Math.min(remaining, allocation.cumulativeAllocation());
             x.put(allocation.generatorId(), xh);
             remaining -= xh;
-            if (remaining <= 1e-6) {
-                remaining = 0.;
-            }
         }
         return x; // any leftover means the setpoint exceeds total capacity
     }
@@ -175,9 +165,6 @@ public final class GeneratorOrderingComputer {
             suffixWeight += order.get(i).weight();
         }
         double weightedSum = tailWeightedSensitivity; // sum_{i>=K} lambda_i * s_i
-//        if (suffixWeight == 0) { // todo: verify if this happens
-//            suffixWeight = 1;
-//        }
         sigma[lastStage] = suffixWeight == 0 ? weightedSum : weightedSum / suffixWeight;
         for (int h = lastStage - 1; h >= 0; h--) {
             GlskGeneratorAllocation a = order.get(h);

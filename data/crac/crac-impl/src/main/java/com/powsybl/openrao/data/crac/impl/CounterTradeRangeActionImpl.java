@@ -115,9 +115,9 @@ public class CounterTradeRangeActionImpl extends AbstractRangeAction<CounterTrad
 
         double sign = upward ? 1.0 : -1.0;
         generatorOrdering.initialTargetP().forEach((generatorId, p0) -> {
-                    double targetP = p0 + sign * dispatch.getOrDefault(generatorId, 0.0);
-                    applyCT(network, generatorId, targetP);
-                });
+            double targetP = p0 + sign * dispatch.getOrDefault(generatorId, 0.0);
+            applyCT(network, generatorId, targetP);
+        });
     }
 
     public void applyCT(Network network, String generatorId, double targetSetpoint) {
