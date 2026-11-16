@@ -7,13 +7,6 @@
 
 package com.powsybl.openrao.searchtreerao.marmot;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
-import java.time.OffsetDateTime;
-import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Network;
@@ -44,6 +37,13 @@ import com.powsybl.openrao.searchtreerao.result.impl.NetworkActionsResultImpl;
 import com.powsybl.openrao.searchtreerao.result.impl.RangeActionActivationResultImpl;
 import com.powsybl.openrao.searchtreerao.result.impl.RemedialActionActivationResultImpl;
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.time.OffsetDateTime;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}

@@ -7,14 +7,6 @@
 
 package com.powsybl.openrao.searchtreerao.marmot;
 
-import java.time.OffsetDateTime;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.CompletableFuture;
-import static com.powsybl.openrao.raoapi.parameters.extensions.SecondPreventiveRaoParameters.getSecondPreventiveExecutionCondition;
-import static com.powsybl.openrao.searchtreerao.reports.MarmotReports.CURATIVE_SYNCHRONIZATION_PREFIX;
 import com.google.common.annotations.Beta;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
@@ -53,6 +45,14 @@ import com.powsybl.openrao.searchtreerao.result.impl.NetworkActionsResultImpl;
 import com.powsybl.openrao.searchtreerao.result.impl.PostPerimeterResult;
 import com.powsybl.openrao.searchtreerao.result.impl.PreventiveAndCurativesRaoResultImpl;
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
+import java.time.OffsetDateTime;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import static com.powsybl.openrao.raoapi.parameters.extensions.SecondPreventiveRaoParameters.getSecondPreventiveExecutionCondition;
+import static com.powsybl.openrao.searchtreerao.reports.MarmotReports.CURATIVE_SYNCHRONIZATION_PREFIX;
 
 /**
  * Runs a time-coupled RAO when the curative remedial actions are synchronized across the timestamps, meaning that the
@@ -308,7 +308,6 @@ public class TimeCoupledCurativeSynchronization {
             },
             parallelism);
     }
-
 
     /**
      * Builds one RaoResult per timestamp from its own initial, post-preventive and post-contingency results.

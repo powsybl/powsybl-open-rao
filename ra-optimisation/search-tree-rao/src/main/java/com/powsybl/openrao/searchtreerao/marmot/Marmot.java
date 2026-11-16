@@ -7,16 +7,6 @@
 
 package com.powsybl.openrao.searchtreerao.marmot;
 
-import java.time.Instant;
-import java.time.OffsetDateTime;
-import java.util.*;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.Collectors;
-import static com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.RaRangeShrinking.ENABLED;
-import static com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.RaRangeShrinking.ENABLED_IN_FIRST_PRAO_AND_CRAO;
-import static com.powsybl.openrao.searchtreerao.commons.RaoUtil.getFlowUnit;
-import static com.powsybl.openrao.searchtreerao.marmot.MarmotUtils.*;
 import com.google.auto.service.AutoService;
 import com.google.common.annotations.Beta;
 import com.powsybl.commons.report.ReportNode;
@@ -57,6 +47,16 @@ import com.powsybl.openrao.searchtreerao.result.impl.NetworkActionsResultImpl;
 import com.powsybl.openrao.searchtreerao.result.impl.PrePerimeterSensitivityResultImpl;
 import com.powsybl.openrao.searchtreerao.result.impl.RangeActionSetpointResultImpl;
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
+import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
+import static com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.RaRangeShrinking.ENABLED;
+import static com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.RaRangeShrinking.ENABLED_IN_FIRST_PRAO_AND_CRAO;
+import static com.powsybl.openrao.searchtreerao.commons.RaoUtil.getFlowUnit;
+import static com.powsybl.openrao.searchtreerao.marmot.MarmotUtils.*;
 
 /**
  * Time-coupled RAO provider based on a two-step workflow:
