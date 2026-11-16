@@ -10,7 +10,6 @@ package com.powsybl.openrao.searchtreerao.commons.optimizationperimeters;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.crac.api.RemedialAction;
@@ -27,6 +26,7 @@ import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.searchtreerao.castor.algorithm.Perimeter;
 import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
+import com.powsybl.openrao.searchtreerao.reports.CastorReports;
 import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
 
 import java.util.Collections;
@@ -131,25 +131,32 @@ public class PreventiveOptimizationPerimeter extends AbstractOptimizationPerimet
         remedialActions.addAll(crac.getRangeActions(autoState));
         remedialActions.addAll(crac.getNetworkActions(autoState));
         if (remedialActions.isEmpty()) {
+            // Without remedial actions available, the auto state is already part of the preventive perimeter in the state-tree
             return Collections.emptySet();
         }
 
-        Set<FlowCnec> autoCnecsToDuplicate = new HashSet<>();
+        if (hasUnconstrainedRemedialAction(autoState, remedialActions)) {
+            // An on-instant or on-contingency-state is defined for the auto state so all FlowCNECs are protected
+            return Collections.emptySet();
+        }
+
+        Set<FlowCnec> autoCnecsToInclude = new HashSet<>();
         crac.getFlowCnecs(autoState)
             .stream()
-            .filter(flowCnec -> shouldInclideAutoCnecInPreventivePerimeter(remedialActions, flowCnec, network))
-            .forEach(flowCnec -> {
-                autoCnecsToDuplicate.add(flowCnec);
-                // TODO: add report node
-                OpenRaoLoggerProvider.BUSINESS_LOGS.info(
-                    "FlowCnec {} is not protected by any automaton and will be included in the preventive optimization perimeter",
-                    flowCnec.getId()
-                );
-            });
-        return autoCnecsToDuplicate;
+            .filter(flowCnec -> shouldIncludeAutoCnecInPreventivePerimeter(remedialActions, flowCnec, network))
+            .forEach(flowCnec -> CastorReports.reportUnprotectedAutoCnec(reportNode, flowCnec));
+        return autoCnecsToInclude;
     }
 
-    private static boolean shouldInclideAutoCnecInPreventivePerimeter(final Set<RemedialAction<?>> remedialActions,
+    private static boolean hasUnconstrainedRemedialAction(final State state, final Set<RemedialAction<?>> remedialActions) {
+        return remedialActions.stream()
+            .anyMatch(remedialAction -> remedialAction.getUsageRules().stream().anyMatch(
+                usageRule -> usageRule instanceof OnInstant onInstant && onInstant.getInstant().equals(state.getInstant())
+                    || usageRule instanceof OnContingencyState onContingencyState && onContingencyState.getState().equals(state)
+            ));
+    }
+
+    private static boolean shouldIncludeAutoCnecInPreventivePerimeter(final Set<RemedialAction<?>> remedialActions,
                                                                       final FlowCnec flowCnec,
                                                                       final Network network) {
         boolean raForOtherCnecs = false;
