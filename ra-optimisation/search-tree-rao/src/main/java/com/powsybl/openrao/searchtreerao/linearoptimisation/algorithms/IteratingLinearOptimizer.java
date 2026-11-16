@@ -52,20 +52,20 @@ public final class IteratingLinearOptimizer {
                                                     final ReportNode reportNode) {
 
         IteratingLinearOptimizationResultImpl bestResult = createResult(
-                input.preOptimizationFlowResult(),
-                input.preOptimizationSensitivityResult(),
-                input.raActivationFromParentLeaf(),
-                input.appliedNetworkActionsInPrimaryState(),
-                0,
-                input.objectiveFunction(),
-                reportNode);
+            input.preOptimizationFlowResult(),
+            input.preOptimizationSensitivityResult(),
+            input.raActivationFromParentLeaf(),
+            input.appliedNetworkActionsInPrimaryState(),
+            0,
+            input.objectiveFunction(),
+            reportNode);
 
         IteratingLinearOptimizationResultImpl previousResult = bestResult;
 
         SensitivityComputer sensitivityComputer = null;
 
         LinearProblem linearProblem = LinearProblem.create()
-                .buildFromInputsAndParameters(input, parameters);
+                                          .buildFromInputsAndParameters(input, parameters);
 
         linearProblem.fill(input.preOptimizationFlowResult(), input.preOptimizationSensitivityResult());
 
@@ -103,18 +103,18 @@ public final class IteratingLinearOptimizer {
             }
 
             IteratingLinearOptimizationResultImpl currentResult = createResult(
-                    sensitivityComputer.getBranchResult(input.network()),
-                    sensitivityComputer.getSensitivityResult(),
-                    currentRangeActionActivationResult,
-                    input.appliedNetworkActionsInPrimaryState(),
-                    iteration,
-                    input.objectiveFunction(),
-                    reportNode
+                sensitivityComputer.getBranchResult(input.network()),
+                sensitivityComputer.getSensitivityResult(),
+                currentRangeActionActivationResult,
+                input.appliedNetworkActionsInPrimaryState(),
+                iteration,
+                input.objectiveFunction(),
+                reportNode
             );
             previousResult = currentResult;
 
             Pair<IteratingLinearOptimizationResultImpl, Boolean> mipShouldStop = updateBestResultAndCheckStopCondition(
-                    parameters.getRaRangeShrinking(), linearProblem, input, iteration, currentResult, bestResult, reportNode);
+                parameters.getRaRangeShrinking(), linearProblem, input, iteration, currentResult, bestResult, reportNode);
             if (Boolean.TRUE.equals(mipShouldStop.getRight())) {
                 return bestResult;
             } else {
@@ -151,29 +151,29 @@ public final class IteratingLinearOptimizer {
                                                                                     IteratingLinearOptimizerInput input) {
 
         Set<NetworkAction> acEmulationDeactivationActions = input.appliedNetworkActionsInPrimaryState()
-                .getActivatedNetworkActions()
-                .stream()
-                .filter(action -> isAcEmulationDeactivationAction(action))
-                .collect(Collectors.toSet());
+                                                                .getActivatedNetworkActions()
+                                                                .stream()
+                                                                .filter(action -> isAcEmulationDeactivationAction(action))
+                                                                .collect(Collectors.toSet());
 
         for (NetworkAction action : acEmulationDeactivationActions) {
             for (String hvdcLineId : action.getNetworkElementsIds()) {
                 Map<State, Set<HvdcRangeAction>> hvdcRangeActionsPerState =
-                        getHvdcRangeActionsPerStateAssociatedWithHvdcLine(
-                                input.optimizationPerimeter().getRangeActionsPerState(),
-                                hvdcLineId
-                        );
+                    getHvdcRangeActionsPerStateAssociatedWithHvdcLine(
+                        input.optimizationPerimeter().getRangeActionsPerState(),
+                        hvdcLineId
+                    );
 
                 hvdcRangeActionsPerState.forEach((state, hvdcRangeActions) ->
-                        hvdcRangeActions.forEach(hvdcRangeAction -> {
-                            if (!currentRangeActionActivationResult.getActivatedRangeActions(state).contains(hvdcRangeAction)) {
-                                currentRangeActionActivationResult.putResult(
-                                        hvdcRangeAction,
-                                        state,
-                                        hvdcRangeAction.getCurrentSetpoint(input.network())
-                                );
-                            }
-                        })
+                                                     hvdcRangeActions.forEach(hvdcRangeAction -> {
+                                                         if (!currentRangeActionActivationResult.getActivatedRangeActions(state).contains(hvdcRangeAction)) {
+                                                             currentRangeActionActivationResult.putResult(
+                                                                 hvdcRangeAction,
+                                                                 state,
+                                                                 hvdcRangeAction.getCurrentSetpoint(input.network())
+                                                             );
+                                                         }
+                                                     })
                 );
             }
         }
@@ -219,8 +219,10 @@ public final class IteratingLinearOptimizer {
                                                     RangeActionActivationResult oldRangeActionActivationResult,
                                                     OptimizationPerimeter optimizationContext) {
         return optimizationContext.getRangeActionsPerState().entrySet().stream()
-                .anyMatch(e -> e.getValue().stream()
-                        .anyMatch(ra -> Math.abs(newRangeActionActivationResult.getOptimizedSetpoint(ra, e.getKey()) - oldRangeActionActivationResult.getOptimizedSetpoint(ra, e.getKey())) >= 1e-6));
+                   .anyMatch(e -> e.getValue().stream()
+                                      .anyMatch(
+                                          ra -> Math.abs(newRangeActionActivationResult.getOptimizedSetpoint(ra, e.getKey()) - oldRangeActionActivationResult.getOptimizedSetpoint(ra, e.getKey())) >=
+                                                    1e-6));
     }
 
     public static AppliedRemedialActions applyRangeActions(RangeActionActivationResult rangeActionActivationResult, IteratingLinearOptimizerInput input) {
@@ -229,15 +231,15 @@ public final class IteratingLinearOptimizer {
 
         // apply RangeAction from first optimization state
         optimizationContext.getRangeActionsPerState().get(optimizationContext.getMainOptimizationState())
-                .forEach(ra -> ra.apply(input.network(), rangeActionActivationResult.getOptimizedSetpoint(ra, optimizationContext.getMainOptimizationState())));
+            .forEach(ra -> ra.apply(input.network(), rangeActionActivationResult.getOptimizedSetpoint(ra, optimizationContext.getMainOptimizationState())));
 
         // add RangeAction activated in the following states
         if (optimizationContext instanceof GlobalOptimizationPerimeter) {
             AppliedRemedialActions appliedRemedialActions = input.preOptimizationAppliedRemedialActions().copyNetworkActionsAndAutomaticRangeActions();
 
             optimizationContext.getRangeActionsPerState().entrySet().stream()
-                    .filter(e -> !e.getKey().equals(optimizationContext.getMainOptimizationState())) // remove preventive state
-                    .forEach(e -> e.getValue().forEach(ra -> appliedRemedialActions.addAppliedRangeAction(e.getKey(), ra, rangeActionActivationResult.getOptimizedSetpoint(ra, e.getKey()))));
+                .filter(e -> !e.getKey().equals(optimizationContext.getMainOptimizationState())) // remove preventive state
+                .forEach(e -> e.getValue().forEach(ra -> appliedRemedialActions.addAppliedRangeAction(e.getKey(), ra, rangeActionActivationResult.getOptimizedSetpoint(ra, e.getKey()))));
             return appliedRemedialActions;
         } else {
             return null;
@@ -250,11 +252,11 @@ public final class IteratingLinearOptimizer {
                                                                  final ReportNode reportNode) {
 
         SensitivityComputer.SensitivityComputerBuilder builder = SensitivityComputer.create(reportNode)
-                .withCnecs(input.optimizationPerimeter().getFlowCnecs())
-                .withRangeActions(input.optimizationPerimeter().getRangeActions())
-                .withAppliedRemedialActions(appliedRemedialActions)
-                .withToolProvider(input.toolProvider())
-                .withOutageInstant(input.outageInstant());
+                                                                     .withCnecs(input.optimizationPerimeter().getFlowCnecs())
+                                                                     .withRangeActions(input.optimizationPerimeter().getRangeActions())
+                                                                     .withAppliedRemedialActions(appliedRemedialActions)
+                                                                     .withToolProvider(input.toolProvider())
+                                                                     .withOutageInstant(input.outageInstant());
 
         if (parameters.isRaoWithLoopFlowLimitation() && parameters.getLoopFlowParametersExtension().getPtdfApproximation().shouldUpdatePtdfWithPstChange()) {
             builder.withCommercialFlowsResults(input.toolProvider().getLoopFlowComputation(), input.optimizationPerimeter().getLoopFlowCnecs());
@@ -290,7 +292,7 @@ public final class IteratingLinearOptimizer {
                                                                       ObjectiveFunction objectiveFunction,
                                                                       final ReportNode reportNode) {
         return new IteratingLinearOptimizationResultImpl(LinearProblemStatus.OPTIMAL, nbOfIterations, rangeActionActivation, flowResult,
-                objectiveFunction.evaluate(flowResult, new RemedialActionActivationResultImpl(rangeActionActivation, networkActionsResult), reportNode), sensitivityResult);
+            objectiveFunction.evaluate(flowResult, new RemedialActionActivationResultImpl(rangeActionActivation, networkActionsResult), reportNode), sensitivityResult);
     }
 
     private static Pair<IteratingLinearOptimizationResultImpl, Boolean> updateBestResultAndCheckStopCondition(final boolean raRangeShrinking,
@@ -328,18 +330,19 @@ public final class IteratingLinearOptimizer {
                                                              IteratingLinearOptimizerParameters parameters) {
         if (getPstModel(parameters.getRangeActionParametersExtension()).equals(PstModel.CONTINUOUS)) {
             return BestTapFinder.round(
-                    linearProblemResult,
-                    input.network(),
-                    input.optimizationPerimeter(),
-                    input.prePerimeterSetpoints(),
-                    previousResult,
-                    parameters.getFlowUnit()
+                linearProblemResult,
+                input.network(),
+                input.optimizationPerimeter(),
+                input.prePerimeterSetpoints(),
+                previousResult,
+                parameters.getFlowUnit()
             );
         }
         RangeActionActivationResultImpl roundedResult = new RangeActionActivationResultImpl(input.prePerimeterSetpoints());
         input.optimizationPerimeter().getRangeActionOptimizationStates().forEach(state -> linearProblemResult.getActivatedRangeActions(state)
-                .stream().filter(PstRangeAction.class::isInstance).map(PstRangeAction.class::cast)
-                .forEach(pst -> roundedResult.putResult(pst, state, pst.convertTapToAngle(linearProblemResult.getOptimizedTap(pst, state))))
+                                                                                              .stream().filter(PstRangeAction.class::isInstance).map(PstRangeAction.class::cast)
+                                                                                              .forEach(pst -> roundedResult.putResult(pst, state,
+                                                                                                  pst.convertTapToAngle(linearProblemResult.getOptimizedTap(pst, state))))
         );
         return roundedResult;
     }
@@ -348,8 +351,9 @@ public final class IteratingLinearOptimizer {
                               OptimizationPerimeter optimizationContext,
                               RangeActionActivationResultImpl roundedResult) {
         optimizationContext.getRangeActionsPerState().keySet().forEach(state -> linearProblemResult.getActivatedRangeActions(state).stream()
-                .filter(ra -> !(ra instanceof PstRangeAction))
-                .forEach(ra -> roundedResult.putResult(ra, state, Math.round(linearProblemResult.getOptimizedSetpoint(ra, state)))));
+                                                                                    .filter(ra -> !(ra instanceof PstRangeAction))
+                                                                                    .forEach(
+                                                                                        ra -> roundedResult.putResult(ra, state, Math.round(linearProblemResult.getOptimizedSetpoint(ra, state)))));
     }
 
     private static void logBetterResult(final int iteration,
@@ -370,11 +374,11 @@ public final class IteratingLinearOptimizer {
                                        final ObjectiveFunctionResult currentResult,
                                        final ReportNode reportNode) {
         LinearOptimizerReports.reportLinearOptimFoundWorseResult(reportNode,
-                iteration,
-                bestResult.getCost(),
-                currentResult.getCost(),
-                bestResult.getFunctionalCost(),
-                currentResult.getFunctionalCost());
+            iteration,
+            bestResult.getCost(),
+            currentResult.getCost(),
+            bestResult.getFunctionalCost(),
+            currentResult.getFunctionalCost());
 
         currentResult.getVirtualCostNames().forEach(vc -> {
             double cost = currentResult.getVirtualCost(vc);
