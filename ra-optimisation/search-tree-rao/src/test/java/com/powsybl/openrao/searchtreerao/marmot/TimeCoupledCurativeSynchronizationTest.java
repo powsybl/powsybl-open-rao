@@ -18,22 +18,17 @@ import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.raoresult.api.TimeCoupledRaoResult;
 import com.powsybl.openrao.data.timecoupledconstraints.TimeCoupledConstraints;
-import com.powsybl.openrao.raoapi.LazyNetwork;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.TimeCoupledRaoInput;
 import com.powsybl.openrao.raoapi.json.JsonRaoParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.MarmotParameters;
 import org.junit.jupiter.api.Test;
-
 import java.io.IOException;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.Map;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Atena Amnache {@literal <atena.amnache at rte-france.com>}
@@ -55,7 +50,7 @@ class TimeCoupledCurativeSynchronizationTest {
         TimeCoupledRaoInput inputs = new TimeCoupledRaoInput(raoInputs, new TimeCoupledConstraints());
 
         OpenRaoException exception = assertThrows(OpenRaoException.class,
-            () -> new TimeCoupledCurativeSynchronization().run(null, null, new TemporalDataImpl<>(Map.of(timestamp, crac)), null, null, null, null, null, 1, null,null));
+            () -> new TimeCoupledCurativeSynchronization().run(null, null, new TemporalDataImpl<>(Map.of(timestamp, crac)), null, null, null, null, null, 1, null, null));
         assertEquals("Time-coupled curative synchronization does not support multiple curative instants.", exception.getMessage());
     }
 
@@ -63,17 +58,17 @@ class TimeCoupledCurativeSynchronizationTest {
      * This is a test case with 2 timestamps, sharing the exact same network, 1 curative PST and 1 preventive redispatching
      * action. Each timestamp has one preventive CNEC that is not critical and one critical curative CNEC.
      * <p>
-     *     Before the loss of line 1 (Contingency L1). The 1000 MW flow is shared by three lines. After the loss, there
-     *     are only 2 paths remaining : line 2 and the line with the PST each one of them carrying 500 MW. But in curative,
-     *     these two lines are CNECs with a 450 MW threshold (at 19:30 the line with the PST is the CNEC, at 20:30, line 2
-     *     is CNEC) both timestamps are therefore overloaded by 50 MW.
+     * Before the loss of line 1 (Contingency L1). The 1000 MW flow is shared by three lines. After the loss, there
+     * are only 2 paths remaining : line 2 and the line with the PST each one of them carrying 500 MW. But in curative,
+     * these two lines are CNECs with a 450 MW threshold (at 19:30 the line with the PST is the CNEC, at 20:30, line 2
+     * is CNEC) both timestamps are therefore overloaded by 50 MW.
      * </p>
      * <p>
-     *     Nothing happens in preventive. The curative synchronization does not solve the overloads because relieving one
-     *     line overloads the other and therefore the tap stays at 0. It is only the redispatching that can secure both
-     *     timestamps but since preventive CNECs are secured, it is not activated during the preventive optimizations.
-     *     It is the global MIP (launched when second preventive is parameters are enabled) that solves the situation
-     *     by activating 120 MW of redispatching on each timestamp to bring the flow down to 440 MW for both CNECs.
+     * Nothing happens in preventive. The curative synchronization does not solve the overloads because relieving one
+     * line overloads the other and therefore the tap stays at 0. It is only the redispatching that can secure both
+     * timestamps but since preventive CNECs are secured, it is not activated during the preventive optimizations.
+     * It is the global MIP (launched when second preventive is parameters are enabled) that solves the situation
+     * by activating 120 MW of redispatching on each timestamp to bring the flow down to 440 MW for both CNECs.
      * </p>
      */
     @Test
@@ -118,9 +113,9 @@ class TimeCoupledCurativeSynchronizationTest {
      * Same case as above, the only difference is that both timestamps have the same curative CNEC which is the line with the PST
      * with a slightly different threshold. Meaning it's almost the same situation at both timestamps.
      * <p>
-     *     Both timestamps now need the PST to behave in the same way. In this case, the curative synchronization is useful and
-     *     sets the PST at the same tap on both timestamps.
-     *     Since the PST is not enough to solve the overload, the global MIP intervenes by activating preventive redispatching.
+     * Both timestamps now need the PST to behave in the same way. In this case, the curative synchronization is useful and
+     * sets the PST at the same tap on both timestamps.
+     * Since the PST is not enough to solve the overload, the global MIP intervenes by activating preventive redispatching.
      * </p>
      */
     @Test
@@ -141,10 +136,10 @@ class TimeCoupledCurativeSynchronizationTest {
         OffsetDateTime timestamp2 = OffsetDateTime.of(2025, 11, 4, 20, 30, 0, 0, ZoneOffset.UTC);
 
         TemporalData<RaoInput> raoInputs = new TemporalDataImpl<>(
-                Map.of(
-                        timestamp1, RaoInput.build(network1, crac1).build(),
-                        timestamp2, RaoInput.build(network2, crac2).build()
-                )
+            Map.of(
+                timestamp1, RaoInput.build(network1, crac1).build(),
+                timestamp2, RaoInput.build(network2, crac2).build()
+            )
         );
         TimeCoupledRaoInput inputs = new TimeCoupledRaoInput(raoInputs, new TimeCoupledConstraints());
         TimeCoupledRaoResult results = new Marmot().run(inputs, raoParameters, ReportNode.NO_OP).join();
