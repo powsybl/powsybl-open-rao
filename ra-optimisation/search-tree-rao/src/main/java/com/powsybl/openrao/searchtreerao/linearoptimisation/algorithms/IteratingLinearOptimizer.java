@@ -23,16 +23,24 @@ import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearpro
 import com.powsybl.openrao.searchtreerao.linearoptimisation.inputs.IteratingLinearOptimizerInput;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.parameters.IteratingLinearOptimizerParameters;
 import com.powsybl.openrao.searchtreerao.reports.LinearOptimizerReports;
-import com.powsybl.openrao.searchtreerao.result.api.*;
+import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
+import com.powsybl.openrao.searchtreerao.result.api.LinearOptimizationResult;
+import com.powsybl.openrao.searchtreerao.result.api.LinearProblemStatus;
+import com.powsybl.openrao.searchtreerao.result.api.NetworkActionsResult;
+import com.powsybl.openrao.searchtreerao.result.api.ObjectiveFunctionResult;
+import com.powsybl.openrao.searchtreerao.result.api.RangeActionActivationResult;
+import com.powsybl.openrao.searchtreerao.result.api.SensitivityResult;
 import com.powsybl.openrao.searchtreerao.result.impl.IteratingLinearOptimizationResultImpl;
 import com.powsybl.openrao.searchtreerao.result.impl.LinearProblemResult;
 import com.powsybl.openrao.searchtreerao.result.impl.RangeActionActivationResultImpl;
 import com.powsybl.openrao.searchtreerao.result.impl.RemedialActionActivationResultImpl;
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 import org.apache.commons.lang3.tuple.Pair;
+
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
 import static com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.getPstModel;
 import static com.powsybl.openrao.searchtreerao.commons.HvdcUtils.getHvdcRangeActionsPerStateAssociatedWithHvdcLine;
@@ -220,9 +228,7 @@ public final class IteratingLinearOptimizer {
                                                     OptimizationPerimeter optimizationContext) {
         return optimizationContext.getRangeActionsPerState().entrySet().stream()
             .anyMatch(e -> e.getValue().stream()
-                .anyMatch(
-                    ra -> Math.abs(newRangeActionActivationResult.getOptimizedSetpoint(ra, e.getKey()) - oldRangeActionActivationResult.getOptimizedSetpoint(ra, e.getKey())) >=
-                        1e-6));
+                .anyMatch(ra -> Math.abs(newRangeActionActivationResult.getOptimizedSetpoint(ra, e.getKey()) - oldRangeActionActivationResult.getOptimizedSetpoint(ra, e.getKey())) >= 1e-6));
     }
 
     public static AppliedRemedialActions applyRangeActions(RangeActionActivationResult rangeActionActivationResult, IteratingLinearOptimizerInput input) {
@@ -341,8 +347,7 @@ public final class IteratingLinearOptimizer {
         RangeActionActivationResultImpl roundedResult = new RangeActionActivationResultImpl(input.prePerimeterSetpoints());
         input.optimizationPerimeter().getRangeActionOptimizationStates().forEach(state -> linearProblemResult.getActivatedRangeActions(state)
             .stream().filter(PstRangeAction.class::isInstance).map(PstRangeAction.class::cast)
-            .forEach(pst -> roundedResult.putResult(pst, state,
-                pst.convertTapToAngle(linearProblemResult.getOptimizedTap(pst, state))))
+            .forEach(pst -> roundedResult.putResult(pst, state, pst.convertTapToAngle(linearProblemResult.getOptimizedTap(pst, state))))
         );
         return roundedResult;
     }
@@ -352,8 +357,7 @@ public final class IteratingLinearOptimizer {
                               RangeActionActivationResultImpl roundedResult) {
         optimizationContext.getRangeActionsPerState().keySet().forEach(state -> linearProblemResult.getActivatedRangeActions(state).stream()
             .filter(ra -> !(ra instanceof PstRangeAction))
-            .forEach(
-                ra -> roundedResult.putResult(ra, state, Math.round(linearProblemResult.getOptimizedSetpoint(ra, state)))));
+            .forEach(ra -> roundedResult.putResult(ra, state, Math.round(linearProblemResult.getOptimizedSetpoint(ra, state)))));
     }
 
     private static void logBetterResult(final int iteration,

@@ -36,14 +36,27 @@ import com.powsybl.openrao.searchtreerao.linearoptimisation.inputs.IteratingLine
 import com.powsybl.openrao.searchtreerao.linearoptimisation.parameters.IteratingLinearOptimizerParameters;
 import com.powsybl.openrao.searchtreerao.marmot.results.GlobalLinearOptimizationResult;
 import com.powsybl.openrao.searchtreerao.reports.LinearOptimizerReports;
-import com.powsybl.openrao.searchtreerao.result.api.*;
+import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
+import com.powsybl.openrao.searchtreerao.result.api.LinearOptimizationResult;
+import com.powsybl.openrao.searchtreerao.result.api.LinearProblemStatus;
+import com.powsybl.openrao.searchtreerao.result.api.NetworkActionsResult;
+import com.powsybl.openrao.searchtreerao.result.api.RangeActionActivationResult;
+import com.powsybl.openrao.searchtreerao.result.api.RangeActionSetpointResult;
+import com.powsybl.openrao.searchtreerao.result.api.SensitivityResult;
 import com.powsybl.openrao.searchtreerao.result.impl.LinearProblemResult;
 import com.powsybl.openrao.searchtreerao.result.impl.RangeActionActivationResultImpl;
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 import org.apache.commons.lang3.tuple.Pair;
+
 import java.time.OffsetDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
+
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
 import static com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.getPstModel;
 
@@ -225,8 +238,7 @@ public final class TimeCoupledIteratingLinearOptimizer {
         }
         if (isPreventiveMip && !input.synchronizeCurativeRangeActions() && !input.timeCoupledConstraints().getGeneratorConstraints().isEmpty()) {
             TemporalData<Set<InjectionRangeAction>> preventiveInjectionRangeActions = input.iteratingLinearOptimizerInputs()
-                .map(linearOptimizerInput -> filterPreventiveRangeAction(
-                    linearOptimizerInput.optimizationPerimeter().getRangeActions(), InjectionRangeAction.class));
+                .map(linearOptimizerInput -> filterPreventiveRangeAction(linearOptimizerInput.optimizationPerimeter().getRangeActions(), InjectionRangeAction.class));
             problemFillers.add(new GeneratorConstraintsFiller(
                 input.iteratingLinearOptimizerInputs().map(IteratingLinearOptimizerInput::network),
                 mainOptimizationStates,
@@ -241,8 +253,7 @@ public final class TimeCoupledIteratingLinearOptimizer {
                 throw new OpenRaoException("The PST Model must be set to APPROXIMATED_INTEGERS in the parameters for the PST time-coupled constraints.");
             }
             TemporalData<Set<PstRangeAction>> preventivePstRangeActions = input.iteratingLinearOptimizerInputs()
-                .map(linearOptimizerInput -> filterPreventiveRangeAction(linearOptimizerInput.optimizationPerimeter().getRangeActions(),
-                    PstRangeAction.class));
+                .map(linearOptimizerInput -> filterPreventiveRangeAction(linearOptimizerInput.optimizationPerimeter().getRangeActions(), PstRangeAction.class));
             problemFillers.add(new PstConstraintsFiller(
                 mainOptimizationStates,
                 preventivePstRangeActions,
@@ -554,8 +565,7 @@ public final class TimeCoupledIteratingLinearOptimizer {
         RangeActionActivationResultImpl roundedResult = new RangeActionActivationResultImpl(input.prePerimeterSetpoints());
         input.optimizationPerimeter().getRangeActionOptimizationStates().forEach(state -> linearProblemResult.getActivatedRangeActions(state)
             .stream().filter(PstRangeAction.class::isInstance).map(PstRangeAction.class::cast)
-            .forEach(pst -> roundedResult.putResult(pst, state,
-                pst.convertTapToAngle(linearProblemResult.getOptimizedTap(pst, state))))
+            .forEach(pst -> roundedResult.putResult(pst, state, pst.convertTapToAngle(linearProblemResult.getOptimizedTap(pst, state))))
         );
         return roundedResult;
     }
@@ -566,8 +576,7 @@ public final class TimeCoupledIteratingLinearOptimizer {
                               RangeActionActivationResultImpl roundedResult) {
         optimizationContext.getRangeActionsPerState().keySet().forEach(state -> linearProblemResult.getActivatedRangeActions(state).stream()
             .filter(ra -> !(ra instanceof PstRangeAction))
-            .forEach(
-                ra -> roundedResult.putResult(ra, state, Math.round(linearProblemResult.getOptimizedSetpoint(ra, state)))));
+            .forEach(ra -> roundedResult.putResult(ra, state, Math.round(linearProblemResult.getOptimizedSetpoint(ra, state)))));
     }
 
     private static TemporalData<RangeActionActivationResult> retrieveRangeActionActivationResults(LinearProblem linearProblem,
