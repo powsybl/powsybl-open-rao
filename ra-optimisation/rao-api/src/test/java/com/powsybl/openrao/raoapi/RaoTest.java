@@ -15,9 +15,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VariantManager;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.Crac;
-import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
-import com.powsybl.openrao.data.raoresult.api.TimeCoupledRaoResult;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.raomock.AnotherRaoProviderMock;
 import com.powsybl.openrao.raoapi.raomock.RaoProviderMock;
@@ -72,13 +70,11 @@ class RaoTest {
         // run rao
         RaoResult result = defaultRao.run(raoInput, new RaoParameters(ReportNode.NO_OP));
         assertNotNull(result);
-        assertEquals(ComputationStatus.DEFAULT, result.getComputationStatus());
         RaoResult resultAsync = defaultRao.runAsync(raoInput, new RaoParameters(ReportNode.NO_OP)).join();
         assertNotNull(resultAsync);
-        assertEquals(ComputationStatus.DEFAULT, resultAsync.getComputationStatus());
     }
 
-    private RaoProvider mockTimeCoupledProvider(TimeCoupledRaoResult timeCoupledRaoResult) {
+    private RaoProvider mockTimeCoupledProvider(RaoResult timeCoupledRaoResult) {
         RaoProvider provider = Mockito.mock(RaoProvider.class);
         Mockito.when(provider.getName()).thenReturn("TimeCoupledRAO");
         Mockito.when(provider.run(Mockito.any(TimeCoupledRaoInput.class), Mockito.any(RaoParameters.class), Mockito.any(ReportNode.class)))
@@ -88,7 +84,7 @@ class RaoTest {
 
     @Test
     void testTimeCoupledRunSignatures() {
-        TimeCoupledRaoResult expected = Mockito.mock(TimeCoupledRaoResult.class);
+        RaoResult expected = Mockito.mock(RaoResult.class);
         RaoProvider provider = mockTimeCoupledProvider(expected);
         Rao.Runner runner = new Rao.Runner(provider);
         TimeCoupledRaoInput input = Mockito.mock(TimeCoupledRaoInput.class);
@@ -104,7 +100,7 @@ class RaoTest {
 
     @Test
     void testTimeCoupledRunWithNullArgumentsThrows() {
-        Rao.Runner runner = new Rao.Runner(mockTimeCoupledProvider(Mockito.mock(TimeCoupledRaoResult.class)));
+        Rao.Runner runner = new Rao.Runner(mockTimeCoupledProvider(Mockito.mock(RaoResult.class)));
         TimeCoupledRaoInput input = Mockito.mock(TimeCoupledRaoInput.class);
         RaoParameters parameters = new RaoParameters(ReportNode.NO_OP);
         NullPointerException exception = assertThrows(NullPointerException.class, () -> runner.run((TimeCoupledRaoInput) null, parameters, ReportNode.NO_OP));

@@ -12,7 +12,6 @@ import com.fasterxml.jackson.core.JsonToken;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
-import com.powsybl.openrao.data.raoresult.impl.NetworkActionResult;
 import com.powsybl.openrao.data.raoresult.impl.RaoResultImpl;
 import com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants;
 
@@ -26,7 +25,7 @@ final class NetworkActionResultArrayDeserializer {
     private NetworkActionResultArrayDeserializer() {
     }
 
-    static void deserialize(JsonParser jsonParser, RaoResultImpl raoResult, Crac crac) throws IOException {
+    static void deserialize(JsonParser jsonParser, RaoResultImpl.RaoResultImplBuilder raoResultBuilder, Crac crac) throws IOException {
 
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             if (!jsonParser.nextFieldName().equals(RaoResultJsonConstants.NETWORKACTION_ID)) {
@@ -47,11 +46,10 @@ final class NetworkActionResultArrayDeserializer {
                 ));
             }
 
-            NetworkActionResult networkActionResult = raoResult.getAndCreateIfAbsentNetworkActionResult(networkAction);
             while (!jsonParser.nextToken().isStructEnd()) {
                 if (jsonParser.currentName().equals(RaoResultJsonConstants.STATES_ACTIVATED)) {
                     jsonParser.nextToken();
-                    deserializeStates(jsonParser, networkActionResult, crac);
+                    deserializeStates(jsonParser, networkAction, raoResultBuilder, crac);
                 } else {
                     throw new OpenRaoException(String.format(
                         "Cannot deserialize RaoResult: unexpected field in %s (%s)",
@@ -63,7 +61,7 @@ final class NetworkActionResultArrayDeserializer {
         }
     }
 
-    private static void deserializeStates(JsonParser jsonParser, NetworkActionResult networkActionResult, Crac crac) throws IOException {
+    private static void deserializeStates(JsonParser jsonParser, NetworkAction networkAction, RaoResultImpl.RaoResultImplBuilder raoResultBuilder, Crac crac) throws IOException {
         String instantId = null;
         String contingencyId = null;
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
@@ -84,7 +82,7 @@ final class NetworkActionResultArrayDeserializer {
                         ));
                 }
             }
-            networkActionResult.addActivationForState(StateDeserializer.getState(instantId, contingencyId, crac, RaoResultJsonConstants.NETWORKACTION_RESULTS));
+            raoResultBuilder.addNetworkActionActivation(networkAction, StateDeserializer.getState(instantId, contingencyId, crac, RaoResultJsonConstants.NETWORKACTION_RESULTS));
         }
     }
 }

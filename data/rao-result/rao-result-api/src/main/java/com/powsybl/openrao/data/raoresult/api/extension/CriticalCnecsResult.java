@@ -12,7 +12,7 @@ import java.util.Set;
 /**
  * @author Roxane Chen {@literal <roxane.chen at rte-france.com>}
  */
-public class CriticalCnecsResult extends AbstractCnecIdsExtension {
+public final class CriticalCnecsResult extends AbstractCnecIdsExtension {
 
     @Override
     public String getName() {

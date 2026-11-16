@@ -36,7 +36,9 @@ import com.powsybl.openrao.data.icsimporter.IcsData;
 import com.powsybl.openrao.data.icsimporter.IcsDataImporter;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
-import com.powsybl.openrao.data.raoresult.api.TimeCoupledRaoResult;
+import com.powsybl.openrao.data.raoresult.api.extension.CostResult;
+import com.powsybl.openrao.data.raoresult.api.extension.FlowResult;
+import com.powsybl.openrao.data.raoresult.api.extension.Metadata;
 import com.powsybl.openrao.data.refprog.referenceprogram.ReferenceProgram;
 import com.powsybl.openrao.data.refprog.referenceprogram.ReferenceProgramBuilder;
 import com.powsybl.openrao.data.timecoupledconstraints.TimeCoupledConstraints;
@@ -50,6 +52,7 @@ import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.TimeCoupledRaoInput;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.searchtreerao.marmot.results.extensions.PreTimeCouplingOverloadedCnecs;
+import com.powsybl.openrao.searchtreerao.result.extension.TimeCoupledCostResult;
 import com.powsybl.openrao.tests.utils.CoreCcPreprocessor;
 import com.powsybl.openrao.tests.utils.RaoUtils;
 import com.powsybl.sensitivity.SensitivityAnalysisParameters;
@@ -133,7 +136,7 @@ public class RaoSteps {
     private static String icsSeriesPath;
     private static String icsGskPath;
     private static String refProgPath;
-    private static TimeCoupledRaoResult timeCoupledRaoResult;
+    private static RaoResult timeCoupledRaoResult;
     private static Map<OffsetDateTime, CracCreationContext> cracCreationContexts;
 
     {
@@ -206,17 +209,23 @@ public class RaoSteps {
 
     @Then("the calculation succeeds")
     public void theCalculationSucceeds() {
-        assertEquals(ComputationStatus.DEFAULT, CommonTestData.getRaoResult().getComputationStatus());
+        Metadata metadata = CommonTestData.getRaoResult().getExtension(Metadata.class);
+        assertNotNull(metadata);
+        assertEquals(ComputationStatus.DEFAULT, metadata.getComputationStatus());
     }
 
     @Then("the calculation partially fails")
     public void theCalculationPartiallyFails() {
-        assertEquals(ComputationStatus.PARTIAL_FAILURE, CommonTestData.getRaoResult().getComputationStatus());
+        Metadata metadata = CommonTestData.getRaoResult().getExtension(Metadata.class);
+        assertNotNull(metadata);
+        assertEquals(ComputationStatus.PARTIAL_FAILURE, metadata.getComputationStatus());
     }
 
     @Then("the calculation fails")
     public void theCalculationFails() {
-        assertEquals(ComputationStatus.FAILURE, CommonTestData.getRaoResult().getComputationStatus());
+        Metadata metadata = CommonTestData.getRaoResult().getExtension(Metadata.class);
+        assertNotNull(metadata);
+        assertEquals(ComputationStatus.FAILURE, metadata.getComputationStatus());
     }
 
     @Then("its security status should be {string}")
@@ -227,30 +236,48 @@ public class RaoSteps {
         );
     }
 
+    @Then("its security status including VoltageCNECs should be {string}")
+    public void statusWithVoltageShouldBe(String status) {
+        assertEquals(
+            "secured".equalsIgnoreCase(status),
+            CommonTestData.getRaoResult().isSecure(PhysicalParameter.FLOW, PhysicalParameter.VOLTAGE)
+        );
+    }
+
     @Then("the value of the objective function initially should be {double}")
     public void objectiveFunctionValueInitialShouldBe(double expectedValue) {
-        assertEquals(expectedValue, CommonTestData.getRaoResult().getCost(null), flowAmpereTolerance(expectedValue));
+        CostResult costResult = CommonTestData.getRaoResult().getExtension(CostResult.class);
+        assertNotNull(costResult);
+        assertEquals(expectedValue, costResult.getCost(null), flowAmpereTolerance(expectedValue));
     }
 
     @Then("the value of the objective function after PRA should be {double}")
     public void objectiveFunctionValueAfterPraShouldBe(double expectedValue) {
-        assertEquals(expectedValue, CommonTestData.getRaoResult().getCost(crac.getPreventiveInstant()), flowAmpereTolerance(expectedValue));
+        CostResult costResult = CommonTestData.getRaoResult().getExtension(CostResult.class);
+        assertNotNull(costResult);
+        assertEquals(expectedValue, costResult.getCost(crac.getPreventiveInstant()), flowAmpereTolerance(expectedValue));
     }
 
     @Then("the value of the objective function after ARA should be {double}")
     public void objectiveFunctionValueAfterAraShouldBe(double expectedValue) {
+        CostResult costResult = CommonTestData.getRaoResult().getExtension(CostResult.class);
+        assertNotNull(costResult);
         Instant instant = crac.hasAutoInstant() ? crac.getInstant(InstantKind.AUTO) : crac.getOutageInstant();
-        assertEquals(expectedValue, CommonTestData.getRaoResult().getCost(instant), flowAmpereTolerance(expectedValue));
+        assertEquals(expectedValue, costResult.getCost(instant), flowAmpereTolerance(expectedValue));
     }
 
     @Then("the value of the objective function after CRA should be {double}")
     public void objectiveFunctionValueAfterCraShouldBe(double expectedValue) {
-        assertEquals(expectedValue, CommonTestData.getRaoResult().getCost(crac.getLastInstant()), flowAmpereTolerance(expectedValue));
+        CostResult costResult = CommonTestData.getRaoResult().getExtension(CostResult.class);
+        assertNotNull(costResult);
+        assertEquals(expectedValue, costResult.getCost(crac.getLastInstant()), flowAmpereTolerance(expectedValue));
     }
 
     @Then("the value of the objective function before optimisation should be {double}")
     public void objectiveFunctionValueBeforeOptShouldBe(double expectedValue) {
-        assertEquals(expectedValue, CommonTestData.getRaoResult().getCost(null), flowAmpereTolerance(expectedValue));
+        CostResult costResult = CommonTestData.getRaoResult().getExtension(CostResult.class);
+        assertNotNull(costResult);
+        assertEquals(expectedValue, costResult.getCost(null), flowAmpereTolerance(expectedValue));
     }
 
     @Then("{int} remedial actions are used in preventive")
@@ -419,22 +446,28 @@ public class RaoSteps {
 
     @Then("the initial margin on cnec {string} should be {double} A")
     public void initialMarginInA(String cnecId, Double expectedMargin) {
-        assertEquals(expectedMargin, CommonTestData.getRaoResult().getMargin(null, crac.getFlowCnec(cnecId), Unit.AMPERE), flowAmpereTolerance(expectedMargin));
+        assertEquals(expectedMargin, getMargin(null, crac.getFlowCnec(cnecId), Unit.AMPERE), flowAmpereTolerance(expectedMargin));
     }
 
     @Then("the margin on cnec {string} after PRA should be {double} A")
     public void afterPraMarginInA(String cnecId, Double expectedMargin) {
-        assertEquals(expectedMargin, CommonTestData.getRaoResult().getMargin(crac.getPreventiveInstant(), crac.getFlowCnec(cnecId), Unit.AMPERE), flowAmpereTolerance(expectedMargin));
+        assertEquals(expectedMargin, getMargin(crac.getPreventiveInstant(), crac.getFlowCnec(cnecId), Unit.AMPERE), flowAmpereTolerance(expectedMargin));
     }
 
     @Then("the margin on cnec {string} after ARA should be {double} A")
     public void afterAraMarginInA(String cnecId, Double expectedMargin) {
-        assertEquals(expectedMargin, CommonTestData.getRaoResult().getMargin(crac.getInstant(InstantKind.AUTO), crac.getFlowCnec(cnecId), Unit.AMPERE), flowAmpereTolerance(expectedMargin));
+        assertEquals(expectedMargin, getMargin(crac.getInstant(InstantKind.AUTO), crac.getFlowCnec(cnecId), Unit.AMPERE), flowAmpereTolerance(expectedMargin));
     }
 
     @Then("the margin on cnec {string} after CRA should be {double} A")
     public void afterCraMarginInA(String cnecId, Double expectedMargin) {
-        assertEquals(expectedMargin, CommonTestData.getRaoResult().getMargin(crac.getInstant(InstantKind.CURATIVE), crac.getFlowCnec(cnecId), Unit.AMPERE), flowAmpereTolerance(expectedMargin));
+        assertEquals(expectedMargin, getMargin(crac.getInstant(InstantKind.CURATIVE), crac.getFlowCnec(cnecId), Unit.AMPERE), flowAmpereTolerance(expectedMargin));
+    }
+
+    @Then("the margin on cnec {string} after {string} instant remedial actions should be {double} MW")
+    public void afterSpecificInstantCraMarginInA(String cnecId, String instantId, Double expectedMargin) {
+        Instant instant = crac.getInstant(instantId);
+        assertEquals(expectedMargin, getMargin(instant, crac.getFlowCnec(cnecId), Unit.MEGAWATT), flowAmpereTolerance(expectedMargin));
     }
 
     @Then("the worst margin is {double} A")
@@ -463,23 +496,23 @@ public class RaoSteps {
 
     @Then("the initial margin on cnec {string} should be {double} MW")
     public void initialMarginInMW(String cnecId, Double expectedMargin) {
-        assertEquals(expectedMargin, CommonTestData.getRaoResult().getMargin(null, crac.getFlowCnec(cnecId), Unit.MEGAWATT), flowMegawattTolerance(expectedMargin));
+        assertEquals(expectedMargin, getMargin(null, crac.getFlowCnec(cnecId), Unit.MEGAWATT), flowMegawattTolerance(expectedMargin));
     }
 
     @Then("the margin on cnec {string} after PRA should be {double} MW")
     public void afterPraMarginInMW(String cnecId, Double expectedMargin) {
-        assertEquals(expectedMargin, CommonTestData.getRaoResult().getMargin(crac.getPreventiveInstant(), crac.getFlowCnec(cnecId), Unit.MEGAWATT), flowMegawattTolerance(expectedMargin));
+        assertEquals(expectedMargin, getMargin(crac.getPreventiveInstant(), crac.getFlowCnec(cnecId), Unit.MEGAWATT), flowMegawattTolerance(expectedMargin));
     }
 
     @Then("the margin on cnec {string} after ARA should be {double} MW")
     public void afterAraMarginInMW(String cnecId, Double expectedMargin) {
         Instant instant = crac.hasAutoInstant() ? crac.getInstant(InstantKind.AUTO) : crac.getOutageInstant();
-        assertEquals(expectedMargin, CommonTestData.getRaoResult().getMargin(instant, crac.getFlowCnec(cnecId), Unit.MEGAWATT), flowMegawattTolerance(expectedMargin));
+        assertEquals(expectedMargin, getMargin(instant, crac.getFlowCnec(cnecId), Unit.MEGAWATT), flowMegawattTolerance(expectedMargin));
     }
 
     @Then("the margin on cnec {string} after CRA should be {double} MW")
     public void afterCraMarginInMW(String cnecId, Double expectedMargin) {
-        assertEquals(expectedMargin, CommonTestData.getRaoResult().getMargin(crac.getInstant(InstantKind.CURATIVE), crac.getFlowCnec(cnecId), Unit.MEGAWATT), flowMegawattTolerance(expectedMargin));
+        assertEquals(expectedMargin, getMargin(crac.getInstant(InstantKind.CURATIVE), crac.getFlowCnec(cnecId), Unit.MEGAWATT), flowMegawattTolerance(expectedMargin));
     }
 
     @Then("the worst margin is {double} MW")
@@ -502,24 +535,24 @@ public class RaoSteps {
 
     @Then("the initial relative margin on cnec {string} should be {double} A")
     public void initialRelativeMarginInA(String cnecId, Double expectedMargin) {
-        assertEquals(expectedMargin, CommonTestData.getRaoResult().getRelativeMargin(null, crac.getFlowCnec(cnecId), Unit.AMPERE), flowAmpereTolerance(expectedMargin));
+        assertEquals(expectedMargin, getRelativeMargin(null, crac.getFlowCnec(cnecId), Unit.AMPERE), flowAmpereTolerance(expectedMargin));
     }
 
     @Then("the relative margin on cnec {string} after PRA should be {double} A")
     public void afterPraRelativeMarginInA(String cnecId, Double expectedMargin) {
-        assertEquals(expectedMargin, CommonTestData.getRaoResult().getRelativeMargin(crac.getPreventiveInstant(), crac.getFlowCnec(cnecId), Unit.AMPERE), flowAmpereTolerance(expectedMargin));
+        assertEquals(expectedMargin, getRelativeMargin(crac.getPreventiveInstant(), crac.getFlowCnec(cnecId), Unit.AMPERE), flowAmpereTolerance(expectedMargin));
     }
 
     @Then("the relative margin on cnec {string} after ARA should be {double} A")
     public void afterAraRelativeMarginInA(String cnecId, Double expectedMargin) {
-        assertEquals(expectedMargin, CommonTestData.getRaoResult().getRelativeMargin(crac.getInstant(InstantKind.AUTO), crac.getFlowCnec(cnecId), Unit.AMPERE), flowAmpereTolerance(expectedMargin));
+        assertEquals(expectedMargin, getRelativeMargin(crac.getInstant(InstantKind.AUTO), crac.getFlowCnec(cnecId), Unit.AMPERE), flowAmpereTolerance(expectedMargin));
     }
 
     @Then("the relative margin on cnec {string} after CRA should be {double} A")
     public void afterCraRelativeMarginInA(String cnecId, Double expectedMargin) {
         assertEquals(
             expectedMargin,
-            CommonTestData.getRaoResult().getRelativeMargin(crac.getInstant(InstantKind.CURATIVE), crac.getFlowCnec(cnecId), Unit.AMPERE),
+            getRelativeMargin(crac.getInstant(InstantKind.CURATIVE), crac.getFlowCnec(cnecId), Unit.AMPERE),
             flowAmpereTolerance(expectedMargin)
         );
     }
@@ -544,19 +577,19 @@ public class RaoSteps {
 
     @Then("the initial relative margin on cnec {string} should be {double} MW")
     public void initialRelativeMarginInMW(String cnecId, Double expectedMargin) {
-        assertEquals(expectedMargin, CommonTestData.getRaoResult().getRelativeMargin(null, crac.getFlowCnec(cnecId), Unit.MEGAWATT), flowMegawattTolerance(expectedMargin));
+        assertEquals(expectedMargin, getRelativeMargin(null, crac.getFlowCnec(cnecId), Unit.MEGAWATT), flowMegawattTolerance(expectedMargin));
     }
 
     @Then("the relative margin on cnec {string} after PRA should be {double} MW")
     public void afterPraRelativeMarginInMW(String cnecId, Double expectedMargin) {
-        assertEquals(expectedMargin, CommonTestData.getRaoResult().getRelativeMargin(crac.getPreventiveInstant(), crac.getFlowCnec(cnecId), Unit.MEGAWATT), flowMegawattTolerance(expectedMargin));
+        assertEquals(expectedMargin, getRelativeMargin(crac.getPreventiveInstant(), crac.getFlowCnec(cnecId), Unit.MEGAWATT), flowMegawattTolerance(expectedMargin));
     }
 
     @Then("the relative margin on cnec {string} after ARA should be {double} MW")
     public void afterAraRelativeMarginInMW(String cnecId, Double expectedMargin) {
         assertEquals(
             expectedMargin,
-            CommonTestData.getRaoResult().getRelativeMargin(crac.getInstant(InstantKind.AUTO), crac.getFlowCnec(cnecId), Unit.MEGAWATT),
+            getRelativeMargin(crac.getInstant(InstantKind.AUTO), crac.getFlowCnec(cnecId), Unit.MEGAWATT),
             flowMegawattTolerance(expectedMargin)
         );
     }
@@ -565,7 +598,7 @@ public class RaoSteps {
     public void afterCraRelativeMarginInMW(String cnecId, Double expectedMargin) {
         assertEquals(
             expectedMargin,
-            CommonTestData.getRaoResult().getRelativeMargin(crac.getInstant(InstantKind.CURATIVE), crac.getFlowCnec(cnecId), Unit.MEGAWATT),
+            getRelativeMargin(crac.getInstant(InstantKind.CURATIVE), crac.getFlowCnec(cnecId), Unit.MEGAWATT),
             flowMegawattTolerance(expectedMargin)
         );
     }
@@ -590,46 +623,46 @@ public class RaoSteps {
 
     @Then("the initial flow on cnec {string} should be {double} A on side 1 and {double} A on side 2")
     public void initialFlowInA(String cnecId, Double expectedFlow1, Double expectedFlow2) {
-        assertEquals(expectedFlow1, CommonTestData.getRaoResult().getFlow(null, crac.getFlowCnec(cnecId), TwoSides.ONE, Unit.AMPERE), flowAmpereTolerance(expectedFlow1));
-        assertEquals(expectedFlow2, CommonTestData.getRaoResult().getFlow(null, crac.getFlowCnec(cnecId), TwoSides.TWO, Unit.AMPERE), flowAmpereTolerance(expectedFlow2));
+        assertEquals(expectedFlow1, getFlow(null, crac.getFlowCnec(cnecId), TwoSides.ONE, Unit.AMPERE), flowAmpereTolerance(expectedFlow1));
+        assertEquals(expectedFlow2, getFlow(null, crac.getFlowCnec(cnecId), TwoSides.TWO, Unit.AMPERE), flowAmpereTolerance(expectedFlow2));
     }
 
     @Then("the flow on cnec {string} after PRA should be {double} A on side 1 and {double} A on side 2")
     public void afterPraFlowInA(String cnecId, Double expectedFlow1, Double expectedFlow2) {
-        assertEquals(expectedFlow1, CommonTestData.getRaoResult().getFlow(crac.getPreventiveInstant(), crac.getFlowCnec(cnecId), TwoSides.ONE, Unit.AMPERE), flowAmpereTolerance(expectedFlow1));
-        assertEquals(expectedFlow2, CommonTestData.getRaoResult().getFlow(crac.getPreventiveInstant(), crac.getFlowCnec(cnecId), TwoSides.TWO, Unit.AMPERE), flowAmpereTolerance(expectedFlow2));
+        assertEquals(expectedFlow1, getFlow(crac.getPreventiveInstant(), crac.getFlowCnec(cnecId), TwoSides.ONE, Unit.AMPERE), flowAmpereTolerance(expectedFlow1));
+        assertEquals(expectedFlow2, getFlow(crac.getPreventiveInstant(), crac.getFlowCnec(cnecId), TwoSides.TWO, Unit.AMPERE), flowAmpereTolerance(expectedFlow2));
     }
 
     @Then("the flow on cnec {string} after ARA should be {double} A on side 1 and {double} A on side 2")
     public void afterAraFlowInA(String cnecId, Double expectedFlow1, Double expectedFlow2) {
-        assertEquals(expectedFlow1, CommonTestData.getRaoResult().getFlow(crac.getInstant(InstantKind.AUTO), crac.getFlowCnec(cnecId), TwoSides.ONE, Unit.AMPERE), flowAmpereTolerance(expectedFlow1));
-        assertEquals(expectedFlow2, CommonTestData.getRaoResult().getFlow(crac.getInstant(InstantKind.AUTO), crac.getFlowCnec(cnecId), TwoSides.TWO, Unit.AMPERE), flowAmpereTolerance(expectedFlow2));
+        assertEquals(expectedFlow1, getFlow(crac.getInstant(InstantKind.AUTO), crac.getFlowCnec(cnecId), TwoSides.ONE, Unit.AMPERE), flowAmpereTolerance(expectedFlow1));
+        assertEquals(expectedFlow2, getFlow(crac.getInstant(InstantKind.AUTO), crac.getFlowCnec(cnecId), TwoSides.TWO, Unit.AMPERE), flowAmpereTolerance(expectedFlow2));
     }
 
     @Then("the flow on cnec {string} after CRA should be {double} A on side 1 and {double} A on side 2")
     public void afterCraFlowInA(String cnecId, Double expectedFlow1, Double expectedFlow2) {
         assertEquals(
             expectedFlow1,
-            CommonTestData.getRaoResult().getFlow(crac.getInstant(InstantKind.CURATIVE), crac.getFlowCnec(cnecId), TwoSides.TWO, Unit.AMPERE),
+            getFlow(crac.getInstant(InstantKind.CURATIVE), crac.getFlowCnec(cnecId), TwoSides.TWO, Unit.AMPERE),
             flowAmpereTolerance(expectedFlow1)
         );
         assertEquals(
             expectedFlow2,
-            CommonTestData.getRaoResult().getFlow(crac.getInstant(InstantKind.CURATIVE), crac.getFlowCnec(cnecId), TwoSides.ONE, Unit.AMPERE),
+            getFlow(crac.getInstant(InstantKind.CURATIVE), crac.getFlowCnec(cnecId), TwoSides.ONE, Unit.AMPERE),
             flowAmpereTolerance(expectedFlow2)
         );
     }
 
     @Then("the initial flow on cnec {string} should be {double} A on side {int}")
     public void initialFlowInABothSides(String cnecId, Double expectedFlow, Integer side) {
-        assertEquals(expectedFlow, CommonTestData.getRaoResult().getFlow(null, crac.getFlowCnec(cnecId), getTwoSideFromInteger(side), Unit.AMPERE), flowAmpereTolerance(expectedFlow));
+        assertEquals(expectedFlow, getFlow(null, crac.getFlowCnec(cnecId), getTwoSideFromInteger(side), Unit.AMPERE), flowAmpereTolerance(expectedFlow));
     }
 
     @Then("the flow on cnec {string} after PRA should be {double} A on side {int}")
     public void afterPraFlowInABothSides(String cnecId, Double expectedFlow, Integer side) {
         assertEquals(
             expectedFlow,
-            CommonTestData.getRaoResult().getFlow(crac.getPreventiveInstant(), crac.getFlowCnec(cnecId), getTwoSideFromInteger(side), Unit.AMPERE),
+            getFlow(crac.getPreventiveInstant(), crac.getFlowCnec(cnecId), getTwoSideFromInteger(side), Unit.AMPERE),
             flowAmpereTolerance(expectedFlow)
         );
     }
@@ -638,7 +671,7 @@ public class RaoSteps {
     public void afterAraFlowInABothSides(String cnecId, Double expectedFlow, Integer side) {
         assertEquals(
             expectedFlow,
-            CommonTestData.getRaoResult().getFlow(crac.getInstant(InstantKind.AUTO), crac.getFlowCnec(cnecId), getTwoSideFromInteger(side), Unit.AMPERE),
+            getFlow(crac.getInstant(InstantKind.AUTO), crac.getFlowCnec(cnecId), getTwoSideFromInteger(side), Unit.AMPERE),
             flowAmpereTolerance(expectedFlow)
         );
     }
@@ -647,14 +680,15 @@ public class RaoSteps {
     public void afterCraFlowInABothSides(String cnecId, Double expectedFlow, Integer side) {
         Instant lastCurativeInstant = crac.getInstants(InstantKind.CURATIVE).stream()
             .sorted(Comparator.comparingInt(instant -> -instant.getOrder()))
-            .toList().get(0);
-        assertEquals(expectedFlow, CommonTestData.getRaoResult().getFlow(lastCurativeInstant, crac.getFlowCnec(cnecId), getTwoSideFromInteger(side), Unit.AMPERE), flowAmpereTolerance(expectedFlow));
+            .toList()
+            .getFirst();
+        assertEquals(expectedFlow, getFlow(lastCurativeInstant, crac.getFlowCnec(cnecId), getTwoSideFromInteger(side), Unit.AMPERE), flowAmpereTolerance(expectedFlow));
     }
 
     @Then("the flow on cnec {string} after {string} instant remedial actions should be {double} A on side {int}")
     public void afterInstantFlowInABothSides(String cnecId, String instantId, Double expectedFlow, Integer side) {
         Instant instant = crac.getInstant(instantId);
-        assertEquals(expectedFlow, CommonTestData.getRaoResult().getFlow(instant, crac.getFlowCnec(cnecId), getTwoSideFromInteger(side), Unit.AMPERE), flowAmpereTolerance(expectedFlow));
+        assertEquals(expectedFlow, getFlow(instant, crac.getFlowCnec(cnecId), getTwoSideFromInteger(side), Unit.AMPERE), flowAmpereTolerance(expectedFlow));
     }
 
     /*
@@ -663,26 +697,26 @@ public class RaoSteps {
 
     @Then("the initial flow on cnec {string} should be {double} MW on side 1 and {double} MW on side 2")
     public void initialFlowInMW(String cnecId, Double expectedFlow1, Double expectedFlow2) {
-        assertEquals(expectedFlow1, CommonTestData.getRaoResult().getFlow(null, crac.getFlowCnec(cnecId), TwoSides.ONE, Unit.MEGAWATT), flowMegawattTolerance(expectedFlow1));
-        assertEquals(expectedFlow2, CommonTestData.getRaoResult().getFlow(null, crac.getFlowCnec(cnecId), TwoSides.TWO, Unit.MEGAWATT), flowMegawattTolerance(expectedFlow2));
+        assertEquals(expectedFlow1, getFlow(null, crac.getFlowCnec(cnecId), TwoSides.ONE, Unit.MEGAWATT), flowMegawattTolerance(expectedFlow1));
+        assertEquals(expectedFlow2, getFlow(null, crac.getFlowCnec(cnecId), TwoSides.TWO, Unit.MEGAWATT), flowMegawattTolerance(expectedFlow2));
     }
 
     @Then("the flow on cnec {string} after PRA should be {double} MW on side 1 and {double} MW on side 2")
     public void afterPraFlowInMW(String cnecId, Double expectedFlow1, Double expectedFlow2) {
-        assertEquals(expectedFlow1, CommonTestData.getRaoResult().getFlow(crac.getPreventiveInstant(), crac.getFlowCnec(cnecId), TwoSides.ONE, Unit.MEGAWATT), flowMegawattTolerance(expectedFlow1));
-        assertEquals(expectedFlow2, CommonTestData.getRaoResult().getFlow(crac.getPreventiveInstant(), crac.getFlowCnec(cnecId), TwoSides.TWO, Unit.MEGAWATT), flowMegawattTolerance(expectedFlow2));
+        assertEquals(expectedFlow1, getFlow(crac.getPreventiveInstant(), crac.getFlowCnec(cnecId), TwoSides.ONE, Unit.MEGAWATT), flowMegawattTolerance(expectedFlow1));
+        assertEquals(expectedFlow2, getFlow(crac.getPreventiveInstant(), crac.getFlowCnec(cnecId), TwoSides.TWO, Unit.MEGAWATT), flowMegawattTolerance(expectedFlow2));
     }
 
     @Then("the flow on cnec {string} after ARA should be {double} MW on side 1 and {double} MW on side 2")
     public void afterAraFlowInMW(String cnecId, Double expectedFlow1, Double expectedFlow2) {
         assertEquals(
             expectedFlow1,
-            CommonTestData.getRaoResult().getFlow(crac.getInstant(InstantKind.AUTO), crac.getFlowCnec(cnecId), TwoSides.ONE, Unit.MEGAWATT),
+            getFlow(crac.getInstant(InstantKind.AUTO), crac.getFlowCnec(cnecId), TwoSides.ONE, Unit.MEGAWATT),
             flowMegawattTolerance(expectedFlow1)
         );
         assertEquals(
             expectedFlow2,
-            CommonTestData.getRaoResult().getFlow(crac.getInstant(InstantKind.AUTO), crac.getFlowCnec(cnecId), TwoSides.TWO, Unit.MEGAWATT),
+            getFlow(crac.getInstant(InstantKind.AUTO), crac.getFlowCnec(cnecId), TwoSides.TWO, Unit.MEGAWATT),
             flowMegawattTolerance(expectedFlow2)
         );
     }
@@ -690,27 +724,27 @@ public class RaoSteps {
     @Then("the flow on cnec {string} after CRA should be {double} MW on side 1 and {double} MW on side 2")
     public void afterCraFlowInMW(String cnecId, Double expectedFlow1, Double expectedFlow2) {
         Instant lastCurativeInstant = crac.getInstants(InstantKind.CURATIVE).stream().sorted(Comparator.comparingInt(instant -> -instant.getOrder())).toList().get(0);
-        assertEquals(expectedFlow1, CommonTestData.getRaoResult().getFlow(lastCurativeInstant, crac.getFlowCnec(cnecId), TwoSides.ONE, Unit.MEGAWATT), flowMegawattTolerance(expectedFlow1));
-        assertEquals(expectedFlow2, CommonTestData.getRaoResult().getFlow(lastCurativeInstant, crac.getFlowCnec(cnecId), TwoSides.TWO, Unit.MEGAWATT), flowMegawattTolerance(expectedFlow2));
+        assertEquals(expectedFlow1, getFlow(lastCurativeInstant, crac.getFlowCnec(cnecId), TwoSides.ONE, Unit.MEGAWATT), flowMegawattTolerance(expectedFlow1));
+        assertEquals(expectedFlow2, getFlow(lastCurativeInstant, crac.getFlowCnec(cnecId), TwoSides.TWO, Unit.MEGAWATT), flowMegawattTolerance(expectedFlow2));
     }
 
     @Then("the flow on cnec {string} after {string} instant remedial actions should be {double} MW on side 1 and {double} MW on side 2")
     public void afterInstantFlowInMW(String cnecId, String instantId, Double expectedFlow1, Double expectedFlow2) {
         Instant instant = crac.getInstant(instantId);
-        assertEquals(expectedFlow1, CommonTestData.getRaoResult().getFlow(instant, crac.getFlowCnec(cnecId), TwoSides.ONE, Unit.MEGAWATT), flowMegawattTolerance(expectedFlow1));
-        assertEquals(expectedFlow2, CommonTestData.getRaoResult().getFlow(instant, crac.getFlowCnec(cnecId), TwoSides.TWO, Unit.MEGAWATT), flowMegawattTolerance(expectedFlow2));
+        assertEquals(expectedFlow1, getFlow(instant, crac.getFlowCnec(cnecId), TwoSides.ONE, Unit.MEGAWATT), flowMegawattTolerance(expectedFlow1));
+        assertEquals(expectedFlow2, getFlow(instant, crac.getFlowCnec(cnecId), TwoSides.TWO, Unit.MEGAWATT), flowMegawattTolerance(expectedFlow2));
     }
 
     @Then("the initial flow on cnec {string} should be {double} MW on side {int}")
     public void initialFlowInMWBothSides(String cnecId, Double expectedFlow, Integer side) {
-        assertEquals(expectedFlow, CommonTestData.getRaoResult().getFlow(null, crac.getFlowCnec(cnecId), getTwoSideFromInteger(side), Unit.MEGAWATT), flowMegawattTolerance(expectedFlow));
+        assertEquals(expectedFlow, getFlow(null, crac.getFlowCnec(cnecId), getTwoSideFromInteger(side), Unit.MEGAWATT), flowMegawattTolerance(expectedFlow));
     }
 
     @Then("the flow on cnec {string} after PRA should be {double} MW on side {int}")
     public void afterPraFlowInMWBothSides(String cnecId, Double expectedFlow, Integer side) {
         assertEquals(
             expectedFlow,
-            CommonTestData.getRaoResult().getFlow(crac.getPreventiveInstant(), crac.getFlowCnec(cnecId), getTwoSideFromInteger(side), Unit.MEGAWATT),
+            getFlow(crac.getPreventiveInstant(), crac.getFlowCnec(cnecId), getTwoSideFromInteger(side), Unit.MEGAWATT),
             flowMegawattTolerance(expectedFlow)
         );
     }
@@ -719,7 +753,7 @@ public class RaoSteps {
     public void afterAraFlowInMWBothSides(String cnecId, Double expectedFlow, Integer side) {
         assertEquals(
             expectedFlow,
-            CommonTestData.getRaoResult().getFlow(crac.getInstant(InstantKind.AUTO), crac.getFlowCnec(cnecId), getTwoSideFromInteger(side), Unit.MEGAWATT),
+            getFlow(crac.getInstant(InstantKind.AUTO), crac.getFlowCnec(cnecId), getTwoSideFromInteger(side), Unit.MEGAWATT),
             flowMegawattTolerance(expectedFlow)
         );
     }
@@ -731,7 +765,7 @@ public class RaoSteps {
             .toList().get(0);
         assertEquals(
             expectedFlow,
-            CommonTestData.getRaoResult().getFlow(lastCurativeInstant, crac.getFlowCnec(cnecId), getTwoSideFromInteger(side), Unit.MEGAWATT),
+            getFlow(lastCurativeInstant, crac.getFlowCnec(cnecId), getTwoSideFromInteger(side), Unit.MEGAWATT),
             flowMegawattTolerance(expectedFlow)
         );
     }
@@ -739,7 +773,7 @@ public class RaoSteps {
     @Then("the flow on cnec {string} after {string} instant remedial actions should be {double} MW on side {int}")
     public void afterInstantFlowInMWBothSides(String cnecId, String instantId, Double expectedFlow, Integer side) {
         Instant instant = crac.getInstant(instantId);
-        assertEquals(expectedFlow, CommonTestData.getRaoResult().getFlow(instant, crac.getFlowCnec(cnecId), getTwoSideFromInteger(side), Unit.MEGAWATT), flowMegawattTolerance(expectedFlow));
+        assertEquals(expectedFlow, getFlow(instant, crac.getFlowCnec(cnecId), getTwoSideFromInteger(side), Unit.MEGAWATT), flowMegawattTolerance(expectedFlow));
     }
 
     /*
@@ -779,7 +813,7 @@ public class RaoSteps {
     public void initialLoopflowInMW(String cnecId, Double expectedFlow) {
         assertEquals(expectedFlow,
             crac.getFlowCnec(cnecId).getMonitoredSides().stream()
-                .map(side -> raoResult.getLoopFlow(null, crac.getFlowCnec(cnecId), side, Unit.MEGAWATT))
+                .map(side -> getLoopFlow(null, crac.getFlowCnec(cnecId), side, Unit.MEGAWATT))
                 .max(Double::compareTo).orElseThrow(),
             flowMegawattTolerance(expectedFlow));
     }
@@ -788,7 +822,7 @@ public class RaoSteps {
     public void afterPraLoopflowInMW(String cnecId, Double expectedFlow) {
         assertEquals(expectedFlow,
             crac.getFlowCnec(cnecId).getMonitoredSides().stream()
-                .map(side -> raoResult.getLoopFlow(crac.getPreventiveInstant(), crac.getFlowCnec(cnecId), side, Unit.MEGAWATT))
+                .map(side -> getLoopFlow(crac.getPreventiveInstant(), crac.getFlowCnec(cnecId), side, Unit.MEGAWATT))
                 .max(Double::compareTo).orElseThrow(),
             flowMegawattTolerance(expectedFlow));
     }
@@ -797,7 +831,7 @@ public class RaoSteps {
     public void afterAraLoopflowInMW(String cnecId, Double expectedFlow) {
         assertEquals(expectedFlow,
             crac.getFlowCnec(cnecId).getMonitoredSides().stream()
-                .map(side -> raoResult.getLoopFlow(crac.getInstant(InstantKind.AUTO), crac.getFlowCnec(cnecId), side, Unit.MEGAWATT))
+                .map(side -> getLoopFlow(crac.getInstant(InstantKind.AUTO), crac.getFlowCnec(cnecId), side, Unit.MEGAWATT))
                 .max(Double::compareTo).orElseThrow(),
             flowMegawattTolerance(expectedFlow));
     }
@@ -806,7 +840,7 @@ public class RaoSteps {
     public void afterCraLoopflowInMW(String cnecId, Double expectedFlow) {
         assertEquals(expectedFlow,
             crac.getFlowCnec(cnecId).getMonitoredSides().stream()
-                .map(side -> raoResult.getLoopFlow(crac.getInstant(InstantKind.CURATIVE), crac.getFlowCnec(cnecId), side, Unit.MEGAWATT))
+                .map(side -> getLoopFlow(crac.getInstant(InstantKind.CURATIVE), crac.getFlowCnec(cnecId), side, Unit.MEGAWATT))
                 .max(Double::compareTo).orElseThrow(),
             flowMegawattTolerance(expectedFlow));
     }
@@ -841,16 +875,20 @@ public class RaoSteps {
 
     @Then("the absolute PTDF sum on cnec {string} initially should be {double}")
     public void absPtdfSum(String cnecId, Double expectedPtdfSum) {
+        FlowResult flowResult = CommonTestData.getRaoResult().getExtension(FlowResult.class);
+        assertNotNull(flowResult);
         FlowCnec cnec = crac.getFlowCnec(cnecId);
-        assertEquals(expectedPtdfSum, CommonTestData.getRaoResult().getPtdfZonalSum(null, cnec, cnec.getMonitoredSides().iterator().next()), TOLERANCE_PTDF);
+        assertEquals(expectedPtdfSum, flowResult.getPtdfZonalSum(null, cnec, cnec.getMonitoredSides().iterator().next()), TOLERANCE_PTDF);
     }
 
     @Then("the absolute PTDF sum on cnec {string} after {string} should be {double}")
     public void absPtdfSumAfterInstant(String cnecId, String instantKind, Double expectedPtdfSum) {
+        FlowResult flowResult = CommonTestData.getRaoResult().getExtension(FlowResult.class);
+        assertNotNull(flowResult);
         FlowCnec cnec = crac.getFlowCnec(cnecId);
         assertEquals(
             expectedPtdfSum,
-            CommonTestData.getRaoResult().getPtdfZonalSum(crac.getInstant(InstantKind.valueOf(instantKind.toUpperCase())), cnec, cnec.getMonitoredSides().iterator().next()),
+            flowResult.getPtdfZonalSum(crac.getInstant(InstantKind.valueOf(instantKind.toUpperCase())), cnec, cnec.getMonitoredSides().iterator().next()),
             TOLERANCE_PTDF
         );
     }
@@ -924,25 +962,25 @@ public class RaoSteps {
         //Filter flow cnecs from failed perimeters
         final RaoResult commonTestRaoResult = CommonTestData.getRaoResult();
         Set<State> failedStates = crac.getStates().stream()
-                .filter(state -> commonTestRaoResult.getComputationStatus(state).equals(ComputationStatus.FAILURE))
-                        .collect(Collectors.toSet());
+            .filter(RaoSteps::hasStateComputationFailed)
+            .collect(Collectors.toSet());
         for (FlowCnec flowCnec : flowCnecs) {
             if (failedStates.contains(flowCnec.getState())) {
                 continue;
             }
             try {
                 if (relative) {
-                    margin = commonTestRaoResult.getRelativeMargin(flowCnec.getState().getInstant(), flowCnec, unit);
+                    margin = getRelativeMargin(flowCnec.getState().getInstant(), flowCnec, unit);
                 } else {
-                    margin = commonTestRaoResult.getMargin(flowCnec.getState().getInstant(), flowCnec, unit);
+                    margin = getMargin(flowCnec.getState().getInstant(), flowCnec, unit);
                 }
                 if (Double.isNaN(margin)) {
                     // Try getting margin before flowCnec's state afterOptimizing state
                     // This could happen for instance if optimization on said state failed
                     if (relative) {
-                        margin = commonTestRaoResult.getRelativeMargin(crac.getInstantBefore(flowCnec.getState().getInstant()), flowCnec, unit);
+                        margin = getRelativeMargin(crac.getInstantBefore(flowCnec.getState().getInstant()), flowCnec, unit);
                     } else {
-                        margin = commonTestRaoResult.getMargin(crac.getInstantBefore(flowCnec.getState().getInstant()), flowCnec, unit);
+                        margin = getMargin(crac.getInstantBefore(flowCnec.getState().getInstant()), flowCnec, unit);
                     }
                 }
             } catch (OpenRaoException e) {
@@ -962,13 +1000,45 @@ public class RaoSteps {
         return new ImmutablePair<>(worstCnecAlphabetical, worstMargin);
     }
 
+    private static boolean hasStateComputationFailed(State state) {
+        Metadata metadata = CommonTestData.getRaoResult().getExtension(Metadata.class);
+        return metadata != null && metadata.getComputationStatus(state) == ComputationStatus.FAILURE;
+    }
+
+    private double getFlow(Instant instant, FlowCnec flowCnec, TwoSides side, Unit unit) {
+        FlowResult flowResult = CommonTestData.getRaoResult().getExtension(FlowResult.class);
+        assertNotNull(flowResult);
+        return flowResult.getFlow(instant, flowCnec, side, unit);
+    }
+
+    private double getLoopFlow(Instant instant, FlowCnec flowCnec, TwoSides side, Unit unit) {
+        FlowResult flowResult = CommonTestData.getRaoResult().getExtension(FlowResult.class);
+        assertNotNull(flowResult);
+        return flowResult.getLoopFlow(instant, flowCnec, side, unit);
+    }
+
+    private double getMargin(Instant instant, FlowCnec flowCnec, Unit unit) {
+        FlowResult flowResult = CommonTestData.getRaoResult().getExtension(FlowResult.class);
+        assertNotNull(flowResult);
+        return flowResult.getMargin(instant, flowCnec, unit);
+    }
+
+    private double getRelativeMargin(Instant instant, FlowCnec flowCnec, Unit unit) {
+        FlowResult flowResult = CommonTestData.getRaoResult().getExtension(FlowResult.class);
+        assertNotNull(flowResult);
+        return flowResult.getRelativeMargin(instant, flowCnec, unit);
+    }
+
     /*
     RaoResult infos
      */
 
     @Then("the execution details should be {string}")
     public void getOptimizationSteps(String string) {
-        assertEquals(string, CommonTestData.getRaoResult().getExecutionDetails());
+        Metadata metadata = CommonTestData.getRaoResult().getExtension(Metadata.class);
+        assertNotNull(metadata);
+        assertTrue(metadata.getExecutionDetails().isPresent());
+        assertEquals(string, metadata.getExecutionDetails().get());
     }
 
     /*
@@ -1144,7 +1214,7 @@ public class RaoSteps {
         FlowCnec flowCnec = CommonTestData.getTimeCoupledRaoInput().getRaoInputs().getData(offsetDateTime).orElseThrow().getCrac().getFlowCnec(cnecId);
         Instant afterCra = CommonTestData.getTimeCoupledRaoInput().getRaoInputs().getData(offsetDateTime).orElseThrow().getCrac().getLastInstant();
         assertEquals(margin,
-            timeCoupledRaoResult.getIndividualRaoResult(offsetDateTime).getMargin(afterCra, flowCnec, Unit.MEGAWATT),
+            timeCoupledRaoResult.getExtension(FlowResult.class).getMargin(afterCra, flowCnec, Unit.MEGAWATT),
             RaoSteps.TOLERANCE_FLOW_IN_MEGAWATT);
     }
 
@@ -1153,7 +1223,7 @@ public class RaoSteps {
         OffsetDateTime offsetDateTime = getOffsetDateTimeFromBrusselsTimestamp(timestamp);
         Instant afterCra = CommonTestData.getTimeCoupledRaoInput().getRaoInputs().getData(offsetDateTime).orElseThrow().getCrac().getLastInstant();
         assertEquals(functionalCost,
-            timeCoupledRaoResult.getFunctionalCost(afterCra, offsetDateTime),
+            timeCoupledRaoResult.getExtension(TimeCoupledCostResult.class).getFunctionalCost(afterCra, offsetDateTime),
             RaoSteps.TOLERANCE_FLOW_IN_MEGAWATT);
     }
 
@@ -1162,7 +1232,7 @@ public class RaoSteps {
         OffsetDateTime offsetDateTime = getOffsetDateTimeFromBrusselsTimestamp(timestamp);
         Instant afterCra = CommonTestData.getTimeCoupledRaoInput().getRaoInputs().getData(offsetDateTime).orElseThrow().getCrac().getLastInstant();
         assertEquals(totalCost,
-            timeCoupledRaoResult.getCost(afterCra, offsetDateTime),
+            timeCoupledRaoResult.getExtension(TimeCoupledCostResult.class).getCost(afterCra, offsetDateTime),
             RaoSteps.TOLERANCE_FLOW_IN_MEGAWATT);
     }
 
@@ -1170,18 +1240,20 @@ public class RaoSteps {
     public static void theFunctionalCostForAllTimestampsIs(double functionalCost) {
         OffsetDateTime firstTimestamp = CommonTestData.getTimeCoupledRaoInput().getRaoInputs().getTimestamps().getFirst();
         Instant lastInstant = CommonTestData.getTimeCoupledRaoInput().getRaoInputs().getData(firstTimestamp).orElseThrow().getCrac().getLastInstant();
-        assertEquals(functionalCost,
-            timeCoupledRaoResult.getGlobalFunctionalCost(lastInstant),
-            RaoSteps.TOLERANCE_FLOW_IN_MEGAWATT);
+        double globalFunctionalCost = CommonTestData.getTimeCoupledRaoInput().getRaoInputs().getTimestamps().stream()
+            .mapToDouble(timestamp -> timeCoupledRaoResult.getExtension(TimeCoupledCostResult.class).getFunctionalCost(lastInstant, timestamp))
+            .sum();
+        assertEquals(functionalCost, globalFunctionalCost, RaoSteps.TOLERANCE_FLOW_IN_MEGAWATT);
     }
 
     @Then("the total cost for all timestamps is {double}")
     public static void theTotalCostForAllTimestampsIs(double totalCost) {
         OffsetDateTime firstTimestamp = CommonTestData.getTimeCoupledRaoInput().getRaoInputs().getTimestamps().getFirst();
         Instant lastInstant = CommonTestData.getTimeCoupledRaoInput().getRaoInputs().getData(firstTimestamp).orElseThrow().getCrac().getLastInstant();
-        assertEquals(totalCost,
-            timeCoupledRaoResult.getGlobalCost(lastInstant),
-            RaoSteps.TOLERANCE_FLOW_IN_MEGAWATT);
+        double globalCost = CommonTestData.getTimeCoupledRaoInput().getRaoInputs().getTimestamps().stream()
+            .mapToDouble(timestamp -> timeCoupledRaoResult.getExtension(TimeCoupledCostResult.class).getCost(lastInstant, timestamp))
+            .sum();
+        assertEquals(totalCost, globalCost, RaoSteps.TOLERANCE_FLOW_IN_MEGAWATT);
     }
 
     @Then("the preventive power of generator {string} at timestamp {string} is {double} MW")
@@ -1224,7 +1296,6 @@ public class RaoSteps {
         assertEquals(
             chosenPstTap,
             timeCoupledRaoResult
-                .getIndividualRaoResult(offsetDateTime)
                 .getOptimizedTapOnState(crac.getState(contingencyId, crac.getInstant(instant)), (PstRangeAction) crac.getRangeAction(pstRangeActionId))
         );
     }
@@ -1236,7 +1307,6 @@ public class RaoSteps {
         assertEquals(
             chosenPstTap,
             timeCoupledRaoResult
-                .getIndividualRaoResult(offsetDateTime)
                 .getOptimizedTapOnState(crac.getPreventiveState(), (PstRangeAction) crac.getRangeAction(pstRangeActionId)));
     }
 
@@ -1268,7 +1338,7 @@ public class RaoSteps {
         OffsetDateTime offsetDateTime = getOffsetDateTimeFromBrusselsTimestamp(timestamp);
         Crac crac = CommonTestData.getTimeCoupledRaoInput().getRaoInputs().getData(offsetDateTime).orElseThrow().getCrac();
         State state = getState(crac, contingencyId, instant);
-        return timeCoupledRaoResult.getIndividualRaoResult(offsetDateTime).isActivatedDuringState(state, crac.getRemedialAction(rangeActionId));
+        return timeCoupledRaoResult.isActivatedDuringState(state, crac.getRemedialAction(rangeActionId));
     }
 
     private static State getState(Crac crac, String contingencyId, String instantId) {
