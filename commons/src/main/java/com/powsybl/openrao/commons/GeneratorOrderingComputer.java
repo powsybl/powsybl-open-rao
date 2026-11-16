@@ -57,7 +57,7 @@ public final class GeneratorOrderingComputer {
 
         glskWeights.forEach((generatorId, weight) -> {
             if (weight <= tolerance ||
-                    network.getGenerator(generatorId) != null ||
+                    network.getGenerator(generatorId) == null ||
                     Double.isNaN(network.getGenerator(generatorId).getTargetP()) ||
                     !hasUsableActivePowerRange(network.getGenerator(generatorId))
             ) {

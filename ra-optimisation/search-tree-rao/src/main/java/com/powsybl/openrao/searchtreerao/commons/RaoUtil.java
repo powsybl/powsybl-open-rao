@@ -263,16 +263,6 @@ public final class RaoUtil {
         }
     }
 
-    private static void checkCounterTradingPreconditions(RaoInput raoInput) {
-        var actions = raoInput.getCrac().getCounterTradeRangeActions();
-        if (actions.isEmpty()) {
-            return;
-        }
-        if (raoInput.getGlskProvider() == null) {
-            throw new OpenRaoException("Counter Trading actions require glsks");
-        }
-    }
-
     public static void checkCnecsThresholdsUnit(final RaoParameters raoParameters,
                                                 final RaoInput raoInput,
                                                 final ReportNode reportNode) {

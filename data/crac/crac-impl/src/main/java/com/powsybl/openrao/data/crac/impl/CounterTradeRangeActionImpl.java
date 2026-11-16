@@ -95,6 +95,9 @@ public class CounterTradeRangeActionImpl extends AbstractRangeAction<CounterTrad
     @Override
     public void apply(Network network, double setpoint) {
         boolean upward = setpoint >= 0;
+        if (generatorOrdering == null) {
+            throw new OpenRaoException(String.format("Can't apply a counter trade range action on area %s because no ordering has been provided", getAreaId()));
+        }
         List<GlskGeneratorAllocation> order = upward ? generatorOrdering.upwardOrder() : generatorOrdering.downwardOrder();
 
         Map<String, Double> dispatch = GeneratorOrderingComputer.computeDispatchQuantity(
@@ -107,7 +110,7 @@ public class CounterTradeRangeActionImpl extends AbstractRangeAction<CounterTrad
         });
     }
 
-    public void applyCT(Network network, String generatorId, double targetSetpoint) {
+    private void applyCT(Network network, String generatorId, double targetSetpoint) {
         Generator generator = network.getGenerator(generatorId);
         if (generator != null) {
             new GeneratorActionBuilder().withId("id")
@@ -169,32 +172,30 @@ public class CounterTradeRangeActionImpl extends AbstractRangeAction<CounterTrad
     @Override
     public void setGlsk(ZonalData<SensitivityVariableSet> zonalGlsk) {
         this.glsk = new HashMap<>();
-        this.glsk.put(getAreaId(), new HashMap<>());
+        this.glsk.put(area, new HashMap<>());
 
-        zonalGlsk.getData(getAreaId())
+        zonalGlsk.getData(area)
                  .getVariablesById()
-                 .forEach((id, variable) -> glsk.get(getAreaId()).put(id, variable.getWeight()));
+                 .forEach((id, variable) -> glsk.get(area).put(id, variable.getWeight()));
     }
 
     @Override
     public void setGlsk(Network network) {
         this.glsk = new HashMap<>();
-        String areaId = getAreaId();
-        this.glsk.put(areaId, computeProportionalShares(network, areaId));
+        this.glsk.put(area, computeProportionalShares(network));
     }
 
     private static double pseudoTargetP(Generator generator) {
         return Math.max(1e-5, Math.abs(generator.getTargetP()));
     }
 
-    private static Map<String, Double> computeProportionalShares(Network network, String areaId) {
+    private Map<String, Double> computeProportionalShares(Network network) {
         Objects.requireNonNull(network);
-        Objects.requireNonNull(areaId);
-        Area area = network.getArea(areaId);
-        if (area == null) {
-            throw new IllegalArgumentException("Area " + areaId + " not present");
+        Area areaNetwork = network.getArea(area);
+        if (areaNetwork == null) {
+            throw new OpenRaoException("Area " + area + " not present");
         }
-        List<Generator> generators = area.getVoltageLevelStream()
+        List<Generator> generators = areaNetwork.getVoltageLevelStream()
                 .flatMap(VoltageLevel::getGeneratorStream)
                 .filter(g -> g.getTerminal().isConnected()
                         && g.getTerminal().getBusView().getBus() != null
@@ -212,8 +213,7 @@ public class CounterTradeRangeActionImpl extends AbstractRangeAction<CounterTrad
     }
 
     public void computeGeneratorOrdering(Network network, double tolerance) {
-        String areaId = getAreaId();
-        Map<String, Double> weights = getGlsk().get(areaId);
+        Map<String, Double> weights = getGlsk().get(area);
         this.generatorOrdering = GeneratorOrderingComputer.compute(
                 weights,
                 network,
