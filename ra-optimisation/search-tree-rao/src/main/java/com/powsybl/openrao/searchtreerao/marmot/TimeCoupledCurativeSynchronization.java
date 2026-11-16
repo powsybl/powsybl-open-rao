@@ -281,7 +281,7 @@ public class TimeCoupledCurativeSynchronization {
                                                                 RaoParameters raoParameters,
                                                                 ReportNode reportNode) {
         ToolProvider toolProvider = ToolProvider.buildFromRaoInputAndParameters(raoInput, raoParameters);
-        CastorFullOptimization castorFullOptimization = new CastorFullOptimization(raoInput, raoParameters, java.time.Instant.now(), reportNode);
+        CastorFullOptimization castorFullOptimization = new CastorFullOptimization(raoInput, raoParameters, null, reportNode);
         return castorFullOptimization.optimizePreventivePerimeter(stateTree, toolProvider, initialResult, reportNode);
     }
 
