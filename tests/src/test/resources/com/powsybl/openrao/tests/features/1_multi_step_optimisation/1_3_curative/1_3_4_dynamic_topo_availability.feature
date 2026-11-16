@@ -8,9 +8,9 @@ Feature: 1.3.4: Dynamic of topological remedial actions available in several ins
 
   @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: 1.3.4.1: Topological RA already applied in initial network : not available for optimization
-    Given network file is "common/TestCase16Nodes.uct"
-    Given crac file is "epic13/SL_ep13us4case1.json"
-    Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
+    Given network file is "common/network_16nodes.uct"
+    Given crac file is "1_multi_step_optimisation/1_3_curative/crac_1_3_4_1.json"
+    Given configuration file is "common/rao_parameters_max_margin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "UNSECURED"
@@ -24,9 +24,9 @@ Feature: 1.3.4: Dynamic of topological remedial actions available in several ins
 
   @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: 1.3.4.2: Topological RA available in preventive and curative : used in preventive
-    Given network file is "common/TestCase16Nodes.uct"
-    Given crac file is "epic13/SL_ep13us4case2.json"
-    Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
+    Given network file is "common/network_16nodes.uct"
+    Given crac file is "1_multi_step_optimisation/crac_1_3_4_2.json"
+    Given configuration file is "common/rao_parameters_max_margin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "UNSECURED"
@@ -43,9 +43,9 @@ Feature: 1.3.4: Dynamic of topological remedial actions available in several ins
 
   @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: 1.3.4.3: Topological RA available in preventive and curative : used in curative
-    Given network file is "common/TestCase16Nodes.uct"
-    Given crac file is "epic13/SL_ep13us4case3.json"
-    Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
+    Given network file is "common/network_16nodes.uct"
+    Given crac file is "1_multi_step_optimisation/1_3_curative/crac_1_3_4_3.json"
+    Given configuration file is "common/rao_parameters_max_margin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "UNSECURED"
@@ -64,9 +64,9 @@ Feature: 1.3.4: Dynamic of topological remedial actions available in several ins
 
   @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: 1.3.4.4: Topological RA duplicated into PRA and CRA : PRA is activated
-    Given network file is "common/TestCase16Nodes.uct"
-    Given crac file is "epic13/SL_ep13us4case4.json"
-    Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
+    Given network file is "common/network_16nodes.uct"
+    Given crac file is "1_multi_step_optimisation/crac_1_3_4_4.json"
+    Given configuration file is "common/rao_parameters_max_margin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "UNSECURED"
@@ -84,9 +84,9 @@ Feature: 1.3.4: Dynamic of topological remedial actions available in several ins
 
   @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: 1.3.4.5: Topological RA duplicated into PRA and CRA : CRA is activated
-    Given network file is "common/TestCase16Nodes.uct"
-    Given crac file is "epic13/SL_ep13us4case5.json"
-    Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
+    Given network file is "common/network_16nodes.uct"
+    Given crac file is "1_multi_step_optimisation/1_3_curative/crac_1_3_4_5.json"
+    Given configuration file is "common/rao_parameters_max_margin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "UNSECURED"
@@ -105,9 +105,9 @@ Feature: 1.3.4: Dynamic of topological remedial actions available in several ins
 
   @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: 1.3.4.6: Topological RA with inverted CRA : PRA is not used, so the CRA is not available
-    Given network file is "common/TestCase16Nodes.uct"
-    Given crac file is "epic13/SL_ep13us4case6.json"
-    Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
+    Given network file is "common/network_16nodes.uct"
+    Given crac file is "1_multi_step_optimisation/1_3_curative/crac_1_3_4_6.json"
+    Given configuration file is "common/rao_parameters_max_margin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "UNSECURED"
@@ -121,9 +121,9 @@ Feature: 1.3.4: Dynamic of topological remedial actions available in several ins
 
   @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: 1.3.4.7: Topological RA with inverted CRA : line opened in preventive and closed in curative
-    Given network file is "common/TestCase16Nodes.uct"
-    Given crac file is "epic13/SL_ep13us4case7.json"
-    Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
+    Given network file is "common/network_16nodes.uct"
+    Given crac file is "1_multi_step_optimisation/1_3_curative/crac_1_3_4_7.json"
+    Given configuration file is "common/rao_parameters_max_margin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"

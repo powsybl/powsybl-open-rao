@@ -46,7 +46,7 @@ class AutoRemedialActionTest {
         PstRangeAction pstSps = cracCreationContext.getCrac().getPstRangeAction("pst-sps");
         OnContingencyStateImpl pstSpsUsageRule = (OnContingencyStateImpl) pstSps.getUsageRules().iterator().next();
         assertEquals("PST SPS", pstSps.getName());
-        assertEquals("BBE2AA1  BBE3AA1  1", pstSps.getNetworkElement().getId());
+        assertEquals("BBE2AA1  BBE3AA1  1", pstSps.getNetworkElementId());
         assertEquals(-5, pstSps.getRanges().get(0).getMinTap());
         assertEquals(7, pstSps.getRanges().get(0).getMaxTap());
         assertEquals("contingency", pstSpsUsageRule.getContingency().getId());

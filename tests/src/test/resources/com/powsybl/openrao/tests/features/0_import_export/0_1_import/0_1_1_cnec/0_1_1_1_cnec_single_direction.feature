@@ -9,8 +9,8 @@ Feature: 0.1.1.1: Import of a CNEC optimized in a single direction
   @fast @crac @no-computation
   Scenario: 0.1.1.1.1
   No threshold with a PERCENT_IMAX unit is defined in the CRAC so no iMax was imported.
-    Given crac file is "epic3/SL_ep3us1_all_dir.json"
-    Given network file is "common/TestCase12Nodes.uct"
+    Given crac file is "0_import_export/0_1_import/0_1_1_cnec/crac_0_1_1_1_1_all_dir.json"
+    Given network file is "common/network_12nodes.uct"
     When I import crac
     Then it should have the following flow CNECs:
       | Name                    | NetworkElementId    | Instant    | Contingency         | Optimized | Monitored | ImaxLeft | ImaxRight | NominalVoltageLeft | NominalVoltageRight |
@@ -22,12 +22,9 @@ Feature: 0.1.1.1: Import of a CNEC optimized in a single direction
       | Tie-line FR DE          | FFR2AA1  DDE3AA1  1 | outage     | Contingency FR1 FR3 | yes       | no        | NaN      | NaN       | 380.0              | 380.0               |
     Then the flow cnecs should have the following thresholds:
       | CnecId                                               | Unit   | Min   | Max  | Side |
-      | BBE2AA1  FFR3AA1  1 - preventive                     | AMPERE | None  | 1500 | TWO  |
-      | BBE2AA1  FFR3AA1  1 - preventive                     | AMPERE | -500  | None | TWO  |
-      | BBE2AA1  FFR3AA1  1 - Contingency FR1 FR3 - outage   | AMPERE | None  | 1500 | TWO  |
-      | BBE2AA1  FFR3AA1  1 - Contingency FR1 FR3 - outage   | AMPERE | -500  | None | TWO  |
-      | BBE2AA1  FFR3AA1  1 - Contingency FR1 FR3 - curative | AMPERE | None  | 1500 | TWO  |
-      | BBE2AA1  FFR3AA1  1 - Contingency FR1 FR3 - curative | AMPERE | -500  | None | TWO  |
+      | BBE2AA1  FFR3AA1  1 - preventive                     | AMPERE | -500  | 1500 | TWO  |
+      | BBE2AA1  FFR3AA1  1 - Contingency FR1 FR3 - outage   | AMPERE | -500  | 1500 | TWO  |
+      | BBE2AA1  FFR3AA1  1 - Contingency FR1 FR3 - curative | AMPERE | -500  | 1500 | TWO  |
       | FFR2AA1  DDE3AA1  1 - preventive                     | AMPERE | -1500 | 1500 | TWO  |
       | FFR2AA1  DDE3AA1  1 - Contingency FR1 FR3 - outage   | AMPERE | -1500 | 1500 | TWO  |
       | FFR2AA1  DDE3AA1  1 - Contingency FR1 FR3 - curative | AMPERE | -1500 | 1500 | TWO  |

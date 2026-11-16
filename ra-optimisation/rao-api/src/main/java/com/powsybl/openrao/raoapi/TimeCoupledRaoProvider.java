@@ -8,14 +8,18 @@
 package com.powsybl.openrao.raoapi;
 
 import com.powsybl.commons.report.ReportNode;
-import com.powsybl.openrao.data.raoresult.api.TimeCoupledRaoResult;
+import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 
 import java.util.concurrent.CompletableFuture;
 
 /**
+ * @deprecated since 7.6.0, {@link RaoProvider} supports time-coupled remedial action optimization and is preferred as the main
+ * optimization interface.
+ *
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
+@Deprecated(since = "7.6.0")
 public interface TimeCoupledRaoProvider {
     String getName();
 
@@ -24,5 +28,5 @@ public interface TimeCoupledRaoProvider {
      * @param parameters RAO parameters.
      * @return A completable future of a RaoComputationResult for each timestamp.
      */
-    CompletableFuture<TimeCoupledRaoResult> run(TimeCoupledRaoInput raoInput, RaoParameters parameters, ReportNode reportNode);
+    CompletableFuture<RaoResult> run(TimeCoupledRaoInput raoInput, RaoParameters parameters, ReportNode reportNode);
 }

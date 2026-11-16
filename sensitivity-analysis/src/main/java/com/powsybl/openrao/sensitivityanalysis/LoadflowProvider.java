@@ -156,7 +156,7 @@ public class LoadflowProvider extends AbstractSimpleSensitivityProvider {
 
         Map<String, Set<TwoSides>> networkElementsAndSides = new HashMap<>();
         flowCnecs.forEach(flowCnec ->
-            networkElementsAndSides.computeIfAbsent(flowCnec.getNetworkElement().getId(), k -> new HashSet<>()).addAll(flowCnec.getMonitoredSides())
+            networkElementsAndSides.computeIfAbsent(flowCnec.getNetworkElementId(), k -> new HashSet<>()).addAll(flowCnec.getMonitoredSides())
         );
 
         List<Pair<String, SensitivityFunctionType>> sensitivityFunctions = new ArrayList<>();

@@ -14,7 +14,6 @@ import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnecAdder;
-import com.powsybl.openrao.data.crac.api.threshold.BranchThreshold;
 import com.powsybl.openrao.data.crac.api.threshold.BranchThresholdAdder;
 
 import java.util.HashSet;
@@ -27,7 +26,7 @@ import java.util.stream.Collectors;
  */
 public class FlowCnecAdderImpl extends AbstractCnecAdderImpl<FlowCnecAdder> implements FlowCnecAdder {
 
-    private final Set<BranchThresholdImpl> thresholds = new HashSet<>();
+    private final Set<BranchThreshold> thresholds = new HashSet<>();
     private Double iMaxLeft = null;
     private Double iMaxRight = null;
     private Double nominalVLeft = Double.NaN;
@@ -38,11 +37,11 @@ public class FlowCnecAdderImpl extends AbstractCnecAdderImpl<FlowCnecAdder> impl
     }
 
     @Override
-    public FlowCnecAdder withNetworkElement(String networkElementId, String networkElementName) {
-        if (!this.networkElementsIdAndName.entrySet().isEmpty()) {
+    public FlowCnecAdder withNetworkElement(String networkElementId) {
+        if (!this.networkElementsIds.isEmpty()) {
             throw new OpenRaoException("Cannot add multiple network elements for a flow cnec.");
         }
-        super.withNetworkElement(networkElementId, networkElementName);
+        super.withNetworkElement(networkElementId);
         return this;
     }
 
@@ -85,7 +84,7 @@ public class FlowCnecAdderImpl extends AbstractCnecAdderImpl<FlowCnecAdder> impl
         return new BranchThresholdAdderImpl(this);
     }
 
-    void addThreshold(BranchThresholdImpl threshold) {
+    void addThreshold(BranchThreshold threshold) {
         thresholds.add(threshold);
     }
 
@@ -100,7 +99,7 @@ public class FlowCnecAdderImpl extends AbstractCnecAdderImpl<FlowCnecAdder> impl
         checkAndInitThresholds();
         State state = getState();
 
-        FlowCnec cnec = new FlowCnecImpl(id, name, owner.getNetworkElement(networkElementsIdAndName.keySet().iterator().next()), operator, border, state, optimized, monitored,
+        FlowCnec cnec = new FlowCnecImpl(id, name, networkElementsIds.iterator().next(), operator, border, state, optimized, monitored,
             thresholds.stream().map(BranchThreshold.class::cast).collect(Collectors.toSet()),
             reliabilityMargin, nominalVLeft, nominalVRight, iMaxLeft, iMaxRight);
 
@@ -143,12 +142,12 @@ public class FlowCnecAdderImpl extends AbstractCnecAdderImpl<FlowCnecAdder> impl
             ));
         }
 
-        for (BranchThresholdImpl branchThreshold : thresholds) {
+        for (BranchThreshold branchThreshold : thresholds) {
             checkImax(branchThreshold);
         }
     }
 
-    private void checkImax(BranchThresholdImpl branchThreshold) {
+    private void checkImax(BranchThreshold branchThreshold) {
 
         if (branchThreshold.getUnit().equals(Unit.PERCENT_IMAX)
             && branchThreshold.getSide().equals(TwoSides.ONE)

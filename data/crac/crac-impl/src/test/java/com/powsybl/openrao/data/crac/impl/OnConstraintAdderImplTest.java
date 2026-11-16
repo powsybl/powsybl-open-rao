@@ -183,7 +183,8 @@ class OnConstraintAdderImplTest {
             .add();
 
         assertEquals(3, networkAction.getUsageRules().size());
-        assertEquals(1, crac.getStates().size());
+        assertNotNull(crac.getPreventiveState()); // preventive state is added by default
+        assertEquals(2, crac.getStates().size());
         OnConstraint<?> onConstraint;
 
         Set<UsageRule> onAngleConstraintUsageRules = getOnConstraintUsageRulesForGivenCnecType(networkAction.getUsageRules(), AngleCnec.class);

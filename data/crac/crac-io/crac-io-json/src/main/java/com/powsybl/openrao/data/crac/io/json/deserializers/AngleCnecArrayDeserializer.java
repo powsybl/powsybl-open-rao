@@ -75,7 +75,7 @@ public final class AngleCnecArrayDeserializer {
                         break;
                     case JsonSerializationConstants.THRESHOLDS:
                         jsonParser.nextToken();
-                        AngleThresholdArrayDeserializer.deserialize(jsonParser, angleCnecAdder);
+                        AngleThresholdArrayDeserializer.deserialize(jsonParser, angleCnecAdder, version);
                         break;
                     case JsonSerializationConstants.EXTENSIONS:
                         jsonParser.nextToken();

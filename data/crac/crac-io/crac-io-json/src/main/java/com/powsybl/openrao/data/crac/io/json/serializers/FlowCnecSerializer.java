@@ -11,8 +11,9 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.contingency.Contingency;
+import com.powsybl.iidm.network.TwoSides;
+import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
-import com.powsybl.openrao.data.crac.api.threshold.BranchThreshold;
 import com.powsybl.openrao.data.crac.io.json.ExtensionsHandler;
 import com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants;
 
@@ -30,7 +31,7 @@ public class FlowCnecSerializer<I extends FlowCnec> extends AbstractJsonSerializ
         gen.writeStartObject();
         gen.writeStringField(JsonSerializationConstants.ID, flowCnec.getId());
         gen.writeStringField(JsonSerializationConstants.NAME, flowCnec.getName());
-        gen.writeStringField(JsonSerializationConstants.NETWORK_ELEMENT_ID, flowCnec.getNetworkElement().getId());
+        gen.writeStringField(JsonSerializationConstants.NETWORK_ELEMENT_ID, flowCnec.getNetworkElementId());
         gen.writeStringField(JsonSerializationConstants.OPERATOR, flowCnec.getOperator());
         gen.writeStringField(JsonSerializationConstants.BORDER, flowCnec.getBorder());
         gen.writeStringField(JsonSerializationConstants.INSTANT, flowCnec.getState().getInstant().getId());
@@ -51,11 +52,21 @@ public class FlowCnecSerializer<I extends FlowCnec> extends AbstractJsonSerializ
 
     private void serializeThresholds(FlowCnec flowCnec, JsonGenerator gen) throws IOException {
         gen.writeArrayFieldStart(JsonSerializationConstants.THRESHOLDS);
-        List<BranchThreshold> sortedListOfThresholds = flowCnec.getThresholds().stream()
-            .sorted(new JsonSerializationConstants.ThresholdComparator())
-            .toList();
-        for (BranchThreshold threshold : sortedListOfThresholds) {
-            gen.writeObject(threshold);
+        for (Unit unit : List.of(Unit.AMPERE, Unit.MEGAWATT)) {
+            for (TwoSides side : List.of(TwoSides.ONE, TwoSides.TWO)) {
+                if (flowCnec.getRawLowerBound(side, unit).isPresent() || flowCnec.getRawUpperBound(side, unit).isPresent()) {
+                    gen.writeStartObject();
+                    gen.writeStringField(JsonSerializationConstants.UNIT, JsonSerializationConstants.serializeUnit(unit));
+                    if (flowCnec.getRawLowerBound(side, unit).isPresent()) {
+                        gen.writeNumberField(JsonSerializationConstants.MIN, flowCnec.getRawLowerBound(side, unit).get());
+                    }
+                    if (flowCnec.getRawUpperBound(side, unit).isPresent()) {
+                        gen.writeNumberField(JsonSerializationConstants.MAX, flowCnec.getRawUpperBound(side, unit).get());
+                    }
+                    gen.writeNumberField(JsonSerializationConstants.SIDE, JsonSerializationConstants.serializeSide(side));
+                    gen.writeEndObject();
+                }
+            }
         }
         gen.writeEndArray();
     }

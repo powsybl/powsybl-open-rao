@@ -3,7 +3,11 @@
   "$id": "resource:/schemas/rule/rule-v1.0.json",
   "enum": [
     "onLeftSide",
-    "onRightSide"
+    "onRightSide",
+    "onHighVoltageLevel",
+    "onLowVoltageLevel",
+    "onRegulatedSide",
+    "onNonRegulatedSide"
   ],
   "additionalProperties": false
 }

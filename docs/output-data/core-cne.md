@@ -23,7 +23,7 @@ With:
 - **cracCreationContext**: the [CracCreationContext object](../input-data/crac/creation-context.md) generated during
   [CRAC creation](../input-data/crac/import.md). CORE CNE export only handles [UcteCracCreationContext](../input-data/crac/creation-context.md#ucte-implementation)
   subtype, because it follows the UCTE conventions.
-- **properties**: a specific object that te user should define, containing meta-information that will be written
+- **properties**: a specific object that the user should define, containing meta-information that will be written
   in the header of the CNE file as well as relevant RAO parameters:
     - **`"rao-result.export.core-cne.document-id"`**: document ID to be written in "mRID" field
     - **`"rao-result.export.core-cne.revision-number"`**: integer to be written in "revisionNumber" field
@@ -170,10 +170,10 @@ Unique ID of the CNEC as defined in the native CRAC file.
 
 #### businessType
 Three possible values for CNEC results:
-- **B88**: these are the CNEC initial results (i.e. before remedial action optimisation)
-- **B57**: these are the CNEC intermediate results, after preventive remedial actions optimisation and before curative
-  remedial actions optimisation
-- **B54**: these are the CNEC final results, after curative remedial actions optimisation
+- **B88**: these are the CNEC initial results (i.e. before remedial action optimization)
+- **B57**: these are the CNEC intermediate results, after preventive remedial actions optimization and before curative
+  remedial actions optimization
+- **B54**: these are the CNEC final results, after curative remedial actions optimization
   > ⚠️  **NOTE**
   > In order to align OpenRAO with other capacity calculation tools, **B54** series are not exported for CNECs if no
   > curative remedial actions were applied (even though it makes sense to export them, because PATL results are not
@@ -186,10 +186,10 @@ mRID: [ENTSO-E EICode](https://www.entsoe.eu/data/energy-identification-codes-ei
 #### optimization_MarketObjectStatus.status
 
 Two possible values:
-- **A52**: the CNEC is [optimised](../input-data/crac/json.md#cnecs)
+- **A52**: the CNEC is [optimized](../input-data/crac/json.md#cnecs)
 - **A49**: the CNEC is [monitored](../input-data/crac/json.md#cnecs)
   > ⚠️  **NOTE**
-  > In order to align OpenRAO with other capacity calculation tools, CNECs that are both optimised and monitored are
+  > In order to align OpenRAO with other capacity calculation tools, CNECs that are both optimized and monitored are
   > currently only exported with an **A52** type
 
 #### Contingency_Series (optional)
@@ -357,7 +357,7 @@ If this tag exists, it can have one of two values:
 - **A18**: the remedial action was selected in preventive
 - **A19**: the remedial action was selected in curative
 
-If it doesn't exist, it means that the following describes the remedial action **before** optimisation (only useful
+If it doesn't exist, it means that the following describes the remedial action **before** optimization (only useful
 to know the initial set-points of range actions).
 
 ##### Party_MarketParticipant

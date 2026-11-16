@@ -11,7 +11,9 @@ package com.powsybl.openrao.data.crac.api.cnec;
  * Interface for all possible {@link Cnec} results;
  *
  * @author Mohamed Ben-rejeb {@literal <mohamed.ben-rejeb at rte-france.com>}
+ * @deprecated CNEC value computation has moved to the monitoring module; use the CNEC monitoring results instead
  */
+@Deprecated(since = "7.5.0")
 public interface CnecValue {
 
 }

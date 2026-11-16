@@ -1,4 +1,4 @@
-# OpenRao algorithms
+# OpenRAO algorithms
 
 ```{toctree}
 :hidden:

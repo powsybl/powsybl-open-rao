@@ -15,7 +15,7 @@ import com.powsybl.openrao.commons.CounterTradeGeneratorOrdering;
 import com.powsybl.openrao.commons.GeneratorOrderingComputer;
 import com.powsybl.openrao.commons.GlskGeneratorAllocation;
 import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.data.crac.api.NetworkElement;
+import com.powsybl.openrao.data.crac.api.ConnectedArea;
 import com.powsybl.openrao.data.crac.api.range.StandardRange;
 import com.powsybl.openrao.data.crac.api.rangeaction.CounterTradeRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.VariationDirection;
@@ -27,40 +27,32 @@ import java.util.*;
 /**
  * @author Gabriel Plante {@literal <gabriel.plante_externe at rte-france.com>}
  */
-public class CounterTradeRangeActionImpl extends AbstractRangeAction<CounterTradeRangeAction>
-        implements CounterTradeRangeAction {
+public class CounterTradeRangeActionImpl extends AbstractRangeAction<CounterTradeRangeAction> implements CounterTradeRangeAction {
 
-    private final String exportingArea;
-    private final String importingArea;
-    private final String area;
     private final List<StandardRange> ranges;
+    private final String area;
+    private final List<ConnectedArea> connectedAreas;
     private final Double initialSetpoint;
     private Map<String, Map<String, Double>> glsk;
     private CounterTradeGeneratorOrdering generatorOrdering;
 
-    CounterTradeRangeActionImpl(String id, String name, String operator, String groupId, Set<UsageRule> usageRules,
-                                List<StandardRange> ranges, Double initialSetpoint, Integer speed,
-                                Double activationCost, Map<VariationDirection, Double> variationCosts,
-                                String exportingArea, String importingArea) {
+    CounterTradeRangeActionImpl(String id,
+                                String name,
+                                String operator,
+                                String groupId,
+                                Set<UsageRule> usageRules,
+                                List<StandardRange> ranges,
+                                Double initialSetpoint,
+                                Integer speed,
+                                Double activationCost,
+                                Map<VariationDirection, Double> variationCosts,
+                                String area,
+                                List<ConnectedArea> connectedAreas) {
         super(id, name, operator, usageRules, groupId, speed, activationCost, variationCosts);
         this.ranges = ranges;
         this.initialSetpoint = initialSetpoint;
-        this.exportingArea = exportingArea;
-        this.importingArea = importingArea;
-        this.area = null;
-        this.glsk = null;
-    }
-
-    CounterTradeRangeActionImpl(String id, String name, String operator, String groupId, Set<UsageRule> usageRules,
-                                List<StandardRange> ranges, Double initialSetpoint, Integer speed,
-                                Double activationCost, Map<VariationDirection, Double> variationCosts,
-                                String area) {
-        super(id, name, operator, usageRules, groupId, speed, activationCost, variationCosts);
-        this.ranges = ranges;
-        this.initialSetpoint = initialSetpoint;
-        this.exportingArea = "null";
-        this.importingArea = "null";
         this.area = area;
+        this.connectedAreas = connectedAreas;
         this.glsk = null;
     }
 
@@ -85,24 +77,19 @@ public class CounterTradeRangeActionImpl extends AbstractRangeAction<CounterTrad
     }
 
     @Override
-    public Set<NetworkElement> getNetworkElements() {
+    public Set<String> getNetworkElementsIds() {
         return Collections.emptySet();
         // modified instead the method: concatenateNetworkElementsIds.
     }
 
     @Override
-    public String getExportingArea() {
-        return exportingArea;
-    }
-
-    @Override
-    public String getImportingArea() {
-        return importingArea;
-    }
-
-    @Override
-    public String getArea() {
+    public String getAreaId() {
         return area;
+    }
+
+    @Override
+    public List<ConnectedArea> getConnectedAreas() {
+        return connectedAreas;
     }
 
     @Override
@@ -146,7 +133,7 @@ public class CounterTradeRangeActionImpl extends AbstractRangeAction<CounterTrad
     @Override
     public double getCurrentSetpoint(Network network) {
         return 0;
-        // TODO: need to change this or not??
+        // TODO: need to change this after application.
     }
 
     @Override
@@ -161,16 +148,9 @@ public class CounterTradeRangeActionImpl extends AbstractRangeAction<CounterTrad
             return false;
         }
 
-        if (this.exportingArea != null && this.importingArea != null) {
-            return this.exportingArea.equals(((CounterTradeRangeAction) o).getExportingArea())
-                    && this.importingArea.equals(((CounterTradeRangeAction) o).getImportingArea())
-                    && this.ranges.equals(((CounterTradeRangeAction) o).getRanges());
-        } else if (this.area != null) {
-            return this.area.equals(((CounterTradeRangeAction) o).getArea())
-                    && this.ranges.equals(((CounterTradeRangeAction) o).getRanges());
-        } else {
-            return false;
-        }
+        return this.ranges.equals(((CounterTradeRangeAction) o).getRanges())
+                && this.area.equals(((CounterTradeRangeAction) o).getAreaId())
+                && this.connectedAreas.equals(((CounterTradeRangeAction) o).getConnectedAreas());
     }
 
     @Override
@@ -179,7 +159,10 @@ public class CounterTradeRangeActionImpl extends AbstractRangeAction<CounterTrad
         for (StandardRange range : ranges) {
             hashCode += 31 * range.hashCode();
         }
-        hashCode += 31 * exportingArea.hashCode() + 63 * importingArea.hashCode();
+        for (ConnectedArea connectedArea : connectedAreas) {
+            hashCode += 31 * connectedArea.hashCode();
+        }
+        hashCode += 31 * area.hashCode();
         return hashCode;
     }
 

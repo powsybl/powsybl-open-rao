@@ -63,7 +63,7 @@
       "minItems": 1
     },
     "extensions": {
-      "type": "",
+      "type": "object",
       "additionalProperties": true
     }
   },

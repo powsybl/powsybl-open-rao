@@ -19,8 +19,8 @@ import org.junit.jupiter.api.Test;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
@@ -42,23 +42,21 @@ class SwitchPairAdderImplTest {
     @Test
     void testOk() {
         NetworkAction networkAction = networkActionAdder.newSwitchPair()
-            .withSwitchToOpen("open-id", "open-name")
-            .withSwitchToClose("close-id", "close-name")
+            .withSwitchToOpen("open-id")
+            .withSwitchToClose("close-id")
             .add()
             .add();
 
         SwitchPair switchPair = (SwitchPair) networkAction.getElementaryActions().iterator().next();
-        assertEquals("open-id", switchPair.getSwitchToOpen().getId());
-        assertEquals("open-name", switchPair.getSwitchToOpen().getName());
-        assertEquals("close-id", switchPair.getSwitchToClose().getId());
-        assertEquals("close-name", switchPair.getSwitchToClose().getName());
+        assertEquals("open-id", switchPair.getSwitchToOpenId());
+        assertEquals("close-id", switchPair.getSwitchToCloseId());
 
-        assertEquals(Set.of(switchPair.getSwitchToOpen(), switchPair.getSwitchToClose()), networkAction.getNetworkElements());
+        assertEquals(Set.of("open-id", "close-id"), networkAction.getNetworkElementsIds());
 
         // check that network element has been added in CracImpl
-        assertEquals(2, ((CracImpl) crac).getNetworkElements().size());
-        assertNotNull(((CracImpl) crac).getNetworkElement("open-id"));
-        assertNotNull(((CracImpl) crac).getNetworkElement("close-id"));
+        assertEquals(2, ((CracImpl) crac).getNetworkElementIds().size());
+        assertTrue(((CracImpl) crac).hasNetworkElement("open-id"));
+        assertTrue(((CracImpl) crac).hasNetworkElement("close-id"));
     }
 
     @Test
@@ -70,10 +68,8 @@ class SwitchPairAdderImplTest {
             .add();
 
         SwitchPair switchPair = (SwitchPair) networkAction.getElementaryActions().iterator().next();
-        assertEquals("open-id", switchPair.getSwitchToOpen().getId());
-        assertEquals("open-id", switchPair.getSwitchToOpen().getName());
-        assertEquals("close-id", switchPair.getSwitchToClose().getId());
-        assertEquals("close-id", switchPair.getSwitchToClose().getName());
+        assertEquals("open-id", switchPair.getSwitchToOpenId());
+        assertEquals("close-id", switchPair.getSwitchToCloseId());
     }
 
     @Test

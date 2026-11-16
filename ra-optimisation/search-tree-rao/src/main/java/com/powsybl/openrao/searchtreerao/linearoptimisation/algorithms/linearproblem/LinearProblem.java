@@ -626,6 +626,14 @@ public final class LinearProblem {
         return solver.getConstraint(generatorStayingOnConstraintId(generatorId, stateChangingTimestamp, otherTimestamp));
     }
 
+    public OpenRaoMPConstraint getRangeActionSynchronizationConstraint(String rangeActionId, State state1, State state2) {
+        return solver.getConstraint(rangeActionSynchronizationConstraintId(rangeActionId, state1, state2));
+    }
+
+    public OpenRaoMPConstraint addRangeActionSynchronizationConstraint(String rangeActionId, State state1, State state2) {
+        return solver.makeConstraint(0.0, 0.0, rangeActionSynchronizationConstraintId(rangeActionId, state1, state2));
+    }
+
     public OpenRaoMPVariable addCounterTradeBorderExchangeVariable(double lb, double ub, String area1, String area2, State state) {
         return solver.makeNumVar(lb, ub, counterTradeBorderExchangeVariableId(area1, area2, state));
     }

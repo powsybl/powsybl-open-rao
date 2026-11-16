@@ -7,7 +7,6 @@
 
 package com.powsybl.openrao.data.crac.impl;
 
-import com.powsybl.openrao.data.crac.api.NetworkElement;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.Cnec;
 
@@ -18,7 +17,7 @@ import java.util.Set;
  */
 public abstract class AbstractCnec<I extends Cnec<I>> extends AbstractIdentifiable<I> implements Cnec<I> {
 
-    protected final Set<NetworkElement> networkElements;
+    protected final Set<String> networkElementsIds;
     protected final State state;
     protected boolean optimized;
     protected boolean monitored;
@@ -28,7 +27,7 @@ public abstract class AbstractCnec<I extends Cnec<I>> extends AbstractIdentifiab
 
     protected AbstractCnec(String id,
                            String name,
-                           Set<NetworkElement> networkElements,
+                           Set<String> networkElementsIds,
                            String operator,
                            String border,
                            State state,
@@ -36,7 +35,7 @@ public abstract class AbstractCnec<I extends Cnec<I>> extends AbstractIdentifiab
                            boolean monitored,
                            double reliabilityMargin) {
         super(id, name);
-        this.networkElements = networkElements;
+        this.networkElementsIds = networkElementsIds;
         this.operator = operator;
         this.border = border;
         this.state = state;
@@ -51,8 +50,8 @@ public abstract class AbstractCnec<I extends Cnec<I>> extends AbstractIdentifiab
     }
 
     @Override
-    public final Set<NetworkElement> getNetworkElements() {
-        return networkElements;
+    public final Set<String> getNetworkElementsIds() {
+        return networkElementsIds;
     }
 
     @Override
@@ -102,7 +101,7 @@ public abstract class AbstractCnec<I extends Cnec<I>> extends AbstractIdentifiab
         }
         AbstractCnec<?> cnec = (AbstractCnec<?>) o;
         return super.equals(cnec)
-            && networkElements.equals(cnec.getNetworkElements())
+            && getNetworkElementsIds().equals(cnec.getNetworkElementsIds())
             && state.equals(cnec.getState())
             && optimized == cnec.isOptimized()
             && monitored == cnec.isMonitored()
@@ -112,7 +111,7 @@ public abstract class AbstractCnec<I extends Cnec<I>> extends AbstractIdentifiab
     @Override
     public int hashCode() {
         int result = super.hashCode();
-        result = 31 * result + networkElements.hashCode();
+        result = 31 * result + getNetworkElementsIds().hashCode();
         result = 31 * result + state.hashCode();
         result = 31 * result + Double.hashCode(reliabilityMargin);
         return result;

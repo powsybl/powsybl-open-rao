@@ -459,6 +459,14 @@ class StateTreeTest {
     }
 
     @Test
+    void testRemoveFlowCnecsWithPreventiveCnec() {
+        setUpCustomCracWithAutoInstant(true, true, true, true);
+        Set<String> cnecsToRemove = crac.getFlowCnecs(preventiveState).stream().map(Identifiable::getId).collect(Collectors.toSet());
+        crac.removeFlowCnecs(cnecsToRemove);
+        assertNotNull(crac.getPreventiveState());
+    }
+
+    @Test
     void testStateWithoutCnecs() {
         setUpCustomCracWithAutoInstant(true, true, true, true);
         crac.removeFlowCnecs(crac.getFlowCnecs(autoState).stream().map(Identifiable::getId).collect(Collectors.toSet()));

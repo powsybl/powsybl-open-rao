@@ -7,32 +7,31 @@
 
 package com.powsybl.openrao.data.crac.api.rangeaction;
 
+import com.google.common.annotations.Beta;
 import com.powsybl.glsk.commons.ZonalData;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.openrao.data.crac.api.ConnectedArea;
 import com.powsybl.openrao.commons.CounterTradeGeneratorOrdering;
 import com.powsybl.sensitivity.SensitivityVariableSet;
 
+import java.util.List;
 import java.util.Map;
 
 /**
  * @author Gabriel Plante {@literal <gabriel.plante_externe at rte-france.com>}
  */
+@Beta
 public interface CounterTradeRangeAction extends StandardRangeAction<CounterTradeRangeAction> {
 
     /**
-     * Get the exporting area
+     * Get the area id
      */
-    String getExportingArea();
+    String getAreaId();
 
     /**
-     * Get the importing area
+     * Get connected areas
      */
-    String getImportingArea();
-
-    /**
-     * Get the area - (there will no mor be exporting and importing: just area)
-     */
-    String getArea();
+    List<ConnectedArea> getConnectedAreas();
 
     /**
      * Set the Glsk
@@ -50,3 +49,4 @@ public interface CounterTradeRangeAction extends StandardRangeAction<CounterTrad
 
     void computeGeneratorOrdering(Network network, double tolerance);
 }
+

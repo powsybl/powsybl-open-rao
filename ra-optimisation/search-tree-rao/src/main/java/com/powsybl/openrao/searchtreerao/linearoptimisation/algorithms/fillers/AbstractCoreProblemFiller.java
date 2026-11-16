@@ -349,7 +349,7 @@ public abstract class AbstractCoreProblemFiller implements ProblemFiller {
         }
 
         if (rangeAction instanceof InjectionRangeAction injectionRangeAction) {
-            double totalShiftKey = injectionRangeAction.getInjectionDistributionKeys().values().stream().mapToDouble(v -> v).sum();
+            double totalShiftKey = injectionRangeAction.getInjectionDistributionKeysIds().values().stream().mapToDouble(v -> v).sum();
             OpenRaoMPConstraint injectionBalanceConstraint = linearProblem.getInjectionBalanceConstraint(state);
             injectionBalanceConstraint.setCoefficient(upwardVariationVariable, totalShiftKey);
             injectionBalanceConstraint.setCoefficient(downwardVariationVariable, -totalShiftKey);
@@ -432,7 +432,7 @@ public abstract class AbstractCoreProblemFiller implements ProblemFiller {
         Set<RangeAction<?>> rangeActions = new HashSet<>();
         optimizationContext.getRangeActionsPerState().forEach((state, raSet) ->
             raSet.forEach(ra -> {
-                if (ra.getId().equals(rangeAction.getId()) || !(ra instanceof CounterTradeRangeAction) && (ra.getNetworkElements().equals(rangeAction.getNetworkElements()))) {
+                if (ra.getId().equals(rangeAction.getId()) || !(ra instanceof CounterTradeRangeAction) && (ra.getNetworkElementsIds().equals(rangeAction.getNetworkElementsIds()))) {
                     // todo: maybe add also the equality in case the ra is CT and the getArea are the same?
                     rangeActions.add(ra);
                 }

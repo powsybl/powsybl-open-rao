@@ -130,7 +130,7 @@ public final class ExhaustiveCracCreation {
         crac.newNetworkAction().withId("switchPairRaId")
             .withName("switchPairRaName")
             .withOperator("RTE")
-            .newSwitchPair().withSwitchToOpen("to-open").withSwitchToClose("to-close", "to-close-name").add()
+            .newSwitchPair().withSwitchToOpen("to-open").withSwitchToClose("to-close").add()
             .newOnContingencyStateUsageRule().withContingency(contingency2Id).withInstant(CURATIVE_INSTANT_ID).add()
             .add();
 
@@ -223,6 +223,7 @@ public final class ExhaustiveCracCreation {
             .withOperator("RTE")
             .withNetworkElement("hvdc2")
             .withGroupId("group-1-hvdc")
+            .withInitialSetpoint(-100.0)
             .newRange().withMin(-1000).withMax(1000).add()
             .newOnContingencyStateUsageRule().withContingency("contingency1Id").withInstant(CURATIVE_INSTANT_ID).add()
             .newOnContingencyStateUsageRule().withContingency("contingency2Id").withInstant(CURATIVE_INSTANT_ID).add()
@@ -232,10 +233,11 @@ public final class ExhaustiveCracCreation {
         crac.newInjectionRangeAction().withId("injectionRange1Id")
             .withName("injectionRange1Name")
             .withNetworkElementAndKey(1., "generator1Id")
-            .withNetworkElementAndKey(-1., "generator2Id", "generator2Name")
+            .withNetworkElementAndKey(-1., "generator2Id")
             .withActivationCost(100d)
             .withVariationCost(750d, VariationDirection.UP)
             .withVariationCost(1000d, VariationDirection.DOWN)
+            .withInitialSetpoint(100.0)
             .newRange().withMin(-500).withMax(500).add()
             .newRange().withMin(-1000).withMax(1000).add()
             .newOnFlowConstraintInCountryUsageRule().withInstant(CURATIVE_INSTANT_ID).withContingency("contingency2Id").withCountry(Country.ES).add()
@@ -244,8 +246,10 @@ public final class ExhaustiveCracCreation {
 
         crac.newCounterTradeRangeAction().withId("counterTradeRange1Id")
             .withName("counterTradeRange1Name")
-            .withExportingArea("FR")
-            .withImportingArea("DE")
+            .withAreaId("BE")
+            .newConnectedArea().withAreaId("FR")
+                .newBorderRange().withMin(-500).withMax(500).withRangeType(RangeType.ABSOLUTE).add()
+                .add()
             .withVariationCost(2000d, VariationDirection.UP)
             .withVariationCost(1000d, VariationDirection.DOWN)
             .newRange().withMin(-500).withMax(500).add()
@@ -277,7 +281,7 @@ public final class ExhaustiveCracCreation {
             .add();
 
         crac.newFlowCnec().withId("cnec2prevId")
-            .withNetworkElement("ne5Id", "ne5Name")
+            .withNetworkElement("ne5Id")
             .withInstant(PREVENTIVE_INSTANT_ID)
             .withOperator("operator2")
             .withOptimized()
@@ -292,7 +296,7 @@ public final class ExhaustiveCracCreation {
 
         crac.newFlowCnec().withId("cnec3prevId")
             .withName("cnec3prevName")
-            .withNetworkElement("ne2Id", "ne2Name")
+            .withNetworkElement("ne2Id")
             .withInstant(PREVENTIVE_INSTANT_ID)
             .withOperator("operator3")
             .newThreshold().withUnit(Unit.MEGAWATT).withMax(500.).withSide(TwoSides.ONE).add()
@@ -303,7 +307,7 @@ public final class ExhaustiveCracCreation {
 
         crac.newFlowCnec().withId("cnec3autoId")
             .withName("cnec3autoName")
-            .withNetworkElement("ne2Id", "ne2Name")
+            .withNetworkElement("ne2Id")
             .withInstant(AUTO_INSTANT_ID)
             .withContingency(contingency2Id)
             .withOperator("operator3")
@@ -314,7 +318,7 @@ public final class ExhaustiveCracCreation {
             .add();
 
         crac.newFlowCnec().withId("cnec3curId")
-            .withNetworkElement("ne2Id", "ne2Name")
+            .withNetworkElement("ne2Id")
             .withInstant(CURATIVE_INSTANT_ID)
             .withContingency(contingency2Id)
             .withOperator("operator3")
@@ -337,8 +341,8 @@ public final class ExhaustiveCracCreation {
 
         crac.newAngleCnec().withId("angleCnecId")
             .withName("angleCnecName")
-            .withExportingNetworkElement("eneId", "eneName")
-            .withImportingNetworkElement("ineId", "ineName")
+            .withExportingNetworkElement("eneId")
+            .withImportingNetworkElement("ineId")
             .withInstant(CURATIVE_INSTANT_ID)
             .withContingency(contingency1Id)
             .withOperator("operator1")
@@ -349,7 +353,7 @@ public final class ExhaustiveCracCreation {
 
         crac.newVoltageCnec().withId("voltageCnecId")
             .withName("voltageCnecName")
-            .withNetworkElement("voltageCnecNeId", "voltageCnecNeName")
+            .withNetworkElement("voltageCnecNeId")
             .withInstant(CURATIVE_INSTANT_ID)
             .withContingency(contingency1Id)
             .withOperator("operator1")

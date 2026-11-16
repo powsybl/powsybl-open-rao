@@ -8,15 +8,15 @@ parameters/implementation-specific-parameters.md
 
 ## Introduction
 
-The RAO parameters allow tuning the RAO.
+RAO parameters allow tuning the RAO.
 
-It contains **business parameters** (see [business-parameters](parameters/business-parameters.md)) which allow
-to choose the business objective function of the RAO (maximize min margin, get a positive margin, ...), 
-to activate/deactivate optional business features, etc.
+They contain **business parameters** (see [business-parameters](parameters/business-parameters.md)), which allow
+choosing the business objective function of the RAO (maximize min margin, get a positive margin, etc.),
+activating/deactivating optional business features, etc.
 
-It also contains **extensions** which are **implementation specific parameters** 
-(see [implementation-specific-parameters](parameters/implementation-specific-parameters.md)), in particular the open 
-rao search tree extension. These extensions allow to fine-tune the search algorithm, improve performance and/or 
+They also contain **extensions**, which are **implementation-specific parameters** 
+(see [implementation-specific-parameters](parameters/implementation-specific-parameters.md)), in particular the OpenRAO
+search tree extension. These extensions allow fine-tuning the search algorithm and improving performance and/or 
 quality of results.
 
 RAO parameters can be constructed using:
@@ -27,10 +27,10 @@ RAO parameters can be constructed using:
 
 ## Examples
 
-Examples of rao parameters with business and implementation specific parameters
+Examples of RAO parameters with business and implementation-specific parameters
 
 > ⚠️  **NOTE**  
-> The following examples in json and yaml are not equivalent
+> The following examples in JSON and YAML are not equivalent
 
 ::::{tabs}
 :::{group-tab} JSON

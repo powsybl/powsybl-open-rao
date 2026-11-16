@@ -10,8 +10,10 @@ package com.powsybl.openrao.data.crac.io.json;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.google.auto.service.AutoService;
+import com.networknt.schema.Schema;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.commons.Version;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.CracCreationContext;
 import com.powsybl.openrao.data.crac.api.io.Importer;
@@ -23,11 +25,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static com.powsybl.commons.json.JsonUtil.createObjectMapper;
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
+import static com.powsybl.openrao.data.crac.io.json.JsonSchemaProvider.getSchema;
+import static com.powsybl.openrao.data.crac.io.json.JsonSchemaProvider.getValidationErrors;
 import static com.powsybl.openrao.data.crac.io.json.JsonSchemaProvider.isCracFile;
 
 /**
@@ -50,8 +55,13 @@ public class JsonImport implements Importer {
             ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(inputStream.readAllBytes());
             if (isCracFile(byteArrayInputStream)) {
                 byteArrayInputStream.reset();
-                // TODO: to be set back as it was, once correct schema!
-                return true;
+                Version cracVersion = readVersion(byteArrayInputStream);
+                Schema jsonSchema = getSchema(cracVersion);
+                List<String> validationError = getValidationErrors(jsonSchema, byteArrayInputStream);
+                if (validationError.isEmpty()) {
+                    return true;
+                }
+                throw new OpenRaoException("JSON file is not a valid CRAC v%s.%s. Reasons: %s".formatted(cracVersion.major(), cracVersion.minor(), String.join("; ", validationError)));
             }
             return false;
         } catch (IOException e) {

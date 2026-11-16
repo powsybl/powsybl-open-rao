@@ -22,7 +22,6 @@ import com.powsybl.openrao.data.crac.api.range.RangeType;
 import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.VariationDirection;
-import com.powsybl.openrao.data.crac.api.threshold.BranchThreshold;
 import com.powsybl.openrao.data.crac.api.usagerule.OnInstant;
 import com.powsybl.openrao.data.crac.api.usagerule.UsageRule;
 import com.powsybl.openrao.data.crac.io.commons.iidm.IidmPstHelper;
@@ -84,9 +83,7 @@ class NetworkCracCreatorTest {
     Map<String, Double> getKeys(String raId) {
         InjectionRangeAction ra = crac.getInjectionRangeAction(raId);
         assertNotNull(ra);
-        Map<String, Double> distKeys = new HashMap<>();
-        ra.getInjectionDistributionKeys().forEach((ne, k) -> distKeys.put(ne.getId(), k));
-        return distKeys;
+        return ra.getInjectionDistributionKeysIds();
     }
 
     @Test
@@ -119,13 +116,14 @@ class NetworkCracCreatorTest {
     private void checkCnec(String id, String neId, InstantKind instantKind, Unit thresholdUnit, double thresholdValue1, double thresholdValue2) {
         FlowCnec cnec = crac.getFlowCnec(id);
         assertNotNull(cnec);
-        assertEquals(neId, cnec.getNetworkElement().getId());
+        assertEquals(neId, cnec.getNetworkElementId());
         assertEquals(instantKind, cnec.getState().getInstant().getKind());
-        for (BranchThreshold t : cnec.getThresholds()) {
-            double expectedValue = t.getSide().equals(TwoSides.ONE) ? thresholdValue1 : thresholdValue2;
-            assertEquals(thresholdUnit, t.getUnit());
-            assertEquals(-expectedValue, t.min().orElseThrow(), 1e-3);
-            assertEquals(expectedValue, t.max().orElseThrow(), 1e-3);
+        for (TwoSides side : Set.of(TwoSides.ONE, TwoSides.TWO)) {
+            double expectedValue = side.equals(TwoSides.ONE) ? thresholdValue1 : thresholdValue2;
+            if (!Double.isNaN(expectedValue)) {
+                assertEquals(-expectedValue, cnec.getRawLowerBound(side, thresholdUnit).get(), 1e-3);
+                assertEquals(expectedValue, cnec.getRawUpperBound(side, thresholdUnit).get(), 1e-3);
+            }
         }
     }
 
@@ -139,10 +137,9 @@ class NetworkCracCreatorTest {
         assertNotNull(crac);
         assertEquals(5, crac.getContingencies().size());
         assertEquals(42, crac.getFlowCnecs().size());
-
-        checkCnec("BBE2AA1  BBE3AA1  1_preventive", "BBE2AA1  BBE3AA1  1", InstantKind.PREVENTIVE, Unit.AMPERE, 0.95 * 5000);
-        checkCnec("BBE2AA1  BBE3AA1  1_CO_NNL1AA1  NNL2AA1  1_outage", "BBE2AA1  BBE3AA1  1", InstantKind.OUTAGE, Unit.AMPERE, 1.3 * 5000);
-        checkCnec("BBE2AA1  BBE3AA1  1_CO_NNL1AA1  NNL2AA1  1_curative", "BBE2AA1  BBE3AA1  1", InstantKind.CURATIVE, Unit.AMPERE, 1.1 * 5000);
+        checkCnec("BBE2AA1  BBE3AA1  1_preventive", "BBE2AA1  BBE3AA1  1", InstantKind.PREVENTIVE, Unit.AMPERE, Double.NaN, 0.95 * 5000);
+        checkCnec("BBE2AA1  BBE3AA1  1_CO_NNL1AA1  NNL2AA1  1_outage", "BBE2AA1  BBE3AA1  1", InstantKind.OUTAGE, Unit.AMPERE, Double.NaN, 1.3 * 5000);
+        checkCnec("BBE2AA1  BBE3AA1  1_CO_NNL1AA1  NNL2AA1  1_curative", "BBE2AA1  BBE3AA1  1", InstantKind.CURATIVE, Unit.AMPERE, Double.NaN, 1.1 * 5000);
 
         checkCnec("NNL2AA1  BBE3AA1  1_preventive", "NNL2AA1  BBE3AA1  1", InstantKind.PREVENTIVE, Unit.AMPERE, 0.95 * 5000);
         checkCnec("NNL2AA1  BBE3AA1  1_CO_DDE2AA1  NNL3AA1  1_outage", "NNL2AA1  BBE3AA1  1", InstantKind.OUTAGE, Unit.AMPERE, 1.3 * 5000);
@@ -183,7 +180,7 @@ class NetworkCracCreatorTest {
         assertEquals(2, crac.getPstRangeActions().size());
         PstRangeAction pst = crac.getPstRangeAction("PST_RA_BBE2AA1  BBE3AA1  1_curative");
         assertNotNull(pst);
-        assertEquals("BBE2AA1  BBE3AA1  1", pst.getNetworkElement().getId());
+        assertEquals("BBE2AA1  BBE3AA1  1", pst.getNetworkElementId());
         assertEquals(0, pst.getInitialTap());
         assertEquals(new IidmPstHelper("BBE2AA1  BBE3AA1  1", network).getTapToAngleConversionMap(), pst.getTapToAngleConversionMap());
         assertEquals(2, pst.getRanges().size());
@@ -242,9 +239,9 @@ class NetworkCracCreatorTest {
 
         InjectionRangeAction ra = crac.getInjectionRangeAction("RD_GEN_BBE1AA1 _generator_preventive");
         assertNotNull(ra);
-        assertEquals(1, ra.getInjectionDistributionKeys().size());
-        assertEquals(1.0, ra.getInjectionDistributionKeys().values().iterator().next());
-        assertEquals("BBE1AA1 _generator", ra.getInjectionDistributionKeys().keySet().iterator().next().getId());
+        assertEquals(1, ra.getInjectionDistributionKeysIds().size());
+        assertEquals(1.0, ra.getInjectionDistributionKeysIds().values().iterator().next());
+        assertEquals("BBE1AA1 _generator", ra.getInjectionDistributionKeysIds().keySet().iterator().next());
         assertEquals(-9000., ra.getRanges().getFirst().getMin());
         assertEquals(9000., ra.getRanges().getFirst().getMax());
         assertEquals(1500., ra.getInitialSetpoint());
@@ -273,7 +270,7 @@ class NetworkCracCreatorTest {
 
         InjectionRangeAction ra = crac.getInjectionRangeAction("RD_COMBI_combi1_preventive");
         assertNotNull(ra);
-        assertEquals(2, ra.getInjectionDistributionKeys().size());
+        assertEquals(2, ra.getInjectionDistributionKeysIds().size());
         assertEquals(Map.of("FFR1AA1 _generator", 3000. / 5500., "DDE1AA1 _generator", 2500. / 5500.), getKeys("RD_COMBI_combi1_preventive"));
         assertEquals(1000., ra.getRanges().getFirst().getMin());
         assertEquals(5500., ra.getRanges().getFirst().getMax());
@@ -284,7 +281,7 @@ class NetworkCracCreatorTest {
 
         ra = crac.getInjectionRangeAction("RD_COMBI_combi3_preventive");
         assertNotNull(ra);
-        assertEquals(2, ra.getInjectionDistributionKeys().size());
+        assertEquals(2, ra.getInjectionDistributionKeysIds().size());
         assertEquals(Map.of("FFR3AA1 _load", -3., "DDE2AA1 _generator", 4.), getKeys("RD_COMBI_combi3_preventive"));
         assertEquals(500., ra.getRanges().getFirst().getMin());
         assertEquals(1500., ra.getRanges().getFirst().getMax());
@@ -304,9 +301,9 @@ class NetworkCracCreatorTest {
 
         InjectionRangeAction ra = crac.getInjectionRangeAction("RD_LOAD_NNL3AA1 _load_preventive");
         assertNotNull(ra);
-        assertEquals(1, ra.getInjectionDistributionKeys().size());
-        assertEquals(1.0, ra.getInjectionDistributionKeys().values().iterator().next());
-        assertEquals("NNL3AA1 _load", ra.getInjectionDistributionKeys().keySet().iterator().next().getId());
+        assertEquals(1, ra.getInjectionDistributionKeysIds().size());
+        assertEquals(1.0, ra.getInjectionDistributionKeysIds().values().iterator().next());
+        assertEquals("NNL3AA1 _load", ra.getInjectionDistributionKeysIds().keySet().iterator().next());
         assertEquals(-100., ra.getRanges().getFirst().getMin());
         assertEquals(2500., ra.getRanges().getFirst().getMax());
         assertEquals(2500., ra.getInitialSetpoint());
@@ -469,5 +466,31 @@ class NetworkCracCreatorTest {
         checkCnec("CI_preventive", "CI", InstantKind.PREVENTIVE, Unit.AMPERE, 884.45);
         checkCnec("CI_CO_CJ_outage", "CI", InstantKind.OUTAGE, Unit.AMPERE, 1210.3);
         checkCnec("CI_CO_CJ_curative", "CI", InstantKind.CURATIVE, Unit.AMPERE, 1024.1);
+    }
+
+    @Test
+    void testRdCombiNegativeInitialSetpoint() {
+        parameters.getRedispatchingRangeActions().setIncludeAllInjections(false);
+        parameters.getRedispatchingRangeActions().setInjectionCombinations(
+            Map.of(
+                "combi1", Set.of("DDE1AA1 _generator", "FFR1AA1 _generator"),
+                "combi2", Set.of("NNL2AA1 _generator")
+            )
+        );
+        parameters.getRedispatchingRangeActions().setRdRaPredicate((injection, instant, c) -> instant.isPreventive());
+        parameters.getRedispatchingRangeActions().setCombinationRangeProvider((combi, instant) -> new MinAndMax<>(1000., 1500.));
+        parameters.getRedispatchingRangeActions().setCombinationCostsProvider((combi, instant) -> new InjectionRangeActionCosts(1., 2., 3.));
+        importCracFrom("TestCase12Nodes_negativeGenSetpoint.uct");
+        assertTrue(creationContext.isCreationSuccessful());
+        assertEquals(2, crac.getInjectionRangeActions().size());
+        assertTrue(crac.getInjectionRangeActions().stream().allMatch(ra -> ra.getId().contains("_preventive")));
+
+        InjectionRangeAction ra = crac.getInjectionRangeAction("RD_COMBI_combi1_preventive");
+        assertNotNull(ra);
+        assertEquals(2, ra.getInjectionDistributionKeysIds().size());
+        assertEquals(Map.of("FFR1AA1 _generator", 3000. / 5500., "DDE1AA1 _generator", 2500. / 5500.), getKeys("RD_COMBI_combi1_preventive"));
+        assertEquals(-5500, ra.getRanges().getFirst().getMin());
+        assertEquals(1500., ra.getRanges().getFirst().getMax());
+        assertEquals(-5500., ra.getInitialSetpoint());
     }
 }

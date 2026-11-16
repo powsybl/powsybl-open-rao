@@ -8,13 +8,18 @@
 package com.powsybl.openrao.data.crac.impl;
 
 import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.data.crac.api.ConnectedArea;
+import com.powsybl.openrao.data.crac.api.ConnectedAreaAdder;
 import com.powsybl.openrao.data.crac.api.rangeaction.CounterTradeRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.CounterTradeRangeActionAdder;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WARNS;
 import static com.powsybl.openrao.data.crac.impl.AdderUtils.assertAttributeNotEmpty;
+import static com.powsybl.openrao.data.crac.impl.AdderUtils.assertAttributeNotNull;
 
 /**
  * @author Gabriel Plante {@literal <gabriel.plante_externe at rte-france.com>}
@@ -22,9 +27,8 @@ import static com.powsybl.openrao.data.crac.impl.AdderUtils.assertAttributeNotEm
 class CounterTradeRangeActionAdderImpl extends AbstractStandardRangeActionAdder<CounterTradeRangeActionAdder> implements CounterTradeRangeActionAdder {
 
     public static final String COUNTER_TRADE_RANGE_ACTION = "CounterTradeRangeAction";
-    private String exportingArea;
-    private String importingArea;
     private String area;
+    private final List<ConnectedArea> connectedAreas = new ArrayList<>();
 
     @Override
     protected String getTypeDescription() {
@@ -36,21 +40,22 @@ class CounterTradeRangeActionAdderImpl extends AbstractStandardRangeActionAdder<
     }
 
     @Override
-    public CounterTradeRangeActionAdder withExportingArea(String exportingArea) {
-        this.exportingArea = exportingArea;
+    public CounterTradeRangeActionAdder withAreaId(String areaId) {
+        this.area = areaId;
         return this;
     }
 
-    @Override
-    public CounterTradeRangeActionAdder withImportingArea(String importingArea) {
-        this.importingArea = importingArea;
-        return this;
+
+    public ConnectedAreaAdder newConnectedArea() {
+        return new ConnectedAreaAdderImpl(this);
     }
 
-    @Override
-    public CounterTradeRangeActionAdder withArea(String area) {
-        this.area = area;
-        return this;
+    void addConnectedArea(ConnectedArea connectedArea) {
+        connectedAreas.add(connectedArea);
+    }
+
+    boolean hasConnectedArea(String areaId) {
+        return connectedAreas.stream().anyMatch(connectedArea -> connectedArea.getAreaId().equals(areaId));
     }
 
     @Override
@@ -61,10 +66,11 @@ class CounterTradeRangeActionAdderImpl extends AbstractStandardRangeActionAdder<
             throw new OpenRaoException(String.format("A remedial action with id %s already exists", id));
         }
 
-        // check exporting and importing country - to be chosen between the two styles
-        //        assertAttributeNotNull(exportingArea, COUNTER_TRADE_RANGE_ACTION, "exporting country", "withExportingArea()");
-        //        assertAttributeNotNull(importingArea, COUNTER_TRADE_RANGE_ACTION, "importing country", "withImportingArea()");
-        //        assertAttributeNotNull(area, COUNTER_TRADE_RANGE_ACTION, "area", "withArea()");
+        // check area
+        assertAttributeNotNull(area, COUNTER_TRADE_RANGE_ACTION, "area", "withAreaId()");
+        if (hasConnectedArea(area)) {
+            throw new OpenRaoException(String.format("CounterTradeRangeAction %s cannot have its own area %s as a connected area", id, area));
+        }
 
         // check ranges
         assertAttributeNotEmpty(ranges, COUNTER_TRADE_RANGE_ACTION, "range", "newRange()");
@@ -74,16 +80,10 @@ class CounterTradeRangeActionAdderImpl extends AbstractStandardRangeActionAdder<
             BUSINESS_WARNS.warn("CounterTradeRangeAction {} does not contain any usage rule, by default it will never be available", id);
         }
 
-        CounterTradeRangeAction counterTradeRangeAction;
-        if (Objects.isNull(area)) {
-            counterTradeRangeAction = new CounterTradeRangeActionImpl(
-                    this.id, this.name, this.operator, this.groupId, this.usageRules, this.ranges, this.initialSetpoint, speed, activationCost, variationCosts, this.exportingArea, this.importingArea
-            );
-        } else {
-            counterTradeRangeAction = new CounterTradeRangeActionImpl(
-                    this.id, this.name, this.operator, this.groupId, this.usageRules, this.ranges, this.initialSetpoint, speed, activationCost, variationCosts, this.area
-            );
-        }
+        CounterTradeRangeAction counterTradeRangeAction = new CounterTradeRangeActionImpl(
+            this.id, this.name, this.operator, this.groupId, this.usageRules, this.ranges, this.initialSetpoint,
+            speed, activationCost, variationCosts, this.area, List.copyOf(connectedAreas)
+        );
         getCrac().addCounterTradeRangeAction(counterTradeRangeAction);
         return counterTradeRangeAction;
 

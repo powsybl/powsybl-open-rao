@@ -8,9 +8,9 @@ Feature: 0.1.1.3: Handle transformers
 
   @fast @rao @dc @preventive-only @max-min-margin
   Scenario: 0.1.1.3.1: Handle transformers on a small test case in DC
-    Given network file is "epic15/TestCase12Nodes_with_2_voltage_levels_1.uct" for CORE CC
-    Given crac file is "epic15/SL_ep15us3case1.json"
-    Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
+    Given network file is "0_import_export/0_1_import/0_1_1_cnec/network_12nodes_with_2_voltage_levels_1.uct" for CORE CC
+    Given crac file is "0_import_export/0_1_import/0_1_1_cnec/crac_0_1_1_3_1.json"
+    Given configuration file is "common/rao_parameters_max_margin_megawatt_dc.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -30,9 +30,9 @@ Feature: 0.1.1.3: Handle transformers
 
   @fast @rao @ac @preventive-only @max-min-margin
   Scenario: 0.1.1.3.2.a: Handle transformers on a small test case in AC - On side 1
-    Given network file is "epic15/TestCase12Nodes_with_2_voltage_levels_2_side_1.uct" for CORE CC
-    Given crac file is "epic15/SL_ep15us3case2.json"
-    Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
+    Given network file is "0_import_export/0_1_import/0_1_1_cnec/network_12nodes_with_2_voltage_levels.uct" for CORE CC
+    Given crac file is "0_import_export/0_1_import/0_1_1_cnec/crac_0_1_1_3_2.json"
+    Given configuration file is "common/rao_parameters_max_margin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -60,9 +60,9 @@ Feature: 0.1.1.3: Handle transformers
 
   @fast @rao @ac @preventive-only @max-min-margin
   Scenario: 0.1.1.3.b: Handle transformers on a small test case in AC - On side 2
-    Given network file is "epic15/TestCase12Nodes_with_2_voltage_levels_2_side_2.uct"
-    Given crac file is "epic15/SL_ep15us3case2_RIGHT.json"
-    Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
+    Given network file is "0_import_export/0_1_import/0_1_1_cnec/network_12nodes_with_2_voltage_levels.uct"
+    Given crac file is "0_import_export/0_1_import/0_1_1_cnec/crac_0_1_1_3_RIGHT.json"
+    Given configuration file is "common/rao_parameters_max_margin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -87,9 +87,9 @@ Feature: 0.1.1.3: Handle transformers
 
   @fast @rao @ac @preventive-only @max-min-margin
   Scenario: 0.1.1.3.3: Handle transformers with threshold in Ampere
-    Given network file is "epic15/TestCase12Nodes_with_2_voltage_levels_2_side_2.uct"
-    Given crac file is "epic15/SL_ep15us3case3.json"
-    Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
+    Given network file is "0_import_export/0_1_import/0_1_1_cnec/network_12nodes_with_2_voltage_levels.uct"
+    Given crac file is "0_import_export/0_1_import/0_1_1_cnec/crac_0_1_1_3_3.json"
+    Given configuration file is "common/rao_parameters_max_margin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "UNSECURED"

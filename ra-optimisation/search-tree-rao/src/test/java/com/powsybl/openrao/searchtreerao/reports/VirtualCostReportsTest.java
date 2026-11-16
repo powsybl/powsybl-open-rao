@@ -12,7 +12,6 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.Unit;
-import com.powsybl.openrao.data.crac.api.NetworkElement;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
@@ -80,12 +79,10 @@ class VirtualCostReportsTest {
     private void setFlowCnec() {
         final State state = Mockito.mock(State.class);
         when(state.getId()).thenReturn("state-id");
-        final NetworkElement networkElement = Mockito.mock(NetworkElement.class);
-        when(networkElement.getId()).thenReturn("ne-id");
 
         cnec = Mockito.mock(FlowCnec.class);
         when(cnec.getState()).thenReturn(state);
-        when(cnec.getNetworkElement()).thenReturn(networkElement);
+        when(cnec.getNetworkElementId()).thenReturn("ne-id");
         when(cnec.getId()).thenReturn("cnec-id");
         when(cnec.getName()).thenReturn("cnec-name");
         when(cnec.getUpperBound(TwoSides.ONE, Unit.MEGAWATT)).thenReturn(Optional.of(1000.));

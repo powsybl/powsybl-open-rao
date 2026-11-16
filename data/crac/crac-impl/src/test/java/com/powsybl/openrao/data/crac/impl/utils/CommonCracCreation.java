@@ -245,7 +245,7 @@ public final class CommonCracCreation {
 
         crac.newPstRangeAction()
             .withId("pst")
-            .withNetworkElement("BBE2AA1  BBE3AA1  1", "BBE2AA1  BBE3AA1  1 name")
+            .withNetworkElement("BBE2AA1  BBE3AA1  1")
             .withOperator("operator1")
             .newOnInstantUsageRule()
             .withInstant(PREVENTIVE_INSTANT_ID)
@@ -269,7 +269,7 @@ public final class CommonCracCreation {
 
         crac.newPstRangeAction()
             .withId("pst")
-            .withNetworkElement("BBE2AA1  BBE3AA1  1", "BBE2AA1  BBE3AA1  1 name")
+            .withNetworkElement("BBE2AA1  BBE3AA1  1")
             .withOperator("operator1")
             .newOnContingencyStateUsageRule()
             .withInstant(CURATIVE_INSTANT_ID)
@@ -294,7 +294,7 @@ public final class CommonCracCreation {
 
         crac.newPstRangeAction()
             .withId("pst")
-            .withNetworkElement("BBE2AA1  BBE3AA1  1", "BBE2AA1  BBE3AA1  1 name")
+            .withNetworkElement("BBE2AA1  BBE3AA1  1")
             .withOperator("operator1")
             .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add()
             .newOnContingencyStateUsageRule().withInstant(CURATIVE_INSTANT_ID).withContingency("Contingency FR1 FR3").add()
