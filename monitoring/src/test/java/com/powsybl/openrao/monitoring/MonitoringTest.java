@@ -21,7 +21,7 @@ import com.powsybl.openrao.monitoring.voltage.VoltageMonitoring;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.json.JsonRaoParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
-import com.powsybl.openrao.searchtreerao.castor.algorithm.Castor;
+import com.powsybl.openrao.raoimpl.OpenRao;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -49,7 +49,7 @@ class MonitoringTest {
         Crac crac = Crac.read("voltage_monitoring_with_multicurative_cnec.json", getClass().getResourceAsStream("/voltage_monitoring_with_multicurative_cnec.json"), network);
         RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/monitoring_parameters.json"), ReportNode.NO_OP);
 
-        RaoResult raoResult = new Castor().run(RaoInput.build(network, crac).build(), raoParameters, ReportNode.NO_OP).join();
+        RaoResult raoResult = new OpenRao().run(RaoInput.build(network, crac).build(), raoParameters, null, ReportNode.NO_OP).join();
 
         MonitoringInput monitoringInput = new MonitoringInput.MonitoringInputBuilder()
             .withCrac(crac)
