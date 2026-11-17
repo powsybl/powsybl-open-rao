@@ -21,7 +21,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.SensitivityAnalysisParameters;
 
 /**
- * Which powsybl actions OpenLoadFlow can simulate as operator strategy actions in a sensitivity analysis.
+ * Actions OpenLoadFlow can simulate in the operator strategies of a sensitivity analysis.
  *
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
@@ -43,11 +43,8 @@ public final class OperatorStrategySupport {
     }
 
     /**
-     * PST tap, connection and switch actions are supported, plus generator and load actions unless in DC with a
-     * distributed slack (Woodbury does not rerun the slack distribution after an injection change).
-     * <p>Any other action (ratio tap changer, shunt, area interchange, HVDC...) is rejected by the OpenLoadFlow
-     * sensitivity analysis whatever the mode: up to 2.4.0 it checks the actions against the Woodbury (fast DC) list even
-     * in AC, and an HVDC action only disables the AC emulation without applying the active power setpoint.
+     * OpenLoadFlow (2.4.0) only accepts the Woodbury (fast DC) actions, even in AC. Generator and load actions are
+     * excluded in DC with distributed slack, as Woodbury does not redistribute the slack.
      */
     public static boolean isSupported(Action action, Mode mode) {
         if (action instanceof PhaseTapChangerTapPositionAction || action instanceof TerminalsConnectionAction || action instanceof SwitchAction) {
@@ -60,8 +57,7 @@ public final class OperatorStrategySupport {
     }
 
     /**
-     * Whether the element exists as OpenLoadFlow expects it: e.g. the half of a tie line is a dangling line, which a
-     * connection action cannot open, whereas {@code NetworkAction.apply} can.
+     * False e.g. for a connection action on a tie line half: it is a dangling line, not a branch.
      */
     public static boolean existsInNetwork(Action action, Network network) {
         if (action instanceof TerminalsConnectionAction terminalsConnectionAction) {

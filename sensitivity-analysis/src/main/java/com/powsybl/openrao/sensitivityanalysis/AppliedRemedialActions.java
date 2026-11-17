@@ -44,7 +44,7 @@ public class AppliedRemedialActions {
     }
 
     /**
-     * The remedial actions applied on the state as powsybl actions, to be simulated as an operator strategy.
+     * The remedial actions applied on the state, as powsybl actions.
      */
     List<Action> toActions(State state, Network network) {
         AppliedRemedialActionsPerState appliedRemedialActionsForThisState = appliedRa.get(state);

@@ -136,7 +136,7 @@ public class SystematicSensitivityResult {
                         SensitivityAnalysisResult.Status.SUCCESS
                 ));
             } else {
-                // the provider may skip an operator strategy state it could not simulate: fall back on the contingency status
+                // the provider may write no status for an operator strategy state
                 SensitivityAnalysisResult.Status stateStatus = getStateStatusOrFallback(statusByState, sensiState);
                 if (stateStatus == SensitivityAnalysisResult.Status.FAILURE) {
                     anyContingencyFailure = true;

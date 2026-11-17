@@ -229,7 +229,6 @@ class AppliedRemedialActionsTest {
         assertEquals(4, actions.size());
         assertEquals(1, actions.stream().filter(TerminalsConnectionAction.class::isInstance).count());
         assertEquals(1, actions.stream().filter(PhaseTapChangerTapPositionAction.class::isInstance).count());
-        // the switch pair is decomposed into its two switch actions
         List<SwitchAction> switchActions = actions.stream().filter(SwitchAction.class::isInstance).map(SwitchAction.class::cast).toList();
         assertEquals(2, switchActions.size());
         assertEquals(Set.of("NNL3AA11 NNL3AA12 1", "NNL3AA13 NNL3AA14 1"), switchActions.stream().map(SwitchAction::getSwitchId).collect(Collectors.toSet()));

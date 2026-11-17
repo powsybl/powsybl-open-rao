@@ -130,7 +130,7 @@ final class SystematicSensitivityAdapter {
         List<SensitivityFactor> factors = cnecSensitivityProvider.getBasecaseFactors(network);
         factors.addAll(cnecSensitivityProvider.getContingencyFactors(network, contingenciesWithoutRa));
         if (factors.isEmpty()) {
-            // nothing to compute (all CNECs are on states with RA): an empty run would be reported as a FAILURE
+            // an empty run would be reported as a FAILURE
             return new SystematicSensitivityResult();
         }
         try {
@@ -157,8 +157,6 @@ final class SystematicSensitivityAdapter {
                                                Set<State> statesWithRa,
                                                AppliedRemedialActions appliedRemedialActions,
                                                ComputationManager computationManager) {
-        // single run with operator strategies when the provider supports all the applied actions, otherwise one run per
-        // state with the actions applied on a network variant
         Optional<Map<State, List<Action>>> actionsPerState = convertToOperatorStrategyActions(statesWithRa, appliedRemedialActions,
             network, OperatorStrategySupport.Mode.of(sensitivityComputationParameters));
         if (actionsPerState.isPresent()) {
@@ -173,7 +171,7 @@ final class SystematicSensitivityAdapter {
     }
 
     /**
-     * Empty if any applied remedial action cannot be converted to an action supported by OpenLoadFlow operator strategies.
+     * Empty if an applied remedial action is not supported by operator strategies.
      */
     static Optional<Map<State, List<Action>>> convertToOperatorStrategyActions(Set<State> statesWithRa,
                                                                                AppliedRemedialActions appliedRemedialActions,
@@ -294,8 +292,7 @@ final class SystematicSensitivityAdapter {
         List<OperatorStrategy> operatorStrategies = new ArrayList<>();
         Map<SensitivityState, Integer> instantOrderByState = new HashMap<>();
 
-        // a contingency is declared once even with several curative states (multi-curative); each state gets its own
-        // operator strategy whose actions accumulate from one instant to the next
+        // multi-curative: one contingency, one operator strategy per state, with the actions of the previous instants
         Map<Contingency, List<State>> statesByContingency = new LinkedHashMap<>();
         for (State state : statesWithRa) {
             Contingency contingency = state.getContingency().orElseThrow(() ->
@@ -339,8 +336,8 @@ final class SystematicSensitivityAdapter {
     }
 
     /**
-     * Deep copy through JSON, extensions included. The parameters are shared by all the analyses (possibly concurrent)
-     * while each analysis sets its own operator strategies calculation mode.
+     * Deep copy (extensions included): the parameters are shared by concurrent analyses, each one setting its own
+     * operator strategies calculation mode.
      */
     static SensitivityAnalysisParameters copy(SensitivityAnalysisParameters parameters) {
         ObjectMapper objectMapper = JsonSensitivityAnalysisParameters.createObjectMapper();

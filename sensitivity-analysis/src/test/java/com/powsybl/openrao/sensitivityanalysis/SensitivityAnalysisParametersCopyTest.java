@@ -28,9 +28,7 @@ import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * The {@link SensitivityAnalysisParameters} instance is shared between sensitivity analyses (e.g. MARMOT timestamps).
- * Each analysis sets its own operator strategies calculation mode, so it must work on a private copy and never write to
- * the shared instance.
+ * The {@link SensitivityAnalysisParameters} shared between analyses (e.g. MARMOT timestamps) must never be modified.
  *
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
@@ -63,7 +61,6 @@ class SensitivityAnalysisParametersCopyTest {
         appliedRemedialActions.addAppliedRangeAction(crac.getState("Contingency FR1 FR3", crac.getInstant("curative")), crac.getPstRangeAction("pst"), -3.1);
         SensitivityAnalysisParameters sharedParameters = new SensitivityAnalysisParameters();
 
-        // the with-RA analysis runs with ONLY_OPERATOR_STRATEGIES, but only on its private copy
         SystematicSensitivityAdapter.runSensitivity(network, factorProvider, appliedRemedialActions, sharedParameters, "MockSensi", crac.getOutageInstant(), LocalComputationManager.getDefault());
 
         assertEquals(SensitivityOperatorStrategiesCalculationMode.NONE, sharedParameters.getOperatorStrategiesCalculationMode());

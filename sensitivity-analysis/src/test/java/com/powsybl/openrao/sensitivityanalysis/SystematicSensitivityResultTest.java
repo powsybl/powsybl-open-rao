@@ -470,7 +470,7 @@ class SystematicSensitivityResultTest {
 
         SystematicSensitivityResult result = new SystematicSensitivityResult().completeData(sensitivityAnalysisResult, instantOrderByState);
 
-        // falls back on the contingency status, and on FAILURE when there is none
+        // fallback on the contingency status, or FAILURE when there is none
         assertEquals(SystematicSensitivityResult.SensitivityComputationStatus.SUCCESS, result.getStatus(crac.getState("Contingency FR1 FR3", crac.getInstant(CURATIVE_INSTANT_ID))));
         assertEquals(SystematicSensitivityResult.SensitivityComputationStatus.FAILURE, result.getStatus(crac.getState("Contingency FR1 FR2", crac.getInstant(CURATIVE_INSTANT_ID))));
     }

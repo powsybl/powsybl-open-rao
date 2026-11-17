@@ -205,8 +205,7 @@ class SystematicSensitivityAdapterTest {
 
     @Test
     void testWithAppliedRaNotSupportedByOperatorStrategies() {
-        // the applied range action cannot be converted to actions: the fallback path applies it on a network variant
-        // and runs one sensitivity analysis per state with RA
+        // range action not convertible to actions: fallback on one run per state with RA
         Network network = NetworkImportsUtil.import12NodesNetwork();
         String workingVariantId = network.getVariantManager().getWorkingVariantId();
         Crac crac = CommonCracCreation.createWithPreventivePstRange(Set.of(ONE, TWO));
@@ -247,7 +246,7 @@ class SystematicSensitivityAdapterTest {
         assertEquals(-2.5, result.getSensitivityOnFlow(crac.getRangeAction("pst"), crac.getFlowCnec("cnec2stateCurativeContingency1"), ONE), DOUBLE_TOLERANCE);
         assertEquals(3.0, result.getSensitivityOnFlow(crac.getRangeAction("pst"), crac.getFlowCnec("cnec2stateCurativeContingency1"), TWO), DOUBLE_TOLERANCE);
 
-        // the network is left untouched: working variant restored, temporary variant removed, PST at its initial tap
+        // the network is left untouched
         assertEquals(workingVariantId, network.getVariantManager().getWorkingVariantId());
         assertEquals(1, network.getVariantManager().getVariantIds().size());
         assertEquals(0, network.getTwoWindingsTransformer("BBE2AA1  BBE3AA1  1").getPhaseTapChanger().getTapPosition());
@@ -255,7 +254,7 @@ class SystematicSensitivityAdapterTest {
 
     @Test
     void testFallbackPathFailureOnStateWithRa() {
-        // the provider fails on the second run, i.e. on the state with RA of the fallback path
+        // the provider fails on the second run, i.e. on the state with RA
         Network network = NetworkImportsUtil.import12NodesNetwork();
         network.setName("Second_Run_Exception");
         Crac crac = CommonCracCreation.createWithPreventivePstRange(Set.of(ONE, TWO));
