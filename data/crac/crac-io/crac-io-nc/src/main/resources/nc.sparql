@@ -522,6 +522,7 @@ GRAPH <%s> {
 
 # query: contingencyOverriding
 PREFIX nc: <http://entsoe.eu/ns/nc#>
+PREFIX cim: <http://iec.ch/TC57/CIM100#>
 PREFIX dcat: <http://www.w3.org/ns/dcat#>
 SELECT *
 {
@@ -530,9 +531,17 @@ GRAPH <%s> {
         dcat:startDate ?startDate ;
         dcat:endDate ?endDate ;
         dcat:keyword ?keyword .
+    {
+    # SSI profile: Contingency and mustStudy are in the cim namespace
+    ?contingency
+        rdf:type cim:Contingency ;
+        cim:Contingency.mustStudy ?mustStudy ;
+    } UNION {
+    # Legacy: nc namespace
     ?contingency
         rdf:type nc:Contingency ;
         nc:Contingency.mustStudy ?mustStudy ;
+    }
 }
 }
 

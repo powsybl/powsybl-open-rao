@@ -175,7 +175,6 @@ public class CounterTradingRangeActionCreator {
      * If both limits are provided -> use the tightest one (intersection).
      * If only one of them is provided -> use it as the max range.
      * If none of them is provided -> use the value from ncCracCreationParameters, or do not import the remedial action if it is not set.
-     * If the initial net position is negative, initialNetPosition + max range cannot be positive (not applied to the ncCracCreationParameters value).
      *
      * @param countertradeRemedialAction        Native CountertradeRemedialAction
      * @param remedialActionId                  ID of the RemedialAction (RA id)
@@ -207,12 +206,6 @@ public class CounterTradingRangeActionCreator {
             return parametersMaxRange;
         }
 
-        // A negative net position cannot become positive
-        if (initialNetPosition < 0 && maxRange > -initialNetPosition) {
-            alterations.add(String.format("the maximum range %s would make the negative initial net position %s positive. It has been set to %s",
-                    maxRange, initialNetPosition, -initialNetPosition));
-            maxRange = -initialNetPosition;
-        }
         return maxRange;
     }
 
@@ -222,7 +215,6 @@ public class CounterTradingRangeActionCreator {
      * If both limits are provided -> use the tightest one (intersection).
      * If only one of them is provided -> use it as the min range.
      * If none of them is provided -> use the value from ncCracCreationParameters, or do not import the remedial action if it is not set.
-     * If the initial net position is positive, initialNetPosition + min range cannot be negative (not applied to the ncCracCreationParameters value).
      *
      * @param countertradeRemedialAction        Native CountertradeRemedialAction
      * @param remedialActionId                  ID of the RemedialAction (RA id)
@@ -254,12 +246,6 @@ public class CounterTradingRangeActionCreator {
             return parametersMinRange;
         }
 
-        // A positive net position cannot become negative
-        if (initialNetPosition > 0 && minRange < -initialNetPosition) {
-            alterations.add(String.format("the minimum range %s would make the positive initial net position %s negative. It has been set to %s",
-                    minRange, initialNetPosition, -initialNetPosition));
-            minRange = -initialNetPosition;
-        }
         return minRange;
     }
 

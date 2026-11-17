@@ -1037,17 +1037,9 @@ The bounds are:
 
 If only one of the two limits is provided for a bound, it is used alone.
 
-Moreover, the counter-trade cannot change the sign of the net position:
-
-- if the initial net position is positive, `NP0` + lower bound cannot be negative;
-- if the initial net position is negative, `NP0` + upper bound cannot be positive.
-
-When this constraint limits a bound, the remedial action is still imported but flagged as altered, and its import 
-status detail gives both the original and the limited value of the bound.
-
 If neither the economic limit nor the physical limit is provided for the lower (resp. upper) bound, the 
-`counter-trading-min-range` (resp. `counter-trading-max-range`) creation parameter is used as is (the sign constraint 
-above is not applied to it), and the remedial action is flagged as altered, with its import status detail giving the 
+`counter-trading-min-range` (resp. `counter-trading-max-range`) creation parameter is used as is, 
+and the remedial action is flagged as altered, with its import status detail giving the 
 value taken from the parameter. If this parameter is not set either, the remedial action is not imported.
 
 If the resulting lower bound is greater than the upper bound, the remedial action is not imported.
@@ -1064,7 +1056,7 @@ profile):
 | SSI, group       | those of the `CountertradeRemedialAction`, which must be identical to those of the group (otherwise the remedial action is not imported) | max(`minEconomicP` - `NP0`, -`maxRegulatingDown`) | min(`maxEconomicP` - `NP0`, `maxRegulatingUp`) |
 
 In all four cases, the rules above (limit used alone if the other one is missing, fallback on the creation parameters, 
-sign constraint, empty range) apply.
+empty range) apply.
 
 > For instance, with an initial net position of 2000 MW, `minEconomicP` = 500 and `maxEconomicP` = 3000, the economic 
 > limits are [500 - 2000, 3000 - 2000] = [-1500, 1000]:
