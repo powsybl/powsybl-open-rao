@@ -49,7 +49,7 @@ Feature: 1.2.5: Complex automaton simulator cases
 
   Scenario: 1.2.5.3: An auto cnec needs a preventive action to be properly secured - with outage duplicate
     Same situation as 1.2.5.2, but the line 'NNL1AA1  NNL2AA1  1' is open and a preventive network action is added to the CRAC
-    that close this line. With the outage cnec duplicate mechanism, the cnec-auto-2 is added to the preventive perimeter,
+    that close this line. As it is unprotected, the cnec-auto-2 is added to the preventive perimeter,
     the PRA is activated, and we come back to the same auto situation as 1.2.5.2, where securing "cnec-auto-1" also secure "cnec-auto-2".
     This is the "optimal solution".
     Given network file is "1_multi_step_optimisation/1_2_automatons/network_1_2_5_3.uct"
