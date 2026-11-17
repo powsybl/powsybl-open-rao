@@ -9,7 +9,6 @@ package com.powsybl.openrao.raoimpl.algorithms;
 
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.report.ReportNode;
-import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.raoapi.RaoInput;
@@ -17,6 +16,7 @@ import com.powsybl.openrao.raoapi.RaoProvider;
 import com.powsybl.openrao.raoapi.TimeCoupledRaoInput;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.FastRaoParameters;
+import com.powsybl.openrao.raoimpl.reports.OpenRaoReports;
 import java.time.Instant;
 import java.util.concurrent.CompletableFuture;
 
@@ -34,7 +34,7 @@ public class OpenRao implements RaoProvider {
 
     @Override
     public CompletableFuture<RaoResult> run(TimeCoupledRaoInput raoInput, RaoParameters parameters, ReportNode reportNode) {
-        OpenRaoLoggerProvider.TECHNICAL_LOGS.info("Time-coupled situation detected; using MARMOT algorithm as the computation engine");
+        OpenRaoReports.reportTimeCoupledSituationDetected(reportNode);
         return new Marmot().run(raoInput, parameters, reportNode);
     }
 
@@ -47,13 +47,13 @@ public class OpenRao implements RaoProvider {
     public CompletableFuture<RaoResult> run(RaoInput raoInput, RaoParameters parameters, Instant targetEndInstant, ReportNode reportNode) {
         FastRaoParameters fastRaoParameters = parameters.getExtension(FastRaoParameters.class);
         if (raoInput.getCrac().getInstants(InstantKind.CURATIVE).size() > 1) {
-            OpenRaoLoggerProvider.TECHNICAL_LOGS.info("Multi-curative situation detected; using CASTOR algorithm as the computation engine");
+            OpenRaoReports.reportMultiCurativeSituationDetected(reportNode);
             return new CastorFullOptimization(raoInput, parameters, targetEndInstant, reportNode).run();
         } else if (fastRaoParameters == null) {
-            OpenRaoLoggerProvider.TECHNICAL_LOGS.info("Using CASTOR (search-tree RAO) algorithm as the computation engine");
+            OpenRaoReports.reportCastorAlgorithmSelected(reportNode);
             return new CastorFullOptimization(raoInput, parameters, targetEndInstant, reportNode).run();
         } else {
-            OpenRaoLoggerProvider.TECHNICAL_LOGS.info("FastRAO parameters extension found; using FastRAO algorithm as the computation engine");
+            OpenRaoReports.reportFastRaoAlgorithmSelected(reportNode);
             return new FastRao().run(raoInput, parameters, targetEndInstant, reportNode);
         }
     }
