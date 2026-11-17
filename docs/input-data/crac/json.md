@@ -34,11 +34,11 @@ Examples of complete CRACs are given below
 ::::{tabs}
 :::{group-tab} JAVA creation API
 The creation of a small CRAC is for instance made in this test class of the OpenRAO repository:  
-[example on GitHub](https://github.com/powsybl/powsybl-open-rao/blob/main/data/crac/crac-impl/src/test/java/com/powsybl/openrao/data/crac/impl/utils/CommonCracCreation.java)
+{src}`example on GitHub<data/crac/crac-impl/src/test/java/com/powsybl/openrao/data/crac/impl/utils/CommonCracCreation.java>`
 :::
 :::{group-tab} JSON file
 An example of a small CRAC in the JSON internal format of OpenRAO is given below:  
-[example on GitHub](https://github.com/powsybl/powsybl-open-rao/blob/main/data/crac/crac-io/crac-io-json/src/test/resources/retrocompatibility/v2/crac-v2.8.json)
+{src}`example on GitHub<data/crac/crac-io/crac-io-json/src/test/resources/retrocompatibility/v2/crac-v2.8.json>`
 <!-- TODO: point to the latest JSON CRAC version above -->
 :::
 ::::
@@ -1175,7 +1175,7 @@ crac.newPstRangeAction()
     .add();
 ~~~
 In that case, the validity domain of the PST (intersection of its ranges and feasible taps) is [1; 3]
-Note that the [PstHelper utility class](https://github.com/powsybl/powsybl-open-rao/blob/main/data/crac/crac-io/crac-io-commons/src/main/java/com/powsybl/openrao/data/crac/io/commons/PstHelper.java) can ease the creation of the TapToAngleConversionMap.
+Note that the {src}`PstHelper utility class<data/crac/crac-io/crac-io-commons/src/main/java/com/powsybl/openrao/data/crac/io/commons/PstHelper.java>` can ease the creation of the TapToAngleConversionMap.
 :::
 :::{group-tab} JSON file
 ~~~json
