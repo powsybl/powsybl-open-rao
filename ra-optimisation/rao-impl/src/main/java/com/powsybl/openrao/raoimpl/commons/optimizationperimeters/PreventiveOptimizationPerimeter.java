@@ -24,12 +24,9 @@ import com.powsybl.openrao.data.crac.api.usagerule.OnInstant;
 import com.powsybl.openrao.data.crac.api.usagerule.UsageRule;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
-import com.powsybl.openrao.searchtreerao.castor.algorithm.Perimeter;
-import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
-import com.powsybl.openrao.searchtreerao.reports.CastorReports;
-import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
 import com.powsybl.openrao.raoimpl.algorithms.Perimeter;
 import com.powsybl.openrao.raoimpl.commons.RaoUtil;
+import com.powsybl.openrao.raoimpl.reports.CastorReports;
 import com.powsybl.openrao.raoimpl.result.api.PrePerimeterResult;
 
 import java.util.Collections;
