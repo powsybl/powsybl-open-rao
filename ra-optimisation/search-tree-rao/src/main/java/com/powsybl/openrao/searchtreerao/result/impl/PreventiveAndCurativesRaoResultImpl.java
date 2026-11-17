@@ -313,10 +313,14 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractExtendable<RaoR
             .filter(state -> !contingenciesToExclude.contains(state.getContingency().orElseThrow().getId()))
             .collect(Collectors.toSet());
         for (State state : postOutageStates) {
-            boolean stateSecurityStatus = RaoUtil.computeSecurityStatus(
-                crac.getFlowCnecs(state), postContingencyResults.get(state).prePerimeterResultForAllFollowingStates(), flowUnit, operatorsNotSharingCras);
-            if (!stateSecurityStatus) {
-                return false;
+            PostPerimeterResult postPerimeterResult = postContingencyResults.get(state);
+            if (!(postPerimeterResult.optimizationResult() instanceof SkippedOptimizationResultImpl)
+                && postPerimeterResult.optimizationResult().getComputationStatus() != FAILURE) {
+                boolean stateSecurityStatus = RaoUtil.computeSecurityStatus(
+                    crac.getFlowCnecs(state), postPerimeterResult.prePerimeterResultForAllFollowingStates(), flowUnit, operatorsNotSharingCras);
+                if (!stateSecurityStatus) {
+                    return false;
+                }
             }
         }
 
@@ -413,7 +417,7 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractExtendable<RaoR
                     raoParameters.getObjectiveFunctionParameters().getType().costOptimization() ?
                         stateAndResult.getValue().optimizationResult().getFunctionalCost() :
                         stateAndResult.getValue().prePerimeterResultForAllFollowingStates().getFunctionalCost()))
-            );
+                );
 
             return totalCost.get();
         }
