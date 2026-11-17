@@ -8,6 +8,7 @@
 package com.powsybl.openrao.searchtreerao.commons;
 
 import com.powsybl.commons.report.ReportNode;
+import com.powsybl.computation.ComputationManager;
 import com.powsybl.glsk.commons.ZonalData;
 import com.powsybl.glsk.commons.ZonalDataImpl;
 import com.powsybl.iidm.network.Country;
@@ -93,8 +94,9 @@ public final class ToolProvider {
                                                                             final boolean computePtdfs,
                                                                             final boolean computeLoopFlows,
                                                                             final Instant outageInstant,
-                                                                            final ReportNode reportNode) {
-        return getSystematicSensitivityInterface(cnecs, rangeActions, computePtdfs, computeLoopFlows, null, outageInstant, reportNode);
+                                                                            final ReportNode reportNode,
+                                                                            final ComputationManager computationManager) {
+        return getSystematicSensitivityInterface(cnecs, rangeActions, computePtdfs, computeLoopFlows, null, outageInstant, reportNode, computationManager);
     }
 
     public SystematicSensitivityInterface getSystematicSensitivityInterface(final Set<FlowCnec> cnecs,
@@ -103,7 +105,8 @@ public final class ToolProvider {
                                                                             final boolean computeLoopFlows,
                                                                             final AppliedRemedialActions appliedRemedialActions,
                                                                             final Instant outageInstant,
-                                                                            final ReportNode reportNode) {
+                                                                            final ReportNode reportNode,
+                                                                            final ComputationManager computationManager) {
 
         Unit flowUnit = getFlowUnit(raoParameters);
 
@@ -119,9 +122,9 @@ public final class ToolProvider {
             .withParameters(getSensitivityWithLoadFlowParameters(raoParameters))
             .withRangeActionSensitivities(rangeActions, cnecs, Collections.singleton(Unit.MEGAWATT))
             .withAppliedRemedialActions(appliedRemedialActions)
-            .withOutageInstant(outageInstant);
-
-        builder.withLoadflow(cnecs, computationUnits);
+            .withOutageInstant(outageInstant)
+            .withComputationManager(computationManager)
+            .withLoadflow(cnecs, computationUnits);
 
         if (computePtdfs && computeLoopFlows) {
             Set<String> eic = getEicForObjectiveFunction();

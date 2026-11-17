@@ -14,8 +14,6 @@ import com.powsybl.openrao.data.crac.api.IdentifiableAdder;
  */
 public interface CnecAdder<J extends CnecAdder<J>> extends IdentifiableAdder<J> {
 
-    J withNetworkElement(String networkElementId, String networkElementName);
-
     J withNetworkElement(String networkElementId);
 
     J withInstant(String instantId);

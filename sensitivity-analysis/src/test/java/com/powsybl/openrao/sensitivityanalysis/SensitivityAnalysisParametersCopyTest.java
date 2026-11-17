@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.sensitivityanalysis;
 
+import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.openrao.commons.Unit;
@@ -63,7 +64,7 @@ class SensitivityAnalysisParametersCopyTest {
         SensitivityAnalysisParameters sharedParameters = new SensitivityAnalysisParameters();
 
         // the with-RA analysis runs with ONLY_OPERATOR_STRATEGIES, but only on its private copy
-        SystematicSensitivityAdapter.runSensitivity(network, factorProvider, appliedRemedialActions, sharedParameters, "MockSensi", crac.getOutageInstant());
+        SystematicSensitivityAdapter.runSensitivity(network, factorProvider, appliedRemedialActions, sharedParameters, "MockSensi", crac.getOutageInstant(), LocalComputationManager.getDefault());
 
         assertEquals(SensitivityOperatorStrategiesCalculationMode.NONE, sharedParameters.getOperatorStrategiesCalculationMode());
     }

@@ -8,16 +8,13 @@
 package com.powsybl.openrao.data.crac.io.json;
 
 import com.powsybl.iidm.network.Country;
-import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.AngleCnec;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.cnec.VoltageCnec;
-import com.powsybl.openrao.data.crac.api.threshold.BranchThreshold;
 import com.powsybl.openrao.data.crac.api.usagerule.OnConstraint;
 import com.powsybl.openrao.data.crac.api.usagerule.OnContingencyState;
 import com.powsybl.openrao.data.crac.api.usagerule.OnFlowConstraintInCountry;
@@ -27,8 +24,6 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
-
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -55,35 +50,6 @@ class JsonSerializationConstantsTest {
     void versionNumberNokTest(String version) {
         OpenRaoException exception = assertThrows(OpenRaoException.class, () -> JsonSerializationConstants.getPrimaryVersionNumber(version));
         assertEquals("json CRAC version number must be of the form vX.Y", exception.getMessage());
-    }
-
-    private BranchThreshold mockBranchThreshold(Unit unit, TwoSides side, Double min) {
-        BranchThreshold branchThreshold = mock(BranchThreshold.class);
-        when(branchThreshold.getUnit()).thenReturn(unit);
-        when(branchThreshold.getSide()).thenReturn(side);
-        when(branchThreshold.min()).thenReturn(Optional.ofNullable(min));
-        return branchThreshold;
-    }
-
-    @Test
-    void testThresholdComparator() {
-        JsonSerializationConstants.ThresholdComparator comparator = new JsonSerializationConstants.ThresholdComparator();
-        BranchThreshold bt1 = mockBranchThreshold(Unit.AMPERE, TwoSides.ONE, -10.);
-        BranchThreshold bt2 = mockBranchThreshold(Unit.AMPERE, TwoSides.ONE, null);
-
-        assertTrue(comparator.compare(bt1, bt2) < 0);
-
-        bt1 = mockBranchThreshold(Unit.AMPERE, TwoSides.ONE, null);
-        bt2 = mockBranchThreshold(Unit.AMPERE, TwoSides.ONE, null);
-        assertTrue(comparator.compare(bt1, bt2) > 0);
-
-        bt1 = mockBranchThreshold(Unit.AMPERE, TwoSides.TWO, -10.);
-        bt2 = mockBranchThreshold(Unit.AMPERE, TwoSides.ONE, null);
-        assertTrue(comparator.compare(bt1, bt2) > 0);
-
-        bt1 = mockBranchThreshold(Unit.AMPERE, TwoSides.TWO, -10.);
-        bt2 = mockBranchThreshold(Unit.MEGAWATT, TwoSides.ONE, null);
-        assertTrue(comparator.compare(bt1, bt2) < 0);
     }
 
     private UsageRule mockUsageRule(Instant instant, String stateId, String flowCnecId, Country country, String angleCnecId, String voltageCnecId) {

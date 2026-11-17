@@ -77,7 +77,8 @@ class OnContingencyStateAdderImplTest {
         assertTrue(usageRule instanceof OnContingencyState);
         assertEquals(curativeInstant, ((OnContingencyState) usageRule).getState().getInstant());
         assertEquals(contingency, ((OnContingencyState) usageRule).getState().getContingency().orElse(null));
-        assertEquals(1, crac.getStates().size());
+        assertNotNull(crac.getPreventiveState()); // preventive state is added by default
+        assertEquals(2, crac.getStates().size());
         assertNotNull(crac.getState("contingencyId", curativeInstant));
     }
 

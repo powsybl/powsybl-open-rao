@@ -51,6 +51,10 @@
         "$ref": "../flow-threshold/flow-threshold-v2.4.json"
       },
       "minItems": 1
+    },
+    "extensions": {
+      "type": "object",
+      "additionalProperties": true
     }
   },
   "additionalProperties": false,

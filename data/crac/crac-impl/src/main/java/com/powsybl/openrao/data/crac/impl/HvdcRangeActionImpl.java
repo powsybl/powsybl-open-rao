@@ -15,7 +15,6 @@ import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControl;
 import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.data.crac.api.NetworkElement;
 import com.powsybl.openrao.data.crac.api.range.StandardRange;
 import com.powsybl.openrao.data.crac.api.rangeaction.HvdcRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.VariationDirection;
@@ -35,21 +34,21 @@ import java.util.Set;
  */
 public class HvdcRangeActionImpl extends AbstractRangeAction<HvdcRangeAction> implements HvdcRangeAction {
 
-    private final NetworkElement networkElement;
+    private final String networkElementId;
     private final List<StandardRange> ranges;
     private Double initialSetpoint;
 
     HvdcRangeActionImpl(String id, String name, String operator, Set<UsageRule> usageRules, List<StandardRange> ranges,
-                        Double initialSetpoint, NetworkElement networkElement, String groupId, Integer speed, Double activationCost, Map<VariationDirection, Double> variationCosts) {
+                        Double initialSetpoint, String networkElementId, String groupId, Integer speed, Double activationCost, Map<VariationDirection, Double> variationCosts) {
         super(id, name, operator, usageRules, groupId, speed, activationCost, variationCosts);
-        this.networkElement = networkElement;
+        this.networkElementId = networkElementId;
         this.ranges = ranges;
         this.initialSetpoint = initialSetpoint;
     }
 
     @Override
-    public NetworkElement getNetworkElement() {
-        return networkElement;
+    public String getNetworkElementId() {
+        return networkElementId;
     }
 
     @Override
@@ -58,8 +57,8 @@ public class HvdcRangeActionImpl extends AbstractRangeAction<HvdcRangeAction> im
     }
 
     @Override
-    public Set<NetworkElement> getNetworkElements() {
-        return Collections.singleton(networkElement);
+    public Set<String> getNetworkElementsIds() {
+        return Collections.singleton(networkElementId);
     }
 
     @Override
@@ -93,8 +92,8 @@ public class HvdcRangeActionImpl extends AbstractRangeAction<HvdcRangeAction> im
 
     HvdcAction toAction(double targetSetpoint) {
         HvdcActionBuilder actionBuilder = new HvdcActionBuilder()
-            .withId(networkElement.getId() + "_" + targetSetpoint)
-            .withHvdcId(networkElement.getId())
+            .withId(networkElementId + "_" + targetSetpoint)
+            .withHvdcId(networkElementId)
             .withActivePowerSetpoint(Math.abs(targetSetpoint));
         if (targetSetpoint < 0) {
             actionBuilder.withConverterMode(HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER);
@@ -108,20 +107,20 @@ public class HvdcRangeActionImpl extends AbstractRangeAction<HvdcRangeAction> im
         if (isAngleDroopActivePowerControlEnabled(network)) {
             throw new OpenRaoException(String.format(
                 "Unable to set an active power setpoint for HVDC line %s because it is operating in AC Emulation mode.",
-                networkElement.getId()
+                networkElementId
                 )
             );
         }
     }
 
     public boolean isAngleDroopActivePowerControlEnabled(Network network) {
-        HvdcAngleDroopActivePowerControl hvdcAngleDroopActivePowerControl = IidmHvdcHelper.getHvdcLine(network, networkElement.getId()).getExtension(HvdcAngleDroopActivePowerControl.class);
+        HvdcAngleDroopActivePowerControl hvdcAngleDroopActivePowerControl = IidmHvdcHelper.getHvdcLine(network, networkElementId).getExtension(HvdcAngleDroopActivePowerControl.class);
         return hvdcAngleDroopActivePowerControl != null && hvdcAngleDroopActivePowerControl.isEnabled();
     }
 
     @Override
     public double getCurrentSetpoint(Network network) {
-        return IidmHvdcHelper.getCurrentSetpoint(network, networkElement.getId());
+        return IidmHvdcHelper.getCurrentSetpoint(network, networkElementId);
     }
 
     @Override
@@ -136,7 +135,7 @@ public class HvdcRangeActionImpl extends AbstractRangeAction<HvdcRangeAction> im
             return false;
         }
 
-        return this.networkElement.equals(((HvdcRangeAction) o).getNetworkElement())
+        return this.getNetworkElementId().equals(((HvdcRangeAction) o).getNetworkElementId())
                 && this.ranges.equals(((HvdcRangeAction) o).getRanges());
 
     }
@@ -147,7 +146,7 @@ public class HvdcRangeActionImpl extends AbstractRangeAction<HvdcRangeAction> im
         for (StandardRange range : ranges) {
             hashCode += 31 * range.hashCode();
         }
-        hashCode += 31 * networkElement.hashCode();
+        hashCode += 31 * networkElementId.hashCode();
         return hashCode;
     }
 

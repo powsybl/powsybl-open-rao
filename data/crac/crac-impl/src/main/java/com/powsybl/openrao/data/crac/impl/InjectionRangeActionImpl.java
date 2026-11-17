@@ -15,7 +15,6 @@ import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.data.crac.api.NetworkElement;
 import com.powsybl.openrao.data.crac.api.range.StandardRange;
 import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.VariationDirection;
@@ -26,19 +25,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public class InjectionRangeActionImpl extends AbstractRangeAction<InjectionRangeAction> implements InjectionRangeAction {
 
-    private final Map<NetworkElement, Double> injectionDistributionKeys;
+    private final Map<String, Double> injectionDistributionKeys;
     private final List<StandardRange> ranges;
     private final Double initialSetpoint;
 
     InjectionRangeActionImpl(String id, String name, String operator, String groupId, Set<UsageRule> usageRules,
-                             List<StandardRange> ranges, Double initialSetpoint, Map<NetworkElement, Double> injectionDistributionKeys,
+                             List<StandardRange> ranges, Double initialSetpoint, Map<String, Double> injectionDistributionKeys,
                              Integer speed, Double activationCost, Map<VariationDirection, Double> variationCosts) {
         super(id, name, operator, usageRules, groupId, speed, activationCost, variationCosts);
         this.ranges = ranges;
@@ -47,12 +45,12 @@ public class InjectionRangeActionImpl extends AbstractRangeAction<InjectionRange
     }
 
     @Override
-    public Set<NetworkElement> getNetworkElements() {
+    public Set<String> getNetworkElementsIds() {
         return injectionDistributionKeys.keySet();
     }
 
     @Override
-    public Map<NetworkElement, Double> getInjectionDistributionKeys() {
+    public Map<String, Double> getInjectionDistributionKeysIds() {
         return injectionDistributionKeys;
     }
 
@@ -84,7 +82,7 @@ public class InjectionRangeActionImpl extends AbstractRangeAction<InjectionRange
     @Override
     public List<Action> toActions(double setpoint, Network network) {
         List<Action> actions = new ArrayList<>();
-        injectionDistributionKeys.forEach((ne, key) -> actions.add(buildInjectionAction(network, ne.getId(), setpoint * key)));
+        injectionDistributionKeys.forEach((ne, key) -> actions.add(buildInjectionAction(network, ne, setpoint * key)));
         return actions;
     }
 
@@ -121,10 +119,7 @@ public class InjectionRangeActionImpl extends AbstractRangeAction<InjectionRange
     public double getCurrentSetpoint(Network network) {
         return IidmInjectionHelper.getCurrentSetpoint(
             network,
-            injectionDistributionKeys.entrySet().stream().collect(Collectors.toMap(
-                entry -> entry.getKey().getId(),
-                Map.Entry::getValue
-            ))
+            injectionDistributionKeys
         );
     }
 
@@ -139,7 +134,7 @@ public class InjectionRangeActionImpl extends AbstractRangeAction<InjectionRange
         if (!super.equals(o)) {
             return false;
         }
-        return this.injectionDistributionKeys.equals(((InjectionRangeAction) o).getInjectionDistributionKeys())
+        return this.getInjectionDistributionKeysIds().equals(((InjectionRangeAction) o).getInjectionDistributionKeysIds())
             && this.ranges.equals(((InjectionRangeAction) o).getRanges());
     }
 

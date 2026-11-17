@@ -8,9 +8,9 @@ Feature: 2.2.2.1: Handle HVDC range actions in RAO
 
   @fast @rao @dc @preventive-only @hvdc @max-min-margin
   Scenario: 2.2.2.1.1: HVDC range action with one preventive CNEC
-    Given network file is "epic15/TestCase16NodesWithHvdc.xiidm" for CORE CC
-    Given crac file is "epic15/jsonCrac_ep15us12-5case1.json"
-    Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
+    Given network file is "2_remedial_actions/2_2_range_actions_optimisation/2_2_2_hvdc_range_actions/network_16nodes_with_hvdc.xiidm" for CORE CC
+    Given crac file is "2_remedial_actions/2_2_range_actions_optimisation/2_2_2_hvdc_range_actions/crac_2_2_2_1_1.json"
+    Given configuration file is "common/rao_parameters_max_margin_megawatt_dc.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -20,9 +20,9 @@ Feature: 2.2.2.1: Handle HVDC range actions in RAO
 
   @fast @rao @dc @preventive-only @hvdc @max-min-margin
   Scenario: 2.2.2.1.2: HVDC range action with two preventive CNECs
-    Given network file is "epic15/TestCase16NodesWithHvdc.xiidm" for CORE CC
-    Given crac file is "epic15/jsonCrac_ep15us12-5case2.json"
-    Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
+    Given network file is "2_remedial_actions/2_2_range_actions_optimisation/2_2_2_hvdc_range_actions/network_16nodes_with_hvdc.xiidm" for CORE CC
+    Given crac file is "2_remedial_actions/2_2_range_actions_optimisation/2_2_2_hvdc_range_actions/crac_2_2_2_1_2.json"
+    Given configuration file is "common/rao_parameters_max_margin_megawatt_dc.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -35,9 +35,9 @@ Feature: 2.2.2.1: Handle HVDC range actions in RAO
 
   @fast @rao @dc @preventive-only @hvdc @max-min-margin
   Scenario: 2.2.2.1.3: HVDC range action with PST range action and two preventive CNECs
-    Given network file is "epic15/TestCase16NodesWithHvdc.xiidm" for CORE CC
-    Given crac file is "epic15/jsonCrac_ep15us12-5case3.json"
-    Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
+    Given network file is "2_remedial_actions/2_2_range_actions_optimisation/2_2_2_hvdc_range_actions/network_16nodes_with_hvdc.xiidm" for CORE CC
+    Given crac file is "2_remedial_actions/2_2_range_actions_optimisation/2_2_2_hvdc_range_actions/crac_2_2_2_1_3.json"
+    Given configuration file is "common/rao_parameters_max_margin_megawatt_dc.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -49,9 +49,9 @@ Feature: 2.2.2.1: Handle HVDC range actions in RAO
 
   @fast @rao @dc @preventive-only @hvdc @max-min-margin
   Scenario: 2.2.2.1.4: HVDC range action with outage CNEC
-    Given network file is "epic15/TestCase16NodesWithHvdc.xiidm" for CORE CC
-    Given crac file is "epic15/jsonCrac_ep15us12-5case4.json"
-    Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
+    Given network file is "2_remedial_actions/2_2_range_actions_optimisation/2_2_2_hvdc_range_actions/network_16nodes_with_hvdc.xiidm" for CORE CC
+    Given crac file is "2_remedial_actions/2_2_range_actions_optimisation/2_2_2_hvdc_range_actions/crac_2_2_2_1_4.json"
+    Given configuration file is "common/rao_parameters_max_margin_megawatt_dc.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -65,9 +65,9 @@ Feature: 2.2.2.1: Handle HVDC range actions in RAO
 
   @fast @rao @dc @contingency-scenarios @hvdc @max-min-margin
   Scenario: 2.2.2.1.5: HVDC range action with one curative perimeter
-    Given network file is "epic15/TestCase16NodesWithHvdc.xiidm" for CORE CC
-    Given crac file is "epic15/jsonCrac_ep15us12-5case5.json"
-    Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
+    Given network file is "2_remedial_actions/2_2_range_actions_optimisation/2_2_2_hvdc_range_actions/network_16nodes_with_hvdc.xiidm" for CORE CC
+    Given crac file is "2_remedial_actions/2_2_range_actions_optimisation/2_2_2_hvdc_range_actions/crac_2_2_2_1_5.json"
+    Given configuration file is "common/rao_parameters_max_margin_megawatt_dc.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -82,9 +82,9 @@ Feature: 2.2.2.1: Handle HVDC range actions in RAO
 
   @fast @rao @dc @contingency-scenarios @hvdc @max-min-margin
   Scenario: 2.2.2.1.6: HVDC range action with two curative perimeters and negative initial flow
-    Given network file is "epic15/TestCase16NodesWithHvdc.xiidm" for CORE CC
-    Given crac file is "epic15/jsonCrac_ep15us12-5case6.json"
-    Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
+    Given network file is "2_remedial_actions/2_2_range_actions_optimisation/2_2_2_hvdc_range_actions/network_16nodes_with_hvdc.xiidm" for CORE CC
+    Given crac file is "2_remedial_actions/2_2_range_actions_optimisation/2_2_2_hvdc_range_actions/crac_2_2_2_1_6.json"
+    Given configuration file is "common/rao_parameters_max_margin_megawatt_dc.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -102,9 +102,9 @@ Feature: 2.2.2.1: Handle HVDC range actions in RAO
 
   @fast @rao @dc @preventive-only @hvdc @max-min-margin
   Scenario: 2.2.2.1.7: HVDC with a negative optimal setpoint
-    Given network file is "epic15/TestCase16NodesWithHvdc.xiidm" for CORE CC
-    Given crac file is "epic15/jsonCrac_ep15us12-5case7.json"
-    Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
+    Given network file is "2_remedial_actions/2_2_range_actions_optimisation/2_2_2_hvdc_range_actions/network_16nodes_with_hvdc.xiidm" for CORE CC
+    Given crac file is "2_remedial_actions/2_2_range_actions_optimisation/2_2_2_hvdc_range_actions/crac_2_2_2_1_7.json"
+    Given configuration file is "common/rao_parameters_max_margin_megawatt_dc.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -114,9 +114,9 @@ Feature: 2.2.2.1: Handle HVDC range actions in RAO
 
   @fast @rao @dc @contingency-scenarios @hvdc @max-min-margin
   Scenario: 2.2.2.1.8: HVDC and PST filtering
-    Given network file is "epic15/TestCase16NodesWithHvdc.xiidm" for CORE CC
-    Given crac file is "epic15/jsonCrac_ep15us12-5case8.json"
-    Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
+    Given network file is "2_remedial_actions/2_2_range_actions_optimisation/2_2_2_hvdc_range_actions/network_16nodes_with_hvdc.xiidm" for CORE CC
+    Given crac file is "2_remedial_actions/2_2_range_actions_optimisation/2_2_2_hvdc_range_actions/crac_2_2_2_1_8.json"
+    Given configuration file is "common/rao_parameters_max_margin_megawatt_dc.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -126,9 +126,9 @@ Feature: 2.2.2.1: Handle HVDC range actions in RAO
 
   @fast @rao @dc @preventive-only @hvdc @max-min-margin
   Scenario: 2.2.2.1.9: HVDC inverted in CRAC file
-    Given network file is "epic15/TestCase16NodesWithHvdc.xiidm" for CORE CC
-    Given crac file is "epic15/jsonCrac_ep15us12-5case9.json"
-    Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
+    Given network file is "2_remedial_actions/2_2_range_actions_optimisation/2_2_2_hvdc_range_actions/network_16nodes_with_hvdc.xiidm" for CORE CC
+    Given crac file is "2_remedial_actions/2_2_range_actions_optimisation/2_2_2_hvdc_range_actions/crac_2_2_2_1_9.json"
+    Given configuration file is "common/rao_parameters_max_margin_megawatt_dc.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"

@@ -12,7 +12,7 @@ import com.fasterxml.jackson.core.JsonToken;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
-import com.powsybl.openrao.data.raoresult.impl.RaoResultImpl;
+import com.powsybl.openrao.data.raoresult.api.extension.Metadata;
 import com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants;
 
 import java.io.IOException;
@@ -26,7 +26,7 @@ final class ComputationStatusMapDeserializer {
     private ComputationStatusMapDeserializer() {
     }
 
-    static void deserialize(JsonParser jsonParser, RaoResultImpl raoResult, Crac crac) throws IOException {
+    static void deserialize(JsonParser jsonParser, Crac crac, Metadata.MetadataBuilder metadataBuilder) throws IOException {
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             // COMPUTATION STATUS
             if (!jsonParser.nextFieldName().equals(RaoResultJsonConstants.COMPUTATION_STATUS)) {
@@ -57,7 +57,7 @@ final class ComputationStatusMapDeserializer {
                         ));
                 }
             }
-            raoResult.setComputationStatus(
+            metadataBuilder.addComputationStatus(
                 StateDeserializer.getState(instantId, contingencyId, crac, RaoResultJsonConstants.COMPUTATION_STATUS_MAP),
                 ComputationStatus.valueOf(computationStatus)
             );

@@ -28,12 +28,12 @@ final class WoodburyActions {
             return Stream.of(
                 new SwitchActionBuilder()
                     .withId(switchPair.getId() + "_open")
-                    .withNetworkElementId(switchPair.getSwitchToOpen().getId())
+                    .withNetworkElementId(switchPair.getSwitchToOpenId())
                     .withOpen(true)
                     .build(),
                 new SwitchActionBuilder()
                     .withId(switchPair.getId() + "_close")
-                    .withNetworkElementId(switchPair.getSwitchToClose().getId())
+                    .withNetworkElementId(switchPair.getSwitchToCloseId())
                     .withOpen(false)
                     .build());
         }

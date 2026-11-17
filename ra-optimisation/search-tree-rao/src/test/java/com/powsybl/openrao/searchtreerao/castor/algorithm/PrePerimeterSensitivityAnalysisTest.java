@@ -8,6 +8,7 @@
 package com.powsybl.openrao.searchtreerao.castor.algorithm;
 
 import com.powsybl.commons.report.ReportNode;
+import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.Unit;
@@ -84,6 +85,7 @@ class PrePerimeterSensitivityAnalysisTest {
         when(toolProvider.getAbsolutePtdfSumsComputation()).thenReturn(absolutePtdfSumsComputation);
 
         prePerimeterSensitivityAnalysis = new PrePerimeterSensitivityAnalysis(crac, crac.getFlowCnecs(), crac.getRangeActions(), raoParameters, toolProvider, false);
+        prePerimeterSensitivityAnalysis.setComputationManager(LocalComputationManager.getDefault());
     }
 
     private void mockSystematicSensitivityInterface(boolean withPtdf, boolean withLf) {
@@ -92,7 +94,7 @@ class PrePerimeterSensitivityAnalysisTest {
         when(sensitivityInterface.run(network)).thenReturn(sensitivityResult);
         when(sensitivityResult.getStatus()).thenReturn(SystematicSensitivityResult.SensitivityComputationStatus.SUCCESS);
         when(sensitivityResult.getStatus(any())).thenReturn(SystematicSensitivityResult.SensitivityComputationStatus.SUCCESS);
-        when(toolProvider.getSystematicSensitivityInterface(any(), any(), eq(withPtdf), eq(withLf), any(), any(), any())).thenReturn(sensitivityInterface);
+        when(toolProvider.getSystematicSensitivityInterface(any(), any(), eq(withPtdf), eq(withLf), any(), any(), any(), any())).thenReturn(sensitivityInterface);
     }
 
     @Test

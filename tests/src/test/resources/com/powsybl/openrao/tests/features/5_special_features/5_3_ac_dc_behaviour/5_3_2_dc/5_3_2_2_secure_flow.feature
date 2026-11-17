@@ -8,9 +8,9 @@ Feature: 5.3.2.2: Computation with SECURE_FLOW objective function: manage AC/DC 
 
   @fast @rao @ac @preventive-only @secure-flow
   Scenario: 5.3.2.2.1.1: secure with AC config
-    Given network file is "common/TestCase12Nodes.uct" for CORE CC
-    Given crac file is "epic4/SL_ep4us3.json"
-    Given configuration file is "common/RaoParameters_posMargin_ampere.json"
+    Given network file is "common/network_12nodes.uct" for CORE CC
+    Given crac file is "5_special_features/5_3_ac_dc_behaviour/5_3_2_dc/crac_5_3_2_2_1_1.json"
+    Given configuration file is "common/rao_parameters_pos_margin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -22,9 +22,9 @@ Feature: 5.3.2.2: Computation with SECURE_FLOW objective function: manage AC/DC 
   @fast @rao @dc @preventive-only @secure-flow
   Scenario: 5.3.2.2.1.2: secure with DC config
   Same as 5.3.2.2.1 but computation in DC
-    Given network file is "common/TestCase12Nodes.uct" for CORE CC
-    Given crac file is "epic4/SL_ep4us3.json"
-    Given configuration file is "common/RaoParameters_posMargin_megawatt_dc.json"
+    Given network file is "common/network_12nodes.uct" for CORE CC
+    Given crac file is "5_special_features/5_3_ac_dc_behaviour/5_3_2_dc/crac_5_3_2_2_1_1.json"
+    Given configuration file is "common/rao_parameters_pos_margin_megawatt_dc.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -35,9 +35,9 @@ Feature: 5.3.2.2: Computation with SECURE_FLOW objective function: manage AC/DC 
 
   @fast @rao @ac @preventive-only @secure-flow
   Scenario: 5.3.2.2.2.1: failure with AC config without fallback
-    Given network file is "epic4/US4-3-TestCase12Nodes-diverging.uct"
-    Given crac file is "epic4/SL_ep4us3.json"
-    Given configuration file is "epic4/RaoParameters_posMargin_ampere_ac_divergence.json"
+    Given network file is "5_special_features/5_3_ac_dc_behaviour/5_3_2_dc/network_12nodes_diverging.uct"
+    Given crac file is "5_special_features/5_3_ac_dc_behaviour/5_3_2_dc/crac_5_3_2_2_1_1.json"
+    Given configuration file is "5_special_features/5_3_ac_dc_behaviour/5_3_2_dc/rao_parameters_pos_margin_ampere_ac_divergence.json"
     When I launch rao
     Then the calculation fails
     Then the execution details should be "Initial sensitivity analysis failed"
@@ -46,9 +46,9 @@ Feature: 5.3.2.2: Computation with SECURE_FLOW objective function: manage AC/DC 
   @fast @rao @dc @preventive-only @secure-flow
   Scenario: 5.3.2.2.2.2: no failure with DC config
   Same case as 4.3.2.1 but in DC.
-    Given network file is "epic4/US4-3-TestCase12Nodes-diverging.uct"
-    Given crac file is "epic4/SL_ep4us3.json"
-    Given configuration file is "common/RaoParameters_posMargin_megawatt_dc.json"
+    Given network file is "5_special_features/5_3_ac_dc_behaviour/5_3_2_dc/network_12nodes_diverging.uct"
+    Given crac file is "5_special_features/5_3_ac_dc_behaviour/5_3_2_dc/crac_5_3_2_2_1_1.json"
+    Given configuration file is "common/rao_parameters_pos_margin_megawatt_dc.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"

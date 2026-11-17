@@ -117,7 +117,7 @@ public class SweMonitoredSeriesCreator {
         double threshold = 0.0;
         double margin = Double.POSITIVE_INFINITY;
         for (TwoSides side : cnec.getMonitoredSides()) {
-            double flowOnSide = sweCneHelper.getRaoResult().getFlow(optimizedInstant, cnec, side, Unit.AMPERE);
+            double flowOnSide = sweCneHelper.getFlowResult().getFlow(optimizedInstant, cnec, side, Unit.AMPERE);
             if (Double.isNaN(flowOnSide)) {
                 continue;
             }
@@ -175,7 +175,7 @@ public class SweMonitoredSeriesCreator {
         MonitoredRegisteredResource registeredResource = new MonitoredRegisteredResource();
         registeredResource.setMRID(SweCneUtil.createResourceIDString(A02_CODING_SCHEME, monitoredSeriesCreationContext.getNativeResourceId()));
         registeredResource.setName(monitoredSeriesCreationContext.getNativeResourceName());
-        setInOutAggregateNodes(cnec.getNetworkElement().getId(), monitoredSeriesCreationContext.getNativeId(), registeredResource);
+        setInOutAggregateNodes(cnec.getNetworkElementId(), monitoredSeriesCreationContext.getNativeId(), registeredResource);
 
         if (includeMeasurements) {
             Pair<Double, Double> flowAndThreshold = getCnecLimitingFlowAndThreshold(cnec.getState().getInstant(), cnec);

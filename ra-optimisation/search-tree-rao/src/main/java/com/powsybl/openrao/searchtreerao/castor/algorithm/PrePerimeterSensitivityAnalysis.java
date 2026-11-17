@@ -59,7 +59,8 @@ public class PrePerimeterSensitivityAnalysis extends AbstractMultiPerimeterSensi
 
     public PrePerimeterResult runInitialSensitivityAnalysis(final Network network, final Set<State> optimizedStates, final ReportNode reportNode) {
         SensitivityComputer.SensitivityComputerBuilder sensitivityComputerBuilder = buildSensiBuilder(reportNode)
-            .withOutageInstant(crac.getOutageInstant());
+            .withOutageInstant(crac.getOutageInstant())
+            .withComputationManager(computationManager);
         if (raoParameters.getLoopFlowParameters().isPresent()) {
             sensitivityComputerBuilder.withCommercialFlowsResults(toolProvider.getLoopFlowComputation(), toolProvider.getLoopFlowCnecs(flowCnecs));
         }

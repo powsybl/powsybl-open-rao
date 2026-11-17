@@ -8,10 +8,10 @@ Feature: 5.1.1.3: Use a refProg file to calculate the loop-flows
 
   @fast @loopflow-computation @dc @loopflow
   Scenario: 5.1.1.3.1 : calculate loop-flows with a refProg file - Megawatt
-    Given network file is "common/TestCase12Nodes.uct" for CORE CC
-    Given crac file is "epic7/crac_lf.json"
+    Given network file is "common/network_12nodes.uct" for CORE CC
+    Given crac file is "5_special_features/5_1_loopflow/5_1_1_loopflow_computation/crac_5_1_1_1_2.json"
     Given loopflow glsk file is "common/glsk_lots_of_lf_12nodes.xml"
-    Given RefProg file is "epic7/refProg_12nodes.xml"
+    Given RefProg file is "common/ref_prog_12nodes.xml"
     When I launch loopflow_computation with OpenLoadFlow at "2019-01-08 21:30"
     Then the loopflow on cnec "DDE2AA1  NNL3AA1  1 - preventive" after loopflow computation should be -610.0 MW
     Then the loopflow on cnec "NNL1AA1  NNL3AA1  1 - preventive" after loopflow computation should be 303.0 MW
@@ -33,11 +33,11 @@ Feature: 5.1.1.3: Use a refProg file to calculate the loop-flows
   Scenario: 5.1.1.3.1.bis : calculate loop-flows with a refProg file - Ampere
   Perform exactly the same test as 5.1.1.3.1, but this time with the computation carried out in Ampere.
   The expected result should match the Megawatt value converted to Ampere using the formula : flowInAmpere ~ flowInMw / (Unom × sqrt(3) / 1000).
-    Given network file is "common/TestCase12Nodes.uct" for CORE CC
-    Given crac file is "epic7/crac_lf.json"
+    Given network file is "common/network_12nodes.uct" for CORE CC
+    Given crac file is "5_special_features/5_1_loopflow/5_1_1_loopflow_computation/crac_5_1_1_1_2.json"
     Given loopflow glsk file is "common/glsk_lots_of_lf_12nodes.xml"
-    Given RefProg file is "epic7/refProg_12nodes.xml"
-    Given configuration file is "common/RaoParameters_default_ampere.json"
+    Given RefProg file is "common/ref_prog_12nodes.xml"
+    Given configuration file is "common/rao_parameters_default_ampere.json"
     When I launch loopflow_computation with OpenLoadFlow at "2019-01-08 21:30"
     Then the loopflow on cnec "DDE2AA1  NNL3AA1  1 - preventive" after loopflow computation should be -880.0 A
     Then the loopflow on cnec "NNL1AA1  NNL3AA1  1 - preventive" after loopflow computation should be 437.0 A
@@ -58,11 +58,11 @@ Feature: 5.1.1.3: Use a refProg file to calculate the loop-flows
 
   @fast @rao @ac @preventive-only @loopflow @max-min-margin
   Scenario: 5.1.1.3.2 : run a search tree RAO with a refProg file
-    Given network file is "common/TestCase12Nodes.uct" for CORE CC
-    Given crac file is "epic7/crac_lf_rao_3_cbcora.xml"
+    Given network file is "common/network_12nodes.uct" for CORE CC
+    Given crac file is "5_special_features/5_1_loopflow/crac_5_1_1_3_2.xml"
     Given loopflow glsk file is "common/glsk_lots_of_lf_12nodes.xml"
-    Given RefProg file is "epic7/refProg_12nodes.xml"
-    Given configuration file is "epic7/RaoParameters_maxMargin_mw_dc_lf_false_5_100_update_ptdf.json"
+    Given RefProg file is "common/ref_prog_12nodes.xml"
+    Given configuration file is "5_special_features/5_1_loopflow/rao_parameters_max_margin_mw_dc_lf_false_5_100_update_ptdf.json"
     When I launch loopflow rao at "2019-01-08 21:30" with default loopflow limit as 0.0 percent of pmax
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "UNSECURED"
@@ -90,11 +90,11 @@ Feature: 5.1.1.3: Use a refProg file to calculate the loop-flows
 
   @fast @rao @ac @preventive-only @loopflow @max-min-margin
   Scenario: 5.1.1.3.3 : run another search tree RAO with a refProg file
-    Given network file is "common/TestCase12Nodes.uct" for CORE CC
-    Given crac file is "epic7/crac_lf_rao_3_with_frm_cbcora.xml"
+    Given network file is "common/network_12nodes.uct" for CORE CC
+    Given crac file is "5_special_features/5_1_loopflow/crac_5_1_1_3_3.xml"
     Given loopflow glsk file is "common/glsk_lots_of_lf_12nodes.xml"
-    Given RefProg file is "epic7/refProg_12nodes.xml"
-    Given configuration file is "epic7/RaoParameters_maxMargin_mw_dc_lf_false_5_100_update_ptdf.json"
+    Given RefProg file is "common/ref_prog_12nodes.xml"
+    Given configuration file is "5_special_features/5_1_loopflow/rao_parameters_max_margin_mw_dc_lf_false_5_100_update_ptdf.json"
     When I launch loopflow rao at "2019-01-08 21:30" with default loopflow limit as 0.0 percent of pmax
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "UNSECURED"

@@ -1,4 +1,4 @@
-# Modelling aligned range actions
+# Modeling aligned range actions
 
 ## Used input data
 

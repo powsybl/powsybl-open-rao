@@ -1,9 +1,9 @@
 # Operational applications
 
-Many operational applications involve optimising remedial actions for critical network elements; and these applications often need to achieve different goals.
-The OpenRAO Toolbox can be used in a variety of cases thanks to the large scope of features it covers; its behaviour can be tuned using [configuration parameters](parameters.md).
+Many operational applications involve optimizing remedial actions for critical network elements, and these applications often need to achieve different goals.
+The OpenRAO Toolbox can be used in a variety of cases thanks to the large scope of features it covers; its behavior can be tuned using [configuration parameters](parameters.md).
 
-You can find examples of usages for OpenRAO below.
+You can find examples of usage for OpenRAO below.
 
 ## CASTOR
 
@@ -19,7 +19,7 @@ You can find examples of usages for OpenRAO below.
 :parser: markdown
 ```
 
-### Closed optimisation
+### Closed optimization
 
 ```{include} applications/closed-optim.md
 :parser: markdown

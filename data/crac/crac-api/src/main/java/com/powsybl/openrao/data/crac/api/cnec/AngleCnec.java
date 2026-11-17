@@ -9,11 +9,8 @@ package com.powsybl.openrao.data.crac.api.cnec;
 
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
-import com.powsybl.openrao.data.crac.api.NetworkElement;
-import com.powsybl.openrao.data.crac.api.threshold.Threshold;
 
 import java.util.Optional;
-import java.util.Set;
 
 /**
  * Specific type of {@link Cnec} that monitors phase angle shift between two ends of a branch.
@@ -25,20 +22,14 @@ import java.util.Set;
 public interface AngleCnec extends Cnec<AngleCnec> {
 
     /**
-     * Getter of the {@link NetworkElement} of the exporting end of the branch.
+     * Getter of the network element of the exporting end of the branch.
      */
-    NetworkElement getExportingNetworkElement();
+    String getExportingNetworkElementId();
 
     /**
-     * Getter of the {@link NetworkElement} of the importing end of the branch.
+     * Getter of the network element of the importing end of the branch.
      */
-    NetworkElement getImportingNetworkElement();
-
-    /**
-     * Getter of the {@link Threshold}s that the {@link PhysicalParameter} of this {@code AngleCnec}
-     * should ideally meet.
-     */
-    Set<Threshold> getThresholds();
+    String getImportingNetworkElementId();
 
     /**
      * Getter that returns the lower acceptable value of the {@link PhysicalParameter} with the given {@link Unit}.

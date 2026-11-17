@@ -7,6 +7,8 @@
 
 package com.powsybl.openrao.sensitivityanalysis;
 
+import com.powsybl.computation.ComputationManager;
+import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.glsk.commons.ZonalData;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
@@ -51,6 +53,7 @@ public final class SystematicSensitivityInterface {
      */
     private AppliedRemedialActions appliedRemedialActions;
     private Instant outageInstant;
+    private ComputationManager computationManager;
 
     /**
      * Builder
@@ -62,6 +65,7 @@ public final class SystematicSensitivityInterface {
         private AppliedRemedialActions appliedRemedialActions;
         private boolean providerInitialised = false;
         private Instant outageInstant;
+        private ComputationManager computationManager;
 
         private SystematicSensitivityInterfaceBuilder() {
 
@@ -111,6 +115,11 @@ public final class SystematicSensitivityInterface {
             return this;
         }
 
+        public SystematicSensitivityInterfaceBuilder withComputationManager(ComputationManager computationManager) {
+            this.computationManager = computationManager;
+            return this;
+        }
+
         public SystematicSensitivityInterface build() {
             if (Objects.isNull(sensitivityProvider)) {
                 throw new OpenRaoException("Please provide a sensitivity provider implementation name when building a SystematicSensitivityInterface");
@@ -124,12 +133,16 @@ public final class SystematicSensitivityInterface {
             if (Objects.isNull(outageInstant)) {
                 throw new OpenRaoException("Outage instant has not been defined in the systematic sensitivity interface");
             }
+            if (Objects.isNull(computationManager)) {
+                computationManager = LocalComputationManager.getDefault();
+            }
             SystematicSensitivityInterface systematicSensitivityInterface = new SystematicSensitivityInterface();
             systematicSensitivityInterface.sensitivityProvider = sensitivityProvider;
             systematicSensitivityInterface.parameters = defaultParameters;
             systematicSensitivityInterface.cnecSensitivityProvider = multipleSensitivityProvider;
             systematicSensitivityInterface.appliedRemedialActions = appliedRemedialActions;
             systematicSensitivityInterface.outageInstant = outageInstant;
+            systematicSensitivityInterface.computationManager = computationManager;
             return systematicSensitivityInterface;
         }
     }
@@ -164,7 +177,7 @@ public final class SystematicSensitivityInterface {
             return new SystematicSensitivityResult();
         }
         SystematicSensitivityResult tempSystematicSensitivityAnalysisResult = SystematicSensitivityAdapter
-                .runSensitivity(network, cnecSensitivityProvider, appliedRemedialActions, parameters, sensitivityProvider, outageInstant);
+                .runSensitivity(network, cnecSensitivityProvider, appliedRemedialActions, parameters, sensitivityProvider, outageInstant, computationManager);
 
         if (!tempSystematicSensitivityAnalysisResult.isSuccess()) {
             TECHNICAL_LOGS.error("Sensitivity analysis failed: no output data available.");

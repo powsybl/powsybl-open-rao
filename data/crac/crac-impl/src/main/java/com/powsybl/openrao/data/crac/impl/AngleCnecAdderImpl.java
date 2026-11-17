@@ -13,7 +13,6 @@ import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.AngleCnec;
 import com.powsybl.openrao.data.crac.api.cnec.AngleCnecAdder;
 import com.powsybl.openrao.data.crac.api.threshold.AngleThresholdAdder;
-import com.powsybl.openrao.data.crac.api.threshold.Threshold;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -40,33 +39,16 @@ public class AngleCnecAdderImpl extends AbstractCnecAdderImpl<AngleCnecAdder> im
     }
 
     @Override
-    public AngleCnecAdder withNetworkElement(String networkElementId, String networkElementName) {
-        throw new OpenRaoException("For an angle cnec, use withExportingNetworkElement() and withImportingNetworkElement().");
-    }
-
-    @Override
     public AngleCnecAdder withExportingNetworkElement(String exportingNetworkElementId) {
-        this.withExportingNetworkElement(exportingNetworkElementId, exportingNetworkElementId);
-        return this;
-    }
-
-    @Override
-    public AngleCnecAdder withExportingNetworkElement(String exportingNetworkElementId, String exportingNetworkElementName) {
         this.exportingNetworkElementId = exportingNetworkElementId;
-        super.withNetworkElement(exportingNetworkElementId, exportingNetworkElementName);
+        super.withNetworkElement(exportingNetworkElementId);
         return this;
     }
 
     @Override
     public AngleCnecAdder withImportingNetworkElement(String importingNetworkElementId) {
-        this.withImportingNetworkElement(importingNetworkElementId, importingNetworkElementId);
-        return this;
-    }
-
-    @Override
-    public AngleCnecAdder withImportingNetworkElement(String importingNetworkElementId, String importingNetworkElementName) {
         this.importingNetworkElementId = importingNetworkElementId;
-        super.withNetworkElement(importingNetworkElementId, importingNetworkElementName);
+        super.withNetworkElement(importingNetworkElementId);
         return this;
     }
 
@@ -75,7 +57,7 @@ public class AngleCnecAdderImpl extends AbstractCnecAdderImpl<AngleCnecAdder> im
         return new AngleThresholdAdderImpl(this);
     }
 
-    void addThreshold(ThresholdImpl threshold) {
+    void addThreshold(Threshold threshold) {
         thresholds.add(threshold);
     }
 
@@ -97,8 +79,8 @@ public class AngleCnecAdderImpl extends AbstractCnecAdderImpl<AngleCnecAdder> im
         State state = getState();
 
         AngleCnec cnec = new AngleCnecImpl(id, name,
-            owner.getNetworkElement(exportingNetworkElementId),
-            owner.getNetworkElement(importingNetworkElementId),
+            exportingNetworkElementId,
+            importingNetworkElementId,
             operator, border, state, optimized, monitored,
             thresholds, reliabilityMargin);
 

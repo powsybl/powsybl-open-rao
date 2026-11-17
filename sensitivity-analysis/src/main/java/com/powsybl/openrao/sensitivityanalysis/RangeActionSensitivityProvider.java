@@ -99,13 +99,13 @@ public class RangeActionSensitivityProvider extends LoadflowProvider {
     private void fillSensitivityVariablesAndGlskIds(Network network, Map<String, SensitivityVariableType> sensitivityVariables, Set<String> glskIds) {
         for (RangeAction<?> ra : rangeActions) {
             if (ra instanceof PstRangeAction pstRangeAction) {
-                sensitivityVariables.put(pstRangeAction.getNetworkElement().getId(), SensitivityVariableType.TRANSFORMER_PHASE);
+                sensitivityVariables.put(pstRangeAction.getNetworkElementId(), SensitivityVariableType.TRANSFORMER_PHASE);
             } else if (ra instanceof HvdcRangeAction hvdcRangeAction) {
-                HvdcLine hvdcLine = network.getHvdcLine(hvdcRangeAction.getNetworkElement().getId());
+                HvdcLine hvdcLine = network.getHvdcLine(hvdcRangeAction.getNetworkElementId());
                 if (hvdcLine.getExtension(HvdcAngleDroopActivePowerControl.class) != null && hvdcLine.getExtension(HvdcAngleDroopActivePowerControl.class).isEnabled()) {
                     continue;
                 }
-                sensitivityVariables.put(hvdcRangeAction.getNetworkElement().getId(), SensitivityVariableType.HVDC_LINE_ACTIVE_POWER);
+                sensitivityVariables.put(hvdcRangeAction.getNetworkElementId(), SensitivityVariableType.HVDC_LINE_ACTIVE_POWER);
             } else if (ra instanceof InjectionRangeAction injectionRangeAction) {
                 createPositiveAndNegativeGlsks(injectionRangeAction, sensitivityVariables, glskIds);
             } else if (ra instanceof CounterTradeRangeAction counterTradeRangeAction) {
@@ -152,7 +152,7 @@ public class RangeActionSensitivityProvider extends LoadflowProvider {
         return rangeActions.stream()
             .filter(HvdcRangeAction.class::isInstance)
             .collect(Collectors.toMap(
-                rangeAction -> ((HvdcRangeAction) rangeAction).getNetworkElement().getId(),
+                rangeAction -> ((HvdcRangeAction) rangeAction).getNetworkElementId(),
                 HvdcRangeAction.class::cast,
                 (existing, replacement) -> existing));
     }

@@ -21,6 +21,7 @@ import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.loopflowextension.LoopFlowThresholdAdder;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
+import com.powsybl.openrao.data.raoresult.api.extension.FlowResult;
 import com.powsybl.openrao.data.raoresult.io.cne.commons.CneHelper;
 import com.powsybl.openrao.data.raoresult.io.cne.commons.CneUtil;
 import com.powsybl.openrao.data.raoresult.io.cne.core.xsd.Analog;
@@ -60,6 +61,7 @@ class CoreCneCnecsCreatorTest {
 
     private Crac crac;
     private RaoResult raoResult;
+    private FlowResult flowResult;
     private RaoParameters raoParameters;
     private Instant curativeInstant;
     private Properties properties;
@@ -74,6 +76,8 @@ class CoreCneCnecsCreatorTest {
             .newInstant(CURATIVE_INSTANT_ID, InstantKind.CURATIVE);
         curativeInstant = crac.getInstant(CURATIVE_INSTANT_ID);
         raoResult = Mockito.mock(RaoResult.class);
+        flowResult = Mockito.mock(FlowResult.class);
+        Mockito.when(raoResult.getExtension(FlowResult.class)).thenReturn(flowResult);
         raoParameters = new RaoParameters(ReportNode.NO_OP);
 
         properties = new Properties();
@@ -156,13 +160,15 @@ class CoreCneCnecsCreatorTest {
 
     private void mockCnecResult(FlowCnec cnec, double flowMw, double marginMw, double relMarginMw, double ptdf) {
         TwoSides monitoredSide = cnec.getMonitoredSides().contains(TwoSides.ONE) ? TwoSides.ONE : TwoSides.TWO;
-        Mockito.when(raoResult.getFlow(any(), eq(cnec), eq(monitoredSide), eq(Unit.AMPERE))).thenThrow(new OpenRaoException("No ampere allowed"));
-        Mockito.when(raoResult.getFlow(any(), eq(cnec), eq(monitoredSide), eq(Unit.MEGAWATT))).thenReturn(flowMw);
-        Mockito.when(raoResult.getMargin(any(), eq(cnec), eq(Unit.AMPERE))).thenThrow(new OpenRaoException("No ampere allowed"));
-        Mockito.when(raoResult.getMargin(any(), eq(cnec), eq(Unit.MEGAWATT))).thenReturn(marginMw);
-        Mockito.when(raoResult.getRelativeMargin(any(), eq(cnec), eq(Unit.AMPERE))).thenThrow(new OpenRaoException("No ampere allowed"));
-        Mockito.when(raoResult.getRelativeMargin(any(), eq(cnec), eq(Unit.MEGAWATT))).thenReturn(relMarginMw);
-        Mockito.when(raoResult.getPtdfZonalSum(any(), eq(cnec), eq(monitoredSide))).thenReturn(ptdf);
+        Mockito.when(flowResult.getFlow(any(), eq(cnec), eq(monitoredSide), eq(Unit.AMPERE))).thenThrow(new OpenRaoException("No ampere allowed"));
+        Mockito.when(flowResult.getFlow(any(), eq(cnec), eq(monitoredSide), eq(Unit.AMPERE))).thenThrow(new OpenRaoException("No ampere allowed"));
+        Mockito.when(flowResult.getFlow(any(), eq(cnec), eq(monitoredSide), eq(Unit.MEGAWATT))).thenReturn(flowMw);
+        Mockito.when(flowResult.getMargin(any(), eq(cnec), eq(Unit.AMPERE))).thenThrow(new OpenRaoException("No ampere allowed"));
+        Mockito.when(flowResult.getMargin(any(), eq(cnec), eq(Unit.MEGAWATT))).thenReturn(marginMw);
+        Mockito.when(flowResult.getRelativeMargin(any(), eq(cnec), eq(Unit.AMPERE))).thenThrow(new OpenRaoException("No ampere allowed"));
+        Mockito.when(flowResult.getRelativeMargin(any(), eq(cnec), eq(Unit.MEGAWATT))).thenReturn(relMarginMw);
+        Mockito.when(flowResult.getPtdfZonalSum(any(), eq(cnec), eq(monitoredSide))).thenReturn(ptdf);
+        Mockito.when(raoResult.getExtension(FlowResult.class)).thenReturn(flowResult);
     }
 
     @Test
@@ -413,7 +419,7 @@ class CoreCneCnecsCreatorTest {
         cnec1.newExtension(LoopFlowThresholdAdder.class).withValue(321.).withUnit(Unit.MEGAWATT).add();
 
         mockCnecResult(cnec1, 80, 20, 200, .1);
-        Mockito.when(raoResult.getLoopFlow(any(), eq(cnec1), eq(TwoSides.TWO), eq(Unit.MEGAWATT))).thenReturn(123.);
+        Mockito.when(flowResult.getLoopFlow(any(), eq(cnec1), eq(TwoSides.TWO), eq(Unit.MEGAWATT))).thenReturn(123.);
 
         properties.setProperty("rao-result.export.core-cne.with-loop-flows", "true");
 

@@ -11,6 +11,7 @@ import com.powsybl.action.Action;
 import com.powsybl.action.PhaseTapChangerTapPositionAction;
 import com.powsybl.action.RatioTapChangerTapPositionAction;
 import com.powsybl.action.TerminalsConnectionAction;
+import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
@@ -54,7 +55,14 @@ class SystematicSensitivityAdapterTest {
         Instant outageInstant = crac.getInstant(OUTAGE_INSTANT_ID);
         RangeActionSensitivityProvider factorProvider = new RangeActionSensitivityProvider(crac.getRangeActions(), crac.getFlowCnecs(), Set.of(Unit.MEGAWATT, Unit.AMPERE));
 
-        SystematicSensitivityResult result = SystematicSensitivityAdapter.runSensitivity(network, factorProvider, new SensitivityAnalysisParameters(), "MockSensi", outageInstant);
+        SystematicSensitivityResult result = SystematicSensitivityAdapter.runSensitivity(
+            network,
+            factorProvider,
+            new SensitivityAnalysisParameters(),
+            "MockSensi",
+            outageInstant,
+            LocalComputationManager.getDefault()
+        );
 
         // "standard results" of the MockSensiProvider are expected
         assertEquals(10, result.getReferenceFlow(crac.getFlowCnec("cnec2basecase"), ONE), DOUBLE_TOLERANCE);
@@ -88,7 +96,14 @@ class SystematicSensitivityAdapterTest {
         Instant outageInstant = crac.getInstant(OUTAGE_INSTANT_ID);
         RangeActionSensitivityProvider factorProvider = new RangeActionSensitivityProvider(crac.getRangeActions(), crac.getFlowCnecs(), Set.of(Unit.MEGAWATT, Unit.AMPERE));
 
-        SystematicSensitivityResult result = SystematicSensitivityAdapter.runSensitivity(network, factorProvider, new SensitivityAnalysisParameters(), "MockSensi", outageInstant);
+        SystematicSensitivityResult result = SystematicSensitivityAdapter.runSensitivity(
+            network,
+            factorProvider,
+            new SensitivityAnalysisParameters(),
+            "MockSensi",
+            outageInstant,
+            LocalComputationManager.getDefault()
+        );
 
         // "standard results" of the MockSensiProvider are expected
         assertEquals(10, result.getReferenceFlow(crac.getFlowCnec("cnec2basecase"), ONE), DOUBLE_TOLERANCE);
@@ -144,7 +159,8 @@ class SystematicSensitivityAdapterTest {
             appliedRemedialActions,
             new SensitivityAnalysisParameters(),
             "MockSensi",
-            crac.getOutageInstant()
+            crac.getOutageInstant(),
+            LocalComputationManager.getDefault()
         );
 
         // after initial state or contingency without CRA, "standard results" of the MockSensiProvider are expected
@@ -215,7 +231,8 @@ class SystematicSensitivityAdapterTest {
             appliedRemedialActions,
             new SensitivityAnalysisParameters(),
             "MockSensi",
-            crac.getOutageInstant()
+            crac.getOutageInstant(),
+            LocalComputationManager.getDefault()
         );
 
         // after initial state or contingency without CRA, "standard results" of the MockSensiProvider are expected
@@ -249,7 +266,7 @@ class SystematicSensitivityAdapterTest {
         appliedRemedialActions.addAppliedRangeAction(crac.getState("Contingency FR1 FR3", crac.getInstant(CURATIVE_INSTANT_ID)), unsupportedRangeAction, -3.1);
 
         SystematicSensitivityResult result = SystematicSensitivityAdapter.runSensitivity(network, factorProvider, appliedRemedialActions,
-            new SensitivityAnalysisParameters(), "MockSensi", crac.getOutageInstant());
+            new SensitivityAnalysisParameters(), "MockSensi", crac.getOutageInstant(), LocalComputationManager.getDefault());
 
         assertEquals(SystematicSensitivityResult.SensitivityComputationStatus.PARTIAL_FAILURE, result.getStatus());
         assertEquals(10, result.getReferenceFlow(crac.getFlowCnec("cnec2basecase"), ONE), DOUBLE_TOLERANCE);
@@ -268,7 +285,7 @@ class SystematicSensitivityAdapterTest {
         appliedRemedialActions.addAppliedRangeAction(curativeState, crac.getPstRangeAction("pst"), -3.1);
 
         SystematicSensitivityResult result = SystematicSensitivityAdapter.runSensitivity(network, factorProvider, appliedRemedialActions,
-            new SensitivityAnalysisParameters(), "MockSensi", crac.getOutageInstant());
+            new SensitivityAnalysisParameters(), "MockSensi", crac.getOutageInstant(), LocalComputationManager.getDefault());
 
         assertEquals(SystematicSensitivityResult.SensitivityComputationStatus.SUCCESS, result.getStatus());
         assertEquals(-40, result.getReferenceFlow(crac.getFlowCnec("cnec2stateCurativeContingency1"), ONE), DOUBLE_TOLERANCE);
@@ -323,7 +340,14 @@ class SystematicSensitivityAdapterTest {
         Crac crac = CommonCracCreation.createWithPreventivePstRange(Set.of(ONE, TWO));
         Instant outageInstant = crac.getInstant(OUTAGE_INSTANT_ID);
         RangeActionSensitivityProvider factorProvider = new RangeActionSensitivityProvider(crac.getRangeActions(), crac.getFlowCnecs(), Set.of(Unit.MEGAWATT, Unit.AMPERE));
-        SystematicSensitivityResult result = SystematicSensitivityAdapter.runSensitivity(network, factorProvider, new SensitivityAnalysisParameters(), "MockSensi", outageInstant);
+        SystematicSensitivityResult result = SystematicSensitivityAdapter.runSensitivity(
+            network,
+            factorProvider,
+            new SensitivityAnalysisParameters(),
+            "MockSensi",
+            outageInstant,
+            LocalComputationManager.getDefault()
+        );
         assertEquals(SystematicSensitivityResult.SensitivityComputationStatus.FAILURE, result.getStatus());
     }
 
@@ -357,7 +381,8 @@ class SystematicSensitivityAdapterTest {
             appliedRemedialActions,
             new SensitivityAnalysisParameters(),
             "MockSensi",
-            crac.getOutageInstant()
+            crac.getOutageInstant(),
+            LocalComputationManager.getDefault()
         );
         assertEquals(SystematicSensitivityResult.SensitivityComputationStatus.FAILURE, result.getStatus());
     }
@@ -392,7 +417,8 @@ class SystematicSensitivityAdapterTest {
             appliedRemedialActions,
             new SensitivityAnalysisParameters(),
             "MockSensi",
-            crac.getOutageInstant()
+            crac.getOutageInstant(),
+            LocalComputationManager.getDefault()
         );
         assertEquals(SystematicSensitivityResult.SensitivityComputationStatus.PARTIAL_FAILURE, result.getStatus());
     }

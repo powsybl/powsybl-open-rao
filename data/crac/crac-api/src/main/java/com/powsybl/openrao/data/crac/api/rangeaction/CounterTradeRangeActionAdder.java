@@ -7,14 +7,16 @@
 
 package com.powsybl.openrao.data.crac.api.rangeaction;
 
+import com.powsybl.openrao.data.crac.api.ConnectedAreaAdder;
+
 /**
  * @author Gabriel Plante {@literal <gabriel.plante_externe at rte-france.com>}
  */
 public interface CounterTradeRangeActionAdder extends StandardRangeActionAdder<CounterTradeRangeActionAdder> {
 
-    CounterTradeRangeActionAdder withExportingArea(String exportingArea);
+    CounterTradeRangeActionAdder withAreaId(String areaId);
 
-    CounterTradeRangeActionAdder withImportingArea(String importingArea);
+    ConnectedAreaAdder newConnectedArea();
 
     CounterTradeRangeAction add();
 }

@@ -18,8 +18,6 @@ import com.powsybl.openrao.data.crac.api.networkaction.ActionType;
 import com.powsybl.openrao.data.crac.api.range.RangeType;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.VariationDirection;
-import com.powsybl.openrao.data.crac.api.threshold.BranchThreshold;
-import com.powsybl.openrao.data.crac.api.threshold.Threshold;
 import com.powsybl.openrao.data.crac.api.usagerule.OnConstraint;
 import com.powsybl.openrao.data.crac.api.usagerule.OnContingencyState;
 import com.powsybl.openrao.data.crac.api.usagerule.OnFlowConstraintInCountry;
@@ -44,7 +42,7 @@ public final class JsonSerializationConstants {
     private JsonSerializationConstants() {
     }
 
-    public static final String CRAC_IO_VERSION = "2.11";
+    public static final String CRAC_IO_VERSION = "2.13";
     /*
     v1.1: addition of switchPairs
     v1.2: addition of injectionRangeAction
@@ -67,6 +65,8 @@ public final class JsonSerializationConstants {
     v2.9: add acEmulationDeactivationAction
     v2.10: renaming of danglingLineActions to boundaryLineActions, remove max-tso from ra-usage-limit-per-instant, add rangeType for all range actions
     v2.11: removal of networkElementsNamePerId, renaming counter-trade actions' importingCountry to importingArea, and exportingCountry to exportingArea
+    v2.12: removal of counter-trade actions' exportingArea and importingArea, replaced by the mandatory area and the optional connectedAreas
+    v2.13: removal of percent_imax unit in threshold definition + for a given cnec, side and bound (max or min) -> can only define threshold in one unit
      */
 
     // headers
@@ -87,6 +87,9 @@ public final class JsonSerializationConstants {
     public static final String IMPORTING_COUNTRY = "importingCountry";
     public static final String EXPORTING_AREA = "exportingArea";
     public static final String IMPORTING_AREA = "importingArea";
+    public static final String CONNECTED_AREAS = "connectedAreas";
+    public static final String AREA = "area";
+    public static final String BORDER_RANGES = "borderRanges";
 
     public static final String GROUP_ID = "groupId";
     public static final String SPEED = "speed";
@@ -421,26 +424,6 @@ public final class JsonSerializationConstants {
         }
     }
 
-    public static class ThresholdComparator implements Comparator<Threshold> {
-        @Override
-        public int compare(Threshold o1, Threshold o2) {
-            String unit1 = serializeUnit(o1.getUnit());
-            String unit2 = serializeUnit(o2.getUnit());
-            if (unit1.equals(unit2)) {
-                if (o1 instanceof BranchThreshold bt1 && o2 instanceof BranchThreshold bt2 &&
-                    !bt1.getSide().equals(bt2.getSide())) {
-                    return Integer.compare(serializeSide(bt1.getSide()), serializeSide(bt2.getSide()));
-                }
-                if (o1.min().isPresent()) {
-                    return -1;
-                }
-                return 1;
-            } else {
-                return unit1.compareTo(unit2);
-            }
-        }
-    }
-
     public static class UsageRuleComparator implements Comparator<UsageRule> {
         @Override
         public int compare(UsageRule o1, UsageRule o2) {
@@ -522,4 +505,18 @@ public final class JsonSerializationConstants {
             throw new OpenRaoException("From version %s.%s onward, %s is no longer read in the CRAC.".formatted(major, minor, jsonParser.currentName()));
         }
     }
+
+    /**
+     * Determines whether the given version string represents a version that is equal to or greater than the specified major and minor version numbers.
+     *
+     * @param version The version string to parse and compare, typically in the format "major.minor".
+     * @param major The major version number to compare against.
+     * @param minor The minor version number to compare against.
+     * @return true if the given version is equal to or greater than the specified major and minor version numbers, false otherwise.
+     */
+    public static boolean versionIsAtLeast(String version, int major, int minor) {
+        return JsonSerializationConstants.getPrimaryVersionNumber(version) > major ||
+            JsonSerializationConstants.getPrimaryVersionNumber(version) == major && JsonSerializationConstants.getSubVersionNumber(version) >= minor;
+    }
+
 }

@@ -10,9 +10,9 @@ Feature: 2.2.2.3: Optimize HVDC range actions initially in AC emulation mode
   @fast @rao @ac @preventive-only @hvdc @max-min-margin
   Scenario: 2.2.2.3.1: HVDC range action with one preventive CNEC
     # Copy of test case 2.2.2.1.1, except HVDC is initially in AC emulation mode
-    Given network file is "epic15/TestCase16NodesWithHvdc_AC_emulation.xiidm"
-    Given crac file is "epic15/jsonCrac_ep15us12-5case1.json"
-    Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
+    Given network file is "common/network_16nodes_with_hvdc_ac_emulation.xiidm"
+    Given crac file is "2_remedial_actions/2_2_range_actions_optimisation/2_2_2_hvdc_range_actions/crac_2_2_2_1_1.json"
+    Given configuration file is "common/rao_parameters_max_margin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -27,9 +27,9 @@ Feature: 2.2.2.3: Optimize HVDC range actions initially in AC emulation mode
     # Copy of test case 2.2.2.1.2, except HVDC is initially in AC emulation mode
     # The result is exactly the same except that the network action acEmulationDeactivation_BBE2AA11 is used to deactivate
     # the ac emulation before optimizing the set point
-    Given network file is "epic15/TestCase16NodesWithHvdc_AC_emulation.xiidm"
-    Given crac file is "epic15/jsonCrac_ep15us12-5case2.json"
-    Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
+    Given network file is "common/network_16nodes_with_hvdc_ac_emulation.xiidm"
+    Given crac file is "2_remedial_actions/2_2_range_actions_optimisation/2_2_2_hvdc_range_actions/crac_2_2_2_1_2.json"
+    Given configuration file is "common/rao_parameters_max_margin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -45,18 +45,19 @@ Feature: 2.2.2.3: Optimize HVDC range actions initially in AC emulation mode
     # Copy of test case 2.2.2.1.3, except HVDC is initially in AC emulation mode
     # deactivating ac emulation + PST_PRA_PST_be_BBE2AA11 BBE3AA11 1 at 14 and PRA_HVDC at 807 => yield slightly better cost -273 vs -259.
     # But the MIP didn't find the solution. Why ?
-    # Instead of starting with the HVDC's active setpoint = 0.0 here the MIP start with the active setpoint = 820.
-    # Find the same result in 2.2.2.1.3 if we set initial active setpoint to 820 too.
-    Given network file is "epic15/TestCase16NodesWithHvdc_AC_emulation.xiidm"
-    Given crac file is "epic15/jsonCrac_ep15us12-5case3.json"
-    Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
+    # Instead of starting with the HVDC's active setpoint = 0.0 here the MIP start with the active setpoint = 823.
+    # Find the same result in 2.2.2.1.3 if we set initial active setpoint to 823 too.
+    Given network file is "common/network_16nodes_with_hvdc_ac_emulation.xiidm"
+    Given crac file is "2_remedial_actions/2_2_range_actions_optimisation/2_2_2_hvdc_range_actions/crac_2_2_2_1_3.json"
+    Given configuration file is "common/rao_parameters_max_margin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
-    Then the initial setpoint of RangeAction "PRA_HVDC" should be 820
-    Then 2 remedial actions are used in preventive
+    Then the initial setpoint of RangeAction "PRA_HVDC" should be 823
+    Then 3 remedial actions are used in preventive
     Then the remedial action "acEmulationDeactivation_BBE2AA11 FFR3AA11 1" is used in preventive
     Then the tap of PstRangeAction "PST_PRA_PST_be_BBE2AA11 BBE3AA11 1" should be 14 in preventive
+    Then the setpoint of RangeAction "PRA_HVDC" should be 823 MW in preventive
     Then the worst margin is 259 A
     Then the margin on cnec "be1_be2_n - BBE1AA11->BBE2AA11 - preventive" after PRA should be 259 A
     Then the margin on cnec "be1_fr5_n - BBE1AA11->FFR5AA11 - preventive" after PRA should be 296 A
@@ -66,9 +67,9 @@ Feature: 2.2.2.3: Optimize HVDC range actions initially in AC emulation mode
   Scenario: 2.2.2.3.4: HVDC range action with outage CNEC
     # Copy of test case 2.2.2.1.4, except HVDC is initially in AC emulation mode
       # Same result except that AC emulation is deactivated in preventive by network action "acEmulationDeactivation_BBE2AA11 FFR3AA11 1"
-    Given network file is "epic15/TestCase16NodesWithHvdc_AC_emulation.xiidm"
-    Given crac file is "epic15/jsonCrac_ep15us12-5case4.json"
-    Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
+    Given network file is "common/network_16nodes_with_hvdc_ac_emulation.xiidm"
+    Given crac file is "2_remedial_actions/2_2_range_actions_optimisation/2_2_2_hvdc_range_actions/crac_2_2_2_1_4.json"
+    Given configuration file is "common/rao_parameters_max_margin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -87,9 +88,9 @@ Feature: 2.2.2.3: Optimize HVDC range actions initially in AC emulation mode
     # Copy of test case 2.2.2.1.5, except HVDC is initially in AC emulation mode
     # We get the same results as 2.2.2.1.5 + the use of the network action "acEmulationDeactivation_BBE2AA11 FFR3AA11 1"
     # Note: AC Emulation is deactivated in preventive making the CRAC_HVDC available to the MIP at curative
-    Given network file is "epic15/TestCase16NodesWithHvdc_AC_emulation.xiidm"
-    Given crac file is "epic15/jsonCrac_ep15us12-5case5.json"
-    Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
+    Given network file is "common/network_16nodes_with_hvdc_ac_emulation.xiidm"
+    Given crac file is "2_remedial_actions/2_2_range_actions_optimisation/2_2_2_hvdc_range_actions/crac_2_2_2_1_5.json"
+    Given configuration file is "common/rao_parameters_max_margin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -109,9 +110,9 @@ Feature: 2.2.2.3: Optimize HVDC range actions initially in AC emulation mode
   Scenario: 2.2.2.3.6: HVDC range action with two curative perimeters and negative initial flow
     # Copy of test case 2.2.2.1.6, except HVDC is initially in AC emulation mode
     # Same result except that AC emulation is deactivated in preventive by network action "acEmulationDeactivation_BBE2AA11 FFR3AA11 1"
-    Given network file is "epic15/TestCase16NodesWithHvdc_AC_emulation.xiidm"
-    Given crac file is "epic15/jsonCrac_ep15us12-5case6.json"
-    Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
+    Given network file is "common/network_16nodes_with_hvdc_ac_emulation.xiidm"
+    Given crac file is "2_remedial_actions/2_2_range_actions_optimisation/2_2_2_hvdc_range_actions/crac_2_2_2_1_6.json"
+    Given configuration file is "common/rao_parameters_max_margin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -135,9 +136,9 @@ Feature: 2.2.2.3: Optimize HVDC range actions initially in AC emulation mode
   Scenario: 2.2.2.3.7: HVDC with a negative optimal setpoint
     # Copy of test case 2.2.2.1.7, except HVDC is initially in AC emulation mode
     # Same result except that the AC emulation is deactivated by the network action "acEmulationDeactivation_BBE2AA11 FFR3AA11 1".
-    Given network file is "epic15/TestCase16NodesWithHvdc_AC_emulation.xiidm"
-    Given crac file is "epic15/jsonCrac_ep15us12-5case7.json"
-    Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
+    Given network file is "common/network_16nodes_with_hvdc_ac_emulation.xiidm"
+    Given crac file is "2_remedial_actions/2_2_range_actions_optimisation/2_2_2_hvdc_range_actions/crac_2_2_2_1_7.json"
+    Given configuration file is "common/rao_parameters_max_margin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -151,9 +152,9 @@ Feature: 2.2.2.3: Optimize HVDC range actions initially in AC emulation mode
   Scenario: 2.2.2.3.8: HVDC and PST filtering
     # Copy of test case 2.2.2.1.8, except HVDC is initially in AC emulation mode
     # Same result except that the AC emulation is deactivated by the network action "acEmulationDeactivation_BBE2AA11 FFR3AA11 1".
-    Given network file is "epic15/TestCase16NodesWithHvdc_AC_emulation.xiidm"
-    Given crac file is "epic15/jsonCrac_ep15us12-5case8.json"
-    Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
+    Given network file is "common/network_16nodes_with_hvdc_ac_emulation.xiidm"
+    Given crac file is "2_remedial_actions/2_2_range_actions_optimisation/2_2_2_hvdc_range_actions/crac_2_2_2_1_8.json"
+    Given configuration file is "common/rao_parameters_max_margin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -167,9 +168,9 @@ Feature: 2.2.2.3: Optimize HVDC range actions initially in AC emulation mode
 
   @fast @rao @dc @contingency-scenarios @hvdc @secure-flow
   Scenario: 2.2.2.3.10: HVDC useless in preventive but used in curative
-    Given network file is "epic15/TestCase16NodesWithHvdcAcEmulation_HvdcCnec.xiidm"
-    Given crac file is "epic15/jsonCrac_ep15us17case10.json"
-    Given configuration file is "epic15/RaoParameters_ep15us17case10.json"
+    Given network file is "2_remedial_actions/2_2_range_actions_optimisation/2_2_2_hvdc_range_actions/network_16nodes_with_hvdc_ac_emulation_hvdc_cnec.xiidm"
+    Given crac file is "2_remedial_actions/2_2_range_actions_optimisation/2_2_2_hvdc_range_actions/crac_2_2_2_3_10.json"
+    Given configuration file is "2_remedial_actions/2_2_range_actions_optimisation/2_2_2_hvdc_range_actions/rao_parameters_2_2_2_3_10.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -188,9 +189,9 @@ Feature: 2.2.2.3: Optimize HVDC range actions initially in AC emulation mode
 
   @fast @rao @dc @contingency-scenarios @hvdc @secure-flow
   Scenario: 2.2.2.3.11: HVDC useless in preventive and in curative
-    Given network file is "epic15/TestCase16NodesWithHvdcAcEmulation_HvdcCnec.xiidm"
-    Given crac file is "epic15/jsonCrac_ep15us17case11.json"
-    Given configuration file is "epic15/RaoParameters_ep15us17case11.json"
+    Given network file is "2_remedial_actions/2_2_range_actions_optimisation/2_2_2_hvdc_range_actions/network_16nodes_with_hvdc_ac_emulation_hvdc_cnec.xiidm"
+    Given crac file is "2_remedial_actions/2_2_range_actions_optimisation/2_2_2_hvdc_range_actions/crac_2_2_2_3_11.json"
+    Given configuration file is "2_remedial_actions/2_2_range_actions_optimisation/2_2_2_hvdc_range_actions/rao_parameters_2_2_2_3_10.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -205,9 +206,9 @@ Feature: 2.2.2.3: Optimize HVDC range actions initially in AC emulation mode
 
   @fast @rao @dc @preventive-only @hvdc @max-min-margin
   Scenario: 2.2.2.3.12: HVDC range action with one preventive CNEC, no impact on worst CNEC
-    Given network file is "epic15/TestCase16NodesWithHvdcAcEmulation_HvdcCnec.xiidm"
-    Given crac file is "epic15/jsonCrac_ep15us17case12.json"
-    Given configuration file is "epic15/RaoParameters_ep15us17case12.json"
+    Given network file is "2_remedial_actions/2_2_range_actions_optimisation/2_2_2_hvdc_range_actions/network_16nodes_with_hvdc_ac_emulation_hvdc_cnec.xiidm"
+    Given crac file is "2_remedial_actions/2_2_range_actions_optimisation/2_2_2_hvdc_range_actions/crac_2_2_2_3_12.json"
+    Given configuration file is "2_remedial_actions/2_2_range_actions_optimisation/2_2_2_hvdc_range_actions/rao_parameters_2_2_2_3_12.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "UNSECURED"
@@ -223,9 +224,9 @@ Feature: 2.2.2.3: Optimize HVDC range actions initially in AC emulation mode
     In the leaf evaluating the acEmulationDeactivation action, the sensi of the PST on the CNEC is higher (120A/tap vs 98A/tap in root)
     ie moving the pst by one tap has more impact on the CNEC so we only need to move it to tap 7 to secure the network => cost = 75.0 = 5+7*10
     Moving the HVDC setpoint would be too expensive compared to moving the PST so it stays the same
-    Given network file is "epic15/TestCase16NodesWithHvdc_AC_emulation.xiidm"
-    Given crac file is "epic15/jsonCrac_ep15us17case13.json"
-    Given configuration file is "common/RaoParameters_min_cost_ac.json"
+    Given network file is "common/network_16nodes_with_hvdc_ac_emulation.xiidm"
+    Given crac file is "2_remedial_actions/2_2_range_actions_optimisation/2_2_2_hvdc_range_actions/crac_2_2_2_3_13.json"
+    Given configuration file is "common/rao_parameters_min_cost_ac.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -235,7 +236,7 @@ Feature: 2.2.2.3: Optimize HVDC range actions initially in AC emulation mode
     Then the initial tap of PstRangeAction "PST_PRA_PST_be_BBE2AA11 BBE3AA11 1" should be 0
     Then the initial setpoint of RangeAction "PRA_HVDC" should be 823
     # After optimisation
-    Then 2 remedial actions are used in preventive
+    Then 3 remedial actions are used in preventive
     Then the remedial action "acEmulationDeactivation_BBE2AA11 FFR3AA11 1" is used in preventive
     Then the tap of PstRangeAction "PST_PRA_PST_be_BBE2AA11 BBE3AA11 1" should be 7 in preventive
     Then the setpoint of RangeAction "PRA_HVDC" should be 823 MW in preventive
@@ -245,23 +246,23 @@ Feature: 2.2.2.3: Optimize HVDC range actions initially in AC emulation mode
   Scenario: 2.2.2.3.14: acEmulationDeactivation action is used but the MIP does not change the HVDC setpoint but final setpoint != initial one.
     Same situation as 2.2.2.3.13 but in curative.
     Introduce a contingency that open the line 'FFR1AA11 FFR3AA11 1' -> the HVDC is still in AC Emulation -> the power transiting in the HVDC line changes
-    and is != from the initial setpoint (823MW initially vs 796MW after contingency). So when the AC emulation is disabled, the active power setpoint
-    of the HVDC line is set to 796MW before entering the MIP.
+    and is != from the initial setpoint (823MW initially vs 796MW after contingency) but we don't update the active power setpoint so when we
+    deactivate the ac emulation -> HVDC active power setpoint = 823MW.
       Search tree evaluation in curative:
-    In root leaf, the optimal setpoint found for the PST is 8 => cost = 85.0 = 5+8*10
+    In root leaf, the optimal setpoint found for the PST is 9 => cost = 95.0 = 5+9*10
     In the leaf evaluating the acEmulationDeactivation action, the sensi of the PST on the CNEC is higher (173A/tap vs 142A/tap in root)
-    ie moving the pst by one tap has more impact on the CNEC so we only need to move it to tap 8 to secure the network => cost = 85.0 = 5+8*10
-    The HVDC does not move because it already reached its minimum setpoint of 786.
-    Given network file is "epic15/TestCase16NodesWithHvdc_AC_emulation.xiidm"
-    Given crac file is "epic15/jsonCrac_ep15us17case14.json"
-    Given configuration file is "common/RaoParameters_min_cost_ac.json"
+    ie moving the pst by one tap has more impact on the CNEC so we only need to move it to tap 7 to secure the network => cost = 75.0 = 5+7*10
+    Moving the HVDC setpoint would be too expensive compared to moving the PST so it stays the same
+    Given network file is "common/network_16nodes_with_hvdc_ac_emulation.xiidm"
+    Given crac file is "2_remedial_actions/2_2_range_actions_optimisation/2_2_2_hvdc_range_actions/crac_2_2_2_3_14.json"
+    Given configuration file is "common/rao_parameters_min_cost_ac.json"
     When I launch rao
     Then the initial setpoint of RangeAction "CRA_HVDC" should be 823
     Then 0 remedial actions are used in preventive
     Then 3 remedial actions are used after "CO_0001" at "curative"
     Then the remedial action "acEmulationDeactivation_BBE2AA11 FFR3AA11 1" is used after "CO_0001" at "curative"
-    Then the tap of PstRangeAction "PST_PRA_PST_be_BBE2AA11 BBE3AA11 1" should be 8 after "CO_0001" at "curative"
-    Then the setpoint of RangeAction "CRA_HVDC" should be 796 MW after "CO_0001" at "curative"
+    Then the tap of PstRangeAction "PST_PRA_PST_be_BBE2AA11 BBE3AA11 1" should be 7 after "CO_0001" at "curative"
+    Then the setpoint of RangeAction "CRA_HVDC" should be 823 MW after "CO_0001" at "curative"
 
 
   @fast @rao @ac @preventive-only @hvdc @second-preventive
@@ -275,9 +276,9 @@ Feature: 2.2.2.3: Optimize HVDC range actions initially in AC emulation mode
       - move HVDC setpoint to 100 MW in preventive (the lowest it can go because of the range defined in the CRAC)
       - then move HVDC setpoint to 0 MW in curative to get the max min margin (+ can only move between 0 and 100 MW from previous instant instant)
       - move PST "PST_PRA_PST_be_BBE2AA11 BBE3AA11 1" tap to 16
-    Given network file is "epic15/network_2_2_2_3_15.xiidm"
-    Given crac file is "epic15/jsonCrac_ep15us17case15.json"
-    Given configuration file is "epic15/RaoParameters_2_2_2_3_15.json"
+    Given network file is "2_remedial_actions/2_2_range_actions_optimisation/2_2_2_hvdc_range_actions/network_2_2_2_3_15.xiidm"
+    Given crac file is "2_remedial_actions/2_2_range_actions_optimisation/2_2_2_hvdc_range_actions/crac_2_2_2_3_15.json"
+    Given configuration file is "2_remedial_actions/2_2_range_actions_optimisation/2_2_2_hvdc_range_actions/rao_parameters_2_2_2_3_15.json"
     When I launch rao
     Then the initial setpoint of RangeAction "PRA_HVDC" should be 823
     Then 4 remedial actions are used in preventive

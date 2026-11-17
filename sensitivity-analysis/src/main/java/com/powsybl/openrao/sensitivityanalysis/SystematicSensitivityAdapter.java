@@ -10,6 +10,7 @@ package com.powsybl.openrao.sensitivityanalysis;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.powsybl.action.Action;
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.computation.ComputationManager;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.ContingencyContext;
 import com.powsybl.contingency.strategy.OperatorStrategy;
@@ -57,16 +58,23 @@ final class SystematicSensitivityAdapter {
                                                       CnecSensitivityProvider cnecSensitivityProvider,
                                                       SensitivityAnalysisParameters sensitivityComputationParameters,
                                                       String sensitivityProvider,
-                                                      Instant outageInstant) {
+                                                      Instant outageInstant,
+                                                      ComputationManager computationManager) {
         TECHNICAL_LOGS.debug("Systematic sensitivity analysis [start]");
         SensitivityAnalysisResult result;
         try {
-            result = SensitivityAnalysis.find(sensitivityProvider).run(network,
+            final List<SensitivityFactor> allFactors = cnecSensitivityProvider.getAllFactors(network); // This must be done before getting variable sets
+            final SensitivityAnalysisRunParameters sensitivityAnalysisRunParameters = new SensitivityAnalysisRunParameters()
+                .setContingencies(cnecSensitivityProvider.getContingencies(network))
+                .setVariableSets(cnecSensitivityProvider.getVariableSets())
+                .setParameters(copy(sensitivityComputationParameters))
+                .setComputationManager(computationManager);
+            result = SensitivityAnalysis.find(sensitivityProvider).run(
+                network,
                 network.getVariantManager().getWorkingVariantId(),
-                cnecSensitivityProvider.getAllFactors(network),
-                cnecSensitivityProvider.getContingencies(network),
-                cnecSensitivityProvider.getVariableSets(),
-                copy(sensitivityComputationParameters));
+                allFactors,
+                sensitivityAnalysisRunParameters
+            );
         } catch (PowsyblException | OpenRaoException | CompletionException e) {
             TECHNICAL_LOGS.error(String.format("Systematic sensitivity analysis failed: %s", e.getMessage()));
             return new SystematicSensitivityResult(SystematicSensitivityResult.SensitivityComputationStatus.FAILURE);
@@ -80,9 +88,10 @@ final class SystematicSensitivityAdapter {
                                                       AppliedRemedialActions appliedRemedialActions,
                                                       SensitivityAnalysisParameters sensitivityComputationParameters,
                                                       String sensitivityProvider,
-                                                      Instant outageInstant) {
+                                                      Instant outageInstant,
+                                                      ComputationManager computationManager) {
         if (appliedRemedialActions == null || appliedRemedialActions.isEmpty(network)) {
-            return runSensitivity(network, cnecSensitivityProvider, sensitivityComputationParameters, sensitivityProvider, outageInstant);
+            return runSensitivity(network, cnecSensitivityProvider, sensitivityComputationParameters, sensitivityProvider, outageInstant, computationManager);
         }
 
         TECHNICAL_LOGS.debug("Systematic sensitivity analysis with applied RA [start]");
@@ -92,7 +101,7 @@ final class SystematicSensitivityAdapter {
 
         TECHNICAL_LOGS.debug("{} state(s) without RA", statesWithoutRa.size());
         SystematicSensitivityResult result = runWithoutRemedialActions(network, cnecSensitivityProvider,
-            sensitivityComputationParameters, sensitivityProvider, outageInstant, statesWithoutRa);
+            sensitivityComputationParameters, sensitivityProvider, outageInstant, statesWithoutRa, computationManager);
         if (result.getStatus() == SystematicSensitivityResult.SensitivityComputationStatus.FAILURE) {
             return result;
         }
@@ -100,7 +109,7 @@ final class SystematicSensitivityAdapter {
         TECHNICAL_LOGS.debug("{} state(s) with RA", statesWithRa.size());
         cnecSensitivityProvider.disableFactorsForBaseCaseSituation();
         runWithRemedialActions(result, network, cnecSensitivityProvider, sensitivityComputationParameters,
-            sensitivityProvider, statesWithRa, appliedRemedialActions);
+            sensitivityProvider, statesWithRa, appliedRemedialActions, computationManager);
         cnecSensitivityProvider.enableFactorsForBaseCaseSituation();
 
         TECHNICAL_LOGS.debug("Systematic sensitivity analysis with applied RA [end]");
@@ -112,7 +121,8 @@ final class SystematicSensitivityAdapter {
                                                                          SensitivityAnalysisParameters sensitivityComputationParameters,
                                                                          String sensitivityProvider,
                                                                          Instant outageInstant,
-                                                                         Set<State> statesWithoutRa) {
+                                                                         Set<State> statesWithoutRa,
+                                                                         ComputationManager computationManager) {
         List<Contingency> contingenciesWithoutRa = statesWithoutRa.stream()
             .flatMap(state -> state.getContingency().stream())
             .distinct()
@@ -127,9 +137,11 @@ final class SystematicSensitivityAdapter {
             SensitivityAnalysisResult sensiResult = SensitivityAnalysis.find(sensitivityProvider).run(network,
                 network.getVariantManager().getWorkingVariantId(),
                 factors,
-                contingenciesWithoutRa,
-                cnecSensitivityProvider.getVariableSets(),
-                copy(sensitivityComputationParameters));
+                new SensitivityAnalysisRunParameters()
+                    .setContingencies(contingenciesWithoutRa)
+                    .setVariableSets(cnecSensitivityProvider.getVariableSets())
+                    .setParameters(copy(sensitivityComputationParameters))
+                    .setComputationManager(computationManager));
             return new SystematicSensitivityResult().completeData(sensiResult, outageInstant.getOrder());
         } catch (PowsyblException | OpenRaoException | CompletionException e) {
             TECHNICAL_LOGS.error(String.format("Systematic sensitivity analysis without RA failed: %s", e.getMessage()));
@@ -143,7 +155,8 @@ final class SystematicSensitivityAdapter {
                                                SensitivityAnalysisParameters sensitivityComputationParameters,
                                                String sensitivityProvider,
                                                Set<State> statesWithRa,
-                                               AppliedRemedialActions appliedRemedialActions) {
+                                               AppliedRemedialActions appliedRemedialActions,
+                                               ComputationManager computationManager) {
         // single run with operator strategies when the provider supports all the applied actions, otherwise one run per
         // state with the actions applied on a network variant
         Optional<Map<State, List<Action>>> actionsPerState = convertToOperatorStrategyActions(statesWithRa, appliedRemedialActions,
@@ -151,11 +164,11 @@ final class SystematicSensitivityAdapter {
         if (actionsPerState.isPresent()) {
             TECHNICAL_LOGS.debug("Applied remedial actions are simulated as operator strategies in a single sensitivity analysis");
             runWithRemedialActionsAsOperatorStrategies(result, network, cnecSensitivityProvider, sensitivityComputationParameters,
-                sensitivityProvider, statesWithRa, actionsPerState.get());
+                sensitivityProvider, statesWithRa, actionsPerState.get(), computationManager);
         } else {
             TECHNICAL_LOGS.debug("Some applied remedial actions cannot be simulated as operator strategies: running one sensitivity analysis per state with RA");
             runWithRemedialActionsAppliedOnNetwork(result, network, cnecSensitivityProvider, sensitivityComputationParameters,
-                sensitivityProvider, statesWithRa, appliedRemedialActions);
+                sensitivityProvider, statesWithRa, appliedRemedialActions, computationManager);
         }
     }
 
@@ -192,9 +205,10 @@ final class SystematicSensitivityAdapter {
                                                                    SensitivityAnalysisParameters sensitivityComputationParameters,
                                                                    String sensitivityProvider,
                                                                    Set<State> statesWithRa,
-                                                                   Map<State, List<Action>> actionsPerState) {
+                                                                   Map<State, List<Action>> actionsPerState,
+                                                                   ComputationManager computationManager) {
         RunConfig config = configureWithRemedialActions(cnecSensitivityProvider.getVariableSets(),
-            sensitivityComputationParameters, statesWithRa, actionsPerState);
+            sensitivityComputationParameters, statesWithRa, actionsPerState, computationManager);
         List<SensitivityFactor> factors = cnecSensitivityProvider.getContingencyFactors(network, config.params().getContingencies());
         try {
             SensitivityAnalysisResult sensiResult = SensitivityAnalysis.find(sensitivityProvider).run(network,
@@ -221,7 +235,8 @@ final class SystematicSensitivityAdapter {
                                                                SensitivityAnalysisParameters sensitivityComputationParameters,
                                                                String sensitivityProvider,
                                                                Set<State> statesWithRa,
-                                                               AppliedRemedialActions appliedRemedialActions) {
+                                                               AppliedRemedialActions appliedRemedialActions,
+                                                               ComputationManager computationManager) {
         String workingVariantId = network.getVariantManager().getWorkingVariantId();
         String variantForState = RandomizedString.getRandomizedString();
         int counterForLogs = 1;
@@ -242,9 +257,11 @@ final class SystematicSensitivityAdapter {
                     SensitivityAnalysisResult sensiResult = SensitivityAnalysis.find(sensitivityProvider).run(network,
                         variantForState,
                         factors,
-                        contingencyList,
-                        cnecSensitivityProvider.getVariableSets(),
-                        copy(sensitivityComputationParameters));
+                        new SensitivityAnalysisRunParameters()
+                            .setContingencies(contingencyList)
+                            .setVariableSets(cnecSensitivityProvider.getVariableSets())
+                            .setParameters(copy(sensitivityComputationParameters))
+                            .setComputationManager(computationManager));
                     result.completeData(sensiResult, state.getInstant().getOrder());
                 } catch (PowsyblException | OpenRaoException | CompletionException e) {
                     TECHNICAL_LOGS.error(String.format("Systematic sensitivity analysis failed for state %s : %s", state.getId(), e.getMessage()));
@@ -270,7 +287,8 @@ final class SystematicSensitivityAdapter {
     private static RunConfig configureWithRemedialActions(List<SensitivityVariableSet> variableSets,
                                                           SensitivityAnalysisParameters sensitivityComputationParameters,
                                                           Set<State> statesWithRa,
-                                                          Map<State, List<Action>> actionsPerState) {
+                                                          Map<State, List<Action>> actionsPerState,
+                                                          ComputationManager computationManager) {
         List<Contingency> contingencies = new ArrayList<>();
         Set<Action> actions = new LinkedHashSet<>();
         List<OperatorStrategy> operatorStrategies = new ArrayList<>();
@@ -315,7 +333,8 @@ final class SystematicSensitivityAdapter {
                 .setContingencies(contingencies)
                 .setOperatorStrategies(operatorStrategies)
                 .setActions(new ArrayList<>(actions))
-                .setVariableSets(variableSets),
+                .setVariableSets(variableSets)
+                .setComputationManager(computationManager),
             instantOrderByState);
     }
 
