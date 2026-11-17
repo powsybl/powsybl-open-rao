@@ -22,7 +22,7 @@ is a Java interface, an instance of which is returned by OpenRAO's main optimiza
 CompletableFuture<RaoResult> RaoProvider::run(RaoInput raoInput, RaoParameters parameters, Instant targetEndInstant)
 ```
 
-where `RaoProvider` is the chosen implementation of the RAO, such as [CASTOR](https://github.com/powsybl/powsybl-open-rao/blob/main/ra-optimisation/search-tree-rao/src/main/java/com/powsybl/openrao/searchtreerao/castor/algorithm/Castor.java).
+where `RaoProvider` is the chosen implementation of the RAO, such as the [OpenRao](https://github.com/powsybl/powsybl-open-rao/blob/main/ra-optimisation/rao-impl/src/main/java/com/powsybl/openrao/raoimpl/algorithms/OpenRao.java) default provider, dispatching to the CASTOR, FastRAO and MARMOT engines.
 
 ## Exporting and importing a JSON file
 
@@ -1355,7 +1355,7 @@ difference that costs are retrieved using timestamps.
 :::{group-tab} JAVA API
 
 ```java
-// src/main/java/com/powsybl/openrao/searchtreerao/result/extension/JsonTimeCoupledCostResult.java
+// src/main/java/com/powsybl/openrao/raoimpl/result/extension/JsonTimeCoupledCostResult.java
 
 // get the functional cost after optimization of a given instant for a given timestamp
 double getFunctionalCost(Instant optimizedInstant, OffsetDateTime timestamp);
