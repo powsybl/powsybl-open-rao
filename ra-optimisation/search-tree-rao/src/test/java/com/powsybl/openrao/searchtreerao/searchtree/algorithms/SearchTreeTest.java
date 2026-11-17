@@ -71,6 +71,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyDouble;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
@@ -371,6 +372,37 @@ class SearchTreeTest {
     }
 
     @Test
+    void runAndIterateOnTreeWithABetterForcedCombination() throws Exception {
+        raoWithoutLoopFlowLimitation();
+        setStopCriterionAtMinObjective();
+        NetworkActionCombination forcedCombination = setForcedCombinationOfTwoNetworkActions();
+        Leaf childLeaf = Mockito.mock(Leaf.class);
+        mockLeafsCosts(4., 3., childLeaf);
+
+        OptimizationResult result = searchTree.run().get();
+
+        assertEquals(childLeaf, result);
+        // Only the forced combination is evaluated at depth 1: neither single actions nor predefined combinations
+        Mockito.verify(searchTree, times(1)).createChildLeaf(any(), any(), anyBoolean());
+        Mockito.verify(searchTree).createChildLeaf(network, forcedCombination, false);
+    }
+
+    @Test
+    void runAndIterateOnTreeWithAWorseForcedCombination() throws Exception {
+        raoWithoutLoopFlowLimitation();
+        setStopCriterionAtMinObjective();
+        NetworkActionCombination forcedCombination = setForcedCombinationOfTwoNetworkActions();
+        Leaf childLeaf = Mockito.mock(Leaf.class);
+        mockLeafsCosts(4., 5., childLeaf);
+
+        OptimizationResult result = searchTree.run().get();
+
+        assertEquals(rootLeaf, result);
+        Mockito.verify(searchTree, times(1)).createChildLeaf(any(), any(), anyBoolean());
+        Mockito.verify(searchTree).createChildLeaf(network, forcedCombination, false);
+    }
+
+    @Test
     void runAndIterateOnTreeStopCriterionReached() throws Exception {
         raoWithoutLoopFlowLimitation();
         setStopCriterionAtTargetObjectiveValue(0.);
@@ -517,6 +549,22 @@ class SearchTreeTest {
 
     private void raoWithoutLoopFlowLimitation() {
         when(searchTreeParameters.getLoopFlowParameters()).thenReturn(null);
+    }
+
+    private NetworkActionCombination setForcedCombinationOfTwoNetworkActions() {
+        NetworkAction networkAction1 = Mockito.mock(NetworkAction.class);
+        NetworkAction networkAction2 = Mockito.mock(NetworkAction.class);
+        when(networkAction1.getOperator()).thenReturn("operator1");
+        when(networkAction2.getOperator()).thenReturn("operator2");
+        when(networkAction1.getId()).thenReturn("na1");
+        when(networkAction2.getId()).thenReturn("na2");
+        when(networkAction1.getElementaryActions()).thenReturn(Set.of(switchAction));
+        when(networkAction2.getElementaryActions()).thenReturn(Set.of(generatorAction));
+        availableNetworkActions.add(networkAction1);
+        availableNetworkActions.add(networkAction2);
+        NetworkActionCombination forcedCombination = new NetworkActionCombination(Set.of(networkAction1, networkAction2));
+        when(searchTreeParameters.getNetworkActionParameters().getForcedCombination()).thenReturn(Optional.of(forcedCombination));
+        return forcedCombination;
     }
 
     @Test

@@ -192,7 +192,7 @@ public class SearchTree {
                 final int depthForLogs = depth + 1;
                 final ReportNode searchDepthReportNode = SearchTreeReports.reportSearchDepth(reportNode, depthForLogs);
                 previousDepthOptimalLeaf = optimalLeaf;
-                updateOptimalLeafWithNextDepthBestLeaf(networkPool, searchDepthReportNode);
+                updateOptimalLeafWithNextDepthBestLeaf(networkPool, depth == 0, searchDepthReportNode);
                 hasImproved = previousDepthOptimalLeaf != optimalLeaf; // It means this depth evaluation has improved the global cost
                 if (hasImproved) {
                     SearchTreeReports.reportSearchDepthEnd(depthForLogs);
@@ -218,11 +218,16 @@ public class SearchTree {
     /**
      * Evaluate all the leaves. We use OpenRaoNetworkPool to parallelize the computation
      */
-    private void updateOptimalLeafWithNextDepthBestLeaf(final AbstractNetworkPool networkPool, final ReportNode reportNode) throws InterruptedException {
+    private void updateOptimalLeafWithNextDepthBestLeaf(final AbstractNetworkPool networkPool, final boolean firstDepth, final ReportNode reportNode) throws InterruptedException {
 
         TreeSet<NetworkActionCombination> naCombinationsSorted = new TreeSet<>(this::deterministicNetworkActionCombinationComparison);
         input.getNetwork().getVariantManager().setWorkingVariant(SEARCH_TREE_WORKING_VARIANT_ID);
-        naCombinationsSorted.addAll(bloomer.bloom(optimalLeaf, input.getOptimizationPerimeter().getNetworkActions(), reportNode));
+        Optional<NetworkActionCombination> forcedCombination = parameters.getNetworkActionParameters().getForcedCombination();
+        if (firstDepth && forcedCombination.isPresent()) {
+            naCombinationsSorted.add(forcedCombination.get());
+        } else {
+            naCombinationsSorted.addAll(bloomer.bloom(optimalLeaf, input.getOptimizationPerimeter().getNetworkActions(), reportNode));
+        }
         int numberOfCombinations = naCombinationsSorted.size();
 
         networkPool.initClones(numberOfCombinations);

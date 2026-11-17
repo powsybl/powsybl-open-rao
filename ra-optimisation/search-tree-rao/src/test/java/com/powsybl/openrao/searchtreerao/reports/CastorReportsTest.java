@@ -11,6 +11,7 @@ import ch.qos.logback.classic.spi.ILoggingEvent;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.openrao.commons.Unit;
+import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
@@ -23,6 +24,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -34,6 +36,7 @@ import static org.mockito.Mockito.when;
 
 /**
  * @author Vincent Bochet {@literal <vincent.bochet at rte-france.com>}
+ * @author Maxence Fleury {@literal <maxence.fleury at artelys.com>}
  */
 class CastorReportsTest {
     private ReportNode reportNode;
@@ -147,5 +150,53 @@ class CastorReportsTest {
             );
             mostLimitingElementsReportsMockedStatic.verify(() -> MostLimitingElementsReports.reportBusinessMostLimitingElements(any(), any(), any(), any(), any(), anyInt()), times(1));
         }
+    }
+
+    @Test
+    void testLogDcPreSolveProposalWithNetworkActions() {
+        final NetworkAction networkAction1 = Mockito.mock(NetworkAction.class);
+        final NetworkAction networkAction2 = Mockito.mock(NetworkAction.class);
+        when(networkAction1.getId()).thenReturn("na1");
+        when(networkAction2.getId()).thenReturn("na2");
+        final List<ILoggingEvent> technicalLogs = ReportsTestUtils.getTechnicalLogs().list;
+
+        CastorReports.reportDcPreSolveProposal(reportNode, new LinkedHashSet<>(List.of(networkAction1, networkAction2)));
+
+        final List<ReportNode> traceReports = ReportsTestUtils.getReportsWithSeverity(reportNode, TypedValue.TRACE_SEVERITY);
+        assertEquals("DC pre-solve proposes network action(s): na1 + na2", traceReports.getFirst().getMessage());
+        assertEquals("[INFO] DC pre-solve proposes network action(s): na1 + na2", technicalLogs.getFirst().toString());
+    }
+
+    @Test
+    void testLogDcPreSolveProposalWithNoNetworkAction() {
+        final List<ILoggingEvent> technicalLogs = ReportsTestUtils.getTechnicalLogs().list;
+
+        CastorReports.reportDcPreSolveProposal(reportNode, Set.of());
+
+        final List<ReportNode> traceReports = ReportsTestUtils.getReportsWithSeverity(reportNode, TypedValue.TRACE_SEVERITY);
+        assertEquals("DC pre-solve found no network action to propose.", traceReports.getFirst().getMessage());
+        assertEquals("[INFO] DC pre-solve found no network action to propose.", technicalLogs.getFirst().toString());
+    }
+
+    @Test
+    void testLogDcPreSolveCombinationRetained() {
+        final List<ILoggingEvent> technicalLogs = ReportsTestUtils.getTechnicalLogs().list;
+
+        CastorReports.reportDcPreSolveCombinationRetained(reportNode, true);
+
+        final List<ReportNode> traceReports = ReportsTestUtils.getReportsWithSeverity(reportNode, TypedValue.TRACE_SEVERITY);
+        assertEquals("DC pre-solve combination retained in the AC search result: true", traceReports.getFirst().getMessage());
+        assertEquals("[INFO] DC pre-solve combination retained in the AC search result: true", technicalLogs.getFirst().toString());
+    }
+
+    @Test
+    void testLogDcPreSolveCombinationNotRetained() {
+        final List<ILoggingEvent> technicalLogs = ReportsTestUtils.getTechnicalLogs().list;
+
+        CastorReports.reportDcPreSolveCombinationRetained(reportNode, false);
+
+        final List<ReportNode> traceReports = ReportsTestUtils.getReportsWithSeverity(reportNode, TypedValue.TRACE_SEVERITY);
+        assertEquals("DC pre-solve combination retained in the AC search result: false", traceReports.getFirst().getMessage());
+        assertEquals("[INFO] DC pre-solve combination retained in the AC search result: false", technicalLogs.getFirst().toString());
     }
 }

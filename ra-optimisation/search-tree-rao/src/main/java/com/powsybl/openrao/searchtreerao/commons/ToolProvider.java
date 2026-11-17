@@ -60,6 +60,10 @@ public final class ToolProvider {
         // Should not be used
     }
 
+    public RaoParameters getRaoParameters() {
+        return raoParameters;
+    }
+
     public AbsolutePtdfSumsComputation getAbsolutePtdfSumsComputation() {
         return absolutePtdfSumsComputation;
     }

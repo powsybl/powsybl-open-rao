@@ -36,7 +36,7 @@ Examples of RAO parameters with business and implementation-specific parameters
 :::{group-tab} JSON
 ~~~json
 {
-  "version" : "3.5",
+  "version" : "3.6",
   "objective-function" : {
     "type" : "SECURE_FLOW",
     "enforce-curative-security" : true
@@ -73,6 +73,10 @@ Examples of RAO parameters with business and implementation-specific parameters
       "topological-actions-optimization" : {
         "max-preventive-search-tree-depth" : 2,
         "max-curative-search-tree-depth" : 2,
+        "max-preventive-search-tree-depth-dc" : 0,
+        "max-curative-search-tree-depth-dc" : 0,
+        "preventive-dc-solution-usage" : "HINT",
+        "curative-dc-solution-usage" : "HINT",
         "predefined-combinations" : [ "na1 + na2", "na4 + na5 + na6"],
         "skip-actions-far-from-most-limiting-element" : false,
         "max-number-of-boundaries-for-skipping-actions" : 2,
@@ -181,6 +185,10 @@ rao-topological-actions-optimization:
 search-tree-topological-actions-optimization:
   max-preventive-search-tree-depth: 3
   max-curative-search-tree-depth: 3
+  max-preventive-search-tree-depth-dc: 0
+  max-curative-search-tree-depth-dc: 0
+  preventive-dc-solution-usage: HINT
+  curative-dc-solution-usage: HINT
   predefined-combinations: [ "{na1}+{na2}", "{na3}+{na4}+{na5}" ]
   relative-minimum-impact-threshold: 0.0
   absolute-minimum-impact-threshold: 2.0

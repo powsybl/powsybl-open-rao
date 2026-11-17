@@ -149,6 +149,46 @@ when searching for the best network actions.
 - **Usage**: maximum search-tree depth for curative optimization.  
   Applies separately to each perimeter-specific curative RAO.
 
+##### max-preventive-search-tree-depth-dc
+- **Expected value**: integer (>= 0)
+- **Default value**: 0
+- **Usage**: maximum search-tree depth of the DC pre-solve for preventive optimization. 0 disables the DC pre-solve.
+  The DC solution is used as defined by [preventive-dc-solution-usage](#preventive-dc-solution-usage).  
+  Applies to the preventive RAO and to the second preventive RAO.  
+  This parameter has no effect if the [sensitivity-parameters](#sensitivity-parameters) are already in DC or if the
+  CRAC contains no network action.  
+  See [DC pre-solve](../algorithms/castor/performance.md#dc-pre-solve) for details.
+
+##### max-curative-search-tree-depth-dc
+- **Expected value**: integer (>= 0)
+- **Default value**: 0
+- **Usage**: same as [max-preventive-search-tree-depth-dc](#max-preventive-search-tree-depth-dc), for curative
+  optimization. The usage of the DC solution is defined by [curative-dc-solution-usage](#curative-dc-solution-usage).  
+  Applies separately to each perimeter-specific curative RAO.
+
+##### preventive-dc-solution-usage
+- **Expected value**: one of the following:
+  - "HINT"
+  - "FORCED"
+- **Default value**: "HINT"
+- **Usage**: how the AC search-tree uses the network action combination found by the DC pre-solve:
+  - **HINT**: the combination is added to the combinations tested at the first search depth, like a
+    [predefined combination](#predefined-combinations). It is evaluated first, and the AC search-tree is otherwise
+    unchanged.
+  - **FORCED**: the combination is the only one tested at the first search depth. The following depths are explored
+    as usual, starting from the best of the root leaf and this combination.
+
+  Applies to the preventive RAO and to the second preventive RAO.  
+  This parameter has no effect if [max-preventive-search-tree-depth-dc](#max-preventive-search-tree-depth-dc) is 0.
+
+##### curative-dc-solution-usage
+- **Expected value**: one of the following:
+  - "HINT"
+  - "FORCED"
+- **Default value**: "HINT"
+- **Usage**: same as [preventive-dc-solution-usage](#preventive-dc-solution-usage), for curative optimization.  
+  This parameter has no effect if [max-curative-search-tree-depth-dc](#max-curative-search-tree-depth-dc) is 0.
+
 ##### predefined-combinations
 - **Expected value**: an array containing sets of network action IDs
 - **Default value**: empty
@@ -463,7 +503,7 @@ This extension (`marmot-parameters`) is used to configure Marmot specific parame
 :::{group-tab} JSON
 ~~~json
 {
-  "version" : "3.5",
+  "version" : "3.6",
   "extensions" : {
     "fast-rao-parameters" : {
       "number-of-cnecs-to-add" : 20,
@@ -498,6 +538,10 @@ This extension (`marmot-parameters`) is used to configure Marmot specific parame
       "topological-actions-optimization" : {
         "max-preventive-search-tree-depth" : 2,
         "max-curative-search-tree-depth" : 2,
+        "max-preventive-search-tree-depth-dc" : 0,
+        "max-curative-search-tree-depth-dc" : 0,
+        "preventive-dc-solution-usage" : "HINT",
+        "curative-dc-solution-usage" : "HINT",
         "predefined-combinations" : [
           [ "na1", "na2" ],
           [ "na4", "na5", "na6" ]
@@ -597,6 +641,10 @@ search-tree-linear-optimization-solver:
 search-tree-topological-actions-optimization:
   max-preventive-search-tree-depth: 3
   max-curative-search-tree-depth: 3
+  max-preventive-search-tree-depth-dc: 0
+  max-curative-search-tree-depth-dc: 0
+  preventive-dc-solution-usage: HINT
+  curative-dc-solution-usage: HINT
   predefined-combinations: [
     [ "na1", "na2" ],
     [ "na4", "na5", "na6" ]
