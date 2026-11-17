@@ -11,6 +11,7 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
+import com.powsybl.openrao.data.crac.api.rangeaction.CounterTradeRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.HvdcRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
@@ -78,6 +79,7 @@ public final class IteratingLinearOptimizer {
         linearProblem.fill(input.preOptimizationFlowResult(), input.preOptimizationSensitivityResult());
 
         for (int iteration = 1; iteration <= parameters.getMaxNumberOfIterations(); iteration++) {
+            printLpLinearProblem(linearProblem, iteration);
             LinearProblemStatus solveStatus = solveLinearProblem(linearProblem, iteration);
             bestResult.setNbOfIteration(iteration);
             if (solveStatus == LinearProblemStatus.FEASIBLE) {
@@ -223,6 +225,11 @@ public final class IteratingLinearOptimizer {
         return status;
     }
 
+    private static void printLpLinearProblem(LinearProblem linearProblem, int iteration) {
+        String lpName = "lpModel" + iteration + ".lp";
+        linearProblem.printLp(lpName);
+    }
+
     private static boolean hasAnyRangeActionChanged(RangeActionActivationResult newRangeActionActivationResult,
                                                     RangeActionActivationResult oldRangeActionActivationResult,
                                                     OptimizationPerimeter optimizationContext) {
@@ -357,7 +364,13 @@ public final class IteratingLinearOptimizer {
                               RangeActionActivationResultImpl roundedResult) {
         optimizationContext.getRangeActionsPerState().keySet().forEach(state -> linearProblemResult.getActivatedRangeActions(state).stream()
             .filter(ra -> !(ra instanceof PstRangeAction))
-            .forEach(ra -> roundedResult.putResult(ra, state, Math.round(linearProblemResult.getOptimizedSetpoint(ra, state)))));
+                .forEach(ra -> {
+                    double setpoint = linearProblemResult.getOptimizedSetpoint(ra, state);
+                    double rounded = ra instanceof CounterTradeRangeAction
+                            ? Math.signum(setpoint) * Math.round(Math.abs(setpoint) + 0.49) // round to the closest integer >= setpoint
+                            : Math.round(setpoint);
+                    roundedResult.putResult(ra, state, rounded);
+                }));
     }
 
     private static void logBetterResult(final int iteration,

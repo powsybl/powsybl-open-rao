@@ -10,6 +10,7 @@ package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearpr
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
+import com.powsybl.openrao.data.crac.api.rangeaction.CounterTradeRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
@@ -20,6 +21,9 @@ import com.powsybl.openrao.searchtreerao.result.api.LinearProblemStatus;
 import com.powsybl.openrao.searchtreerao.result.api.RangeActionActivationResult;
 import com.powsybl.openrao.searchtreerao.result.api.SensitivityResult;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -130,6 +134,18 @@ public final class LinearProblem {
         solver.setRelativeMipGap(relativeMipGap);
         solver.setSolverSpecificParametersAsString(solverSpecificParameters);
         return solver.solve();
+    }
+
+    public void printLp(String lpName) {
+        String lp = solver.getMpSolver().exportModelAsLpFormat();
+        try {
+            Files.writeString(
+                    Paths.get(lpName),
+                    lp
+            );
+        } catch (IOException e) {
+            throw new RuntimeException("Error in LP file export", e);
+        }
     }
 
     public OpenRaoMPObjective getObjective() {
@@ -616,6 +632,66 @@ public final class LinearProblem {
 
     public OpenRaoMPConstraint addRangeActionSynchronizationConstraint(String rangeActionId, State state1, State state2) {
         return solver.makeConstraint(0.0, 0.0, rangeActionSynchronizationConstraintId(rangeActionId, state1, state2));
+    }
+
+    public OpenRaoMPVariable addCounterTradeBorderExchangeVariable(double lb, double ub, String area1, String area2, State state) {
+        return solver.makeNumVar(lb, ub, counterTradeBorderExchangeVariableId(area1, area2, state));
+    }
+
+    public OpenRaoMPVariable getCounterTradeBorderExchangeVariable(String area1, String area2, State state) {
+        return solver.getVariable(counterTradeBorderExchangeVariableId(area1, area2, state));
+    }
+
+    public OpenRaoMPConstraint addCounterTradeAreaBalanceConstraint(CounterTradeRangeAction rangeAction, State state) {
+        return solver.makeConstraint(0.0, 0.0, counterTradeAreaBalanceConstraintId(rangeAction, state));
+    }
+
+    public OpenRaoMPConstraint getCounterTradeAreaBalanceConstraint(CounterTradeRangeAction rangeAction, State state) {
+        return solver.getConstraint(counterTradeAreaBalanceConstraintId(rangeAction, state));
+    }
+
+    public OpenRaoMPConstraint addCounterTradeAreaBalanceConstraint(String areaId, State state) {
+        return solver.makeConstraint(0.0, 0.0, counterTradeAreaBalanceConstraintId(areaId, state));
+    }
+
+    public OpenRaoMPVariable addCounterTradeDirectionBinary(String areaId, State state) {
+        return solver.makeBoolVar(counterTradeDirectionBinaryVariableId(areaId, state));
+    }
+
+    public OpenRaoMPVariable getCounterTradeDirectionBinary(String areaId, State state) {
+        return solver.getVariable(counterTradeDirectionBinaryVariableId(areaId, state));
+    }
+
+    public OpenRaoMPConstraint addCounterTradeSetpointDecompositionConstraint(String areaId, State state) {
+        return solver.makeConstraint(0.0, 0.0, counterTradeSetpointDecompositionConstraintId(areaId, state));
+    }
+
+    public OpenRaoMPConstraint addCounterTradeExclusivityConstraint(double ub, String areaId, State state, VariationDirectionExtension variation) {
+        return solver.makeConstraint(-infinity(), ub, counterTradeExclusivityConstraintId(areaId, state, variation));
+    }
+
+    public OpenRaoMPVariable addCounterTradeGeneratorDispatchVariable(double ub, String generatorId, String areaId, State state, VariationDirectionExtension variation) {
+        return solver.makeNumVar(0.0, ub, counterTradeGeneratorDispatchVariableId(generatorId, areaId, state, variation));
+    }
+
+    public OpenRaoMPVariable getCounterTradeGeneratorDispatchVariable(String generatorId, String areaId, State state, VariationDirectionExtension variation) {
+        return solver.getVariable(counterTradeGeneratorDispatchVariableId(generatorId, areaId, state, variation));
+    }
+
+    public OpenRaoMPVariable addCounterTradeGeneratorSaturationBinary(String generatorId, String areaId, State state, VariationDirectionExtension variation) {
+        return solver.makeBoolVar(counterTradeGeneratorSaturationBinaryVariableId(generatorId, areaId, state, variation));
+    }
+
+    public OpenRaoMPConstraint addCounterTradeGeneratorSaturationLinkConstraint(String generatorId, String areaId, State state, VariationDirectionExtension variation) {
+        return solver.makeConstraint(0.0, infinity(), counterTradeGeneratorSaturationLinkConstraintId(generatorId, areaId, state, variation));
+    }
+
+    public OpenRaoMPConstraint addCounterTradeGeneratorOrderConstraint(String generatorId, String areaId, State state, VariationDirectionExtension variation) {
+        return solver.makeConstraint(-infinity(), 0.0, counterTradeGeneratorOrderConstraintId(generatorId, areaId, state, variation));
+    }
+
+    public OpenRaoMPConstraint addCounterTradeSaturationOrderConstraint(String generatorId, String areaId, State state, VariationDirectionExtension direction) {
+        return solver.makeConstraint(-infinity(), 0.0, counterTradeSaturationOrderConstraintId(generatorId, areaId, state, direction));
     }
 
     public double infinity() {

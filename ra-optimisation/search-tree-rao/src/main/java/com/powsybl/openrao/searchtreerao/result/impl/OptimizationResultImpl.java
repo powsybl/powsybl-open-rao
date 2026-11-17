@@ -201,6 +201,11 @@ public class OptimizationResultImpl implements OptimizationResult {
     }
 
     @Override
+    public double getSensitivityValue(FlowCnec flowCnec, TwoSides side, String variableId, Unit unit) {
+        return sensitivityResult.getSensitivityValue(flowCnec, side, variableId, unit);
+    }
+
+    @Override
     public void excludeCnecs(Set<String> cnecsToExclude) {
         objectiveFunctionResult.excludeCnecs(cnecsToExclude);
     }

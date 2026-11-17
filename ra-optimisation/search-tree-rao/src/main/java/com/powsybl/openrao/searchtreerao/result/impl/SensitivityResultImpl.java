@@ -77,4 +77,15 @@ public class SensitivityResultImpl implements SensitivityResult {
             throw new OpenRaoException(format("Unknown unit for sensitivity value on %s : %s.", sensitivityType, targetUnit));
         }
     }
+
+    @Override
+    public double getSensitivityValue(FlowCnec flowCnec, TwoSides side, String variableId, Unit unit) {
+        if (unit == Unit.MEGAWATT) {
+            return systematicSensitivityResult.getSensitivityOnFlow(variableId, flowCnec, side);
+        } else if (unit == Unit.AMPERE) {
+            return systematicSensitivityResult.getSensitivityOnIntensity(variableId, flowCnec, side);
+        } else {
+            throw new OpenRaoException(format("Unknown unit for sensitivity value on variable id : %s.", unit));
+        }
+    }
 }

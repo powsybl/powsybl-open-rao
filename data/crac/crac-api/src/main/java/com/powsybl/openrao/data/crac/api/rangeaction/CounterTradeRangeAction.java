@@ -8,9 +8,14 @@
 package com.powsybl.openrao.data.crac.api.rangeaction;
 
 import com.google.common.annotations.Beta;
+import com.powsybl.glsk.commons.ZonalData;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.openrao.commons.CounterTradeGeneratorOrdering;
 import com.powsybl.openrao.data.crac.api.ConnectedArea;
+import com.powsybl.sensitivity.SensitivityVariableSet;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Gabriel Plante {@literal <gabriel.plante_externe at rte-france.com>}
@@ -27,5 +32,21 @@ public interface CounterTradeRangeAction extends StandardRangeAction<CounterTrad
      * Get connected areas
      */
     List<ConnectedArea> getConnectedAreas();
+
+    /**
+     * Set the Glsk
+     */
+    void setGlsk(ZonalData<SensitivityVariableSet> glsk);
+
+    void setGlsk(Network network);
+
+    /**
+     * Get the Glsk
+     */
+    Map<String, Map<String, Double>> getGlsk();
+
+    CounterTradeGeneratorOrdering getGeneratorOrdering();
+
+    void computeGeneratorOrdering(Network network, double tolerance);
 }
 

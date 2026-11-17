@@ -282,4 +282,9 @@ public class CurativeWithSecondPraoResult implements OptimizationResult {
         checkCnec(flowCnec);
         return postCraSensitivitySensitivityResult.getSensitivityValue(flowCnec, side, linearGlsk, unit);
     }
+
+    @Override
+    public double getSensitivityValue(FlowCnec flowCnec, TwoSides side, String variableId, Unit unit) {
+        return postCraSensitivitySensitivityResult.getSensitivityValue(flowCnec, side, variableId, unit);
+    }
 }

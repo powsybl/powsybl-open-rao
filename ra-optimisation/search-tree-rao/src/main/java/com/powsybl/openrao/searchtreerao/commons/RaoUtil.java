@@ -61,6 +61,7 @@ import java.util.stream.StreamSupport;
 import static com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters.getLoadFlowProvider;
 import static com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters.getSensitivityWithLoadFlowParameters;
 import static com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.getPstModel;
+import static com.powsybl.openrao.searchtreerao.commons.CounterTradingUtils.updateCounterTradeRangeActionGlsks;
 import static com.powsybl.openrao.searchtreerao.commons.HvdcUtils.addNetworkActionAssociatedWithHvdcRangeAction;
 import static com.powsybl.openrao.searchtreerao.commons.HvdcUtils.updateHvdcRangeActionInitialSetpoint;
 import static java.lang.String.format;
@@ -79,6 +80,11 @@ public final class RaoUtil {
         updateHvdcRangeActionInitialSetpoint(raoInput.getCrac(), raoInput.getNetwork(), raoParameters, reportNode);
         addNetworkActionAssociatedWithHvdcRangeAction(raoInput.getCrac(), raoInput.getNetwork());
         checkCurativeRaUsageLimit(raoInput.getCrac());
+        if (raoInput.getGlskProvider() == null) {
+            updateCounterTradeRangeActionGlsks(raoInput.getCrac(), raoInput.getNetwork()); // proportional to generators
+        } else {
+            updateCounterTradeRangeActionGlsks(raoInput.getCrac(), raoInput.getGlskProvider());
+        }
     }
 
     /**
@@ -181,7 +187,6 @@ public final class RaoUtil {
                 }
             }
         }
-
     }
 
     public static void initNetwork(Network network, String networkVariantId) {
