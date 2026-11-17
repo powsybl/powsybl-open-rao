@@ -99,6 +99,22 @@ class RaoTest {
     }
 
     @Test
+    void testTimeCoupledRunAsyncSignatures() {
+        RaoResult expected = Mockito.mock(RaoResult.class);
+        RaoProvider provider = mockTimeCoupledProvider(expected);
+        Rao.Runner runner = new Rao.Runner(provider);
+        TimeCoupledRaoInput input = Mockito.mock(TimeCoupledRaoInput.class);
+        RaoParameters parameters = new RaoParameters(ReportNode.NO_OP);
+
+        assertSame(expected, runner.runAsync(input, parameters, ReportNode.NO_OP).join());
+        assertSame(expected, runner.runAsync(input, parameters).join());
+        assertSame(expected, runner.runAsync(input, ReportNode.NO_OP).join());
+        assertSame(expected, runner.runAsync(input).join());
+        Mockito.verify(provider, Mockito.times(4)).run(Mockito.eq(input), Mockito.any(RaoParameters.class), Mockito.any(ReportNode.class));
+        Mockito.verify(provider, Mockito.times(2)).run(input, parameters, ReportNode.NO_OP);
+    }
+
+    @Test
     void testTimeCoupledRunWithNullArgumentsThrows() {
         Rao.Runner runner = new Rao.Runner(mockTimeCoupledProvider(Mockito.mock(RaoResult.class)));
         TimeCoupledRaoInput input = Mockito.mock(TimeCoupledRaoInput.class);
