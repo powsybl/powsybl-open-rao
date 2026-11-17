@@ -50,6 +50,13 @@ jobs:
 
       - name: Build doc
         if: env.RUN_BUILD == 'true'
+        # Resolve {src} doc links to the ref being built (PR tip commit / pushed branch),
+        # not main, so lychee validates links against files that exist on that ref.
+        env:
+          READTHEDOCS_VERSION_TYPE: ${{ github.event_name == 'pull_request' && 'external' || 'raw' }}
+          READTHEDOCS_GIT_COMMIT_HASH: ${{ github.sha }}
+          READTHEDOCS_VERSION: ${{ github.ref_name }}
+          READTHEDOCS_VERSION_NAME: ${{ github.ref_name }}
         run: sphinx-build -a docs ./build-docs
 
       - name: Check all links in the generated HTML
