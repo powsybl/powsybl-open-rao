@@ -9,8 +9,13 @@ package com.powsybl.openrao.raoimpl.commons.optimizationperimeters;
 
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Country;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControl;
 import com.powsybl.iidm.network.impl.extensions.HvdcAngleDroopActivePowerControlImpl;
+import com.powsybl.openrao.commons.Unit;
+import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
+import com.powsybl.openrao.data.crac.api.networkaction.ActionType;
+import com.powsybl.openrao.data.crac.api.networkaction.NetworkActionAdder;
 import com.powsybl.openrao.data.crac.api.rangeaction.HvdcRangeAction;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.raoapi.parameters.LoopFlowParameters;
@@ -20,6 +25,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.Set;
+import java.util.function.Consumer;
 
 import static com.powsybl.openrao.data.crac.impl.utils.NetworkImportsUtil.addHvdcLine;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -107,6 +113,90 @@ class PreventiveOptimizationPerimeterTest extends AbstractOptimizationPerimeterT
         assertTrue(optPerimeter.getRangeActionsPerState().containsKey(pState));
         assertEquals(1, optPerimeter.getRangeActionsPerState().get(pState).size());
         assertTrue(optPerimeter.getRangeActionsPerState().get(pState).contains(pRA));
+    }
+
+    private FlowCnec addAutoCnec(String id, String networkElement) {
+        return crac.newFlowCnec()
+            .withId(id)
+            .withNetworkElement(networkElement)
+            .withInstant("auto")
+            .withContingency("outage-1")
+            .withOptimized(true)
+            .newThreshold().withUnit(Unit.MEGAWATT).withMax(500.).withMin(-500.).withSide(TwoSides.ONE).add()
+            .add();
+    }
+
+    private void addAutoNetworkAction(Consumer<NetworkActionAdder> usageRuleAdder) {
+        NetworkActionAdder adder = crac.newNetworkAction().withId("auto-na")
+            .newTerminalsConnectionAction().withActionType(ActionType.OPEN).withNetworkElement("BBE2AA1  FFR3AA1  1").add();
+        usageRuleAdder.accept(adder);
+        adder.add();
+    }
+
+    private Set<FlowCnec> buildPerimeterFlowCnecs() {
+        Mockito.when(prePerimeterResult.getSetpoint(pRA)).thenReturn(500.);
+        Mockito.when(prePerimeterResult.getSensitivityStatus(Mockito.any())).thenReturn(ComputationStatus.DEFAULT);
+        Perimeter preventivePerimeter = new Perimeter(pState, Set.of());
+        return PreventiveOptimizationPerimeter.buildFromBasecaseScenario(preventivePerimeter, crac, network, raoParameters, prePerimeterResult, ReportNode.NO_OP).getFlowCnecs();
+    }
+
+    @Test
+    void autoCnecNotIncludedWithoutAutoRemedialAction() {
+        addAutoCnec("auto-cnec", "FFR2AA1  FFR3AA1  1");
+        assertEquals(Set.of(pCnec), buildPerimeterFlowCnecs());
+    }
+
+    @Test
+    void autoCnecNotIncludedWithOnInstantAutoRemedialAction() {
+        addAutoCnec("auto-cnec", "FFR2AA1  FFR3AA1  1");
+        addAutoNetworkAction(adder -> adder.newOnInstantUsageRule().withInstant("auto").add());
+        assertEquals(Set.of(pCnec), buildPerimeterFlowCnecs());
+    }
+
+    @Test
+    void autoCnecNotIncludedWithOnContingencyStateAutoRemedialAction() {
+        addAutoCnec("auto-cnec", "FFR2AA1  FFR3AA1  1");
+        addAutoNetworkAction(adder -> adder.newOnContingencyStateUsageRule().withInstant("auto").withContingency("outage-1").add());
+        assertEquals(Set.of(pCnec), buildPerimeterFlowCnecs());
+    }
+
+    @Test
+    void autoCnecNotIncludedWithOnContingencyStateAutoRemedialActionForOtherContingency() {
+        addAutoCnec("auto-cnec", "FFR2AA1  FFR3AA1  1");
+        addAutoNetworkAction(adder -> adder.newOnContingencyStateUsageRule().withInstant("auto").withContingency("outage-2").add());
+        // the remedial action is only available for outage-2: auto state of outage-1 has no remedial action
+        assertEquals(Set.of(pCnec), buildPerimeterFlowCnecs());
+    }
+
+    @Test
+    void autoCnecsIncludedOrNotWithOnConstraintAutoRemedialAction() {
+        FlowCnec protectedCnec = addAutoCnec("auto-cnec-protected", "FFR2AA1  FFR3AA1  1");
+        FlowCnec unprotectedCnec = addAutoCnec("auto-cnec-unprotected", "BBE2AA1  FFR3AA1  1");
+        addAutoNetworkAction(adder -> adder.newOnConstraintUsageRule().withInstant("auto").withCnec(protectedCnec.getId()).add());
+        Set<FlowCnec> flowCnecs = buildPerimeterFlowCnecs();
+        assertEquals(Set.of(pCnec, unprotectedCnec), flowCnecs);
+        assertFalse(flowCnecs.contains(protectedCnec));
+    }
+
+    @Test
+    void autoCnecNotIncludedWithOnFlowConstraintInCountryAutoRemedialActionInSameCountry() {
+        addAutoCnec("auto-cnec", "FFR2AA1  FFR3AA1  1");
+        addAutoNetworkAction(adder -> adder.newOnFlowConstraintInCountryUsageRule().withInstant("auto").withCountry(Country.FR).add());
+        assertEquals(Set.of(pCnec), buildPerimeterFlowCnecs());
+    }
+
+    @Test
+    void autoCnecIncludedWithOnFlowConstraintInCountryAutoRemedialActionInOtherCountry() {
+        FlowCnec autoCnec = addAutoCnec("auto-cnec", "FFR2AA1  FFR3AA1  1");
+        addAutoNetworkAction(adder -> adder.newOnFlowConstraintInCountryUsageRule().withInstant("auto").withCountry(Country.NL).add());
+        assertEquals(Set.of(pCnec, autoCnec), buildPerimeterFlowCnecs());
+    }
+
+    @Test
+    void autoCnecIncludedWithOnFlowConstraintInCountryAutoRemedialActionInOtherCountryWithContingency() {
+        FlowCnec autoCnec = addAutoCnec("auto-cnec", "FFR2AA1  FFR3AA1  1");
+        addAutoNetworkAction(adder -> adder.newOnFlowConstraintInCountryUsageRule().withInstant("auto").withContingency("outage-1").withCountry(Country.NL).add());
+        assertEquals(Set.of(pCnec, autoCnec), buildPerimeterFlowCnecs());
     }
 
     @Test

@@ -11,6 +11,7 @@ import ch.qos.logback.classic.spi.ILoggingEvent;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.openrao.commons.Unit;
+import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoimpl.commons.RaoUtil;
@@ -147,5 +148,23 @@ class CastorReportsTest {
             );
             mostLimitingElementsReportsMockedStatic.verify(() -> MostLimitingElementsReports.reportBusinessMostLimitingElements(any(), any(), any(), any(), any(), anyInt()), times(1));
         }
+    }
+
+    @Test
+    void testReportUnprotectedAutoCnec() {
+        final FlowCnec flowCnec = Mockito.mock(FlowCnec.class);
+        when(flowCnec.getId()).thenReturn("autoCnec");
+
+        final List<ILoggingEvent> businessLogs = ReportsTestUtils.getBusinessLogs().list;
+        CastorReports.reportUnprotectedAutoCnec(reportNode, flowCnec);
+        final List<ReportNode> infoReports = ReportsTestUtils.getReportsWithSeverity(reportNode, TypedValue.INFO_SEVERITY);
+        assertEquals(
+            "\"FlowCnec autoCnec is not protected by any automaton and will be included in the preventive optimization perimeter\"",
+            infoReports.getFirst().getMessage()
+        );
+        assertEquals(
+            "[INFO] FlowCnec autoCnec is not protected by any automaton and will be included in the preventive optimization perimeter",
+            businessLogs.getFirst().toString()
+        );
     }
 }

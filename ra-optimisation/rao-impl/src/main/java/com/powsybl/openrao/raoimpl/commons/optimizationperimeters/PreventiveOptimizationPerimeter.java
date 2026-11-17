@@ -11,17 +11,26 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.Crac;
+import com.powsybl.openrao.data.crac.api.InstantKind;
+import com.powsybl.openrao.data.crac.api.RemedialAction;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
+import com.powsybl.openrao.data.crac.api.usagerule.OnConstraint;
+import com.powsybl.openrao.data.crac.api.usagerule.OnContingencyState;
+import com.powsybl.openrao.data.crac.api.usagerule.OnFlowConstraintInCountry;
+import com.powsybl.openrao.data.crac.api.usagerule.OnInstant;
+import com.powsybl.openrao.data.crac.api.usagerule.UsageRule;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoimpl.algorithms.Perimeter;
 import com.powsybl.openrao.raoimpl.commons.RaoUtil;
+import com.powsybl.openrao.raoimpl.reports.CastorReports;
 import com.powsybl.openrao.raoimpl.result.api.PrePerimeterResult;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -99,11 +108,81 @@ public class PreventiveOptimizationPerimeter extends AbstractOptimizationPerimet
             .collect(Collectors.toSet());
         removeAlignedRangeActionsWithDifferentInitialSetpoints(availableRangeActions, prePerimeterResult, reportNode);
 
-        return new PreventiveOptimizationPerimeter(preventiveState,
+        // include auto FlowCNECs that are not protected by any ARA in the preventive perimeter
+        if (crac.getInstants(InstantKind.AUTO).size() == 1) {
+            crac.getStates(crac.getInstant(InstantKind.AUTO))
+                .forEach(autoState -> flowCnecs.addAll(getAutoCnecsToInclude(autoState, crac, network, reportNode)));
+        }
+
+        return new PreventiveOptimizationPerimeter(
+            preventiveState,
             flowCnecs,
             loopFlowCnecs,
             availableNetworkActions,
-            availableRangeActions);
+            availableRangeActions
+        );
+    }
+
+    private static Set<FlowCnec> getAutoCnecsToInclude(final State autoState,
+                                                       final Crac crac,
+                                                       final Network network,
+                                                       final ReportNode reportNode) {
+        Set<RemedialAction<?>> remedialActions = new HashSet<>();
+        remedialActions.addAll(crac.getRangeActions(autoState));
+        remedialActions.addAll(crac.getNetworkActions(autoState));
+        if (remedialActions.isEmpty()) {
+            // Without remedial actions available, the auto state is already part of the preventive perimeter in the state-tree
+            return Collections.emptySet();
+        }
+
+        if (hasUnconstrainedRemedialAction(autoState, remedialActions)) {
+            // An on-instant or on-contingency-state is defined for the auto state so all FlowCNECs are protected
+            return Collections.emptySet();
+        }
+
+        Set<FlowCnec> autoCnecsToInclude = new HashSet<>();
+        crac.getFlowCnecs(autoState)
+            .stream()
+            .filter(flowCnec -> shouldIncludeAutoCnecInPreventivePerimeter(remedialActions, flowCnec, network))
+            .forEach(flowCnec -> {
+                CastorReports.reportUnprotectedAutoCnec(reportNode, flowCnec);
+                autoCnecsToInclude.add(flowCnec);
+            });
+        return autoCnecsToInclude;
+    }
+
+    private static boolean hasUnconstrainedRemedialAction(final State state, final Set<RemedialAction<?>> remedialActions) {
+        return remedialActions.stream()
+            .anyMatch(remedialAction -> remedialAction.getUsageRules().stream().anyMatch(
+                usageRule -> usageRule instanceof OnInstant onInstant && onInstant.getInstant().equals(state.getInstant())
+                    || usageRule instanceof OnContingencyState onContingencyState && onContingencyState.getState().equals(state)
+            ));
+    }
+
+    private static boolean shouldIncludeAutoCnecInPreventivePerimeter(final Set<RemedialAction<?>> remedialActions,
+                                                                      final FlowCnec flowCnec,
+                                                                      final Network network) {
+        boolean raForOtherCnecs = false;
+        for (RemedialAction<?> remedialAction : remedialActions) {
+            for (UsageRule usageRule : remedialAction.getUsageRules()) {
+                if (usageRule instanceof OnConstraint<?> onConstraint && onConstraint.getCnec() instanceof FlowCnec && onConstraint.getCnec().getState().equals(flowCnec.getState())) {
+                    if (onConstraint.getCnec().equals(flowCnec)) {
+                        return false;
+                    } else {
+                        raForOtherCnecs = true;
+                    }
+                } else if (usageRule instanceof OnFlowConstraintInCountry onFlowConstraintInCountry
+                    && onFlowConstraintInCountry.getInstant().equals(flowCnec.getState().getInstant())
+                    && (onFlowConstraintInCountry.getContingency().isEmpty() || flowCnec.getState().getContingency().equals(onFlowConstraintInCountry.getContingency()))) {
+                    if (flowCnec.getLocation(network).contains(onFlowConstraintInCountry.getCountry())) {
+                        return false;
+                    } else {
+                        raForOtherCnecs = true;
+                    }
+                }
+            }
+        }
+        return raForOtherCnecs;
     }
 
     @Override

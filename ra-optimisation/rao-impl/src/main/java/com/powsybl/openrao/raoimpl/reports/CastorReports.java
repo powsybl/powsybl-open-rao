@@ -9,6 +9,7 @@ package com.powsybl.openrao.raoimpl.reports;
 
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.commons.Unit;
+import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
@@ -590,6 +591,19 @@ public final class CastorReports {
             activePowerSetpointFormatted,
             minAdmissibleSetpointFormatted,
             maxAdmissibleSetpointFormatted
+        );
+    }
+
+    public static void reportUnprotectedAutoCnec(final ReportNode parentNode, final FlowCnec flowCnec) {
+        parentNode.newReportNode()
+            .withMessageTemplate("openrao.searchtreerao.reportUnprotectedAutoCnec")
+            .withUntypedValue("autoCnecId", flowCnec.getId())
+            .withSeverity(INFO_SEVERITY)
+            .add();
+
+        OpenRaoLoggerProvider.BUSINESS_LOGS.info(
+            "FlowCnec {} is not protected by any automaton and will be included in the preventive optimization perimeter",
+            flowCnec.getId()
         );
     }
 }

@@ -55,7 +55,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 import static com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters.getLoadFlowProvider;
@@ -381,13 +380,6 @@ public final class RaoUtil {
         }
     }
 
-    public static Set<String> getDuplicateCnecs(Set<FlowCnec> flowcnecs) {
-        return flowcnecs.stream()
-            .map(FlowCnec::getId)
-            .filter(id -> id.contains("OUTAGE DUPLICATE"))
-            .collect(Collectors.toSet());
-    }
-
     public static int getNumberOfConnectedComponent(Network network) {
         return Math.toIntExact(StreamSupport.stream(network.getBusBreakerView().getBuses().spliterator(), false)
             .map(Bus::getConnectedComponent)
@@ -455,7 +447,6 @@ public final class RaoUtil {
     public static boolean computeSecurityStatus(Set<FlowCnec> flowCnecs, FlowResult flowResult, Unit flowUnit, Set<String> operatorsNotSharingCras) {
         return flowCnecs.stream()
             .filter(FlowCnec::isOptimized) // ignore MNECs
-            .filter(flowCnec -> !flowCnec.getId().contains("OUTAGE DUPLICATE")) // ignore duplicated CNECs
             .filter(flowCnec -> !cnecBelongsToTsoNotSharingCras(flowCnec, operatorsNotSharingCras)
                 || !flowCnec.getState().getInstant().isCurative())
             .allMatch(flowCnec -> flowResult.getMargin(flowCnec, flowUnit) >= 0);
