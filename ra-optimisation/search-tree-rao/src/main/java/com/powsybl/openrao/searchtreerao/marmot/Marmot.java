@@ -10,6 +10,7 @@ package com.powsybl.openrao.searchtreerao.marmot;
 import com.google.auto.service.AutoService;
 import com.google.common.annotations.Beta;
 import com.powsybl.commons.report.ReportNode;
+import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.TemporalData;
@@ -28,7 +29,6 @@ import com.powsybl.openrao.data.raoresult.api.extension.CostResult;
 import com.powsybl.openrao.data.raoresult.api.extension.CriticalCnecsResult;
 import com.powsybl.openrao.data.raoresult.api.extension.Metadata;
 import com.powsybl.openrao.data.raoresult.impl.RaoResultImpl;
-import com.powsybl.openrao.raoapi.LazyNetwork;
 import com.powsybl.openrao.raoapi.Rao;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.RaoProvider;
@@ -125,10 +125,8 @@ public class Marmot implements RaoProvider, TimeCoupledRaoProvider {
 
         // Initiate lazy networks
         TemporalData<Crac> cracs = timeCoupledRaoInput.getRaoInputs().map(RaoInput::getCrac);
-        TemporalData<LazyNetwork> initialNetworks = MarmotUtils.cloneNetworks(timeCoupledRaoInput.getRaoInputs().map(RaoInput::getNetwork));
-        MarmotUtils.closeAll(timeCoupledRaoInput.getRaoInputs().map(RaoInput::getNetwork));
-
-        TemporalData<RaoInput> initialInputs = MarmotUtils.merge(initialNetworks, cracs);
+        TemporalData<Network> networks = timeCoupledRaoInput.getRaoInputs().map(RaoInput::getNetwork);
+        TemporalData<RaoInput> initialInputs = timeCoupledRaoInput.getRaoInputs();
 
         // RaoParametes are stored in a TemporalData. They're the same for every timestamp, but this prevents concurrent access when multi-threading is activated
         TemporalData<RaoParameters> raoParametersDuplicates = new TemporalDataImpl<>();
@@ -305,7 +303,7 @@ public class Marmot implements RaoProvider, TimeCoupledRaoProvider {
                 raoParameters,
                 reportNode
             );
-            MarmotUtils.closeAll(initialNetworks);
+            MarmotUtils.closeAll(networks);
             return CompletableFuture.completedFuture(timeCoupledRaoResult);
         }
 
@@ -327,7 +325,7 @@ public class Marmot implements RaoProvider, TimeCoupledRaoProvider {
         MarmotReports.reportMarmotInitialResults(reportNode, initialObjectiveFunctionResult, raoParameters, 10);
         MarmotReports.reportMarmotResultAfterGlobalLinearOptimization(reportNode, fullResults, raoParameters, 10);
 
-        MarmotUtils.closeAll(initialNetworks);
+        MarmotUtils.closeAll(networks);
         return CompletableFuture.completedFuture(timeCoupledRaoResult);
     }
 
@@ -691,7 +689,7 @@ public class Marmot implements RaoProvider, TimeCoupledRaoProvider {
             individualRaoInput -> {
                 OffsetDateTime timestamp = MarmotUtils.getTimestamp(individualRaoInput);
                 IteratingLinearOptimizerInput iteratingLinearOptimizerInput = IteratingLinearOptimizerInput.create()
-                    .withNetwork(new LazyNetwork(individualRaoInput.getNetwork()))
+                    .withNetwork(individualRaoInput.getNetwork())
                     .withOptimizationPerimeter(optimizationPerimeterPerTimestamp.getData(timestamp).orElseThrow()
                         .copyWithFilteredAvailableHvdcRangeAction(individualRaoInput.getNetwork()))
                     .withInitialFlowResult(initialResults.getData(timestamp).orElseThrow())
