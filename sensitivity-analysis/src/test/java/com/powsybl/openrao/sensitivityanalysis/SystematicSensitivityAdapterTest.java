@@ -308,13 +308,13 @@ class SystematicSensitivityAdapterTest {
         assertTrue(converted.get().get(curativeState).get(0) instanceof PhaseTapChangerTapPositionAction);
         assertTrue(SystematicSensitivityAdapter.convertToOperatorStrategyActions(Set.of(curativeState), pstApplied, network, ac).isPresent());
 
-        // network action with a ratio tap changer elementary action: supported in AC only
+        // network action with a ratio tap changer elementary action: not supported, even in AC
         NetworkAction rtcNetworkAction = Mockito.mock(NetworkAction.class);
         when(rtcNetworkAction.getElementaryActions()).thenReturn(Set.of(new RatioTapChangerTapPositionAction("rtc", "BBE2AA1  BBE3AA1  1", false, 1)));
         AppliedRemedialActions rtcApplied = new AppliedRemedialActions();
         rtcApplied.addAppliedNetworkAction(curativeState, rtcNetworkAction);
         assertTrue(SystematicSensitivityAdapter.convertToOperatorStrategyActions(Set.of(curativeState), rtcApplied, network, dc).isEmpty());
-        assertTrue(SystematicSensitivityAdapter.convertToOperatorStrategyActions(Set.of(curativeState), rtcApplied, network, ac).isPresent());
+        assertTrue(SystematicSensitivityAdapter.convertToOperatorStrategyActions(Set.of(curativeState), rtcApplied, network, ac).isEmpty());
 
         // network action on an element OpenLoadFlow cannot find: never supported
         NetworkAction unknownElementAction = Mockito.mock(NetworkAction.class);

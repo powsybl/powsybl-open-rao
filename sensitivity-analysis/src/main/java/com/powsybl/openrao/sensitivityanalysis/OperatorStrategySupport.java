@@ -43,9 +43,11 @@ public final class OperatorStrategySupport {
     }
 
     /**
-     * DC (Woodbury) supports PST tap, connection and switch actions, plus generator and load actions when the slack is not
-     * distributed (Woodbury does not rerun the slack distribution after an injection change); AC also supports ratio tap
-     * changer, shunt, area interchange and HVDC (setpoint change or AC emulation disabling) actions.
+     * PST tap, connection and switch actions are supported, plus generator and load actions unless in DC with a
+     * distributed slack (Woodbury does not rerun the slack distribution after an injection change).
+     * <p>Any other action (ratio tap changer, shunt, area interchange, HVDC...) is rejected by the OpenLoadFlow
+     * sensitivity analysis whatever the mode: up to 2.4.0 it checks the actions against the Woodbury (fast DC) list even
+     * in AC, and an HVDC action only disables the AC emulation without applying the active power setpoint.
      */
     public static boolean isSupported(Action action, Mode mode) {
         if (action instanceof PhaseTapChangerTapPositionAction || action instanceof TerminalsConnectionAction || action instanceof SwitchAction) {
@@ -54,15 +56,7 @@ public final class OperatorStrategySupport {
         if (action instanceof GeneratorAction || action instanceof LoadAction) {
             return !(mode.dc() && mode.distributedSlack());
         }
-        if (mode.dc()) {
-            return false;
-        }
-        if (action instanceof HvdcAction hvdcAction) {
-            boolean enablesAcEmulation = hvdcAction.isAcEmulationEnabled().orElse(false);
-            boolean disablesAcEmulation = hvdcAction.isAcEmulationEnabled().map(enabled -> !enabled).orElse(false);
-            return !enablesAcEmulation && (disablesAcEmulation || hvdcAction.getActivePowerSetpoint().isPresent());
-        }
-        return action instanceof RatioTapChangerTapPositionAction || action instanceof ShuntCompensatorPositionAction || action instanceof AreaInterchangeTargetAction;
+        return false;
     }
 
     /**

@@ -76,13 +76,8 @@ class OperatorStrategySupportTest {
             assertFalse(OperatorStrategySupport.isSupported(action, DC_DISTRIBUTED_SLACK), action.getId());
             assertTrue(OperatorStrategySupport.isSupported(action, AC), action.getId());
         }
-        // AC only
-        for (Action action : List.of(ratioTap, shunt, area, hvdcSetpoint, hvdcDisableAcEmulation)) {
-            assertFalse(OperatorStrategySupport.isSupported(action, DC), action.getId());
-            assertTrue(OperatorStrategySupport.isSupported(action, AC), action.getId());
-        }
-        // never supported
-        for (Action action : List.of(hvdcEnableAcEmulation, hvdcNoEffect, svc)) {
+        // never supported: OpenLoadFlow sensitivity analysis rejects them even in AC
+        for (Action action : List.of(ratioTap, shunt, area, hvdcSetpoint, hvdcDisableAcEmulation, hvdcEnableAcEmulation, hvdcNoEffect, svc)) {
             assertFalse(OperatorStrategySupport.isSupported(action, DC), action.getId());
             assertFalse(OperatorStrategySupport.isSupported(action, AC), action.getId());
         }
