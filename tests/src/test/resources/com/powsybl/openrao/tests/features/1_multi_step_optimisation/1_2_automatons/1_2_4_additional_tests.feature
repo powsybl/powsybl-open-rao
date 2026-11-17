@@ -81,13 +81,14 @@ Feature: 1.2.4: Additional tests to check various fixes concerning automaton sta
     Given crac file is "1_multi_step_optimisation/1_2_automatons/crac_1_2_4_4_1.json"
     Given configuration file is "1_multi_step_optimisation/1_2_automatons/rao_parameters_1_2_4_3.json"
     When I launch rao
-    Then the remedial action "open_de1_de2_open_nl2_be3 - prev" is not used in preventive
-    Then the remedial action "open_de2_nl3 - co1 - auto" is not used after "co1_fr2_de3" at "auto"
-    Then the remedial action "close_fr2_de3 - co1 - auto" is used after "co1_fr2_de3" at "auto"
-    Then the tap of PstRangeAction "pst_be" should be -16 after "co1_fr2_de3" at "curative"
-    Then the margin on cnec "be1_be3_co1 - BBE1AA11->BBE3AA11  - co1_fr2_de3 - curative" after PRA should be -302.38 MW
-    Then the margin on cnec "be1_be3_co1 - BBE1AA11->BBE3AA11  - co1_fr2_de3 - auto" after ARA should be -223.44 MW
-    Then the margin on cnec "be1_be3_co1 - BBE1AA11->BBE3AA11  - co1_fr2_de3 - curative" after CRA should be 414.58 MW
+    Then the remedial action "open_de1_de2_open_nl2_be3 - prev" is used in preventive
+    Then the remedial action "open_de2_nl3 - co1 - auto" is used after "co1_fr2_de3" at "auto"
+    Then the remedial action "close_fr2_de3 - co1 - auto" is not used after "co1_fr2_de3" at "auto"
+    Then the remedial action "pst_be" is not used after "co1_fr2_de3" at "auto"
+    Then the tap of PstRangeAction "pst_be" should be 0 after "co1_fr2_de3" at "curative"
+    Then the margin on cnec "be1_be3_co1 - BBE1AA11->BBE3AA11  - co1_fr2_de3 - curative" after PRA should be -293.5 MW
+    Then the margin on cnec "be1_be3_co1 - BBE1AA11->BBE3AA11  - co1_fr2_de3 - auto" after ARA should be -360.65 MW
+    Then the margin on cnec "be1_be3_co1 - BBE1AA11->BBE3AA11  - co1_fr2_de3 - curative" after CRA should be -360.65 MW
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "UNSECURED"
 

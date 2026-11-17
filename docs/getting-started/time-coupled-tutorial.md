@@ -489,7 +489,7 @@ expected.
 Running the RAO can be performed with the following code:
 
 ```java
-TimeCoupledRao.find("OpenRAO").run(inputNoConstraints, raoParameters);
+Rao.find("OpenRAO").run(inputNoConstraints, raoParameters);
 ```
 
 Now let's have a look at the logs:
@@ -526,7 +526,7 @@ activation, 50000 for variation).
 Let's run the RAO with the time-coupled constraints:
 
 ```java
-TimeCoupledRao.find("OpenRAO").run(inputWithConstraints, raoParameters);
+Rao.find("OpenRAO").run(inputWithConstraints, raoParameters);
 ```
 
 As previously, let us have a look at the logs:
@@ -562,7 +562,7 @@ You can find the full Java code below, ready to be copied, pasted and run!
 <summary>Full Java code example</summary>
 
 ```java
-package com.powsybl.openrao.searchtreerao.castor.algorithm;
+package com.powsybl.openrao.tutorial;
 
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.TemporalData;
