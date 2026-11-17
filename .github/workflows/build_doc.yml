@@ -52,42 +52,17 @@ jobs:
         if: env.RUN_BUILD == 'true'
         run: sphinx-build -a docs ./build-docs
 
-  broken_links_check:
-    name: 🔗 Look for broken links
-    needs: path-filter
-    if: always()
-    runs-on: ubuntu-latest
-    # Code-only PRs: skip the check, but keep the job running (no-op) so the required
-    # check is still reported and the PR is not blocked. If path-filter FAILS, check anyway.
-    env:
-      RUN_CHECK: ${{ github.event_name != 'pull_request' || needs.path-filter.result != 'success' || needs.path-filter.outputs.docs == 'true' }}
-    steps:
-      - name: Skip link check for code-only PR
-        if: env.RUN_CHECK != 'true'
-        run: echo "PR does not touch documentation - skipping broken links check"
-
-      - name: Checkout sources
-        if: env.RUN_CHECK == 'true'
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-
-      - name: Set up Node.js
-        if: env.RUN_CHECK == 'true'
-        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+      - name: Check all links in the generated HTML
+        uses: lycheeverse/lychee-action@e7477775783ea5526144ba13e8db5eec57747ce8 # v2.9.0
         with:
-          node-version: '24'
-
-      - name: Install markdown-link-check
-        if: env.RUN_CHECK == 'true'
-        run: npm install --ignore-scripts -g markdown-link-check@3.13.7
-
-      - name: Check all Markdown links
-        if: env.RUN_CHECK == 'true'
-        run: |
-          BROKEN_LINKS=$(markdown-link-check -q -a 200,201,202,203,204,205,206,207,208,226,403,429 ./docs)
-          if [ -n "$BROKEN_LINKS" ]; then
-            echo "❌ Found broken links: $BROKEN_LINKS"
-            exit 1
-          else
-            echo "✔️ No broken links found"
-            exit 0
-          fi
+          fail: true
+          # Checks every generated HTML page (local + external links); fails on any status outside
+          # 2xx + 403 (the Slack workspace home page 403s headless clients) + 429 (transient rate
+          # limiting by the target host — never a broken link; a real 404 still fails).
+          # NOTE: lychee's -a flag REPLACES the default accepted list, so the 2xx range must be
+          # spelled out explicitly (a CI run with only "-a 403" rejected every 200 link).
+          # --cache=false: cache is disabled in CI because GitHub reuses runner VMs across runs and a
+          # stale .lycheecache replayed cached failures from a previous run (verified on a CI run).
+          # HTML only: Sphinx's _sources/*.md.txt dumps are covered by their HTML equivalent, and scanning the
+          # raw sources would pick up bare URIs that are not links (XML namespace identifiers inside code blocks).
+          args: --no-progress --cache=false -a 200..=299,403,429 './build-docs/**/*.html'
