@@ -7,21 +7,14 @@
 
 package com.powsybl.openrao.data.crac.api.networkaction;
 
-import com.powsybl.action.Action;
-import com.powsybl.action.BoundaryLineAction;
-import com.powsybl.action.GeneratorAction;
-import com.powsybl.action.HvdcAction;
-import com.powsybl.action.LoadAction;
-import com.powsybl.action.PhaseTapChangerTapPositionAction;
-import com.powsybl.action.ShuntCompensatorPositionAction;
-import com.powsybl.action.SwitchAction;
-import com.powsybl.action.TerminalsConnectionAction;
+import com.powsybl.action.*;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.data.crac.api.RemedialAction;
 import com.powsybl.openrao.data.crac.api.usagerule.UsageRule;
 import org.apache.commons.lang3.NotImplementedException;
 
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Remedial action interface specifying a direct action on the network.
@@ -64,23 +57,9 @@ public interface NetworkAction extends RemedialAction<NetworkAction> {
      * @return true if both network actions can be applied without any conflictual behaviour
      */
     default boolean isCompatibleWith(NetworkAction otherNetworkAction) {
-        return getElementaryActions().stream().allMatch(elementaryAction -> {
-            if (elementaryAction instanceof SwitchPair switchPair) {
-                return otherNetworkAction.getElementaryActions().stream().allMatch(switchPair::isCompatibleWith);
-            } else {
-                // FIXME: Action equals is only implemented for Action currently used in Rao,
-                //  so the code above is not working for all Action but only for:
-                //  GeneratorAction, LoadAction, BoundaryLineAction, ShuntCompensatorPositionAction,
-                //  PhaseTapChangerTapPositionAction, TerminalsConnectionAction, SwitchAction
-                return otherNetworkAction.getElementaryActions().stream().allMatch(otherElementaryAction -> {
-                    if (otherElementaryAction instanceof SwitchPair) {
-                        return true;
-                    } else {
-                        return !getNetworkElementId(elementaryAction).equals(getNetworkElementId(otherElementaryAction)) || elementaryAction.equals(otherElementaryAction);
-                    }
-                });
-            }
-        });
+        Set<String> myElements = getElementaryActions().stream().flatMap(action -> getNetworkElementIds(action).stream()).collect(Collectors.toSet());
+        Set<String> otherElements = otherNetworkAction.getElementaryActions().stream().flatMap(action -> getNetworkElementIds(action).stream()).collect(Collectors.toSet());
+        return myElements.stream().noneMatch(otherElements::contains);
     }
 
     /**
@@ -89,26 +68,19 @@ public interface NetworkAction extends RemedialAction<NetworkAction> {
     boolean canBeApplied(Network network);
 
     // FIXME: to remove after getElementId is added to core Action interface
-    static String getNetworkElementId(Action elementaryAction) {
-        if (elementaryAction instanceof GeneratorAction generatorAction) {
-            return generatorAction.getGeneratorId();
-        } else if (elementaryAction instanceof LoadAction loadAction) {
-            return loadAction.getLoadId();
-        } else if (elementaryAction instanceof BoundaryLineAction boundaryLineAction) {
-            return boundaryLineAction.getBoundaryLineId();
-        } else if (elementaryAction instanceof ShuntCompensatorPositionAction shuntCompensatorPositionAction) {
-            return shuntCompensatorPositionAction.getShuntCompensatorId();
-        } else if (elementaryAction instanceof PhaseTapChangerTapPositionAction phaseTapChangerTapPositionAction) {
-            return phaseTapChangerTapPositionAction.getTransformerId();
-        } else if (elementaryAction instanceof TerminalsConnectionAction terminalsConnectionAction) {
-            return terminalsConnectionAction.getElementId();
-        } else if (elementaryAction instanceof SwitchAction switchAction) {
-            return switchAction.getSwitchId();
-        } else if (elementaryAction instanceof HvdcAction hvdcAction) {
-            return hvdcAction.getHvdcId();
-        } else {
-            throw new NotImplementedException();
-        }
+    static Set<String> getNetworkElementIds(Action elementaryAction) {
+        return switch (elementaryAction) {
+            case GeneratorAction generatorAction -> Set.of(generatorAction.getGeneratorId());
+            case LoadAction loadAction -> Set.of(loadAction.getLoadId());
+            case BoundaryLineAction boundaryLineAction -> Set.of(boundaryLineAction.getBoundaryLineId());
+            case ShuntCompensatorPositionAction shuntCompensatorPositionAction -> Set.of(shuntCompensatorPositionAction.getShuntCompensatorId());
+            case PhaseTapChangerTapPositionAction phaseTapChangerTapPositionAction -> Set.of(phaseTapChangerTapPositionAction.getTransformerId());
+            case TerminalsConnectionAction terminalsConnectionAction -> Set.of(terminalsConnectionAction.getElementId());
+            case SwitchAction switchAction -> Set.of(switchAction.getSwitchId());
+            case HvdcAction hvdcAction -> Set.of(hvdcAction.getHvdcId());
+            case MultipleActionsAction multipleActionsAction -> multipleActionsAction.getActions().stream().flatMap(action -> getNetworkElementIds(action).stream()).collect(Collectors.toSet());
+            default -> throw new NotImplementedException();
+        };
     }
 
     void addUsageRule(UsageRule usageRule);

@@ -10,6 +10,7 @@ package com.powsybl.openrao.data.crac.api.networkaction;
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
+// TODO deprecate and create a MultipleActionsActionAdder ?
 public interface SwitchPairAdder {
 
     SwitchPairAdder withSwitchToOpen(String networkElementId);

@@ -26,7 +26,6 @@ import java.util.Set;
  */
 public class NetworkActionImpl extends AbstractRemedialAction<NetworkAction> implements NetworkAction {
 
-    private static final double EPSILON = 0.1;
     private final Set<Action> elementaryActions;
     private final Set<String> networkElementsIds;
 
@@ -44,13 +43,9 @@ public class NetworkActionImpl extends AbstractRemedialAction<NetworkAction> imp
 
     @Override
     public boolean hasImpactOnNetwork(Network network) {
-        return elementaryActions.stream().anyMatch(elementaryAction -> {
-            if (elementaryAction instanceof SwitchPair switchPair) {
-                return !network.getSwitch(switchPair.getSwitchToOpenId()).isOpen() || network.getSwitch(switchPair.getSwitchToCloseId()).isOpen();
-            } else {
-                return elementaryAction.toModification().hasImpactOnNetwork(network) == NetworkModificationImpact.HAS_IMPACT_ON_NETWORK;
-            }
-        });
+        return elementaryActions.stream().anyMatch(elementaryAction ->
+            elementaryAction.toModification().hasImpactOnNetwork(network) == NetworkModificationImpact.HAS_IMPACT_ON_NETWORK
+        );
     }
 
     @Override

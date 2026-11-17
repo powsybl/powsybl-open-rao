@@ -7,7 +7,9 @@
 
 package com.powsybl.openrao.data.crac.api.networkaction;
 
-import com.powsybl.action.Action;
+import com.powsybl.action.MultipleActionsAction;
+import com.powsybl.action.SwitchAction;
+import java.util.List;
 
 /**
  * A SwitchPair action is an Elementary Action which consists in changing
@@ -15,26 +17,50 @@ import com.powsybl.action.Action;
  *
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public interface SwitchPair extends Action {
+public class SwitchPair extends MultipleActionsAction {
+
+    private final String switchToOpen;
+    private final String switchToClose;
+
+    public SwitchPair(String id, String switchToOpen, String switchToClose) {
+        super(id,
+            List.of(
+                new SwitchAction(id + " - open", switchToOpen, true),
+                new SwitchAction(id + " - close", switchToClose, false)
+            ));
+        this.switchToOpen = switchToOpen;
+        this.switchToClose = switchToClose;
+    }
+
     /**
      * Get the switch that should be opened by the elementary action
      */
-    String getSwitchToOpenId();
+    public String getSwitchToOpenId() {
+        return switchToOpen;
+    }
 
     /**
      * Get the switch that should be closed by the elementary action
      */
-    String getSwitchToCloseId();
-
-    default boolean isCompatibleWith(Action otherElementaryAction) {
-        if (otherElementaryAction instanceof SwitchPair switchPair) {
-            return getSwitchToOpenId().equals(switchPair.getSwitchToOpenId())
-                    && getSwitchToCloseId().equals(switchPair.getSwitchToCloseId())
-                || !getSwitchToOpenId().equals(switchPair.getSwitchToOpenId())
-                    && !getSwitchToOpenId().equals(switchPair.getSwitchToCloseId())
-                    && !getSwitchToCloseId().equals(switchPair.getSwitchToCloseId())
-                    && !getSwitchToCloseId().equals(switchPair.getSwitchToOpenId());
-        }
-        return true;
+    public String getSwitchToCloseId() {
+        return switchToClose;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        SwitchPair oSwitchPair = (SwitchPair) o;
+        return this.getSwitchToOpenId().equals(oSwitchPair.getSwitchToOpenId()) && this.getSwitchToCloseId().equals(oSwitchPair.getSwitchToCloseId());
+    }
+
+    @Override
+    public int hashCode() {
+        return switchToOpen.hashCode() + 37 * switchToClose.hashCode();
+    }
+
 }

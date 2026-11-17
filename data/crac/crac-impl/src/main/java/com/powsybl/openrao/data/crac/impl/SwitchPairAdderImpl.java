@@ -9,6 +9,7 @@ package com.powsybl.openrao.data.crac.impl;
 
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkActionAdder;
+import com.powsybl.openrao.data.crac.api.networkaction.SwitchPair;
 import com.powsybl.openrao.data.crac.api.networkaction.SwitchPairAdder;
 
 import static com.powsybl.openrao.data.crac.impl.AdderUtils.assertAttributeNotNull;
@@ -48,7 +49,7 @@ public class SwitchPairAdderImpl implements SwitchPairAdder {
         this.ownerAdder.getCrac().addNetworkElement(switchToOpenId);
         this.ownerAdder.getCrac().addNetworkElement(switchToCloseId);
         String id = String.format("%s_%s_%s", getActionName(), switchToOpenId, switchToCloseId);
-        ownerAdder.addElementaryAction(new SwitchPairImpl(id, switchToOpenId, switchToCloseId), switchToOpenId, switchToCloseId);
+        ownerAdder.addElementaryAction(new SwitchPair(id, switchToOpenId, switchToCloseId), switchToOpenId, switchToCloseId);
         return ownerAdder;
     }
 
