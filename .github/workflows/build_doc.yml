@@ -60,6 +60,7 @@ jobs:
         run: sphinx-build -a docs ./build-docs
 
       - name: Check all links in the generated HTML
+        if: env.RUN_BUILD == 'true'
         uses: lycheeverse/lychee-action@e7477775783ea5526144ba13e8db5eec57747ce8 # v2.9.0
         with:
           fail: true
