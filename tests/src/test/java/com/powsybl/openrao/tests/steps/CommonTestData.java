@@ -24,8 +24,6 @@ import com.powsybl.openrao.data.glsk.virtual.hubs.GlskVirtualHubs;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.refprog.referenceprogram.ReferenceProgram;
 import com.powsybl.openrao.monitoring.results.MonitoringResult;
-import com.powsybl.openrao.monitoring.results.RaoResultWithAngleMonitoring;
-import com.powsybl.openrao.monitoring.results.RaoResultWithVoltageMonitoring;
 import com.powsybl.openrao.raoapi.TimeCoupledRaoInput;
 import com.powsybl.openrao.raoapi.json.JsonRaoParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
@@ -86,7 +84,9 @@ public final class CommonTestData {
 
     private static String loopflowGlskPath;
     private static String monitoringGlskPath;
+    private static String counterTradeGlskPath;
     private static ZonalData<Scalable> monitoringGlsks;
+    private static ZonalData<Scalable> counterTradeGlsks;
     private static ZonalData<SensitivityVariableSet> loopflowGlsks;
 
     private static String raoResultPath;
@@ -109,28 +109,15 @@ public final class CommonTestData {
     }
 
     public static void setRaoResult(RaoResult raoResult) {
-        if (CommonTestData.monitoringResult != null) {
-            // update RAO result with angle values
-            CommonTestData.raoResult = new RaoResultWithAngleMonitoring(raoResult, CommonTestData.monitoringResult);
-        } else {
-            CommonTestData.raoResult = raoResult;
-        }
+        CommonTestData.raoResult = raoResult;
     }
 
     public static void setAngleMonitoringResult(MonitoringResult result) {
         CommonTestData.monitoringResult = result;
-        if (CommonTestData.raoResult != null) {
-            // update RAO result with angle values
-            CommonTestData.raoResult = new RaoResultWithAngleMonitoring(CommonTestData.raoResult, CommonTestData.monitoringResult);
-        }
     }
 
     public static void setVoltageMonitoringResult(MonitoringResult result) {
         CommonTestData.monitoringResult = result;
-        if (CommonTestData.raoResult != null) {
-            // update RAO result with angle values
-            CommonTestData.raoResult = new RaoResultWithVoltageMonitoring(CommonTestData.raoResult, CommonTestData.monitoringResult);
-        }
     }
 
     public static void setDataLocation(String location) {
@@ -161,6 +148,7 @@ public final class CommonTestData {
         cracCreationParametersPath = null;
         loopflowGlskPath = null;
         monitoringGlskPath = null;
+        counterTradeGlskPath = null;
         refProgPath = null;
         cracPath = null;
         raoResultPath = null;
@@ -171,6 +159,7 @@ public final class CommonTestData {
         raoParameters = null;
         loopflowGlsks = null;
         monitoringGlsks = null;
+        counterTradeGlsks = null;
         referenceProgram = null;
         raoResult = null;
         monitoringResult = null;
@@ -218,6 +207,11 @@ public final class CommonTestData {
     @Given("monitoring glsk file is {string}")
     public static void monitoringGlskFileIs(String path) {
         monitoringGlskPath = getResourcesPath().concat("glsks/").concat(path);
+    }
+
+    @Given("counterTrade glsk file is {string}")
+    public static void counterTradeGlskFileIs(String path) {
+        counterTradeGlskPath = getResourcesPath().concat("glsks/").concat(path);
     }
 
     @Given("RefProg file is {string}")
@@ -271,6 +265,10 @@ public final class CommonTestData {
 
     public static ZonalData<Scalable> getMonitoringGlsks() {
         return monitoringGlsks;
+    }
+
+    public static ZonalData<Scalable> getCounterTradeGlsks() {
+        return counterTradeGlsks;
     }
 
     public static ReferenceProgram getReferenceProgram() {
@@ -388,6 +386,11 @@ public final class CommonTestData {
         // Monitoring GLSK
         if (monitoringGlskPath != null) {
             monitoringGlsks = importMonitoringGlskFile(getFile(monitoringGlskPath), offsetDateTime, network);
+        }
+
+        // CounterTrade GLSK
+        if (counterTradeGlskPath != null) {
+            counterTradeGlsks = importMonitoringGlskFile(getFile(counterTradeGlskPath), offsetDateTime, network);
         }
 
         // RaoResult

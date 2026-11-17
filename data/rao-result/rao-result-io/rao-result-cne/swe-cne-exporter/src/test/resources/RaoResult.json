@@ -354,6 +354,12 @@
     "activatedStates" : [ {
       "instant" : "preventive"
     } ]
+  }, {
+    "networkActionId" : "na1",
+    "activatedStates" : [ {
+      "instant" : "curative",
+      "contingency" : "Co-1"
+    } ]
   } ],
   "pstRangeActionResults" : [ {
     "pstRangeActionId" : "PRA_1",

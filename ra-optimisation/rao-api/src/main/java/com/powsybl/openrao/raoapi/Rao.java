@@ -14,7 +14,6 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.util.ServiceLoaderCache;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
-import com.powsybl.openrao.data.raoresult.api.TimeCoupledRaoResult;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.reports.RaoApiReports;
 import com.powsybl.tools.Version;
@@ -38,7 +37,7 @@ public final class Rao {
     }
 
     private static final Supplier<List<RaoProvider>> RAO_PROVIDERS
-            = Suppliers.memoize(() -> new ServiceLoaderCache<>(RaoProvider.class).getServices());
+        = Suppliers.memoize(() -> new ServiceLoaderCache<>(RaoProvider.class).getServices());
 
     /**
      * A RA optimisation runner is responsible for providing convenient methods on top of {@link RaoProvider}:
@@ -97,6 +96,34 @@ public final class Rao {
             return runAsync(raoInput, RaoParameters.load(ReportNode.NO_OP), targetEndInstant, ReportNode.NO_OP);
         }
 
+        public CompletableFuture<RaoResult> runAsync(final TimeCoupledRaoInput raoInput,
+                                                     final RaoParameters parameters,
+                                                     final ReportNode reportNode) {
+            Objects.requireNonNull(raoInput, "RAO input should not be null");
+            Objects.requireNonNull(parameters, "parameters should not be null");
+
+            Version openRaoVersion = ServiceLoader.load(Version.class).stream()
+                .map(ServiceLoader.Provider::get)
+                .filter(version -> version.getRepositoryName().equals("open-rao"))
+                .findFirst().orElseThrow();
+
+            RaoApiReports.reportRaoVersionAndGitCommit(reportNode, openRaoVersion.getMavenProjectVersion(), openRaoVersion.getGitVersion());
+
+            return provider.run(raoInput, parameters, reportNode);
+        }
+
+        public CompletableFuture<RaoResult> runAsync(final TimeCoupledRaoInput raoInput, final ReportNode reportNode) {
+            return runAsync(raoInput, RaoParameters.load(reportNode), reportNode);
+        }
+
+        public CompletableFuture<RaoResult> runAsync(final TimeCoupledRaoInput raoInput, final RaoParameters parameters) {
+            return runAsync(raoInput, parameters, ReportNode.NO_OP);
+        }
+
+        public CompletableFuture<RaoResult> runAsync(final TimeCoupledRaoInput raoInput) {
+            return runAsync(raoInput, ReportNode.NO_OP);
+        }
+
         public RaoResult run(final RaoInput raoInput, final RaoParameters parameters, final Instant targetEndInstant, final ReportNode reportNode) {
             Objects.requireNonNull(raoInput, "RAO input should not be null");
             Objects.requireNonNull(parameters, "parameters should not be null");
@@ -132,7 +159,7 @@ public final class Rao {
             return run(raoInput, ReportNode.NO_OP);
         }
 
-        public TimeCoupledRaoResult run(TimeCoupledRaoInput raoInput, RaoParameters parameters, ReportNode reportNode) {
+        public RaoResult run(TimeCoupledRaoInput raoInput, RaoParameters parameters, ReportNode reportNode) {
             Objects.requireNonNull(raoInput, "RAO input should not be null");
             Objects.requireNonNull(parameters, "parameters should not be null");
 
@@ -145,15 +172,15 @@ public final class Rao {
             return provider.run(raoInput, parameters, reportNode).join();
         }
 
-        public TimeCoupledRaoResult run(TimeCoupledRaoInput raoInput, ReportNode reportNode) {
+        public RaoResult run(TimeCoupledRaoInput raoInput, ReportNode reportNode) {
             return run(raoInput, RaoParameters.load(reportNode), reportNode);
         }
 
-        public TimeCoupledRaoResult run(TimeCoupledRaoInput raoInput, RaoParameters parameters) {
+        public RaoResult run(TimeCoupledRaoInput raoInput, RaoParameters parameters) {
             return run(raoInput, parameters, ReportNode.NO_OP);
         }
 
-        public TimeCoupledRaoResult run(TimeCoupledRaoInput raoInput) {
+        public RaoResult run(TimeCoupledRaoInput raoInput) {
             return run(raoInput, ReportNode.NO_OP);
         }
 
@@ -176,8 +203,8 @@ public final class Rao {
     /**
      * Get a runner for default RAO implementation.
      *
-     * @throws OpenRaoException in case we cannot find a default implementation
      * @return a runner for default RAO implementation
+     * @throws OpenRaoException in case we cannot find a default implementation
      */
     public static Runner find() {
         return find("OpenRAO");
@@ -188,8 +215,8 @@ public final class Rao {
      * an explicit provider list instead of relying on service loader and an explicit {@link PlatformConfig}
      * instead of global one.
      *
-     * @param name name of the RAO implementation, null if we want to use default one
-     * @param providers flowbased provider list
+     * @param name           name of the RAO implementation, null if we want to use default one
+     * @param providers      flowbased provider list
      * @param platformConfig platform config to look for default flowbased implementation name
      * @return a runner for flowbased implementation named {@code name}
      */
@@ -204,8 +231,8 @@ public final class Rao {
         // if no RAO implementation name is provided through the API we look for information
         // in platform configuration
         String raOptimizerName = name != null ? name : platformConfig.getOptionalModuleConfig("rao")
-                .flatMap(mc -> mc.getOptionalStringProperty("default"))
-                .orElse(null);
+            .flatMap(mc -> mc.getOptionalStringProperty("default"))
+            .orElse(null);
         RaoProvider provider;
         if (providers.size() == 1 && raOptimizerName == null) {
             // no information to select the implementation but only one provider, so we can use it by default
@@ -217,12 +244,12 @@ public final class Rao {
                 // an exception
                 List<String> raOptimizerNames = providers.stream().map(RaoProvider::getName).toList();
                 throw new OpenRaoException("Several RAO implementations found (" + raOptimizerNames
-                        + "), you must add configuration to select the implementation");
+                    + "), you must add configuration to select the implementation");
             }
             provider = providers.stream()
-                    .filter(p -> p.getName().equals(raOptimizerName))
-                    .findFirst()
-                    .orElseThrow(() -> new OpenRaoException("RA optimizer provider '" + raOptimizerName + "' not found"));
+                .filter(p -> p.getName().equals(raOptimizerName))
+                .findFirst()
+                .orElseThrow(() -> new OpenRaoException("RA optimizer provider '" + raOptimizerName + "' not found"));
         }
 
         return new Runner(provider);
@@ -248,11 +275,19 @@ public final class Rao {
         return find().run(raoInput);
     }
 
-    public static TimeCoupledRaoResult run(TimeCoupledRaoInput raoInput, RaoParameters parameters, final ReportNode reportNode) {
+    public static RaoResult run(TimeCoupledRaoInput raoInput, RaoParameters parameters, final ReportNode reportNode) {
         return find().run(raoInput, parameters, reportNode);
     }
 
-    public static TimeCoupledRaoResult run(TimeCoupledRaoInput raoInput, final ReportNode reportNode) {
+    public static RaoResult run(TimeCoupledRaoInput raoInput, final ReportNode reportNode) {
         return find().run(raoInput, reportNode);
+    }
+
+    public static CompletableFuture<RaoResult> runAsync(TimeCoupledRaoInput raoInput, RaoParameters parameters, final ReportNode reportNode) {
+        return find().runAsync(raoInput, parameters, reportNode);
+    }
+
+    public static CompletableFuture<RaoResult> runAsync(TimeCoupledRaoInput raoInput, final ReportNode reportNode) {
+        return find().runAsync(raoInput, reportNode);
     }
 }

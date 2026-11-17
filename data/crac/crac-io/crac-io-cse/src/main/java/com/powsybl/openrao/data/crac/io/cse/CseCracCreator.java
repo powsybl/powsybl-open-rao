@@ -22,7 +22,6 @@ import com.powsybl.openrao.data.crac.io.cse.parameters.CseCracCreationParameters
 import com.powsybl.openrao.data.crac.io.cse.remedialaction.TRemedialActionAdder;
 import com.powsybl.openrao.data.crac.io.cse.xsd.CRACDocumentType;
 import com.powsybl.openrao.data.crac.io.cse.xsd.TCRACSeries;
-import com.powsybl.openrao.data.crac.util.CracValidator;
 
 import java.util.List;
 
@@ -68,7 +67,6 @@ class CseCracCreator {
             tMonitoredElementsAdder.add();
 
             creationContext.buildCreationReport();
-            CracValidator.validateCrac(crac, network).forEach(creationContext.getCreationReport()::added);
             return creationContext.creationSuccess(crac);
         } catch (OpenRaoException e) {
             creationContext.getCreationReport().error(String.format("CRAC could not be created: %s", e.getMessage()));

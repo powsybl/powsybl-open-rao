@@ -16,7 +16,6 @@ import com.powsybl.openrao.data.crac.io.cim.parameters.CimCracCreationParameters
 import com.powsybl.openrao.data.crac.io.cim.xsd.CRACMarketDocument;
 import com.powsybl.openrao.data.crac.io.cim.xsd.TimeSeries;
 import com.powsybl.openrao.data.crac.io.commons.RaUsageLimitsAdder;
-import com.powsybl.openrao.data.crac.util.CracValidator;
 
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
@@ -76,7 +75,6 @@ class CimCracCreator {
         createRemedialActions(cimCracCreationParameters);
         createVoltageCnecs(cimCracCreationParameters);
         creationContext.buildCreationReport();
-        CracValidator.validateCrac(crac, network).forEach(creationContext.getCreationReport()::added);
         creationContext.setCreationSuccess(crac);
         return creationContext;
     }
