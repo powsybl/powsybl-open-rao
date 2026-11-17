@@ -165,11 +165,7 @@ public class PreventiveOptimizationPerimeter extends AbstractOptimizationPerimet
         boolean raForOtherCnecs = false;
         for (RemedialAction<?> remedialAction : remedialActions) {
             for (UsageRule usageRule : remedialAction.getUsageRules()) {
-                if (usageRule instanceof OnInstant onInstant && onInstant.getInstant().equals(flowCnec.getState().getInstant())) {
-                    return false;
-                } else if (usageRule instanceof OnContingencyState onContingencyState && onContingencyState.getState().equals(flowCnec.getState())) {
-                    return false;
-                } else if (usageRule instanceof OnConstraint<?> onConstraint && onConstraint.getCnec() instanceof FlowCnec && onConstraint.getCnec().getState().equals(flowCnec.getState())) {
+                if (usageRule instanceof OnConstraint<?> onConstraint && onConstraint.getCnec() instanceof FlowCnec && onConstraint.getCnec().getState().equals(flowCnec.getState())) {
                     if (onConstraint.getCnec().equals(flowCnec)) {
                         return false;
                     } else {
