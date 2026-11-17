@@ -82,20 +82,13 @@ class CastorFullOptimization {
     }
 
     CompletableFuture<RaoResult> run() {
-        try {
-            RaoUtil.initData(raoInput, raoParameters, reportNode);
-        } catch (OpenRaoException e) {
-            String failure = String.format("Data initialisation failed: %s", e);
-            CommonReports.reportExceptionMessage(reportNode, failure);
-            return CompletableFuture.completedFuture(RaoResultImpl.builder(raoInput.getCrac()).build());
-        }
-
         final ReportNode optimizationReportNode = CastorReports.reportCastorFullOptimization(reportNode);
         String currentStep = "data initialization";
         String initialVariantName = network.getVariantManager().getWorkingVariantId();
         Unit flowUnit = RaoUtil.getFlowUnit(raoParameters);
 
         try {
+            RaoUtil.initData(raoInput, raoParameters, reportNode);
             boolean costOptimization = raoParameters.getObjectiveFunctionParameters().getType().costOptimization();
             RaoRunContext context = createContext();
             if (crac.getFlowCnecs().isEmpty()) {
