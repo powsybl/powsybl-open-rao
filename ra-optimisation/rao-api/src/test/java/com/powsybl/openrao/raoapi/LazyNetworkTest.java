@@ -314,7 +314,7 @@ public class LazyNetworkTest {
 
     @Test
     void testClosingNetworkDoesNotModifyOriginalFile() throws Exception {
-        try(LazyNetwork network = new LazyNetwork("src/test/resources/12Nodes.uct")) {
+        try (LazyNetwork network = new LazyNetwork("src/test/resources/12Nodes.uct")) {
             Generator generator = network.getGenerator("BBE1AA1 _generator");
             assertNotNull(generator);
             assertEquals(1500.0, generator.getTargetP());
@@ -322,7 +322,7 @@ public class LazyNetworkTest {
             assertEquals(0.0, generator.getTargetP());
         }
         // network is closed, and re-imported to ensure that the modified targetP has not changed
-        try(LazyNetwork network = new LazyNetwork("src/test/resources/12Nodes.uct")) {
+        try (LazyNetwork network = new LazyNetwork("src/test/resources/12Nodes.uct")) {
             Generator generator = network.getGenerator("BBE1AA1 _generator");
             assertNotNull(generator);
             assertEquals(1500.0, generator.getTargetP());

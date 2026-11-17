@@ -103,6 +103,7 @@ public class LazyNetwork implements Network, AutoCloseable {
     // TODO: create private attributes exportAtClosing and deleteAtClosing (both default to false) -> to configure properly at different points of the code
 
     public LazyNetwork(String networkPath) {
+        // note: this may lead to unexpected import behaviors if the network is not {B/J/X}IIDM
         this(Network.read(networkPath));
     }
 
