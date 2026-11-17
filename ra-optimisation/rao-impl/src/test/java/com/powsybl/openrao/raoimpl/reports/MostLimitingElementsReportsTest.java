@@ -662,7 +662,9 @@ class MostLimitingElementsReportsTest {
 
         new OpenRao().run(RaoInput.build(network, crac).build(), raoParameters, null, reportNode).join();
 
-        ReportNode mostLimitingElementsReportNodes = reportNode.getChildren().getFirst().getChildren().get(8).getChildren().getFirst();
+        assertEquals("Multi-curative situation detected; using CASTOR algorithm as the computation engine", reportNode.getChildren().get(0).getMessage());
+
+        ReportNode mostLimitingElementsReportNodes = reportNode.getChildren().get(1).getChildren().get(8).getChildren().getFirst();
         String infoPrefix = "[INFO] ";
 
         // the CRAC does not have CRAs so all curative CNECs are optimized in the same perimeter at curative 1
