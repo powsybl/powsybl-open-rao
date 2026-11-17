@@ -367,7 +367,7 @@ public final class IteratingLinearOptimizer {
                 .forEach(ra -> {
                     double setpoint = linearProblemResult.getOptimizedSetpoint(ra, state);
                     double rounded = ra instanceof CounterTradeRangeAction
-                            ? Math.signum(setpoint) * Math.ceil(Math.abs(setpoint))
+                            ? Math.signum(setpoint) * Math.round(Math.abs(setpoint) + 0.49) // round to the closest integer >= setpoint
                             : Math.round(setpoint);
                     roundedResult.putResult(ra, state, rounded);
                 }));
