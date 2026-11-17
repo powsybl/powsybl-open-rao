@@ -12,9 +12,9 @@ import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.CnecAdder;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
 import static java.lang.String.format;
 
@@ -24,7 +24,7 @@ import static java.lang.String.format;
 public abstract class AbstractCnecAdderImpl<J extends CnecAdder<J>> extends AbstractIdentifiableAdder<J> implements CnecAdder<J> {
 
     protected CracImpl owner;
-    protected Map<String, String> networkElementsIdAndName = new HashMap<>();
+    protected Set<String> networkElementsIds = new HashSet<>();
     protected String instantId;
     protected String contingencyId;
     protected boolean optimized = false;
@@ -40,7 +40,7 @@ public abstract class AbstractCnecAdderImpl<J extends CnecAdder<J>> extends Abst
 
     protected void checkCnec() {
         checkId();
-        AdderUtils.assertAttributeNotEmpty(networkElementsIdAndName.entrySet(), "Cnec", "network element", "withNetworkElement()");
+        AdderUtils.assertAttributeNotEmpty(networkElementsIds, "Cnec", "network element", "withNetworkElement()");
         AdderUtils.assertAttributeNotNull(instantId, "Cnec", "instant", "withInstant()");
 
         if (owner.getInstant(instantId).isPreventive()) {
@@ -54,7 +54,7 @@ public abstract class AbstractCnecAdderImpl<J extends CnecAdder<J>> extends Abst
                 throw new OpenRaoException(format("Contingency %s of Cnec %s does not exist in the crac. Use crac.newContingency() first.", contingencyId, id));
             }
         }
-        networkElementsIdAndName.entrySet().forEach(entry -> this.owner.addNetworkElement(entry.getKey(), entry.getValue()));
+        networkElementsIds.forEach(entry -> this.owner.addNetworkElement(entry));
 
         if (owner.getCnec(id) != null) {
             throw new OpenRaoException(format("Cannot add a cnec with an already existing ID - %s.", id));
@@ -91,14 +91,9 @@ public abstract class AbstractCnecAdderImpl<J extends CnecAdder<J>> extends Abst
     }
 
     @Override
-    public J withNetworkElement(String networkElementId, String networkElementName) {
-        this.networkElementsIdAndName.put(networkElementId, networkElementName);
-        return (J) this;
-    }
-
-    @Override
     public J withNetworkElement(String networkElementId) {
-        return withNetworkElement(networkElementId, networkElementId);
+        this.networkElementsIds.add(networkElementId);
+        return (J) this;
     }
 
     @Override

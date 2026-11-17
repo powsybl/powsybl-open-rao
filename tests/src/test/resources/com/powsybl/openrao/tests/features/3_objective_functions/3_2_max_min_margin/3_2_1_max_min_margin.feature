@@ -15,8 +15,8 @@ Feature: 3.2.1: MAX_MIN_MARGIN objective function
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
-    Then the worst margin is 500.0 MW
-    Then the margin on cnec "FFR2AA1  DDE3AA1  1 - preventive" after PRA should be 500.0 MW
+    Then the worst margin is 871.55 A
+    Then the margin on cnec "FFR2AA1  DDE3AA1  1 - preventive" after PRA should be 871.55 A
     Then 0 remedial actions are used in preventive
 
   @fast @rao @dc @preventive-only @secure-flow
@@ -41,8 +41,8 @@ Feature: 3.2.1: MAX_MIN_MARGIN objective function
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
-    Then the worst margin is 1000.0 MW
-    Then the margin on cnec "FFR2AA1  DDE3AA1  1 - preventive" after PRA should be 1000.0 MW
+    Then the worst margin is 1594.27 A
+    Then the margin on cnec "FFR2AA1  DDE3AA1  1 - preventive" after PRA should be 1594.27 A
     Then 2 remedial actions are used in preventive
     Then the remedial action "Open tie-line FR1 FR2" is used in preventive
     Then the remedial action "Open tie-line FR1 FR3" is used in preventive
@@ -56,8 +56,8 @@ Feature: 3.2.1: MAX_MIN_MARGIN objective function
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
-    Then the worst margin is 1149.0 A
-    Then the margin on cnec "FFR2AA1  DDE3AA1  1 - preventive" after PRA should be 693.0 MW
+    Then the worst margin is 1149.24 A
+    Then the margin on cnec "FFR2AA1  DDE3AA1  1 - preventive" after PRA should be 1149.24 A
     Then 1 remedial actions are used in preventive
     Then the remedial action "Open tie-line FR1 FR2" is used in preventive
 
@@ -72,7 +72,7 @@ Feature: 3.2.1: MAX_MIN_MARGIN objective function
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
     Then the worst margin is 871.0 A
-    Then the margin on cnec "FFR2AA1  DDE3AA1  1 - preventive" after PRA should be 500.0 MW
+    Then the margin on cnec "FFR2AA1  DDE3AA1  1 - preventive" after PRA should be 871.0 A
     Then 0 remedial actions are used in preventive
 
   @fast @rao @ac @preventive-only @max-min-margin
@@ -86,7 +86,7 @@ Feature: 3.2.1: MAX_MIN_MARGIN objective function
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
     Then the worst margin is 1594.0 A
-    Then the margin on cnec "FFR2AA1  DDE3AA1  1 - preventive" after PRA should be 1000.0 MW
+    Then the margin on cnec "FFR2AA1  DDE3AA1  1 - preventive" after PRA should be 1594.0 A
     Then 2 remedial actions are used in preventive
     Then the remedial action "Open tie-line FR1 FR2" is used in preventive
     Then the remedial action "Open tie-line FR1 FR3" is used in preventive
@@ -102,5 +102,5 @@ Feature: 3.2.1: MAX_MIN_MARGIN objective function
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
     Then the worst margin is 871.0 A
-    Then the margin on cnec "FFR2AA1  DDE3AA1  1 - preventive" after PRA should be 500.0 MW
+    Then the margin on cnec "FFR2AA1  DDE3AA1  1 - preventive" after PRA should be 871.0 A
     Then 0 remedial actions are used in preventive

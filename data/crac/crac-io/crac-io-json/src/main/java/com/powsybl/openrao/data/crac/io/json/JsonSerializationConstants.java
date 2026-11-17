@@ -44,7 +44,7 @@ public final class JsonSerializationConstants {
     private JsonSerializationConstants() {
     }
 
-    public static final String CRAC_IO_VERSION = "2.11";
+    public static final String CRAC_IO_VERSION = "2.13";
     /*
     v1.1: addition of switchPairs
     v1.2: addition of injectionRangeAction
@@ -67,6 +67,8 @@ public final class JsonSerializationConstants {
     v2.9: add acEmulationDeactivationAction
     v2.10: renaming of danglingLineActions to boundaryLineActions, remove max-tso from ra-usage-limit-per-instant, add rangeType for all range actions
     v2.11: removal of networkElementsNamePerId, renaming counter-trade actions' importingCountry to importingArea, and exportingCountry to exportingArea
+    v2.12: removal of counter-trade actions' exportingArea and importingArea, replaced by the mandatory area and the optional connectedAreas
+    v2.13: removal of percent_imax unit in threshold definition + for a given cnec, side and bound (max or min) -> can only define threshold in one unit
      */
 
     // headers
@@ -87,6 +89,9 @@ public final class JsonSerializationConstants {
     public static final String IMPORTING_COUNTRY = "importingCountry";
     public static final String EXPORTING_AREA = "exportingArea";
     public static final String IMPORTING_AREA = "importingArea";
+    public static final String CONNECTED_AREAS = "connectedAreas";
+    public static final String AREA = "area";
+    public static final String BORDER_RANGES = "borderRanges";
 
     public static final String GROUP_ID = "groupId";
     public static final String SPEED = "speed";
@@ -527,4 +532,18 @@ public final class JsonSerializationConstants {
             throw new OpenRaoException("From version %s.%s onward, %s is no longer read in the CRAC.".formatted(major, minor, jsonParser.currentName()));
         }
     }
+
+    /**
+     * Determines whether the given version string represents a version that is equal to or greater than the specified major and minor version numbers.
+     *
+     * @param version The version string to parse and compare, typically in the format "major.minor".
+     * @param major The major version number to compare against.
+     * @param minor The minor version number to compare against.
+     * @return true if the given version is equal to or greater than the specified major and minor version numbers, false otherwise.
+     */
+    public static boolean versionIsAtLeast(String version, int major, int minor) {
+        return JsonSerializationConstants.getPrimaryVersionNumber(version) > major ||
+            JsonSerializationConstants.getPrimaryVersionNumber(version) == major && JsonSerializationConstants.getSubVersionNumber(version) >= minor;
+    }
+
 }

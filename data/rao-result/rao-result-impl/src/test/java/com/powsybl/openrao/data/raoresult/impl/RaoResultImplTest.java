@@ -8,6 +8,8 @@
 package com.powsybl.openrao.data.raoresult.impl;
 
 import com.powsybl.iidm.network.TwoSides;
+import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
@@ -31,6 +33,7 @@ import static com.powsybl.openrao.commons.Unit.KILOVOLT;
 import static com.powsybl.openrao.commons.Unit.MEGAWATT;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -445,5 +448,27 @@ class RaoResultImplTest {
                 .withMax(2000.)
                 .add()
             .add();
+    }
+
+    @Test
+    void testIsSecure() {
+        setUp();
+
+        raoResult.setSecurityStatus(PhysicalParameter.FLOW, true);
+        raoResult.setSecurityStatus(PhysicalParameter.ANGLE, false);
+        raoResult.setSecurityStatus(PhysicalParameter.VOLTAGE, true);
+
+        assertTrue(raoResult.isSecure(PhysicalParameter.FLOW));
+        assertFalse(raoResult.isSecure(PhysicalParameter.ANGLE));
+        assertTrue(raoResult.isSecure(PhysicalParameter.VOLTAGE));
+
+        assertTrue(raoResult.isSecure(PhysicalParameter.FLOW, PhysicalParameter.VOLTAGE));
+        assertFalse(raoResult.isSecure(PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE));
+        assertFalse(raoResult.isSecure(PhysicalParameter.FLOW, PhysicalParameter.ANGLE));
+
+        assertFalse(raoResult.isSecure(PhysicalParameter.FLOW, PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE));
+
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> raoResult.isSecure());
+        assertEquals("At least one physical parameter must be provided.", exception.getMessage());
     }
 }

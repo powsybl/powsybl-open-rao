@@ -14,9 +14,9 @@ Feature: 3.1.1: Optimize computations for SECURE_FLOW objective function
     When I launch rao at "2019-01-08 12:00"
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
-    Then the worst margin is 60.49 A
+    Then the worst margin is 39.82 MW
     Then 1 remedial actions are used in preventive
-    Then the margin on cnec "be1_fr1_N - preventive" after PRA should be 2340 A
+    Then the margin on cnec "be1_fr1_N - preventive" after PRA should be 1539.82 MW
 
   @fast @rao @dc @preventive-only @search-tree-rao @secure-flow
   Scenario: 3.1.1.2: Interrupt search tree depth early two threads
@@ -26,9 +26,9 @@ Feature: 3.1.1: Optimize computations for SECURE_FLOW objective function
     When I launch rao at "2019-01-08 12:00"
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
-    Then the worst margin is 60.49 A
+    Then the worst margin is 39.82 MW
     Then 1 remedial actions are used in preventive
-    Then the margin on cnec "be1_fr1_N - preventive" after PRA should be 2340 A
+    Then the margin on cnec "be1_fr1_N - preventive" after PRA should be 1539.82 MW
 
   @fast @rao @dc @contingency-scenarios @secure-flow
   Scenario: 3.1.1.3: Skip curative optimization

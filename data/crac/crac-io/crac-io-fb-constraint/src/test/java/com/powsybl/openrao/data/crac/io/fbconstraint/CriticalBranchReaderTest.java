@@ -89,12 +89,12 @@ class CriticalBranchReaderTest {
         assertTrue(crac.getFlowCnec("BE_CBCO_000003 - outage").getThresholds().stream().allMatch(branchThreshold -> branchThreshold.getUnit() == Unit.AMPERE));
 
         // permanentImaxFactor is 0, but we have a value for imaxFactor = -40 (negative because of direction==opposite)
-        assertTrue(crac.getFlowCnec("BE_CBCO_000004 - curative").getThresholds().stream().allMatch(branchThreshold -> branchThreshold.min().get() == -40));
-        assertTrue(crac.getFlowCnec("BE_CBCO_000004 - curative").getThresholds().stream().allMatch(branchThreshold -> branchThreshold.getUnit() == Unit.PERCENT_IMAX));
+        assertTrue(crac.getFlowCnec("BE_CBCO_000004 - curative").getThresholds().stream().allMatch(branchThreshold -> branchThreshold.min().get() == -40 * 5000));
+        assertTrue(crac.getFlowCnec("BE_CBCO_000004 - curative").getThresholds().stream().allMatch(branchThreshold -> branchThreshold.getUnit() == Unit.AMPERE));
 
         // No thresholds info, the threshold should be set to -1 IMAX_percent (negative because of direction==opposite)
-        assertTrue(crac.getFlowCnec("BE_CBCO_000002 - preventive").getThresholds().stream().allMatch(branchThreshold -> branchThreshold.min().get() == -1));
-        assertTrue(crac.getFlowCnec("BE_CBCO_000002 - preventive").getThresholds().stream().allMatch(branchThreshold -> branchThreshold.getUnit() == Unit.PERCENT_IMAX));
+        assertTrue(crac.getFlowCnec("BE_CBCO_000002 - preventive").getThresholds().stream().allMatch(branchThreshold -> branchThreshold.min().get() == -1 * 5000));
+        assertTrue(crac.getFlowCnec("BE_CBCO_000002 - preventive").getThresholds().stream().allMatch(branchThreshold -> branchThreshold.getUnit() == Unit.AMPERE));
 
     }
 }

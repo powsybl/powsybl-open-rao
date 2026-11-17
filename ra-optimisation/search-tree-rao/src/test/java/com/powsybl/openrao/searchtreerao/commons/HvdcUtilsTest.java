@@ -17,7 +17,6 @@ import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.openloadflow.OpenLoadFlowParameters;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.InstantKind;
-import com.powsybl.openrao.data.crac.api.NetworkElement;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.HvdcRangeAction;
@@ -33,8 +32,13 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.powsybl.openrao.searchtreerao.commons.HvdcUtils.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static com.powsybl.openrao.searchtreerao.commons.HvdcUtils.addNetworkActionAssociatedWithHvdcRangeAction;
+import static com.powsybl.openrao.searchtreerao.commons.HvdcUtils.getHvdcRangeActionsPerStateAssociatedWithHvdcLine;
+import static com.powsybl.openrao.searchtreerao.commons.HvdcUtils.runLoadFlowAndUpdateHvdcActivePowerSetpoint;
+import static com.powsybl.openrao.searchtreerao.commons.HvdcUtils.updateHvdcRangeActionInitialSetpoint;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
 /**
@@ -202,17 +206,11 @@ public class HvdcUtilsTest {
         State state1 = Mockito.mock(State.class);
         State state2 = Mockito.mock(State.class);
 
-        NetworkElement hvdc1 = Mockito.mock(NetworkElement.class);
-        when(hvdc1.getId()).thenReturn("hvdc-1");
-
-        NetworkElement hvdc2 = Mockito.mock(NetworkElement.class);
-        when(hvdc2.getId()).thenReturn("hvdc-2");
-
         HvdcRangeAction hvdcRangeActionOnTargetLine = Mockito.mock(HvdcRangeAction.class);
-        when(hvdcRangeActionOnTargetLine.getNetworkElement()).thenReturn(hvdc1);
+        when(hvdcRangeActionOnTargetLine.getNetworkElementId()).thenReturn("hvdc-1");
 
         HvdcRangeAction hvdcRangeActionOnOtherLine = Mockito.mock(HvdcRangeAction.class);
-        when(hvdcRangeActionOnOtherLine.getNetworkElement()).thenReturn(hvdc2);
+        when(hvdcRangeActionOnOtherLine.getNetworkElementId()).thenReturn("hvdc-2");
 
         RangeAction<?> nonHvdcRangeAction = Mockito.mock(RangeAction.class);
 

@@ -10,6 +10,7 @@ package com.powsybl.openrao.data.raoresult.io.json;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.State;
@@ -210,7 +211,18 @@ class ImporterRetrocompatibilityTest {
         Crac crac = Crac.read("crac-for-rao-result-v1.8.json", cracFile, NETWORK);
         RaoResult raoResult = new RaoResultJsonImporter().importData(raoResultFile, crac);
 
-        testBaseContentOfV1Point7RaoResult(raoResult, crac);
+        testBaseContentOfV1Point8RaoResult(raoResult, crac);
+    }
+
+    @Test
+    void importV1Point9Test() throws IOException {
+        InputStream raoResultFile = getClass().getResourceAsStream("/retrocompatibility/v1.9/rao-result-v1.9.json");
+        InputStream cracFile = getClass().getResourceAsStream("/retrocompatibility/v1.9/crac-for-rao-result-v1.9.json");
+
+        Crac crac = Crac.read("crac-for-rao-result-v1.9.json", cracFile, NETWORK);
+        RaoResult raoResult = new RaoResultJsonImporter().importData(raoResultFile, crac);
+
+        testBaseContentOfV1Point9RaoResult(raoResult, crac);
     }
 
     @Test
@@ -860,5 +872,21 @@ class ImporterRetrocompatibilityTest {
 
     private void testBaseContentOfV1Point8RaoResult(RaoResult importedRaoResult, Crac crac) {
         testBaseContentOfV1Point7RaoResult(importedRaoResult, crac);
+    }
+
+    private void testBaseContentOfV1Point9RaoResult(RaoResult importedRaoResult, Crac crac) {
+        testBaseContentOfV1Point8RaoResult(importedRaoResult, crac);
+
+        // test security status
+
+        assertTrue(importedRaoResult.isSecure(PhysicalParameter.FLOW));
+        assertFalse(importedRaoResult.isSecure(PhysicalParameter.ANGLE));
+        assertTrue(importedRaoResult.isSecure(PhysicalParameter.VOLTAGE));
+
+        assertTrue(importedRaoResult.isSecure(PhysicalParameter.FLOW, PhysicalParameter.VOLTAGE));
+        assertFalse(importedRaoResult.isSecure(PhysicalParameter.FLOW, PhysicalParameter.ANGLE));
+        assertFalse(importedRaoResult.isSecure(PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE));
+
+        assertFalse(importedRaoResult.isSecure(PhysicalParameter.FLOW, PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE));
     }
 }

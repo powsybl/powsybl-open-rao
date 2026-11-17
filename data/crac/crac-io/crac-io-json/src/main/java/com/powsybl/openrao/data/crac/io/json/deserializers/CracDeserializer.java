@@ -132,7 +132,7 @@ public class CracDeserializer extends JsonDeserializer<Crac> {
 
                 case JsonSerializationConstants.COUNTER_TRADE_RANGE_ACTIONS:
                     jsonParser.nextToken();
-                    CounterTradeRangeActionArrayDeserializer.deserialize(jsonParser, version, crac);
+                    CounterTradeRangeActionArrayDeserializer.deserialize(jsonParser, version, crac, network);
                     break;
 
                 case JsonSerializationConstants.NETWORK_ACTIONS:

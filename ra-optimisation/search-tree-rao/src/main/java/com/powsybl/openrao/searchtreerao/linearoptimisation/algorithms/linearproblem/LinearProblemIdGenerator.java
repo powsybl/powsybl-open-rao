@@ -85,6 +85,7 @@ public final class LinearProblemIdGenerator {
     private static final String PROHIBIT_GENERATOR_STARTINGUP = "prohibitgeneratorstartingup";
     private static final DateTimeFormatter DATE_TIME_FORMATER = DateTimeFormatter.ofPattern("yyyyMMddHHmm");
     private static final String ON_FIRST_TIMESTAMP = "onfirsttimestamp";
+    private static final String RA_SYNCHRONIZATION = "rangeactionsynchronization";
 
     private LinearProblemIdGenerator() {
         // Should not be instantiated
@@ -324,7 +325,10 @@ public final class LinearProblemIdGenerator {
         return formatName(Optional.of(timestamp), UNIQUE_ADJUSTMENT_STATE, adjustmentId, CONSTRAINT_SUFFIX);
     }
 
-    public static String adjustmentStateTransitionVariableId(String adjustmentId, LinearProblem.AdjustmentState adjustmentStateFrom, LinearProblem.AdjustmentState adjustmentStateTo, OffsetDateTime timestamp) {
+    public static String adjustmentStateTransitionVariableId(String adjustmentId,
+                                                             LinearProblem.AdjustmentState adjustmentStateFrom,
+                                                             LinearProblem.AdjustmentState adjustmentStateTo,
+                                                             OffsetDateTime timestamp) {
         return formatName(Optional.of(timestamp), ADJUSTMENT_STATE_TRANSITION, adjustmentId, adjustmentStateFrom.toString(), adjustmentStateTo.toString(), VARIABLE_SUFFIX);
     }
 
@@ -409,5 +413,9 @@ public final class LinearProblemIdGenerator {
 
     public static String prohibitGeneratorStartingUpOnFirstTimestampConstraintId(String generatorId, OffsetDateTime timestamp) {
         return formatName(Optional.of(timestamp), PROHIBIT_GENERATOR_STARTINGUP, ON_FIRST_TIMESTAMP, generatorId, CONSTRAINT_SUFFIX);
+    }
+
+    public static String rangeActionSynchronizationConstraintId(String rangeActionId, State state1, State state2) {
+        return formatName(rangeActionId, state1.getId(), state2.getId(), RA_SYNCHRONIZATION, CONSTRAINT_SUFFIX);
     }
 }

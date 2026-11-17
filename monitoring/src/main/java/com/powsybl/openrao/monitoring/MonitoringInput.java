@@ -32,7 +32,8 @@ public class MonitoringInput {
         private PhysicalParameter physicalParameter;
         private ZonalData<Scalable> scalableZonalData;
 
-        MonitoringInputBuilder() {
+        public MonitoringInputBuilder() {
+            // Default constructor
         }
 
         public MonitoringInputBuilder withCrac(Crac crac) {

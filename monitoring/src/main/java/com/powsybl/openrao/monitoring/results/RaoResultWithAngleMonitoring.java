@@ -16,12 +16,14 @@ import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.AngleCnec;
 import com.powsybl.openrao.data.crac.api.cnec.Cnec.SecurityStatus;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
-import com.powsybl.openrao.data.crac.impl.AngleCnecValue;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.raoresult.api.RaoResultClone;
+import com.powsybl.openrao.monitoring.angle.AngleCnecMonitoringResult;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -63,7 +65,7 @@ public class RaoResultWithAngleMonitoring extends RaoResultClone {
         return angleMonitoringResult.getStatus();
     }
 
-    Optional<CnecResult> getCnecResult(Instant optimizationInstant, AngleCnec angleCnec) {
+    Optional<CnecMonitoringResult<?>> getCnecResult(Instant optimizationInstant, AngleCnec angleCnec) {
         if (angleCnec.getState().getInstant() != optimizationInstant) {
             throw new OpenRaoException(
                 "Unexpected optimization instant for angle monitoring result: "
@@ -72,32 +74,35 @@ public class RaoResultWithAngleMonitoring extends RaoResultClone {
                     + angleCnec.getState().getInstant().getId()
             );
         }
-        return angleMonitoringResult.getCnecResults().stream().filter(angleCnecRes -> angleCnecRes.getId().equals(angleCnec.getId())).findFirst();
+
+        return angleMonitoringResult.getCnecResult(angleCnec.getId());
 
     }
 
     @Override
     public double getAngle(Instant optimizationInstant, AngleCnec angleCnec, Unit unit) {
         unit.checkPhysicalParameter(PhysicalParameter.ANGLE);
-        Optional<CnecResult> angleCnecResultOpt = getCnecResult(optimizationInstant, angleCnec);
+        Optional<CnecMonitoringResult<?>> angleCnecResultOpt = getCnecResult(optimizationInstant, angleCnec);
         if (angleCnecResultOpt.isPresent()) {
-            return ((AngleCnecValue) angleCnecResultOpt.get().getValue()).value();
-        } else {
-            return Double.NaN;
+            if (angleCnecResultOpt.get() instanceof AngleCnecMonitoringResult angleCnecMonitoringResult) {
+                return angleCnecMonitoringResult.getAngle();
+            }
+            throw new OpenRaoException("Unexpected monitoring result type for angle monitoring : " + angleCnecResultOpt.get().getClass().getSimpleName());
         }
+        return Double.NaN;
     }
 
     @Override
     public double getMargin(Instant optimizationInstant, AngleCnec angleCnec, Unit unit) {
         unit.checkPhysicalParameter(PhysicalParameter.ANGLE);
-        Optional<CnecResult> angleCnecResultOpt = getCnecResult(optimizationInstant, angleCnec);
-        return angleCnecResultOpt.map(CnecResult::getMargin).orElse(Double.NaN);
+        Optional<CnecMonitoringResult<?>> angleCnecResultOpt = getCnecResult(optimizationInstant, angleCnec);
+        return angleCnecResultOpt.map(CnecMonitoringResult::getMargin).orElse(Double.NaN);
     }
 
     @Override
     public Set<NetworkAction> getActivatedNetworkActionsDuringState(State state) {
         Set<NetworkAction> concatenatedActions = new HashSet<>(raoResult.getActivatedNetworkActionsDuringState(state));
-        Set<RemedialAction> angleMonitoringRas = angleMonitoringResult.getAppliedRas(state);
+        Set<RemedialAction<?>> angleMonitoringRas = angleMonitoringResult.getAppliedRas(state);
         Set<NetworkAction> angleMonitoringNetworkActions = angleMonitoringRas.stream().filter(NetworkAction.class::isInstance).map(ra -> (NetworkAction) ra).collect(Collectors.toSet());
         concatenatedActions.addAll(angleMonitoringNetworkActions);
         return concatenatedActions;
@@ -111,5 +116,22 @@ public class RaoResultWithAngleMonitoring extends RaoResultClone {
     @Override
     public boolean isActivatedDuringState(State state, NetworkAction networkAction) {
         return isActivatedDuringState(state, (RemedialAction<?>) networkAction);
+    }
+
+    @Override
+    public boolean isSecure(PhysicalParameter... physicalParameters) {
+        List<PhysicalParameter> parameters = new ArrayList<>(List.of(physicalParameters));
+        if (parameters.isEmpty()) {
+            throw new OpenRaoException("At least one physical parameter must be provided.");
+        }
+
+        boolean isSecure = true;
+        if (parameters.remove(PhysicalParameter.ANGLE)) {
+            isSecure = angleMonitoringResult.getStatus() == SecurityStatus.SECURE;
+        }
+        if (parameters.isEmpty()) {
+            return isSecure;
+        }
+        return isSecure && raoResult.isSecure(parameters.toArray(PhysicalParameter[]::new));
     }
 }

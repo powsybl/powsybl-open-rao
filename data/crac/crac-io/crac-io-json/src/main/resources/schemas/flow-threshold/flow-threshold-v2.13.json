@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema#",
+  "$id": "resource:/schemas/flow-threshold/flow-threshold-v2.13.json",
+  "type": "object",
+  "properties": {
+    "unit": {
+      "$ref": "../flow-unit/flow-unit-v2.13.json"
+    },
+    "max": {
+      "type": "number"
+    },
+    "min": {
+      "type": "number"
+    },
+    "side": {
+      "$ref": "../two-sides/two-sides-v2.4.json"
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "unit",
+    "side"
+  ]
+}

@@ -24,7 +24,6 @@ import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.InstantKind;
-import com.powsybl.openrao.data.crac.api.NetworkElement;
 import com.powsybl.openrao.data.crac.api.RaUsageLimits;
 import com.powsybl.openrao.data.crac.api.RemedialAction;
 import com.powsybl.openrao.data.crac.api.cnec.AngleCnec;
@@ -36,6 +35,7 @@ import com.powsybl.openrao.data.crac.api.parameters.CracCreationParameters;
 import com.powsybl.openrao.data.crac.api.range.RangeType;
 import com.powsybl.openrao.data.crac.api.range.StandardRange;
 import com.powsybl.openrao.data.crac.api.range.TapRange;
+import com.powsybl.openrao.data.crac.api.rangeaction.CounterTradeRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.VariationDirection;
 import com.powsybl.openrao.data.crac.api.threshold.BranchThreshold;
@@ -48,6 +48,8 @@ import com.powsybl.openrao.data.crac.api.usagerule.UsageRule;
 import com.powsybl.openrao.data.crac.impl.utils.NetworkImportsUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -454,6 +456,46 @@ class JsonRetrocompatibilityTest {
         testContentOfV2Point11Crac(crac);
     }
 
+    @Test
+    void importV2Point12Test() throws IOException {
+        // removal of counter-trade actions' exportingArea and importingArea, replaced by connectedAreas
+        String cracFilePath = "/retrocompatibility/v2/crac-v2.12.json";
+        InputStream cracFile = getClass().getResourceAsStream(cracFilePath);
+
+        Crac crac = Crac.read(cracFilePath, cracFile, network);
+        testContentOfV2Point12Crac(crac);
+    }
+
+    @Test
+    void importV2Point13Test() throws IOException {
+        String cracFilePath = "/retrocompatibility/v2/crac-v2.13.json";
+        InputStream cracFile = getClass().getResourceAsStream(cracFilePath);
+
+        Crac crac = Crac.read(cracFilePath, cracFile, network);
+        testContentOfV2Point13Crac(crac);
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {
+        "/retrocompatibility/v1/crac-v1.9.json", "/retrocompatibility/v2/crac-v2.0.json", "/retrocompatibility/v2/crac-v2.1.json",
+        "/retrocompatibility/v2/crac-v2.2.json", "/retrocompatibility/v2/crac-v2.3.json", "/retrocompatibility/v2/crac-v2.4.json",
+        "/retrocompatibility/v2/crac-v2.5.json", "/retrocompatibility/v2/crac-v2.6.json", "/retrocompatibility/v2/crac-v2.7.json",
+        "/retrocompatibility/v2/crac-v2.8.json", "/retrocompatibility/v2/crac-v2.9.json", "/retrocompatibility/v2/crac-v2.10.json",
+        "/retrocompatibility/v2/crac-v2.11.json"
+    })
+    void importCounterTradeRangeActionBeforeV2Point12Test(String cracFilePath) throws IOException {
+        // exporting area becomes the area and importing area becomes a connected area
+        InputStream cracFile = getClass().getResourceAsStream(cracFilePath);
+
+        Crac crac = Crac.read(cracFilePath, cracFile, network);
+        CounterTradeRangeAction counterTradeRangeAction = crac.getCounterTradeRangeAction("counterTradeRange1Id");
+        assertEquals("FR", counterTradeRangeAction.getAreaId());
+        // only the importing area DE is a connected area, BE is not added although it shares a border with FR in the network
+        assertEquals(1, counterTradeRangeAction.getConnectedAreas().size());
+        assertEquals("DE", counterTradeRangeAction.getConnectedAreas().get(0).getAreaId());
+        assertTrue(counterTradeRangeAction.getConnectedAreas().get(0).getBorderRanges().isEmpty());
+    }
+
     private void testContentOfV1Point0Crac(Crac crac) {
         Instant preventiveInstant = crac.getInstant("preventive");
         Instant autoInstant = crac.getInstant("auto");
@@ -486,8 +528,8 @@ class JsonRetrocompatibilityTest {
         assertNotNull(crac.getFlowCnec("cnec4prevId"));
 
         // check network element
-        assertEquals("ne2Id", crac.getFlowCnec("cnec3prevId").getNetworkElement().getId());
-        assertEquals("ne4Id", crac.getFlowCnec("cnec1outageId").getNetworkElement().getId());
+        assertEquals("ne2Id", crac.getFlowCnec("cnec3prevId").getNetworkElementId());
+        assertEquals("ne4Id", crac.getFlowCnec("cnec1outageId").getNetworkElementId());
 
         // check instants and contingencies
         assertEquals(preventiveInstant, crac.getFlowCnec("cnec1prevId").getState().getInstant());
@@ -511,12 +553,8 @@ class JsonRetrocompatibilityTest {
         assertEquals("operator4", crac.getFlowCnec("cnec4prevId").getOperator());
 
         // check iMax and nominal voltage
-        assertEquals(2000., crac.getFlowCnec("cnec2prevId").getIMax(TwoSides.ONE).get(), 1e-3);
-        assertEquals(2000., crac.getFlowCnec("cnec2prevId").getIMax(TwoSides.TWO).get(), 1e-3);
         assertEquals(400., crac.getFlowCnec("cnec2prevId").getNominalVoltage(TwoSides.ONE), 1e-3);
         assertEquals(400., crac.getFlowCnec("cnec2prevId").getNominalVoltage(TwoSides.TWO), 1e-3);
-        assertTrue(crac.getFlowCnec("cnec1prevId").getIMax(TwoSides.ONE).isEmpty());
-        assertTrue(crac.getFlowCnec("cnec1prevId").getIMax(TwoSides.TWO).isEmpty());
         assertEquals(400., crac.getFlowCnec("cnec1prevId").getNominalVoltage(TwoSides.ONE), 1e-3);
         assertEquals(400., crac.getFlowCnec("cnec1prevId").getNominalVoltage(TwoSides.TWO), 1e-3);
 
@@ -527,14 +565,19 @@ class JsonRetrocompatibilityTest {
         assertEquals(TwoSides.ONE, threshold.getSide());
         assertTrue(threshold.min().isEmpty());
         assertEquals(500., threshold.max().orElse(0.0), 1e-3);
-        assertEquals(3, crac.getFlowCnec("cnec2prevId").getThresholds().size());
-        assertTrue(crac.getFlowCnec("cnec2prevId").getThresholds().stream()
-            .anyMatch(thr -> thr.getSide().equals(TwoSides.ONE) && thr.getUnit().equals(Unit.AMPERE) && thr.min().orElse(-999.).equals(-800.)));
-        assertTrue(crac.getFlowCnec("cnec2prevId").getThresholds().stream()
-            .anyMatch(thr -> thr.getSide().equals(TwoSides.ONE) && thr.getUnit().equals(Unit.PERCENT_IMAX) && thr.min().orElse(-999.).equals(-0.3)));
+
+        // lowerbound = max(-800,-800,-0.3*2000)
+        assertEquals(-600, crac.getFlowCnec("cnec2prevId").getLowerBound(TwoSides.ONE, Unit.AMPERE).get());
+
         // nominalV is the same on both sides so the threshold can either be defined on side ONE or TWO
-        assertTrue(crac.getFlowCnec("cnec2prevId").getThresholds().stream()
-            .anyMatch(thr -> thr.getUnit().equals(Unit.AMPERE) && thr.max().orElse(-999.).equals(1200.)));
+        assertTrue(
+            crac.getFlowCnec("cnec2prevId").getUpperBound(TwoSides.ONE, Unit.AMPERE)
+                .filter(bound -> bound.equals(1200.))
+                .isPresent()
+                || crac.getFlowCnec("cnec2prevId").getUpperBound(TwoSides.TWO, Unit.AMPERE)
+                .filter(bound -> bound.equals(1200.))
+                .isPresent()
+        );
 
         // ---------------------------
         // --- test NetworkActions ---
@@ -665,8 +708,8 @@ class JsonRetrocompatibilityTest {
         assertTrue(crac.getNetworkAction("switchPairRaId").getElementaryActions().iterator().next() instanceof SwitchPair);
 
         SwitchPair switchPair = (SwitchPair) crac.getNetworkAction("switchPairRaId").getElementaryActions().iterator().next();
-        assertEquals("to-open", switchPair.getSwitchToOpen().getId());
-        assertEquals("to-close", switchPair.getSwitchToClose().getId());
+        assertEquals("to-open", switchPair.getSwitchToOpenId());
+        assertEquals("to-close", switchPair.getSwitchToCloseId());
     }
 
     void testContentOfV1Point2Crac(Crac crac) {
@@ -679,10 +722,10 @@ class JsonRetrocompatibilityTest {
         assertEquals("injectionRange1Name", crac.getInjectionRangeAction("injectionRange1Id").getName());
         assertNull(crac.getInjectionRangeAction("injectionRange1Id").getOperator());
         assertTrue(crac.getInjectionRangeAction("injectionRange1Id").getGroupId().isEmpty());
-        Map<NetworkElement, Double> networkElementAndKeys = crac.getInjectionRangeAction("injectionRange1Id").getInjectionDistributionKeys();
+        Map<String, Double> networkElementAndKeys = crac.getInjectionRangeAction("injectionRange1Id").getInjectionDistributionKeysIds();
         assertEquals(2, networkElementAndKeys.size());
-        assertEquals(1., networkElementAndKeys.entrySet().stream().filter(e -> e.getKey().getId().equals("generator1Id")).findAny().orElseThrow().getValue(), 1e-3);
-        assertEquals(-1., networkElementAndKeys.entrySet().stream().filter(e -> e.getKey().getId().equals("generator2Id")).findAny().orElseThrow().getValue(), 1e-3);
+        assertEquals(1., networkElementAndKeys.get("generator1Id"), 1e-3);
+        assertEquals(-1., networkElementAndKeys.get("generator2Id"), 1e-3);
         assertEquals(2, crac.getInjectionRangeAction("injectionRange1Id").getRanges().size());
 
         // check usage rules
@@ -717,8 +760,8 @@ class JsonRetrocompatibilityTest {
         AngleCnec angleCnec = crac.getAngleCnec("angleCnecId");
         assertNotNull(angleCnec);
 
-        assertEquals("eneId", angleCnec.getExportingNetworkElement().getId());
-        assertEquals("ineId", angleCnec.getImportingNetworkElement().getId());
+        assertEquals("eneId", angleCnec.getExportingNetworkElementId());
+        assertEquals("ineId", angleCnec.getImportingNetworkElementId());
         assertEquals(curativeInstant, angleCnec.getState().getInstant());
         assertEquals("contingency1Id", angleCnec.getState().getContingency().get().getId());
         assertFalse(angleCnec.isOptimized());
@@ -759,7 +802,7 @@ class JsonRetrocompatibilityTest {
         VoltageCnec voltageCnec = crac.getVoltageCnec("voltageCnecId");
         assertNotNull(voltageCnec);
 
-        assertEquals("voltageCnecNeId", voltageCnec.getNetworkElement().getId());
+        assertEquals("voltageCnecNeId", voltageCnec.getNetworkElementId());
         assertEquals(curativeInstant, voltageCnec.getState().getInstant());
         assertEquals("contingency1Id", voltageCnec.getState().getContingency().get().getId());
         assertFalse(voltageCnec.isOptimized());
@@ -832,8 +875,6 @@ class JsonRetrocompatibilityTest {
         assertNull(crac.getCounterTradeRangeAction("counterTradeRange1Id").getOperator());
         assertTrue(crac.getCounterTradeRangeAction("counterTradeRange1Id").getGroupId().isEmpty());
         assertEquals(2, crac.getCounterTradeRangeAction("counterTradeRange1Id").getRanges().size());
-        assertEquals("FR", crac.getCounterTradeRangeAction("counterTradeRange1Id").getExportingArea());
-        assertEquals("DE", crac.getCounterTradeRangeAction("counterTradeRange1Id").getImportingArea());
 
         // remedial actions defined with at least one OnConstraint usage rule involving a VoltageCnec
         assertEquals(1, crac.getRemedialActions().stream()
@@ -1051,5 +1092,30 @@ class JsonRetrocompatibilityTest {
 
     private void testContentOfV2Point11Crac(Crac crac) {
         testContentOfV2Point10Crac(crac);
+    }
+
+    private void testContentOfV2Point12Crac(Crac crac) {
+        testContentOfV2Point11Crac(crac);
+
+        // test connected areas, replacing the removed exportingArea and importingArea
+        assertEquals("BE", crac.getCounterTradeRangeAction("counterTradeRange1Id").getAreaId());
+        // FR and DE are defined in the CRAC, so they are kept with their border ranges instead of being deduced from the network
+        assertEquals(2, crac.getCounterTradeRangeAction("counterTradeRange1Id").getConnectedAreas().size());
+        assertEquals("FR", crac.getCounterTradeRangeAction("counterTradeRange1Id").getConnectedAreas().get(0).getAreaId());
+        assertEquals(1, crac.getCounterTradeRangeAction("counterTradeRange1Id").getConnectedAreas().get(0).getBorderRanges().size());
+        assertEquals("DE", crac.getCounterTradeRangeAction("counterTradeRange1Id").getConnectedAreas().get(1).getAreaId());
+    }
+
+    private void testContentOfV2Point13Crac(Crac crac) {
+        testContentOfV2Point12Crac(crac);
+        assertFalse(crac.getFlowCnec("cnec2prevId").getUpperBound(TwoSides.ONE, Unit.MEGAWATT).isPresent());
+        assertEquals(1200, crac.getFlowCnec("cnec2prevId").getUpperBound(TwoSides.TWO, Unit.AMPERE).get());
+        assertFalse(crac.getFlowCnec("cnec2prevId").getUpperBound(TwoSides.ONE, Unit.AMPERE).isPresent());
+        assertEquals(831.38, crac.getFlowCnec("cnec2prevId").getUpperBound(TwoSides.TWO, Unit.MEGAWATT).get(), 0.01);
+
+        assertFalse(crac.getFlowCnec("cnec2prevId").getLowerBound(TwoSides.TWO, Unit.MEGAWATT).isPresent());
+        assertEquals(-600, crac.getFlowCnec("cnec2prevId").getLowerBound(TwoSides.ONE, Unit.AMPERE).get());
+        assertFalse(crac.getFlowCnec("cnec2prevId").getLowerBound(TwoSides.TWO, Unit.AMPERE).isPresent());
+        assertEquals(-415.69, crac.getFlowCnec("cnec2prevId").getLowerBound(TwoSides.ONE, Unit.MEGAWATT).get(), 0.01);
     }
 }

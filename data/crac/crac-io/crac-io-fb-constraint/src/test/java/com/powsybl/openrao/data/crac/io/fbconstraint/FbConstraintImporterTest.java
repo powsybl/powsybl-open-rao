@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 class FbConstraintImporterTest {
 
@@ -292,13 +291,8 @@ class FbConstraintImporterTest {
         softAssertions.assertThat(firstRA.getRanges()).hasSize(1);
         softAssertions.assertThat(firstRA.getRanges().getFirst()).hasFieldOrPropertyWithValue("min", -800.0);
         softAssertions.assertThat(firstRA.getRanges().getFirst()).hasFieldOrPropertyWithValue("max", 1000.0);
-        softAssertions.assertThat(firstRA.getInjectionDistributionKeys()).hasSize(2);
-        softAssertions.assertThat(
-                firstRA.getInjectionDistributionKeys().entrySet().stream()
-                    .collect(
-                        Collectors.toMap(entry -> entry.getKey().getId(),
-                            Map.Entry::getValue))
-            )
+        softAssertions.assertThat(firstRA.getInjectionDistributionKeysIds()).hasSize(2);
+        softAssertions.assertThat(firstRA.getInjectionDistributionKeysIds())
             .containsExactlyInAnyOrderEntriesOf(Map.of("D4AAA11B_generator", 1.0, "D7AAA11A_generator", -1.0));
         softAssertions.assertAll();
 
@@ -311,13 +305,8 @@ class FbConstraintImporterTest {
         softAssertions.assertThat(secondRA.getRanges()).hasSize(1);
         softAssertions.assertThat(secondRA.getRanges().getFirst()).hasFieldOrPropertyWithValue("min", -700.0);
         softAssertions.assertThat(secondRA.getRanges().getFirst()).hasFieldOrPropertyWithValue("max", -100.0);
-        softAssertions.assertThat(secondRA.getInjectionDistributionKeys()).hasSize(2);
-        softAssertions.assertThat(
-                secondRA.getInjectionDistributionKeys().entrySet().stream()
-                    .collect(
-                        Collectors.toMap(entry -> entry.getKey().getId(),
-                            Map.Entry::getValue))
-            )
+        softAssertions.assertThat(secondRA.getInjectionDistributionKeysIds()).hasSize(2);
+        softAssertions.assertThat(secondRA.getInjectionDistributionKeysIds())
             .containsExactlyInAnyOrderEntriesOf(Map.of("D4AAA21B_generator", 1.0, "D7AAA21A_generator", -1.0));
         softAssertions.assertAll();
     }
@@ -372,13 +361,8 @@ class FbConstraintImporterTest {
         softAssertions.assertThat(firstRA.getRanges()).hasSize(1);
         softAssertions.assertThat(firstRA.getRanges().getFirst()).hasFieldOrPropertyWithValue("min", -800.0);
         softAssertions.assertThat(firstRA.getRanges().getFirst()).hasFieldOrPropertyWithValue("max", 1000.0);
-        softAssertions.assertThat(firstRA.getInjectionDistributionKeys()).hasSize(2);
-        softAssertions.assertThat(
-                firstRA.getInjectionDistributionKeys().entrySet().stream()
-                    .collect(
-                        Collectors.toMap(entry -> entry.getKey().getId(),
-                            Map.Entry::getValue))
-            )
+        softAssertions.assertThat(firstRA.getInjectionDistributionKeysIds()).hasSize(2);
+        softAssertions.assertThat(firstRA.getInjectionDistributionKeysIds())
             .containsExactlyInAnyOrderEntriesOf(Map.of("D4AAA11B_generator", 1.0, "D7AAA11A_generator", -1.0));
         softAssertions.assertAll();
 
@@ -395,13 +379,8 @@ class FbConstraintImporterTest {
         softAssertions.assertThat(secondRA.getRanges()).hasSize(1);
         softAssertions.assertThat(secondRA.getRanges().getFirst()).hasFieldOrPropertyWithValue("min", -700.0);
         softAssertions.assertThat(secondRA.getRanges().getFirst()).hasFieldOrPropertyWithValue("max", -100.0);
-        softAssertions.assertThat(secondRA.getInjectionDistributionKeys()).hasSize(2);
-        softAssertions.assertThat(
-                secondRA.getInjectionDistributionKeys().entrySet().stream()
-                    .collect(
-                        Collectors.toMap(entry -> entry.getKey().getId(),
-                            Map.Entry::getValue))
-            )
+        softAssertions.assertThat(secondRA.getInjectionDistributionKeysIds()).hasSize(2);
+        softAssertions.assertThat(secondRA.getInjectionDistributionKeysIds())
             .containsExactlyInAnyOrderEntriesOf(Map.of("D4AAA21B_generator", 1.0, "D7AAA21A_generator", -1.0));
         softAssertions.assertAll();
     }

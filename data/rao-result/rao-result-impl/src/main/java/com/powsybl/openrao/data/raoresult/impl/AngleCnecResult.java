@@ -21,7 +21,7 @@ public class AngleCnecResult {
     private final Map<Instant, ElementaryAngleCnecResult> results;
 
     AngleCnecResult() {
-        results = new HashMap<>();
+        this.results = new HashMap<>();
     }
 
     public ElementaryAngleCnecResult getResult(Instant optimizedInstant) {

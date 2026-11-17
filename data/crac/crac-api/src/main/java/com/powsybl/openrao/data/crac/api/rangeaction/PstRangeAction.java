@@ -8,7 +8,6 @@
 package com.powsybl.openrao.data.crac.api.rangeaction;
 
 import com.powsybl.iidm.network.Network;
-import com.powsybl.openrao.data.crac.api.NetworkElement;
 import com.powsybl.openrao.data.crac.api.range.TapRange;
 
 import java.util.List;
@@ -29,9 +28,9 @@ import java.util.Map;
 public interface PstRangeAction extends RangeAction<PstRangeAction> {
 
     /**
-     * Get the PST Network Element on which the remedial action applies
+     * Get the PST Network Element on which the remedial action applies.
      */
-    NetworkElement getNetworkElement();
+    String getNetworkElementId();
 
     /**
      * Get the list of operational TapRange delimiting the bounds of the PST range action

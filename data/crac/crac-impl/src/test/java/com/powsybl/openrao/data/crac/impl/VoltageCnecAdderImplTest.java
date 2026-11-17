@@ -64,7 +64,7 @@ class VoltageCnecAdderImplTest {
                 .withInstant(OUTAGE_INSTANT_ID)
                 .withContingency(contingency1Id)
                 .withOperator("cnec1Operator")
-                .withNetworkElement("neId1", "neName1")
+                .withNetworkElement("neId1")
                 .newThreshold().withUnit(Unit.KILOVOLT).withMax(1000.0).withMin(-1000.0).add()
                 .add();
         cnec2 = crac.newVoltageCnec()
@@ -87,7 +87,7 @@ class VoltageCnecAdderImplTest {
         assertEquals(contingency1, cnec1.getState().getContingency().orElseThrow());
         assertEquals(outageInstant, cnec1.getState().getInstant());
         assertEquals("cnec1Operator", cnec1.getOperator());
-        assertEquals("neName1", cnec1.getNetworkElement().getName());
+        assertEquals("neId1", cnec1.getNetworkElementId());
         assertEquals(1000.0, cnec1.getUpperBound(Unit.KILOVOLT).orElseThrow(), DOUBLE_TOLERANCE);
         assertEquals(-1000.0, cnec1.getLowerBound(Unit.KILOVOLT).orElseThrow(), DOUBLE_TOLERANCE);
 
@@ -97,7 +97,7 @@ class VoltageCnecAdderImplTest {
         assertEquals(preventiveInstant, cnec2.getState().getInstant());
         assertEquals("cnec2Operator", cnec2.getOperator());
         assertEquals(Optional.empty(), cnec2.getState().getContingency());
-        assertEquals("neId2", cnec2.getNetworkElement().getName());
+        assertEquals("neId2", cnec2.getNetworkElementId());
         assertEquals(500.0, cnec2.getUpperBound(Unit.KILOVOLT).orElseThrow(), DOUBLE_TOLERANCE);
         assertFalse(cnec2.getLowerBound(Unit.KILOVOLT).isPresent());
 
@@ -114,9 +114,9 @@ class VoltageCnecAdderImplTest {
             .withNetworkElement("neId2") // same as cnec2
             .newThreshold().withUnit(Unit.KILOVOLT).withMax(500.0).add()
             .add();
-        assertEquals(2, crac.getNetworkElements().size());
-        assertNotNull(crac.getNetworkElement("neId1"));
-        assertNotNull(crac.getNetworkElement("neId2"));
+        assertEquals(2, crac.getNetworkElementIds().size());
+        assertTrue(crac.hasNetworkElement("neId1"));
+        assertTrue(crac.hasNetworkElement("neId2"));
 
         // Verify states were created
         assertEquals(2, crac.getStates().size());
@@ -227,6 +227,17 @@ class VoltageCnecAdderImplTest {
             .newThreshold().withUnit(Unit.KILOVOLT).withMax(100.0).withMin(-100.0).add();
         OpenRaoException exception = assertThrows(OpenRaoException.class, voltageCnecAdder::add);
         assertEquals("Cannot add Cnec without a network element. Please use withNetworkElement()", exception.getMessage());
+    }
+
+    @Test
+    void testMultipleNetworkElementsFail() {
+        VoltageCnecAdder voltageCnecAdder = crac.newVoltageCnec()
+            .withId("cnecId")
+            .withInstant(OUTAGE_INSTANT_ID)
+            .withContingency(contingency1Id)
+            .withNetworkElement("neId");
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> voltageCnecAdder.withNetworkElement("otherNeId"));
+        assertEquals("Cannot add multiple network elements for a voltage cnec.", exception.getMessage());
     }
 
     @Test

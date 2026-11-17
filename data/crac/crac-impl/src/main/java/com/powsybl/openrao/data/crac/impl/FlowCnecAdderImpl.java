@@ -38,11 +38,11 @@ public class FlowCnecAdderImpl extends AbstractCnecAdderImpl<FlowCnecAdder> impl
     }
 
     @Override
-    public FlowCnecAdder withNetworkElement(String networkElementId, String networkElementName) {
-        if (!this.networkElementsIdAndName.entrySet().isEmpty()) {
+    public FlowCnecAdder withNetworkElement(String networkElementId) {
+        if (!this.networkElementsIds.isEmpty()) {
             throw new OpenRaoException("Cannot add multiple network elements for a flow cnec.");
         }
-        super.withNetworkElement(networkElementId, networkElementName);
+        super.withNetworkElement(networkElementId);
         return this;
     }
 
@@ -100,7 +100,7 @@ public class FlowCnecAdderImpl extends AbstractCnecAdderImpl<FlowCnecAdder> impl
         checkAndInitThresholds();
         State state = getState();
 
-        FlowCnec cnec = new FlowCnecImpl(id, name, owner.getNetworkElement(networkElementsIdAndName.keySet().iterator().next()), operator, border, state, optimized, monitored,
+        FlowCnec cnec = new FlowCnecImpl(id, name, networkElementsIds.iterator().next(), operator, border, state, optimized, monitored,
             thresholds.stream().map(BranchThreshold.class::cast).collect(Collectors.toSet()),
             reliabilityMargin, nominalVLeft, nominalVRight, iMaxLeft, iMaxRight);
 

@@ -8,7 +8,6 @@
 package com.powsybl.openrao.data.crac.impl;
 
 import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.data.crac.api.NetworkElement;
 import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeActionAdder;
 
@@ -42,14 +41,9 @@ public class InjectionRangeActionAdderImpl extends AbstractStandardRangeActionAd
 
     @Override
     public InjectionRangeActionAdder withNetworkElementAndKey(double key, String networkElementId) {
-        return withNetworkElementAndKey(key, networkElementId, networkElementId);
-    }
-
-    @Override
-    public InjectionRangeActionAdder withNetworkElementAndKey(double key, String networkElementId, String networkElementName) {
-        distributionKeys.add(new DistributionKeyOnNetworkElement(key, networkElementId, networkElementName));
+        distributionKeys.add(new DistributionKeyOnNetworkElement(key, networkElementId));
         if (Math.abs(key) > 1e-3) {
-            this.getCrac().addNetworkElement(networkElementId, networkElementName);
+            this.getCrac().addNetworkElement(networkElementId);
         }
         return this;
     }
@@ -57,16 +51,7 @@ public class InjectionRangeActionAdderImpl extends AbstractStandardRangeActionAd
     @Override
     public InjectionRangeActionAdder withNetworkElement(String networkElementId) {
         if (distributionKeys.isEmpty()) {
-            return withNetworkElementAndKey(1.0, networkElementId, networkElementId);
-        } else {
-            throw new OpenRaoException("There are already NetworkElements tied to this injection. Use instead withNetworkElementAndKey() to add multiple NetworkElements");
-        }
-    }
-
-    @Override
-    public InjectionRangeActionAdder withNetworkElement(String networkElementId, String networkElementName) {
-        if (distributionKeys.isEmpty()) {
-            return withNetworkElementAndKey(1.0, networkElementId, networkElementName);
+            return withNetworkElementAndKey(1.0, networkElementId);
         } else {
             throw new OpenRaoException("There are already NetworkElements tied to this injection. Use instead withNetworkElementAndKey() to add multiple NetworkElements");
         }
@@ -75,7 +60,7 @@ public class InjectionRangeActionAdderImpl extends AbstractStandardRangeActionAd
     @Override
     public InjectionRangeAction add() {
         runCheckBeforeAdding();
-        Map<NetworkElement, Double> neAndDk = getDistributionKeyMap();
+        Map<String, Double> neAndDk = getDistributionKeyMap();
         InjectionRangeAction injectionRangeAction = new InjectionRangeActionImpl(
             this.id, this.name, this.operator, this.groupId, this.usageRules, this.ranges, this.initialSetpoint, neAndDk, speed, activationCost, variationCosts
         );
@@ -107,12 +92,11 @@ public class InjectionRangeActionAdderImpl extends AbstractStandardRangeActionAd
         distributionKeys.forEach(dK -> assertAttributeNotNull(dK.networkElementId, INJECTION_RANGE_ACTION, "network element", "withNetworkElementAndKey()"));
     }
 
-    private Map<NetworkElement, Double> getDistributionKeyMap() {
-        Map<NetworkElement, Double> distributionKeyMap = new HashMap<>();
+    private Map<String, Double> getDistributionKeyMap() {
+        Map<String, Double> distributionKeyMap = new HashMap<>();
         distributionKeys.forEach(sK -> {
             if (Math.abs(sK.distributionKey) > 1e-3) {
-                NetworkElement networkElement = this.getCrac().getNetworkElement(sK.networkElementId);
-                distributionKeyMap.merge(networkElement, sK.distributionKey, Double::sum);
+                distributionKeyMap.merge(sK.networkElementId, sK.distributionKey, Double::sum);
             }
         });
         return distributionKeyMap;
@@ -120,12 +104,10 @@ public class InjectionRangeActionAdderImpl extends AbstractStandardRangeActionAd
 
     private static final class DistributionKeyOnNetworkElement {
         String networkElementId;
-        String networkElementName;
         double distributionKey;
 
-        DistributionKeyOnNetworkElement(double distributionKey, String networkElementId, String networkElementName) {
+        DistributionKeyOnNetworkElement(double distributionKey, String networkElementId) {
             this.networkElementId = networkElementId;
-            this.networkElementName = networkElementName;
             this.distributionKey = distributionKey;
         }
     }

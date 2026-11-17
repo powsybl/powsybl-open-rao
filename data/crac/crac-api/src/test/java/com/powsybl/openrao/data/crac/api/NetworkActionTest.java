@@ -80,6 +80,6 @@ class NetworkActionTest {
     }
 
     private SwitchPair mockSwitchPair() {
-        return new NetworkActionUtils.SwitchPairImplTest(NetworkActionUtils.createNetworkElement("switch-fr"), NetworkActionUtils.createNetworkElement("switch-es"));
+        return new NetworkActionUtils.SwitchPairImplTest("switch-fr", "switch-es");
     }
 }

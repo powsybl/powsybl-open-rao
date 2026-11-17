@@ -12,14 +12,19 @@ import ch.qos.logback.core.read.ListAppender;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.contingency.Contingency;
+import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.Unit;
+import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.InstantKind;
-import com.powsybl.openrao.data.crac.api.NetworkElement;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
+import com.powsybl.openrao.raoapi.RaoInput;
+import com.powsybl.openrao.raoapi.json.JsonRaoParameters;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
+import com.powsybl.openrao.raoapi.parameters.RaoParameters;
+import com.powsybl.openrao.searchtreerao.castor.algorithm.Castor;
 import com.powsybl.openrao.searchtreerao.castor.algorithm.ContingencyScenario;
 import com.powsybl.openrao.searchtreerao.castor.algorithm.Perimeter;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
@@ -31,6 +36,7 @@ import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -40,6 +46,7 @@ import java.util.Set;
 import static com.powsybl.openrao.commons.Unit.AMPERE;
 import static com.powsybl.openrao.commons.Unit.MEGAWATT;
 import static java.lang.String.format;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -101,10 +108,8 @@ class MostLimitingElementsReportsTest {
     }
 
     private FlowCnec mockCnec(String neName, State state, double marginMw, double relMarginMw, double marginA, double relMarginA, double ptdf) {
-        NetworkElement ne = mock(NetworkElement.class);
-        when(ne.getName()).thenReturn(neName);
         FlowCnec cnec = mock(FlowCnec.class);
-        when(cnec.getNetworkElement()).thenReturn(ne);
+        when(cnec.getNetworkElementId()).thenReturn(neName);
         when(cnec.getState()).thenReturn(state);
         String cnecId = neName + " @ " + state.getId();
         when(cnec.getId()).thenReturn(cnecId);
@@ -133,7 +138,7 @@ class MostLimitingElementsReportsTest {
     private String marginLog(int order, double margin, boolean relative, Double ptdf, Unit unit, FlowCnec cnec) {
         String relativeMargin = relative ? " relative" : "";
         String ptdfString = (ptdf != null) ? format(" (PTDF %f)", ptdf) : "";
-        String descriptor = format("%s at state %s", cnec.getNetworkElement().getName(), cnec.getState().getId());
+        String descriptor = format("%s at state %s", cnec.getNetworkElementId(), cnec.getState().getId());
         return format(Locale.ENGLISH, "[INFO] Limiting element #%02d:%s margin = %s %s%s, element %s, CNEC ID = \"%s\"", order, relativeMargin, margin, unit, ptdfString, descriptor, cnec.getId());
     }
 
@@ -653,5 +658,44 @@ class MostLimitingElementsReportsTest {
         softly.assertThat(businessLogs.list.get(4)).hasToString(relativeMarginLog(4, 100, null, AMPERE, cnec5));
         softly.assertThat(businessLogs.list.get(5)).hasToString(relativeMarginLog(5, 200, null, AMPERE, cnec3));
         softly.assertAll();
+    }
+
+    @Test
+    void runRaoWithComplexPerimetersAndEnsureAllCnecsAreLogged() throws IOException {
+        Network network = Network.read("16Nodes.uct", getClass().getResourceAsStream("/network/16Nodes.uct"));
+        Crac crac = Crac.read("crac-3-curatives-no-cra.json", getClass().getResourceAsStream("/crac/crac-3-curatives-no-C3RA.json"), network);
+        RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_approximated_integers.json"), reportNode);
+
+        new Castor().run(RaoInput.build(network, crac).build(), raoParameters, reportNode);
+
+        ReportNode mostLimitingElementsReportNodes = reportNode.getChildren().getFirst().getChildren().get(8).getChildren().getFirst();
+        String infoPrefix = "[INFO] ";
+
+        // the CRAC does not have CRAs so all curative CNECs are optimized in the same perimeter at curative 1
+        // we need to ensure that all CNECs are properly logged, and not only the CNECs from curative 1
+
+        assertEquals(5, mostLimitingElementsReportNodes.getChildren().size());
+
+        // this CNEC used not to be reported
+        assertEquals(
+            absoluteMarginLog(1, 16.7, MEGAWATT, crac.getFlowCnec("BBE1AA1  BBE3AA1  1 - Contingency DE2 NL3 1 - curative3")),
+            infoPrefix + mostLimitingElementsReportNodes.getChildren().getFirst().getMessage()
+        );
+        assertEquals(
+            absoluteMarginLog(1, 16.7, MEGAWATT, crac.getFlowCnec("BBE1AA1  BBE3AA1  1 - Contingency DE2 NL3 1 - curative3")),
+            infoPrefix + mostLimitingElementsReportNodes.getChildren().getFirst().getMessage()
+        );
+        assertEquals(
+            absoluteMarginLog(1, 16.7, MEGAWATT, crac.getFlowCnec("BBE1AA1  BBE3AA1  1 - Contingency DE2 NL3 1 - curative3")),
+            infoPrefix + mostLimitingElementsReportNodes.getChildren().getFirst().getMessage()
+        );
+        assertEquals(
+            absoluteMarginLog(1, 16.7, MEGAWATT, crac.getFlowCnec("BBE1AA1  BBE3AA1  1 - Contingency DE2 NL3 1 - curative3")),
+            infoPrefix + mostLimitingElementsReportNodes.getChildren().getFirst().getMessage()
+        );
+        assertEquals(
+            absoluteMarginLog(1, 16.7, MEGAWATT, crac.getFlowCnec("BBE1AA1  BBE3AA1  1 - Contingency DE2 NL3 1 - curative3")),
+            infoPrefix + mostLimitingElementsReportNodes.getChildren().getFirst().getMessage()
+        );
     }
 }

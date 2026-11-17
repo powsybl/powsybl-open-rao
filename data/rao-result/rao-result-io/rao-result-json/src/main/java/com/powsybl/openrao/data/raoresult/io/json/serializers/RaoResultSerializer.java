@@ -27,6 +27,7 @@ import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.
 import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.RAO_RESULT_TYPE;
 import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.TYPE;
 import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.VERSION;
+import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.serializeSecurityStatus;
 import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.serializeStatus;
 
 /**
@@ -57,6 +58,7 @@ class RaoResultSerializer extends AbstractJsonSerializer<RaoResult> {
         jsonGenerator.writeStringField(EXECUTION_DETAILS, raoResult.getExecutionDetails());
 
         if (!ComputationStatus.FAILURE.equals(computationStatus)) {
+            serializeSecurityStatus(crac, raoResult, jsonGenerator);
             CostResultMapSerializer.serialize(raoResult, crac, jsonGenerator);
             ComputationStatusMapSerializer.serialize(raoResult, crac, jsonGenerator);
             FlowCnecResultArraySerializer.serialize(raoResult, crac, flowUnits, jsonGenerator);

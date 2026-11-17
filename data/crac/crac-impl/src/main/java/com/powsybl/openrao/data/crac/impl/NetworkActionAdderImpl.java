@@ -10,7 +10,6 @@ package com.powsybl.openrao.data.crac.impl;
 import com.powsybl.action.Action;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
-import com.powsybl.openrao.data.crac.api.NetworkElement;
 import com.powsybl.openrao.data.crac.api.networkaction.AcEmulationDeactivationActionAdder;
 import com.powsybl.openrao.data.crac.api.networkaction.BoundaryLineActionAdder;
 import com.powsybl.openrao.data.crac.api.networkaction.GeneratorActionAdder;
@@ -35,12 +34,12 @@ import java.util.Set;
 public class NetworkActionAdderImpl extends AbstractRemedialActionAdder<NetworkActionAdder> implements NetworkActionAdder {
 
     private Set<Action> elementaryActions;
-    private Set<NetworkElement> networkElements;
+    private Set<String> networkElementsIds;
 
     NetworkActionAdderImpl(CracImpl owner) {
         super(owner);
         this.elementaryActions = new HashSet<>();
-        this.networkElements = new HashSet<>();
+        this.networkElementsIds = new HashSet<>();
     }
 
     @Override
@@ -106,13 +105,13 @@ public class NetworkActionAdderImpl extends AbstractRemedialActionAdder<NetworkA
             throw new OpenRaoException(String.format("NetworkAction %s has to have at least one ElementaryAction.", id));
         }
 
-        NetworkAction networkAction = new NetworkActionImpl(id, name, operator, usageRules, elementaryActions, speed, activationCost, networkElements);
+        NetworkAction networkAction = new NetworkActionImpl(id, name, operator, usageRules, elementaryActions, speed, activationCost, networkElementsIds);
         getCrac().addNetworkAction(networkAction);
         return networkAction;
     }
 
-    void addElementaryAction(Action elementaryAction, NetworkElement... networkElements) {
+    void addElementaryAction(Action elementaryAction, String... networkElementsIds) {
         this.elementaryActions.add(elementaryAction);
-        Collections.addAll(this.networkElements, networkElements);
+        Collections.addAll(this.networkElementsIds, networkElementsIds);
     }
 }

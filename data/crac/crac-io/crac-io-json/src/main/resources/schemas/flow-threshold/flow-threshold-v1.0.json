@@ -14,11 +14,17 @@
     },
     "rule": {
       "$ref": "../rule/rule-v1.0.json"
+    },
+    "side": {
+      "$ref": "../side/side-v1.6.json"
     }
   },
   "additionalProperties": false,
   "required": [
-    "unit",
-    "rule"
+    "unit"
+  ],
+  "anyOf": [
+    { "required": ["rule"] },
+    { "required": ["side"] }
   ]
 }

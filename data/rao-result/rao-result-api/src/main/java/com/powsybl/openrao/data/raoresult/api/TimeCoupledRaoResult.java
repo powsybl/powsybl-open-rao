@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.data.raoresult.api;
 
+import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
@@ -81,4 +82,9 @@ public interface TimeCoupledRaoResult extends RaoResult {
     RaoResult getIndividualRaoResult(OffsetDateTime timestamp);
 
     void write(ZipOutputStream zipOutputStream, TemporalData<Crac> cracs, Properties properties) throws IOException;
+
+    @Override
+    default boolean isSecure(PhysicalParameter... physicalParameters) {
+        return getTimestamps().stream().allMatch(timestamp -> getIndividualRaoResult(timestamp).isSecure(physicalParameters));
+    }
 }

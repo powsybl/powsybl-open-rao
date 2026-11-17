@@ -10,6 +10,13 @@ is an extension of the CIM standard. The CRAC data is split over different profi
 The OpenRAO importer only supports NC version `2.4` (see
 [ENTSO-E website](https://www.entsoe.eu/Documents/CIM_documents/Grid_Model_CIM/MetadataAndHeaderDataExchangeSpecification_v2.3.0.pdf)).
 
+> ⚠️ **NCP v2.5 is NOT supported.** The v2.5 application profiles publish their vocabulary under new
+> namespaces (`nc` = `https://cim4.eu/ns/nc#`, `cim` = `https://cim.ucaiug.io/ns#`) while the importer
+> only queries the v2.4 namespaces (`nc` = `http://entsoe.eu/ns/nc#`, `cim` = `http://iec.ch/TC57/CIM100#`).
+> The importer detects these v2.5 namespaces while reading the zip: as soon as one of them is found, the
+> import **fails with an explicit error** (`NCP version 2.5 is not supported by the NC CRAC importer`, status
+> `NOT_YET_HANDLED_BY_OPEN_RAO`) listing the offending file (s), instead of silently creating an empty CRAC.
+
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <rdf:RDF
@@ -34,19 +41,28 @@ The OpenRAO importer only supports NC version `2.4` (see
 ```
 
 Each NC profile is identified by a `dcat:keyword` that states which category of features it bears. To be valid for
-OpenRAO, a profile must have exactly one keyword defined in its header. Besides, OpenRAO currently handles 5 different NC
+OpenRAO, a profile must have exactly one keyword defined in its header. Besides, OpenRAO currently handles 6 different NC
 profiles, the keyword and purpose of which are gathered in the following table:
 
-| Keyword | Full Name                | Purpose                                |
-|---------|--------------------------|----------------------------------------|
-| AE      | Assessed Element         | Definition of CNECs.                   |
-| CO      | Contingency              | Definition of contingencies.           |
-| ER      | Equipment Reliability    | Definition of AngleCNECs' thresholds.  |
-| RA      | Remedial Action          | Definition of remedial actions.        |
-| SSI     | Steady State Instruction | Overriding data for specific instants. |
+| Keyword | Full Name                | Purpose                                       |
+|---------|--------------------------|-----------------------------------------------|
+| AE      | Assessed Element         | Definition of CNECs.                          |
+| CO      | Contingency              | Definition of contingencies.                  |
+| ER      | Equipment Reliability    | Definition of AngleCNECs' thresholds.         |
+| RA      | Remedial Action          | Definition of remedial actions.               |
+| SSI     | Steady State Instruction | Overriding data for specific instants.        |
+| SSH     | Steady State Hypothesis  | Overriding data for a specific scenario time. |
 
-Besides, each NC profile has a period of validity delimited by the `dcat:startDate` and `dcat:endDate` fields (both
-required) in the header. If the time at which the import occurs is outside this time interval, the profile is ignored.
+Any other file in the zip (e.g. the CGMES EQ profile, or files whose `dcat:keyword` is not one of the above) is
+loaded with the `CGMES` keyword and is only queried for `CurrentLimit`, `VoltageLimit` and tap changers. All the other
+NCP profiles (MA, AS, PS, PSP, RAS, SIS, OR, IAM, SAR, SM, GD) are **not consumed** by this importer: the capacity
+calculation region is provided as an import parameter, not read from the MA profile.
+
+Besides, each NC profile has a period of validity delimited by the `dcat:startDate` and `dcat:endDate` fields in the
+header. `dcat:startDate` is required; `dcat:endDate` is optional for the base read but **required for the SSI
+overriding queries** (an SSI file without `endDate` is therefore not applied). If the time at which the import occurs
+is outside this time interval, the profile is ignored (a business warning is logged and the file is removed from the
+import).
 
 > Several other fields can be added to the header, but these will be ignored by OpenRAO.
 
@@ -61,9 +77,10 @@ fields read by OpenRAO are displayed in the following chart.
 
 ## Instants
 
-The NC CRAC is systematically created with 4 instants: preventive, outage and auto.
+The NC CRAC is systematically created with 3 fixed instants: preventive, outage and auto.
 
 The curative instants must be declared alongside an application window (number of seconds after the outage) in the [NC CRAC creation parameters](creation-parameters.md#nc-specific-parameters).
+The import **fails** if no curative instant is declared (defaults are 300 s, 600 s and 1200 s when using the standard parameters).
 
 ## Contingencies
 
@@ -191,6 +208,16 @@ to `true` a **preventive** CNEC is created from this assessed element (but this 
 cannot be created as well). The `AssessedSystemOperator` and the `name` are concatenated together with the CNEC's
 instant (with the pattern *TSO_name - instant*) to create the CNEC's name.
 
+> - The fields `inBaseCase`, `name`, `AssessedSystemOperator` and the `OperationalLimit` / `ConductingEquipment`
+>   choice are **required** by the importer: an assessed element missing any of them is silently not read (the SPARQL
+>   query returns nothing for it).
+> - `isCombinableWithContingency` set to `true` creates the curative CNECs for **all the contingencies imported in the
+    > CRAC** (not only the ones of the AE profile).
+> - `isCombinableWithRemedialAction` is **not read**: the RA combination semantics come exclusively from the
+>   `AssessedElementWithRemedialAction` links (see [Usage Rules](#usage-rules)).
+> - An assessed element cannot have both `SecuredForRegion` and `ScannedForRegion` pointing to the same EIC (it would be
+>   ignored: *optimized and monitored at the same time*).
+
 > The CNEC can still be imported if `normalEnabled` is set to `false` if the AssessedElement is also defined in the SSI
 > profile with its field `enabled` set to `true`.
 
@@ -226,15 +253,19 @@ case, the contingency's name is added to the CNEC's name.
 
 Finally, the created CNEC can be optimized (resp. monitored) if the `AssessedElement` has a `SecuredForRegion` (resp. `ScannedForRegion`) attribute pointing to the [EI Code of the CCR](creation-parameters.md#capacity-calculation-region-eic-code) declared in the NC parameters extension (default is `10Y1001C--00095L`, i.e. SWE CCR).
 
-The distinction between the types of CNEC (FlowCNEC, AngleCNEC or VoltageCNEC) comes from the type of `OperationalLimit`
-of the Assessed Element (or the use of a `ConductingEquipment` for FlowCNECs).
+The distinction between the types of CNEC (flow CNEC, angle CNEC or voltage CNEC) comes from the type of `OperationalLimit`
+of the Assessed Element (or the use of a `ConductingEquipment` for flow CNECs).
 
 ### FlowCNEC
 
 ::::{tabs}
 :::{group-tab} OperationalLimit
-The CNEC is a [FlowCNEC](json.md#flow-cnecs) if its associated `OperationalLimit` is a `CurrentLimit` which can be found in
+The CNEC is a [flow CNEC](json.md#flow-cnecs) if its associated `OperationalLimit` is a `CurrentLimit` which can be found in
 the **EQ** profile (CGMES file).
+
+> Note: the limit kind is read from the CGMES 2.4.15 property `entsoe:OperationalLimitType.limitType` (namespace
+> `http://entsoe.eu/CIM/SchemaExtension/3/1#`) and `cim:OperationalLimitType.direction` is **required** for a
+> `CurrentLimit` to be read at all.
 
 ```xml
 <!-- AE Profile -->
@@ -271,7 +302,8 @@ the **EQ** profile (CGMES file).
         <cim:IdentifiedObject.description>Example of operational limit type</cim:IdentifiedObject.description>
         <cim:OperationalLimitType.direction
                 rdf:resource="http://iec.ch/TC57/CIM100#OperationalLimitDirectionKind.absoluteValue"/>
-        <eu:OperationalLimitType.kind rdf:resource="http://iec.ch/TC57/CIM100-European#LimitKind.tatl"/>
+        <entsoe:OperationalLimitType.limitType
+                rdf:resource="http://entsoe.eu/CIM/SchemaExtension/3/1#LimitTypeKind.tatl"/>
         <cim:OperationalLimitType.acceptableDuration>30</cim:OperationalLimitType.acceptableDuration>
     </cim:OperationalLimitType>
     <nc:CurrentLimit rdf:ID="_current-limit">
@@ -301,14 +333,14 @@ existing line in the network and which also defines the CNEC's network element:
 - if the line is a `CGMES.Terminal2` or a `CGMES.Terminal_Boundary_2` in PowSyBl, the threshold of the CNEC is on the
   side **two**
 
-Depending on the `OperationalLimitType`'s `kind` (PATL or TATL) and its `acceptableDuration` (if TATL), the FlowCNEC's instant can be deduced (see [this section](#tatl-to-flowcnec-instant-association) for more information).
+Depending on the `OperationalLimitType`'s `kind` (PATL or TATL) and its `acceptableDuration` (if TATL), the flow CNEC's instant can be deduced (see [this section](#tatl-to-flowcnec-instant-association) for more information).
 
-If the `AssessedElement` is `inBaseCase` and the limit is a PATL, a preventive FlowCNEC is added as well.
+If the `AssessedElement` is `inBaseCase` and the limit is a PATL, a preventive flow CNEC is added as well.
 
 :::
 :::{group-tab} ConductingEquipment
 
-FlowCNECs can also be defined with a `ConductingEquipement` that points to a line in the CGMES.
+Flow CNECs can also be defined with a `ConductingEquipement` that points to a line in the CGMES.
 
 ```xml
 <!-- AE Profile -->
@@ -329,20 +361,20 @@ FlowCNECs can also be defined with a `ConductingEquipement` that points to a lin
 </rdf:RDF>
 ```
 
-In that case, several FlowCNECs can be defined at once depending on the number of TATLs defined for the line (given that
+In that case, several flow CNECs can be defined at once depending on the number of TATLs defined for the line (given that
 the `AssessedElement` is linked to a contingency).
 
 The whole set of limits of the line is use to determine which limit is associated to which instant (see [this section](#tatl-to-flowcnec-instant-association) for more information).
 
-For each contingency, a curative FlowCNEC is also created using the PATL. Finally, if the `AssessedElement`
-is `inBaseCase` a preventive FlowCNEC is added using the PATL as well. In all case, the limit's threshold is used for
-both the maximum (positive) and minimum (negative) FlowCNEC's thresholds.
+For each contingency, a curative flow CNEC is also created using the PATL. Finally, if the `AssessedElement`
+is `inBaseCase` a preventive flow CNEC is added using the PATL as well. In all case, the limit's threshold is used for
+both the maximum (positive) and minimum (negative) flow CNEC's thresholds.
 :::
 ::::
 
 #### TATL to FlowCNEC instant association
 
-Because of the three curative instants used in the NC process, the definition of instants for FlowCNECs is based on an algorithm that requires to know the acceptable duration of all the TATLs of a line.
+Because of the three curative instants used in the NC process, the definition of instants for flow CNECs is based on an algorithm that requires to know the acceptable duration of all the TATLs of a line.
 
 This association is more complex, as the set of TATLs used is not fixed from one line to the next, but the RAO must be able to map each of these limits at all 5 post-contingency instants (outage, auto and curative 1, 2 and 3).
 
@@ -360,7 +392,7 @@ Below are some examples of cases using different sets of TATLs:
 :::
 ::::
 
-The mapping between the different limits and the instants can be done with an algorithm described below. For this to work, the [NC extension](creation-parameters.md#csa-specific-parameters) of the CracCreationParameters must have been set in the first place to associate each curative instant to its [application time](creation-parameters.md#cra-application-window) and to indicate which TSOs [use the PATL as the final state's limit](creation-parameters.md#use-patl-in-final-state) and which do not.
+The mapping between the different limits and the instants can be done with an algorithm described below. For this to work, the [NC extension](creation-parameters.md#nc-specific-parameters) of the CracCreationParameters must have been set in the first place to associate each curative instant to its [application time](creation-parameters.md#curative-instants) and to indicate which TSOs [use the PATL as the final state's limit](creation-parameters.md#tsos-which-do-not-use-patl-in-final-state) and which do not.
 
 By default, the first curative instant is associated to 300 seconds, the second curative to 600 seconds and the third curative to 1200 seconds.
 
@@ -386,17 +418,17 @@ For a given AssessedElement, no matter if it is defined using a `ConductingEquip
 > 1. For each instant, if no TATL meets the condition "highest limit with a duration >= X", the PATL is used instead (or the longest TATL if the TSO does not use the PATL for the final state)
 > 2. If the TSO does not use the PATL for the final state but the line has no TATL, the PATL is used by default for all the instants
 
-Then given a limit (PATL or TATL), the FlowCNEC's instant is retrieved as followed:
-- if the limit is associated to one or several instants by the previous algorithm, one FlowCNEC is created per such instant
+Then given a limit (PATL or TATL), the flow CNEC's instant is retrieved as followed:
+- if the limit is associated to one or several instants by the previous algorithm, one flow CNEC is created per such instant
 - if not, the instants associated to the closest limit with a longer duration (and which was mapped to instants by the algorithm) are used instead
 
 > **Remark about interconnections**
 > 
-> Note that to avoid potential interconnection lines that may have different limits on both sides, one FlowCNEC is created for each side
+> Note that to avoid potential interconnection lines that may have different limits on both sides, one flow CNEC is created for each side
 
 ### AngleCNEC
 
-The CNEC is an [AngleCNEC](json.md#angle-cnecs) if its associated `OperationalLimit` is a `VoltageAngleLimit` which can be
+The CNEC is an [angle CNEC](json.md#angle-cnecs) if its associated `OperationalLimit` is a `VoltageAngleLimit` which can be
 found in the **ER** profile.
 
 ```xml
@@ -439,21 +471,21 @@ s `direction`:
 - if the `direction` is `absoluteValue`, the maximum value of the threshold is + `normalValue` and the minimum value of
   the threshold is `- normalValue`
 
-An AngleCNEC also has two terminals, one being the importing element and the other being the exporting element, which
-imposes the flow direction. Two terminals are referenced by the AngleCNEC in the NC profiles. The first one (called
+An angle CNEC also has two terminals, one being the importing element and the other being the exporting element, which
+imposes the flow direction. Two terminals are referenced by the angle CNEC in the NC profiles. The first one (called
 *terminal_1*) is referenced by the `VoltageAngleLimit`'s `AngleReferenceTerminal` field. The second one (called
 *terminal_2*) is referenced by the `OperationalLimitSet`'s `Terminal` field. The flow direction is determined depending
 on the `VoltageAngleLimit`'s `isFlowToRefTerminal` field value:
 
-- if it is missing of `false`, the importing element is *terminal_1* and the exporting element is *terminal_2*
-- if it is present of `true`, the exporting element is *terminal_1* and the importing element is *terminal_2*
+- if it is missing or `false`, the importing element is *terminal_1* and the exporting element is *terminal_2*
+- if it is `true`, the exporting element is *terminal_1* and the importing element is *terminal_2*
 
 > ⚠️ Note that if the `OperationalLimitType`'s `direction` is **not** `absoluteValue`, the `isFlowToRefTerminal` must be
-> present otherwise the AngleCNEC will be ignored.
+> present otherwise the angle CNEC will be ignored.
 
 ### VoltageCNEC
 
-The CNEC is a [VoltageCNEC](json.md#voltage-cnecs) if its associated `OperationalLimit` is a `VoltageLimit` which can be
+The CNEC is a [voltage CNEC](json.md#voltage-cnecs) if its associated `OperationalLimit` is a `VoltageLimit` which can be
 found in the **EQ** profile (CGMES file).
 
 ```xml
@@ -471,7 +503,8 @@ found in the **EQ** profile (CGMES file).
         <cim:IdentifiedObject.name>Operational limit type</cim:IdentifiedObject.name>
         <cim:IdentifiedObject.description>Example of operational limit type</cim:IdentifiedObject.description>
         <cim:OperationalLimitType.isInfiniteDuration>true</cim:OperationalLimitType.isInfiniteDuration>
-        <entsoe:OperationalLimitType.limitType rdf:resource="http://entsoe.eu/CIM/SchemaExtension/3/1#LimitTypeKind.highVoltage" />
+        <entsoe:OperationalLimitType.limitType
+                rdf:resource="http://entsoe.eu/CIM/SchemaExtension/3/1#LimitTypeKind.highVoltage"/>
     </cim:OperationalLimitType>
     <nc:VoltageLimit rdf:ID="voltage-limit">
         <cim:IdentifiedObject.mRID>voltage-limit</cim:IdentifiedObject.mRID>
@@ -485,16 +518,18 @@ found in the **EQ** profile (CGMES file).
 </rdf:RDF>
 ```
 
-The VoltageCNEC's `isInfiniteDuration` field is optional and its default value is `true`. If it is set to `false` the voltageCNEC will
+The voltage CNEC's `isInfiniteDuration` field is optional and its default value is `true`. If it is set to `false` the voltage CNEC will
 be ignored.
 
-The CNEC's threshold value (in KILOVOLTS) is determined by the `value` field of the `VoltageLimit` and must be positive.
-Whether this is the maximum or minimum threshold of the CNEC depends on the `OperationalLimitType`'s `limitType`:
+The CNEC's threshold value (in KILOVOLTS) is determined by the `value` field of the `VoltageLimit` (i.e.
+`nc:VoltageLimit.value`) and must be positive.
+Whether this is the maximum or minimum threshold of the CNEC depends on the `OperationalLimitType`'s `limitType` (read
+from the CGMES 2.4.15 `entsoe:OperationalLimitType.limitType` property):
 
-- if the `limitType` is `highVoltage`, the maximum value of the threshold is `+ normalValue`
-- if the `limitType` is `lowVoltage`, the minimum value of the threshold is `- normalValue`
+- if the `limitType` is `highVoltage`, the maximum value of the threshold is `+ value`
+- if the `limitType` is `lowVoltage`, the minimum value of the threshold is `+ value`
 
-The VoltageCNEC's network element is determined by the `OperationalLimitSet`'s `Equipment`. The latter must reference an
+The voltage CNEC's network element is determined by the `OperationalLimitSet`'s `Equipment`. The latter must reference an
 existing BusBarSection in the network.
 
 ## Remedial Actions
@@ -525,7 +560,7 @@ and instant of the remedial action.
 The remedial action is imported only if the `normalAvailable` field is set to `true`.
 
 > The remedial action can still be imported if `normalAvailable` is set to `false` if the remedial action is also
-> defined in the SSI profile with its field `avilable` set to `true`.
+> defined in the SSI profile with its field `available` set to `true`.
 
 As for the [contingencies](#contingencies), the `mRID` is used as the remedial action's identifier and
 the `RemedialActionSystemOperator` and `name` are concatenated together to create the remedial action's name. The
@@ -665,7 +700,7 @@ to open or to close the switch.
     <nc:StaticPropertyRange rdf:ID="_static-property-range-for-topology-action">
         <cim:IdentifiedObject.mRID>static-property-range-for-topology-action</cim:IdentifiedObject.mRID>
         <cim:IdentifiedObject.name>Example of StaticPropertyRange to open a switch</cim:IdentifiedObject.name>
-        <nc:RangeConstraint.GridStateAlteration rdf:resource="#_tap-position-action"/>
+        <nc:RangeConstraint.GridStateAlteration rdf:resource="#_topology-action"/>
         <nc:RangeConstraint.normalValue>1</nc:RangeConstraint.normalValue>
         <nc:RangeConstraint.direction rdf:resource="http://entsoe.eu/ns/nc#RelativeDirectionKind.none"/>
         <nc:RangeConstraint.valueKind rdf:resource="http://entsoe.eu/ns/nc#ValueOffsetKind.absolute"/>
@@ -678,7 +713,7 @@ to open or to close the switch.
 
 For the `StaticPropertyRange`, the `PropertyReference` must also be `Switch.open`. Note that the `valueKind` must
 be `absolute` and the `direction` must be `none` to indicate that the limit does not depend on the previous switch's
-state. Finally, the `normalValue` field sets the behaviour of the switch:
+state. Finally, the `normalValue` field sets the behavior of the switch:
 
 - if it is 0 the switch will be closed
 - if it is 1 the switch will be opened
@@ -867,5 +902,91 @@ assessed element and the contingency.
 </rdf:RDF>
 ```
 
-> - If several FlowCNECs were created from the `AssessedElement`, an onConstraint usage rule is created for each as long as the instant of the FlowCNEC occurs after the instant of the remedial action (except for ARAs for which only auto CNECs are supported)
-> - If the `AssessedElement` is also linked to a `Contingency`, only the FlowCNECs monitored after said contingency will be considered for the onConstraint usage rules (see previous bullet point)
+> - If several flow CNECs were created from the `AssessedElement`, an onConstraint usage rule is created for each as
+    long as the instant of the flow CNEC occurs after the instant of the remedial action (except for ARAs for which only
+    auto CNECs are supported)
+> - If the `AssessedElement` is also linked to a `Contingency`, only the flow CNECs monitored after said contingency
+    will be considered for the onConstraint usage rules (see previous bullet point)
+
+## SSH (Steady State Hypothesis) profile
+
+Files with the keyword `SSH` are used to override the values of the flow and voltage CNEC limits for a specific
+scenario time: the importer matches the file's `md:Model.scenarioTime` against the import timestamp and, when they are
+equal, replaces the read values with:
+
+- `nc:CurrentLimit.value` (flow CNEC thresholds),
+- `nc:VoltageLimit.value` (voltage CNEC thresholds).
+
+An `nc:VoltageAngleLimit.value` override with the same semantics can also be provided in the **SSI** profile (validity
+interval checked against the import timestamp).
+
+## Limitations and unsupported elements
+
+The following elements of the NCP are **not** imported by the NC CRAC importer. This list is not exhaustive: the
+authoritative "read contract" is the SPARQL catalog of the module (`crac-io-nc/src/main/resources/nc.sparql`).
+
+### Profiles not consumed
+
+- Only the `AE`, `CO`, `ER`, `RA`, `SSI` and `SSH` profiles (plus the CGMES fallback described above) are queried.
+- The `RAS` (Remedial Action Schedule), `SIS` (State Instruction Schedule), `AS` (Availability Schedule), `MA`,
+  `PS`, `PSP`, `OR` and output profiles (`IAM`, `SAR`, `SM`, `GD`) are **not read**: their content in the zip has no
+  effect on the created CRAC. In particular, the capacity calculation region EIC is provided in the
+  [NC parameters extension](creation-parameters.md#nc-specific-parameters), not read from the MA profile.
+
+### Contingencies
+
+- `Contingency.normalProbability` (and its SSI override `probability`) is ignored.
+- `ExceptionalContingency.kind` (`ContingencyConditionKind`) and `Contingency.SimulationEvents` are ignored.
+- `ContingencyEquipment` with `contingentStatus = inService` is ignored (only `outOfService` is supported).
+
+### CNECs
+
+- `isCombinableWithRemedialAction` is not read (RA combination comes from `AssessedElementWithRemedialAction` links).
+- `criticalElement`, `exclusionReason`, `isCriticalForCapacityCalculation` and the capacity-calculation margin
+  attributes (`normalAppointedMargin`, `normalMaxFlow`, `normalScannedThresholdMargin`, validation adjustments and
+  justifications, …) are ignored.
+- Assessed elements defined on `Line`, `DCTieCorridor` or a power transfer corridor (instead of `ConductingEquipment`)
+  are ignored, as is `BaseCaseCurrentLimit`.
+- For the combination links (`AssessedElementWithContingency`, `AssessedElementWithRemedialAction`,
+  `ContingencyWithRemedialAction`), only `ElementCombinationConstraintKind.included` is supported; any other kind is
+  reported as an inconsistency and the link is ignored.
+
+### Remedial actions
+
+- Only `GridStateAlterationRemedialAction` with one of the four elementary action types is imported:
+  `TopologyAction` (`Switch.open`), `TapPositionAction` (`TapChanger.step`), `RotatingMachineAction`
+  (`RotatingMachine.p`)
+  and `ShuntCompensatorModification` (`ShuntCompensator.sections`). Any other `PropertyReference` is rejected.
+- The other 2.x remedial action types (`LoadAction`, `InServiceAction`, `ACDCConverterAction`, `PowerRemedialAction`,
+  `RedispatchRemedialAction`, `CountertradeRemedialAction`, `BiddingZoneAction`, `StaticVarCompensatorAction`, …) are
+  not supported.
+- The scheme-based modelling of automatons is **not imported**: `RemedialActionScheme`, `Stage`, `StageTrigger`,
+  `Gate`, `GateInputPin`, `Pin*`, `MeasurementCalculator` have no effect (curative automatons must be expressed with
+  `kind = curative` + `isManual = false`, see above).
+- `RelativeDirectionKind.upAndDown` is not supported.
+- `GridStateAlteration.maximumPerDay`, `minimumActivation`, `timePerStage` (and the SSI
+  `participationFactor` override) are ignored.
+- `RemedialActionGroup`/`RemedialActionDependency` merge the depending actions into a single network action only when
+  all dependencies share the same kind and usage rules; the `kind` of a dependency is checked for consistency but has
+  no additional semantics (e.g. `exclusive` does not prevent the merge). Groups of PST range actions are not supported.
+- `RemedialAction.AppointedToRegion` and `RemedialAction.impactThresholdMargin` / `penaltyFactor` are ignored.
+
+### SSI overrides (supported list)
+
+Only these SSI overrides are applied (the corresponding `normal*` field is replaced by the SSI value when the SSI file
+keyword and validity interval match the import timestamp):
+
+`Contingency.mustStudy`, `AssessedElement.enabled`, `AssessedElementWithContingency.enabled`,
+`AssessedElementWithRemedialAction.enabled`, `ContingencyWithRemedialAction.enabled`,
+`GridStateAlterationRemedialAction.available`, `GridStateAlteration.enabled`, `RangeConstraint.value`,
+`RemedialActionScheme.armed`, `RemedialActionDependency.enabled`, `VoltageAngleLimit.value`.
+All the other SSI attributes (margins, probabilities, `inService`, `participationFactor`, …) are ignored.
+
+### Import robustness
+
+- Importing a file that uses the NCP 2.5 vocabulary **fails with an explicit error** (the v2.5 namespaces
+  are detected while reading the zip), never with a silent empty CRAC (see the note in the presentation).
+- The zip must contain at most 200 file entries and each entry at most 1 GB (hard limits in the importer);
+  entries beyond those limits are silently skipped.
+- A file whose `dcat:keyword` is not one of the supported keywords is treated as a CGMES file (see above).
+- A file whose validity interval does not cover the import timestamp is removed from the import (business warning).

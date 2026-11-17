@@ -130,7 +130,6 @@ Feature: 1.4.1: enable second optimization of the preventive perimeter
     Given crac file is "epic20/crac_ep20us1case1_5.json"
     Given configuration file is "epic20/RaoParameters_maxMargin_ampere_second_preventive.json"
     When I launch rao
-    # Same: FARAO has better results than OSIRIS
     Then 1 remedial actions are used in preventive
     Then the remedial action "pst_fr_pra" is used in preventive
     Then the tap of PstRangeAction "pst_fr_pra" should be -7 in preventive

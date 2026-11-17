@@ -144,7 +144,8 @@ public final class ProblemFillerHelper {
 
         // MIP optimization vs. CONTINUOUS optimization
         SearchTreeRaoRangeActionsOptimizationParameters.PstModel pstModel = getPstModel(parameters.getRangeActionParametersExtension());
-        if (SearchTreeRaoRangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS.equals(pstModel)) {
+        if (SearchTreeRaoRangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS.equals(pstModel) ||
+            SearchTreeRaoRangeActionsOptimizationParameters.PstModel.HYBRID.equals(pstModel)) {
             Map<State, Set<PstRangeAction>> pstRangeActions = copyOnlyPstRangeActions(input.optimizationPerimeter().getRangeActionsPerState());
             Map<State, Set<RangeAction<?>>> otherRa = copyWithoutPstRangeActions(input.optimizationPerimeter().getRangeActionsPerState());
             DiscretePstTapFiller discretePstTapFiller = new DiscretePstTapFiller(
@@ -155,12 +156,14 @@ public final class ProblemFillerHelper {
                 parameters.getObjectiveFunction().costOptimization(),
                 parameters.getRaLimitationParameters() != null
                     && input.optimizationPerimeter().getRangeActionOptimizationStates().stream()
-                    .anyMatch(state -> !parameters.getRaLimitationParameters().getMaxElementaryActionsPerTso(state).isEmpty())
+                    .anyMatch(state -> !parameters.getRaLimitationParameters().getMaxElementaryActionsPerTso(state).isEmpty()),
+                pstModel
             );
             problemFillers.add(discretePstTapFiller);
             DiscretePstGroupFiller discretePstGroupFiller = new DiscretePstGroupFiller(
                 input.optimizationPerimeter().getMainOptimizationState(),
-                pstRangeActions
+                pstRangeActions,
+                pstModel
             );
             problemFillers.add(discretePstGroupFiller);
             ContinuousRangeActionGroupFiller continuousRangeActionGroupFiller = new ContinuousRangeActionGroupFiller(otherRa);
