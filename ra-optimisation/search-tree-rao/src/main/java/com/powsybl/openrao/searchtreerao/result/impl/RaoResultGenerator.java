@@ -130,7 +130,6 @@ public final class RaoResultGenerator {
         RaoResultImpl.RaoResultImplBuilder raoResultBuilder = RaoResultImpl.builder(crac);
         ObjectiveFunctionResult preventiveAndOutageOnlyResult = generatePreventiveAndOutageOnlyResult(crac, initialResult, postPreventiveResult, raoParameters, reportNode);
         completePostContingencyResultsMap(crac, initialResult, postPreventiveResult, postContingencyResults, stateTree, raoParameters, reportNode);
-        excludeDuplicatedCnecs(crac, initialResult, preventiveAndOutageOnlyResult, postPreventiveResult, postContingencyResults);
         excludeContingencies(stateTree, initialResult, preventiveAndOutageOnlyResult, postPreventiveResult, postContingencyResults);
         RaoUtil.fillWithActivatedRemedialActions(raoResultBuilder, postPreventiveResult.optimizationResult(), crac.getPreventiveState(), postContingencyResults);
         RaoResultImpl raoResult = raoResultBuilder.withSecurityStatus(
@@ -352,28 +351,5 @@ public final class RaoResultGenerator {
             }
         }
         return loopflowPresent;
-    }
-
-    private static void excludeDuplicatedCnecs(final Crac crac,
-                                               final PrePerimeterResult initialResult,
-                                               final ObjectiveFunctionResult preventiveAndOutageOnlyResult,
-                                               final PostPerimeterResult postPreventiveResult,
-                                               final Map<State, PostPerimeterResult> postContingencyResults) {
-        Set<String> cnecsToExclude = getDuplicateCnecs(crac.getFlowCnecs());
-        initialResult.excludeCnecs(cnecsToExclude);
-        preventiveAndOutageOnlyResult.excludeCnecs(cnecsToExclude);
-        postPreventiveResult.optimizationResult().excludeCnecs(cnecsToExclude);
-        postPreventiveResult.prePerimeterResultForAllFollowingStates().excludeCnecs(cnecsToExclude);
-        postContingencyResults.values().forEach(result -> {
-            result.optimizationResult().excludeCnecs(cnecsToExclude);
-            result.prePerimeterResultForAllFollowingStates().excludeCnecs(cnecsToExclude);
-        });
-    }
-
-    public static Set<String> getDuplicateCnecs(final Set<FlowCnec> flowCnecs) {
-        return flowCnecs.stream()
-            .map(FlowCnec::getId)
-            .filter(id -> id.contains("OUTAGE DUPLICATE"))
-            .collect(Collectors.toSet());
     }
 }

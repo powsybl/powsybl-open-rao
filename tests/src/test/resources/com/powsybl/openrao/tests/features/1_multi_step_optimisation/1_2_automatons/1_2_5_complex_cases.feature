@@ -29,25 +29,26 @@ Feature: 1.2.5: Complex automaton simulator cases
     Then the remedial action "close_fr5_fr6_2" is used after "co_fr1_fr2_2" at "auto"
     Then the worst margin is 1 MW
 
-  Scenario: 1.2.5.2: outage duplicate CNEC is the limiting element - simple situation
-    "cnec-auto-2" has no ARA -> an outage duplicate is created -> check that duplicate cnec margin is not considered
-    in the final cost and in the final rao result.
+  Scenario: 1.2.5.2: Auto CNEC is incldued in the preventive perimeter and is the limiting element - simple situation
+    "cnec-auto-2" has no ARA -> the CNEC is included in the preventive perimeter -> check that it is not considered
+    in the preventive security status since it cannot be secured by PRAs -> the RAO still goes on with the auto/curative
+    optimization.
     The "cnec-auto-2" is secured by "accident" thanks to the ARA that is used to secure "cnec-auto-1"
     Given network file is "1_multi_step_optimisation/1_2_automatons/network_1_2_5_2.uct"
     Given crac file is "1_multi_step_optimisation/1_2_automatons/crac_1_2_5_2.json"
     Given configuration file is "common/rao_parameters_max_margin_ampere_second_preventive.json"
     When I launch rao
     Then its security status should be "SECURED"
-    # The outage duplicate CNEC is not serialize in the RaoResult
     Then the worst margin is 35.87 A
     Then the value of the objective function after CRA should be -35.87
+    Then 0 remedial actions are used in preventive
     Then 1 remedial actions are used after "co_fr1_fr2_1" at "auto"
     Then the tap of PstRangeAction "pst_auto" should be -7 after "co_fr1_fr2_1" at "auto"
     Then the margin on cnec "cnec - auto - 1" after ARA should be 35.87 A
     Then the margin on cnec "cnec - auto - 2" after ARA should be 59.7 A
 
 
-  Scenario: 1.2.5.3: An auto cnec needs a preventive action to be properly secured - with outage duplicate
+  Scenario: 1.2.5.3: An auto cnec needs a preventive action to be properly secured
     Same situation as 1.2.5.2, but the line 'NNL1AA1  NNL2AA1  1' is open and a preventive network action is added to the CRAC
     that close this line. As it is unprotected, the cnec-auto-2 is added to the preventive perimeter,
     the PRA is activated, and we come back to the same auto situation as 1.2.5.2, where securing "cnec-auto-1" also secure "cnec-auto-2".
@@ -64,6 +65,5 @@ Feature: 1.2.5: Complex automaton simulator cases
     Then the margin on cnec "cnec - auto - 2" after PRA should be -44.51 A
     Then 1 remedial actions are used after "co_fr1_fr2_1" at "auto"
     Then the tap of PstRangeAction "pst_auto" should be -7 after "co_fr1_fr2_1" at "auto"
-       # The outage duplicate CNEC is not serialize in the RaoResult
     Then the worst margin is 35.87 A
     Then the value of the objective function after CRA should be -35.87
