@@ -152,26 +152,26 @@ public class CounterTradeAreaBalanceFiller implements ProblemFiller {
             String generatorId = allocation.generatorId();
             double bound = Math.min(allocation.cumulativeAllocation(), maxMagnitude);
 
-            OpenRaoMPVariable x = linearProblem.addCounterTradeGeneratorDispatchVariable(bound, generatorId, areaId, state, direction);
+            OpenRaoMPVariable x = linearProblem.addCounterTradeGeneratorDispatchVariable(bound, generatorId, h, areaId, state, direction);
 
             exclusivity.setCoefficient(x, 1.0);
             decomposition.setCoefficient(x, up ? -1.0 : 1.0);
 
             // x - m_h y_{h-1} <=0
             if (previousY != null) {
-                OpenRaoMPConstraint orderCtr = linearProblem.addCounterTradeGeneratorOrderConstraint(generatorId, areaId, state, direction);
+                OpenRaoMPConstraint orderCtr = linearProblem.addCounterTradeGeneratorOrderConstraint(generatorId, h, areaId, state, direction);
                 orderCtr.setCoefficient(x, 1.0);
                 orderCtr.setCoefficient(previousY, -bound);
             }
             if (h < lastStage) {
-                OpenRaoMPVariable y = linearProblem.addCounterTradeGeneratorSaturationBinary(generatorId, areaId, state, direction);
+                OpenRaoMPVariable y = linearProblem.addCounterTradeGeneratorSaturationBinary(generatorId, h, areaId, state, direction);
                 // x - m_h * y >= 0
-                OpenRaoMPConstraint link = linearProblem.addCounterTradeGeneratorSaturationLinkConstraint(generatorId, areaId, state, direction);
+                OpenRaoMPConstraint link = linearProblem.addCounterTradeGeneratorSaturationLinkConstraint(generatorId, h, areaId, state, direction);
                 link.setCoefficient(x, 1.0);
                 link.setCoefficient(y, -bound);
                 // y - y_{h-1} <=0
                 if (previousY != null) {
-                    OpenRaoMPConstraint monotonic = linearProblem.addCounterTradeSaturationOrderConstraint(generatorId, areaId, state, direction);
+                    OpenRaoMPConstraint monotonic = linearProblem.addCounterTradeSaturationOrderConstraint(generatorId, h, areaId, state, direction);
                     monotonic.setCoefficient(y, 1.0);
                     monotonic.setCoefficient(previousY, -1.0);
                 }
@@ -226,7 +226,7 @@ public class CounterTradeAreaBalanceFiller implements ProblemFiller {
         double[] sigma = GeneratorOrderingComputer.stageSensitivities(order, lastStage,
                 generatorId -> sensitivityResult.getSensitivityValue(cnec, side, generatorId, unit),
                 tailSensitivity);
-        Map<String, Double> xCurrent = GeneratorOrderingComputer.layerAllocation(order, currentMagnitude);
+        double[] xCurrent = GeneratorOrderingComputer.layerAllocation(order, currentMagnitude);
 
         for (int h = 0; h <= lastStage; h++) {
             double sensitivity = directionSign * sigma[h];
@@ -235,8 +235,8 @@ public class CounterTradeAreaBalanceFiller implements ProblemFiller {
             }
             String generatorId = order.get(h).generatorId();
             OpenRaoMPVariable x = linearProblem.getCounterTradeGeneratorDispatchVariable(
-                    generatorId, ra.getAreaId(), state, direction);
-            double xCur = xCurrent.get(generatorId);
+                    generatorId, h, ra.getAreaId(), state, direction);
+            double xCur = xCurrent[h];
 
             flowConstraint.setLb(flowConstraint.lb() - sensitivity * xCur);
             flowConstraint.setUb(flowConstraint.ub() - sensitivity * xCur);

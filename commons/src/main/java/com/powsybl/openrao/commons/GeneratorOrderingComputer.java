@@ -202,7 +202,7 @@ public final class GeneratorOrderingComputer {
      */
     public static Map<String, Double> computeDispatchQuantity(
             List<GlskGeneratorAllocation> sortedAllocations,
-            Map<String, Double> ctXValue) {
+            double[] ctXValue) {
 
         int n = sortedAllocations.size();
         double[] suffixSum = new double[n + 1];
@@ -228,9 +228,9 @@ public final class GeneratorOrderingComputer {
     public static Map<String, Double> layerAllocation(List<GlskGeneratorAllocation> order, double magnitude) {
         Map<String, Double> x = new LinkedHashMap<>();
         double remaining = magnitude;
-        for (GlskGeneratorAllocation allocation : order) {
-            double xh = Math.min(remaining, allocation.cumulativeAllocation());
-            x.put(allocation.generatorId(), xh);
+        for (int h = 0; h < order.size(); h++) {
+            double xh = Math.min(remaining, order.get(h).cumulativeAllocation());
+            x[h] = xh;
             remaining -= xh;
         }
         return x; // any leftover means the setpoint exceeds total capacity
