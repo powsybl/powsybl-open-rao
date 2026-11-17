@@ -16,17 +16,17 @@ HTML content of the website is built automatically from source files written in 
 using [Sphinx](https://www.sphinx-doc.org/).  
 Sphinx build needs a configuration file: [conf.py](./conf.py). 
 It contains all customization options for the website (for example, the theme used is [furo](https://pradyunsg.me/furo/)).
-Here is the most common cases when you'll need to tweak this file:
-- If you want to customize the theme's behaviour, you will probably have to change the conf.py file (refer to the
+Here are the most common cases when you'll need to tweak this file:
+- If you want to customize the theme's behavior, you will probably have to change the conf.py file (refer to the
   used theme's documentation first)
-- If you want to customize sphinx's behaviour, add plugins, css, etc., you need to change this file (refer to the
+- If you want to customize Sphinx's behavior, add plugins, CSS, etc., you need to change this file (refer to the
   Sphinx doc first)
 
 ### Customization options
 
 Sometimes, the possibilities offered by Sphinx & the used theme can be limiting. Sphinx offers the possibility to use
-custom html & css code. Currently, two methods are used:
-- Custom CSS: the [styles.css](_static/styles/styles.css) files contains custom CSS classes (read more about this [here](https://docs.readthedocs.io/en/stable/guides/adding-custom-css.html)).
+custom HTML & CSS code. Currently, two methods are used:
+- Custom CSS: the [styles.css](_static/styles/styles.css) file contains custom CSS classes (read more about this [here](https://docs.readthedocs.io/en/stable/guides/adding-custom-css.html)).
   Feel free to add classes to it if you find it necessary.
 - HTML overrides: the [_templates](_templates) directory contains HTML files that override objects inherited from Sphinx
   or its theme (read more about this [here](https://www.sphinx-doc.org/en/master/development/theming.html#templating)).
@@ -42,6 +42,43 @@ graph TD
     C -->|One| D[Result 1]
     C -->|Two| E[Result 2]
 ~~~
+
+### Linking to source code
+
+Links from the documentation to Java sources must follow the **published version** of the
+website: the `v7.5.0` doc must link to the `v7.5.0` sources, not to `main`.  
+`conf.py` computes the GitHub reference from the readthedocs environment variables:
+tag builds use the exact tag (`v7.5.0`, `v7.4.0`, …), branch builds use the branch name
+(`READTHEDOCS_VERSION_NAME`), and pull-request previews use the exact PR head commit
+(`READTHEDOCS_GIT_COMMIT_HASH`, detected via `READTHEDOCS_VERSION_TYPE == "external"` —
+which works even when the PR comes from a fork).  
+On a local build (no readthedocs environment), links point to `main`.
+
+To link a source file (or a directory), use the `{src}` MyST role (registered in
+`conf.py`) with a path **relative to the root of the repository**:
+~~~markdown
+See {src}`data/crac/crac-api/src/main/java/com/powsybl/openrao/data/crac/api/parameters/CracCreationParameters.java`.
+
+With a display label:
+OpenRAO's {src}`CracCreationParameters<data/crac/crac-api/src/main/java/com/powsybl/openrao/data/crac/api/parameters/CracCreationParameters.java>`.
+
+For a directory (GitHub `tree` URL):
+The {src}`Monitoring<monitoring>` package.
+~~~
+
+Rules:
+- **Do not hardcode** `https://github.com/powsybl/powsybl-open-rao/blob/main/...` in the
+docs: it drifts after the next release.
+- **Do not use relative links** (`../../data/...`): the file exists in the repository, so
+the `broken_links_check` CI job passes, but the source tree is *not* published on
+readthedocs and the link 404s on the website.
+- `{src}` links are resolved **at build time**, so the `broken_links_check` CI job does
+not see them: verify links in the pull-request's readthedocs preview ("Build documentation"
+check).
+- A plain `[label](url)` Markdown link cannot be versioned: neither `myst_substitutions`
+nor `rst_epilog` substitute inside a link's URL, which is why the `{src}` role exists.
+To test a specific version locally, prefix the build, e.g.
+`READTHEDOCS_VERSION=v7.5.0 sphinx-build -a docs ./build-docs`.
 
 ### Building the website locally
 

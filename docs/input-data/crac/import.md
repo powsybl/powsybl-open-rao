@@ -7,7 +7,7 @@ The [OpenRAO CRAC object model](json.md) can be directly imported and exported u
 The JSON format - also called OpenRAO internal format - is a raw image of the CRAC object model of OpenRAO. It is 
 particularly suited to exchange a CRAC java object through files, for instance to exchange CRAC data between 
 microservices or Kubernetes pods of an application. It has an importer and an exporter. The complete round-trip 
-(java object → export → json file → import → java object) has been designed so that the CRAC at the 
+(java object → export → JSON file → import → java object) has been designed so that the CRAC at the 
 beginning of the chain is exactly the same as the one at the end of the chain.  
 
 Examples of JSON formats are given on this [page](json.md).  
@@ -32,19 +32,19 @@ The formats currently supported by OpenRAO are:
 
 ## Versioning of internal JSON CRAC files
 
-Json files and json importer/exporter are versioned.  
-The version number does not correspond to the version number of powsybl-open-rao. The version only increases when a 
+JSON files and JSON importer/exporter are versioned.  
+The version number does not correspond to the version number of OpenRAO. The version only increases when a 
 modification is made within the JSON importer / exporter.  
-- The number version of the json files corresponds to the number of version of the exporter by which it has been exported.
-- A Json file can be imported by powsybl-open-rao only if the versions of the file and the importer are compatible (see below)
-- A Json file cannot be exported to an older version of the format  
+- The number version of the JSON files corresponds to the number of version of the exporter by which it has been exported.
+- A JSON file can be imported by OpenRAO only if the versions of the file and the importer are compatible (see below)
+- A JSON file cannot be exported to an older version of the format  
 
 
 | File version (example) | Importer version (example) | Is compatible? | Explanation                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
 |------------------------|----------------------------|----------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | 1.0                    | 1.0                        | YES            |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
-| 1.0                    | 1.1                        | YES            | The importer is compatible with all the previous versions of the json file, **given that the first number of the version does not change**!                                                                                                                                                                                                                                                                                                                                                                                                                                      |
-| 1.1                    | 1.0                        | NO[^1]         | The importer is *a priori* not compatible with newer versions of the file.  <br> For instance, if a json CRAC is generated with powsybl-open-rao 5.3.0 (importer version = 1.3) and read with powsybl-open-rao 5.1.0 (importer version = 1.2), the importer should not work. <br> However, the import is not systematically rejected. It might even work in some situation. <br> For instance, in the example above, if a 1.1 crac does not contain the feature specific to its version, the newly introduced switchPair elementary action, it will still be importable by the 1.0 importer. |
+| 1.0                    | 1.1                        | YES            | The importer is compatible with all the previous versions of the JSON file, **given that the first number of the version does not change**!                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| 1.1                    | 1.0                        | NO[^1]         | The importer is *a priori* not compatible with newer versions of the file.  <br> For instance, if a JSON CRAC is generated with OpenRAO 5.3.0 (importer version = 1.3) and read with OpenRAO 5.1.0 (importer version = 1.2), the importer should not work. <br> However, the import is not systematically rejected. It might even work in some situation. <br> For instance, in the example above, if a 1.1 crac does not contain the feature specific to its version, the newly introduced switchPair elementary action, it will still be importable by the 1.0 importer. |
 | 1.0                    | 2.0                        | NO             | compatibility is not ensured anymore when first version number change                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
 | 2.0                    | 1.0                        | NO             | compatibility is not ensured anymore when first version number change                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
 
@@ -53,8 +53,8 @@ modification is made within the JSON importer / exporter.
 ## CracCreationParameters and CracCreationContext
 
 The [OpenRAO CRAC object model](json.md) is not a bijection ("one-to-one" mapping) of existing "business" (or "native") formats:  
-- The same business objects can be modelled differently in native formats, and in OpenRAO. For example, an [OpenRAO CNEC](json.md#cnecs) 
-  can be modelled as an implicit coupling of a line and a contingency, defined independently in the native format.
+- The same business objects can be modeled differently in native formats, and in OpenRAO. For example, an [OpenRAO CNEC](json.md#cnecs) 
+  can be modeled as an implicit coupling of a line and a contingency, defined independently in the native format.
 - The perimeter of the "CRAC" business object is not rigid. [OpenRAO's CRAC object](json.md) offers the possibility to model 
   more business objects than most native formats. For instance, it can model [remedial action usage limits](json.md#ras-usage-limitations), 
   which is currently not supported by any native format.
@@ -63,7 +63,7 @@ To handle this complex mapping, extra objects have been created:
 - The CRAC importers return a [CracCreationContext](creation-context.md) object, that contains:
     - the created OpenRAO CRAC object
     - additional information which explains how the initial format has been mapped into the OpenRAO format. This 
-      mapping is often not straightforward (see below). The CracCreationContext enables to keep in memory a link 
+      mapping is often not straightforward (see below). The CracCreationContext enables keeping in memory a link 
       between the native CRAC and the OpenRAO CRAC objects, in order to allow business assessment of the RAO's results.
 - The CRAC importers can process a [CracCreationParameters](creation-parameters.md) object, that allows the user to add to 
   the OpenRAO CRAC object information that is not possible to model in the native format (see examples [here](creation-parameters.md)).
@@ -81,7 +81,7 @@ Crac crac = cracCreationContext.getCrac();
 Crac crac = Crac.read(filename, inputStream, network, cracCreationParameters)
 ~~~
 Where:
-- **filename** is the name of the native or json CRAC file (useful to start guessing the file's format).
+- **filename** is the name of the native or JSON CRAC file (useful to start guessing the file's format).
 - **inputStream** is the stream with the contents of the CRAC file.
 - **network** is the PowSyBl network object that OpenRAO shall use to interpret the CRAC file.
 - **cracCreationParameters** is the [CracCreationParameters](creation-parameters.md) object that allows adding context 

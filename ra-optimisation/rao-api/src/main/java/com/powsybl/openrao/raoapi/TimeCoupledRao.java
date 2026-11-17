@@ -13,7 +13,7 @@ import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.util.ServiceLoaderCache;
 import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.data.raoresult.api.TimeCoupledRaoResult;
+import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.reports.RaoApiReports;
 import com.powsybl.tools.Version;
@@ -24,7 +24,10 @@ import java.util.ServiceLoader;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
+ * @deprecated since 7.6.0, {@link Rao} supports time-coupled remedial action optimization and is preferred as the main
+ * optimization interface.
  */
+@Deprecated(since = "7.6.0")
 public final class TimeCoupledRao {
     private TimeCoupledRao() {
         throw new AssertionError("Utility class should not been instantiated");
@@ -47,7 +50,7 @@ public final class TimeCoupledRao {
             this.reportNode = reportNode;
         }
 
-        public TimeCoupledRaoResult run(TimeCoupledRaoInput raoInput, RaoParameters parameters) {
+        public RaoResult run(TimeCoupledRaoInput raoInput, RaoParameters parameters) {
             Objects.requireNonNull(raoInput, "RAO input should not be null");
             Objects.requireNonNull(parameters, "parameters should not be null");
 
@@ -60,7 +63,7 @@ public final class TimeCoupledRao {
             return provider.run(raoInput, parameters, reportNode).join();
         }
 
-        public TimeCoupledRaoResult run(TimeCoupledRaoInput raoInput) {
+        public RaoResult run(TimeCoupledRaoInput raoInput) {
             return run(raoInput, RaoParameters.load(reportNode));
         }
 
@@ -83,11 +86,11 @@ public final class TimeCoupledRao {
     /**
      * Get a runner for default time-coupled RAO implementation.
      *
-     * @throws OpenRaoException in case we cannot find a default implementation
      * @return a runner for default RAO implementation
+     * @throws OpenRaoException in case we cannot find a default implementation
      */
     public static TimeCoupledRao.Runner find(final ReportNode reportNode) {
-        return find(null, reportNode);
+        return find("OpenRAO", reportNode);
     }
 
     /**
@@ -95,15 +98,15 @@ public final class TimeCoupledRao {
      * an explicit provider list instead of relying on service loader and an explicit {@link PlatformConfig}
      * instead of global one.
      *
-     * @param name name of the RAO implementation, null if we want to use default one
-     * @param providers flowbased provider list
+     * @param name           name of the RAO implementation, null if we want to use default one
+     * @param providers      flowbased provider list
      * @param platformConfig platform config to look for default flowbased implementation name
      * @return a runner for flowbased implementation named {@code name}
      */
     public static TimeCoupledRao.Runner find(final String name,
-                                               final List<TimeCoupledRaoProvider> providers,
-                                               final PlatformConfig platformConfig,
-                                               final ReportNode reportNode) {
+                                             final List<TimeCoupledRaoProvider> providers,
+                                             final PlatformConfig platformConfig,
+                                             final ReportNode reportNode) {
         Objects.requireNonNull(providers);
         Objects.requireNonNull(platformConfig);
 
@@ -138,11 +141,11 @@ public final class TimeCoupledRao {
         return new TimeCoupledRao.Runner(provider, reportNode);
     }
 
-    public static TimeCoupledRaoResult run(TimeCoupledRaoInput raoInput, RaoParameters parameters, final ReportNode reportNode) {
+    public static RaoResult run(TimeCoupledRaoInput raoInput, RaoParameters parameters, final ReportNode reportNode) {
         return find(reportNode).run(raoInput, parameters);
     }
 
-    public static TimeCoupledRaoResult run(TimeCoupledRaoInput raoInput, final ReportNode reportNode) {
+    public static RaoResult run(TimeCoupledRaoInput raoInput, final ReportNode reportNode) {
         return find(reportNode).run(raoInput);
     }
 }

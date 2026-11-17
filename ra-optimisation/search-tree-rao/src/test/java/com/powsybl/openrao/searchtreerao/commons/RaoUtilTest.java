@@ -434,7 +434,7 @@ class RaoUtilTest {
             .withInstant("prev")
             .withNominalVoltage(200.)
             .newThreshold().withUnit(Unit.MEGAWATT).withMax(1000.).withSide(TwoSides.ONE).add()
-            .newThreshold().withUnit(Unit.AMPERE).withMax(1000.).withSide(TwoSides.ONE).add()
+            .newThreshold().withUnit(Unit.AMPERE).withMin(-1000.).withSide(TwoSides.ONE).add()
             .add();
         cracWIthTresholdInMwWithAc.newFlowCnec()
             .withId("cnecOneAmpThreshold")
@@ -515,10 +515,8 @@ class RaoUtilTest {
             .withNetworkElementId("FFR2AA1  DDE3AA1  1")
             .withOpen(true)
             .build();
-        NetworkElement networkElement1 = Mockito.mock(NetworkElement.class);
-        NetworkElement networkElement2 = Mockito.mock(NetworkElement.class);
         NetworkAction networkActionThatCreateAnIsland = new NetworkActionImpl("naCombination", "naCombination", "operator", Mockito.mock(Set.class),
-            Set.of(elementaryAction1, elementaryAction2), 1, 0.0, Set.of(networkElement1, networkElement2));
+            Set.of(elementaryAction1, elementaryAction2), 1, 0.0, Set.of("DDE2AA1  NNL3AA1  1", "FFR2AA1  DDE3AA1  1"));
         networkActionThatCreateAnIsland.apply(network);
         assertEquals(numberOfComponents + 1, RaoUtil.getNumberOfConnectedComponent(network));
     }

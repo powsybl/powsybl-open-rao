@@ -8,7 +8,6 @@
 package com.powsybl.openrao.data.crac.api.rangeaction;
 
 import com.powsybl.iidm.network.Network;
-import com.powsybl.openrao.data.crac.api.NetworkElement;
 
 /**
  * A range action interface specifying an action on a HVDC
@@ -17,14 +16,6 @@ import com.powsybl.openrao.data.crac.api.NetworkElement;
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public interface HvdcRangeAction extends StandardRangeAction<HvdcRangeAction> {
-
-    /**
-     * Get the HVDC Network Element on which the remedial action applies
-     *
-     * @deprecated since 7.4.0. Use {@link #getNetworkElementId()} instead.
-     */
-    @Deprecated(since = "7.4.0")
-    NetworkElement getNetworkElement();
 
     /**
      * Get the HVDC Network Element on which the remedial action applies

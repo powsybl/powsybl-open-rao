@@ -7,19 +7,17 @@
 
 package com.powsybl.openrao.data.crac.impl;
 
-import com.powsybl.openrao.data.crac.api.NetworkElement;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.Cnec;
 
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 public abstract class AbstractCnec<I extends Cnec<I>> extends AbstractIdentifiable<I> implements Cnec<I> {
 
-    protected final Set<NetworkElement> networkElements;
+    protected final Set<String> networkElementsIds;
     protected final State state;
     protected boolean optimized;
     protected boolean monitored;
@@ -29,7 +27,7 @@ public abstract class AbstractCnec<I extends Cnec<I>> extends AbstractIdentifiab
 
     protected AbstractCnec(String id,
                            String name,
-                           Set<NetworkElement> networkElements,
+                           Set<String> networkElementsIds,
                            String operator,
                            String border,
                            State state,
@@ -37,7 +35,7 @@ public abstract class AbstractCnec<I extends Cnec<I>> extends AbstractIdentifiab
                            boolean monitored,
                            double reliabilityMargin) {
         super(id, name);
-        this.networkElements = networkElements;
+        this.networkElementsIds = networkElementsIds;
         this.operator = operator;
         this.border = border;
         this.state = state;
@@ -52,13 +50,8 @@ public abstract class AbstractCnec<I extends Cnec<I>> extends AbstractIdentifiab
     }
 
     @Override
-    public final Set<NetworkElement> getNetworkElements() {
-        return networkElements;
-    }
-
-    @Override
     public final Set<String> getNetworkElementsIds() {
-        return networkElements.stream().map(NetworkElement::getId).collect(Collectors.toSet());
+        return networkElementsIds;
     }
 
     @Override

@@ -8,7 +8,6 @@
 package com.powsybl.openrao.data.crac.api.networkaction;
 
 import com.powsybl.action.Action;
-import com.powsybl.openrao.data.crac.api.NetworkElement;
 
 /**
  * A SwitchPair action is an Elementary Action which consists in changing
@@ -19,24 +18,8 @@ import com.powsybl.openrao.data.crac.api.NetworkElement;
 public interface SwitchPair extends Action {
     /**
      * Get the switch that should be opened by the elementary action
-     *
-     * @deprecated since 7.4.0, use {@link #getSwitchToOpenId()} instead
-     */
-    @Deprecated(since = "7.4.0")
-    NetworkElement getSwitchToOpen();
-
-    /**
-     * Get the switch that should be opened by the elementary action
      */
     String getSwitchToOpenId();
-
-    /**
-     * Get the switch that should be closed by the elementary action
-     *
-     * @deprecated since 7.4.0, use {@link #getSwitchToCloseId()} instead
-     */
-    @Deprecated(since = "7.4.0")
-    NetworkElement getSwitchToClose();
 
     /**
      * Get the switch that should be closed by the elementary action

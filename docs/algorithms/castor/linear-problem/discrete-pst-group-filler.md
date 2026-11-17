@@ -1,10 +1,10 @@
-# Modelling aligned PSTs with integer taps
+# Modeling aligned PSTs with integer taps
 
 ## Used input data
 
 | Name              | Symbol                         | Details                                                                                                                                                                                                                                                                   |
 |-------------------|--------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| DiscretePstGroups | $g \in \mathcal{G}^{pst}_{RA}$ | Set of discrete PstRangeAction groups. <br> Each RangeActionGroup contains a set of PstRangeActions, the PstRangeActions of the group have to be "aligned" between each other. <br> $r \in \mathcal{RA}(g)$ <br> with: <br> $\mathcal{RA}(g) \subset \mathcal{RA} ^{PST}$ |
+| DiscretePstGroups | $g \in \mathcal{G}^{PST}_{RA}$ | Set of discrete PstRangeAction groups. <br> Each RangeActionGroup contains a set of PstRangeActions, the PstRangeActions of the group have to be "aligned" between each other. <br> $r \in \mathcal{RA}(g)$ <br> with: <br> $\mathcal{RA}(g) \subset \mathcal{RA} ^{PST}$ |
 | Reference tap     | $t_{n}(r)$                     | Tap of PstRangeAction $r$ at the beginning of the current iteration of the MILP                                                                                                                                                                                           |
 
 ## Used parameters
@@ -33,6 +33,6 @@
 $$
 \begin{equation}
 T^{group}(g) = t_{n}(r) + \Delta t^{+} (r) - \Delta t^{-} (r), \forall r \in \mathcal{RA}(g), \forall g \in
-\mathcal{G}^{pst}_{RA}
+\mathcal{G}^{PST}_{RA}
 \end{equation}
 $$

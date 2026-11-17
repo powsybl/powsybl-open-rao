@@ -46,7 +46,7 @@ public class BranchThresholdAdderImpl extends AbstractThresholdAdderImpl<BranchT
         super.checkThreshold();
         AdderUtils.assertAttributeNotNull(this.side, "BranchThreshold", "Side", "withSide()");
 
-        ownerAdder.addThreshold(new BranchThresholdImpl(side, unit, min, max));
+        ownerAdder.addThreshold(new BranchThreshold(side, unit, min, max));
         return ownerAdder;
     }
 }

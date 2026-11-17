@@ -5,7 +5,7 @@
     <parent>
         <artifactId>powsybl-open-rao</artifactId>
         <groupId>com.powsybl</groupId>
-        <version>7.4.0-SNAPSHOT</version>
+        <version>7.6.0-SNAPSHOT</version>
     </parent>
     <properties>
         <maven.deploy.skip>true</maven.deploy.skip>
@@ -169,11 +169,6 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>open-rao-swe-cne-exporter</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>open-rao-util</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>

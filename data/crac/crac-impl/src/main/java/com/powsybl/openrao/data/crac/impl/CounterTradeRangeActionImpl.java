@@ -10,7 +10,6 @@ package com.powsybl.openrao.data.crac.impl;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.ConnectedArea;
-import com.powsybl.openrao.data.crac.api.NetworkElement;
 import com.powsybl.openrao.data.crac.api.range.StandardRange;
 import com.powsybl.openrao.data.crac.api.rangeaction.CounterTradeRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.VariationDirection;
@@ -68,11 +67,6 @@ public class CounterTradeRangeActionImpl extends AbstractRangeAction<CounterTrad
     @Override
     public Double getInitialSetpoint() {
         return initialSetpoint;
-    }
-
-    @Override
-    public Set<NetworkElement> getNetworkElements() {
-        return Collections.emptySet();
     }
 
     @Override

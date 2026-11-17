@@ -9,9 +9,9 @@ Feature: 2.5.1: Combine range PST and NetworkAction optimization
   @fast @rao @ac @preventive-only @secure-flow
   Scenario: 2.5.1.1: standard optimization
   Optimization with one PST range action and one network action available: both are activated.
-    Given network file is "epic2/US2-3-case1-standard.uct"
-    Given crac file is "epic2/SL_ep2us3_pst_and_topological_remedial_actions.json"
-    Given configuration file is "common/RaoParameters_posMargin_ampere.json"
+    Given network file is "common/network_12nodes_standard.uct"
+    Given crac file is "2_remedial_actions/2_5_combinations/crac_2_5_1_1_pst_and_topological_remedial_actions.json"
+    Given configuration file is "common/rao_parameters_pos_margin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -25,9 +25,9 @@ Feature: 2.5.1: Combine range PST and NetworkAction optimization
   @fast @rao @ac @preventive-only @secure-flow
   Scenario: 2.5.1.2: no network actions involved in the best solution
   Optimization with one PST range action and one network action available: only the PST range action is activated.
-    Given network file is "epic2/US2-3-case2.uct"
-    Given crac file is "epic2/SL_ep2us3case2.json"
-    Given configuration file is "common/RaoParameters_posMargin_ampere.json"
+    Given network file is "2_remedial_actions/2_5_combinations/network_12nodes_case2.uct"
+    Given crac file is "2_remedial_actions/2_5_combinations/crac_2_5_1_2.json"
+    Given configuration file is "common/rao_parameters_pos_margin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
@@ -43,9 +43,9 @@ Feature: 2.5.1: Combine range PST and NetworkAction optimization
   - when testing "Open 432" the cost increases,
   - when testing "Open 141" the sensitivity computation diverges,
   - the PST range action can decrease the cost.
-    Given network file is "epic2/US2-3-case3-networkBecomeDivergent.uct"
-    Given crac file is "epic2/SL_ep2us3case3.json"
-    Given configuration file is "common/RaoParameters_posMargin_ampere.json"
+    Given network file is "2_remedial_actions/2_5_combinations/network_12nodes_network_become_divergent.uct"
+    Given crac file is "2_remedial_actions/2_5_combinations/crac_2_5_1_3.json"
+    Given configuration file is "common/rao_parameters_pos_margin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "UNSECURED"
@@ -60,9 +60,9 @@ Feature: 2.5.1: Combine range PST and NetworkAction optimization
 
   @fast @rao @ac @preventive-only @secure-flow
   Scenario: 2.5.1.4: the systematic sensitivity computation diverges at the root leaf of the tree
-    Given network file is "epic2/US2-3-case4-networkDiverge.uct"
-    Given crac file is "epic2/SL_ep2us3case4.json"
-    Given configuration file is "common/RaoParameters_posMargin_ampere.json"
+    Given network file is "2_remedial_actions/2_5_combinations/network_12nodes_network_diverge.uct"
+    Given crac file is "2_remedial_actions/2_5_combinations/crac_2_5_1_4.json"
+    Given configuration file is "common/rao_parameters_pos_margin_ampere.json"
     When I launch rao
     Then the calculation fails
     Then the execution details should be "Initial sensitivity analysis failed"

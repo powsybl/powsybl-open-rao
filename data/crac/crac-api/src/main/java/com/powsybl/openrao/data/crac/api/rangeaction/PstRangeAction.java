@@ -8,7 +8,6 @@
 package com.powsybl.openrao.data.crac.api.rangeaction;
 
 import com.powsybl.iidm.network.Network;
-import com.powsybl.openrao.data.crac.api.NetworkElement;
 import com.powsybl.openrao.data.crac.api.range.TapRange;
 
 import java.util.List;
@@ -27,14 +26,6 @@ import java.util.Map;
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 public interface PstRangeAction extends RangeAction<PstRangeAction> {
-
-    /**
-     * Get the PST Network Element on which the remedial action applies
-     *
-     * @deprecated since 7.4.0, use {@link #getNetworkElementId()} instead
-     */
-    @Deprecated(since = "7.4.0")
-    NetworkElement getNetworkElement();
 
     /**
      * Get the PST Network Element on which the remedial action applies.

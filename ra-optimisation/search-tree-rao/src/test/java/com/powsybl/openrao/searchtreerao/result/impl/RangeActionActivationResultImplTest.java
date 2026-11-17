@@ -280,5 +280,53 @@ class RangeActionActivationResultImplTest {
         assertEquals(15d, rangeActionActivationResult.getSetPointVariation(injectionRangeAction1, state));
         assertEquals(0d, rangeActionActivationResult.getSetPointVariation(injectionRangeAction2, state));
         assertEquals(500d, rangeActionActivationResult.getSetPointVariation(hvdcRangeAction, state));
+        assertEquals(Set.of(pstRangeAction, injectionRangeAction1, hvdcRangeAction), rangeActionActivationResult.getActivatedRangeActions(state));
+    }
+
+    @Test
+    void testGetActivatedRangeActionsWithHvdc() {
+        Crac crac = CommonCracCreation.create();
+        State preventiveState = crac.getPreventiveState();
+        State curativeState = crac.getState(crac.getContingency("Contingency FR1 FR3"), crac.getInstant(InstantKind.CURATIVE));
+
+        InjectionRangeAction injectionRangeAction = crac.newInjectionRangeAction()
+            .withId("injection-range-action")
+            .withInitialSetpoint(50d)
+            .withNetworkElementAndKey(1d, "generator")
+            .newRange()
+            .withMin(0d)
+            .withMax(100d)
+            .add()
+            .add();
+
+        HvdcRangeAction hvdcRangeAction = crac.newHvdcRangeAction()
+            .withId("hvdc-range-action")
+            .withInitialSetpoint(300d)
+            .withNetworkElement("hvdc")
+            .newRange()
+            .withMin(-1000d)
+            .withMax(1000d)
+            .add()
+            .add();
+
+        RangeActionSetpointResult setPointResult = new RangeActionSetpointResultImpl(Map.of(
+            injectionRangeAction, 50d,
+            hvdcRangeAction, 300d));
+
+        RangeActionActivationResultImpl rangeActionActivationResult = new RangeActionActivationResultImpl(setPointResult);
+
+        // Put result with same setpoint as reference setpoint (0 variation) in preventive state
+        rangeActionActivationResult.putResult(injectionRangeAction, preventiveState, 50d);
+        rangeActionActivationResult.putResult(hvdcRangeAction, preventiveState, 300d);
+
+        // HVDC range action is kept even when setpoint variation is 0, while Injection range action is not
+        assertEquals(Set.of(hvdcRangeAction), rangeActionActivationResult.getActivatedRangeActions(preventiveState));
+
+        // Put result with same setpoint as preventive state in curative state
+        rangeActionActivationResult.putResult(injectionRangeAction, curativeState, 50d);
+        rangeActionActivationResult.putResult(hvdcRangeAction, curativeState, 300d);
+
+        // HVDC range action is kept even when setpoint variation between states is 0, while Injection range action is not
+        assertEquals(Set.of(hvdcRangeAction), rangeActionActivationResult.getActivatedRangeActions(curativeState));
     }
 }

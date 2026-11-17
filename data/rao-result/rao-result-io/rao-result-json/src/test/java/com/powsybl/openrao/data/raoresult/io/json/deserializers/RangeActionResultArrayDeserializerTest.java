@@ -34,25 +34,25 @@ class RangeActionResultArrayDeserializerTest {
         Crac crac = mock(Crac.class);
         RangeAction<?> rangeAction = mock(RangeAction.class);
         doReturn(rangeAction).when(crac).getRangeAction("ra1");
-        RaoResultImpl raoResult = spy(new RaoResultImpl(crac));
+        RaoResultImpl.RaoResultImplBuilder raoResultBuilder = spy(RaoResultImpl.builder(crac));
 
         try (JsonParser parser = parserFrom(json)) {
-            assertDoesNotThrow(() -> RangeActionResultArrayDeserializer.deserialize(parser, raoResult, crac, "1.7"));
+            assertDoesNotThrow(() -> RangeActionResultArrayDeserializer.deserialize(parser, raoResultBuilder, crac, "1.7"));
         }
 
-        verify(raoResult, atLeastOnce()).getAndCreateIfAbsentRangeActionResult(rangeAction);
-        verifyNoMoreInteractions(raoResult);
+        verify(raoResultBuilder, never()).addRangeActionActivation(eq(rangeAction), any(), anyDouble());
+        verifyNoMoreInteractions(raoResultBuilder);
     }
 
     @Test
     void deserializeThrowsWhenFirstFieldIsNotId() {
         String json = "[{\"notRangeActionId\":1}]";
         Crac crac = mock(Crac.class);
-        RaoResultImpl raoResult = new RaoResultImpl(crac);
+        RaoResultImpl.RaoResultImplBuilder raoResultBuilder = RaoResultImpl.builder(crac);
 
         try (JsonParser parser = parserFrom(json)) {
             OpenRaoException ex = assertThrows(OpenRaoException.class,
-                () -> RangeActionResultArrayDeserializer.deserialize(parser, raoResult, crac, "1.7"));
+                () -> RangeActionResultArrayDeserializer.deserialize(parser, raoResultBuilder, crac, "1.7"));
             assertEquals("Cannot deserialize RaoResult: each rangeActionResults must start with an rangeActionId field", ex.getMessage());
         } catch (IOException e) {
             throw new AssertionError("Failed to parse JSON content");
@@ -64,11 +64,11 @@ class RangeActionResultArrayDeserializerTest {
         String json = "[{\"rangeActionId\":\"unknown\",\"statesActivated\":[]}]";
         Crac crac = mock(Crac.class);
         doReturn(null).when(crac).getRangeAction("unknown");
-        RaoResultImpl raoResult = new RaoResultImpl(crac);
+        RaoResultImpl.RaoResultImplBuilder raoResultBuilder = RaoResultImpl.builder(crac);
 
         try (JsonParser parser = parserFrom(json)) {
             OpenRaoException ex = assertThrows(OpenRaoException.class,
-                () -> RangeActionResultArrayDeserializer.deserialize(parser, raoResult, crac, "1.7"));
+                () -> RangeActionResultArrayDeserializer.deserialize(parser, raoResultBuilder, crac, "1.7"));
             assertEquals("Cannot deserialize RaoResult: cannot deserialize RaoResult: RangeAction with id unknown does not exist in the Crac", ex.getMessage());
         } catch (IOException e) {
             throw new AssertionError("Failed to parse JSON content");
@@ -81,11 +81,11 @@ class RangeActionResultArrayDeserializerTest {
         Crac crac = mock(Crac.class);
         RangeAction<?> rangeAction = mock(RangeAction.class);
         doReturn(rangeAction).when(crac).getRangeAction("ra1");
-        RaoResultImpl raoResult = new RaoResultImpl(crac);
+        RaoResultImpl.RaoResultImplBuilder raoResultBuilder = RaoResultImpl.builder(crac);
 
         try (JsonParser parser = parserFrom(json)) {
             OpenRaoException ex = assertThrows(OpenRaoException.class,
-                () -> RangeActionResultArrayDeserializer.deserialize(parser, raoResult, crac, "1.7"));
+                () -> RangeActionResultArrayDeserializer.deserialize(parser, raoResultBuilder, crac, "1.7"));
             assertEquals("Cannot deserialize RaoResult: unexpected field in rangeActionResults (unexpected)", ex.getMessage());
         } catch (IOException e) {
             throw new AssertionError("Failed to parse JSON content");
@@ -99,11 +99,11 @@ class RangeActionResultArrayDeserializerTest {
         Crac crac = mock(Crac.class);
         PstRangeAction pst = mock(PstRangeAction.class);
         doReturn(pst).when(crac).getRangeAction("pst1");
-        RaoResultImpl raoResult = new RaoResultImpl(crac);
+        RaoResultImpl.RaoResultImplBuilder raoResultBuilder = RaoResultImpl.builder(crac);
 
         try (JsonParser parser = parserFrom(json)) {
             OpenRaoException ex = assertThrows(OpenRaoException.class,
-                () -> RangeActionResultArrayDeserializer.deserialize(parser, raoResult, crac, "1.8"));
+                () -> RangeActionResultArrayDeserializer.deserialize(parser, raoResultBuilder, crac, "1.8"));
             assertEquals("Since version 1.8, only the initial taps are reported for PST range actions.", ex.getMessage());
         } catch (IOException e) {
             throw new AssertionError("Failed to parse JSON content");
@@ -119,11 +119,11 @@ class RangeActionResultArrayDeserializerTest {
         Crac crac = mock(Crac.class);
         RangeAction<?> rangeAction = mock(RangeAction.class);
         doReturn(rangeAction).when(crac).getRangeAction("ra1");
-        RaoResultImpl raoResult = new RaoResultImpl(crac);
+        RaoResultImpl.RaoResultImplBuilder raoResultBuilder = RaoResultImpl.builder(crac);
 
         try (JsonParser parser = parserFrom(json)) {
             OpenRaoException ex = assertThrows(OpenRaoException.class,
-                () -> RangeActionResultArrayDeserializer.deserialize(parser, raoResult, crac, version));
+                () -> RangeActionResultArrayDeserializer.deserialize(parser, raoResultBuilder, crac, version));
             assertEquals(expectedMessage, ex.getMessage());
         } catch (IOException e) {
             throw new AssertionError("Failed to parse JSON content");
@@ -137,11 +137,11 @@ class RangeActionResultArrayDeserializerTest {
         Crac crac = mock(Crac.class);
         RangeAction<?> rangeAction = mock(RangeAction.class);
         doReturn(rangeAction).when(crac).getRangeAction("ra1");
-        RaoResultImpl raoResult = new RaoResultImpl(crac);
+        RaoResultImpl.RaoResultImplBuilder raoResultBuilder = RaoResultImpl.builder(crac);
 
         try (JsonParser parser = parserFrom(json)) {
             OpenRaoException ex = assertThrows(OpenRaoException.class,
-                () -> RangeActionResultArrayDeserializer.deserialize(parser, raoResult, crac, "1.7"));
+                () -> RangeActionResultArrayDeserializer.deserialize(parser, raoResultBuilder, crac, "1.7"));
             assertEquals("Cannot deserialize RaoResult: setpoint is required in rangeActionResults", ex.getMessage());
         } catch (IOException e) {
             throw new AssertionError("Failed to parse JSON content");
