@@ -98,15 +98,12 @@ public class LazyNetwork implements Network, AutoCloseable {
 
     private final String networkPath;
     private boolean isLoaded;
-    private boolean isInTempDir;
     private Network network;
 
     // TODO: create private attributes exportAtClosing and deleteAtClosing (both default to false) -> to configure properly at different points of the code
 
     public LazyNetwork(String networkPath) {
-        this.networkPath = networkPath;
-        this.isLoaded = false;
-        this.isInTempDir = false;
+        this(Network.read(networkPath));
     }
 
     public LazyNetwork(Network network) {
@@ -114,7 +111,6 @@ public class LazyNetwork implements Network, AutoCloseable {
         network.write(EXPORT_FORMAT, new Properties(), Path.of(networkName));
         this.networkPath = networkName;
         this.isLoaded = false;
-        this.isInTempDir = true;
     }
 
     private void load() {
@@ -128,11 +124,9 @@ public class LazyNetwork implements Network, AutoCloseable {
     public void close() throws Exception {
         network = null;
         isLoaded = false;
-        if (isInTempDir) {
-            boolean fileIsDeleted = new File(networkPath).delete();
-            if (!fileIsDeleted) {
-                BUSINESS_WARNS.debug("File created from {} could not be deleted.", networkPath);
-            }
+        boolean fileIsDeleted = new File(networkPath).delete();
+        if (!fileIsDeleted) {
+            BUSINESS_WARNS.debug("File created from {} could not be deleted.", networkPath);
         }
     }
 
@@ -142,10 +136,9 @@ public class LazyNetwork implements Network, AutoCloseable {
 
     public void releaseWithOverwrite(boolean overwrite) {
         if (isLoaded) {
-            // TODO do we want to write systematically ? augmentation temps de calcul?
             if (overwrite) {
                 // Save modifications on network before releasing
-                network.write(EXPORT_FORMAT, new Properties(), Path.of(networkPath)); // FIXME: why not work with non-jiidm files
+                network.write(EXPORT_FORMAT, new Properties(), Path.of(networkPath));
             }
             network = null;
             isLoaded = false;
