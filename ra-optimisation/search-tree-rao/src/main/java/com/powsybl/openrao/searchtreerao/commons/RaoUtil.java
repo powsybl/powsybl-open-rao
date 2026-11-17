@@ -15,9 +15,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControl;
 import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
-import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.InstantKind;
@@ -32,8 +30,11 @@ import com.powsybl.openrao.data.crac.api.usagerule.OnContingencyState;
 import com.powsybl.openrao.data.crac.api.usagerule.OnFlowConstraintInCountry;
 import com.powsybl.openrao.data.crac.api.usagerule.OnInstant;
 import com.powsybl.openrao.data.crac.api.usagerule.UsageRule;
+import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
+import com.powsybl.openrao.data.raoresult.impl.RaoResultImpl;
 import com.powsybl.openrao.data.refprog.referenceprogram.ReferenceProgramBuilder;
 import com.powsybl.openrao.raoapi.RaoInput;
+import com.powsybl.openrao.raoapi.parameters.NotOptimizedCnecsParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.PstModel;
@@ -41,12 +42,14 @@ import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.Optimiza
 import com.powsybl.openrao.searchtreerao.reports.CommonReports;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
+import com.powsybl.openrao.searchtreerao.result.impl.PostPerimeterResult;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -90,7 +93,7 @@ public final class RaoUtil {
             RaUsageLimits raUsageLimits = crac.getRaUsageLimits(instant);
             if (raUsageLimits != null) {
                 getRaUsageLimitByLimitName(limitType, raUsageLimits).forEach((tso, limit) ->
-                    dataPerTso.computeIfAbsent(tso, k -> new ArrayList<>()).add(limit == null ? null : limit)
+                    dataPerTso.computeIfAbsent(tso, k -> new ArrayList<>()).add(limit)
                 );
             }
 
@@ -251,7 +254,7 @@ public final class RaoUtil {
             (!raoParameters.hasExtension(OpenRaoSearchTreeParameters.class)
                 || raoParameters.hasExtension(OpenRaoSearchTreeParameters.class) && raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getMinMarginsParameters().isEmpty())) {
             throw new OpenRaoException(format("Objective function type %s requires a config with costly min margin parameters",
-                                              raoParameters.getObjectiveFunctionParameters().getType()));
+                raoParameters.getObjectiveFunctionParameters().getType()));
         }
     }
 
@@ -397,6 +400,58 @@ public final class RaoUtil {
         return getSensitivityWithLoadFlowParameters(raoParameters).getLoadFlowParameters().isDc() ? Unit.MEGAWATT : Unit.AMPERE;
     }
 
+    public static void fillWithActivatedRemedialActions(RaoResultImpl.RaoResultImplBuilder raoResultBuilder,
+                                                        OptimizationResult preventiveOptimizationResult,
+                                                        State preventiveState) {
+        fillForState(raoResultBuilder, preventiveOptimizationResult, preventiveState);
+    }
+
+    public static void fillWithActivatedRemedialActions(RaoResultImpl.RaoResultImplBuilder raoResultBuilder,
+                                                        OptimizationResult preventiveOptimizationResult,
+                                                        State preventiveState,
+                                                        Map<State, PostPerimeterResult> postContingencyResults) {
+        fillForState(raoResultBuilder, preventiveOptimizationResult, preventiveState);
+        postContingencyResults.forEach((state, postPerimeterResult) -> fillForState(raoResultBuilder, postPerimeterResult.optimizationResult(), state));
+    }
+
+    public static void fillForState(RaoResultImpl.RaoResultImplBuilder raoResultBuilder, OptimizationResult optimizationResult, State state) {
+        optimizationResult.getActivatedNetworkActions().forEach(
+            ra -> raoResultBuilder.addNetworkActionActivation(ra, state)
+        );
+        optimizationResult.getActivatedRangeActions(state).forEach(
+            ra -> raoResultBuilder.addRangeActionActivation(ra, state, optimizationResult.getOptimizedSetpoint(ra, state))
+        );
+    }
+
+    public static boolean computeSecurityStatus(Crac crac,
+                                                FlowResult postPrasFlowResult,
+                                                Map<State, PostPerimeterResult> postContingencyResults,
+                                                Unit flowUnit,
+                                                Set<String> operatorsNotSharingCras) {
+        Set<FlowCnec> preventiveAndOutageCnecs = new HashSet<>(crac.getFlowCnecs(crac.getPreventiveState()));
+        crac.getStates(crac.getOutageInstant()).forEach(state -> preventiveAndOutageCnecs.addAll(crac.getFlowCnecs(state)));
+
+        if (!computeSecurityStatus(preventiveAndOutageCnecs, postPrasFlowResult, flowUnit, operatorsNotSharingCras)) {
+            return false;
+        }
+
+        for (State state : postContingencyResults.keySet()) {
+            PostPerimeterResult postPerimeterResult = postContingencyResults.get(state);
+            if (postPerimeterResult.optimizationResult().getComputationStatus(state) != ComputationStatus.FAILURE) {
+                if (!computeSecurityStatus(
+                    crac.getFlowCnecs(state),
+                    postPerimeterResult.prePerimeterResultForAllFollowingStates(),
+                    flowUnit,
+                    operatorsNotSharingCras)
+                ) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
     public static boolean computeSecurityStatus(Set<FlowCnec> flowCnecs, FlowResult flowResult, Unit flowUnit, Set<String> operatorsNotSharingCras) {
         return flowCnecs.stream()
             .filter(FlowCnec::isOptimized) // ignore MNECs
@@ -412,20 +467,10 @@ public final class RaoUtil {
             && operatorsNotSharingCras.contains(flowCnec.getOperator());
     }
 
-    public static boolean getFlowSecurityStatus(boolean computedStatus,
-                                                String nonFlowBanReason,
-                                                PhysicalParameter... physicalParameters) {
-        List<PhysicalParameter> parameters = List.of(physicalParameters);
-        if (parameters.isEmpty()) {
-            throw new OpenRaoException("At least one physical parameter must be provided.");
-        }
-        if (parameters.contains(PhysicalParameter.ANGLE)) {
-            OpenRaoLoggerProvider.BUSINESS_WARNS.warn("Angle security check " + nonFlowBanReason);
-        }
-        if (parameters.contains(PhysicalParameter.VOLTAGE)) {
-            OpenRaoLoggerProvider.BUSINESS_WARNS.warn("Voltage security check " + nonFlowBanReason);
-        }
-        return computedStatus;
+    public static Set<String> getOperatorsNotSharingCras(Crac crac, RaoParameters raoParameters) {
+        NotOptimizedCnecsParameters notOptimizedCnecsParameters = raoParameters.getNotOptimizedCnecsParameters();
+        return notOptimizedCnecsParameters.getDoNotOptimizeCurativeCnecsForTsosWithoutCras()
+            ? crac.findOperatorsNotSharingCras()
+            : Collections.emptySet();
     }
-
 }

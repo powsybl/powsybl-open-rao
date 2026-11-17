@@ -13,14 +13,13 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
-import com.powsybl.openrao.data.raoresult.api.TimeCoupledRaoResult;
+import com.powsybl.openrao.data.raoresult.impl.RaoResultImpl;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.RaoProvider;
 import com.powsybl.openrao.raoapi.TimeCoupledRaoInput;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
 import com.powsybl.openrao.searchtreerao.reports.CommonReports;
-import com.powsybl.openrao.searchtreerao.result.impl.FailedRaoResultImpl;
 
 import java.time.Instant;
 import java.util.concurrent.CompletableFuture;
@@ -70,14 +69,14 @@ public class Castor implements RaoProvider {
         } catch (OpenRaoException e) {
             String failure = String.format("Data initialisation failed: %s", e);
             CommonReports.reportExceptionMessage(reportNode, failure);
-            return CompletableFuture.completedFuture(new FailedRaoResultImpl(failure));
+            return CompletableFuture.completedFuture(RaoResultImpl.builder(raoInput.getCrac()).build());
         }
 
         return new CastorFullOptimization(raoInput, parameters, targetEndInstant, reportNode).run();
     }
 
     @Override
-    public CompletableFuture<TimeCoupledRaoResult> run(TimeCoupledRaoInput raoInput, RaoParameters parameters, ReportNode reportNode) {
+    public CompletableFuture<RaoResult> run(TimeCoupledRaoInput raoInput, RaoParameters parameters, ReportNode reportNode) {
         throw new OpenRaoException("Time-coupled optimization is not supported by CASTOR");
     }
 }
