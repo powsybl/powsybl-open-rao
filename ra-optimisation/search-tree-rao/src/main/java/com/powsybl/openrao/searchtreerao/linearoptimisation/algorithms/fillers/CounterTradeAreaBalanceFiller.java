@@ -9,6 +9,8 @@ package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers;
 
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.*;
+import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
+import com.powsybl.openrao.data.crac.api.ConnectedArea;
 import com.powsybl.openrao.data.crac.api.Identifiable;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
@@ -24,7 +26,6 @@ import com.powsybl.openrao.searchtreerao.result.api.SensitivityResult;
 
 import java.time.OffsetDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.getCounterTradeRaSensitivityThreshold;
 
@@ -36,14 +37,12 @@ public class CounterTradeAreaBalanceFiller implements ProblemFiller {
     protected final OptimizationPerimeter optimizationContext;
     protected final Set<FlowCnec> flowCnecs;
     private final Map<State, Set<CounterTradeRangeAction>> counterTradeActions;
-    private final AreaGraph areaGraph;
     protected final SearchTreeRaoRangeActionsOptimizationParameters rangeActionParametersExtension;
     protected final Unit unit;
     private final OffsetDateTime timestamp;
 
     public CounterTradeAreaBalanceFiller(OptimizationPerimeter optimizationContext,
                                          Map<State, Set<CounterTradeRangeAction>> counterTradeActions,
-                                         AreaGraph areaGraph,
                                          SearchTreeRaoRangeActionsOptimizationParameters rangeActionParametersExtension,
                                          Unit unit,
                                          OffsetDateTime timestamp) {
@@ -51,7 +50,6 @@ public class CounterTradeAreaBalanceFiller implements ProblemFiller {
         this.flowCnecs = new TreeSet<>(Comparator.comparing(Identifiable::getId));
         this.flowCnecs.addAll(optimizationContext.getFlowCnecs());
         this.counterTradeActions = counterTradeActions;
-        this.areaGraph = areaGraph;
         this.rangeActionParametersExtension = rangeActionParametersExtension;
         this.unit = unit;
         this.timestamp = timestamp;
@@ -63,37 +61,50 @@ public class CounterTradeAreaBalanceFiller implements ProblemFiller {
 
         Set<FlowCnec> validFlowCnecs = FillersUtil.getFlowCnecsComputationStatusOk(flowCnecs, sensitivityResult);
         counterTradeActions.forEach((state, counterTradeRangeActions) -> {
-            Set<AreaPairBoundary> alreadyCreatedBorders = new HashSet<>();
-            Set<String> areasWithCt = counterTradeRangeActions.stream().map(CounterTradeRangeAction::getAreaId).collect(Collectors.toSet());
+
+            Map<String, CounterTradeRangeAction> counterTradeActionsByArea = new HashMap<>();
+            for (CounterTradeRangeAction ra : counterTradeRangeActions) {
+                if (counterTradeActionsByArea.put(ra.getAreaId(), ra) != null) {
+                    throw new OpenRaoException("Several counter-trade range actions on area " + ra.getAreaId() + " in state " + state.getId());
+                }
+            }
+            checkConnectedAreasAreSymmetric(counterTradeActionsByArea);
+
+            Set<String> alreadyCreatedBorders = new HashSet<>();
 
             for (CounterTradeRangeAction ra : counterTradeRangeActions) {
                 // add the border balance constraints between CT on each area and its borders
-                fillBorderBalance(linearProblem, ra, state, alreadyCreatedBorders);
+                fillBorderBalance(linearProblem, ra, state, counterTradeActionsByArea.keySet(), alreadyCreatedBorders);
                 // add the generation dispatch
                 fillGeneratorDispatch(linearProblem, ra, state);
-            }
-            for (String areaId : areaGraph.getAllAreas()) {
-                if (!areasWithCt.contains(areaId)) {
-                    fillZeroBalance(linearProblem, areaId, state, alreadyCreatedBorders);
-                }
             }
         });
         fillFlowImpact(linearProblem, sensitivityResult, rangeActionActivationResult, validFlowCnecs);
     }
 
     private void fillBorderBalance(LinearProblem linearProblem, CounterTradeRangeAction ra, State state,
-                                   Set<AreaPairBoundary> alreadyCreatedBorders) {
+                                   Set<String> areasWithCt,
+                                   Set<String> alreadyCreatedBorders) {
         String area = ra.getAreaId();
         OpenRaoMPVariable ctVar = linearProblem.getRangeActionSetpointVariable(ra, state);
         OpenRaoMPConstraint balance = linearProblem.addCounterTradeAreaBalanceConstraint(ra, state);
         balance.setCoefficient(ctVar, -1.0);
 
-        for (String neighbour : areaGraph.getNeighbours(area)) {
-            AreaPairBoundary pairKey = AreaPairBoundary.of(area, neighbour);
+        boolean hasBorder = false;
+        for (ConnectedArea connected : ra.getConnectedAreas()) {
+            String neighbour = connected.getAreaId();
+            if (!areasWithCt.contains(neighbour)) {
+                continue; // no CT on the other side: border fixed to 0, no variable
+            }
             OpenRaoMPVariable borderVar = getOrCreateBorderVariable(linearProblem, area, neighbour, state, alreadyCreatedBorders);
-            double sign = pairKey.isFromSide(area) ? 1.0 : -1.0;
-            balance.setCoefficient(borderVar, sign);
+            balance.setCoefficient(borderVar, borderSign(area, neighbour));
+            hasBorder = true;
         }
+        if (!hasBorder) {
+            OpenRaoLoggerProvider.TECHNICAL_LOGS.warn(
+                    "Counter-trade area {} has no connected area with a counter-trade action: its setpoint is forced to 0", area);
+        }
+
     }
 
     // positive and negative parts, variables and constraints
@@ -224,21 +235,31 @@ public class CounterTradeAreaBalanceFiller implements ProblemFiller {
     }
 
     private OpenRaoMPVariable getOrCreateBorderVariable(LinearProblem linearProblem, String areaId, String neighbourId,
-                                                        State state, Set<AreaPairBoundary> alreadyCreatedBorders) {
-        AreaPairBoundary pair = AreaPairBoundary.of(areaId, neighbourId);
-        return alreadyCreatedBorders.add(pair)
+                                                        State state, Set<String> alreadyCreatedBorders) {
+        return alreadyCreatedBorders.add(borderKey(areaId, neighbourId))
                 ? linearProblem.addCounterTradeBorderExchangeVariable(
                 -linearProblem.infinity(), linearProblem.infinity(), areaId, neighbourId, state)
                 : linearProblem.getCounterTradeBorderExchangeVariable(areaId, neighbourId, state);
     }
 
-    private void fillZeroBalance(LinearProblem linearProblem, String areaId, State state,
-                                 Set<AreaPairBoundary> alreadyCreatedBorders) {
-        OpenRaoMPConstraint balance = linearProblem.addCounterTradeAreaBalanceConstraint(areaId, state); // 0 = Σ ± border
-        for (String neighbour : areaGraph.getNeighbours(areaId)) {
-            OpenRaoMPVariable borderVar = getOrCreateBorderVariable(linearProblem, areaId, neighbour, state, alreadyCreatedBorders);
-            balance.setCoefficient(borderVar, AreaPairBoundary.of(areaId, neighbour).isFromSide(areaId) ? 1.0 : -1.0);
-        }
+    private static String borderKey(String areaId, String neighbourId) {
+        return areaId.compareTo(neighbourId) < 0 ? areaId + "_" + neighbourId : neighbourId + "_" + areaId;
+    }
+
+    private static double borderSign(String areaId, String neighbourId) {
+        return areaId.compareTo(neighbourId) < 0 ? 1.0 : -1.0;
+    }
+
+    private void checkConnectedAreasAreSymmetric(Map<String, CounterTradeRangeAction> counterTradeActions) {
+        counterTradeActions.forEach((area, ra) -> {
+            for (ConnectedArea connected : ra.getConnectedAreas()) {
+                CounterTradeRangeAction other = counterTradeActions.get(connected.getAreaId());
+                if (other != null && other.getConnectedAreas().stream().noneMatch(c -> c.getAreaId().equals(area))) {
+                    throw new OpenRaoException(String.format(
+                            "Area %s lists %s as connected area, but %s does not list %s", area, connected.getAreaId(), connected.getAreaId(), area));
+                }
+            }
+        });
     }
 
     @Override

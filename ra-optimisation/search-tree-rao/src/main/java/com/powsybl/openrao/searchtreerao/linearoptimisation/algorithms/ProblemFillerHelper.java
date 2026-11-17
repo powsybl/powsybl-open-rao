@@ -7,7 +7,6 @@
 
 package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms;
 
-import com.powsybl.openrao.commons.AreaGraph;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.rangeaction.CounterTradeRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
@@ -175,19 +174,11 @@ public final class ProblemFillerHelper {
                         .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
         if (!counterTradeRangeActionsPerState.isEmpty()) {
-            String areaType = counterTradeRangeActionsPerState.values().stream()
-                    .flatMap(Set::stream)
-                    .findFirst()
-                    .map(ra -> input.network().getArea(ra.getAreaId()).getAreaType())
-                    .orElseThrow();
-
-            AreaGraph areaGraph = new AreaGraph(input.network(), areaType);
 
             CounterTradeAreaBalanceFiller counterTradeAreaBalanceFiller =
                     new CounterTradeAreaBalanceFiller(
                             input.optimizationPerimeter(),
                             counterTradeRangeActionsPerState,
-                            areaGraph,
                             parameters.getRangeActionParametersExtension(),
                             parameters.getFlowUnit(),
                             timestamp);

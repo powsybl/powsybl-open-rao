@@ -191,12 +191,13 @@ public class CounterTradeRangeActionImpl extends AbstractRangeAction<CounterTrad
 
     private Map<String, Double> computeProportionalShares(Network network) {
         Objects.requireNonNull(network);
-        Area areaNetwork = network.getArea(area);
-        if (areaNetwork == null) {
-            throw new OpenRaoException("Area " + area + " not present");
-        }
-        List<Generator> generators = areaNetwork.getVoltageLevelStream()
-                .flatMap(VoltageLevel::getGeneratorStream)
+        Country country = toCountry(area);
+
+        List<Generator> generators = network.getGeneratorStream()
+                .filter(g -> g.getTerminal().getVoltageLevel().getSubstation()
+                        .flatMap(Substation::getCountry)
+                        .filter(country::equals)
+                        .isPresent())
                 .filter(g -> g.getTerminal().isConnected()
                         && g.getTerminal().getBusView().getBus() != null
                         && g.getTerminal().getBusView().getBus().isInMainSynchronousComponent())
@@ -206,6 +207,14 @@ public class CounterTradeRangeActionImpl extends AbstractRangeAction<CounterTrad
         Map<String, Double> shares = new LinkedHashMap<>();
         generators.forEach(g -> shares.put(g.getId(), pseudoTargetP(g) / totalP));
         return shares;
+    }
+
+    private static Country toCountry(String areaId) {
+        try {
+            return Country.valueOf(areaId);
+        } catch (IllegalArgumentException e) {
+            throw new OpenRaoException("Area " + areaId + " is not a country code");
+        }
     }
 
     public Map<String, Map<String, Double>> getGlsk() {
