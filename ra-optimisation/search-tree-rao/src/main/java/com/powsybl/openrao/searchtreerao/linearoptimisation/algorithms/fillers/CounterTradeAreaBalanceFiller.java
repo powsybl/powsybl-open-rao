@@ -216,16 +216,22 @@ public class CounterTradeAreaBalanceFiller implements ProblemFiller {
             return;
         }
 
-        String tailId = "counterTrade_" + ra.getId() + "_tail_" + direction.name(); // use a method to get the correct name?
-        double tailWeight = 0.0;
-        for (int i = lastStage; i < order.size(); i++) {
-            tailWeight += order.get(i).weight();
-        }
-        double tailSensitivity = tailWeight * sensitivityResult.getSensitivityValue(cnec, side, tailId, unit);
+        double[] sigma;
+        if (ra.getGeneratorOrdering().meritOrder()) {
+            sigma = GeneratorOrderingComputer.meritOrderSensitivities(order, lastStage,
+                    generatorId -> sensitivityResult.getSensitivityValue(cnec, side, generatorId, unit));
+        } else {
+            String tailId = "counterTrade_" + ra.getId() + "_tail_" + direction.name(); // use a method to get the correct name?
+            double tailWeight = 0.0;
+            for (int i = lastStage; i < order.size(); i++) {
+                tailWeight += order.get(i).weight();
+            }
+            double tailSensitivity = tailWeight * sensitivityResult.getSensitivityValue(cnec, side, tailId, unit);
 
-        double[] sigma = GeneratorOrderingComputer.stageSensitivities(order, lastStage,
-                generatorId -> sensitivityResult.getSensitivityValue(cnec, side, generatorId, unit),
-                tailSensitivity);
+            sigma = GeneratorOrderingComputer.stageSensitivities(order, lastStage,
+                    generatorId -> sensitivityResult.getSensitivityValue(cnec, side, generatorId, unit),
+                    tailSensitivity);
+        }
         double[] xCurrent = GeneratorOrderingComputer.layerAllocation(order, currentMagnitude);
 
         for (int h = 0; h <= lastStage; h++) {

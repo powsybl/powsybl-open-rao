@@ -151,6 +151,17 @@ public class RangeActionSensitivityProvider extends LoadflowProvider {
         int lastUp = counterTradeRangeAction.getGeneratorOrdering().upwardLastStage();
         int lastDown = counterTradeRangeAction.getGeneratorOrdering().downwardLastStage();
 
+        if (counterTradeGeneratorOrdering.meritOrder()) {
+            // a merit-order layer belongs to a single generator: no tail, one variable per generator
+            for (int h = 0; h < orderUp.size() && h <= lastUp; h++) {
+                sensitivityVariables.put(orderUp.get(h).generatorId(), SensitivityVariableType.INJECTION_ACTIVE_POWER);
+            }
+            for (int h = 0; h < orderDown.size() && h <= lastDown; h++) {
+                sensitivityVariables.put(orderDown.get(h).generatorId(), SensitivityVariableType.INJECTION_ACTIVE_POWER);
+            }
+            return;
+        }
+
         String tailIdUp = "counterTrade_" + counterTradeRangeAction.getId() + "_tail_UPWARD";
         double tailWeightUp = orderUp.subList(lastUp, orderUp.size()).stream().mapToDouble(GlskGeneratorAllocation::weight).sum();
         List<WeightedSensitivityVariable> tailUp = orderUp.subList(lastUp, orderUp.size()).stream()

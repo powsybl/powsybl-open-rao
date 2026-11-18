@@ -253,6 +253,15 @@ public final class GeneratorOrderingComputer {
         return sigma;
     }
 
+    public static double[] meritOrderSensitivities(List<GlskGeneratorAllocation> order, int lastStage,
+                                                   ToDoubleFunction<String> sensitivityOfGenerator) {
+        double[] sigma = new double[lastStage + 1];
+        for (int h = 0; h <= lastStage; h++) {
+            sigma[h] = sensitivityOfGenerator.applyAsDouble(order.get(h).generatorId());
+        }
+        return sigma;
+    }
+
     public static int lastReachableLayer(List<GlskGeneratorAllocation> order, double maxMagnitude) {
         if (order.isEmpty()) {
             return 0;
