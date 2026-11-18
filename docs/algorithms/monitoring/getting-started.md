@@ -7,7 +7,7 @@ In the [OpenRAO JSON CRAC](../../input-data/crac/json.md), the user can define a
 However, modelling the impact of remedial actions on angle/voltage values is highly complex and non-linear. This is why CASTOR
 does not inherently support angle/voltage constraints.  
 
-The [Monitoring](https://github.com/powsybl/powsybl-open-rao/tree/main/monitoring) module allows monitoring angle/voltage values **after a RAO has been run.**
+The {src}`Monitoring<monitoring>` module allows monitoring angle/voltage values **after a RAO has been run.**
 The module checks the angle/voltage values and margins on the given network elements and for some CNECs additional remedial actions 
 can be applied to try and reduce the overloading. 
 
@@ -50,7 +50,7 @@ RaoParameters raoParameters = RaoParameters();
 RaoInput raoInput = RaoInput.build(network, crac).build();
 
 // Run RAO
-RaoResult raoResult = Rao.find("SearchTreeRao").run(raoInputBuilder, raoParameters);
+RaoResult raoResult = Rao.find("OpenRAO").run(raoInputBuilder, raoParameters);
 
 LoadFlowParameters loadFlowParameters = getSensitivityWithLoadFlowParameters(raoParameters).getLoadFlowParameters();
 

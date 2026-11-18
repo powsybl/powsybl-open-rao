@@ -9,6 +9,7 @@ package com.powsybl.openrao.tests.utils;
 
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.glsk.commons.ZonalData;
+import com.powsybl.iidm.modification.scalable.Scalable;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
@@ -23,7 +24,8 @@ import com.powsybl.openrao.data.refprog.referenceprogram.ReferenceProgram;
 import com.powsybl.openrao.raoapi.Rao;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
-import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
+import com.powsybl.openrao.raoapi.parameters.extensions.FastRaoParameters;
+import com.powsybl.openrao.raoimpl.commons.RaoUtil;
 import com.powsybl.openrao.tests.steps.CommonTestData;
 import com.powsybl.sensitivity.SensitivityVariableSet;
 
@@ -68,7 +70,8 @@ public final class RaoUtils {
     }
 
     public static RaoResult runRao(String raoType, Double loopflowAsPmaxPercentage,
-                                   Integer timeLimitInSeconds, final ReportNode reportNode) throws IOException {
+                                   Integer timeLimitInSeconds, final ReportNode reportNode,
+                                   boolean forceFastRao) throws IOException {
         RaoParameters raoParameters = CommonTestData.getRaoParameters();
         ZonalData<SensitivityVariableSet> glsks = CommonTestData.getLoopflowGlsks();
         // Rao with loop-flows
@@ -76,12 +79,20 @@ public final class RaoUtils {
             double effectiveLfPercentage = loopflowAsPmaxPercentage == null ? 0.0 : loopflowAsPmaxPercentage;
             buildLoopFlowExtensions(CommonTestData.getCrac(), CommonTestData.getNetwork(), effectiveLfPercentage);
         }
+        // Force FastRAO
+        if (forceFastRao) {
+            FastRaoParameters fastRaoParameters = raoParameters.getExtension(FastRaoParameters.class);
+            if (fastRaoParameters == null) {
+                raoParameters.addExtension(FastRaoParameters.class, new FastRaoParameters());
+            }
+        }
 
         return runRaoInMemory(
             Rao.find(raoType),
             CommonTestData.getNetwork(),
             CommonTestData.getCrac(),
             glsks,
+            CommonTestData.getCounterTradeGlsks(),
             CommonTestData.getReferenceProgram(),
             raoParameters,
             timeLimitInSeconds,
@@ -90,11 +101,12 @@ public final class RaoUtils {
     }
 
     private static RaoResult runRaoInMemory(Rao.Runner raoRunner, Network network, Crac crac,
-                                            ZonalData<SensitivityVariableSet> glsks, ReferenceProgram referenceProgram, RaoParameters config,
+                                            ZonalData<SensitivityVariableSet> glsks, ZonalData<Scalable> counterTradeGlsks, ReferenceProgram referenceProgram, RaoParameters config,
                                             Integer timeLimitInSeconds, final ReportNode reportNode) throws IOException {
 
         RaoInput.RaoInputBuilder raoInputBuilder = RaoInput.build(network, crac);
         raoInputBuilder.withGlskProvider(glsks);
+        raoInputBuilder.withCounterTradeGlskProvider(counterTradeGlsks);
         raoInputBuilder.withRefProg(referenceProgram);
 
         RaoResult raoResult;

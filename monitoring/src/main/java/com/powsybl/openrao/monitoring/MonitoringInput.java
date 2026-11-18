@@ -31,6 +31,7 @@ public class MonitoringInput {
         private RaoResult raoResult;
         private PhysicalParameter physicalParameter;
         private ZonalData<Scalable> scalableZonalData;
+        private boolean recomputeFlows = false;
 
         public MonitoringInputBuilder() {
             // Default constructor
@@ -64,6 +65,11 @@ public class MonitoringInput {
             return this;
         }
 
+        public MonitoringInputBuilder withRecomputeFlows(boolean recomputeFlows) {
+            this.recomputeFlows = recomputeFlows;
+            return this;
+        }
+
         public MonitoringInput build() {
             MonitoringInput monitoringInput = new MonitoringInput();
             monitoringInput.crac = Objects.requireNonNull(crac, format(REQUIRED_ARGUMENT_MESSAGE, "CRAC"));
@@ -71,6 +77,7 @@ public class MonitoringInput {
             monitoringInput.raoResult = Objects.requireNonNull(raoResult, format(REQUIRED_ARGUMENT_MESSAGE, "RaoResult"));
             monitoringInput.physicalParameter = physicalParameter;
             monitoringInput.scalableZonalData = scalableZonalData;
+            monitoringInput.recomputeFlows = recomputeFlows;
             return monitoringInput;
         }
     }
@@ -80,6 +87,7 @@ public class MonitoringInput {
     private RaoResult raoResult;
     private PhysicalParameter physicalParameter;
     private ZonalData<Scalable> scalableZonalData;
+    private boolean recomputeFlows = false;
 
     public static MonitoringInputBuilder buildWithVoltage(Network network, Crac crac, RaoResult raoResult) {
         return new MonitoringInputBuilder().withNetwork(network).withCrac(crac).withRaoResult(raoResult).withPhysicalParameter(PhysicalParameter.VOLTAGE);
@@ -107,5 +115,9 @@ public class MonitoringInput {
 
     public ZonalData<Scalable> getScalableZonalData() {
         return scalableZonalData;
+    }
+
+    public boolean needToRecomputeFlows() {
+        return recomputeFlows;
     }
 }

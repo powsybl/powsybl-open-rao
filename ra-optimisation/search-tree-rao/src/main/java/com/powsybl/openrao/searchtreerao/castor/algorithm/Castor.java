@@ -1,8 +1,8 @@
 /*
  * Copyright (c) 2020, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
- * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * License, v. 2.0. If a copy of the MPL was not distributed with
+ * this file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
 package com.powsybl.openrao.searchtreerao.castor.algorithm;
@@ -15,22 +15,26 @@ import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.RaoProvider;
+import com.powsybl.openrao.raoapi.TimeCoupledRaoInput;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
-import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
-import com.powsybl.openrao.searchtreerao.reports.CommonReports;
-import com.powsybl.openrao.searchtreerao.result.impl.FailedRaoResultImpl;
-
+import com.powsybl.openrao.raoapi.parameters.extensions.FastRaoParameters;
+import com.powsybl.openrao.raoimpl.algorithms.OpenRao;
 import java.time.Instant;
 import java.util.concurrent.CompletableFuture;
 
 /**
+ * Deprecated RAO provider façade keeping the historical "SearchTreeRao" registry name;
+ * it delegates to the default {@link OpenRao} provider (CASTOR engine).
+ *
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
+ * @deprecated since 7.6.0, use {@link OpenRao} as the default RAO provider.
  */
 @AutoService(RaoProvider.class)
+@Deprecated(since = "7.6.0")
 public class Castor implements RaoProvider {
 
     static {
@@ -58,14 +62,14 @@ public class Castor implements RaoProvider {
 
     @Override
     public CompletableFuture<RaoResult> run(final RaoInput raoInput, final RaoParameters parameters, final Instant targetEndInstant, final ReportNode reportNode) {
-        try {
-            RaoUtil.initData(raoInput, parameters, reportNode);
-        } catch (OpenRaoException e) {
-            String failure = String.format("Data initialisation failed: %s", e);
-            CommonReports.reportExceptionMessage(reportNode, failure);
-            return CompletableFuture.completedFuture(new FailedRaoResultImpl(failure));
+        if (parameters.hasExtension(FastRaoParameters.class)) {
+            parameters.removeExtension(FastRaoParameters.class);
         }
+        return new OpenRao().run(raoInput, parameters, targetEndInstant, reportNode);
+    }
 
-        return new CastorFullOptimization(raoInput, parameters, targetEndInstant, reportNode).run();
+    @Override
+    public CompletableFuture<RaoResult> run(TimeCoupledRaoInput raoInput, RaoParameters parameters, ReportNode reportNode) {
+        throw new OpenRaoException("Time-coupled optimization is not supported by CASTOR");
     }
 }
