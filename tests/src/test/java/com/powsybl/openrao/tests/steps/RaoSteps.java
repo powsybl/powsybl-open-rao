@@ -921,6 +921,13 @@ public class RaoSteps {
                 CommonTestData.loadData(timestamp);
                 network = CommonTestData.getNetwork();
                 crac = CommonTestData.getCrac();
+                // Temporary code while waiting for the scalable access in open-rao core
+                CommonTestData.getMeritOrderGlsks().forEach((area, meritOrderGlsk) ->
+                    crac.getCounterTradeRangeActions().stream()
+                        .filter(ra -> ra.getAreaId().equals(area))
+                        .findFirst()
+                        .orElseThrow(() -> new OpenRaoException("No counter trade range action for merit order area " + area))
+                        .computeGeneratorOrdering(meritOrderGlsk, network));
                 preventiveState = crac.getPreventiveState();
                 CommonTestData.setReportNode(
                     ReportNode.newRootReportNode()

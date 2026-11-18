@@ -12,6 +12,7 @@ import com.powsybl.glsk.commons.ZonalData;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.CounterTradeGeneratorOrdering;
 import com.powsybl.openrao.data.crac.api.ConnectedArea;
+import com.powsybl.openrao.commons.MeritOrderGlsk;
 import com.powsybl.sensitivity.SensitivityVariableSet;
 
 import java.util.List;
@@ -48,5 +49,7 @@ public interface CounterTradeRangeAction extends StandardRangeAction<CounterTrad
     CounterTradeGeneratorOrdering getGeneratorOrdering();
 
     void computeGeneratorOrdering(Network network, double tolerance);
+
+    void computeGeneratorOrdering(MeritOrderGlsk meritOrderGlsk, Network network);
 }
 

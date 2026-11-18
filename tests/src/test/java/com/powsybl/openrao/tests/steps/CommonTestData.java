@@ -95,6 +95,7 @@ public final class CommonTestData {
     private static ZonalData<Scalable> monitoringGlsks;
     private static ZonalData<Scalable> counterTradeGlsks;
     private static ZonalData<SensitivityVariableSet> loopflowGlsks;
+    // Temporary code while waiting for the scalable access in open-rao core
     private static final Map<String, MeritOrderGlsk> MERIT_ORDER_GLSKS = new HashMap<>();
 
     private static String raoResultPath;
@@ -218,6 +219,7 @@ public final class CommonTestData {
         loopflowGlskPath = getResourcesPath().concat("glsks/").concat(path);
     }
 
+    // Temporary code while waiting for the scalable access in open-rao core
     @Given("merit order glsk for area {string} is:")
     public static void meritOrderGlskIs(String area, DataTable table) {
         List<MeritOrderTranche> upward = new ArrayList<>();
@@ -293,6 +295,7 @@ public final class CommonTestData {
         return loopflowGlsks;
     }
 
+    // Temporary code while waiting for the scalable access in open-rao core
     public static Map<String, MeritOrderGlsk> getMeritOrderGlsks() {
         return MERIT_ORDER_GLSKS;
     }

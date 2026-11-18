@@ -223,6 +223,14 @@ public final class GeneratorOrderingComputer {
         return result;
     }
 
+    public static Map<String, Double> meritOrderDispatchQuantity(List<GlskGeneratorAllocation> order, double[] ctXValue) {
+        Map<String, Double> result = new HashMap<>();
+        for (int h = 0; h < order.size(); h++) {
+            result.merge(order.get(h).generatorId(), ctXValue[h], Double::sum);
+        }
+        return result;
+    }
+
     public static double[] layerAllocation(List<GlskGeneratorAllocation> order, double magnitude) {
         double[] x = new double[order.size()];
         double remaining = magnitude;
