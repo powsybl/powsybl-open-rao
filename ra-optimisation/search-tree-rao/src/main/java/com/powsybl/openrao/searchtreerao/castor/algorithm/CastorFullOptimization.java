@@ -367,11 +367,7 @@ public class CastorFullOptimization {
 
         // Run second preventive when necessary
         CastorSecondPreventive castorSecondPreventive = new CastorSecondPreventive(
-            crac, raoParameters, network, stateTree, context.getToolProvider(), targetEndInstant, secondPreventivePerimeterOptimReportNode);
-        if (context.isDcPreSolveEnabled()) {
-            castorSecondPreventive.setDcToolProvider(context.getDcToolProvider());
-            castorSecondPreventive.setDcInitialOutput(context.getDcInitialOutput());
-        }
+            crac, raoParameters, network, context, targetEndInstant, secondPreventivePerimeterOptimReportNode);
 
         // define variables to set with second preventive results only if it improves first
         PostPerimeterResult finalSecondPreventiveResult = postPreventiveResult;

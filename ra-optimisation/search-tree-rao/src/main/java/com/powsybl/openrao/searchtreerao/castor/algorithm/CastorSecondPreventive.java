@@ -80,8 +80,8 @@ public class CastorSecondPreventive {
     private final java.time.Instant targetEndInstant;
     private final ReportNode secondPreventiveReportNode;
 
-    private ToolProvider dcToolProvider;
-    private PrePerimeterResult dcInitialOutput;
+    private final ToolProvider dcToolProvider;
+    private final PrePerimeterResult dcInitialOutput;
 
     private static final String SECOND_PREVENTIVE_SCENARIO_BEFORE_OPT = "SecondPreventiveScenario";
     private static final int NUMBER_LOGGED_ELEMENTS_DURING_RAO = 2;
@@ -90,25 +90,23 @@ public class CastorSecondPreventive {
     public CastorSecondPreventive(final Crac crac,
                                   final RaoParameters raoParameters,
                                   final Network network,
-                                  final StateTree stateTree,
-                                  final ToolProvider toolProvider,
+                                  final RaoRunContext context,
                                   final java.time.Instant targetEndInstant,
                                   final ReportNode secondPreventiveReportNode) {
         this.crac = crac;
         this.raoParameters = raoParameters;
         this.network = network;
-        this.stateTree = stateTree;
-        this.toolProvider = toolProvider;
+        this.stateTree = context.getStateTree();
+        this.toolProvider = context.getToolProvider();
         this.targetEndInstant = targetEndInstant;
         this.secondPreventiveReportNode = secondPreventiveReportNode;
-    }
-
-    void setDcToolProvider(ToolProvider dcToolProvider) {
-        this.dcToolProvider = dcToolProvider;
-    }
-
-    void setDcInitialOutput(PrePerimeterResult dcInitialOutput) {
-        this.dcInitialOutput = dcInitialOutput;
+        if (context.isDcPreSolveEnabled()) {
+            this.dcToolProvider = context.getDcToolProvider();
+            this.dcInitialOutput = context.getDcInitialOutput();
+        } else {
+            this.dcToolProvider = null;
+            this.dcInitialOutput = null;
+        }
     }
 
     /**
