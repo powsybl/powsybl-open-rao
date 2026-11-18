@@ -29,10 +29,6 @@
             <artifactId>open-rao-crac-io-commons</artifactId>
         </dependency>
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>open-rao-crac-util</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.eclipse.rdf4j</groupId>
             <artifactId>rdf4j-rio-rdfxml</artifactId>
         </dependency>
