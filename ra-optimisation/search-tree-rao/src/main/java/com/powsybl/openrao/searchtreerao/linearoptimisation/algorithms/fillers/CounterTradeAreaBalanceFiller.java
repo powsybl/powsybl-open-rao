@@ -74,7 +74,7 @@ public class CounterTradeAreaBalanceFiller implements ProblemFiller {
 
             for (CounterTradeRangeAction ra : counterTradeRangeActions) {
                 // add the border balance constraints between CT on each area and its borders
-                fillBorderBalance(linearProblem, ra, state, counterTradeActionsByArea.keySet(), alreadyCreatedBorders);
+                fillBorderBalance(linearProblem, ra, state, counterTradeActionsByArea, alreadyCreatedBorders);
                 // add the generation dispatch
                 fillGeneratorDispatch(linearProblem, ra, state);
             }
@@ -83,7 +83,7 @@ public class CounterTradeAreaBalanceFiller implements ProblemFiller {
     }
 
     private void fillBorderBalance(LinearProblem linearProblem, CounterTradeRangeAction ra, State state,
-                                   Set<String> areasWithCt,
+                                   Map<String, CounterTradeRangeAction> counterTradeActionsByArea,
                                    Set<String> alreadyCreatedBorders) {
         String area = ra.getAreaId();
         OpenRaoMPVariable ctVar = linearProblem.getRangeActionSetpointVariable(ra, state);
@@ -93,10 +93,10 @@ public class CounterTradeAreaBalanceFiller implements ProblemFiller {
         boolean hasBorder = false;
         for (ConnectedArea connected : ra.getConnectedAreas()) {
             String neighbour = connected.getAreaId();
-            if (!areasWithCt.contains(neighbour)) {
+            if (!counterTradeActionsByArea.containsKey(neighbour)) {
                 continue; // no CT on the other side: border fixed to 0, no variable
             }
-            OpenRaoMPVariable borderVar = getOrCreateBorderVariable(linearProblem, area, neighbour, state, alreadyCreatedBorders);
+            OpenRaoMPVariable borderVar = getOrCreateBorderVariable(linearProblem, area, neighbour, state, alreadyCreatedBorders, counterTradeActionsByArea);
             balance.setCoefficient(borderVar, borderSign(area, neighbour));
             hasBorder = true;
         }
@@ -245,11 +245,17 @@ public class CounterTradeAreaBalanceFiller implements ProblemFiller {
     }
 
     private OpenRaoMPVariable getOrCreateBorderVariable(LinearProblem linearProblem, String areaId, String neighbourId,
-                                                        State state, Set<String> alreadyCreatedBorders) {
-        return alreadyCreatedBorders.add(borderKey(areaId, neighbourId))
-                ? linearProblem.addCounterTradeBorderExchangeVariable(
-                -linearProblem.infinity(), linearProblem.infinity(), areaId, neighbourId, state)
-                : linearProblem.getCounterTradeBorderExchangeVariable(areaId, neighbourId, state);
+                                                        State state, Set<String> alreadyCreatedBorders,
+                                                        Map<String, CounterTradeRangeAction> counterTradeActionsByArea) {
+        if (!alreadyCreatedBorders.add(borderKey(areaId, neighbourId))) {
+            return linearProblem.getCounterTradeBorderExchangeVariable(areaId, neighbourId, state);
+        }
+        // the exchange cannot exceed what the receiving side is allowed to increase
+        String fromArea = borderSign(areaId, neighbourId) > 0 ? areaId : neighbourId;
+        String toArea = fromArea.equals(areaId) ? neighbourId : areaId;
+        double ub = Math.max(0, counterTradeActionsByArea.get(fromArea).getMaxAdmissibleSetpoint(0));
+        double lb = -Math.max(0, counterTradeActionsByArea.get(toArea).getMaxAdmissibleSetpoint(0));
+        return linearProblem.addCounterTradeBorderExchangeVariable(lb, ub, areaId, neighbourId, state);
     }
 
     private static String borderKey(String areaId, String neighbourId) {

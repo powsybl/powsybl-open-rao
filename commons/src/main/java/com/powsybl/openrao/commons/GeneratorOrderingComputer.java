@@ -111,8 +111,8 @@ public final class GeneratorOrderingComputer {
         Set<String> ignoredIds = new HashSet<>();
         List<GlskGeneratorAllocation> upward = meritOrderLayers(meritOrderGlsk.upward(), true, network, initialTargetP, ignoredIds);
         List<GlskGeneratorAllocation> downward = meritOrderLayers(meritOrderGlsk.downward(), false, network, initialTargetP, ignoredIds);
-        int upwardLastStage = lastReachableStage(upward, max(0, maxUpwardMagnitude));
-        int downwardLastStage = lastReachableStage(downward, max(0, -maxDownwardMagnitude));
+        int upwardLastStage = lastReachableLayer(upward, max(0, maxUpwardMagnitude));
+        int downwardLastStage = lastReachableLayer(downward, max(0, -maxDownwardMagnitude));
 
         return new CounterTradeGeneratorOrdering(
                 upward,
@@ -212,9 +212,7 @@ public final class GeneratorOrderingComputer {
 
         double[] ratio = new double[n + 1];
         for (int h = 0; h < n; h++) {
-            String generatorId = sortedAllocations.get(h).generatorId();
-            double xh = ctXValue.getOrDefault(generatorId, 0.0);
-            ratio[h + 1] = ratio[h] + xh / suffixSum[h];
+            ratio[h + 1] = ratio[h] + ctXValue[h] / suffixSum[h];
         }
 
         Map<String, Double> result = new LinkedHashMap<>();
@@ -225,8 +223,8 @@ public final class GeneratorOrderingComputer {
         return result;
     }
 
-    public static Map<String, Double> layerAllocation(List<GlskGeneratorAllocation> order, double magnitude) {
-        Map<String, Double> x = new LinkedHashMap<>();
+    public static double[] layerAllocation(List<GlskGeneratorAllocation> order, double magnitude) {
+        double[] x = new double[order.size()];
         double remaining = magnitude;
         for (int h = 0; h < order.size(); h++) {
             double xh = Math.min(remaining, order.get(h).cumulativeAllocation());
