@@ -62,6 +62,7 @@ import static com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensit
 import static com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoObjectiveFunctionParameters.getCurativeMinObjImprovement;
 import static com.powsybl.openrao.raoapi.parameters.extensions.SecondPreventiveRaoParameters.getSecondPreventiveExecutionCondition;
 import static com.powsybl.openrao.raoapi.parameters.extensions.SecondPreventiveRaoParameters.getSecondPreventiveHintFromFirstPreventiveRao;
+import static com.powsybl.openrao.searchtreerao.castor.algorithm.CastorSearchTreeHelper.*;
 import static com.powsybl.openrao.searchtreerao.commons.RaoUtil.getFlowUnit;
 
 /**
@@ -382,7 +383,7 @@ public class CastorSecondPreventive {
 
         optPerimeter = GlobalOptimizationPerimeter.build(crac, network, raoParameters, prePerimeterResult, secondPreventiveReportNode);
 
-        SearchTreeParameters searchTreeParameters = CastorSearchTreeHelper.buildSearchTreeParameters(
+        SearchTreeParameters searchTreeParameters = buildSearchTreeParameters(
             raoParameters, TreeParameters.buildForSecondPreventivePerimeter(raoParameters), crac, network,
             stateTree.getOperatorsNotSharingCras(), secondPreventiveReportNode);
 
@@ -395,7 +396,7 @@ public class CastorSecondPreventive {
         Set<NetworkAction> dcCombination = Set.of();
         if (dcToolProvider != null && SearchTreeRaoTopoOptimizationParameters.getMaxPreventiveSearchTreeDepthDc(raoParameters) > 0) {
             dcCombination = runSecondPreventiveDcPreSolve(appliedCras, secondPreventiveReportNode);
-            CastorSearchTreeHelper.injectDcPreSolveCombination(searchTreeParameters, dcCombination,
+            injectDcPreSolveCombination(searchTreeParameters, dcCombination,
                 SearchTreeRaoTopoOptimizationParameters.getPreventiveDcSolutionUsage(raoParameters));
         }
 
@@ -412,7 +413,7 @@ public class CastorSecondPreventive {
             statesToOptimize
         );
 
-        OptimizationResult result = CastorSearchTreeHelper.searchNetworkActionCombination(network, optPerimeter, objectiveFunction,
+        OptimizationResult result = runSearchTree(network, optPerimeter, objectiveFunction,
             initialOutput, prePerimeterResult, appliedCras, toolProvider, crac.getOutageInstant(), searchTreeParameters,
             true, secondPreventiveReportNode);
         if (!dcCombination.isEmpty()) {
@@ -442,7 +443,7 @@ public class CastorSecondPreventive {
 
         OptimizationPerimeter dcOptPerimeter = GlobalOptimizationPerimeter.build(crac, network, dcRaoParameters, dcPrePerimeterResult, reportNode);
 
-        SearchTreeParameters dcSearchTreeParameters = CastorSearchTreeHelper.buildSearchTreeParameters(
+        SearchTreeParameters dcSearchTreeParameters = buildSearchTreeParameters(
             dcRaoParameters, TreeParameters.buildForSecondPreventivePerimeterDc(dcRaoParameters), crac, network,
             stateTree.getOperatorsNotSharingCras(), reportNode);
 
@@ -459,7 +460,7 @@ public class CastorSecondPreventive {
             dcStatesToOptimize
         );
 
-        OptimizationResult dcResult = CastorSearchTreeHelper.searchNetworkActionCombination(network, dcOptPerimeter, dcObjectiveFunction,
+        OptimizationResult dcResult = runSearchTree(network, dcOptPerimeter, dcObjectiveFunction,
             dcInitialOutput, dcPrePerimeterResult, appliedCras, dcToolProvider, crac.getOutageInstant(), dcSearchTreeParameters, false, reportNode);
         CastorReports.reportDcPreSolveProposal(reportNode, dcResult.getActivatedNetworkActions());
         return dcResult.getActivatedNetworkActions();

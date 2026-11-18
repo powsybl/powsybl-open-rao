@@ -65,17 +65,17 @@ final class CastorSearchTreeHelper {
         return searchTreeParametersBuilder.build();
     }
 
-    static OptimizationResult searchNetworkActionCombination(final Network network,
-                                                              final OptimizationPerimeter optPerimeter,
-                                                              final ObjectiveFunction objectiveFunction,
-                                                              final FlowResult initialFlowResult,
-                                                              final PrePerimeterResult prePerimeterResult,
-                                                              final AppliedRemedialActions appliedRemedialActions,
-                                                              final ToolProvider toolProvider,
-                                                              final Instant outageInstant,
-                                                              final SearchTreeParameters searchTreeParameters,
-                                                              final boolean verbose,
-                                                              final ReportNode reportNode) {
+    static OptimizationResult runSearchTree(final Network network,
+                                            final OptimizationPerimeter optPerimeter,
+                                            final ObjectiveFunction objectiveFunction,
+                                            final FlowResult initialFlowResult,
+                                            final PrePerimeterResult prePerimeterResult,
+                                            final AppliedRemedialActions appliedRemedialActions,
+                                            final ToolProvider toolProvider,
+                                            final Instant outageInstant,
+                                            final SearchTreeParameters searchTreeParameters,
+                                            final boolean verbose,
+                                            final ReportNode reportNode) {
         SearchTreeInput searchTreeInput = SearchTreeInput.create()
             .withNetwork(network)
             .withOptimizationPerimeter(optPerimeter)

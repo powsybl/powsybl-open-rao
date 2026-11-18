@@ -56,6 +56,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
+import static com.powsybl.openrao.searchtreerao.castor.algorithm.CastorSearchTreeHelper.*;
 import static com.powsybl.openrao.searchtreerao.commons.RaoUtil.applyRemedialActions;
 import static com.powsybl.openrao.searchtreerao.commons.RaoUtil.getFlowUnit;
 
@@ -629,14 +630,14 @@ public class CastorFullOptimization {
             preventivePerimeterOptimReportNode
         );
 
-        SearchTreeParameters searchTreeParameters = CastorSearchTreeHelper.buildSearchTreeParameters(
+        SearchTreeParameters searchTreeParameters = buildSearchTreeParameters(
             raoParameters, TreeParameters.buildForPreventivePerimeter(raoParameters), crac, network,
             stateTree.getOperatorsNotSharingCras(), preventivePerimeterOptimReportNode);
 
         Set<NetworkAction> dcCombination = Set.of();
         if (context.isDcPreSolveEnabled() && SearchTreeRaoTopoOptimizationParameters.getMaxPreventiveSearchTreeDepthDc(raoParameters) > 0) {
             dcCombination = runPreventiveDcPreSolve(context, preventivePerimeterOptimReportNode);
-            CastorSearchTreeHelper.injectDcPreSolveCombination(searchTreeParameters, dcCombination,
+            injectDcPreSolveCombination(searchTreeParameters, dcCombination,
                 SearchTreeRaoTopoOptimizationParameters.getPreventiveDcSolutionUsage(raoParameters));
         }
 
@@ -652,7 +653,7 @@ public class CastorFullOptimization {
             raoParameters,
             statesToOptimize
         );
-        OptimizationResult optResult = CastorSearchTreeHelper.searchNetworkActionCombination(network, optPerimeter, objectiveFunction,
+        OptimizationResult optResult = runSearchTree(network, optPerimeter, objectiveFunction,
             initialResult, initialResult, new AppliedRemedialActions(), context.getToolProvider(), crac.getOutageInstant(), searchTreeParameters,
             true, preventivePerimeterOptimReportNode);
         if (!dcCombination.isEmpty()) {
@@ -673,7 +674,7 @@ public class CastorFullOptimization {
         PreventiveOptimizationPerimeter dcOptPerimeter = PreventiveOptimizationPerimeter.buildFromBasecaseScenario(
             stateTree.getBasecaseScenario(), crac, network, dcRaoParameters, dcInitialOutput, reportNode);
 
-        SearchTreeParameters dcSearchTreeParameters = CastorSearchTreeHelper.buildSearchTreeParameters(
+        SearchTreeParameters dcSearchTreeParameters = buildSearchTreeParameters(
             dcRaoParameters, TreeParameters.buildForPreventivePerimeterDc(dcRaoParameters), crac, network,
             stateTree.getOperatorsNotSharingCras(), reportNode);
 
@@ -690,7 +691,7 @@ public class CastorFullOptimization {
             dcStatesToOptimize
         );
 
-        OptimizationResult dcResult = CastorSearchTreeHelper.searchNetworkActionCombination(network, dcOptPerimeter, dcObjectiveFunction,
+        OptimizationResult dcResult = runSearchTree(network, dcOptPerimeter, dcObjectiveFunction,
             dcInitialOutput, dcInitialOutput, new AppliedRemedialActions(), context.getDcToolProvider(), crac.getOutageInstant(),
             dcSearchTreeParameters, false, reportNode);
         CastorReports.reportDcPreSolveProposal(reportNode, dcResult.getActivatedNetworkActions());
