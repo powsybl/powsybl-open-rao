@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.powsybl.openrao.searchtreerao.marmot;
+package com.powsybl.openrao.raoimpl.algorithms;
 
 import com.google.common.annotations.Beta;
 import com.powsybl.commons.report.ReportNode;
