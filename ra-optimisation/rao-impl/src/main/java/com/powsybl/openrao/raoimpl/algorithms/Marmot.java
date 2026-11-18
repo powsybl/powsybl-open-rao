@@ -327,7 +327,7 @@ class Marmot {
         );
     }
 
-    private static TemporalData<PrePerimeterResult> runAllSensitivityAnalysesBasedOnInitialResult(final TemporalData<RaoInput> raoInputs,
+    static TemporalData<PrePerimeterResult> runAllSensitivityAnalysesBasedOnInitialResult(final TemporalData<RaoInput> raoInputs,
                                                                                                   final TemporalData<AppliedRemedialActions> curativeTopologicalActions,
                                                                                                   final TemporalData<? extends FlowResult> initialFlowResults,
                                                                                                   final TemporalData<RaoParameters> raoParameters,
@@ -368,7 +368,7 @@ class Marmot {
         );
     }
 
-    private static GlobalLinearOptimizationResult optimizeLinearRemedialActions(final TimeCoupledRaoInput raoInput,
+    static GlobalLinearOptimizationResult optimizeLinearRemedialActions(final TimeCoupledRaoInput raoInput,
                                                                                 final TemporalData<PrePerimeterResult> initialResults,
                                                                                 final TemporalData<RangeActionSetpointResult> initialSetpoints,
                                                                                 final TemporalData<PrePerimeterResult> postTopologicalActionsResults,
@@ -377,6 +377,7 @@ class Marmot {
                                                                                 final TemporalData<AppliedRemedialActions> curativeTopologicalActions,
                                                                                 final TemporalData<Set<FlowCnec>> consideredCnecs,
                                                                                 final ObjectiveFunction objectiveFunction,
+                                                                                final boolean optimizeCurativeActions,
                                                                                 final int parallelism,
                                                                                 final ReportNode reportNode) {
 
@@ -410,7 +411,7 @@ class Marmot {
         );
 
         TimeCoupledIteratingLinearOptimizerInput timeCoupledLinearOptimizerInput = new TimeCoupledIteratingLinearOptimizerInput(
-            linearOptimizerInputs, objectiveFunction, raoInput.getTimeCoupledConstraints(), false);
+            linearOptimizerInputs, objectiveFunction, raoInput.getTimeCoupledConstraints(), optimizeCurativeActions);
 
         // TODO : a priori ce release all ne devrait pas être utile MAIS il semblerait qu'il y ait des réseaux pas fermés en arrivant ici,
         // à investiguer
@@ -764,6 +765,7 @@ class Marmot {
                 curativeTopologicalActions,
                 consideredCnecs,
                 filteredObjectiveFunction,
+                false,
                 parallelism,
                 globalRaOptimForIterationReportNode
             );

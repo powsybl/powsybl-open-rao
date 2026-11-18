@@ -82,7 +82,6 @@ public final class MarmotUtils {
         }
     }
 
-
     public static PrePerimeterResult runInitialPrePerimeterSensitivityAnalysisWithoutRangeActions(final RaoInput raoInput,
                                                                                                   final AppliedRemedialActions curativeRemedialActions,
                                                                                                   final PrePerimeterResult initialResult,
