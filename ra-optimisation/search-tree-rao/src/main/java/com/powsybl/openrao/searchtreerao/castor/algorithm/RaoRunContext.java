@@ -26,10 +26,9 @@ import java.util.Objects;
  * <p>
  * Fields are private: they can only be read through the getters below, which fail fast with a clear message
  * if a step is reached before the step that is supposed to populate the field it needs has run.
- *
  * * @author Maxence Fleury {@literal <maxence.fleury at artelys.com>}
  */
-final class RaoRunContext {
+public final class RaoRunContext {
     @NonNull private final ToolProvider toolProvider;
     @Nullable private StateTree stateTree;
     @Nullable private PrePerimeterSensitivityAnalysis prePerimeterSensitivityAnalysis;

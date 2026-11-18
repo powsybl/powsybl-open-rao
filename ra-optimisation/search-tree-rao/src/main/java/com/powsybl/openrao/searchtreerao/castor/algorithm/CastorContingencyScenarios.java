@@ -85,34 +85,29 @@ public class CastorContingencyScenarios {
     private final TreeParameters curativeTreeParameters;
     private final PrePerimeterResult initialSensitivityOutput;
 
-    private ToolProvider dcToolProvider;
-    private PrePerimeterResult dcInitialSensitivityOutput;
-    private TreeParameters dcTreeParameters;
+    private final ToolProvider dcToolProvider;
+    private final PrePerimeterResult dcInitialSensitivityOutput;
+    private final TreeParameters dcTreeParameters;
 
     public CastorContingencyScenarios(Crac crac,
                                       RaoParameters raoParameters,
-                                      ToolProvider toolProvider,
-                                      StateTree stateTree,
-                                      TreeParameters curativeTreeParameters,
-                                      PrePerimeterResult initialSensitivityOutput) {
+                                      RaoRunContext context,
+                                      TreeParameters curativeTreeParameters) {
         this.crac = crac;
         this.raoParameters = raoParameters;
-        this.toolProvider = toolProvider;
-        this.stateTree = stateTree;
+        this.toolProvider = context.getToolProvider();
+        this.stateTree = context.getStateTree();
         this.curativeTreeParameters = curativeTreeParameters;
-        this.initialSensitivityOutput = initialSensitivityOutput;
-    }
-
-    void setDcToolProvider(ToolProvider dcToolProvider) {
-        this.dcToolProvider = dcToolProvider;
-    }
-
-    void setDcInitialSensitivityOutput(PrePerimeterResult dcInitialSensitivityOutput) {
-        this.dcInitialSensitivityOutput = dcInitialSensitivityOutput;
-    }
-
-    void setDcTreeParameters(TreeParameters dcTreeParameters) {
-        this.dcTreeParameters = dcTreeParameters;
+        this.initialSensitivityOutput = context.getInitialOutput();
+        if (context.isDcPreSolveEnabled()) {
+            this.dcToolProvider = context.getDcToolProvider();
+            this.dcInitialSensitivityOutput = context.getDcInitialOutput();
+            this.dcTreeParameters = TreeParameters.buildForCurativePerimeterDc(context.getDcRaoParameters(), context.getPreventiveResult().getCost());
+        } else {
+            this.dcToolProvider = null;
+            this.dcInitialSensitivityOutput = null;
+            this.dcTreeParameters = null;
+        }
     }
 
     public Map<State, PostPerimeterResult> optimizeContingencyScenarios(final Network network,

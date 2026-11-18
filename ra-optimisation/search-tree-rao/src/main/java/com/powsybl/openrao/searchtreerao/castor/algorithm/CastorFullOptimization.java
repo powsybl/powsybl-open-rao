@@ -329,13 +329,7 @@ public class CastorFullOptimization {
 
     private void runCurativePerimeterOptimization(final RaoRunContext context, final ReportNode postContingencyPerimeterOptimReportNode) {
         TreeParameters curativeTreeParameters = TreeParameters.buildForCurativePerimeter(raoParameters, context.getPreventiveResult().getCost());
-        CastorContingencyScenarios castorContingencyScenarios = new CastorContingencyScenarios(
-                crac, raoParameters, context.getToolProvider(), context.getStateTree(), curativeTreeParameters, context.getInitialOutput());
-        if (context.isDcPreSolveEnabled()) {
-            castorContingencyScenarios.setDcToolProvider(context.getDcToolProvider());
-            castorContingencyScenarios.setDcInitialSensitivityOutput(context.getDcInitialOutput());
-            castorContingencyScenarios.setDcTreeParameters(TreeParameters.buildForCurativePerimeterDc(context.getDcRaoParameters(), context.getPreventiveResult().getCost()));
-        }
+        CastorContingencyScenarios castorContingencyScenarios = new CastorContingencyScenarios(crac, raoParameters, context, curativeTreeParameters);
         context.setCastorContingencyScenarios(castorContingencyScenarios);
 
         context.setPostContingencyResults(castorContingencyScenarios.optimizeContingencyScenarios(
