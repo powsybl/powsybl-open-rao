@@ -162,13 +162,15 @@ public class TimeCoupledCurativeSynchronization {
                 globalLinearOptimizationResult,
                 preventiveNetworkActions,
                 curativeTopologicalActions,
+                null,
                 raoParameters,
                 reportNode
             );
         } else {
             CastorReports.reportMergingPreventiveAndPostContingencyRaoResults(reportNode, CURATIVE_SYNCHRONIZATION_PREFIX);
+            TemporalData<PrePerimeterResult> postCurativePrePerimeterResults = getPostCurativeOptimizationResults(postCurativeOptimizationResults, postPraResults);
             finalObjectiveFunctionResult = MarmotUtils.getInitialObjectiveFunctionResult(
-                getPostCurativeOptimizationResults(postCurativeOptimizationResults, postPraResults),
+                postCurativePrePerimeterResults,
                 fullObjectiveFunction,
                 reportNode
             );
@@ -179,6 +181,7 @@ public class TimeCoupledCurativeSynchronization {
                 (GlobalLinearOptimizationResult) finalObjectiveFunctionResult,
                 preventiveOptimizationResults.map(OptimizationResult::getActivatedNetworkActions),
                 getAppliedPostContingencyRemedialActions(postCurativeOptimizationResults),
+                postCurativeOptimizationResults,
                 raoParameters,
                 reportNode
             );
@@ -308,6 +311,8 @@ public class TimeCoupledCurativeSynchronization {
      * Builds the time-coupled RaoResult from the final linear optimization result: the global RaoResult is filled with
      * every timestamp's remedial action activations (same pattern as Marmot's result merge), with the per-timestamp cost
      * results attached as a TimeCoupledCostResult extension.
+     * When the curative range actions are not re-optimized in a global MIP (curativeOptimizationResults not null), their
+     * activations are explicitly added from the time-coupled curative optimization, the same way as the network actions.
      */
     private static RaoResult buildTimeCoupledRaoResult(TemporalData<Crac> cracs,
                                                        TemporalData<PrePerimeterResult> initialResults,
@@ -315,10 +320,17 @@ public class TimeCoupledCurativeSynchronization {
                                                        GlobalLinearOptimizationResult finalObjectiveFunctionResult,
                                                        TemporalData<Set<NetworkAction>> preventiveNetworkActions,
                                                        TemporalData<AppliedRemedialActions> curativeNetworkActions,
+                                                       TemporalData<Map<State, PostPerimeterResult>> curativeOptimizationResults,
                                                        RaoParameters raoParameters,
                                                        ReportNode reportNode) {
         RaoResultImpl.RaoResultImplBuilder raoResultBuilder = RaoResultImpl.builder(cracs);
         TimeCoupledCostResult.TimeCoupledCostResultBuilder costResultBuilder = TimeCoupledCostResult.builder();
+        if (curativeOptimizationResults != null) {
+            curativeOptimizationResults.getDataPerTimestamp().forEach((timestamp, statePostPerimeterResults) ->
+                statePostPerimeterResults.forEach((state, postPerimeterResult) ->
+                    postPerimeterResult.optimizationResult().getActivatedRangeActions(state).forEach(rangeAction ->
+                        raoResultBuilder.addRangeActionActivation(rangeAction, state, postPerimeterResult.optimizationResult().getOptimizedSetpoint(rangeAction, state)))));
+        }
         MarmotUtils.fillRaoResult(
             cracs,
             raoResultBuilder,
