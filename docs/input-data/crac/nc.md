@@ -10,6 +10,9 @@ is an extension of the CIM standard. The CRAC data is split over different profi
 The OpenRAO importer only supports NC version `2.4` (see
 [ENTSO-E website](https://www.entsoe.eu/Documents/CIM_documents/Grid_Model_CIM/MetadataAndHeaderDataExchangeSpecification_v2.3.0.pdf)).
 
+> Note: NC profiles in version `2.2` are expected to be imported correctly thanks to backward compatibility, but this
+> has not been tested.
+
 > ⚠️ **NCP v2.5 is NOT supported.** The v2.5 application profiles publish their vocabulary under new
 > namespaces (`nc` = `https://cim4.eu/ns/nc#`, `cim` = `https://cim.ucaiug.io/ns#`) while the importer
 > only queries the v2.4 namespaces (`nc` = `http://entsoe.eu/ns/nc#`, `cim` = `http://iec.ch/TC57/CIM100#`).
@@ -857,11 +860,14 @@ directly within the `CountertradeRemedialAction` object itself, which inherits f
 absolute values from the RA profile with variations from the SSI profile, possibly defined on a `RemedialActionGroup` 
 (see [range](#range)).
 
+> ⚠️ Counter-trade remedial actions are only supported for NC profiles in version `2.2`.
+
 ```xml
 <!-- RA Profile -->
 <rdf:RDF>
     <md:FullModel rdf:about="urn:uuid:e6b94ef6-e043-4d29-a258-1718d6d2f507">
         <dcterms:creator>http://energy.referencedata.eu/EIC/10XFR-RTE------Q</dcterms:creator>
+        <dcterms:conformsTo>http://entsoe.eu/ns/CIM/RemedialAction-EU/2.2</dcterms:conformsTo>
         ...
     </md:FullModel>
     ...
