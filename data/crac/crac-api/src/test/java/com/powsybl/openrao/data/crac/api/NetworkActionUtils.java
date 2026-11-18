@@ -34,37 +34,6 @@ public final class NetworkActionUtils {
     private NetworkActionUtils() {
     }
 
-    public static class SwitchPairImplTest implements SwitchPair {
-
-        private final String switchToOpen;
-        private final String switchToClose;
-
-        public SwitchPairImplTest(String switchToOpen, String switchToClose) {
-            this.switchToOpen = switchToOpen;
-            this.switchToClose = switchToClose;
-        }
-
-        @Override
-        public String getSwitchToOpenId() {
-            return switchToOpen;
-        }
-
-        @Override
-        public String getSwitchToCloseId() {
-            return switchToClose;
-        }
-
-        @Override
-        public String getType() {
-            return null;
-        }
-
-        @Override
-        public String getId() {
-            return null;
-        }
-    }
-
     public static class NetworkActionImplTest implements NetworkAction {
 
         private final Set<Action> elementaryActions;
@@ -184,7 +153,7 @@ public final class NetworkActionUtils {
     }
 
     public static NetworkAction createSwitchPair(String switchToOpenId, String switchToCloseId) {
-        return new NetworkActionImplTest(new SwitchPairImplTest(switchToOpenId, switchToCloseId));
+        return new NetworkActionImplTest(new SwitchPair("id", switchToOpenId, switchToCloseId));
     }
 
     public static NetworkAction createPhaseTapChangerTapPositionAction(String pstId, int setpoint) {

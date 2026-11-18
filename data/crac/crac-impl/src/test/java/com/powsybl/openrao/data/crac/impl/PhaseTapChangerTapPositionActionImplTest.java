@@ -186,7 +186,7 @@ class PhaseTapChangerTapPositionActionImplTest {
         Crac crac = CommonCracCreation.createCracWithRemedialActions();
         NetworkAction pstSetpoint = crac.getNetworkAction("pst-1-tap-3");
 
-        assertTrue(pstSetpoint.isCompatibleWith(pstSetpoint));
+        assertFalse(pstSetpoint.isCompatibleWith(pstSetpoint));
         assertTrue(pstSetpoint.isCompatibleWith(crac.getNetworkAction("open-switch-2")));
         assertTrue(pstSetpoint.isCompatibleWith(crac.getNetworkAction("close-switch-1")));
         assertTrue(pstSetpoint.isCompatibleWith(crac.getNetworkAction("close-switch-2")));
@@ -196,7 +196,7 @@ class PhaseTapChangerTapPositionActionImplTest {
         assertTrue(pstSetpoint.isCompatibleWith(crac.getNetworkAction("generator-2-75-mw")));
         assertTrue(pstSetpoint.isCompatibleWith(crac.getNetworkAction("generator-2-100-mw")));
 
-        assertTrue(pstSetpoint.isCompatibleWith(crac.getNetworkAction("pst-1-tap-3")));
+        assertFalse(pstSetpoint.isCompatibleWith(crac.getNetworkAction("pst-1-tap-3")));
         assertFalse(pstSetpoint.isCompatibleWith(crac.getNetworkAction("pst-1-tap-8")));
         assertTrue(pstSetpoint.isCompatibleWith(crac.getNetworkAction("pst-2-tap-3")));
         assertTrue(pstSetpoint.isCompatibleWith(crac.getNetworkAction("pst-2-tap-8")));

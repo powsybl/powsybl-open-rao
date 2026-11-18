@@ -109,16 +109,16 @@ class NetworkActionImplTest {
     void compatibility() {
         Crac crac = CommonCracCreation.createCracWithRemedialActions();
 
-        assertTrue(crac.getNetworkAction("hvdc-fr-es-200-mw").isCompatibleWith(crac.getNetworkAction("hvdc-fr-es-200-mw")));
+        assertFalse(crac.getNetworkAction("hvdc-fr-es-200-mw").isCompatibleWith(crac.getNetworkAction("hvdc-fr-es-200-mw")));
         assertFalse(crac.getNetworkAction("hvdc-fr-es-200-mw").isCompatibleWith(crac.getNetworkAction("hvdc-es-fr-200-mw")));
         assertTrue(crac.getNetworkAction("hvdc-fr-es-200-mw").isCompatibleWith(crac.getNetworkAction("aligned-psts")));
         assertTrue(crac.getNetworkAction("hvdc-fr-es-200-mw").isCompatibleWith(crac.getNetworkAction("switch-pair-and-pst")));
-        assertTrue(crac.getNetworkAction("hvdc-es-fr-200-mw").isCompatibleWith(crac.getNetworkAction("hvdc-es-fr-200-mw")));
+        assertFalse(crac.getNetworkAction("hvdc-es-fr-200-mw").isCompatibleWith(crac.getNetworkAction("hvdc-es-fr-200-mw")));
         assertTrue(crac.getNetworkAction("hvdc-es-fr-200-mw").isCompatibleWith(crac.getNetworkAction("aligned-psts")));
         assertTrue(crac.getNetworkAction("hvdc-es-fr-200-mw").isCompatibleWith(crac.getNetworkAction("switch-pair-and-pst")));
-        assertTrue(crac.getNetworkAction("aligned-psts").isCompatibleWith(crac.getNetworkAction("aligned-psts")));
+        assertFalse(crac.getNetworkAction("aligned-psts").isCompatibleWith(crac.getNetworkAction("aligned-psts")));
         assertFalse(crac.getNetworkAction("aligned-psts").isCompatibleWith(crac.getNetworkAction("switch-pair-and-pst")));
-        assertTrue(crac.getNetworkAction("switch-pair-and-pst").isCompatibleWith(crac.getNetworkAction("switch-pair-and-pst")));
+        assertFalse(crac.getNetworkAction("switch-pair-and-pst").isCompatibleWith(crac.getNetworkAction("switch-pair-and-pst")));
     }
 
     @Test

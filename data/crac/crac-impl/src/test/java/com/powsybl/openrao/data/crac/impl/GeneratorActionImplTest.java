@@ -179,12 +179,12 @@ class GeneratorActionImplTest {
         Crac crac = CommonCracCreation.createCracWithRemedialActions();
         NetworkAction injectionSetpoint = crac.getNetworkAction("generator-1-75-mw");
 
-        assertTrue(injectionSetpoint.isCompatibleWith(injectionSetpoint));
+        assertFalse(injectionSetpoint.isCompatibleWith(injectionSetpoint));
         assertTrue(injectionSetpoint.isCompatibleWith(crac.getNetworkAction("open-switch-2")));
         assertTrue(injectionSetpoint.isCompatibleWith(crac.getNetworkAction("close-switch-1")));
         assertTrue(injectionSetpoint.isCompatibleWith(crac.getNetworkAction("close-switch-2")));
 
-        assertTrue(injectionSetpoint.isCompatibleWith(crac.getNetworkAction("generator-1-75-mw")));
+        assertFalse(injectionSetpoint.isCompatibleWith(crac.getNetworkAction("generator-1-75-mw")));
         assertFalse(injectionSetpoint.isCompatibleWith(crac.getNetworkAction("generator-1-100-mw")));
         assertTrue(injectionSetpoint.isCompatibleWith(crac.getNetworkAction("generator-2-75-mw")));
         assertTrue(injectionSetpoint.isCompatibleWith(crac.getNetworkAction("generator-2-100-mw")));

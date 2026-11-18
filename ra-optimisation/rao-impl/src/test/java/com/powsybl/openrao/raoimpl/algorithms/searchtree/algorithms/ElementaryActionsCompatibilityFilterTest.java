@@ -121,15 +121,18 @@ class ElementaryActionsCompatibilityFilterTest {
         NetworkActionCombination networkActionCombination2 = new NetworkActionCombination(Set.of(availableRemedialAction3));
         NetworkActionCombination networkActionCombination3 = new NetworkActionCombination(Set.of(availableRemedialAction4));
         NetworkActionCombination networkActionCombination4 = new NetworkActionCombination(Set.of(availableRemedialAction2, availableRemedialAction3));
+        NetworkActionCombination networkActionCombination5 = new NetworkActionCombination(Set.of(availableRemedialAction2));
 
         ElementaryActionsCompatibilityFilter naFilter = new ElementaryActionsCompatibilityFilter();
-        Set<NetworkActionCombination> naCombinations = Set.of(networkActionCombination1, networkActionCombination2, networkActionCombination3, networkActionCombination4);
+        Set<NetworkActionCombination> naCombinations = Set.of(networkActionCombination1, networkActionCombination2, networkActionCombination3, networkActionCombination4, networkActionCombination5);
 
         Leaf previousLeaf = Mockito.mock(Leaf.class);
+        // switch-1, switch-2 and generator-1 are used
         Mockito.when(previousLeaf.getActivatedNetworkActions()).thenReturn(Set.of(appliedRemedialAction1, appliedRemedialAction2));
 
+        // only availableRemedialAction2 is usable, others use either switch-1, switch-2 or generator-1
         assertEquals(
-            Set.of(networkActionCombination2, networkActionCombination3, networkActionCombination4),
+            Set.of(networkActionCombination5),
             naFilter.filter(naCombinations, previousLeaf, ReportNode.NO_OP)
         );
     }

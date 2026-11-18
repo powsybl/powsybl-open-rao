@@ -49,12 +49,12 @@ class ElementaryActionCompatibilityTest {
 
     @Test
     void testElementaryActionsCompatibility() {
-        assertIncompatibility(openSwitchFr, closeSwitchFr);
-        assertIncompatibility(closeSwitchFr, openSwitchFr);
-        assertIncompatibility(openSwitchBe, closeSwitchBe);
-        assertIncompatibility(closeSwitchBe, openSwitchBe);
-        assertIncompatibility(openSwitchFrCloseSwitchBe, openSwitchBeCloseSwitchFr);
-        assertIncompatibility(openSwitchBeCloseSwitchFr, openSwitchFrCloseSwitchBe);
+        assertIncompatibility(openSwitchFr, closeSwitchFr, openSwitchFrCloseSwitchBe, openSwitchBeCloseSwitchFr);
+        assertIncompatibility(closeSwitchFr, openSwitchFr, openSwitchFrCloseSwitchBe, openSwitchBeCloseSwitchFr);
+        assertIncompatibility(openSwitchBe, closeSwitchBe, openSwitchFrCloseSwitchBe, openSwitchBeCloseSwitchFr);
+        assertIncompatibility(closeSwitchBe, openSwitchBe, openSwitchFrCloseSwitchBe, openSwitchBeCloseSwitchFr);
+        assertIncompatibility(openSwitchFrCloseSwitchBe, openSwitchBeCloseSwitchFr, openSwitchFr, closeSwitchFr, openSwitchBe, closeSwitchBe);
+        assertIncompatibility(openSwitchBeCloseSwitchFr, openSwitchFrCloseSwitchBe, openSwitchFr, closeSwitchFr, openSwitchBe, closeSwitchBe);
         assertIncompatibility(pstFr0, pstFr5);
         assertIncompatibility(pstFr5, pstFr0);
         assertIncompatibility(pstBe0, pstBeMinus5);
@@ -95,6 +95,9 @@ class ElementaryActionCompatibilityTest {
     private void assertIncompatibility(NetworkAction action, NetworkAction... incompatibleActions) {
         List<NetworkAction> incompatibleActionsList = List.of(incompatibleActions);
         for (NetworkAction na : this.networkActions) {
+            if (na == action) {
+                continue;
+            }
             if (incompatibleActionsList.contains(na)) {
                 assertFalse(action.isCompatibleWith(na));
             } else {

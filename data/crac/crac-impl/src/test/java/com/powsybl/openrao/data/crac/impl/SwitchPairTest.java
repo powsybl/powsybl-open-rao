@@ -5,19 +5,25 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.powsybl.openrao.data.crac.api;
+package com.powsybl.openrao.data.crac.impl;
 
-import com.powsybl.action.SwitchAction;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.openrao.data.crac.api.Crac;
+import com.powsybl.openrao.data.crac.api.CracFactory;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.networkaction.SwitchPair;
+import com.powsybl.openrao.data.crac.impl.utils.CommonCracCreation;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+
 import java.util.Set;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
+ * This actually belongs in crac-api, but we need crac-impl to test it (bc of CracFactory)
+ *
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 class SwitchPairTest {
@@ -29,6 +35,15 @@ class SwitchPairTest {
     @BeforeEach
     public void setUp() {
         network = Network.read("TestCase12NodesWith2Switches.uct", getClass().getResourceAsStream("/TestCase12NodesWith2Switches.uct"));
+    }
+
+    @Test
+    void testGetters() {
+        SwitchPair switchPair = new SwitchPair("id", switch1, switch2);
+        assertEquals("id", switchPair.getId());
+        assertEquals(switch1, switchPair.getSwitchToOpenId());
+        assertEquals(switch2, switchPair.getSwitchToCloseId());
+        assertEquals(Set.of(switch1, switch2), NetworkAction.getNetworkElementIds(switchPair));
     }
 
     @Test
@@ -128,7 +143,7 @@ class SwitchPairTest {
     void testEquals() {
         SwitchPair switchPair = new SwitchPair("id", switch1, switch2);
         assertNotNull(switchPair);
-        assertNotEquals(Mockito.mock(SwitchAction.class), switchPair);
+        assertNotEquals(Mockito.mock(com.powsybl.action.SwitchAction.class), switchPair);
         assertNotEquals(new SwitchPair("id", switch2, switch1), switchPair);
         assertEquals(new SwitchPair("id", switch1, switch2), switchPair);
         assertNotEquals(new SwitchPair("id", switch1, "other"), switchPair);
@@ -136,31 +151,30 @@ class SwitchPairTest {
         assertEquals(switchPair, switchPair2);
     }
 
-    // FIXME fix this test
-    //    @Test
-    //    void compatibility() {
-    //        Crac crac = CommonCracCreation.createCracWithRemedialActions();
-    //        SwitchPair switchPair = (SwitchPair) crac.getNetworkAction("open-switch-1-close-switch-2").getElementaryActions().iterator().next();
-    //
-    //        assertTrue(switchPair.isCompatibleWith(switchPair));
-    //        assertTrue(switchPair.isCompatibleWith(crac.getNetworkAction("open-switch-2").getElementaryActions().iterator().next()));
-    //        assertTrue(switchPair.isCompatibleWith(crac.getNetworkAction("close-switch-1").getElementaryActions().iterator().next()));
-    //        assertTrue(switchPair.isCompatibleWith(crac.getNetworkAction("close-switch-2").getElementaryActions().iterator().next()));
-    //
-    //        assertTrue(switchPair.isCompatibleWith(crac.getNetworkAction("generator-1-75-mw").getElementaryActions().iterator().next()));
-    //        assertTrue(switchPair.isCompatibleWith(crac.getNetworkAction("generator-1-100-mw").getElementaryActions().iterator().next()));
-    //        assertTrue(switchPair.isCompatibleWith(crac.getNetworkAction("generator-2-75-mw").getElementaryActions().iterator().next()));
-    //        assertTrue(switchPair.isCompatibleWith(crac.getNetworkAction("generator-2-100-mw").getElementaryActions().iterator().next()));
-    //
-    //        assertTrue(switchPair.isCompatibleWith(crac.getNetworkAction("pst-1-tap-3").getElementaryActions().iterator().next()));
-    //        assertTrue(switchPair.isCompatibleWith(crac.getNetworkAction("pst-1-tap-8").getElementaryActions().iterator().next()));
-    //        assertTrue(switchPair.isCompatibleWith(crac.getNetworkAction("pst-2-tap-3").getElementaryActions().iterator().next()));
-    //        assertTrue(switchPair.isCompatibleWith(crac.getNetworkAction("pst-2-tap-8").getElementaryActions().iterator().next()));
-    //
-    //        assertTrue(switchPair.isCompatibleWith(crac.getNetworkAction("open-switch-1-close-switch-2").getElementaryActions().iterator().next()));
-    //        assertFalse(switchPair.isCompatibleWith(crac.getNetworkAction("open-switch-2-close-switch-1").getElementaryActions().iterator().next()));
-    //        assertTrue(switchPair.isCompatibleWith(crac.getNetworkAction("open-switch-3-close-switch-4").getElementaryActions().iterator().next()));
-    //        assertFalse(switchPair.isCompatibleWith(crac.getNetworkAction("open-switch-1-close-switch-3").getElementaryActions().iterator().next()));
-    //        assertFalse(switchPair.isCompatibleWith(crac.getNetworkAction("open-switch-3-close-switch-2").getElementaryActions().iterator().next()));
-    //    }
+    @Test
+    void compatibility() {
+        Crac crac = CommonCracCreation.createCracWithRemedialActions();
+        NetworkAction switchPair = crac.getNetworkAction("open-switch-1-close-switch-2");
+
+        assertFalse(switchPair.isCompatibleWith(switchPair));
+        assertTrue(switchPair.isCompatibleWith(crac.getNetworkAction("open-switch-2")));
+        assertTrue(switchPair.isCompatibleWith(crac.getNetworkAction("close-switch-1")));
+        assertTrue(switchPair.isCompatibleWith(crac.getNetworkAction("close-switch-2")));
+
+        assertTrue(switchPair.isCompatibleWith(crac.getNetworkAction("generator-1-75-mw")));
+        assertTrue(switchPair.isCompatibleWith(crac.getNetworkAction("generator-1-100-mw")));
+        assertTrue(switchPair.isCompatibleWith(crac.getNetworkAction("generator-2-75-mw")));
+        assertTrue(switchPair.isCompatibleWith(crac.getNetworkAction("generator-2-100-mw")));
+
+        assertTrue(switchPair.isCompatibleWith(crac.getNetworkAction("pst-1-tap-3")));
+        assertTrue(switchPair.isCompatibleWith(crac.getNetworkAction("pst-1-tap-8")));
+        assertTrue(switchPair.isCompatibleWith(crac.getNetworkAction("pst-2-tap-3")));
+        assertTrue(switchPair.isCompatibleWith(crac.getNetworkAction("pst-2-tap-8")));
+
+        assertFalse(switchPair.isCompatibleWith(crac.getNetworkAction("open-switch-1-close-switch-2")));
+        assertFalse(switchPair.isCompatibleWith(crac.getNetworkAction("open-switch-2-close-switch-1")));
+        assertTrue(switchPair.isCompatibleWith(crac.getNetworkAction("open-switch-3-close-switch-4")));
+        assertFalse(switchPair.isCompatibleWith(crac.getNetworkAction("open-switch-1-close-switch-3")));
+        assertFalse(switchPair.isCompatibleWith(crac.getNetworkAction("open-switch-3-close-switch-2")));
+    }
 }

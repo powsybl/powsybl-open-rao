@@ -40,16 +40,16 @@ class NetworkActionTest {
         );
         NetworkAction switchPairAndPst = mockNetworkAction(mockPhaseTapChangerTapPositionAction("pst-fr-2", -2), mockSwitchPair());
 
-        assertTrue(hvdcFrEs200Mw.isCompatibleWith(hvdcFrEs200Mw));
+        assertFalse(hvdcFrEs200Mw.isCompatibleWith(hvdcFrEs200Mw));
         assertFalse(hvdcFrEs200Mw.isCompatibleWith(hvdcEsFr200Mw));
         assertTrue(hvdcFrEs200Mw.isCompatibleWith(alignedPsts));
         assertTrue(hvdcFrEs200Mw.isCompatibleWith(switchPairAndPst));
-        assertTrue(hvdcEsFr200Mw.isCompatibleWith(hvdcEsFr200Mw));
+        assertFalse(hvdcEsFr200Mw.isCompatibleWith(hvdcEsFr200Mw));
         assertTrue(hvdcEsFr200Mw.isCompatibleWith(alignedPsts));
         assertTrue(hvdcEsFr200Mw.isCompatibleWith(switchPairAndPst));
-        assertTrue(alignedPsts.isCompatibleWith(alignedPsts));
+        assertFalse(alignedPsts.isCompatibleWith(alignedPsts));
         assertFalse(alignedPsts.isCompatibleWith(switchPairAndPst));
-        assertTrue(switchPairAndPst.isCompatibleWith(switchPairAndPst));
+        assertFalse(switchPairAndPst.isCompatibleWith(switchPairAndPst));
     }
 
     private NetworkAction mockHvdcAction(double setpoint) {
@@ -80,6 +80,6 @@ class NetworkActionTest {
     }
 
     private SwitchPair mockSwitchPair() {
-        return new NetworkActionUtils.SwitchPairImplTest("switch-fr", "switch-es");
+        return new SwitchPair("id", "switch-pair-fr", "switch-pair-es");
     }
 }
