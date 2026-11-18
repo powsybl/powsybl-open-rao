@@ -47,31 +47,31 @@ class CastorSearchTreeHelperTest {
         CastorSearchTreeHelper.injectDcPreSolveCombination(searchTreeParameters, Set.of(), DcSolutionUsage.HINT);
 
         assertTrue(networkActionParameters.getNetworkActionCombinations().isEmpty());
-        assertTrue(networkActionParameters.getForcedCombination().isEmpty());
+        assertTrue(networkActionParameters.getForcedCombinations().isEmpty());
     }
 
     @Test
     void hintAddsPredefinedCombination() {
-        Set<NetworkAction> dcCombination = Set.of(networkAction1, networkAction2);
+        Set<NetworkAction> combination = Set.of(networkAction1, networkAction2);
 
-        CastorSearchTreeHelper.injectDcPreSolveCombination(searchTreeParameters, dcCombination, DcSolutionUsage.HINT);
+        CastorSearchTreeHelper.injectDcPreSolveCombination(searchTreeParameters, combination, DcSolutionUsage.HINT);
 
         assertEquals(1, networkActionParameters.getNetworkActionCombinations().size());
-        NetworkActionCombination addedCombination = networkActionParameters.getNetworkActionCombinations().get(0);
-        assertEquals(dcCombination, addedCombination.getNetworkActionSet());
+        NetworkActionCombination addedCombination = networkActionParameters.getNetworkActionCombinations().getFirst();
+        assertEquals(combination, addedCombination.getNetworkActionSet());
         assertTrue(addedCombination.isDetectedDuringRao());
-        assertTrue(networkActionParameters.getForcedCombination().isEmpty());
+        assertTrue(networkActionParameters.getForcedCombinations().isEmpty());
     }
 
     @Test
     void forcedSetsForcedCombination() {
-        Set<NetworkAction> dcCombination = Set.of(networkAction1, networkAction2);
+        Set<NetworkAction> combination = Set.of(networkAction1, networkAction2);
 
-        CastorSearchTreeHelper.injectDcPreSolveCombination(searchTreeParameters, dcCombination, DcSolutionUsage.FORCED);
+        CastorSearchTreeHelper.injectDcPreSolveCombination(searchTreeParameters, combination, DcSolutionUsage.FORCED);
 
         assertTrue(networkActionParameters.getNetworkActionCombinations().isEmpty());
-        assertTrue(networkActionParameters.getForcedCombination().isPresent());
-        assertEquals(dcCombination, networkActionParameters.getForcedCombination().get().getNetworkActionSet());
-        assertTrue(networkActionParameters.getForcedCombination().get().isDetectedDuringRao());
+        assertEquals(1, networkActionParameters.getForcedCombinations().size());
+        assertEquals(combination, networkActionParameters.getForcedCombinations().getFirst().getNetworkActionSet());
+        assertTrue(networkActionParameters.getForcedCombinations().getFirst().isDetectedDuringRao());
     }
 }

@@ -102,9 +102,9 @@ final class CastorSearchTreeHelper {
         }
         NetworkActionCombination combination = new NetworkActionCombination(dcCombination, true);
         if (dcSolutionUsage == SearchTreeRaoTopoOptimizationParameters.DcSolutionUsage.FORCED) {
-            acSearchTreeParameters.getNetworkActionParameters().setForcedCombination(combination);
+            acSearchTreeParameters.getNetworkActionParameters().addForcedNetworkActionCombination(combination);
         } else {
-            acSearchTreeParameters.getNetworkActionParameters().addNetworkActionCombination(combination);
+            acSearchTreeParameters.getNetworkActionParameters().addHintedNetworkActionCombination(combination);
         }
     }
 }

@@ -65,13 +65,13 @@ class NetworkActionParametersTest {
 
         Set<NetworkAction> naSet = Set.of(Mockito.mock(NetworkAction.class), Mockito.mock(NetworkAction.class));
         NetworkActionCombination naCombination = new NetworkActionCombination(naSet);
-        nap.addNetworkActionCombination(naCombination);
+        nap.addHintedNetworkActionCombination(naCombination);
         assertEquals(2, nap.getNetworkActionCombinations().size());
         assertTrue(nap.getNetworkActionCombinations().contains(naCombination));
 
         // Test unicity
         NetworkActionCombination naCombinationDetectedInRao = new NetworkActionCombination(naSet, true);
-        nap.addNetworkActionCombination(naCombinationDetectedInRao);
+        nap.addHintedNetworkActionCombination(naCombinationDetectedInRao);
         assertEquals(2, nap.getNetworkActionCombinations().size());
         assertTrue(nap.getNetworkActionCombinations().contains(naCombinationDetectedInRao));
         assertFalse(nap.getNetworkActionCombinations().contains(naCombination));
@@ -81,16 +81,16 @@ class NetworkActionParametersTest {
     void testForcedCombination() {
         NetworkActionParameters nap = new NetworkActionParameters(new ArrayList<>(), 0., 0., false, 0, true);
         NetworkActionParameters otherNap = new NetworkActionParameters(new ArrayList<>(), 0., 0., false, 0, true);
-        assertTrue(nap.getForcedCombination().isEmpty());
+        assertTrue(nap.getForcedCombinations().isEmpty());
         assertEquals(nap, otherNap);
 
         NetworkActionCombination naCombination = new NetworkActionCombination(Set.of(Mockito.mock(NetworkAction.class)));
-        nap.setForcedCombination(naCombination);
-        assertEquals(naCombination, nap.getForcedCombination().orElseThrow());
+        nap.addForcedNetworkActionCombination(naCombination);
+        assertEquals(naCombination, nap.getForcedCombinations().getFirst());
         assertTrue(nap.getNetworkActionCombinations().isEmpty());
         assertNotEquals(nap, otherNap);
 
-        otherNap.setForcedCombination(naCombination);
+        otherNap.addForcedNetworkActionCombination(naCombination);
         assertEquals(nap, otherNap);
         assertEquals(nap.hashCode(), otherNap.hashCode());
     }

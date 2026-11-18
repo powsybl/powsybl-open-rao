@@ -222,9 +222,9 @@ public class SearchTree {
 
         TreeSet<NetworkActionCombination> naCombinationsSorted = new TreeSet<>(this::deterministicNetworkActionCombinationComparison);
         input.getNetwork().getVariantManager().setWorkingVariant(SEARCH_TREE_WORKING_VARIANT_ID);
-        Optional<NetworkActionCombination> forcedCombination = parameters.getNetworkActionParameters().getForcedCombination();
-        if (firstDepth && forcedCombination.isPresent()) {
-            naCombinationsSorted.add(forcedCombination.get());
+        List<NetworkActionCombination> forcedCombinations = parameters.getNetworkActionParameters().getForcedCombinations();
+        if (firstDepth && !forcedCombinations.isEmpty()) {
+            naCombinationsSorted.addAll(forcedCombinations);
         } else {
             naCombinationsSorted.addAll(bloomer.bloom(optimalLeaf, input.getOptimizationPerimeter().getNetworkActions(), reportNode));
         }

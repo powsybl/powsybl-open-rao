@@ -563,7 +563,7 @@ class SearchTreeTest {
         availableNetworkActions.add(networkAction1);
         availableNetworkActions.add(networkAction2);
         NetworkActionCombination forcedCombination = new NetworkActionCombination(Set.of(networkAction1, networkAction2));
-        when(searchTreeParameters.getNetworkActionParameters().getForcedCombination()).thenReturn(Optional.of(forcedCombination));
+        when(searchTreeParameters.getNetworkActionParameters().getForcedCombinations()).thenReturn(List.of(forcedCombination));
         return forcedCombination;
     }
 
