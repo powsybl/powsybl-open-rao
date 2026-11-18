@@ -335,7 +335,7 @@ public class TimeCoupledCurativeSynchronization {
         List<Instant> instants = cracs.getDataPerTimestamp().values().iterator().next().getSortedInstants();
         raoResult.addExtension(
             CostResult.class,
-            Marmot.createCastorCostResultExtension(initialObjectiveFunctionResult, finalObjectiveFunctionResult, instants)
+            MarmotUtils.createCastorCostResultExtension(initialObjectiveFunctionResult, finalObjectiveFunctionResult, instants)
         );
         raoResult.addExtension(TimeCoupledCostResult.class, costResultBuilder.build());
         return raoResult;

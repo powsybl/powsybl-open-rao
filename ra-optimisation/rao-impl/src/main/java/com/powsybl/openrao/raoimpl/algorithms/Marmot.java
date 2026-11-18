@@ -496,7 +496,7 @@ class Marmot {
         raoResult.addExtension(PreTimeCouplingOverloadedCnecs.class, new PreTimeCouplingOverloadedCnecs(postTopoOverloadedCnecs));
         raoResult.addExtension(
             CostResult.class,
-            createCastorCostResultExtension(initialLinearOptimizationResult, globalLinearOptimizationResult, instants)
+            MarmotUtils.createCastorCostResultExtension(initialLinearOptimizationResult, globalLinearOptimizationResult, instants)
         );
         raoResult.addExtension(
             com.powsybl.openrao.data.raoresult.api.extension.FlowResult.class,
@@ -512,29 +512,6 @@ class Marmot {
         criticalCnecsResult.setCriticalCnecIds(allCriticalCnecs);
         raoResult.addExtension(CriticalCnecsResult.class, criticalCnecsResult);
         return raoResult;
-    }
-
-    static CostResult createCastorCostResultExtension(ObjectiveFunctionResult initialOptimizationResult,
-                                                              ObjectiveFunctionResult finalLinearOptimizationResult,
-                                                              List<Instant> instants) {
-        CostResult.CostResultBuilder costResultBuilder = CostResult.builder();
-        addCostsForInstant(costResultBuilder, initialOptimizationResult, null);
-        instants.stream()
-            .filter(instant -> !instant.isOutage())
-            .forEach(instant -> addCostsForInstant(costResultBuilder, finalLinearOptimizationResult, instant));
-        return costResultBuilder.build();
-    }
-
-    static void addCostsForInstant(CostResult.CostResultBuilder costResultBuilder,
-                                           ObjectiveFunctionResult objectiveFunctionResult,
-                                           Instant optimizedInstant) {
-        costResultBuilder.addFunctionalCostResult(optimizedInstant, objectiveFunctionResult.getFunctionalCost());
-        objectiveFunctionResult.getVirtualCostNames()
-            .forEach(virtualCostName -> costResultBuilder.addVirtualCostResult(
-                optimizedInstant,
-                virtualCostName,
-                objectiveFunctionResult.getVirtualCost(virtualCostName))
-            );
     }
 
     private static com.powsybl.openrao.data.raoresult.api.extension.FlowResult createFlowResultExtension(TemporalData<PrePerimeterResult> initialResults,

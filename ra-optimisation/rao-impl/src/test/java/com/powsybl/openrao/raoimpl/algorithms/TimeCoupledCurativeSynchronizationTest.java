@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.powsybl.openrao.searchtreerao.marmot;
+package com.powsybl.openrao.raoimpl.algorithms;
 
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
@@ -16,7 +16,8 @@ import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.CracFactory;
 import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.crac.api.State;
-import com.powsybl.openrao.data.raoresult.api.TimeCoupledRaoResult;
+import com.powsybl.openrao.data.raoresult.api.RaoResult;
+import com.powsybl.openrao.data.raoresult.api.extension.CostResult;
 import com.powsybl.openrao.data.timecoupledconstraints.TimeCoupledConstraints;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.TimeCoupledRaoInput;
@@ -28,6 +29,7 @@ import java.io.IOException;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.Map;
+import java.util.Set;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -50,7 +52,7 @@ class TimeCoupledCurativeSynchronizationTest {
         TimeCoupledRaoInput inputs = new TimeCoupledRaoInput(raoInputs, new TimeCoupledConstraints());
 
         OpenRaoException exception = assertThrows(OpenRaoException.class,
-            () -> new TimeCoupledCurativeSynchronization().run(null, null, new TemporalDataImpl<>(Map.of(timestamp, crac)), null, null, null, null, null, 1, null, null));
+            () -> new TimeCoupledCurativeSynchronization().run(null, null, new TemporalDataImpl<>(Map.of(timestamp, crac)), Set.of(timestamp), null, null, null, null, 1, null, null));
         assertEquals("Time-coupled curative synchronization does not support multiple curative instants.", exception.getMessage());
     }
 
@@ -94,7 +96,7 @@ class TimeCoupledCurativeSynchronizationTest {
             )
         );
         TimeCoupledRaoInput inputs = new TimeCoupledRaoInput(raoInputs, new TimeCoupledConstraints());
-        TimeCoupledRaoResult results = new Marmot().run(inputs, raoParameters, ReportNode.NO_OP).join();
+        RaoResult results = new Marmot().run(inputs, raoParameters, ReportNode.NO_OP).join();
 
         // the common pst is not activated at all.
         assertEquals(0, results.getOptimizedSetPointOnState(getCurativeState(crac1), crac1.getRangeAction("pstCurativeAction")));
@@ -106,7 +108,7 @@ class TimeCoupledCurativeSynchronizationTest {
         assertEquals(120.0, results.getOptimizedSetPointOnState(crac1.getPreventiveState(), crac1.getRangeAction("redispatchingAction")));
         assertEquals(120.0, results.getOptimizedSetPointOnState(crac2.getPreventiveState(), crac2.getRangeAction("redispatchingAction")));
         // global cost = 120 * 10 (variation cost) + 120 * 10 (variation cost) + 10 (activation cost) + 10 (activation cost)
-        assertEquals(2420.0, results.getGlobalCost(crac1.getLastInstant()));
+        assertEquals(2420.0, results.getExtension(CostResult.class).getCost(crac1.getLastInstant()));
     }
 
     /**
@@ -142,11 +144,11 @@ class TimeCoupledCurativeSynchronizationTest {
             )
         );
         TimeCoupledRaoInput inputs = new TimeCoupledRaoInput(raoInputs, new TimeCoupledConstraints());
-        TimeCoupledRaoResult results = new Marmot().run(inputs, raoParameters, ReportNode.NO_OP).join();
+        RaoResult results = new Marmot().run(inputs, raoParameters, ReportNode.NO_OP).join();
         assertEquals(3, results.getOptimizedTapOnState(getCurativeState(crac1), crac1.getPstRangeAction("pstCurativeAction")));
         assertEquals(3, results.getOptimizedTapOnState(getCurativeState(crac2), crac2.getPstRangeAction("pstCurativeAction")));
         // global cost = 10 * 125 + 10 * 25 + 10 + 10
-        assertEquals(1520.0, results.getGlobalCost(crac1.getLastInstant()));
+        assertEquals(1520.0, results.getExtension(CostResult.class).getCost(crac1.getLastInstant()));
     }
 
     private static State getCurativeState(Crac crac) {

@@ -237,6 +237,17 @@ public final class MarmotUtils {
         return costResultBuilder.build();
     }
 
+    public static CostResult createCastorCostResultExtension(ObjectiveFunctionResult initialOptimizationResult,
+                                                              ObjectiveFunctionResult finalLinearOptimizationResult,
+                                                              List<Instant> instants) {
+        CostResult.CostResultBuilder costResultBuilder = CostResult.builder();
+        addCostsForInstant(costResultBuilder, initialOptimizationResult, null);
+        instants.stream()
+            .filter(instant -> !instant.isOutage())
+            .forEach(instant -> addCostsForInstant(costResultBuilder, finalLinearOptimizationResult, instant));
+        return costResultBuilder.build();
+    }
+
     private static void addCostsForInstant(CostResult.CostResultBuilder costResultBuilder,
                                            ObjectiveFunctionResult objectiveFunctionResult,
                                            Instant instant) {
