@@ -174,5 +174,7 @@ public final class NcConstants {
 
     public static final String REQUEST_IS_FLOW_TO_REF_TERMINAL = "isFlowToRefTerminal";
     public static final String REQUEST_VOLTAGE_ANGLE_LIMIT = "voltageAngleLimit";
+    public static final String REQUEST_VOLTAGE_ANGLE_LIMIT_TERMINAL_1 = "terminal1";
+    public static final String REQUEST_VOLTAGE_ANGLE_LIMIT_TERMINAL_2 = "terminal2";
     public static final String SCENARIO_TIME = "scenarioTime";
 }

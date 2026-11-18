@@ -126,32 +126,6 @@ class CastorFullOptimizationTest {
     }
 
     @Test
-    void smallRaoWithGlobal2P() throws IOException {
-        // TODO: might be a duplicate of previous test since 2P is systematically global now
-        // Same RAO as before but activating Global 2P => results should be the same (there are no range actions)
-        setup("small-network-2P.uct", "small-crac-2P.json");
-        RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_2P_v2.json"), ReportNode.NO_OP);
-        OpenRaoSearchTreeParameters searchTreeParameters = raoParameters.getExtension(OpenRaoSearchTreeParameters.class);
-
-        // Activate global 2P
-        searchTreeParameters.getSecondPreventiveRaoParameters().setExecutionCondition(SecondPreventiveRaoParameters.ExecutionCondition.POSSIBLE_CURATIVE_IMPROVEMENT);
-
-        // Run RAO
-        RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null, ReportNode.NO_OP).run().join();
-
-        CostResult costResult = raoResult.getExtension(CostResult.class);
-        assertNotNull(costResult);
-
-        assertEquals(371.88, costResult.getFunctionalCost(null), 1.);
-        assertEquals(694.30, costResult.getFunctionalCost(crac.getPreventiveInstant()), 1.);
-        assertEquals(-555.91, costResult.getFunctionalCost(crac.getLastInstant()), 1.);
-
-        assertEquals(Set.of(crac.getNetworkAction("open_fr1_fr2")), raoResult.getActivatedNetworkActionsDuringState(crac.getPreventiveState()));
-        assertEquals(Set.of(crac.getNetworkAction("open_fr1_fr3")), raoResult.getActivatedNetworkActionsDuringState(crac.getState(crac.getContingency("co1_fr2_fr3_1"), crac.getLastInstant())));
-        checkExecutionDetails(raoResult, OptimizationStepsExecuted.SECOND_PREVENTIVE_IMPROVED_FIRST);
-    }
-
-    @Test
     void testOptimizationStepsExecutedAndLogsWhenFallbackOnFirstPrev() throws IOException {
         // Catch future logs
         Logger logger = (Logger) LoggerFactory.getLogger(RaoBusinessLogs.class);
