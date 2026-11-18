@@ -12,6 +12,7 @@ import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.commons.TemporalDataImpl;
 import com.powsybl.openrao.commons.logs.TechnicalLogs;
@@ -28,6 +29,7 @@ import com.powsybl.openrao.raoapi.LazyNetwork;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.TimeCoupledRaoInput;
 import com.powsybl.openrao.raoapi.json.JsonRaoParameters;
+import com.powsybl.openrao.raoapi.parameters.LoopFlowParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoimpl.commons.optimizationperimeters.OptimizationPerimeter;
 import com.powsybl.openrao.raoimpl.result.extension.PreTimeCouplingOverloadedCnecs;
@@ -48,12 +50,6 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
 class MarmotTest {
-    /*
-    TODO
-    For each test check the global MARMOT cost and the individual costs for each timestamp.
-    This cannot currently be done since all individual RAO results use the global cost as their cost.
-    The costs will be separated in a future PR and will have to be checked here.
-     */
 
     public static String getResourcesPath() {
         return "src/test/resources/";
@@ -648,6 +644,12 @@ class MarmotTest {
         TimeCoupledRaoInput timeCoupledRaoInput = new TimeCoupledRaoInput(inputPerTimestamp, timeCoupledConstraints);
         RaoResult timeCoupledRaoResult = new Marmot().run(timeCoupledRaoInput, raoParameters, ReportNode.NO_OP).join();
 
+        assertEquals(0.0, timeCoupledRaoResult.getExtension(CostResult.class).getFunctionalCost(crac00.getPreventiveInstant()));
+        TimeCoupledCostResult costResult = timeCoupledRaoResult.getExtension(TimeCoupledCostResult.class);
+        assertNotNull(costResult);
+        assertEquals(0.0, costResult.getFunctionalCost(crac00.getPreventiveInstant(), crac00.getTimestamp().orElseThrow()));
+        assertEquals(0.0, costResult.getFunctionalCost(crac01.getPreventiveInstant(), crac01.getTimestamp().orElseThrow()));
+
         listAppender.stop();
 
         // in independent RAOs, the PST is activated
@@ -661,6 +663,21 @@ class MarmotTest {
             "possibly due to time-coupled constraints that are incoherent/inconsistent " +
             "or that cannot be met. Rolling back to initial situation.")
         );
+    }
+
+    @Test
+    void mustThrowWhenLoopFlowParametersAreSet() throws IOException {
+        String networkFilePath = "/network/2Nodes2ParallelLinesPST_1000MW.uct";
+        Network network = Network.read(networkFilePath, MarmotTest.class.getResourceAsStream(networkFilePath));
+        Crac crac = Crac.read("/crac/crac-20250213.json", MarmotTest.class.getResourceAsStream("/crac/crac-20250213.json"), network);
+
+        TemporalData<RaoInput> raoInputs = new TemporalDataImpl<>(
+            Map.of(OffsetDateTime.of(2025, 2, 13, 11, 35, 0, 0, ZoneOffset.UTC), RaoInput.build(network, crac).build()));
+        TimeCoupledRaoInput input = new TimeCoupledRaoInput(raoInputs, new TimeCoupledConstraints());
+        RaoParameters raoParameters = JsonRaoParameters.read(MarmotTest.class.getResourceAsStream("/parameters/RaoParameters_dc_minObjective_discretePst.json"), ReportNode.NO_OP);
+        raoParameters.setLoopFlowParameters(new LoopFlowParameters());
+
+        assertThrows(OpenRaoException.class, () -> new Marmot().run(input, raoParameters, ReportNode.NO_OP).join());
     }
 
     private static void assertFunctionalCostAndRedispatchingSetPoint(Crac crac, RaoResult timeCoupledRaoResult, double expectedFunctionalCost, double expectedRdSetPoint) {
@@ -693,6 +710,7 @@ class MarmotTest {
         TimeCoupledRaoInput input = new TimeCoupledRaoInput(inputPerTimestamp, timeCoupledConstraints);
 
         RaoResult timeCoupledRaoResult = new Marmot().run(input, raoParameters, ReportNode.NO_OP).join();
+        assertEquals(80.0, timeCoupledRaoResult.getExtension(CostResult.class).getFunctionalCost(crac00.getPreventiveInstant()));
         TimeCoupledCostResult costResult = timeCoupledRaoResult.getExtension(TimeCoupledCostResult.class);
         assertNotNull(costResult);
 
