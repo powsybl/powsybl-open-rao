@@ -208,11 +208,7 @@ public class Leaf implements OptimizationResult {
         if (!isTimeCoupled) {
             return preOptimFlowResults.getData(preOptimFlowResults.getTimestamps().getFirst()).orElseThrow();
         }
-        throw new OpenRaoException("getPreOptimBranchResult cannot be used on a time-coupled leaf, use getAllPreOptimBranchResults instead.");
-    }
-
-    public TemporalData<FlowResult> getAllPreOptimBranchResults() {
-        return preOptimFlowResults;
+        throw new OpenRaoException("getPreOptimBranchResult cannot be used on a time-coupled leaf.");
     }
 
     public ObjectiveFunctionResult getPreOptimObjectiveFunctionResult() {
