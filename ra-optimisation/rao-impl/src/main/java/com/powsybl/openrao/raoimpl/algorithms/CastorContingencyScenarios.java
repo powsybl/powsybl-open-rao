@@ -9,11 +9,7 @@ package com.powsybl.openrao.raoimpl.algorithms;
 
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.commons.RandomizedString;
-import com.powsybl.openrao.commons.TemporalData;
-import com.powsybl.openrao.commons.TemporalDataImpl;
-import com.powsybl.openrao.commons.Unit;
+import com.powsybl.openrao.commons.*;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.RaUsageLimits;
@@ -25,6 +21,7 @@ import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
+import com.powsybl.openrao.raoimpl.algorithms.searchtree.algorithms.Leaf;
 import com.powsybl.openrao.raoimpl.algorithms.searchtree.algorithms.SearchTree;
 import com.powsybl.openrao.raoimpl.algorithms.searchtree.inputs.SearchTreeInput;
 import com.powsybl.openrao.raoimpl.algorithms.searchtree.parameters.SearchTreeParameters;
@@ -39,51 +36,9 @@ import com.powsybl.openrao.raoimpl.networkpool.AbstractNetworkPool;
 import com.powsybl.openrao.raoimpl.reports.CastorReports;
 import com.powsybl.openrao.raoimpl.result.api.*;
 import com.powsybl.openrao.raoimpl.result.impl.*;
-import com.powsybl.openrao.searchtreerao.commons.ToolProvider;
-import com.powsybl.openrao.searchtreerao.commons.objectivefunction.ObjectiveFunction;
-import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.AbstractOptimizationPerimeter;
-import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.CurativeOptimizationPerimeter;
-import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
-import com.powsybl.openrao.searchtreerao.commons.parameters.TreeParameters;
-import com.powsybl.openrao.searchtreerao.commons.parameters.UnoptimizedCnecParameters;
-import com.powsybl.openrao.searchtreerao.marmot.results.GlobalFlowResult;
-import com.powsybl.openrao.searchtreerao.marmot.results.GlobalSensitivityResult;
-import com.powsybl.openrao.searchtreerao.networkpool.AbstractNetworkPool;
-import com.powsybl.openrao.searchtreerao.reports.CastorReports;
-import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
-import com.powsybl.openrao.searchtreerao.result.api.NetworkActionsResult;
-import com.powsybl.openrao.searchtreerao.result.api.ObjectiveFunctionResult;
-import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
-import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
-import com.powsybl.openrao.searchtreerao.result.api.RangeActionActivationResult;
-import com.powsybl.openrao.searchtreerao.result.api.RangeActionSetpointResult;
-import com.powsybl.openrao.searchtreerao.result.api.RemedialActionActivationResult;
-import com.powsybl.openrao.searchtreerao.result.api.SensitivityResult;
-import com.powsybl.openrao.searchtreerao.result.impl.AutomatonPerimeterResultImpl;
-import com.powsybl.openrao.searchtreerao.result.impl.NetworkActionsResultImpl;
-import com.powsybl.openrao.searchtreerao.result.impl.OptimizationResultImpl;
-import com.powsybl.openrao.searchtreerao.result.impl.PostPerimeterResult;
-import com.powsybl.openrao.searchtreerao.result.impl.PrePerimeterSensitivityResultImpl;
-import com.powsybl.openrao.searchtreerao.result.impl.RangeActionActivationResultImpl;
-import com.powsybl.openrao.searchtreerao.result.impl.RangeActionSetpointResultImpl;
-import com.powsybl.openrao.searchtreerao.result.impl.RemedialActionActivationResultImpl;
-import com.powsybl.openrao.searchtreerao.result.impl.SkippedOptimizationResultImpl;
-import com.powsybl.openrao.searchtreerao.searchtree.algorithms.Leaf;
-import com.powsybl.openrao.searchtreerao.searchtree.algorithms.SearchTree;
-import com.powsybl.openrao.searchtreerao.searchtree.inputs.SearchTreeInput;
-import com.powsybl.openrao.searchtreerao.searchtree.parameters.SearchTreeParameters;
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
-import java.util.*;
-
 import java.time.OffsetDateTime;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ForkJoinTask;
@@ -157,23 +112,6 @@ public class CastorContingencyScenarios {
         this.toolProvider = null;
         this.stateTree = null;
         this.initialSensitivityOutput = null;
-    }
-
-    static boolean isStopCriterionChecked(ObjectiveFunctionResult result, TreeParameters treeParameters) {
-        if (result.getVirtualCost() > COST_EPSILON) {
-            return false;
-        }
-        if (result.getFunctionalCost() < -Double.MAX_VALUE / 2 && result.getVirtualCost() < COST_EPSILON) {
-            return true;
-        }
-
-        if (treeParameters.stopCriterion().equals(TreeParameters.StopCriterion.MIN_OBJECTIVE)) {
-            return false;
-        } else if (treeParameters.stopCriterion().equals(TreeParameters.StopCriterion.AT_TARGET_OBJECTIVE_VALUE)) {
-            return result.getCost() < treeParameters.targetObjectiveValue() + COST_EPSILON;
-        } else {
-            throw new OpenRaoException("Unexpected stop criterion: " + treeParameters.stopCriterion());
-        }
     }
 
     public Map<State, PostPerimeterResult> optimizeContingencyScenarios(final Network network,
@@ -467,7 +405,9 @@ public class CastorContingencyScenarios {
         return result;
     }
 
-    /** Optimizes every post-contingency scenario across all the timestamps at once. */
+    /**
+     * Optimizes every post-contingency scenario across all the timestamps at once.
+     */
     public TemporalData<Map<State, PostPerimeterResult>> optimizeContingencyScenarios(final TemporalData<Network> networks,
                                                                                       final TemporalData<PrePerimeterResult> prePerimeterSensitivityOutputs,
                                                                                       final boolean automatonsOnly,
@@ -568,7 +508,7 @@ public class CastorContingencyScenarios {
                 Optional<State> automatonState = optimizedScenario.getAutomatonState();
                 return !automatonsOnly && automatonState.isEmpty() && !optimizedScenario.getCurativePerimeters().isEmpty()
                     && prePerimeterSensitivityOutputs.getData(timestamp).orElseThrow()
-                        .getSensitivityStatus(optimizedScenario.getCurativePerimeters().getFirst().getRaOptimisationState()) == ComputationStatus.FAILURE
+                    .getSensitivityStatus(optimizedScenario.getCurativePerimeters().getFirst().getRaOptimisationState()) == ComputationStatus.FAILURE
                     || automatonState.isPresent() && autoStateSensiFailed.contains(timestamp);
             });
             if (anyTimestampSensiFailed) {

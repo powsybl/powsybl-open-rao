@@ -14,11 +14,11 @@ import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.raoimpl.algorithms.searchtree.inputs.SearchTreeInput;
-import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
 import com.powsybl.openrao.raoimpl.algorithms.searchtree.parameters.SearchTreeParameters;
-import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
 import com.powsybl.openrao.raoimpl.commons.NetworkActionCombination;
+import com.powsybl.openrao.raoimpl.commons.optimizationperimeters.OptimizationPerimeter;
 import com.powsybl.openrao.raoimpl.result.api.OptimizationResult;
+import com.powsybl.openrao.raoimpl.result.api.PrePerimeterResult;
 
 import java.util.ArrayList;
 import java.util.HashMap;

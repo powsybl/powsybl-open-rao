@@ -23,21 +23,6 @@ import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
-import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
-import com.powsybl.openrao.searchtreerao.commons.ToolProvider;
-import com.powsybl.openrao.searchtreerao.commons.objectivefunction.ObjectiveFunction;
-import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.PreventiveOptimizationPerimeter;
-import com.powsybl.openrao.searchtreerao.commons.parameters.TreeParameters;
-import com.powsybl.openrao.searchtreerao.commons.parameters.UnoptimizedCnecParameters;
-import com.powsybl.openrao.searchtreerao.reports.CastorReports;
-import com.powsybl.openrao.searchtreerao.reports.CommonReports;
-import com.powsybl.openrao.searchtreerao.reports.MostLimitingElementsReports;
-import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
-import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
-import com.powsybl.openrao.searchtreerao.result.impl.*;
-import com.powsybl.openrao.searchtreerao.searchtree.algorithms.SearchTree;
-import com.powsybl.openrao.searchtreerao.searchtree.inputs.SearchTreeInput;
-import com.powsybl.openrao.searchtreerao.searchtree.parameters.SearchTreeParameters;
 import com.powsybl.openrao.raoimpl.algorithms.searchtree.algorithms.SearchTree;
 import com.powsybl.openrao.raoimpl.algorithms.searchtree.inputs.SearchTreeInput;
 import com.powsybl.openrao.raoimpl.algorithms.searchtree.parameters.SearchTreeParameters;
@@ -85,7 +70,7 @@ class CastorFullOptimization {
     private final java.time.Instant targetEndInstant;
     private final ReportNode reportNode;
 
-    public CastorFullOptimization(final RaoInput raoInput, final RaoParameters raoParameters, final java.time.Instant targetEndInstant, final ReportNode reportNode) {
+    CastorFullOptimization(final RaoInput raoInput, final RaoParameters raoParameters, final java.time.Instant targetEndInstant, final ReportNode reportNode) {
         this.raoInput = raoInput;
         this.crac = raoInput.getCrac();
         this.network = raoInput.getNetwork();
@@ -167,11 +152,6 @@ class CastorFullOptimization {
                     flowUnit,
                     optimizationReportNode
                 );
-                CastorReports.reportIfMostLimitingElementIsFictional(preventivePerimeterOptimReportNode, context.getPreventiveResult());
-                RaoResult raoResult = new PreventiveAndCurativesRaoResultImpl(context.getStateTree(), context.getInitialOutput(),
-                    context.getPostPreventiveResult(), crac, raoParameters, preventivePerimeterOptimReportNode);
-                return postCheckResults(raoResult, context.getInitialOutput(), raoParameters.getObjectiveFunctionParameters(), true,
-                    optimizationReportNode, flowUnit, context.getStateTree().getOperatorsNotSharingCras());
             }
 
             // ----- CURATIVE PERIMETERS OPTIMIZATION -----
@@ -195,9 +175,6 @@ class CastorFullOptimization {
                     flowUnit,
                     optimizationReportNode
                 );
-                CastorReports.reportIfMostLimitingElementIsFictional(curativePerimeterOptimReportNode, context.getPreCurativeSensitivityAnalysisOutput());
-                return postCheckResults(mergedRaoResults, context.getInitialOutput(), raoParameters.getObjectiveFunctionParameters(), true,
-                    optimizationReportNode, flowUnit, context.getStateTree().getOperatorsNotSharingCras());
             }
 
             final ReportNode postContingencyPerimeterOptimReportNode = CastorReports.reportPostContingencyPerimeterOptimization(curativePerimeterOptimReportNode);
@@ -594,10 +571,10 @@ class CastorFullOptimization {
         return CompletableFuture.completedFuture(finalRaoResult);
     }
 
-    public OptimizationResult optimizePreventivePerimeter(final StateTree stateTree,
-                                                          final ToolProvider toolProvider,
-                                                          final PrePerimeterResult initialResult,
-                                                          final ReportNode preventivePerimeterOptimReportNode) {
+    private OptimizationResult optimizePreventivePerimeter(final StateTree stateTree,
+                                                           final ToolProvider toolProvider,
+                                                           final PrePerimeterResult initialResult,
+                                                           final ReportNode preventivePerimeterOptimReportNode) {
 
         PreventiveOptimizationPerimeter optPerimeter = PreventiveOptimizationPerimeter.buildFromBasecaseScenario(
             stateTree.getBasecaseScenario(),
