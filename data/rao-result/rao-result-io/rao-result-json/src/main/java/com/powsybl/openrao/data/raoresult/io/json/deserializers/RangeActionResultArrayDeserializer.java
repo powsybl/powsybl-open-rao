@@ -13,7 +13,6 @@ import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
-import com.powsybl.openrao.data.raoresult.impl.RangeActionResult;
 import com.powsybl.openrao.data.raoresult.impl.RaoResultImpl;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
@@ -47,7 +46,7 @@ final class RangeActionResultArrayDeserializer {
     private RangeActionResultArrayDeserializer() {
     }
 
-    static void deserialize(JsonParser jsonParser, RaoResultImpl raoResult, Crac crac, String jsonFileVersion) throws IOException {
+    static void deserialize(JsonParser jsonParser, RaoResultImpl.RaoResultImplBuilder raoResultBuilder, Crac crac, String jsonFileVersion) throws IOException {
         Pair<Integer, Integer> version = getVersion(jsonFileVersion);
 
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
@@ -81,7 +80,6 @@ final class RangeActionResultArrayDeserializer {
                 ));
             }
 
-            RangeActionResult rangeActionResult = raoResult.getAndCreateIfAbsentRangeActionResult(rangeAction);
             while (!jsonParser.nextToken().isStructEnd()) {
                 switch (jsonParser.currentName()) {
 
@@ -101,12 +99,12 @@ final class RangeActionResultArrayDeserializer {
                             throw new OpenRaoException("Since version 1.8, only the initial taps are reported for PST range actions.");
                         }
                         jsonParser.nextToken();
-                        rangeActionResult.setInitialSetpoint(jsonParser.getDoubleValue());
+                        LOGGER.info("Field {} in {} is now retrieved from the CRAC", INITIAL_SETPOINT, RANGEACTION_RESULTS);
                         break;
 
                     case STATES_ACTIVATED:
                         jsonParser.nextToken();
-                        deserializeResultsPerStates(jsonParser, rangeActionResult, crac, version, rangeAction);
+                        deserializeResultsPerStates(jsonParser, rangeAction, raoResultBuilder, crac, version);
                         break;
 
                     case AFTER_PRA_SETPOINT:
@@ -125,9 +123,9 @@ final class RangeActionResultArrayDeserializer {
                             LOGGER.info("Field {} in {} is no longer used", INITIAL_TAP, RANGEACTION_RESULTS);
                             jsonParser.nextTextValue();
                             break;
-                        } else if (rangeAction instanceof PstRangeAction pstRangeAction) {
+                        } else if (rangeAction instanceof PstRangeAction) {
                             jsonParser.nextToken();
-                            rangeActionResult.setInitialSetpoint(pstRangeAction.getTapToAngleConversionMap().get(jsonParser.getIntValue()));
+                            LOGGER.info("Field {} in {} is now retrieved from the CRAC", INITIAL_TAP, RANGEACTION_RESULTS);
                             break;
                         } else {
                             throw new OpenRaoException("Initial taps can only be defined for PST range actions.");
@@ -145,10 +143,10 @@ final class RangeActionResultArrayDeserializer {
     }
 
     private static void deserializeResultsPerStates(JsonParser jsonParser,
-                                                    RangeActionResult rangeActionResult,
+                                                    RangeAction<?> rangeAction,
+                                                    RaoResultImpl.RaoResultImplBuilder raoResultBuilder,
                                                     Crac crac,
-                                                    Pair<Integer, Integer> version,
-                                                    RangeAction<?> rangeAction) throws IOException {
+                                                    Pair<Integer, Integer> version) throws IOException {
         String instantId = null;
         String contingencyId = null;
         Double setpoint = null;
@@ -200,7 +198,7 @@ final class RangeActionResultArrayDeserializer {
             if (setpoint == null) {
                 throw new OpenRaoException(String.format("Cannot deserialize RaoResult: setpoint is required in %s", RANGEACTION_RESULTS));
             }
-            rangeActionResult.addActivationForState(StateDeserializer.getState(instantId, contingencyId, crac, RANGEACTION_RESULTS), setpoint);
+            raoResultBuilder.addRangeActionActivation(rangeAction, StateDeserializer.getState(instantId, contingencyId, crac, RANGEACTION_RESULTS), setpoint);
         }
     }
 

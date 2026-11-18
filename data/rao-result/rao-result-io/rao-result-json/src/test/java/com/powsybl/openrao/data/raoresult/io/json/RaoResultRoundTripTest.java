@@ -10,6 +10,7 @@ package com.powsybl.openrao.data.raoresult.io.json;
 import com.powsybl.contingency.ContingencyElementType;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.CracFactory;
@@ -26,6 +27,11 @@ import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.impl.utils.ExhaustiveCracCreation;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
+import com.powsybl.openrao.data.raoresult.api.extension.AngleResult;
+import com.powsybl.openrao.data.raoresult.api.extension.CostResult;
+import com.powsybl.openrao.data.raoresult.api.extension.FlowResult;
+import com.powsybl.openrao.data.raoresult.api.extension.Metadata;
+import com.powsybl.openrao.data.raoresult.api.extension.VoltageResult;
 import com.powsybl.openrao.data.raoresult.impl.RaoResultImpl;
 import com.powsybl.openrao.data.raoresult.impl.utils.ExhaustiveRaoResultCreation;
 import org.junit.jupiter.api.Test;
@@ -45,6 +51,7 @@ import static com.powsybl.openrao.commons.Unit.KILOVOLT;
 import static com.powsybl.openrao.commons.Unit.MEGAWATT;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -111,43 +118,63 @@ class RaoResultRoundTripTest {
         Instant curativeInstant = crac.getInstant(CURATIVE_INSTANT_ID);
 
         // --------------------------
+        // --- Security status ---
+        // --------------------------
+
+        assertTrue(raoResult.isSecure(PhysicalParameter.FLOW));
+        assertFalse(raoResult.isSecure(PhysicalParameter.ANGLE));
+        assertTrue(raoResult.isSecure(PhysicalParameter.VOLTAGE));
+
+        assertTrue(raoResult.isSecure(PhysicalParameter.FLOW, PhysicalParameter.VOLTAGE));
+        assertFalse(raoResult.isSecure(PhysicalParameter.FLOW, PhysicalParameter.ANGLE));
+        assertFalse(raoResult.isSecure(PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE));
+
+        assertFalse(raoResult.isSecure(PhysicalParameter.FLOW, PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE));
+
+        // --------------------------
         // --- Computation status ---
         // --------------------------
-        assertEquals(ComputationStatus.DEFAULT, raoResult.getComputationStatus());
-        assertEquals(ComputationStatus.DEFAULT, raoResult.getComputationStatus(crac.getPreventiveState()));
-        assertEquals(ComputationStatus.DEFAULT, raoResult.getComputationStatus(crac.getState("contingency1Id", outageInstant)));
-        assertEquals(ComputationStatus.DEFAULT, raoResult.getComputationStatus(crac.getState("contingency1Id", curativeInstant)));
-        assertEquals(ComputationStatus.DEFAULT, raoResult.getComputationStatus(crac.getState("contingency2Id", autoInstant)));
-        assertEquals(ComputationStatus.DEFAULT, raoResult.getComputationStatus(crac.getState("contingency2Id", curativeInstant)));
+        Metadata metadata = raoResult.getExtension(Metadata.class);
+        assertNotNull(metadata);
+        assertEquals(ComputationStatus.DEFAULT, metadata.getComputationStatus());
+        assertEquals(ComputationStatus.DEFAULT, metadata.getComputationStatus(crac.getPreventiveState()));
+        assertEquals(ComputationStatus.DEFAULT, metadata.getComputationStatus(crac.getState("contingency1Id", outageInstant)));
+        assertEquals(ComputationStatus.DEFAULT, metadata.getComputationStatus(crac.getState("contingency1Id", curativeInstant)));
+        assertEquals(ComputationStatus.DEFAULT, metadata.getComputationStatus(crac.getState("contingency2Id", autoInstant)));
+        assertEquals(ComputationStatus.DEFAULT, metadata.getComputationStatus(crac.getState("contingency2Id", curativeInstant)));
 
         // --------------------------
         // --- test Costs results ---
         // --------------------------
-        assertEquals(Set.of("loopFlow", "MNEC"), raoResult.getVirtualCostNames());
 
-        assertEquals(100., raoResult.getFunctionalCost(null), DOUBLE_TOLERANCE);
-        assertEquals(0., raoResult.getVirtualCost(null, "loopFlow"), DOUBLE_TOLERANCE);
-        assertEquals(0., raoResult.getVirtualCost(null, "MNEC"), DOUBLE_TOLERANCE);
-        assertEquals(0., raoResult.getVirtualCost(null), DOUBLE_TOLERANCE);
-        assertEquals(100., raoResult.getCost(null), DOUBLE_TOLERANCE);
+        CostResult costResult = raoResult.getExtension(CostResult.class);
+        assertNotNull(costResult);
 
-        assertEquals(80., raoResult.getFunctionalCost(preventiveInstant), DOUBLE_TOLERANCE);
-        assertEquals(0., raoResult.getVirtualCost(preventiveInstant, "loopFlow"), DOUBLE_TOLERANCE);
-        assertEquals(0., raoResult.getVirtualCost(preventiveInstant, "MNEC"), DOUBLE_TOLERANCE);
-        assertEquals(0., raoResult.getVirtualCost(preventiveInstant), DOUBLE_TOLERANCE);
-        assertEquals(80., raoResult.getCost(preventiveInstant), DOUBLE_TOLERANCE);
+        assertEquals(Set.of("loopFlow", "MNEC"), costResult.getVirtualCostNames());
 
-        assertEquals(-20., raoResult.getFunctionalCost(autoInstant), DOUBLE_TOLERANCE);
-        assertEquals(15., raoResult.getVirtualCost(autoInstant, "loopFlow"), DOUBLE_TOLERANCE);
-        assertEquals(20., raoResult.getVirtualCost(autoInstant, "MNEC"), DOUBLE_TOLERANCE);
-        assertEquals(35., raoResult.getVirtualCost(autoInstant), DOUBLE_TOLERANCE);
-        assertEquals(15., raoResult.getCost(autoInstant), DOUBLE_TOLERANCE);
+        assertEquals(100., costResult.getFunctionalCost(null), DOUBLE_TOLERANCE);
+        assertEquals(0., costResult.getVirtualCost(null, "loopFlow"), DOUBLE_TOLERANCE);
+        assertEquals(0., costResult.getVirtualCost(null, "MNEC"), DOUBLE_TOLERANCE);
+        assertEquals(0., costResult.getVirtualCost(null), DOUBLE_TOLERANCE);
+        assertEquals(100., costResult.getCost(null), DOUBLE_TOLERANCE);
 
-        assertEquals(-50., raoResult.getFunctionalCost(curativeInstant), DOUBLE_TOLERANCE);
-        assertEquals(10., raoResult.getVirtualCost(curativeInstant, "loopFlow"), DOUBLE_TOLERANCE);
-        assertEquals(2., raoResult.getVirtualCost(curativeInstant, "MNEC"), DOUBLE_TOLERANCE);
-        assertEquals(12., raoResult.getVirtualCost(curativeInstant), DOUBLE_TOLERANCE);
-        assertEquals(-38, raoResult.getCost(curativeInstant), DOUBLE_TOLERANCE);
+        assertEquals(80., costResult.getFunctionalCost(preventiveInstant), DOUBLE_TOLERANCE);
+        assertEquals(0., costResult.getVirtualCost(preventiveInstant, "loopFlow"), DOUBLE_TOLERANCE);
+        assertEquals(0., costResult.getVirtualCost(preventiveInstant, "MNEC"), DOUBLE_TOLERANCE);
+        assertEquals(0., costResult.getVirtualCost(preventiveInstant), DOUBLE_TOLERANCE);
+        assertEquals(80., costResult.getCost(preventiveInstant), DOUBLE_TOLERANCE);
+
+        assertEquals(-20., costResult.getFunctionalCost(autoInstant), DOUBLE_TOLERANCE);
+        assertEquals(15., costResult.getVirtualCost(autoInstant, "loopFlow"), DOUBLE_TOLERANCE);
+        assertEquals(20., costResult.getVirtualCost(autoInstant, "MNEC"), DOUBLE_TOLERANCE);
+        assertEquals(35., costResult.getVirtualCost(autoInstant), DOUBLE_TOLERANCE);
+        assertEquals(15., costResult.getCost(autoInstant), DOUBLE_TOLERANCE);
+
+        assertEquals(-50., costResult.getFunctionalCost(curativeInstant), DOUBLE_TOLERANCE);
+        assertEquals(10., costResult.getVirtualCost(curativeInstant, "loopFlow"), DOUBLE_TOLERANCE);
+        assertEquals(2., costResult.getVirtualCost(curativeInstant, "MNEC"), DOUBLE_TOLERANCE);
+        assertEquals(12., costResult.getVirtualCost(curativeInstant), DOUBLE_TOLERANCE);
+        assertEquals(-38, costResult.getCost(curativeInstant), DOUBLE_TOLERANCE);
 
         // -----------------------------
         // --- test FlowCnec results ---
@@ -280,51 +307,60 @@ class RaoResultRoundTripTest {
         /*
         AngleCnec, angleCnecId is defined on curative instant, we should only serialize curative instant result.
         */
+        AngleResult angleResult = raoResult.getExtension(AngleResult.class);
+        assertNotNull(angleResult);
+
         AngleCnec angleCnec = crac.getAngleCnec("angleCnecId");
-        assertEquals(3435., raoResult.getAngle(curativeInstant, angleCnec, DEGREE), DOUBLE_TOLERANCE);
-        assertEquals(3431., raoResult.getMargin(curativeInstant, angleCnec, DEGREE), DOUBLE_TOLERANCE);
+        assertEquals(3435., angleResult.getAngle(curativeInstant, angleCnec, DEGREE), DOUBLE_TOLERANCE);
+        assertEquals(-3345., angleResult.getMargin(curativeInstant, angleCnec, DEGREE), DOUBLE_TOLERANCE);
 
         /*
         VoltageCnec, voltageCnecId is defined on curative instant, we should only serialize curative instant result.
         */
+        VoltageResult voltageResult = raoResult.getExtension(VoltageResult.class);
+        assertNotNull(voltageResult);
+
         VoltageCnec voltageCnec = crac.getVoltageCnec("voltageCnecId");
-        assertEquals(4446., raoResult.getMinVoltage(curativeInstant, voltageCnec, KILOVOLT), DOUBLE_TOLERANCE);
-        assertEquals(4456., raoResult.getMaxVoltage(curativeInstant, voltageCnec, KILOVOLT), DOUBLE_TOLERANCE);
-        assertEquals(4441., raoResult.getMargin(curativeInstant, voltageCnec, KILOVOLT), DOUBLE_TOLERANCE);
+        assertEquals(4446., voltageResult.getMinVoltage(curativeInstant, voltageCnec, KILOVOLT), DOUBLE_TOLERANCE);
+        assertEquals(4456., voltageResult.getMaxVoltage(curativeInstant, voltageCnec, KILOVOLT), DOUBLE_TOLERANCE);
+        assertEquals(4065., voltageResult.getMargin(curativeInstant, voltageCnec, KILOVOLT), DOUBLE_TOLERANCE);
     }
 
     private static void testFlowCnecResults(RaoResult raoResult, Crac crac, Instant preventiveInstant, Instant autoInstant, Instant curativeInstant) {
+        FlowResult flowResult = raoResult.getExtension(FlowResult.class);
+        assertNotNull(flowResult);
+
         /*
         cnec4prevId: preventive, no loop-flows, optimized
         - contains result in null and in PREVENTIVE. Results in AUTO and CURATIVE are the same as PREVENTIVE because the CNEC is preventive
         - contains result relative margin and PTDF sum but not for loop and commercial flows
          */
         FlowCnec cnecP = crac.getFlowCnec("cnec4prevId");
-        assertEquals(4110., raoResult.getFlow(null, cnecP, TwoSides.ONE, MEGAWATT), DOUBLE_TOLERANCE);
-        assertTrue(Double.isNaN(raoResult.getFlow(null, cnecP, TwoSides.TWO, MEGAWATT)));
-        assertEquals(4111., raoResult.getMargin(null, cnecP, MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(4112., raoResult.getRelativeMargin(null, cnecP, MEGAWATT), DOUBLE_TOLERANCE);
-        assertTrue(Double.isNaN(raoResult.getLoopFlow(null, cnecP, TwoSides.ONE, MEGAWATT)));
-        assertTrue(Double.isNaN(raoResult.getLoopFlow(null, cnecP, TwoSides.TWO, MEGAWATT)));
-        assertTrue(Double.isNaN(raoResult.getCommercialFlow(null, cnecP, TwoSides.ONE, MEGAWATT)));
-        assertTrue(Double.isNaN(raoResult.getCommercialFlow(null, cnecP, TwoSides.TWO, MEGAWATT)));
+        assertEquals(4110., flowResult.getFlow(null, cnecP, TwoSides.ONE, MEGAWATT), DOUBLE_TOLERANCE);
+        assertTrue(Double.isNaN(flowResult.getFlow(null, cnecP, TwoSides.TWO, MEGAWATT)));
+        assertEquals(-3610.0, flowResult.getMargin(null, cnecP, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(-3610.0, flowResult.getRelativeMargin(null, cnecP, MEGAWATT), DOUBLE_TOLERANCE);
+        assertTrue(Double.isNaN(flowResult.getLoopFlow(null, cnecP, TwoSides.ONE, MEGAWATT)));
+        assertTrue(Double.isNaN(flowResult.getLoopFlow(null, cnecP, TwoSides.TWO, MEGAWATT)));
+        assertTrue(Double.isNaN(flowResult.getCommercialFlow(null, cnecP, TwoSides.ONE, MEGAWATT)));
+        assertTrue(Double.isNaN(flowResult.getCommercialFlow(null, cnecP, TwoSides.TWO, MEGAWATT)));
 
-        assertEquals(4220., raoResult.getFlow(preventiveInstant, cnecP, TwoSides.ONE, AMPERE), DOUBLE_TOLERANCE);
-        assertTrue(Double.isNaN(raoResult.getFlow(preventiveInstant, cnecP, TwoSides.TWO, AMPERE)));
-        assertEquals(4221., raoResult.getMargin(preventiveInstant, cnecP, AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(4222., raoResult.getRelativeMargin(preventiveInstant, cnecP, AMPERE), DOUBLE_TOLERANCE);
-        assertTrue(Double.isNaN(raoResult.getLoopFlow(null, cnecP, TwoSides.ONE, MEGAWATT)));
-        assertTrue(Double.isNaN(raoResult.getLoopFlow(null, cnecP, TwoSides.TWO, MEGAWATT)));
-        assertTrue(Double.isNaN(raoResult.getCommercialFlow(null, cnecP, TwoSides.ONE, MEGAWATT)));
-        assertTrue(Double.isNaN(raoResult.getCommercialFlow(null, cnecP, TwoSides.TWO, MEGAWATT)));
+        assertEquals(4220., flowResult.getFlow(preventiveInstant, cnecP, TwoSides.ONE, AMPERE), DOUBLE_TOLERANCE);
+        assertTrue(Double.isNaN(flowResult.getFlow(preventiveInstant, cnecP, TwoSides.TWO, AMPERE)));
+        assertTrue(Double.isNaN(flowResult.getRelativeMargin(preventiveInstant, cnecP, AMPERE)));
+        assertTrue(Double.isNaN(flowResult.getMargin(preventiveInstant, cnecP, AMPERE)));
+        assertTrue(Double.isNaN(flowResult.getLoopFlow(null, cnecP, TwoSides.ONE, MEGAWATT)));
+        assertTrue(Double.isNaN(flowResult.getLoopFlow(null, cnecP, TwoSides.TWO, MEGAWATT)));
+        assertTrue(Double.isNaN(flowResult.getCommercialFlow(null, cnecP, TwoSides.ONE, MEGAWATT)));
+        assertTrue(Double.isNaN(flowResult.getCommercialFlow(null, cnecP, TwoSides.TWO, MEGAWATT)));
 
-        assertEquals(0.4, raoResult.getPtdfZonalSum(preventiveInstant, cnecP, TwoSides.ONE), DOUBLE_TOLERANCE);
-        assertTrue(Double.isNaN(raoResult.getPtdfZonalSum(preventiveInstant, cnecP, TwoSides.TWO)));
+        assertEquals(0.4, flowResult.getPtdfZonalSum(preventiveInstant, cnecP, TwoSides.ONE), DOUBLE_TOLERANCE);
+        assertTrue(Double.isNaN(flowResult.getPtdfZonalSum(preventiveInstant, cnecP, TwoSides.TWO)));
 
-        assertEquals(raoResult.getFlow(autoInstant, cnecP, ONE, AMPERE), raoResult.getFlow(preventiveInstant, cnecP, ONE, AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(raoResult.getFlow(autoInstant, cnecP, TWO, AMPERE), raoResult.getFlow(preventiveInstant, cnecP, TWO, AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(raoResult.getFlow(curativeInstant, cnecP, ONE, AMPERE), raoResult.getFlow(preventiveInstant, cnecP, ONE, AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(raoResult.getFlow(curativeInstant, cnecP, TWO, AMPERE), raoResult.getFlow(preventiveInstant, cnecP, TWO, AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(flowResult.getFlow(autoInstant, cnecP, ONE, AMPERE), flowResult.getFlow(preventiveInstant, cnecP, ONE, AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(flowResult.getFlow(autoInstant, cnecP, TWO, AMPERE), flowResult.getFlow(preventiveInstant, cnecP, TWO, AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(flowResult.getFlow(curativeInstant, cnecP, ONE, AMPERE), flowResult.getFlow(preventiveInstant, cnecP, ONE, AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(flowResult.getFlow(curativeInstant, cnecP, TWO, AMPERE), flowResult.getFlow(preventiveInstant, cnecP, TWO, AMPERE), DOUBLE_TOLERANCE);
 
         /*
         cnec1outageId: outage, with loop-flows, optimized
@@ -333,31 +369,31 @@ class RaoResultRoundTripTest {
          */
 
         FlowCnec cnecO = crac.getFlowCnec("cnec1outageId");
-        assertTrue(Double.isNaN(raoResult.getFlow(null, cnecO, TwoSides.ONE, AMPERE)));
-        assertEquals(1120.5, raoResult.getFlow(null, cnecO, TwoSides.TWO, AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(1121., raoResult.getMargin(null, cnecO, AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(1122., raoResult.getRelativeMargin(null, cnecO, AMPERE), DOUBLE_TOLERANCE);
-        assertTrue(Double.isNaN(raoResult.getLoopFlow(null, cnecO, TwoSides.ONE, AMPERE)));
-        assertEquals(1123.5, raoResult.getLoopFlow(null, cnecO, TwoSides.TWO, AMPERE), DOUBLE_TOLERANCE);
-        assertTrue(Double.isNaN(raoResult.getCommercialFlow(null, cnecO, TwoSides.ONE, AMPERE)));
-        assertEquals(1124.5, raoResult.getCommercialFlow(null, cnecO, TwoSides.TWO, AMPERE), DOUBLE_TOLERANCE);
+        assertTrue(Double.isNaN(flowResult.getFlow(null, cnecO, TwoSides.ONE, AMPERE)));
+        assertEquals(1120.5, flowResult.getFlow(null, cnecO, TwoSides.TWO, AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(1920.5, flowResult.getMargin(null, cnecO, AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(3200.833333, flowResult.getRelativeMargin(null, cnecO, AMPERE), DOUBLE_TOLERANCE);
+        assertTrue(Double.isNaN(flowResult.getLoopFlow(null, cnecO, TwoSides.ONE, AMPERE)));
+        assertEquals(-4.0, flowResult.getLoopFlow(null, cnecO, TwoSides.TWO, AMPERE), DOUBLE_TOLERANCE);
+        assertTrue(Double.isNaN(flowResult.getCommercialFlow(null, cnecO, TwoSides.ONE, AMPERE)));
+        assertEquals(1124.5, flowResult.getCommercialFlow(null, cnecO, TwoSides.TWO, AMPERE), DOUBLE_TOLERANCE);
 
-        assertTrue(Double.isNaN(raoResult.getFlow(preventiveInstant, cnecO, TwoSides.ONE, MEGAWATT)));
-        assertEquals(1210.5, raoResult.getFlow(preventiveInstant, cnecO, TwoSides.TWO, MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(1211., raoResult.getMargin(preventiveInstant, cnecO, MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(1212., raoResult.getRelativeMargin(preventiveInstant, cnecO, MEGAWATT), DOUBLE_TOLERANCE);
-        assertTrue(Double.isNaN(raoResult.getLoopFlow(preventiveInstant, cnecO, TwoSides.ONE, MEGAWATT)));
-        assertEquals(1213.5, raoResult.getLoopFlow(preventiveInstant, cnecO, TwoSides.TWO, MEGAWATT), DOUBLE_TOLERANCE);
-        assertTrue(Double.isNaN(raoResult.getCommercialFlow(preventiveInstant, cnecO, TwoSides.ONE, MEGAWATT)));
-        assertEquals(1214.5, raoResult.getCommercialFlow(preventiveInstant, cnecO, TwoSides.TWO, MEGAWATT), DOUBLE_TOLERANCE);
+        assertTrue(Double.isNaN(flowResult.getFlow(preventiveInstant, cnecO, TwoSides.ONE, MEGAWATT)));
+        assertEquals(1210.5, flowResult.getFlow(preventiveInstant, cnecO, TwoSides.TWO, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(1515.340942, flowResult.getMargin(preventiveInstant, cnecO, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(2525.568237, flowResult.getRelativeMargin(preventiveInstant, cnecO, MEGAWATT), DOUBLE_TOLERANCE);
+        assertTrue(Double.isNaN(flowResult.getLoopFlow(preventiveInstant, cnecO, TwoSides.ONE, MEGAWATT)));
+        assertEquals(-4.0, flowResult.getLoopFlow(preventiveInstant, cnecO, TwoSides.TWO, MEGAWATT), DOUBLE_TOLERANCE);
+        assertTrue(Double.isNaN(flowResult.getCommercialFlow(preventiveInstant, cnecO, TwoSides.ONE, MEGAWATT)));
+        assertEquals(1214.5, flowResult.getCommercialFlow(preventiveInstant, cnecO, TwoSides.TWO, MEGAWATT), DOUBLE_TOLERANCE);
 
-        assertTrue(Double.isNaN(raoResult.getPtdfZonalSum(preventiveInstant, cnecO, TwoSides.ONE)));
-        assertEquals(0.6, raoResult.getPtdfZonalSum(preventiveInstant, cnecO, TwoSides.TWO), DOUBLE_TOLERANCE);
+        assertTrue(Double.isNaN(flowResult.getPtdfZonalSum(preventiveInstant, cnecO, TwoSides.ONE)));
+        assertEquals(0.6, flowResult.getPtdfZonalSum(preventiveInstant, cnecO, TwoSides.TWO), DOUBLE_TOLERANCE);
 
-        assertTrue(Double.isNaN(raoResult.getFlow(autoInstant, cnecO, TwoSides.ONE, MEGAWATT)));
-        assertEquals(raoResult.getFlow(autoInstant, cnecO, TWO, MEGAWATT), raoResult.getFlow(preventiveInstant, cnecO, TWO, MEGAWATT), DOUBLE_TOLERANCE);
-        assertTrue(Double.isNaN(raoResult.getFlow(curativeInstant, cnecO, TwoSides.ONE, MEGAWATT)));
-        assertEquals(raoResult.getFlow(curativeInstant, cnecO, TWO, MEGAWATT), raoResult.getFlow(preventiveInstant, cnecO, TWO, MEGAWATT), DOUBLE_TOLERANCE);
+        assertTrue(Double.isNaN(flowResult.getFlow(autoInstant, cnecO, TwoSides.ONE, MEGAWATT)));
+        assertEquals(flowResult.getFlow(autoInstant, cnecO, TWO, MEGAWATT), flowResult.getFlow(preventiveInstant, cnecO, TWO, MEGAWATT), DOUBLE_TOLERANCE);
+        assertTrue(Double.isNaN(flowResult.getFlow(curativeInstant, cnecO, TwoSides.ONE, MEGAWATT)));
+        assertEquals(flowResult.getFlow(curativeInstant, cnecO, TWO, MEGAWATT), flowResult.getFlow(preventiveInstant, cnecO, TWO, MEGAWATT), DOUBLE_TOLERANCE);
 
         /*
         cnec3autoId: auto, without loop-flows, pureMNEC
@@ -366,57 +402,57 @@ class RaoResultRoundTripTest {
          */
 
         FlowCnec cnecA = crac.getFlowCnec("cnec3autoId");
-        assertEquals(3110., raoResult.getFlow(null, cnecA, TwoSides.ONE, MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(3110.5, raoResult.getFlow(null, cnecA, TwoSides.TWO, MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(3111., raoResult.getMargin(null, cnecA, MEGAWATT), DOUBLE_TOLERANCE);
-        assertTrue(Double.isNaN(raoResult.getRelativeMargin(null, cnecA, MEGAWATT)));
-        assertTrue(Double.isNaN(raoResult.getLoopFlow(null, cnecA, TwoSides.ONE, MEGAWATT)));
-        assertTrue(Double.isNaN(raoResult.getLoopFlow(null, cnecA, TwoSides.TWO, MEGAWATT)));
-        assertTrue(Double.isNaN(raoResult.getCommercialFlow(null, cnecA, TwoSides.ONE, MEGAWATT)));
-        assertTrue(Double.isNaN(raoResult.getCommercialFlow(null, cnecA, TwoSides.TWO, MEGAWATT)));
-        assertTrue(Double.isNaN(raoResult.getPtdfZonalSum(null, cnecA, TwoSides.ONE)));
-        assertTrue(Double.isNaN(raoResult.getPtdfZonalSum(null, cnecA, TwoSides.TWO)));
+        assertEquals(3110., flowResult.getFlow(null, cnecA, TwoSides.ONE, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(3110.5, flowResult.getFlow(null, cnecA, TwoSides.TWO, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(-2630.5, flowResult.getMargin(null, cnecA, MEGAWATT), DOUBLE_TOLERANCE);
+        assertTrue(Double.isNaN(flowResult.getRelativeMargin(null, cnecA, MEGAWATT)));
+        assertTrue(Double.isNaN(flowResult.getLoopFlow(null, cnecA, TwoSides.ONE, MEGAWATT)));
+        assertTrue(Double.isNaN(flowResult.getLoopFlow(null, cnecA, TwoSides.TWO, MEGAWATT)));
+        assertTrue(Double.isNaN(flowResult.getCommercialFlow(null, cnecA, TwoSides.ONE, MEGAWATT)));
+        assertTrue(Double.isNaN(flowResult.getCommercialFlow(null, cnecA, TwoSides.TWO, MEGAWATT)));
+        assertTrue(Double.isNaN(flowResult.getPtdfZonalSum(null, cnecA, TwoSides.ONE)));
+        assertTrue(Double.isNaN(flowResult.getPtdfZonalSum(null, cnecA, TwoSides.TWO)));
 
-        assertEquals(3220., raoResult.getFlow(preventiveInstant, cnecA, TwoSides.ONE, AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(3220.5, raoResult.getFlow(preventiveInstant, cnecA, TwoSides.TWO, AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(3221., raoResult.getMargin(preventiveInstant, cnecA, AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(3220., flowResult.getFlow(preventiveInstant, cnecA, TwoSides.ONE, AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(3220.5, flowResult.getFlow(preventiveInstant, cnecA, TwoSides.TWO, AMPERE), DOUBLE_TOLERANCE);
+        assertTrue(Double.isNaN(flowResult.getMargin(preventiveInstant, cnecA, AMPERE)));
 
-        assertEquals(3310., raoResult.getFlow(autoInstant, cnecA, TwoSides.ONE, MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(3310.5, raoResult.getFlow(autoInstant, cnecA, TwoSides.TWO, MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(3311., raoResult.getMargin(autoInstant, cnecA, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(3310., flowResult.getFlow(autoInstant, cnecA, TwoSides.ONE, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(3310.5, flowResult.getFlow(autoInstant, cnecA, TwoSides.TWO, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(-2830.5, flowResult.getMargin(autoInstant, cnecA, MEGAWATT), DOUBLE_TOLERANCE);
 
-        assertEquals(raoResult.getFlow(curativeInstant, cnecA, ONE, MEGAWATT), raoResult.getFlow(autoInstant, cnecA, ONE, MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(raoResult.getFlow(curativeInstant, cnecA, TWO, MEGAWATT), raoResult.getFlow(autoInstant, cnecA, TWO, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(flowResult.getFlow(curativeInstant, cnecA, ONE, MEGAWATT), flowResult.getFlow(autoInstant, cnecA, ONE, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(flowResult.getFlow(curativeInstant, cnecA, TWO, MEGAWATT), flowResult.getFlow(autoInstant, cnecA, TWO, MEGAWATT), DOUBLE_TOLERANCE);
 
         /*
-        cnec3curId: curative, without loop-flows, pureMNEC
+        cnec3curId: curative, without loop-flows, pure MNEC
         - contains result in null, PREVENTIVE, and AUTO and in CURATIVE
         - do not contain results for loop-flows, or relative margin
         */
 
         FlowCnec cnecC = crac.getFlowCnec("cnec3curId");
-        assertEquals(3110., raoResult.getFlow(null, cnecC, TwoSides.ONE, MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(3110.5, raoResult.getFlow(null, cnecC, TwoSides.TWO, MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(3111., raoResult.getMargin(null, cnecC, MEGAWATT), DOUBLE_TOLERANCE);
-        assertTrue(Double.isNaN(raoResult.getRelativeMargin(null, cnecC, MEGAWATT)));
-        assertTrue(Double.isNaN(raoResult.getLoopFlow(null, cnecC, TwoSides.ONE, MEGAWATT)));
-        assertTrue(Double.isNaN(raoResult.getLoopFlow(null, cnecC, TwoSides.TWO, MEGAWATT)));
-        assertTrue(Double.isNaN(raoResult.getCommercialFlow(null, cnecC, TwoSides.ONE, MEGAWATT)));
-        assertTrue(Double.isNaN(raoResult.getCommercialFlow(null, cnecC, TwoSides.TWO, MEGAWATT)));
-        assertTrue(Double.isNaN(raoResult.getPtdfZonalSum(null, cnecC, TwoSides.ONE)));
-        assertTrue(Double.isNaN(raoResult.getPtdfZonalSum(null, cnecC, TwoSides.TWO)));
+        assertEquals(3110., flowResult.getFlow(null, cnecC, TwoSides.ONE, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(3110.5, flowResult.getFlow(null, cnecC, TwoSides.TWO, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(-2630.5, flowResult.getMargin(null, cnecC, MEGAWATT), DOUBLE_TOLERANCE);
+        assertTrue(Double.isNaN(flowResult.getRelativeMargin(null, cnecC, MEGAWATT)));
+        assertTrue(Double.isNaN(flowResult.getLoopFlow(null, cnecC, TwoSides.ONE, MEGAWATT)));
+        assertTrue(Double.isNaN(flowResult.getLoopFlow(null, cnecC, TwoSides.TWO, MEGAWATT)));
+        assertTrue(Double.isNaN(flowResult.getCommercialFlow(null, cnecC, TwoSides.ONE, MEGAWATT)));
+        assertTrue(Double.isNaN(flowResult.getCommercialFlow(null, cnecC, TwoSides.TWO, MEGAWATT)));
+        assertTrue(Double.isNaN(flowResult.getPtdfZonalSum(null, cnecC, TwoSides.ONE)));
+        assertTrue(Double.isNaN(flowResult.getPtdfZonalSum(null, cnecC, TwoSides.TWO)));
 
-        assertEquals(3220., raoResult.getFlow(preventiveInstant, cnecC, TwoSides.ONE, AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(3220.5, raoResult.getFlow(preventiveInstant, cnecC, TwoSides.TWO, AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(3221., raoResult.getMargin(preventiveInstant, cnecC, AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(3220., flowResult.getFlow(preventiveInstant, cnecC, TwoSides.ONE, AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(3220.5, flowResult.getFlow(preventiveInstant, cnecC, TwoSides.TWO, AMPERE), DOUBLE_TOLERANCE);
+        assertTrue(Double.isNaN(flowResult.getMargin(preventiveInstant, cnecC, AMPERE)));
 
-        assertEquals(3310., raoResult.getFlow(autoInstant, cnecC, TwoSides.ONE, MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(3310.5, raoResult.getFlow(autoInstant, cnecC, TwoSides.TWO, MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(3311., raoResult.getMargin(autoInstant, cnecC, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(3310., flowResult.getFlow(autoInstant, cnecC, TwoSides.ONE, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(3310.5, flowResult.getFlow(autoInstant, cnecC, TwoSides.TWO, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(-2830.5, flowResult.getMargin(autoInstant, cnecC, MEGAWATT), DOUBLE_TOLERANCE);
 
-        assertEquals(3410., raoResult.getFlow(curativeInstant, cnecC, TwoSides.ONE, MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(3410.5, raoResult.getFlow(curativeInstant, cnecC, TwoSides.TWO, MEGAWATT), DOUBLE_TOLERANCE);
-        assertEquals(3411., raoResult.getMargin(curativeInstant, cnecC, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(3410., flowResult.getFlow(curativeInstant, cnecC, TwoSides.ONE, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(3410.5, flowResult.getFlow(curativeInstant, cnecC, TwoSides.TWO, MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(-2930.5, flowResult.getMargin(curativeInstant, cnecC, MEGAWATT), DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -507,16 +543,12 @@ class RaoResultRoundTripTest {
         State autoState = crac.getState("contingency", autoInstant);
         State curativeState = crac.getState("contingency", curativeInstant);
 
-        RaoResultImpl raoResult = new RaoResultImpl(crac);
-        raoResult.getAndCreateIfAbsentRangeActionResult(pstPrev).setInitialSetpoint(-10.);
-        raoResult.getAndCreateIfAbsentRangeActionResult(pstAuto).setInitialSetpoint(-10.);
-        raoResult.getAndCreateIfAbsentRangeActionResult(pstCur).setInitialSetpoint(-10.);
-        raoResult.getAndCreateIfAbsentRangeActionResult(pstPrev).addActivationForState(crac.getPreventiveState(), 10.);
-        raoResult.getAndCreateIfAbsentRangeActionResult(pstAuto).addActivationForState(autoState, 20.);
-        raoResult.getAndCreateIfAbsentRangeActionResult(pstCur).addActivationForState(curativeState, 30.);
-        raoResult.setComputationStatus(ComputationStatus.DEFAULT);
+        RaoResultImpl.RaoResultImplBuilder raoResultBuilder = RaoResultImpl.builder(crac);
+        raoResultBuilder.addRangeActionActivation(pstPrev, crac.getPreventiveState(), 10.);
+        raoResultBuilder.addRangeActionActivation(pstAuto, autoState, 20.);
+        raoResultBuilder.addRangeActionActivation(pstCur, curativeState, 30.);
 
-        return raoResult;
+        return raoResultBuilder.build();
     }
 
     private void checkContentRangeActionCrossResult(RaoResult importedRaoResult, Crac crac) {
@@ -667,21 +699,23 @@ class RaoResultRoundTripTest {
     }
 
     private void checkContentAmpere(RaoResult raoResult, FlowCnec cnecP) {
-        assertTrue(Double.isNaN(raoResult.getFlow(null, cnecP, ONE, MEGAWATT)));
-        assertTrue(Double.isNaN(raoResult.getFlow(null, cnecP, TWO, MEGAWATT)));
-        assertTrue(Double.isNaN(raoResult.getMargin(null, cnecP, MEGAWATT)));
-        assertEquals(4120, raoResult.getFlow(null, cnecP, ONE, AMPERE), DOUBLE_TOLERANCE);
-        assertTrue(Double.isNaN(raoResult.getFlow(null, cnecP, TWO, AMPERE)));
-        assertEquals(4121, raoResult.getMargin(null, cnecP, AMPERE), DOUBLE_TOLERANCE);
+        FlowResult flowResult = raoResult.getExtension(FlowResult.class);
+        assertNotNull(flowResult);
+
+        assertTrue(Double.isNaN(flowResult.getFlow(null, cnecP, TWO, MEGAWATT)));
+        assertEquals(4120, flowResult.getFlow(null, cnecP, ONE, AMPERE), DOUBLE_TOLERANCE);
+        assertTrue(Double.isNaN(flowResult.getFlow(null, cnecP, TWO, AMPERE)));
+        assertTrue(Double.isNaN(flowResult.getMargin(null, cnecP, AMPERE)));
     }
 
     private void checkContentMegawatt(RaoResult raoResult, FlowCnec cnecP) {
-        assertEquals(4110, raoResult.getFlow(null, cnecP, ONE, MEGAWATT), DOUBLE_TOLERANCE);
-        assertTrue(Double.isNaN(raoResult.getFlow(null, cnecP, TWO, MEGAWATT)));
-        assertEquals(4111, raoResult.getMargin(null, cnecP, MEGAWATT), DOUBLE_TOLERANCE);
-        assertTrue(Double.isNaN(raoResult.getFlow(null, cnecP, ONE, AMPERE)));
-        assertTrue(Double.isNaN(raoResult.getFlow(null, cnecP, TWO, AMPERE)));
-        assertTrue(Double.isNaN(raoResult.getMargin(null, cnecP, AMPERE)));
+        FlowResult flowResult = raoResult.getExtension(FlowResult.class);
+        assertNotNull(flowResult);
+
+        assertEquals(4110, flowResult.getFlow(null, cnecP, ONE, MEGAWATT), DOUBLE_TOLERANCE);
+        assertTrue(Double.isNaN(flowResult.getFlow(null, cnecP, TWO, MEGAWATT)));
+        assertEquals(-3610.0, flowResult.getMargin(null, cnecP, MEGAWATT), DOUBLE_TOLERANCE);
+        assertTrue(Double.isNaN(flowResult.getFlow(null, cnecP, TWO, AMPERE)));
     }
 
     @Test

@@ -25,7 +25,7 @@ import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.monitoring.results.CnecMonitoringResult;
 import com.powsybl.openrao.monitoring.results.MonitoringResult;
-import com.powsybl.openrao.searchtreerao.networkpool.AbstractNetworkPool;
+import com.powsybl.openrao.raoimpl.networkpool.AbstractNetworkPool;
 
 import java.util.Collections;
 import java.util.EnumMap;
@@ -38,7 +38,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.*;
-import static com.powsybl.openrao.searchtreerao.commons.RaoUtil.applyContingency;
+import static com.powsybl.openrao.raoimpl.commons.RaoUtil.applyContingency;
 
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}

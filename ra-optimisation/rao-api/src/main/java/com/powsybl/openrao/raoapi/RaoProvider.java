@@ -10,7 +10,6 @@ package com.powsybl.openrao.raoapi;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
-import com.powsybl.openrao.data.raoresult.api.TimeCoupledRaoResult;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 
 import java.time.Instant;
@@ -37,7 +36,7 @@ public interface RaoProvider {
      * @param parameters RAO parameters.
      * @return A completable future of a TimeCoupledRaoResult for each timestamp.
      */
-    default CompletableFuture<TimeCoupledRaoResult> run(TimeCoupledRaoInput raoInput, RaoParameters parameters, ReportNode reportNode) {
+    default CompletableFuture<RaoResult> run(TimeCoupledRaoInput raoInput, RaoParameters parameters, ReportNode reportNode) {
         // note: default behavior not to break external implementers
         throw new OpenRaoException("Time-coupled optimization is not supported");
     }
