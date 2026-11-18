@@ -514,7 +514,7 @@ class Marmot {
         return raoResult;
     }
 
-    private static CostResult createCastorCostResultExtension(ObjectiveFunctionResult initialOptimizationResult,
+    static CostResult createCastorCostResultExtension(ObjectiveFunctionResult initialOptimizationResult,
                                                               ObjectiveFunctionResult finalLinearOptimizationResult,
                                                               List<Instant> instants) {
         CostResult.CostResultBuilder costResultBuilder = CostResult.builder();
@@ -525,7 +525,7 @@ class Marmot {
         return costResultBuilder.build();
     }
 
-    private static void addCostsForInstant(CostResult.CostResultBuilder costResultBuilder,
+    static void addCostsForInstant(CostResult.CostResultBuilder costResultBuilder,
                                            ObjectiveFunctionResult objectiveFunctionResult,
                                            Instant optimizedInstant) {
         costResultBuilder.addFunctionalCostResult(optimizedInstant, objectiveFunctionResult.getFunctionalCost());
