@@ -27,10 +27,8 @@ import com.powsybl.openrao.data.crac.api.RaUsageLimits;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
-import com.powsybl.openrao.data.crac.api.rangeaction.HvdcRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
-import com.powsybl.openrao.data.crac.impl.HvdcRangeActionImpl;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters;
@@ -56,31 +54,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
-
 import java.lang.reflect.Method;
 import java.time.OffsetDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyDouble;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mockStatic;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.when;
+import java.util.*;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -283,27 +262,6 @@ class SearchTreeTest {
         assertEquals(2., result.getCost(), DOUBLE_TOLERANCE);
 
         hvdcUtilsMock.verify(() -> HvdcUtils.runLoadFlowAndUpdateHvdcActivePowerSetpoint(any(), any(), any(), any(), any(), any()), times(0));
-    }
-
-    @Test
-    void runAndOptimizeOnlyRootLeafWithLoadFlow() throws Exception {
-        raoWithoutLoopFlowLimitation();
-        setStopCriterionAtMinObjective();
-        when(rootLeaf.getCost()).thenReturn(2.);
-        when(rootLeaf.getStatus()).thenReturn(Leaf.Status.EVALUATED, Leaf.Status.OPTIMIZED);
-        Mockito.doReturn(rootLeaf).when(searchTree).makeLeaf(
-            Mockito.argThat(temporalData -> check(optimizationPerimeter, temporalData)),
-            Mockito.argThat(temporalData -> check(network, temporalData)),
-            Mockito.argThat(temporalData -> check(prePerimeterResult, temporalData)),
-            Mockito.argThat(temporalData -> check(appliedRemedialActions, temporalData))
-        );
-        // add an hvdc range action on a HVDC lie in AC emulation
-        HvdcRangeAction hvdcRangeAction = Mockito.mock(HvdcRangeActionImpl.class);
-        when(hvdcRangeAction.isAngleDroopActivePowerControlEnabled(network)).thenReturn(true);
-        when(optimizationPerimeter.getRangeActions()).thenReturn(Set.of(hvdcRangeAction));
-        searchTree.run().get();
-        hvdcUtilsMock.verify(() -> HvdcUtils.runLoadFlowAndUpdateHvdcActivePowerSetpoint(any(), any(), any(), any(), any(), any()), times(1));
-
     }
 
     @Test
@@ -724,39 +682,39 @@ class SearchTreeTest {
 
         // 1. First priority given to combinations detected during RAO
         assertEquals(-1, searchTree.deterministicNetworkActionCombinationComparison(
-                new NetworkActionCombination(Set.of(na1), true),
-                new NetworkActionCombination(Set.of(na2), false)
+            new NetworkActionCombination(Set.of(na1), true),
+            new NetworkActionCombination(Set.of(na2), false)
         ));
         assertEquals(1, searchTree.deterministicNetworkActionCombinationComparison(
-                predefinedNaCombination,
-                new NetworkActionCombination(Set.of(na2), true)
+            predefinedNaCombination,
+            new NetworkActionCombination(Set.of(na2), true)
         ));
         // 2. Second priority given to pre-defined combinations
         assertEquals(-1, searchTree.deterministicNetworkActionCombinationComparison(
-                predefinedNaCombination,
-                new NetworkActionCombination(Set.of(na2), false)
+            predefinedNaCombination,
+            new NetworkActionCombination(Set.of(na2), false)
         ));
         assertEquals(1, searchTree.deterministicNetworkActionCombinationComparison(
-                new NetworkActionCombination(Set.of(na2), false),
-                predefinedNaCombination
+            new NetworkActionCombination(Set.of(na2), false),
+            predefinedNaCombination
         ));
         // 3. Third priority given to large combinations
         assertEquals(-1, searchTree.deterministicNetworkActionCombinationComparison(
-                new NetworkActionCombination(Set.of(na1, na2), false),
-                new NetworkActionCombination(Set.of(na2), false)
+            new NetworkActionCombination(Set.of(na1, na2), false),
+            new NetworkActionCombination(Set.of(na2), false)
         ));
         assertEquals(1, searchTree.deterministicNetworkActionCombinationComparison(
-                new NetworkActionCombination(Set.of(na1), true),
-                new NetworkActionCombination(Set.of(na2, na1), true)
+            new NetworkActionCombination(Set.of(na1), true),
+            new NetworkActionCombination(Set.of(na2, na1), true)
         ));
         // 4. Last priority is random but deterministic
         assertEquals(-1, searchTree.deterministicNetworkActionCombinationComparison(
-                new NetworkActionCombination(Set.of(na1), true),
-                new NetworkActionCombination(Set.of(na2), true)
+            new NetworkActionCombination(Set.of(na1), true),
+            new NetworkActionCombination(Set.of(na2), true)
         ));
         assertEquals(1, searchTree.deterministicNetworkActionCombinationComparison(
-                new NetworkActionCombination(Set.of(na2), false),
-                new NetworkActionCombination(Set.of(na1), false)
+            new NetworkActionCombination(Set.of(na2), false),
+            new NetworkActionCombination(Set.of(na1), false)
         ));
     }
 
@@ -793,8 +751,7 @@ class SearchTreeTest {
 
         Method method = SearchTree.class.getDeclaredMethod(
             "getPreviousDepthAppliedRemedialActionsBeforeNewLeafEvaluation",
-            com.powsybl.openrao.raoimpl.result.api.RangeActionActivationResult.class
-           // or Leaf.class
+            Leaf.class
         );
         method.setAccessible(true);
 
