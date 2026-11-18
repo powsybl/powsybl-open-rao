@@ -58,7 +58,7 @@ public final class MarmotUtils {
     private MarmotUtils() {
     }
 
-    public static PrePerimeterResult runInitialSensitivityAnalysis(final RaoInput raoInput, final RaoParameters raoParameters, final ReportNode reportNode, boolean withRangeActions) {
+    public static PrePerimeterResult runInitialSensitivityAnalysis(final RaoInput raoInput, boolean withRangeActions, final RaoParameters raoParameters, final ReportNode reportNode) {
         Crac crac = raoInput.getCrac();
         Network network = raoInput.getNetwork();
         ToolProvider toolProvider = ToolProvider.buildFromRaoInputAndParameters(raoInput, raoParameters);

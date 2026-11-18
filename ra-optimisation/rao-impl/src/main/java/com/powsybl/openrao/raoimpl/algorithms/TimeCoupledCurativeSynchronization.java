@@ -21,29 +21,22 @@ import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
-import com.powsybl.openrao.data.raoresult.api.TimeCoupledRaoResult;
 import com.powsybl.openrao.data.timecoupledconstraints.TimeCoupledConstraints;
 import com.powsybl.openrao.raoapi.LazyNetwork;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.TimeCoupledRaoInput;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SecondPreventiveRaoParameters;
-import com.powsybl.openrao.searchtreerao.castor.algorithm.CastorContingencyScenarios;
-import com.powsybl.openrao.searchtreerao.castor.algorithm.CastorFullOptimization;
-import com.powsybl.openrao.searchtreerao.castor.algorithm.PostPerimeterSensitivityAnalysis;
-import com.powsybl.openrao.searchtreerao.castor.algorithm.StateTree;
-import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
-import com.powsybl.openrao.searchtreerao.commons.ToolProvider;
-import com.powsybl.openrao.searchtreerao.commons.objectivefunction.ObjectiveFunction;
-import com.powsybl.openrao.searchtreerao.commons.parameters.TreeParameters;
-import com.powsybl.openrao.searchtreerao.marmot.results.GlobalLinearOptimizationResult;
-import com.powsybl.openrao.searchtreerao.marmot.results.TimeCoupledRaoResultImpl;
-import com.powsybl.openrao.searchtreerao.reports.CastorReports;
-import com.powsybl.openrao.searchtreerao.reports.MarmotReports;
-import com.powsybl.openrao.searchtreerao.result.api.*;
-import com.powsybl.openrao.searchtreerao.result.impl.NetworkActionsResultImpl;
-import com.powsybl.openrao.searchtreerao.result.impl.PostPerimeterResult;
-import com.powsybl.openrao.searchtreerao.result.impl.PreventiveAndCurativesRaoResultImpl;
+import com.powsybl.openrao.raoimpl.commons.RaoUtil;
+import com.powsybl.openrao.raoimpl.commons.ToolProvider;
+import com.powsybl.openrao.raoimpl.commons.objectivefunction.ObjectiveFunction;
+import com.powsybl.openrao.raoimpl.commons.parameters.TreeParameters;
+import com.powsybl.openrao.raoimpl.reports.CastorReports;
+import com.powsybl.openrao.raoimpl.reports.MarmotReports;
+import com.powsybl.openrao.raoimpl.result.api.*;
+import com.powsybl.openrao.raoimpl.result.impl.GlobalLinearOptimizationResult;
+import com.powsybl.openrao.raoimpl.result.impl.NetworkActionsResultImpl;
+import com.powsybl.openrao.raoimpl.result.impl.PostPerimeterResult;
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 import java.time.OffsetDateTime;
 import java.util.Collections;
@@ -52,7 +45,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import static com.powsybl.openrao.raoapi.parameters.extensions.SecondPreventiveRaoParameters.getSecondPreventiveExecutionCondition;
-import static com.powsybl.openrao.searchtreerao.reports.MarmotReports.CURATIVE_SYNCHRONIZATION_PREFIX;
+import static com.powsybl.openrao.raoimpl.reports.MarmotReports.CURATIVE_SYNCHRONIZATION_PREFIX;
 
 /**
  * Runs a time-coupled RAO when the curative remedial actions are synchronized across the timestamps, meaning that the
@@ -71,10 +64,10 @@ import static com.powsybl.openrao.searchtreerao.reports.MarmotReports.CURATIVE_S
 public class TimeCoupledCurativeSynchronization {
     private static final int NUMBER_LOGGED_ELEMENTS_FINAL_RESULTS = 10;
 
-    public CompletableFuture<TimeCoupledRaoResult> run(TemporalData<RaoInput> initialInputs, TemporalData<LazyNetwork> initialNetworks, TemporalData<Crac> cracs, Set<OffsetDateTime> timestampsToRun,
-                                                       RaoParameters raoParameters, ReportNode reportNode,
-                                                       TemporalData<PrePerimeterResult> initialResults, TemporalData<RaoParameters> raoParametersDuplicates, int parallelism,
-                                                       ObjectiveFunction fullObjectiveFunction, ObjectiveFunctionResult initialObjectiveFunctionResult) {
+    public CompletableFuture<RaoResult> run(TemporalData<RaoInput> initialInputs, TemporalData<LazyNetwork> initialNetworks, TemporalData<Crac> cracs, Set<OffsetDateTime> timestampsToRun,
+                                            RaoParameters raoParameters, ReportNode reportNode,
+                                            TemporalData<PrePerimeterResult> initialResults, TemporalData<RaoParameters> raoParametersDuplicates, int parallelism,
+                                            ObjectiveFunction fullObjectiveFunction, ObjectiveFunctionResult initialObjectiveFunctionResult) {
         if (cracs.getDataPerTimestamp().values().stream().anyMatch(crac -> crac.getInstants(InstantKind.CURATIVE).size() > 1)) {
             throw new OpenRaoException("Time-coupled curative synchronization does not support multiple curative instants.");
         }
@@ -123,7 +116,7 @@ public class TimeCoupledCurativeSynchronization {
         // 6. Global MIP launched when second preventive is enabled : all the range actions (curative and preventive) are re-optimized, with
         // only the curative ones being synchronized and the preventive ones being re-optimized freely.
         LinearOptimizationResult finalObjectiveFunctionResult;
-        TimeCoupledRaoResult timeCoupledRaoResult;
+        RaoResult timeCoupledRaoResult;
         if (!getSecondPreventiveExecutionCondition(raoParameters).equals(SecondPreventiveRaoParameters.ExecutionCondition.DISABLED)) {
             final ReportNode globalRangeActionsOptimizationReportNode = MarmotReports.reportMarmotGlobalRangeActionsOptimization(reportNode, CURATIVE_SYNCHRONIZATION_PREFIX);
             // all the CNECs are considered by the MIP
