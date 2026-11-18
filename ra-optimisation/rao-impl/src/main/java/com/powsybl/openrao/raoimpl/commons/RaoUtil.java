@@ -43,6 +43,7 @@ import com.powsybl.openrao.raoimpl.reports.CommonReports;
 import com.powsybl.openrao.raoimpl.result.api.FlowResult;
 import com.powsybl.openrao.raoimpl.result.api.OptimizationResult;
 import com.powsybl.openrao.raoimpl.result.impl.PostPerimeterResult;
+import com.powsybl.openrao.raoimpl.result.impl.SkippedOptimizationResultImpl;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.ArrayList;
@@ -429,7 +430,8 @@ public final class RaoUtil {
 
         for (State state : postContingencyResults.keySet()) {
             PostPerimeterResult postPerimeterResult = postContingencyResults.get(state);
-            if (postPerimeterResult.optimizationResult().getComputationStatus(state) != ComputationStatus.FAILURE) {
+            if (postPerimeterResult.optimizationResult().getComputationStatus(state) != ComputationStatus.FAILURE
+                && !(postPerimeterResult.optimizationResult() instanceof SkippedOptimizationResultImpl)) {
                 if (!computeSecurityStatus(
                     crac.getFlowCnecs(state),
                     postPerimeterResult.prePerimeterResultForAllFollowingStates(),
