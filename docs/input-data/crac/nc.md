@@ -10,6 +10,9 @@ is an extension of the CIM standard. The CRAC data is split over different profi
 The OpenRAO importer only supports NC version `2.4` (see
 [ENTSO-E website](https://www.entsoe.eu/Documents/CIM_documents/Grid_Model_CIM/MetadataAndHeaderDataExchangeSpecification_v2.3.0.pdf)).
 
+> Note: NC profiles in version `2.2` are expected to be imported correctly thanks to backward compatibility, but this
+> has not been tested.
+
 > ⚠️ **NCP v2.5 is NOT supported.** The v2.5 application profiles publish their vocabulary under new
 > namespaces (`nc` = `https://cim4.eu/ns/nc#`, `cim` = `https://cim.ucaiug.io/ns#`) while the importer
 > only queries the v2.4 namespaces (`nc` = `http://entsoe.eu/ns/nc#`, `cim` = `http://iec.ch/TC57/CIM100#`).
@@ -41,7 +44,7 @@ The OpenRAO importer only supports NC version `2.4` (see
 ```
 
 Each NC profile is identified by a `dcat:keyword` that states which category of features it bears. To be valid for
-OpenRAO, a profile must have exactly one keyword defined in its header. Besides, OpenRAO currently handles 6 different NC
+OpenRAO, a profile must have exactly one keyword defined in its header. Besides, OpenRAO currently handles 7 different NC
 profiles, the keyword and purpose of which are gathered in the following table:
 
 | Keyword | Full Name                | Purpose                                       |
@@ -50,6 +53,7 @@ profiles, the keyword and purpose of which are gathered in the following table:
 | CO      | Contingency              | Definition of contingencies.                  |
 | ER      | Equipment Reliability    | Definition of AngleCNECs' thresholds.         |
 | RA      | Remedial Action          | Definition of remedial actions.               |
+| SIS     | State Instruction Schedule | Overriding data with daily time schedules.  |
 | SSI     | Steady State Instruction | Overriding data for specific instants.        |
 | SSH     | Steady State Hypothesis  | Overriding data for a specific scenario time. |
 
@@ -846,6 +850,288 @@ of sections.
 
 :::
 ::::
+
+### Counter-trade Range Action
+
+A [counter-trade range action](json.md#counter-trade-range-action) is described by a `CountertradeRemedialAction` 
+object. Unlike other remedial actions, it does **not** use a `GridStateAlterationRemedialAction` object as parent, 
+nor does it use `GridStateAlteration` or `StaticPropertyRange` objects. Instead, all the information is contained 
+directly within the `CountertradeRemedialAction` object itself, which inherits from `RemedialAction`. Its range combines 
+absolute values from the RA profile with variations from the SSI profile, possibly defined on a `RemedialActionGroup` 
+(see [range](#range)).
+
+> ⚠️ Counter-trade remedial actions are only supported for NC profiles in version `2.2`.
+
+```xml
+<!-- RA Profile -->
+<rdf:RDF>
+    <md:FullModel rdf:about="urn:uuid:e6b94ef6-e043-4d29-a258-1718d6d2f507">
+        <dcterms:creator>http://energy.referencedata.eu/EIC/10XFR-RTE------Q</dcterms:creator>
+        <dcterms:conformsTo>http://entsoe.eu/ns/CIM/RemedialAction-EU/2.2</dcterms:conformsTo>
+        ...
+    </md:FullModel>
+    ...
+    <nc:CountertradeRemedialAction rdf:ID="_remedial-action">
+        <cim:IdentifiedObject.mRID>remedial-action</cim:IdentifiedObject.mRID>
+        <cim:IdentifiedObject.name>Counter-trade action</cim:IdentifiedObject.name>
+        <cim:IdentifiedObject.description>Example of counter-trade action</cim:IdentifiedObject.description>
+        <nc:RemedialAction.normalAvailable>true</nc:RemedialAction.normalAvailable>
+        <nc:RemedialAction.isManual>true</nc:RemedialAction.isManual>
+        <nc:RemedialAction.kind rdf:resource="http://entsoe.eu/ns/nc#RemedialActionKind.preventive"/>
+        <nc:RemedialAction.timeToImplement>PT10S</nc:RemedialAction.timeToImplement>
+        <nc:RemedialAction.isCrossBorderRelevant>true</nc:RemedialAction.isCrossBorderRelevant>
+        <nc:RemedialAction.RemedialActionSystemOperator 
+                rdf:resource="http://energy.referencedata.eu/EIC/10XFR-RTE------Q"/>
+        <nc:PowerRemedialAction.BiddingZone 
+                rdf:resource="http://energy.referencedata.eu/EIC/10YFR-RTE------C"/>
+        <nc:CountertradeRemedialAction.maxEconomicP>4000</nc:CountertradeRemedialAction.maxEconomicP>
+        <nc:CountertradeRemedialAction.minEconomicP>1500</nc:CountertradeRemedialAction.minEconomicP>
+        <nc:CountertradeRemedialAction.shiftMethod 
+                rdf:resource="http://entsoe.eu/ns/nc#ShiftMethodKind.shared"/>
+        <nc:CountertradeRemedialAction.gLSKStrategy 
+                rdf:resource="http://entsoe.eu/ns/nc#GLSKStrategyKind.proportionalForGenerator"/>
+    </nc:CountertradeRemedialAction>
+    ...
+</rdf:RDF>
+```
+
+The counter-trade remedial action is imported only if the `normalAvailable` field is set to `true`.
+
+> The remedial action can still be imported if `normalAvailable` is set to `false` if the remedial action is also
+> defined in the SSI profile with its field `available` set to `true`.
+
+The availability can also be overridden by the SIS profile, through a `GenericAvailableSchedule` pointing to the
+remedial action and its `AvailabilityTimePoint`s:
+
+```xml
+<rdf:RDF ...>
+    ...
+    <nc:GenericAvailableSchedule rdf:ID="_schedule-1">
+        <cim:IdentifiedObject.mRID>schedule-1</cim:IdentifiedObject.mRID>
+        <nc:BaseTimeSeries.interpolationKind 
+                rdf:resource="http://entsoe.eu/ns/nc#TimeSeriesInterpolationKind.next"/>
+        <nc:GenericAvailableSchedule.RemedialAction rdf:resource="#_counter-trade-remedial-action"/>
+    </nc:GenericAvailableSchedule>
+    <nc:AvailabilityTimePoint rdf:ID="_time-point-1">
+        <nc:AvailabilityTimePoint.GenericAvailableSchedule rdf:resource="#_schedule-1"/>
+        <nc:AvailabilityTimePoint.atTime>2025-01-01T06:00:00Z</nc:AvailabilityTimePoint.atTime>
+        <nc:AvailabilityTimePoint.available>false</nc:AvailabilityTimePoint.available>
+    </nc:AvailabilityTimePoint>
+    ...
+</rdf:RDF>
+```
+
+Only the `next` interpolation kind is supported: the availability is the one of the first `AvailabilityTimePoint` whose
+`atTime` is at or after the import timestamp. If this time point has no `available` field, the availability is not
+overridden. A `GenericAvailableSchedule` whose `interpolationKind` is not `next` is ignored with a warning. If several
+`GenericAvailableSchedule`s with the `next` interpolation kind point to the remedial action, only the one with the
+smallest identifier is read, with a warning. The SIS profile is also ignored for the remedial action, with a warning, if
+its `GenericAvailableSchedule` has no `AvailabilityTimePoint` at or after the import timestamp.
+
+> The availability is overridden in the following order: the SIS profile overrides the `normalAvailable` field of the
+> RA profile, and the SSI profile overrides both.
+
+As for other remedial actions, the `mRID` is used as the remedial action's identifier.
+
+The operator of the counter-trade range action is the TSO identified by the `dcterms:creator` field of the RA profile 
+header. The remedial action is not imported if the creator is missing, does not contain a valid EIC code or is not a 
+supported TSO.
+
+The `RemedialActionSystemOperator` field is optional. If it is provided, it is only checked against the creator: if 
+both EIC codes are different, a warning is logged and the remedial action is still imported with the creator as 
+operator.
+
+> ⚠️ Currently, only preventive counter-trading is supported: counter-trade remedial actions of kind `curative` will be ignored.
+
+> Counter-trading cannot be automatic, so counter-trade remedial actions with `isManual` set to `false` are not used in the RAO and will be ignored.
+
+Finally, the `timeToImplement` is converted to a number of seconds and used as the remedial action's speed.
+
+#### Specific fields
+
+The `CountertradeRemedialAction` object has specific fields that define the range and behavior of the counter-trade action:
+
+- **`maxEconomicP`**: The maximum economic net position (in MW) of the bidding zone. It is used to compute the upper 
+  bound of the counter-trade range action (see [range](#range)).
+- **`minEconomicP`**: The minimum economic net position (in MW) of the bidding zone. It is used to compute the lower 
+  bound of the counter-trade range action (see [range](#range)).
+- **`BiddingZone`**: The bidding zone of the counter-trade action. It defines the area of the counter-trade range 
+  action (see [area and connected areas](#area-and-connected-areas)) and the net position its range is relative to 
+  (see [range](#range)).
+- **`shiftMethod`**: (Optional) The method used for shifting power. Can be values like `shared`.
+- **`gLSKStrategy`**: (Optional) The GLSK (Generation and Load Shift Keys) strategy to be applied. Can be values like 
+  `proportionalForGenerator`.
+
+#### Range
+
+The range of the counter-trade range action is relative to the initial net position of the bidding zone's area: its 
+initial setpoint is 0, and a setpoint of X means that the net position of the area is shifted by X MW.
+
+The initial net position is computed from the network (which must carry a load flow result). It has no default value: 
+if no net position can be computed for the area, the remedial action is not imported.
+
+In the following, `NP0` denotes this initial net position.
+
+Each bound of the range combines two limits, which are not expressed in the same way:
+
+- the **economic limit** comes from the `minEconomicP` and `maxEconomicP` fields of the `CountertradeRemedialAction` in 
+  the RA profile. These are **absolute values**: the minimum and maximum net positions (in MW) of the bidding zone. They 
+  are converted into variations from the initial setpoint by subtracting the initial net position:
+  - economic lower limit = `minEconomicP` - `NP0`
+  - economic upper limit = `maxEconomicP` - `NP0`
+- the **physical limit** comes from the `maxRegulatingDown` and `maxRegulatingUp` fields of the SSI profile. These are 
+  **variations from the initial setpoint** (in MW, given as positive values): the maximum quantity by which the net 
+  position can be decreased and increased. Since the initial setpoint is 0, they are used directly:
+  - physical lower limit = -`maxRegulatingDown`
+  - physical upper limit = `maxRegulatingUp`
+
+> `minEconomicP` and `maxEconomicP` are only read from the RA profile (the SSI profile does not override them), whereas 
+> `maxRegulatingDown` and `maxRegulatingUp` are only read from the SSI profile.
+
+The `CountertradeRemedialAction` and `RemedialActionGroup` objects of the SSI profile are matched with those of the RA 
+profile through their RDF identifier: the `rdf:about` of the SSI object refers to the `rdf:ID` of the RA profile object 
+(by convention, `_` followed by its `mRID`).
+
+##### Physical limit defined on the counter-trade remedial action
+
+The `maxRegulatingDown` and `maxRegulatingUp` values can be defined on the `CountertradeRemedialAction` itself, in the 
+SSI profile:
+
+```xml
+<!-- SSI Profile -->
+<rdf:RDF>
+    ...
+    <nc:CountertradeRemedialAction rdf:about="#_remedial-action">
+        <nc:RemedialAction.available>true</nc:RemedialAction.available>
+        <nc:PowerRemedialAction.maxRegulatingUp>1500</nc:PowerRemedialAction.maxRegulatingUp>
+        <nc:PowerRemedialAction.maxRegulatingDown>800</nc:PowerRemedialAction.maxRegulatingDown>
+    </nc:CountertradeRemedialAction>
+    ...
+</rdf:RDF>
+```
+
+> ⚠️ The `CountertradeRemedialAction` of the SSI profile is only read if its `available` field is set. Otherwise, its 
+> `maxRegulatingDown` and `maxRegulatingUp` values are ignored.
+
+##### Physical limit defined on a remedial action group
+
+The `maxRegulatingDown` and `maxRegulatingUp` values can also be defined, in the SSI profile, on a 
+`RemedialActionGroup` to which the `CountertradeRemedialAction` is linked, in the RA profile, through a 
+`RemedialActionDependency`:
+
+```xml
+<!-- RA Profile -->
+<rdf:RDF>
+    ...
+    <nc:RemedialActionGroup rdf:ID="_remedial-action-group">
+        <cim:IdentifiedObject.mRID>remedial-action-group</cim:IdentifiedObject.mRID>
+        <cim:IdentifiedObject.name>Counter-trade group</cim:IdentifiedObject.name>
+    </nc:RemedialActionGroup>
+    <nc:RemedialActionDependency rdf:ID="_remedial-action-dependency">
+        <nc:RemedialActionDependency.mRID>remedial-action-dependency</nc:RemedialActionDependency.mRID>
+        <nc:RemedialActionDependency.normalEnabled>true</nc:RemedialActionDependency.normalEnabled>
+        <nc:RemedialActionDependency.kind rdf:resource="http://entsoe.eu/ns/nc#RemedialActionDependencyKind.none"/>
+        <nc:RemedialActionDependency.RemedialAction rdf:resource="#_remedial-action"/>
+        <nc:RemedialActionDependency.DependingRemedialActionGroup rdf:resource="#_remedial-action-group"/>
+    </nc:RemedialActionDependency>
+    ...
+</rdf:RDF>
+```
+
+```xml
+<!-- SSI Profile -->
+<rdf:RDF>
+    ...
+    <nc:RemedialActionGroup rdf:about="#_remedial-action-group">
+        <nc:RemedialActionGroup.maxRegulatingUp>600</nc:RemedialActionGroup.maxRegulatingUp>
+        <nc:RemedialActionGroup.maxRegulatingDown>1200</nc:RemedialActionGroup.maxRegulatingDown>
+    </nc:RemedialActionGroup>
+    ...
+</rdf:RDF>
+```
+
+The group is handled as follows:
+
+- the `RemedialActionDependency` is only considered if its `normalEnabled` field is set to `true` or missing (it can be 
+  overridden by the `enabled` field of the SSI profile); otherwise the group is ignored for this remedial action;
+- the group is only used to read the physical limit of the counter-trade range action: it is not imported as a network 
+  action, and the counter-trade range action is not combined with the other remedial actions of the group;
+- the values of the group apply to each counter-trade range action linked to it **individually**: if several 
+  `CountertradeRemedialAction`s are linked to the same group, each of them gets the full `maxRegulatingDown` and 
+  `maxRegulatingUp` of the group as its own physical limit (they do not share it);
+- a group without `maxRegulatingDown` and `maxRegulatingUp` values in the SSI profile has no effect.
+
+If the `CountertradeRemedialAction` defines at least one of `maxRegulatingDown` and `maxRegulatingUp` in the SSI profile, 
+both values are read on the `CountertradeRemedialAction` (a missing one is not completed with the value of the group). 
+Otherwise, both values are read on the group. If both the `CountertradeRemedialAction` and its group define values, 
+they must be identical (a value defined on one side and missing on the other counts as different), otherwise the 
+remedial action is not imported.
+
+##### Bounds computation
+
+The bounds are:
+
+- **lower bound** = max(`minEconomicP` - `NP0`, -`maxRegulatingDown`)
+- **upper bound** = min(`maxEconomicP` - `NP0`, `maxRegulatingUp`)
+
+If only one of the two limits is provided for a bound, it is used alone.
+
+If neither the economic limit nor the physical limit is provided for the lower (resp. upper) bound, the 
+`counter-trading-min-range` (resp. `counter-trading-max-range`) creation parameter is used as is, 
+and the remedial action is flagged as altered, with its import status detail giving the 
+value taken from the parameter. If this parameter is not set either, the remedial action is not imported.
+
+If the resulting lower bound is greater than the upper bound, the remedial action is not imported.
+
+Depending on where the physical limit is defined, four cases are possible ("SSI" stands for values defined on the 
+`CountertradeRemedialAction` in the SSI profile, "group" for values defined on its `RemedialActionGroup` in the SSI 
+profile):
+
+| Case             | `maxRegulatingDown` / `maxRegulatingUp` used                                                                                             | Lower bound                                       | Upper bound                                    |
+|------------------|------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------|------------------------------------------------|
+| No SSI, no group | none                                                                                                                                     | `minEconomicP` - `NP0`                            | `maxEconomicP` - `NP0`                         |
+| SSI, no group    | those of the `CountertradeRemedialAction`                                                                                                | max(`minEconomicP` - `NP0`, -`maxRegulatingDown`) | min(`maxEconomicP` - `NP0`, `maxRegulatingUp`) |
+| No SSI, group    | those of the `RemedialActionGroup`                                                                                                       | max(`minEconomicP` - `NP0`, -`maxRegulatingDown`) | min(`maxEconomicP` - `NP0`, `maxRegulatingUp`) |
+| SSI, group       | those of the `CountertradeRemedialAction`, which must be identical to those of the group (otherwise the remedial action is not imported) | max(`minEconomicP` - `NP0`, -`maxRegulatingDown`) | min(`maxEconomicP` - `NP0`, `maxRegulatingUp`) |
+
+In all four cases, the rules above (limit used alone if the other one is missing, fallback on the creation parameters, 
+empty range) apply.
+
+> For instance, with an initial net position of 2000 MW, `minEconomicP` = 500 and `maxEconomicP` = 3000, the economic 
+> limits are [500 - 2000, 3000 - 2000] = [-1500, 1000]:
+>
+> | Case             | Physical limit                                                     | Range         |
+> |------------------|--------------------------------------------------------------------|---------------|
+> | No SSI, no group | none                                                               | [-1500, 1000] |
+> | SSI, no group    | SSI: `maxRegulatingDown` = 800, `maxRegulatingUp` = 1500           | [-800, 1000]  |
+> | No SSI, group    | group: `maxRegulatingDown` = 1200, `maxRegulatingUp` = 600         | [-1200, 600]  |
+> | SSI, group       | SSI and group: `maxRegulatingDown` = 800, `maxRegulatingUp` = 1500 | [-800, 1000]  |
+> | SSI, group       | SSI: 800 / 1500, group: 1200 / 600                                 | not imported  |
+
+> For instance, with an initial net position of 500 MW, `minEconomicP` = -1000, `maxEconomicP` = 1000, 
+> `maxRegulatingDown` = 3000 and `maxRegulatingUp` = 2000:
+> - lower bound = max(-1000 - 500, -3000) = -1500, limited to -500 so that the net position does not become negative;
+> - upper bound = min(1000 - 500, 2000) = 500.
+>
+> The range of the counter-trade range action is [-500, 500].
+
+#### Area and connected areas
+
+The [counter-trade range action](json.md#counter-trade-range-action) is an exchange between its area and one or more 
+connected areas sharing a border with it.
+
+The area is the country of the `BiddingZone`, whose EIC code is converted to a country code (for instance, 
+`10YFR-RTE------C` gives `FR`). The remedial action is not imported if the `BiddingZone` is missing, does not contain a 
+valid EIC code or does not correspond to a country.
+
+The connected areas are all the areas sharing a border with the area in the network. No border range is defined on 
+them, so the power exchanged with each connected area is not constrained.
+
+> For instance, if France shares borders with Belgium, Germany and Spain in the network, a counter-trade remedial action 
+> with the `BiddingZone` `10YFR-RTE------C` has `FR` as area and `BE`, `DE` and `ES` as connected areas.
+
+> ⚠️ Currently, the area of a counter-trade remedial action must be a country: bidding zones that do not correspond to 
+> a single country (e.g. DE-LU, or the Italian and Nordic bidding zones) are not supported.
 
 ### Usage Rules
 
