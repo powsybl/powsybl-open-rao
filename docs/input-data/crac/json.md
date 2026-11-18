@@ -38,8 +38,7 @@ The creation of a small CRAC is for instance made in this test class of the Open
 :::
 :::{group-tab} JSON file
 An example of a small CRAC in the JSON internal format of OpenRAO is given below:  
-{src}`example on GitHub<data/crac/crac-io/crac-io-json/src/test/resources/retrocompatibility/v2/crac-v2.8.json>`
-<!-- TODO: point to the latest JSON CRAC version above -->
+{src}`example on GitHub<data/crac/crac-io/crac-io-json/src/test/resources/retrocompatibility/v2/crac-v2.13.json>`
 :::
 ::::
   
