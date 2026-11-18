@@ -1318,6 +1318,8 @@ No two range-action automatons can have the same speed value, unless they are al
 
 If the InjectionRangeAction uses a disconnected generator, the action will be filtered out and won't be used by the RAO.
 
+A InjectionRangeAction does not take into account the Pmax or Pmin of the generator defined in the network it only respects the range defined in the CRAC.
+
 ::::{tabs}
 :::{group-tab} JAVA creation API
 ~~~java
