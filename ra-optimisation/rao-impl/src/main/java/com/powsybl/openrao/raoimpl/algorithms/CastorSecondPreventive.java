@@ -224,7 +224,7 @@ public class CastorSecondPreventive {
                     state,
                     new HashSet<>(),
                     new HashSet<>(),
-                    postCraSensitivityAnalysisOutput.getSensitivityStatus(entry.getKey()),
+                    FAILURE,
                     getSensitivityFailureOvercost(raoParameters)
                 );
                 PrePerimeterResult prePerimeterResult = new PrePerimeterSensitivityResultImpl(skippedResult, skippedResult, null, skippedResult);

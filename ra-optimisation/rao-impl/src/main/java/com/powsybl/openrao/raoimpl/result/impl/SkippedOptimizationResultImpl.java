@@ -7,7 +7,6 @@
 
 package com.powsybl.openrao.raoimpl.result.impl;
 
-import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
@@ -25,7 +24,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -37,7 +35,6 @@ public class SkippedOptimizationResultImpl implements OptimizationResult {
     private final State state;
     private final Set<NetworkAction> activatedNetworkActions;
     private final Set<RangeAction<?>> activatedRangeActions;
-    private final ComputationStatus computationStatus;
     private final double sensitivityFailureOverCost;
 
     public SkippedOptimizationResultImpl(State state,
@@ -48,30 +45,23 @@ public class SkippedOptimizationResultImpl implements OptimizationResult {
         this.state = state;
         this.activatedNetworkActions = activatedNetworkActions;
         this.activatedRangeActions = activatedRangeActions;
-        this.computationStatus = computationStatus;
         this.sensitivityFailureOverCost = sensitivityFailureOverCost;
     }
 
     @Override
     public ComputationStatus getSensitivityStatus() {
-        return computationStatus;
+        return ComputationStatus.FAILURE;
     }
 
     @Override
     public ComputationStatus getSensitivityStatus(State state) {
-        return computationStatus;
+        return ComputationStatus.FAILURE;
     }
 
     @Override
     // The following method is used to determine which contingencies must be excluded from cost computation
     public Set<String> getContingencies() {
-        if (computationStatus != ComputationStatus.FAILURE) {
-            Optional<Contingency> contingency = state.getContingency();
-            if (contingency.isPresent()) {
-                return Set.of(contingency.get().getId());
-            }
-        }
-        return new HashSet<>();
+        return state.getContingency().map(value -> Set.of(value.getId())).orElseGet(HashSet::new);
     }
 
     @Override
