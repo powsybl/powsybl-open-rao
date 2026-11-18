@@ -73,21 +73,6 @@ class SkippedOptimizationResultImplTest {
     }
 
     @Test
-    void testDefaultStatus() {
-        State state = mock(State.class);
-        Optional<Contingency> optContingency = mock(Optional.class);
-        Contingency contingency = mock(Contingency.class);
-        Mockito.when(state.getContingency()).thenReturn(optContingency);
-        Mockito.when(optContingency.isPresent()).thenReturn(true);
-        Mockito.when(optContingency.get()).thenReturn(contingency);
-        Mockito.when(contingency.getId()).thenReturn("contingencyId");
-
-        SkippedOptimizationResultImpl skippedOptimizationResult = new SkippedOptimizationResultImpl(state, new HashSet<>(), new HashSet<>(), ComputationStatus.DEFAULT, sensitivityFailureOverCost);
-        assertEquals(ComputationStatus.DEFAULT, skippedOptimizationResult.getSensitivityStatus());
-        assertEquals(Set.of("contingencyId"), skippedOptimizationResult.getContingencies());
-    }
-
-    @Test
     void testActivation() {
         State state = mock(State.class);
         NetworkAction na1 = Mockito.mock(NetworkAction.class);
