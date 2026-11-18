@@ -7,7 +7,6 @@
 
 package com.powsybl.openrao.raoimpl.result.impl;
 
-import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
@@ -22,7 +21,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.HashSet;
-import java.util.Optional;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
