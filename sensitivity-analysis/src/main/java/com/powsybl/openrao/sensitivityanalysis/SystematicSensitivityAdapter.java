@@ -32,6 +32,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -157,44 +158,54 @@ final class SystematicSensitivityAdapter {
                                                Set<State> statesWithRa,
                                                AppliedRemedialActions appliedRemedialActions,
                                                ComputationManager computationManager) {
-        Optional<Map<State, List<Action>>> actionsPerState = convertToOperatorStrategyActions(statesWithRa, appliedRemedialActions,
-            network, OperatorStrategySupport.Mode.of(sensitivityComputationParameters));
-        if (actionsPerState.isPresent()) {
-            TECHNICAL_LOGS.debug("Applied remedial actions are simulated as operator strategies in a single sensitivity analysis");
+        // operator strategies of a contingency accumulate the actions of its successive states, so a contingency is
+        // simulated with operator strategies only if the actions of all its states with RA are supported
+        OperatorStrategySupport.Mode mode = OperatorStrategySupport.Mode.of(sensitivityComputationParameters);
+        Map<State, List<Action>> actionsPerState = new HashMap<>();
+        Set<Optional<Contingency>> unsupportedContingencies = new HashSet<>();
+        for (State state : statesWithRa) {
+            convertToOperatorStrategyActions(state, appliedRemedialActions, network, mode).ifPresentOrElse(
+                actions -> actionsPerState.put(state, actions),
+                () -> unsupportedContingencies.add(state.getContingency()));
+        }
+        Map<Boolean, Set<State>> statesBySupport = statesWithRa.stream()
+            .collect(Collectors.partitioningBy(state -> !unsupportedContingencies.contains(state.getContingency()), Collectors.toSet()));
+        Set<State> statesAsOperatorStrategies = statesBySupport.get(true);
+        Set<State> statesAppliedOnNetwork = statesBySupport.get(false);
+
+        if (!statesAsOperatorStrategies.isEmpty()) {
+            TECHNICAL_LOGS.debug("{} state(s) with RA simulated as operator strategies in a single sensitivity analysis", statesAsOperatorStrategies.size());
             runWithRemedialActionsAsOperatorStrategies(result, network, cnecSensitivityProvider, sensitivityComputationParameters,
-                sensitivityProvider, statesWithRa, actionsPerState.get(), computationManager);
-        } else {
-            TECHNICAL_LOGS.debug("Some applied remedial actions cannot be simulated as operator strategies: running one sensitivity analysis per state with RA");
+                sensitivityProvider, statesAsOperatorStrategies, actionsPerState, computationManager);
+        }
+        if (!statesAppliedOnNetwork.isEmpty()) {
+            TECHNICAL_LOGS.debug("{} state(s) with RA not supported by operator strategies: running one sensitivity analysis per state", statesAppliedOnNetwork.size());
             runWithRemedialActionsAppliedOnNetwork(result, network, cnecSensitivityProvider, sensitivityComputationParameters,
-                sensitivityProvider, statesWithRa, appliedRemedialActions, computationManager);
+                sensitivityProvider, statesAppliedOnNetwork, appliedRemedialActions, computationManager);
         }
     }
 
     /**
-     * Empty if an applied remedial action is not supported by operator strategies.
+     * Empty if a remedial action applied on the state is not supported by operator strategies.
      */
-    static Optional<Map<State, List<Action>>> convertToOperatorStrategyActions(Set<State> statesWithRa,
-                                                                               AppliedRemedialActions appliedRemedialActions,
-                                                                               Network network,
-                                                                               OperatorStrategySupport.Mode mode) {
-        Map<State, List<Action>> actionsPerState = new HashMap<>();
-        for (State state : statesWithRa) {
-            List<Action> actions;
-            try {
-                actions = appliedRemedialActions.toActions(state, network);
-            } catch (OpenRaoException | UnsupportedOperationException e) {
-                TECHNICAL_LOGS.debug("Remedial actions applied on state {} cannot be converted to actions: {}", state.getId(), e.getMessage());
-                return Optional.empty();
-            }
-            Optional<Action> unsupportedAction = actions.stream().filter(action -> !OperatorStrategySupport.isSupported(action, network, mode)).findFirst();
-            if (unsupportedAction.isPresent()) {
-                TECHNICAL_LOGS.debug("Action {} of type {} applied on state {} is not supported by operator strategies in {} mode",
-                    unsupportedAction.get().getId(), unsupportedAction.get().getType(), state.getId(), mode);
-                return Optional.empty();
-            }
-            actionsPerState.put(state, actions);
+    static Optional<List<Action>> convertToOperatorStrategyActions(State state,
+                                                                   AppliedRemedialActions appliedRemedialActions,
+                                                                   Network network,
+                                                                   OperatorStrategySupport.Mode mode) {
+        List<Action> actions;
+        try {
+            actions = appliedRemedialActions.toActions(state, network);
+        } catch (OpenRaoException | UnsupportedOperationException e) {
+            TECHNICAL_LOGS.debug("Remedial actions applied on state {} cannot be converted to actions: {}", state.getId(), e.getMessage());
+            return Optional.empty();
         }
-        return Optional.of(actionsPerState);
+        Optional<Action> unsupportedAction = actions.stream().filter(action -> !OperatorStrategySupport.isSupported(action, network, mode)).findFirst();
+        if (unsupportedAction.isPresent()) {
+            TECHNICAL_LOGS.debug("Action {} of type {} applied on state {} is not supported by operator strategies in {} mode",
+                unsupportedAction.get().getId(), unsupportedAction.get().getType(), state.getId(), mode);
+            return Optional.empty();
+        }
+        return Optional.of(actions);
     }
 
     private static void runWithRemedialActionsAsOperatorStrategies(SystematicSensitivityResult result,
