@@ -35,6 +35,7 @@ import com.powsybl.openrao.data.crac.api.cnec.VoltageCnec;
 import com.powsybl.openrao.data.crac.api.networkaction.ActionType;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.parameters.CracCreationParameters;
+import com.powsybl.openrao.data.crac.api.rangeaction.CounterTradeRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.usagerule.OnConstraint;
 import com.powsybl.openrao.data.crac.api.usagerule.OnContingencyState;
@@ -55,10 +56,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Mohamed Ben Rejeb {@literal <mohamed.ben-rejeb at rte-france.com>}
@@ -296,7 +294,7 @@ public final class NcCracCreationTestUtil {
         assertEquals(raName, networkAction.getName());
         assertEquals(1, networkAction.getElementaryActions().size());
         Action elementaryAction = networkAction.getElementaryActions().iterator().next();
-        assertTrue(elementaryAction instanceof SwitchAction);
+        assertInstanceOf(SwitchAction.class, elementaryAction);
         assertEquals(switchId, ((SwitchAction) elementaryAction).getSwitchId());
         assertEquals(actionType == ActionType.OPEN, ((SwitchAction) elementaryAction).isOpen());
         assertEquals(expectedOperator, networkAction.getOperator());
@@ -312,7 +310,7 @@ public final class NcCracCreationTestUtil {
         assertEquals(raName, networkAction.getName());
         assertEquals(1, networkAction.getElementaryActions().size());
         Action elementaryAction = networkAction.getElementaryActions().iterator().next();
-        assertTrue(elementaryAction instanceof GeneratorAction);
+        assertInstanceOf(GeneratorAction.class, elementaryAction);
         assertEquals(networkElementId, ((GeneratorAction) elementaryAction).getGeneratorId());
         assertEquals(setpoint, ((GeneratorAction) elementaryAction).getActivePowerValue().getAsDouble());
         assertEquals(expectedOperator, networkAction.getOperator());
@@ -328,7 +326,7 @@ public final class NcCracCreationTestUtil {
         assertEquals(raName, networkAction.getName());
         assertEquals(1, networkAction.getElementaryActions().size());
         Action elementaryAction = networkAction.getElementaryActions().iterator().next();
-        assertTrue(elementaryAction instanceof LoadAction);
+        assertInstanceOf(LoadAction.class, elementaryAction);
         assertEquals(networkElementId, ((LoadAction) elementaryAction).getLoadId());
         assertEquals(setpoint, ((LoadAction) elementaryAction).getActivePowerValue().getAsDouble());
         assertEquals(expectedOperator, networkAction.getOperator());
@@ -344,7 +342,7 @@ public final class NcCracCreationTestUtil {
         assertEquals(raName, networkAction.getName());
         assertEquals(1, networkAction.getElementaryActions().size());
         Action elementaryAction = networkAction.getElementaryActions().iterator().next();
-        assertTrue(elementaryAction instanceof ShuntCompensatorPositionAction);
+        assertInstanceOf(ShuntCompensatorPositionAction.class, elementaryAction);
         assertEquals(networkElementId, ((ShuntCompensatorPositionAction) elementaryAction).getShuntCompensatorId());
         assertEquals(setpoint, ((ShuntCompensatorPositionAction) elementaryAction).getSectionCount());
         assertEquals(expectedOperator, networkAction.getOperator());
@@ -364,8 +362,21 @@ public final class NcCracCreationTestUtil {
         if (expectedMinTap == null && expectedMaxTap == null) {
             return;
         }
-        assertEquals(expectedMinTap == null ? Integer.MIN_VALUE : expectedMinTap, pstRangeAction.getRanges().get(0).getMinTap());
-        assertEquals(expectedMaxTap == null ? Integer.MAX_VALUE : expectedMaxTap, pstRangeAction.getRanges().get(0).getMaxTap());
+        assertEquals(expectedMinTap == null ? Integer.MIN_VALUE : expectedMinTap, pstRangeAction.getRanges().getFirst().getMinTap());
+        assertEquals(expectedMaxTap == null ? Integer.MAX_VALUE : expectedMaxTap, pstRangeAction.getRanges().getFirst().getMaxTap());
+    }
+
+    public static void assertCounterTradeRangeActionsImported(CounterTradeRangeAction counterTradeRangeAction,
+                                                              String expectedId,
+                                                              String expectedName,
+                                                              double expectedMaxRange,
+                                                              double expectedMinRange,
+                                                              String expectedOperator) {
+        assertEquals(expectedId, counterTradeRangeAction.getId());
+        assertEquals(expectedName, counterTradeRangeAction.getName());
+        assertEquals(expectedOperator, counterTradeRangeAction.getOperator());
+        assertEquals(expectedMaxRange, counterTradeRangeAction.getRanges().getFirst().getMax());
+        assertEquals(expectedMinRange, counterTradeRangeAction.getRanges().getFirst().getMin());
     }
 
     public static NcCracCreationContext getNcCracCreationContext(String ncArchive, CracCreationParameters cracCreationParameters) {

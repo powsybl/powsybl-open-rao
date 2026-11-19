@@ -38,8 +38,7 @@ The creation of a small CRAC is for instance made in this test class of the Open
 :::
 :::{group-tab} JSON file
 An example of a small CRAC in the JSON internal format of OpenRAO is given below:  
-{src}`example on GitHub<data/crac/crac-io/crac-io-json/src/test/resources/retrocompatibility/v2/crac-v2.8.json>`
-<!-- TODO: point to the latest JSON CRAC version above -->
+{src}`example on GitHub<data/crac/crac-io/crac-io-json/src/test/resources/retrocompatibility/v2/crac-v2.13.json>`
 :::
 ::::
   
@@ -1317,6 +1316,8 @@ speed of this range action compared to other range-action automatons (smaller "s
 No two range-action automatons can have the same speed value, unless they are aligned.
 
 If the InjectionRangeAction uses a disconnected generator, the action will be filtered out and won't be used by the RAO.
+
+A InjectionRangeAction does not take into account the Pmax or Pmin of the generator defined in the network it only respects the range defined in the CRAC.
 
 ::::{tabs}
 :::{group-tab} JAVA creation API
