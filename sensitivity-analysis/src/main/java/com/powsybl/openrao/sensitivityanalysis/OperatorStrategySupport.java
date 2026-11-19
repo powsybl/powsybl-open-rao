@@ -18,6 +18,8 @@ import com.powsybl.action.ShuntCompensatorPositionAction;
 import com.powsybl.action.SwitchAction;
 import com.powsybl.action.TerminalsConnectionAction;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.ThreeWindingsTransformer;
+import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.sensitivity.SensitivityAnalysisParameters;
 
 /**
@@ -67,10 +69,10 @@ public final class OperatorStrategySupport {
             return network.getSwitch(switchAction.getSwitchId()) != null;
         }
         if (action instanceof PhaseTapChangerTapPositionAction pstAction) {
-            return network.getTwoWindingsTransformer(pstAction.getTransformerId()) != null || network.getThreeWindingsTransformer(pstAction.getTransformerId()) != null;
+            return hasPhaseTapChanger(pstAction, network);
         }
         if (action instanceof RatioTapChangerTapPositionAction rtcAction) {
-            return network.getTwoWindingsTransformer(rtcAction.getTransformerId()) != null || network.getThreeWindingsTransformer(rtcAction.getTransformerId()) != null;
+            return hasRatioTapChanger(rtcAction, network);
         }
         if (action instanceof GeneratorAction generatorAction) {
             return network.getGenerator(generatorAction.getGeneratorId()) != null;
@@ -88,6 +90,34 @@ public final class OperatorStrategySupport {
             return network.getArea(areaAction.getAreaId()) != null;
         }
         return false;
+    }
+
+    private static boolean hasPhaseTapChanger(PhaseTapChangerTapPositionAction pstAction, Network network) {
+        TwoWindingsTransformer twoWindingsTransformer = network.getTwoWindingsTransformer(pstAction.getTransformerId());
+        if (twoWindingsTransformer != null) {
+            return twoWindingsTransformer.hasPhaseTapChanger();
+        }
+        ThreeWindingsTransformer threeWindingsTransformer = network.getThreeWindingsTransformer(pstAction.getTransformerId());
+        if (threeWindingsTransformer == null) {
+            return false;
+        }
+        return pstAction.getSide()
+            .map(side -> threeWindingsTransformer.getLeg(side).hasPhaseTapChanger())
+            .orElseGet(() -> threeWindingsTransformer.getLegStream().anyMatch(ThreeWindingsTransformer.Leg::hasPhaseTapChanger));
+    }
+
+    private static boolean hasRatioTapChanger(RatioTapChangerTapPositionAction rtcAction, Network network) {
+        TwoWindingsTransformer twoWindingsTransformer = network.getTwoWindingsTransformer(rtcAction.getTransformerId());
+        if (twoWindingsTransformer != null) {
+            return twoWindingsTransformer.hasRatioTapChanger();
+        }
+        ThreeWindingsTransformer threeWindingsTransformer = network.getThreeWindingsTransformer(rtcAction.getTransformerId());
+        if (threeWindingsTransformer == null) {
+            return false;
+        }
+        return rtcAction.getSide()
+            .map(side -> threeWindingsTransformer.getLeg(side).hasRatioTapChanger())
+            .orElseGet(() -> threeWindingsTransformer.getLegStream().anyMatch(ThreeWindingsTransformer.Leg::hasRatioTapChanger));
     }
 
     public static boolean isSupported(Action action, Network network, Mode mode) {

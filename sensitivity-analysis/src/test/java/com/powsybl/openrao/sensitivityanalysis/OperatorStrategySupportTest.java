@@ -94,7 +94,6 @@ class OperatorStrategySupportTest {
 
         assertTrue(OperatorStrategySupport.existsInNetwork(new TerminalsConnectionAction("a", line, true), network));
         assertTrue(OperatorStrategySupport.existsInNetwork(new PhaseTapChangerTapPositionAction("a", pst, false, 1), network));
-        assertTrue(OperatorStrategySupport.existsInNetwork(new RatioTapChangerTapPositionAction("a", pst, false, 1), network));
         assertTrue(OperatorStrategySupport.existsInNetwork(
             new GeneratorActionBuilder().withId("a").withGeneratorId(generator).withActivePowerRelativeValue(false).withActivePowerValue(1.).build(), network));
         assertTrue(OperatorStrategySupport.existsInNetwork(new LoadActionBuilder().withId("a").withLoadId(load).withRelativeValue(false).withActivePowerValue(1.).build(), network));
@@ -115,5 +114,16 @@ class OperatorStrategySupportTest {
         }
         assertFalse(OperatorStrategySupport.isSupported(new TerminalsConnectionAction("a", "unknown", true), network, DC));
         assertTrue(OperatorStrategySupport.isSupported(new TerminalsConnectionAction("a", line, true), network, DC));
+
+        // tap changer actions need the matching tap changer
+        assertFalse(OperatorStrategySupport.existsInNetwork(new RatioTapChangerTapPositionAction("a", pst, false, 1), network));
+        network.getTwoWindingsTransformer(pst).newRatioTapChanger()
+            .setTapPosition(0)
+            .beginStep().setRho(1.).setR(0.).setX(0.).setG(0.).setB(0.).endStep()
+            .beginStep().setRho(1.1).setR(0.).setX(0.).setG(0.).setB(0.).endStep()
+            .add();
+        assertTrue(OperatorStrategySupport.existsInNetwork(new RatioTapChangerTapPositionAction("a", pst, false, 1), network));
+        network.getTwoWindingsTransformer(pst).getPhaseTapChanger().remove();
+        assertFalse(OperatorStrategySupport.existsInNetwork(new PhaseTapChangerTapPositionAction("a", pst, false, 1), network));
     }
 }
