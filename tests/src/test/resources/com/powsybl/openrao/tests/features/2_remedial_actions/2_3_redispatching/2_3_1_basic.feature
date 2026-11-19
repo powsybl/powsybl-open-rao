@@ -47,6 +47,24 @@ Feature: 2.3.1: Basic redispatching actions (free and costly)
   The initial setpoint is 1000, it is then updated to 300.0 (because the threshold of the line FR1 FR2 is 300)
   After optim => redispatching volume = 1000 - 300 = 700 MW
   Total cost : 10 for activation + 50 * 700 MW = 35010
+  MIP stops at 300MW -> just enough to secure the network for the cheapest price.
+    Given network file is "2_remedial_actions/2_3_redispatching/network_2nodes.uct"
+    Given crac file is "2_remedial_actions/2_3_redispatching/crac_2_3_1_1.json"
+    Given configuration file is "common/rao_parameters_min_cost_dc_0_shifted_threshold.json"
+    When I launch rao
+    Then the worst margin is 0 MW
+    Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "SECURED"
+    Then 1 remedial actions are used in preventive
+    Then the remedial action "redispatchingAction" is used in preventive
+    Then the setpoint of RangeAction "redispatchingAction" should be 300.0 MW in preventive
+    Then the margin on cnec "cnecFr1Fr2Preventive" after PRA should be 0.0 MW
+    Then the value of the objective function after PRA should be 35010.0
+
+  @fast @rao @dc @redispatching @preventive-only @costly
+  Scenario: 2.3.1.2.bis: Extremely basic redispatching on 2 nodes network - minCost with shifted threshold
+  Same scenario as 2.3.1.2 but the "shifted-threshold" is set to 10 meaning that the MIP consider the CNEC secured once the
+  margin is >= 10 MW.
     Given network file is "2_remedial_actions/2_3_redispatching/network_2nodes.uct"
     Given crac file is "2_remedial_actions/2_3_redispatching/crac_2_3_1_1.json"
     Given configuration file is "common/rao_parameters_min_cost_megawatt_dc.json"
@@ -58,7 +76,7 @@ Feature: 2.3.1: Basic redispatching actions (free and costly)
     Then the remedial action "redispatchingAction" is used in preventive
     Then the setpoint of RangeAction "redispatchingAction" should be 290.0 MW in preventive
     Then the margin on cnec "cnecFr1Fr2Preventive" after PRA should be 10.0 MW
-    Then the value of the objective function after PRA should be 35010.0
+    Then the value of the objective function after PRA should be 35510.0
 
   @fast @rao @dc @redispatching @preventive-only @max-min-margin
   Scenario: 2.3.1.3: Unbalanced redispatching
@@ -134,4 +152,23 @@ Feature: 2.3.1: Basic redispatching actions (free and costly)
     Then the setpoint of RangeAction "redispatchingActionFR1" should be -1000.0 MW in preventive
     Then 0 remedial actions are used in preventive
 
+  @fast @rao @dc @redispatching @preventive-only @costly
+  Scenario: 2.3.1.7: Redispatching is NOT limited by the PMax of a generator defined in the network
+  Originally all the production (3000MW) is on "FFR3AA1 _generator" all the consumption on "BBE3AA1 _load"
+  -> everything go through the "interconnection" "BBE2AA1  FFR2AA1  1". In the CRAC the threshold of the line is set to 0 MW.
+  The power needs to be completely redirected with the redispatching action -> Start up the generator "BBE1AA1 _generator" and set it to 3000MW
+  satisfy the consumption needs on "BBE3AA1 _load" and up the consumption on "FFR1AA1 _load" to 3000 MW to absorb "FFR3AA1 _generator" production.
+  -> nothing needs to go through the interconnection.
 
+    In particular in this test we check that:
+  - Even if BBE1AA1 _generator's Pmax is set to 2500MW, the RAO does not listen to the limit and is only limited by the range defined in the CRAC !
+  - "BBE1AA1 _generator" is initially shut down but it can be started up by the RAO.
+    Given network file is "4_time_coupled/6Nodes_Pmax2500.xiidm"
+    Given crac file is "2_remedial_actions/2_3_redispatching/crac_2_3_1_7.json"
+    Given configuration file is "common/rao_parameters_min_cost_megawatt_dc.json"
+    When I launch rao
+    Then 1 remedial actions are used in preventive
+    Then the setpoint of RangeAction "redispatchingAction" should be 3000.0 MW in preventive
+    # 10 (activation) + 50 * 3000 MW (variation) = 150010
+    Then the value of the objective function after PRA should be 150010.0
+    Then the margin on cnec "cnecBeFr" after PRA should be 0.0 MW
