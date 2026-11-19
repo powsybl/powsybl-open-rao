@@ -48,11 +48,13 @@ import com.powsybl.openrao.raoimpl.result.extension.PreTimeCouplingOverloadedCne
 import com.powsybl.openrao.raoimpl.result.extension.TimeCoupledCostResult;
 import com.powsybl.openrao.raoimpl.result.impl.*;
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
+
 import java.time.OffsetDateTime;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
+
 import static com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.RaRangeShrinking.ENABLED;
 import static com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.RaRangeShrinking.ENABLED_IN_FIRST_PRAO_AND_CRAO;
 import static com.powsybl.openrao.raoimpl.algorithms.MarmotUtils.runInitialPrePerimeterSensitivityAnalysisWithoutRangeActions;
@@ -498,7 +500,15 @@ class Marmot {
         raoResult.addExtension(PreTimeCouplingOverloadedCnecs.class, new PreTimeCouplingOverloadedCnecs(postTopoOverloadedCnecs));
         raoResult.addExtension(
             CostResult.class,
-            createCastorCostResultExtension(initialLinearOptimizationResult, globalLinearOptimizationResult, instants)
+            createCastorCostResultExtension(
+                initialLinearOptimizationResult,
+                globalLinearOptimizationResult,
+                preventiveNetworkActions,
+                curativeTopologicalActions,
+                cracs,
+                instants,
+                raoParameters.getObjectiveFunctionParameters().getType().costOptimization()
+            )
         );
         raoResult.addExtension(
             com.powsybl.openrao.data.raoresult.api.extension.FlowResult.class,
@@ -516,21 +526,70 @@ class Marmot {
         return raoResult;
     }
 
-    private static CostResult createCastorCostResultExtension(ObjectiveFunctionResult initialOptimizationResult,
-                                                              ObjectiveFunctionResult finalLinearOptimizationResult,
-                                                              List<Instant> instants) {
+    private static CostResult createCastorCostResultExtension(final ObjectiveFunctionResult initialOptimizationResult,
+                                                              final ObjectiveFunctionResult finalLinearOptimizationResult,
+                                                              final TemporalData<Set<NetworkAction>> preventiveNetworkActions,
+                                                              final TemporalData<AppliedRemedialActions> curativeTopologicalActions,
+                                                              final TemporalData<Crac> cracs,
+                                                              final List<Instant> instants,
+                                                              final boolean costOptimization) {
         CostResult.CostResultBuilder costResultBuilder = CostResult.builder();
-        addCostsForInstant(costResultBuilder, initialOptimizationResult, null);
+        addCostsForInstant(costResultBuilder, initialOptimizationResult, 0.0, null);
+        Map<Instant, Double> costOffsets = costOptimization
+            ? getTopologicalActionsCostOffsets(preventiveNetworkActions, curativeTopologicalActions, cracs, instants)
+            : Map.of();
         instants.stream()
             .filter(instant -> !instant.isOutage())
-            .forEach(instant -> addCostsForInstant(costResultBuilder, finalLinearOptimizationResult, instant));
+            .forEach(instant -> addCostsForInstant(
+                costResultBuilder,
+                finalLinearOptimizationResult,
+                costOffsets.getOrDefault(instant, 0.0),
+                instant)
+            );
         return costResultBuilder.build();
+    }
+
+    private static Map<Instant, Double> getTopologicalActionsCostOffsets(final TemporalData<Set<NetworkAction>> preventiveNetworkActions,
+                                                                         final TemporalData<AppliedRemedialActions> curativeTopologicalActions,
+                                                                         final TemporalData<Crac> cracs,
+                                                                         final List<Instant> instants) {
+        Map<Instant, Double> costOffsets = new HashMap<>();
+        for (Instant instant : instants) {
+            switch (instant.getKind()) {
+                case PREVENTIVE -> {
+                    double preventiveCost = 0.0;
+                    for (OffsetDateTime timestamp : preventiveNetworkActions.getTimestamps()) {
+                        preventiveCost += preventiveNetworkActions.getDataPerTimestamp().get(timestamp).stream()
+                            .mapToDouble(networkAction -> networkAction.getActivationCost().orElse(0.0))
+                            .sum();
+                    }
+                    costOffsets.put(instant, preventiveCost);
+                }
+                case CURATIVE -> {
+                    double curativeCost = 0.0;
+                    for (OffsetDateTime timestamp : preventiveNetworkActions.getTimestamps()) {
+                        AppliedRemedialActions appliedRemedialActions = curativeTopologicalActions.getDataPerTimestamp().get(timestamp);
+                        for (State curativeState : cracs.getDataPerTimestamp().get(timestamp).getStates(instant)) {
+                            curativeCost += appliedRemedialActions.getAppliedNetworkActions(curativeState).stream()
+                                .mapToDouble(state -> state.getActivationCost().orElse(0.0))
+                                .sum();
+                        }
+                    }
+                    costOffsets.put(instant, curativeCost);
+                }
+                case OUTAGE, AUTO -> {
+                    // no remedial action can be activated in outage and MARMOT does not currently support automatons
+                }
+            }
+        }
+        return costOffsets;
     }
 
     private static void addCostsForInstant(CostResult.CostResultBuilder costResultBuilder,
                                            ObjectiveFunctionResult objectiveFunctionResult,
+                                           double topologicalCostOffset,
                                            Instant optimizedInstant) {
-        costResultBuilder.addFunctionalCostResult(optimizedInstant, objectiveFunctionResult.getFunctionalCost());
+        costResultBuilder.addFunctionalCostResult(optimizedInstant, objectiveFunctionResult.getFunctionalCost() + topologicalCostOffset);
         objectiveFunctionResult.getVirtualCostNames()
             .forEach(virtualCostName -> costResultBuilder.addVirtualCostResult(
                 optimizedInstant,

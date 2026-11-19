@@ -687,17 +687,19 @@ class MarmotTest {
         RaoParameters raoParameters = JsonRaoParameters.read(MarmotTest.class.getResourceAsStream("/parameters/RaoParameters_minCost_megawatt_dc_with_offset.json"), ReportNode.NO_OP);
 
         TemporalData<RaoInput> inputPerTimestamp = new TemporalDataImpl<>();
+
         inputPerTimestamp.put(OffsetDateTime.of(2026, 5, 28, 0, 30, 0, 0, ZoneOffset.UTC), RaoInput.build(network00, crac00).build());
         inputPerTimestamp.put(OffsetDateTime.of(2026, 5, 28, 1, 30, 0, 0, ZoneOffset.UTC), RaoInput.build(network01, crac01).build());
 
         TimeCoupledRaoInput input = new TimeCoupledRaoInput(inputPerTimestamp, timeCoupledConstraints);
 
         RaoResult timeCoupledRaoResult = new Marmot().run(input, raoParameters, ReportNode.NO_OP).join();
+        assertEquals(82.0, timeCoupledRaoResult.getExtension(CostResult.class).getFunctionalCost(crac00.getLastInstant()));
         TimeCoupledCostResult costResult = timeCoupledRaoResult.getExtension(TimeCoupledCostResult.class);
         assertNotNull(costResult);
 
-        assertEquals(41.0, costResult.getFunctionalCost(crac00.getPreventiveInstant(), OffsetDateTime.of(2026, 5, 28, 0, 30, 0, 0, ZoneOffset.UTC)));
-        assertEquals(41.0, costResult.getFunctionalCost(crac01.getPreventiveInstant(), OffsetDateTime.of(2026, 5, 28, 1, 30, 0, 0, ZoneOffset.UTC)));
+        assertEquals(41.0, costResult.getFunctionalCost(crac00.getLastInstant(), OffsetDateTime.of(2026, 5, 28, 0, 30, 0, 0, ZoneOffset.UTC)));
+        assertEquals(41.0, costResult.getFunctionalCost(crac01.getLastInstant(), OffsetDateTime.of(2026, 5, 28, 1, 30, 0, 0, ZoneOffset.UTC)));
 
         assertEquals(-3, timeCoupledRaoResult.getOptimizedTapOnState(crac00.getPreventiveState(), crac00.getPstRangeAction("pstFr1Fr2")));
         assertEquals(-3, timeCoupledRaoResult.getOptimizedTapOnState(crac01.getPreventiveState(), crac01.getPstRangeAction("pstFr1Fr2")));
