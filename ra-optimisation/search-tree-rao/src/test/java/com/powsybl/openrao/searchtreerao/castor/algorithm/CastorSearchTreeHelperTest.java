@@ -44,7 +44,7 @@ class CastorSearchTreeHelperTest {
 
     @Test
     void emptyCombinationIsNoOp() {
-        CastorSearchTreeHelper.injectDcPreSolveCombination(searchTreeParameters, Set.of(), DcSolutionUsage.HINT);
+        CastorSearchTreeHelper.injectPreSolveCombination(searchTreeParameters, Set.of(), DcSolutionUsage.HINT);
 
         assertTrue(networkActionParameters.getNetworkActionCombinations().isEmpty());
         assertTrue(networkActionParameters.getForcedCombinations().isEmpty());
@@ -54,7 +54,7 @@ class CastorSearchTreeHelperTest {
     void hintAddsPredefinedCombination() {
         Set<NetworkAction> combination = Set.of(networkAction1, networkAction2);
 
-        CastorSearchTreeHelper.injectDcPreSolveCombination(searchTreeParameters, combination, DcSolutionUsage.HINT);
+        CastorSearchTreeHelper.injectPreSolveCombination(searchTreeParameters, combination, DcSolutionUsage.HINT);
 
         assertEquals(1, networkActionParameters.getNetworkActionCombinations().size());
         NetworkActionCombination addedCombination = networkActionParameters.getNetworkActionCombinations().getFirst();
@@ -67,7 +67,7 @@ class CastorSearchTreeHelperTest {
     void forcedSetsForcedCombination() {
         Set<NetworkAction> combination = Set.of(networkAction1, networkAction2);
 
-        CastorSearchTreeHelper.injectDcPreSolveCombination(searchTreeParameters, combination, DcSolutionUsage.FORCED);
+        CastorSearchTreeHelper.injectPreSolveCombination(searchTreeParameters, combination, DcSolutionUsage.FORCED);
 
         assertTrue(networkActionParameters.getNetworkActionCombinations().isEmpty());
         assertEquals(1, networkActionParameters.getForcedCombinations().size());

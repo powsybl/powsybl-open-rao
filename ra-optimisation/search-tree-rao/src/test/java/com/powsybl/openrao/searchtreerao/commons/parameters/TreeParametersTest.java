@@ -183,15 +183,15 @@ class TreeParametersTest {
         searchTreeParameters.getTopoOptimizationParameters().setMaxPreventiveSearchTreeDepthDc(3);
         searchTreeParameters.getTopoOptimizationParameters().setMaxCurativeSearchTreeDepthDc(2);
 
-        TreeParameters preventive = TreeParameters.buildForPreventivePerimeterDc(raoParameters);
+        TreeParameters preventive = TreeParameters.buildForPreventivePerimeterPreSolve(raoParameters);
         assertEquals(new TreeParameters(TreeParameters.StopCriterion.AT_TARGET_OBJECTIVE_VALUE, 0.0, 3, 4, false), preventive);
         assertEquals(6, TreeParameters.buildForPreventivePerimeter(raoParameters).maximumSearchDepth());
 
-        TreeParameters secondPreventive = TreeParameters.buildForSecondPreventivePerimeterDc(raoParameters);
+        TreeParameters secondPreventive = TreeParameters.buildForSecondPreventivePerimeterPreSolve(raoParameters);
         assertEquals(new TreeParameters(TreeParameters.StopCriterion.AT_TARGET_OBJECTIVE_VALUE, 0.0, 3, 4, false), secondPreventive);
         assertEquals(6, TreeParameters.buildForSecondPreventivePerimeter(raoParameters).maximumSearchDepth());
 
-        TreeParameters curative = TreeParameters.buildForCurativePerimeterDc(raoParameters, 100.0);
+        TreeParameters curative = TreeParameters.buildForCurativePerimeterPreSolve(raoParameters, 100.0);
         assertEquals(new TreeParameters(TreeParameters.StopCriterion.AT_TARGET_OBJECTIVE_VALUE, 0.0, 2, 1, false), curative);
         assertEquals(6, TreeParameters.buildForCurativePerimeter(raoParameters, 100.0).maximumSearchDepth());
     }

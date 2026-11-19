@@ -38,7 +38,7 @@ public record TreeParameters(StopCriterion stopCriterion, double targetObjective
         return buildForPreventivePerimeter(parameters, getMaxPreventiveSearchTreeDepth(parameters));
     }
 
-    public static TreeParameters buildForPreventivePerimeterDc(RaoParameters parameters) {
+    public static TreeParameters buildForPreventivePerimeterPreSolve(RaoParameters parameters) {
         return buildForPreventivePerimeter(parameters, getMaxPreventiveSearchTreeDepthDc(parameters));
     }
 
@@ -65,7 +65,7 @@ public record TreeParameters(StopCriterion stopCriterion, double targetObjective
         return buildForCurativePerimeter(parameters, preventiveOptimizedCost, getMaxCurativeSearchTreeDepth(parameters));
     }
 
-    public static TreeParameters buildForCurativePerimeterDc(RaoParameters parameters, Double preventiveOptimizedCost) {
+    public static TreeParameters buildForCurativePerimeterPreSolve(RaoParameters parameters, Double preventiveOptimizedCost) {
         return buildForCurativePerimeter(parameters, preventiveOptimizedCost, getMaxCurativeSearchTreeDepthDc(parameters));
     }
 
@@ -94,7 +94,7 @@ public record TreeParameters(StopCriterion stopCriterion, double targetObjective
         return buildForSecondPreventivePerimeter(parameters, getMaxPreventiveSearchTreeDepth(parameters));
     }
 
-    public static TreeParameters buildForSecondPreventivePerimeterDc(RaoParameters parameters) {
+    public static TreeParameters buildForSecondPreventivePerimeterPreSolve(RaoParameters parameters) {
         return buildForSecondPreventivePerimeter(parameters, getMaxPreventiveSearchTreeDepthDc(parameters));
     }
 

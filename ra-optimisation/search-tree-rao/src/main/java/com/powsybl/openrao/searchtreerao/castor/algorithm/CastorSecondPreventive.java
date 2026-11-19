@@ -386,10 +386,10 @@ public class CastorSecondPreventive {
             searchTreeParameters.getNetworkActionParameters().addHintedNetworkActionCombination(new NetworkActionCombination(firstPreventiveResult.getActivatedNetworkActions(), true));
         }
 
-        Set<NetworkAction> dcCombination = Set.of();
+        Set<NetworkAction> preSolveCombination = Set.of();
         if (presolve != null && SearchTreeRaoTopoOptimizationParameters.getMaxPreventiveSearchTreeDepthDc(raoParameters) > 0) {
-            dcCombination = runSecondPreventiveDcPreSolve(appliedCras, secondPreventiveReportNode);
-            injectDcPreSolveCombination(searchTreeParameters, dcCombination,
+            preSolveCombination = runSecondPreventivePreSolve(appliedCras, secondPreventiveReportNode);
+            injectPreSolveCombination(searchTreeParameters, preSolveCombination,
                 SearchTreeRaoTopoOptimizationParameters.getPreventiveDcSolutionUsage(raoParameters));
         }
 
@@ -409,8 +409,8 @@ public class CastorSecondPreventive {
         OptimizationResult result = runSearchTree(network, optPerimeter, objectiveFunction,
             initialOutput, prePerimeterResult, appliedCras, toolProvider, crac.getOutageInstant(), searchTreeParameters,
             true, secondPreventiveReportNode);
-        if (!dcCombination.isEmpty()) {
-            CastorReports.reportDcPreSolveCombinationRetained(secondPreventiveReportNode, result.getActivatedNetworkActions().containsAll(dcCombination));
+        if (!preSolveCombination.isEmpty()) {
+            CastorReports.reportDcPreSolveCombinationRetained(secondPreventiveReportNode, result.getActivatedNetworkActions().containsAll(preSolveCombination));
         }
 
         // apply PRAs
@@ -424,39 +424,39 @@ public class CastorSecondPreventive {
     /**
      * Run a smaller DC search tree to get a network action combination to hint/force into the AC search above.
      */
-    private Set<NetworkAction> runSecondPreventiveDcPreSolve(final AppliedRemedialActions appliedCras, final ReportNode reportNode) {
-        RaoParameters dcRaoParameters = presolve.getRaoParameters();
+    private Set<NetworkAction> runSecondPreventivePreSolve(final AppliedRemedialActions appliedCras, final ReportNode reportNode) {
+        RaoParameters preSolveRaoParameters = presolve.getRaoParameters();
 
-        PrePerimeterResult dcPrePerimeterResult = new PrePerimeterSensitivityAnalysis(
-            crac, crac.getFlowCnecs(), crac.getRangeActions(), dcRaoParameters, presolve.getToolProvider(), true)
+        PrePerimeterResult preSolvePrePerimeterResult = new PrePerimeterSensitivityAnalysis(
+            crac, crac.getFlowCnecs(), crac.getRangeActions(), preSolveRaoParameters, presolve.getToolProvider(), true)
             .runBasedOnInitialResults(network, presolve.getInitialOutput(), stateTree.getOperatorsNotSharingCras(), appliedCras, reportNode);
-        if (dcPrePerimeterResult.getSensitivityStatus() == ComputationStatus.FAILURE) {
+        if (preSolvePrePerimeterResult.getSensitivityStatus() == ComputationStatus.FAILURE) {
             return Set.of();
         }
 
-        OptimizationPerimeter dcOptPerimeter = GlobalOptimizationPerimeter.build(crac, network, dcRaoParameters, dcPrePerimeterResult, reportNode);
+        OptimizationPerimeter preSolveOptPerimeter = GlobalOptimizationPerimeter.build(crac, network, preSolveRaoParameters, preSolvePrePerimeterResult, reportNode);
 
-        SearchTreeParameters dcSearchTreeParameters = buildSearchTreeParameters(
-            dcRaoParameters, TreeParameters.buildForSecondPreventivePerimeterDc(dcRaoParameters), crac, network,
+        SearchTreeParameters preSolveSearchTreeParameters = buildSearchTreeParameters(
+            preSolveRaoParameters, TreeParameters.buildForSecondPreventivePerimeterPreSolve(preSolveRaoParameters), crac, network,
             stateTree.getOperatorsNotSharingCras(), reportNode);
 
-        Set<State> dcStatesToOptimize = new HashSet<>(dcOptPerimeter.getMonitoredStates());
-        dcStatesToOptimize.add(dcOptPerimeter.getMainOptimizationState());
+        Set<State> preSolveStatesToOptimize = new HashSet<>(preSolveOptPerimeter.getMonitoredStates());
+        preSolveStatesToOptimize.add(preSolveOptPerimeter.getMainOptimizationState());
 
-        ObjectiveFunction dcObjectiveFunction = ObjectiveFunction.build(
-            dcOptPerimeter.getFlowCnecs(),
-            dcOptPerimeter.getLoopFlowCnecs(),
+        ObjectiveFunction preSolveObjectiveFunction = ObjectiveFunction.build(
+            preSolveOptPerimeter.getFlowCnecs(),
+            preSolveOptPerimeter.getLoopFlowCnecs(),
             presolve.getInitialOutput(),
-            dcPrePerimeterResult,
+            preSolvePrePerimeterResult,
             new HashSet<>(),
-            dcRaoParameters,
-            dcStatesToOptimize
+            preSolveRaoParameters,
+            preSolveStatesToOptimize
         );
 
-        OptimizationResult dcResult = runSearchTree(network, dcOptPerimeter, dcObjectiveFunction,
-            presolve.getInitialOutput(), dcPrePerimeterResult, appliedCras, presolve.getToolProvider(), crac.getOutageInstant(), dcSearchTreeParameters, false, reportNode);
-        CastorReports.reportDcPreSolveProposal(reportNode, dcResult.getActivatedNetworkActions());
-        return dcResult.getActivatedNetworkActions();
+        OptimizationResult preSolveResult = runSearchTree(network, preSolveOptPerimeter, preSolveObjectiveFunction,
+            presolve.getInitialOutput(), preSolvePrePerimeterResult, appliedCras, presolve.getToolProvider(), crac.getOutageInstant(), preSolveSearchTreeParameters, false, reportNode);
+        CastorReports.reportDcPreSolveProposal(reportNode, preSolveResult.getActivatedNetworkActions());
+        return preSolveResult.getActivatedNetworkActions();
     }
 
     /**

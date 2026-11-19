@@ -91,20 +91,20 @@ final class CastorSearchTreeHelper {
     }
 
     /**
-     * HINT: the DC pre-solve combination competes at depth 1 alongside all single network actions.
-     * FORCED: depth 1 of the AC search is replaced by this combination alone.
+     * HINT: the pre-solve combination competes at depth 1 alongside all single network actions.
+     * FORCED: depth 1 of the main search is replaced by this combination alone.
      */
-    static void injectDcPreSolveCombination(final SearchTreeParameters acSearchTreeParameters,
-                                            final Set<NetworkAction> dcCombination,
-                                            final SearchTreeRaoTopoOptimizationParameters.DcSolutionUsage dcSolutionUsage) {
-        if (dcCombination.isEmpty()) {
+    static void injectPreSolveCombination(final SearchTreeParameters mainSearchTreeParameters,
+                                          final Set<NetworkAction> preSolveCombination,
+                                          final SearchTreeRaoTopoOptimizationParameters.DcSolutionUsage preSolveUsage) {
+        if (preSolveCombination.isEmpty()) {
             return;
         }
-        NetworkActionCombination combination = new NetworkActionCombination(dcCombination, true);
-        if (dcSolutionUsage == SearchTreeRaoTopoOptimizationParameters.DcSolutionUsage.FORCED) {
-            acSearchTreeParameters.getNetworkActionParameters().addForcedNetworkActionCombination(combination);
+        NetworkActionCombination combination = new NetworkActionCombination(preSolveCombination, true);
+        if (preSolveUsage == SearchTreeRaoTopoOptimizationParameters.DcSolutionUsage.FORCED) {
+            mainSearchTreeParameters.getNetworkActionParameters().addForcedNetworkActionCombination(combination);
         } else {
-            acSearchTreeParameters.getNetworkActionParameters().addHintedNetworkActionCombination(combination);
+            mainSearchTreeParameters.getNetworkActionParameters().addHintedNetworkActionCombination(combination);
         }
     }
 }
