@@ -13,6 +13,7 @@ import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.raoapi.Rao;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.RaoProvider;
+import com.powsybl.openrao.raoapi.RaoStopCondition;
 import com.powsybl.openrao.raoapi.TimeCoupledRao;
 import com.powsybl.openrao.raoapi.TimeCoupledRaoInput;
 import com.powsybl.openrao.raoapi.TimeCoupledRaoProvider;
@@ -95,13 +96,13 @@ class DeprecatedProvidersTest {
         CompletableFuture<RaoResult> result = CompletableFuture.completedFuture(mock(RaoResult.class));
 
         try (MockedConstruction<OpenRao> openRao = mockConstruction(OpenRao.class, (delegate, context) ->
-            when(delegate.run(input, parameters, deadline, ReportNode.NO_OP)).thenAnswer(invocation -> {
+            when(delegate.run(input, parameters, deadline, ReportNode.NO_OP, RaoStopCondition.NO_OP)).thenAnswer(invocation -> {
                 assertThat(parameters.hasExtension(FastRaoParameters.class)).isFalse();
                 return result;
             }))) {
-            assertThat(new Castor().run(input, parameters, deadline, ReportNode.NO_OP)).isSameAs(result);
+            assertThat(new Castor().run(input, parameters, deadline, ReportNode.NO_OP, RaoStopCondition.NO_OP)).isSameAs(result);
             assertThat(openRao.constructed()).hasSize(1);
-            verify(openRao.constructed().get(0)).run(input, parameters, deadline, ReportNode.NO_OP);
+            verify(openRao.constructed().get(0)).run(input, parameters, deadline, ReportNode.NO_OP, RaoStopCondition.NO_OP);
         }
     }
 
@@ -112,13 +113,13 @@ class DeprecatedProvidersTest {
         CompletableFuture<RaoResult> result = CompletableFuture.completedFuture(mock(RaoResult.class));
 
         try (MockedConstruction<OpenRao> openRao = mockConstruction(OpenRao.class, (delegate, context) ->
-            when(delegate.run(input, parameters, null, ReportNode.NO_OP)).thenAnswer(invocation -> {
+            when(delegate.run(input, parameters, null, ReportNode.NO_OP, RaoStopCondition.NO_OP)).thenAnswer(invocation -> {
                 assertThat(parameters.hasExtension(FastRaoParameters.class)).isTrue();
                 return result;
             }))) {
-            assertThat(new FastRao().run(input, parameters, ReportNode.NO_OP)).isSameAs(result);
+            assertThat(new FastRao().run(input, parameters, ReportNode.NO_OP, RaoStopCondition.NO_OP)).isSameAs(result);
             assertThat(openRao.constructed()).hasSize(1);
-            verify(openRao.constructed().get(0)).run(input, parameters, null, ReportNode.NO_OP);
+            verify(openRao.constructed().get(0)).run(input, parameters, null, ReportNode.NO_OP, RaoStopCondition.NO_OP);
         }
     }
 
@@ -132,14 +133,14 @@ class DeprecatedProvidersTest {
         CompletableFuture<RaoResult> result = CompletableFuture.completedFuture(mock(RaoResult.class));
 
         try (MockedConstruction<OpenRao> openRao = mockConstruction(OpenRao.class, (delegate, context) ->
-            when(delegate.run(input, parameters, deadline, ReportNode.NO_OP)).thenAnswer(invocation -> {
+            when(delegate.run(input, parameters, deadline, ReportNode.NO_OP, RaoStopCondition.NO_OP)).thenAnswer(invocation -> {
                 FastRaoParameters actualParameters = parameters.getExtension(FastRaoParameters.class);
                 assertThat(actualParameters).isSameAs(fastParameters);
                 return result;
             }))) {
-            assertThat(new FastRao().run(input, parameters, deadline, ReportNode.NO_OP)).isSameAs(result);
+            assertThat(new FastRao().run(input, parameters, deadline, ReportNode.NO_OP, RaoStopCondition.NO_OP)).isSameAs(result);
             assertThat(openRao.constructed()).hasSize(1);
-            verify(openRao.constructed().get(0)).run(input, parameters, deadline, ReportNode.NO_OP);
+            verify(openRao.constructed().get(0)).run(input, parameters, deadline, ReportNode.NO_OP, RaoStopCondition.NO_OP);
         }
     }
 
@@ -150,10 +151,10 @@ class DeprecatedProvidersTest {
         CompletableFuture<RaoResult> result = CompletableFuture.completedFuture(mock(RaoResult.class));
 
         try (MockedConstruction<OpenRao> openRao = mockConstruction(OpenRao.class, (delegate, context) ->
-            when(delegate.run(input, parameters, ReportNode.NO_OP)).thenReturn(result))) {
-            assertThat(new Marmot().run(input, parameters, ReportNode.NO_OP)).isSameAs(result);
+            when(delegate.run(input, parameters, ReportNode.NO_OP, RaoStopCondition.NO_OP)).thenReturn(result))) {
+            assertThat(new Marmot().run(input, parameters, ReportNode.NO_OP, RaoStopCondition.NO_OP)).isSameAs(result);
             assertThat(openRao.constructed()).hasSize(1);
-            verify(openRao.constructed().get(0)).run(input, parameters, ReportNode.NO_OP);
+            verify(openRao.constructed().get(0)).run(input, parameters, ReportNode.NO_OP, RaoStopCondition.NO_OP);
         }
     }
 }

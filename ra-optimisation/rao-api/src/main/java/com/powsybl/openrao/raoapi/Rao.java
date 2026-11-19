@@ -124,7 +124,11 @@ public final class Rao {
             return runAsync(raoInput, ReportNode.NO_OP);
         }
 
-        public RaoResult run(final RaoInput raoInput, final RaoParameters parameters, final Instant targetEndInstant, final ReportNode reportNode) {
+        public RaoResult run(final RaoInput raoInput,
+                             final RaoParameters parameters,
+                             final Instant targetEndInstant,
+                             final ReportNode reportNode,
+                             final RaoStopCondition raoStopCondition) {
             Objects.requireNonNull(raoInput, "RAO input should not be null");
             Objects.requireNonNull(parameters, "parameters should not be null");
             Objects.requireNonNull(reportNode, "ReportNode should not be null");
@@ -136,15 +140,15 @@ public final class Rao {
 
             RaoApiReports.reportRaoVersionAndGitCommit(reportNode, openRaoVersion.getMavenProjectVersion(), openRaoVersion.getGitVersion());
 
-            return provider.run(raoInput, parameters, targetEndInstant, reportNode).join();
+            return provider.run(raoInput, parameters, targetEndInstant, reportNode, raoStopCondition).join();
         }
 
         public RaoResult run(final RaoInput raoInput, final RaoParameters parameters, final Instant targetEndInstant) {
-            return run(raoInput, parameters, targetEndInstant, ReportNode.NO_OP);
+            return run(raoInput, parameters, targetEndInstant, ReportNode.NO_OP, RaoStopCondition.NO_OP);
         }
 
         public RaoResult run(final RaoInput raoInput, final RaoParameters parameters, final ReportNode reportNode) {
-            return run(raoInput, parameters, null, reportNode);
+            return run(raoInput, parameters, null, reportNode, RaoStopCondition.NO_OP);
         }
 
         public RaoResult run(final RaoInput raoInput, final RaoParameters parameters) {
@@ -152,7 +156,7 @@ public final class Rao {
         }
 
         public RaoResult run(final RaoInput raoInput, final ReportNode reportNode) {
-            return run(raoInput, RaoParameters.load(reportNode), null, reportNode);
+            return run(raoInput, RaoParameters.load(reportNode), null, reportNode, RaoStopCondition.NO_OP);
         }
 
         public RaoResult run(final RaoInput raoInput) {

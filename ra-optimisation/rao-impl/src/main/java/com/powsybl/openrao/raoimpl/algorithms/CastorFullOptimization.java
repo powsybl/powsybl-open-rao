@@ -19,6 +19,7 @@ import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.raoresult.api.extension.CostResult;
 import com.powsybl.openrao.data.raoresult.api.extension.Metadata;
 import com.powsybl.openrao.raoapi.RaoInput;
+import com.powsybl.openrao.raoapi.RaoStopCondition;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters;
@@ -69,14 +70,20 @@ class CastorFullOptimization {
     private final RaoParameters raoParameters;
     private final java.time.Instant targetEndInstant;
     private final ReportNode reportNode;
+    private final RaoStopCondition raoStopCondition;
 
-    CastorFullOptimization(final RaoInput raoInput, final RaoParameters raoParameters, final java.time.Instant targetEndInstant, final ReportNode reportNode) {
+    CastorFullOptimization(final RaoInput raoInput,
+                           final RaoParameters raoParameters,
+                           final java.time.Instant targetEndInstant,
+                           final ReportNode reportNode,
+                           final RaoStopCondition raoStopCondition) {
         this.raoInput = raoInput;
         this.crac = raoInput.getCrac();
         this.network = raoInput.getNetwork();
         this.raoParameters = raoParameters;
         this.targetEndInstant = targetEndInstant;
         this.reportNode = reportNode;
+        this.raoStopCondition = raoStopCondition;
     }
 
     CompletableFuture<RaoResult> run() {

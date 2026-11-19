@@ -27,6 +27,7 @@ import com.powsybl.openrao.data.raoresult.api.extension.Metadata;
 import com.powsybl.openrao.data.raoresult.impl.RaoResultImpl;
 import com.powsybl.openrao.raoapi.LazyNetwork;
 import com.powsybl.openrao.raoapi.RaoInput;
+import com.powsybl.openrao.raoapi.RaoStopCondition;
 import com.powsybl.openrao.raoapi.TimeCoupledRaoInput;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.MarmotParameters;
@@ -230,13 +231,15 @@ class Marmot {
                                                                       final TemporalData<Set<FlowCnec>> consideredCnecs,
                                                                       final TemporalData<RaoParameters> raoParameters,
                                                                       final int parallelism,
-                                                                      final ReportNode reportNode) {
+                                                                      final ReportNode reportNode,
+                                                                      final RaoStopCondition raoStopCondition) {
         return MarmotUtils.smartMap(raoInputs, raoInput ->
                 runSingleTopologicalOptimization(
                     raoInput,
                     consideredCnecs,
                     raoParameters.getData(MarmotUtils.getTimestamp(raoInput)).orElseThrow(),
-                    reportNode
+                    reportNode,
+                    raoStopCondition
                 ),
             parallelism
         );
@@ -253,10 +256,11 @@ class Marmot {
     private static RaoResult runSingleTopologicalOptimization(final RaoInput raoInput,
                                                               final TemporalData<Set<FlowCnec>> consideredCnecs,
                                                               final RaoParameters raoParameters,
-                                                              final ReportNode reportNode) {
+                                                              final ReportNode reportNode,
+                                                              final RaoStopCondition raoStopCondition) {
         OffsetDateTime timestamp = MarmotUtils.getTimestamp(raoInput);
         final ReportNode raoRunReportNode = MarmotReports.reportMarmotRunningRaoForTimestamp(reportNode, timestamp);
-        RaoResult raoResult = new FastRao().run(raoInput, raoParameters, null, raoRunReportNode).join();
+        RaoResult raoResult = new FastRao().run(raoInput, raoParameters, null, raoRunReportNode, raoStopCondition).join();
         CriticalCnecsResult criticalCnecsResult = raoResult.getExtension(CriticalCnecsResult.class);
         Set<FlowCnec> critcalCnecs = (criticalCnecsResult != null) ?
             criticalCnecsResult.getCriticalCnecIds().stream().map(id -> raoInput.getCrac().getFlowCnec(id)).collect(Collectors.toSet()) :
@@ -616,7 +620,8 @@ class Marmot {
 
     CompletableFuture<RaoResult> run(final TimeCoupledRaoInput timeCoupledRaoInput,
                                      final RaoParameters raoParameters,
-                                     final ReportNode reportNode) {
+                                     final ReportNode reportNode,
+                                     final RaoStopCondition raoStopCondition) {
         if (!raoParameters.hasExtension(MarmotParameters.class)) {
             MarmotReports.reportMissingMarmotParametersExtension(reportNode);
             raoParameters.addExtension(MarmotParameters.class, new MarmotParameters());
@@ -663,7 +668,7 @@ class Marmot {
         final ReportNode topologicalOptimizationReportNode = MarmotReports.reportMarmotTopologicalOptimization(reportNode);
         TemporalData<Set<FlowCnec>> consideredCnecs = new TemporalDataImpl<>(); // used for FastRAO
         final TemporalData<RaoResult> topologicalOptimizationResults = timeCoupledRaoInput.getPreComputedRaoResults() == null
-            ? runTopologicalOptimization(initialInputs, consideredCnecs, raoParametersDuplicates, parallelism, topologicalOptimizationReportNode)
+            ? runTopologicalOptimization(initialInputs, consideredCnecs, raoParametersDuplicates, parallelism, topologicalOptimizationReportNode, raoStopCondition)
             : applyPreventiveToposFromRaoResults(initialInputs, timeCoupledRaoInput.getPreComputedRaoResults(), consideredCnecs, parallelism, topologicalOptimizationReportNode);
         MarmotReports.reportMarmotTopologicalOptimizationEnd();
 

@@ -13,6 +13,7 @@ import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.RaoProvider;
+import com.powsybl.openrao.raoapi.RaoStopCondition;
 import com.powsybl.openrao.raoapi.TimeCoupledRaoInput;
 import com.powsybl.openrao.raoapi.TimeCoupledRaoProvider;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
@@ -44,17 +45,27 @@ public class Marmot implements RaoProvider, TimeCoupledRaoProvider {
     }
 
     @Override
-    public CompletableFuture<RaoResult> run(final TimeCoupledRaoInput timeCoupledRaoInput, final RaoParameters parameters, final ReportNode reportNode) {
-        return new OpenRao().run(timeCoupledRaoInput, parameters, reportNode);
+    public CompletableFuture<RaoResult> run(final TimeCoupledRaoInput timeCoupledRaoInput,
+                                            final RaoParameters parameters,
+                                            final ReportNode reportNode,
+                                            final RaoStopCondition raoStopCondition) {
+        return new OpenRao().run(timeCoupledRaoInput, parameters, reportNode, raoStopCondition);
     }
 
     @Override
-    public CompletableFuture<RaoResult> run(final RaoInput raoInput, final RaoParameters parameters, final ReportNode reportNode) {
-        return run(raoInput, parameters, null, reportNode);
+    public CompletableFuture<RaoResult> run(final RaoInput raoInput,
+                                            final RaoParameters parameters,
+                                            final ReportNode reportNode,
+                                            final RaoStopCondition raoStopCondition) {
+        return run(raoInput, parameters, null, reportNode, raoStopCondition);
     }
 
     @Override
-    public CompletableFuture<RaoResult> run(final RaoInput raoInput, final RaoParameters parameters, final Instant targetEndInstant, final ReportNode reportNode) {
+    public CompletableFuture<RaoResult> run(final RaoInput raoInput,
+                                            final RaoParameters parameters,
+                                            final Instant targetEndInstant,
+                                            final ReportNode reportNode,
+                                            final RaoStopCondition raoStopCondition) {
         throw new OpenRaoException("MARMOT should not be used for single timestamp cases; use CASTOR instead");
     }
 }

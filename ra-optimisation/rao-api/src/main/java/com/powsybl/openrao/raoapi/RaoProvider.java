@@ -22,22 +22,37 @@ public interface RaoProvider {
     String getName();
 
     /**
-     * @param raoInput Data to optimize. Contains a Crac, a Network, the ID of the current network variant, and more
-     * @param parameters RAO parameters.
-     * @param reportNode Parent reportNode.
+     * @param raoInput         Data to optimize. Contains a Crac, a Network, the ID of the current network variant, and more
+     * @param parameters       RAO parameters.
+     * @param reportNode       Parent reportNode.
+     * @param raoStopCondition Rao stop condition.
      * @return A completable future of a RaoResult it gathers all the optimization results.
      */
-    CompletableFuture<RaoResult> run(RaoInput raoInput, RaoParameters parameters, ReportNode reportNode);
+    CompletableFuture<RaoResult> run(RaoInput raoInput, RaoParameters parameters, ReportNode reportNode, RaoStopCondition raoStopCondition);
 
-    CompletableFuture<RaoResult> run(RaoInput raoInput, RaoParameters parameters, Instant targetEndInstant, ReportNode reportNode);
+    default CompletableFuture<RaoResult> run(RaoInput raoInput, RaoParameters parameters, ReportNode reportNode) {
+        return run(raoInput, parameters, reportNode, RaoStopCondition.NO_OP);
+    }
+
+    CompletableFuture<RaoResult> run(RaoInput raoInput, RaoParameters parameters, Instant targetEndInstant, ReportNode reportNode, RaoStopCondition raoStopCondition);
+
+    default CompletableFuture<RaoResult> run(RaoInput raoInput, RaoParameters parameters, Instant targetEndInstant, ReportNode reportNode) {
+        return run(raoInput, parameters, targetEndInstant, reportNode, RaoStopCondition.NO_OP);
+    }
 
     /**
-     * @param raoInput Data to optimize. Contains Cracs and Networks for each timestamp and gradient constraints
-     * @param parameters RAO parameters.
+     * @param raoInput         Data to optimize. Contains Cracs and Networks for each timestamp and gradient constraints
+     * @param parameters       RAO parameters.
+     * @param reportNode       Parent reportNode.
+     * @param raoStopCondition Rao stop condition.
      * @return A completable future of a TimeCoupledRaoResult for each timestamp.
      */
-    default CompletableFuture<RaoResult> run(TimeCoupledRaoInput raoInput, RaoParameters parameters, ReportNode reportNode) {
+    default CompletableFuture<RaoResult> run(TimeCoupledRaoInput raoInput, RaoParameters parameters, ReportNode reportNode, RaoStopCondition raoStopCondition) {
         // note: default behavior not to break external implementers
         throw new OpenRaoException("Time-coupled optimization is not supported");
+    }
+
+    default CompletableFuture<RaoResult> run(TimeCoupledRaoInput raoInput, RaoParameters parameters, ReportNode reportNode) {
+        return run(raoInput, parameters, reportNode, RaoStopCondition.NO_OP);
     }
 }

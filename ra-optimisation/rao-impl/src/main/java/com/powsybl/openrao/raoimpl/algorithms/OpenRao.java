@@ -13,6 +13,7 @@ import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.RaoProvider;
+import com.powsybl.openrao.raoapi.RaoStopCondition;
 import com.powsybl.openrao.raoapi.TimeCoupledRaoInput;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.FastRaoParameters;
@@ -33,28 +34,28 @@ public class OpenRao implements RaoProvider {
     }
 
     @Override
-    public CompletableFuture<RaoResult> run(TimeCoupledRaoInput raoInput, RaoParameters parameters, ReportNode reportNode) {
+    public CompletableFuture<RaoResult> run(TimeCoupledRaoInput raoInput, RaoParameters parameters, ReportNode reportNode, RaoStopCondition raoStopCondition) {
         OpenRaoReports.reportTimeCoupledSituationDetected(reportNode);
-        return new Marmot().run(raoInput, parameters, reportNode);
+        return new Marmot().run(raoInput, parameters, reportNode, raoStopCondition);
     }
 
     @Override
-    public CompletableFuture<RaoResult> run(RaoInput raoInput, RaoParameters parameters, ReportNode reportNode) {
-        return run(raoInput, parameters, null, reportNode);
+    public CompletableFuture<RaoResult> run(RaoInput raoInput, RaoParameters parameters, ReportNode reportNode, RaoStopCondition raoStopCondition) {
+        return run(raoInput, parameters, null, reportNode, raoStopCondition);
     }
 
     @Override
-    public CompletableFuture<RaoResult> run(RaoInput raoInput, RaoParameters parameters, Instant targetEndInstant, ReportNode reportNode) {
+    public CompletableFuture<RaoResult> run(RaoInput raoInput, RaoParameters parameters, Instant targetEndInstant, ReportNode reportNode, RaoStopCondition raoStopCondition) {
         FastRaoParameters fastRaoParameters = parameters.getExtension(FastRaoParameters.class);
         if (raoInput.getCrac().getInstants(InstantKind.CURATIVE).size() > 1) {
             OpenRaoReports.reportMultiCurativeSituationDetected(reportNode);
-            return new CastorFullOptimization(raoInput, parameters, targetEndInstant, reportNode).run();
+            return new CastorFullOptimization(raoInput, parameters, targetEndInstant, reportNode, raoStopCondition).run();
         } else if (fastRaoParameters == null) {
             OpenRaoReports.reportCastorAlgorithmSelected(reportNode);
-            return new CastorFullOptimization(raoInput, parameters, targetEndInstant, reportNode).run();
+            return new CastorFullOptimization(raoInput, parameters, targetEndInstant, reportNode, raoStopCondition).run();
         } else {
             OpenRaoReports.reportFastRaoAlgorithmSelected(reportNode);
-            return new FastRao().run(raoInput, parameters, targetEndInstant, reportNode);
+            return new FastRao().run(raoInput, parameters, targetEndInstant, reportNode, raoStopCondition);
         }
     }
 }
