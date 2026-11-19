@@ -9,8 +9,6 @@ package com.powsybl.openrao.searchtreerao.castor.algorithm;
 
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
-import com.powsybl.openrao.raoapi.parameters.RaoParameters;
-import com.powsybl.openrao.searchtreerao.commons.ToolProvider;
 import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
 import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
 import com.powsybl.openrao.searchtreerao.result.impl.PostPerimeterResult;
@@ -29,10 +27,11 @@ import java.util.Objects;
  * * @author Maxence Fleury {@literal <maxence.fleury at artelys.com>}
  */
 public final class RaoRunContext {
-    @NonNull private final ToolProvider toolProvider;
+    @NonNull private final SearchTreeRunContext mainSolve;
+    @Nullable private SearchTreeRunContext presolve;
+    @Nullable private Boolean preSolveEnabled;
     @Nullable private StateTree stateTree;
     @Nullable private PrePerimeterSensitivityAnalysis prePerimeterSensitivityAnalysis;
-    @Nullable private PrePerimeterResult initialOutput;
     @Nullable private OptimizationResult preventiveResult;
     @Nullable private Long preventiveRaoTime;
     @Nullable private PostPerimeterResult postPreventiveResult;
@@ -44,17 +43,28 @@ public final class RaoRunContext {
     @Nullable private Map<State, PostPerimeterResult> finalPostContingencyResults;
     @Nullable private Boolean logFinalResultsOutsideOfSecondPreventive;
 
-    @Nullable private ToolProvider dcToolProvider;
-    @Nullable private RaoParameters dcRaoParameters;
-    @Nullable private PrePerimeterResult dcInitialOutput;
-    @Nullable private Boolean dcPreSolveEnabled;
-
-    RaoRunContext(@NonNull ToolProvider toolProvider) {
-        this.toolProvider = Objects.requireNonNull(toolProvider);
+    RaoRunContext(@NonNull SearchTreeRunContext mainSolve) {
+        this.mainSolve = Objects.requireNonNull(mainSolve);
     }
 
-    @NonNull ToolProvider getToolProvider() {
-        return toolProvider;
+    @NonNull SearchTreeRunContext getMainSolve() {
+        return mainSolve;
+    }
+
+    void setPresolve(@NonNull SearchTreeRunContext presolve) {
+        this.presolve = presolve;
+    }
+
+    @NonNull SearchTreeRunContext getPresolve() {
+        return Objects.requireNonNull(presolve, "presolve has not been set yet");
+    }
+
+    void setPreSolveEnabled(boolean preSolveEnabled) {
+        this.preSolveEnabled = preSolveEnabled;
+    }
+
+    boolean isPreSolveEnabled() {
+        return Objects.requireNonNull(preSolveEnabled, "preSolveEnabled has not been set yet");
     }
 
     void setStateTree(@NonNull StateTree stateTree) {
@@ -71,14 +81,6 @@ public final class RaoRunContext {
 
     @NonNull PrePerimeterSensitivityAnalysis getPrePerimeterSensitivityAnalysis() {
         return Objects.requireNonNull(prePerimeterSensitivityAnalysis, "prePerimeterSensitivityAnalysis has not been computed yet");
-    }
-
-    void setInitialOutput(@NonNull PrePerimeterResult initialOutput) {
-        this.initialOutput = initialOutput;
-    }
-
-    @NonNull PrePerimeterResult getInitialOutput() {
-        return Objects.requireNonNull(initialOutput, "initialOutput has not been computed yet");
     }
 
     void setPreventiveResult(@NonNull OptimizationResult preventiveResult) {
@@ -159,37 +161,5 @@ public final class RaoRunContext {
 
     boolean isLogFinalResultsOutsideOfSecondPreventive() {
         return Objects.requireNonNull(logFinalResultsOutsideOfSecondPreventive, "logFinalResultsOutsideOfSecondPreventive has not been set yet");
-    }
-
-    void setDcPreSolveEnabled(boolean dcPreSolveEnabled) {
-        this.dcPreSolveEnabled = dcPreSolveEnabled;
-    }
-
-    boolean isDcPreSolveEnabled() {
-        return Objects.requireNonNull(dcPreSolveEnabled, "dcPreSolveEnabled has not been set yet");
-    }
-
-    void setDcToolProvider(@NonNull ToolProvider dcToolProvider) {
-        this.dcToolProvider = dcToolProvider;
-    }
-
-    @NonNull ToolProvider getDcToolProvider() {
-        return Objects.requireNonNull(dcToolProvider, "dcToolProvider has not been set yet");
-    }
-
-    void setDcRaoParameters(@NonNull RaoParameters dcRaoParameters) {
-        this.dcRaoParameters = dcRaoParameters;
-    }
-
-    @NonNull RaoParameters getDcRaoParameters() {
-        return Objects.requireNonNull(dcRaoParameters, "dcRaoParameters has not been set yet");
-    }
-
-    void setDcInitialOutput(@NonNull PrePerimeterResult dcInitialOutput) {
-        this.dcInitialOutput = dcInitialOutput;
-    }
-
-    @NonNull PrePerimeterResult getDcInitialOutput() {
-        return Objects.requireNonNull(dcInitialOutput, "dcInitialOutput has not been computed yet");
     }
 }

@@ -81,8 +81,7 @@ public class CastorSecondPreventive {
     private final java.time.Instant targetEndInstant;
     private final ReportNode secondPreventiveReportNode;
 
-    private final ToolProvider dcToolProvider;
-    private final PrePerimeterResult dcInitialOutput;
+    private final SearchTreeRunContext presolve;
 
     private static final String SECOND_PREVENTIVE_SCENARIO_BEFORE_OPT = "SecondPreventiveScenario";
     private static final int NUMBER_LOGGED_ELEMENTS_DURING_RAO = 2;
@@ -98,16 +97,10 @@ public class CastorSecondPreventive {
         this.raoParameters = raoParameters;
         this.network = network;
         this.stateTree = context.getStateTree();
-        this.toolProvider = context.getToolProvider();
+        this.toolProvider = context.getMainSolve().getToolProvider();
         this.targetEndInstant = targetEndInstant;
         this.secondPreventiveReportNode = secondPreventiveReportNode;
-        if (context.isDcPreSolveEnabled()) {
-            this.dcToolProvider = context.getDcToolProvider();
-            this.dcInitialOutput = context.getDcInitialOutput();
-        } else {
-            this.dcToolProvider = null;
-            this.dcInitialOutput = null;
-        }
+        this.presolve = context.isPreSolveEnabled() ? context.getPresolve() : null;
     }
 
     /**
@@ -394,7 +387,7 @@ public class CastorSecondPreventive {
         }
 
         Set<NetworkAction> dcCombination = Set.of();
-        if (dcToolProvider != null && SearchTreeRaoTopoOptimizationParameters.getMaxPreventiveSearchTreeDepthDc(raoParameters) > 0) {
+        if (presolve != null && SearchTreeRaoTopoOptimizationParameters.getMaxPreventiveSearchTreeDepthDc(raoParameters) > 0) {
             dcCombination = runSecondPreventiveDcPreSolve(appliedCras, secondPreventiveReportNode);
             injectDcPreSolveCombination(searchTreeParameters, dcCombination,
                 SearchTreeRaoTopoOptimizationParameters.getPreventiveDcSolutionUsage(raoParameters));
@@ -432,11 +425,11 @@ public class CastorSecondPreventive {
      * Run a smaller DC search tree to get a network action combination to hint/force into the AC search above.
      */
     private Set<NetworkAction> runSecondPreventiveDcPreSolve(final AppliedRemedialActions appliedCras, final ReportNode reportNode) {
-        RaoParameters dcRaoParameters = dcToolProvider.getRaoParameters();
+        RaoParameters dcRaoParameters = presolve.getRaoParameters();
 
         PrePerimeterResult dcPrePerimeterResult = new PrePerimeterSensitivityAnalysis(
-            crac, crac.getFlowCnecs(), crac.getRangeActions(), dcRaoParameters, dcToolProvider, true)
-            .runBasedOnInitialResults(network, dcInitialOutput, stateTree.getOperatorsNotSharingCras(), appliedCras, reportNode);
+            crac, crac.getFlowCnecs(), crac.getRangeActions(), dcRaoParameters, presolve.getToolProvider(), true)
+            .runBasedOnInitialResults(network, presolve.getInitialOutput(), stateTree.getOperatorsNotSharingCras(), appliedCras, reportNode);
         if (dcPrePerimeterResult.getSensitivityStatus() == ComputationStatus.FAILURE) {
             return Set.of();
         }
@@ -453,7 +446,7 @@ public class CastorSecondPreventive {
         ObjectiveFunction dcObjectiveFunction = ObjectiveFunction.build(
             dcOptPerimeter.getFlowCnecs(),
             dcOptPerimeter.getLoopFlowCnecs(),
-            dcInitialOutput,
+            presolve.getInitialOutput(),
             dcPrePerimeterResult,
             new HashSet<>(),
             dcRaoParameters,
@@ -461,7 +454,7 @@ public class CastorSecondPreventive {
         );
 
         OptimizationResult dcResult = runSearchTree(network, dcOptPerimeter, dcObjectiveFunction,
-            dcInitialOutput, dcPrePerimeterResult, appliedCras, dcToolProvider, crac.getOutageInstant(), dcSearchTreeParameters, false, reportNode);
+            presolve.getInitialOutput(), dcPrePerimeterResult, appliedCras, presolve.getToolProvider(), crac.getOutageInstant(), dcSearchTreeParameters, false, reportNode);
         CastorReports.reportDcPreSolveProposal(reportNode, dcResult.getActivatedNetworkActions());
         return dcResult.getActivatedNetworkActions();
     }

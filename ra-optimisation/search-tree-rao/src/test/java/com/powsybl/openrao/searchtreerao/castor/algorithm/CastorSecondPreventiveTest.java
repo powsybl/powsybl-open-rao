@@ -76,9 +76,9 @@ class CastorSecondPreventiveTest {
     private Instant curativeInstant;
 
     private RaoRunContext buildContext(StateTree stateTree) {
-        RaoRunContext context = new RaoRunContext(Mockito.mock(ToolProvider.class));
+        RaoRunContext context = new RaoRunContext(new SearchTreeRunContext(Mockito.mock(ToolProvider.class), Mockito.mock(RaoParameters.class)));
         context.setStateTree(stateTree);
-        context.setDcPreSolveEnabled(false);
+        context.setPreSolveEnabled(false);
         return context;
     }
 
