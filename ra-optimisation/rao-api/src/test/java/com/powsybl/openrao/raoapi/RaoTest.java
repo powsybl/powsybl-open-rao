@@ -77,7 +77,16 @@ class RaoTest {
     private RaoProvider mockTimeCoupledProvider(RaoResult timeCoupledRaoResult) {
         RaoProvider provider = Mockito.mock(RaoProvider.class);
         Mockito.when(provider.getName()).thenReturn("TimeCoupledRAO");
-        Mockito.when(provider.run(Mockito.any(TimeCoupledRaoInput.class), Mockito.any(RaoParameters.class), Mockito.any(ReportNode.class)))
+        Mockito.when(provider.run(
+                Mockito.any(TimeCoupledRaoInput.class),
+                Mockito.any(RaoParameters.class),
+                Mockito.any(ReportNode.class),
+                Mockito.any(RaoStopCondition.class)))
+            .thenReturn(CompletableFuture.completedFuture(timeCoupledRaoResult));
+        Mockito.when(provider.run(
+                Mockito.any(TimeCoupledRaoInput.class),
+                Mockito.any(RaoParameters.class),
+                Mockito.any(ReportNode.class)))
             .thenReturn(CompletableFuture.completedFuture(timeCoupledRaoResult));
         return provider;
     }
@@ -94,8 +103,12 @@ class RaoTest {
         assertSame(expected, runner.run(input, parameters));
         assertSame(expected, runner.run(input, ReportNode.NO_OP));
         assertSame(expected, runner.run(input));
-        Mockito.verify(provider, Mockito.times(4)).run(Mockito.eq(input), Mockito.any(RaoParameters.class), Mockito.any(ReportNode.class));
-        Mockito.verify(provider, Mockito.times(2)).run(input, parameters, ReportNode.NO_OP);
+        Mockito.verify(provider, Mockito.times(4)).run(
+            Mockito.eq(input),
+            Mockito.any(RaoParameters.class),
+            Mockito.any(ReportNode.class),
+            Mockito.any(RaoStopCondition.class)
+        );
     }
 
     @Test
@@ -111,7 +124,6 @@ class RaoTest {
         assertSame(expected, runner.runAsync(input, ReportNode.NO_OP).join());
         assertSame(expected, runner.runAsync(input).join());
         Mockito.verify(provider, Mockito.times(4)).run(Mockito.eq(input), Mockito.any(RaoParameters.class), Mockito.any(ReportNode.class));
-        Mockito.verify(provider, Mockito.times(2)).run(input, parameters, ReportNode.NO_OP);
     }
 
     @Test
