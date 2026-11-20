@@ -17,6 +17,7 @@ import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.HvdcRangeAction;
+import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.crac.impl.utils.NetworkImportsUtil;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
@@ -160,6 +161,21 @@ class IteratingLinearOptimizerTest {
         LinearProblemBuilder linearProblemBuilder = Mockito.mock(LinearProblemBuilder.class);
         when(linearProblemBuilder.buildFromInputsAndParameters(Mockito.any(), Mockito.any())).thenReturn(linearProblem);
         linearProblemMockedStatic.when(LinearProblem::create).thenReturn(linearProblemBuilder);
+    }
+
+    private void configureHybridPstRangeAction() {
+        PstRangeAction pstRangeAction = Mockito.mock(PstRangeAction.class);
+        when(pstRangeAction.getId()).thenReturn("hybrid-pst");
+        when(pstRangeAction.getTapToAngleConversionMap()).thenReturn(Map.of(0, 0., 1, 1.));
+        when(pstRangeAction.getInitialTap()).thenReturn(0);
+        when(pstRangeAction.getNetworkElementsIds()).thenReturn(Set.of("ne"));
+        rangeAction = pstRangeAction;
+        when(optimizationPerimeter.getRangeActionOptimizationStates()).thenReturn(Set.of(optimizedState));
+        when(optimizationPerimeter.getRangeActionsPerState()).thenReturn(Map.of(optimizedState, Set.of(pstRangeAction)));
+        rangeActionSetpointResult = new RangeActionSetpointResultImpl(Map.of(pstRangeAction, 0.));
+        when(input.prePerimeterSetpoints()).thenReturn(rangeActionSetpointResult);
+        rangeActionActivationResult = new RangeActionActivationResultImpl(rangeActionSetpointResult);
+        when(input.raActivationFromParentLeaf()).thenReturn(rangeActionActivationResult);
     }
 
     private void mockFunctionalCost(Double initialFunctionalCost, Double... iterationFunctionalCosts) {
@@ -311,6 +327,39 @@ class IteratingLinearOptimizerTest {
         assertEquals(2, ((IteratingLinearOptimizationResultImpl) result).getNbOfIteration());
         assertEquals(50, result.getFunctionalCost(), DOUBLE_TOLERANCE);
         assertEquals(1, result.getOptimizedSetpoint(rangeAction, optimizedState), DOUBLE_TOLERANCE);
+    }
+
+    @Test
+    void hybridRefinementRunsWithinSingleOuterIteration() {
+        when(parameters.getMaxNumberOfIterations()).thenReturn(1);
+        when(parameters.getRangeActionParametersExtension().getPstModel()).thenReturn(SearchTreeRaoRangeActionsOptimizationParameters.PstModel.HYBRID);
+        configureHybridPstRangeAction();
+        mockLinearProblem(List.of(LinearProblemStatus.OPTIMAL, LinearProblemStatus.OPTIMAL), List.of(0., 0.));
+        mockFunctionalCost(100.);
+        prepareLinearProblemBuilder();
+
+        LinearOptimizationResult result = IteratingLinearOptimizer.optimize(input, parameters, ReportNode.NO_OP);
+
+        assertEquals(LinearProblemStatus.OPTIMAL, result.getStatus());
+        assertEquals(1, ((IteratingLinearOptimizationResultImpl) result).getNbOfIteration());
+        Mockito.verify(linearProblem, Mockito.times(2)).solve();
+    }
+
+    @Test
+    void failedHybridRefinementDoesNotAcceptContinuousSeed() {
+        when(parameters.getMaxNumberOfIterations()).thenReturn(1);
+        when(parameters.getRangeActionParametersExtension().getPstModel()).thenReturn(SearchTreeRaoRangeActionsOptimizationParameters.PstModel.HYBRID);
+        configureHybridPstRangeAction();
+        mockLinearProblem(List.of(LinearProblemStatus.OPTIMAL, LinearProblemStatus.INFEASIBLE), List.of(0.));
+        mockFunctionalCost(100.);
+        prepareLinearProblemBuilder();
+
+        LinearOptimizationResult result = IteratingLinearOptimizer.optimize(input, parameters, ReportNode.NO_OP);
+
+        // Kept the result from the first iteration (continuous pass + round result)
+        assertEquals(LinearProblemStatus.OPTIMAL, result.getStatus());
+        assertEquals(0., result.getOptimizedSetpoint(rangeAction, optimizedState), DOUBLE_TOLERANCE);
+        Mockito.verify(linearProblem, Mockito.times(2)).solve();
     }
 
     @Test

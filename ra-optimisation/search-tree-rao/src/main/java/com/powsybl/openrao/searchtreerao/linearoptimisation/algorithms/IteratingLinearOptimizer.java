@@ -95,7 +95,9 @@ public final class IteratingLinearOptimizer {
 
             RangeActionActivationResult linearProblemResult = new LinearProblemResult(linearProblem, input.prePerimeterSetpoints(), input.optimizationPerimeter());
             RangeActionActivationResult currentRangeActionActivationResult = roundResult(linearProblemResult, bestResult, input, parameters);
-            currentRangeActionActivationResult = resolveIfApproximatedPstTaps(bestResult, linearProblem, iteration, currentRangeActionActivationResult, input, parameters);
+            currentRangeActionActivationResult = resolveIfApproximatedPstTaps(
+                bestResult, linearProblem, iteration, currentRangeActionActivationResult, input, parameters, reportNode);
+            // TODO: what if pst in hybrid mode, and the approximated_integer phase fails -> should we return bestResult or currentRangeActionActivationResult?
             currentRangeActionActivationResult = updateWithHvdcRangeActionIfNecessary((RangeActionActivationResultImpl) currentRangeActionActivationResult, input);
 
             if (!hasAnyRangeActionChanged(currentRangeActionActivationResult, previousResult, input.optimizationPerimeter())) {
@@ -189,15 +191,30 @@ public final class IteratingLinearOptimizer {
         return currentRangeActionActivationResult;
     }
 
+    /**
+     * Re-solves the linear problem when pst tap positions are modeled with an
+     * approximated integer representation or when the problem uses a hybrid PST filler.
+     * The re-solve updates the linear problem between MIP iterations to refine the angle-to-tap
+     * conversion factors around the current solution, then rounds the updated result when a feasible
+     * or optimal solution is found. If no approximation-specific re-solve is required, the current
+     * range action activation result is returned with an optimal status.
+     */
     private static RangeActionActivationResult resolveIfApproximatedPstTaps(final IteratingLinearOptimizationResultImpl bestResult,
-                                                                            final LinearProblem linearProblem,
-                                                                            final int iteration,
-                                                                            final RangeActionActivationResult currentRangeActionActivationResult,
-                                                                            final IteratingLinearOptimizerInput input,
-                                                                            final IteratingLinearOptimizerParameters parameters) {
+                                                                                                      final LinearProblem linearProblem,
+                                                                                                      final int iteration,
+                                                                                                      final RangeActionActivationResult currentRangeActionActivationResult,
+                                                                                                      final IteratingLinearOptimizerInput input,
+                                                                                                      final IteratingLinearOptimizerParameters parameters,
+                                                                                                      final ReportNode reportNode) {
+
+        LinearOptimizerReports.reportReSolveIfApproximatedPstTaps(reportNode);
+
         LinearProblemStatus solveStatus;
         RangeActionActivationResult rangeActionActivationResult = currentRangeActionActivationResult;
-        if (getPstModel(parameters.getRangeActionParametersExtension()).equals(PstModel.APPROXIMATED_INTEGERS)) {
+        if (input.optimizationPerimeter().getRangeActionsPerState().values().stream().flatMap(Set::stream).anyMatch(PstRangeAction.class::isInstance) &&
+            (getPstModel(parameters.getRangeActionParametersExtension()).equals(PstModel.APPROXIMATED_INTEGERS) ||
+                getPstModel(parameters.getRangeActionParametersExtension()).equals(PstModel.HYBRID)
+            )) {
 
             // if the PST approximation is APPROXIMATED_INTEGERS, we re-solve the optimization problem
             // but first, we update it, with an adjustment of the PSTs angleToTap conversion factors, to
@@ -211,9 +228,14 @@ public final class IteratingLinearOptimizer {
                 RangeActionActivationResult updatedLinearProblemResult = new LinearProblemResult(linearProblem, input.prePerimeterSetpoints(), input.optimizationPerimeter());
                 rangeActionActivationResult = roundResult(updatedLinearProblemResult, bestResult, input, parameters);
             }
+            else {
+                TECHNICAL_LOGS.debug("Iteration {}: linear optimization failed", iteration);
+                return rangeActionActivationResult;
+            }
         }
         return rangeActionActivationResult;
     }
+
 
     private static LinearProblemStatus solveLinearProblem(LinearProblem linearProblem, int iteration) {
         TECHNICAL_LOGS.debug("Iteration {}: linear optimization [start]", iteration);
@@ -333,7 +355,9 @@ public final class IteratingLinearOptimizer {
                                                              IteratingLinearOptimizationResultImpl previousResult,
                                                              IteratingLinearOptimizerInput input,
                                                              IteratingLinearOptimizerParameters parameters) {
-        if (getPstModel(parameters.getRangeActionParametersExtension()).equals(PstModel.CONTINUOUS)) {
+
+        PstModel pstModel = getPstModel(parameters.getRangeActionParametersExtension());
+        if (pstModel.equals(PstModel.CONTINUOUS) || pstModel.equals(PstModel.HYBRID)) {
             return BestTapFinder.round(
                 linearProblemResult,
                 input.network(),
