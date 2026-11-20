@@ -677,7 +677,9 @@ class MarmotTest {
         RaoParameters raoParameters = JsonRaoParameters.read(MarmotTest.class.getResourceAsStream("/parameters/RaoParameters_dc_minObjective_discretePst.json"), ReportNode.NO_OP);
         raoParameters.setLoopFlowParameters(new LoopFlowParameters());
 
-        assertThrows(OpenRaoException.class, () -> new Marmot().run(input, raoParameters, ReportNode.NO_OP).join());
+        Marmot marmot = new Marmot();
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> marmot.run(input, raoParameters, ReportNode.NO_OP));
+        assertEquals("MARMOT does not support loop-flow constraints, which rely on commercial flows and PTDF zonal sums. Use CASTOR or FastRAO instead.", exception.getMessage());
     }
 
     private static void assertFunctionalCostAndRedispatchingSetPoint(Crac crac, RaoResult timeCoupledRaoResult, double expectedFunctionalCost, double expectedRdSetPoint) {
