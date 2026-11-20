@@ -93,8 +93,8 @@ import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WA
 @Beta
 public class LazyNetwork implements Network, AutoCloseable {
     private static final String TEMP_DIR = System.getProperty("java.io.tmpdir") + File.separator;
-    private static final String EXPORT_FORMAT = "JIIDM"; // TODO: change to BIIDM, not stabilized for the moment (04/2026)
-    private static final String EXPORT_EXTENSION = ".jiidm"; // TODO: change to .biidm, not stabilized for the moment (04/2026)
+    private static final String EXPORT_FORMAT = "BIIDM";
+    private static final String EXPORT_EXTENSION = ".biidm";
 
     private final String networkPath;
     private boolean isLoaded;
