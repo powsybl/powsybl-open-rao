@@ -16,6 +16,7 @@ import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers.C
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers.CostCoreProblemFiller;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers.DiscretePstGroupFiller;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers.DiscretePstTapFiller;
+import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers.HybridPstProblemFiller;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers.MarginCoreProblemFiller;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers.MaxLoopFlowFiller;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers.MaxMinMarginFiller;
@@ -39,6 +40,8 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
+import static com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS;
+import static com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.PstModel.HYBRID;
 import static com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.getPstModel;
 
 /**
@@ -49,6 +52,8 @@ public final class ProblemFillerHelper {
     }
 
     public static List<ProblemFiller> getProblemFillers(IteratingLinearOptimizerInput input, IteratingLinearOptimizerParameters parameters, OffsetDateTime timestamp) {
+        SearchTreeRaoRangeActionsOptimizationParameters.PstModel pstModel = getPstModel(parameters.getRangeActionParametersExtension());
+
         List<ProblemFiller> problemFillers = new ArrayList<>();
 
         // Core problem filler
@@ -61,7 +66,7 @@ public final class ProblemFillerHelper {
                 parameters.getRangeActionParametersExtension(),
                 parameters.getFlowUnit(),
                 parameters.getRaRangeShrinking(),
-                getPstModel(parameters.getRangeActionParametersExtension()),
+                pstModel,
                 timestamp
             );
             problemFillers.add(costCoreProblemFiller);
@@ -73,7 +78,7 @@ public final class ProblemFillerHelper {
                 parameters.getRangeActionParametersExtension(),
                 parameters.getFlowUnit(),
                 parameters.getRaRangeShrinking(),
-                getPstModel(parameters.getRangeActionParametersExtension()),
+                pstModel,
                 timestamp
             );
             problemFillers.add(marginCoreProblemFiller);
@@ -143,8 +148,16 @@ public final class ProblemFillerHelper {
         }
 
         // MIP optimization vs. CONTINUOUS optimization
-        SearchTreeRaoRangeActionsOptimizationParameters.PstModel pstModel = getPstModel(parameters.getRangeActionParametersExtension());
-        if (SearchTreeRaoRangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS.equals(pstModel)) {
+        if (APPROXIMATED_INTEGERS.equals(pstModel) || HYBRID.equals(pstModel)) {
+            // TODO: clean up
+            Map<State, Set<RangeAction<?>>> outRangeActions = new TreeMap<>(Comparator.comparing(State::getId));
+            input.optimizationPerimeter().getRangeActionsPerState().forEach((state, rangeActions) -> {
+                if (rangeActions.stream().anyMatch(PstRangeAction.class::isInstance)) {
+                    outRangeActions.put(state, rangeActions.stream().filter(PstRangeAction.class::isInstance).collect(Collectors.toCollection(
+                        () -> new TreeSet<>(Comparator.comparing(RangeAction::getId))
+                    )));
+                }
+            });
             Map<State, Set<PstRangeAction>> pstRangeActions = copyOnlyPstRangeActions(input.optimizationPerimeter().getRangeActionsPerState());
             Map<State, Set<RangeAction<?>>> otherRa = copyWithoutPstRangeActions(input.optimizationPerimeter().getRangeActionsPerState());
             DiscretePstTapFiller discretePstTapFiller = new DiscretePstTapFiller(
@@ -157,12 +170,21 @@ public final class ProblemFillerHelper {
                     && input.optimizationPerimeter().getRangeActionOptimizationStates().stream()
                     .anyMatch(state -> !parameters.getRaLimitationParameters().getMaxElementaryActionsPerTso(state).isEmpty())
             );
-            problemFillers.add(discretePstTapFiller);
+
             DiscretePstGroupFiller discretePstGroupFiller = new DiscretePstGroupFiller(
                 input.optimizationPerimeter().getMainOptimizationState(),
                 pstRangeActions
             );
-            problemFillers.add(discretePstGroupFiller);
+
+            if (HYBRID.equals(pstModel)) {
+                HybridPstProblemFiller hybridPstProblemFiller = new HybridPstProblemFiller(new ContinuousRangeActionGroupFiller(outRangeActions), discretePstTapFiller, discretePstGroupFiller);
+                problemFillers.add(hybridPstProblemFiller);
+            } else {
+                problemFillers.add(discretePstTapFiller);
+                problemFillers.add(discretePstGroupFiller);
+            }
+
+
             ContinuousRangeActionGroupFiller continuousRangeActionGroupFiller = new ContinuousRangeActionGroupFiller(otherRa);
             problemFillers.add(continuousRangeActionGroupFiller);
         } else if (SearchTreeRaoRangeActionsOptimizationParameters.PstModel.CONTINUOUS.equals(pstModel)) {
@@ -178,7 +200,7 @@ public final class ProblemFillerHelper {
                 input.optimizationPerimeter().getRangeActionsPerState(),
                 input.prePerimeterSetpoints(),
                 parameters.getRaLimitationParameters(),
-                getPstModel(parameters.getRangeActionParametersExtension()) == SearchTreeRaoRangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS,
+                pstModel == APPROXIMATED_INTEGERS,
                 parameters.getObjectiveFunction().costOptimization()
             );
             problemFillers.add(raUsageLimitsFiller);
