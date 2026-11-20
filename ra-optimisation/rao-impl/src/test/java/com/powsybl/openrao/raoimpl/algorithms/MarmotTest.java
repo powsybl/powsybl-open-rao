@@ -29,10 +29,14 @@ import com.powsybl.openrao.raoapi.json.JsonRaoParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoimpl.result.extension.PreTimeCouplingOverloadedCnecs;
 import com.powsybl.openrao.raoimpl.result.extension.TimeCoupledCostResult;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
@@ -44,6 +48,10 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
 class MarmotTest {
+    @TempDir
+    private Path tempDir;
+
+    private final Map<Network, NetworkSnapshot> normalNetworkSnapshots = new IdentityHashMap<>();
     /*
     TODO
     For each test check the global MARMOT cost and the individual costs for each timestamp.
@@ -55,8 +63,9 @@ class MarmotTest {
         return "src/test/resources/";
     }
 
-    @Test
-    void testTwoTimestampsAndGradientOnGeneratorWithNoAssociatedRemedialAction() throws IOException {
+    @ParameterizedTest(name = "{0}")
+    @EnumSource(NetworkType.class)
+    void testTwoTimestampsAndGradientOnGeneratorWithNoAssociatedRemedialAction(NetworkType networkType) throws IOException {
         // we need to import twice the network to avoid variant names conflicts on the same network object
         String networkFilePath = "/network/2Nodes2ParallelLinesPST_1000MW.uct";
         Network network1 = Network.read(networkFilePath, MarmotTest.class.getResourceAsStream(networkFilePath));
@@ -74,8 +83,8 @@ class MarmotTest {
 
         TemporalData<RaoInput> raoInputs = new TemporalDataImpl<>(
             Map.of(
-                timestamp1, RaoInput.build(LazyNetwork.of(getResourcesPath().concat(networkFilePathPostIcsImport)), crac1).build(),
-                timestamp2, RaoInput.build(LazyNetwork.of(getResourcesPath().concat(networkFilePathPostIcsImport)), crac2).build()
+                timestamp1, RaoInput.build(createNetwork(networkType, getResourcesPath().concat(networkFilePathPostIcsImport)), crac1).build(),
+                timestamp2, RaoInput.build(createNetwork(networkType, getResourcesPath().concat(networkFilePathPostIcsImport)), crac2).build()
             ));
 
         TimeCoupledConstraints timeCoupledConstraints = new TimeCoupledConstraints();
@@ -115,8 +124,9 @@ class MarmotTest {
         cleanExistingNetwork(getResourcesPath().concat(networkFilePathPostIcsImport));
     }
 
-    @Test
-    void testWithRedispatchingAndNoGradientOnImplicatedGenerators() throws IOException {
+    @ParameterizedTest(name = "{0}")
+    @EnumSource(NetworkType.class)
+    void testWithRedispatchingAndNoGradientOnImplicatedGenerators(NetworkType networkType) throws IOException {
         String networkFilePath = "/network/3Nodes.uct";
         Network network1 = Network.read(networkFilePath, MarmotTest.class.getResourceAsStream(networkFilePath));
         Network network2 = Network.read(networkFilePath, MarmotTest.class.getResourceAsStream(networkFilePath));
@@ -136,9 +146,9 @@ class MarmotTest {
 
         TemporalData<RaoInput> raoInputs = new TemporalDataImpl<>(
             Map.of(
-                timestamp1, RaoInput.build(LazyNetwork.of(getResourcesPath().concat(networkFilePathPostIcsImport)), crac1).build(),
-                timestamp2, RaoInput.build(LazyNetwork.of(getResourcesPath().concat(networkFilePathPostIcsImport)), crac2).build(),
-                timestamp3, RaoInput.build(LazyNetwork.of(getResourcesPath().concat(networkFilePathPostIcsImport)), crac3).build()
+                timestamp1, RaoInput.build(createNetwork(networkType, getResourcesPath().concat(networkFilePathPostIcsImport)), crac1).build(),
+                timestamp2, RaoInput.build(createNetwork(networkType, getResourcesPath().concat(networkFilePathPostIcsImport)), crac2).build(),
+                timestamp3, RaoInput.build(createNetwork(networkType, getResourcesPath().concat(networkFilePathPostIcsImport)), crac3).build()
             ));
 
         TimeCoupledConstraints timeCoupledConstraints = new TimeCoupledConstraints();
@@ -181,8 +191,9 @@ class MarmotTest {
         cleanExistingNetwork(getResourcesPath().concat(networkFilePathPostIcsImport));
     }
 
-    @Test
-    void testWithRedispatchingAndNoGradients() throws IOException {
+    @ParameterizedTest(name = "{0}")
+    @EnumSource(NetworkType.class)
+    void testWithRedispatchingAndNoGradients(NetworkType networkType) throws IOException {
         String networkFilePath = "/network/3Nodes.uct";
         Network network1 = Network.read(networkFilePath, MarmotTest.class.getResourceAsStream(networkFilePath));
         Network network2 = Network.read(networkFilePath, MarmotTest.class.getResourceAsStream(networkFilePath));
@@ -202,9 +213,9 @@ class MarmotTest {
 
         TemporalData<RaoInput> raoInputs = new TemporalDataImpl<>(
             Map.of(
-                timestamp1, RaoInput.build(LazyNetwork.of(getResourcesPath().concat(networkFilePathPostIcsImport)), crac1).build(),
-                timestamp2, RaoInput.build(LazyNetwork.of(getResourcesPath().concat(networkFilePathPostIcsImport)), crac2).build(),
-                timestamp3, RaoInput.build(LazyNetwork.of(getResourcesPath().concat(networkFilePathPostIcsImport)), crac3).build()
+                timestamp1, RaoInput.build(createNetwork(networkType, getResourcesPath().concat(networkFilePathPostIcsImport)), crac1).build(),
+                timestamp2, RaoInput.build(createNetwork(networkType, getResourcesPath().concat(networkFilePathPostIcsImport)), crac2).build(),
+                timestamp3, RaoInput.build(createNetwork(networkType, getResourcesPath().concat(networkFilePathPostIcsImport)), crac3).build()
             ));
         TimeCoupledRaoInput input = new TimeCoupledRaoInput(raoInputs, new TimeCoupledConstraints());
 
@@ -229,8 +240,9 @@ class MarmotTest {
         cleanExistingNetwork(getResourcesPath().concat(networkFilePathPostIcsImport));
     }
 
-    @Test
-    void testWithRedispatchingAndGradientOnImplicatedGenerators() throws IOException {
+    @ParameterizedTest(name = "{0}")
+    @EnumSource(NetworkType.class)
+    void testWithRedispatchingAndGradientOnImplicatedGenerators(NetworkType networkType) throws IOException {
         String networkRelativePath = "/network/3Nodes.uct";
         String networkAbsolutePath = getResourcesPath().concat(networkRelativePath);
         Network network = Network.read(networkRelativePath, MarmotTest.class.getResourceAsStream(networkRelativePath));
@@ -259,9 +271,9 @@ class MarmotTest {
 
         TimeCoupledRaoInput input = new TimeCoupledRaoInput(
             new TemporalDataImpl<>(Map.of(
-                timestamp1, RaoInput.build(LazyNetwork.of(networkAbsolutePath), crac1).build(),
-                timestamp2, RaoInput.build(LazyNetwork.of(networkAbsolutePath), crac2).build(),
-                timestamp3, RaoInput.build(LazyNetwork.of(networkAbsolutePath), crac3).build())),
+                timestamp1, RaoInput.build(createNetwork(networkType, networkAbsolutePath), crac1).build(),
+                timestamp2, RaoInput.build(createNetwork(networkType, networkAbsolutePath), crac2).build(),
+                timestamp3, RaoInput.build(createNetwork(networkType, networkAbsolutePath), crac3).build())),
             timeCoupledConstraints
         );
 
@@ -287,8 +299,9 @@ class MarmotTest {
         cleanExistingNetwork(getResourcesPath().concat(networkFilePathPostIcsImport));
     }
 
-    @Test
-    void testWithPreventiveTopologicalAction() throws IOException {
+    @ParameterizedTest(name = "{0}")
+    @EnumSource(NetworkType.class)
+    void testWithPreventiveTopologicalAction(NetworkType networkType) throws IOException {
         String networkFilePath = "/network/2Nodes3ParallelLinesPST2LinesClosed.uct";
         Network network1 = Network.read(networkFilePath, MarmotTest.class.getResourceAsStream(networkFilePath));
         Network network2 = Network.read(networkFilePath, MarmotTest.class.getResourceAsStream(networkFilePath));
@@ -305,8 +318,8 @@ class MarmotTest {
 
         TemporalData<RaoInput> raoInputs = new TemporalDataImpl<>(
             Map.of(
-                timestamp1, RaoInput.build(LazyNetwork.of(getResourcesPath().concat(networkFilePathPostIcsImport)), crac1).build(),
-                timestamp2, RaoInput.build(LazyNetwork.of(getResourcesPath().concat(networkFilePathPostIcsImport)), crac2).build()
+                timestamp1, RaoInput.build(createNetwork(networkType, getResourcesPath().concat(networkFilePathPostIcsImport)), crac1).build(),
+                timestamp2, RaoInput.build(createNetwork(networkType, getResourcesPath().concat(networkFilePathPostIcsImport)), crac2).build()
 
             ));
 
@@ -337,8 +350,9 @@ class MarmotTest {
         cleanExistingNetwork(getResourcesPath().concat(networkFilePathPostIcsImport));
     }
 
-    @Test
-    void testWithTenTimestampsAndGeneratorConstraints() throws IOException {
+    @ParameterizedTest(name = "{0}")
+    @EnumSource(NetworkType.class)
+    void testWithTenTimestampsAndGeneratorConstraints(NetworkType networkType) throws IOException {
         String networkPath = getResourcesPath().concat("/network/4Nodes_1_PST.xiidm");
 
         Network network = Network.read("/network/4Nodes_1_PST.xiidm", MarmotTest.class.getResourceAsStream("/network/4Nodes_1_PST.xiidm"));
@@ -367,16 +381,16 @@ class MarmotTest {
         OffsetDateTime timestamp10 = OffsetDateTime.of(2025, 3, 25, 19, 30, 0, 0, ZoneOffset.UTC);
 
         Map<OffsetDateTime, RaoInput> inputPerTimestamp = new HashMap<>();
-        inputPerTimestamp.put(timestamp1, RaoInput.build(LazyNetwork.of(networkPath), crac1).build());
-        inputPerTimestamp.put(timestamp2, RaoInput.build(LazyNetwork.of(networkPath), crac2).build());
-        inputPerTimestamp.put(timestamp3, RaoInput.build(LazyNetwork.of(networkPath), crac3).build());
-        inputPerTimestamp.put(timestamp4, RaoInput.build(LazyNetwork.of(networkPath), crac4).build());
-        inputPerTimestamp.put(timestamp5, RaoInput.build(LazyNetwork.of(networkPath), crac5).build());
-        inputPerTimestamp.put(timestamp6, RaoInput.build(LazyNetwork.of(networkPath), crac6).build());
-        inputPerTimestamp.put(timestamp7, RaoInput.build(LazyNetwork.of(networkPath), crac7).build());
-        inputPerTimestamp.put(timestamp8, RaoInput.build(LazyNetwork.of(networkPath), crac8).build());
-        inputPerTimestamp.put(timestamp9, RaoInput.build(LazyNetwork.of(networkPath), crac9).build());
-        inputPerTimestamp.put(timestamp10, RaoInput.build(LazyNetwork.of(networkPath), crac10).build());
+        inputPerTimestamp.put(timestamp1, RaoInput.build(createNetwork(networkType, networkPath), crac1).build());
+        inputPerTimestamp.put(timestamp2, RaoInput.build(createNetwork(networkType, networkPath), crac2).build());
+        inputPerTimestamp.put(timestamp3, RaoInput.build(createNetwork(networkType, networkPath), crac3).build());
+        inputPerTimestamp.put(timestamp4, RaoInput.build(createNetwork(networkType, networkPath), crac4).build());
+        inputPerTimestamp.put(timestamp5, RaoInput.build(createNetwork(networkType, networkPath), crac5).build());
+        inputPerTimestamp.put(timestamp6, RaoInput.build(createNetwork(networkType, networkPath), crac6).build());
+        inputPerTimestamp.put(timestamp7, RaoInput.build(createNetwork(networkType, networkPath), crac7).build());
+        inputPerTimestamp.put(timestamp8, RaoInput.build(createNetwork(networkType, networkPath), crac8).build());
+        inputPerTimestamp.put(timestamp9, RaoInput.build(createNetwork(networkType, networkPath), crac9).build());
+        inputPerTimestamp.put(timestamp10, RaoInput.build(createNetwork(networkType, networkPath), crac10).build());
 
         TimeCoupledConstraints timeCoupledConstraints = new TimeCoupledConstraints();
         timeCoupledConstraints.addGeneratorConstraints(
@@ -405,8 +419,9 @@ class MarmotTest {
         assertFunctionalCostAndRedispatchingSetPoint(crac10, timeCoupledRaoResult, 125010.0, 2500.0);
     }
 
-    @Test
-    void testWithTenTimestampsAndNoGeneratorConstraints() throws IOException {
+    @ParameterizedTest(name = "{0}")
+    @EnumSource(NetworkType.class)
+    void testWithTenTimestampsAndNoGeneratorConstraints(NetworkType networkType) throws IOException {
         String networkPath = getResourcesPath().concat("/network/4Nodes_1_PST.xiidm");
 
         Network network = Network.read("/network/4Nodes_1_PST.xiidm", MarmotTest.class.getResourceAsStream("/network/4Nodes_1_PST.xiidm"));
@@ -435,16 +450,16 @@ class MarmotTest {
         OffsetDateTime timestamp10 = OffsetDateTime.of(2025, 3, 25, 19, 30, 0, 0, ZoneOffset.UTC);
 
         Map<OffsetDateTime, RaoInput> inputPerTimestamp = new HashMap<>();
-        inputPerTimestamp.put(timestamp1, RaoInput.build(LazyNetwork.of(networkPath), crac1).build());
-        inputPerTimestamp.put(timestamp2, RaoInput.build(LazyNetwork.of(networkPath), crac2).build());
-        inputPerTimestamp.put(timestamp3, RaoInput.build(LazyNetwork.of(networkPath), crac3).build());
-        inputPerTimestamp.put(timestamp4, RaoInput.build(LazyNetwork.of(networkPath), crac4).build());
-        inputPerTimestamp.put(timestamp5, RaoInput.build(LazyNetwork.of(networkPath), crac5).build());
-        inputPerTimestamp.put(timestamp6, RaoInput.build(LazyNetwork.of(networkPath), crac6).build());
-        inputPerTimestamp.put(timestamp7, RaoInput.build(LazyNetwork.of(networkPath), crac7).build());
-        inputPerTimestamp.put(timestamp8, RaoInput.build(LazyNetwork.of(networkPath), crac8).build());
-        inputPerTimestamp.put(timestamp9, RaoInput.build(LazyNetwork.of(networkPath), crac9).build());
-        inputPerTimestamp.put(timestamp10, RaoInput.build(LazyNetwork.of(networkPath), crac10).build());
+        inputPerTimestamp.put(timestamp1, RaoInput.build(createNetwork(networkType, networkPath), crac1).build());
+        inputPerTimestamp.put(timestamp2, RaoInput.build(createNetwork(networkType, networkPath), crac2).build());
+        inputPerTimestamp.put(timestamp3, RaoInput.build(createNetwork(networkType, networkPath), crac3).build());
+        inputPerTimestamp.put(timestamp4, RaoInput.build(createNetwork(networkType, networkPath), crac4).build());
+        inputPerTimestamp.put(timestamp5, RaoInput.build(createNetwork(networkType, networkPath), crac5).build());
+        inputPerTimestamp.put(timestamp6, RaoInput.build(createNetwork(networkType, networkPath), crac6).build());
+        inputPerTimestamp.put(timestamp7, RaoInput.build(createNetwork(networkType, networkPath), crac7).build());
+        inputPerTimestamp.put(timestamp8, RaoInput.build(createNetwork(networkType, networkPath), crac8).build());
+        inputPerTimestamp.put(timestamp9, RaoInput.build(createNetwork(networkType, networkPath), crac9).build());
+        inputPerTimestamp.put(timestamp10, RaoInput.build(createNetwork(networkType, networkPath), crac10).build());
 
         TimeCoupledRaoInput input = new TimeCoupledRaoInput(new TemporalDataImpl<>(inputPerTimestamp), new TimeCoupledConstraints());
 
@@ -464,8 +479,9 @@ class MarmotTest {
         assertFunctionalCostAndRedispatchingSetPoint(crac10, timeCoupledRaoResult, 125010.0, 2500.0);
     }
 
-    @Test
-    void testWithTenTimestampsAndGeneratorConstraintsInjectionKeyGreaterThan1() throws IOException {
+    @ParameterizedTest(name = "{0}")
+    @EnumSource(NetworkType.class)
+    void testWithTenTimestampsAndGeneratorConstraintsInjectionKeyGreaterThan1(NetworkType networkType) throws IOException {
         String networkPath = getResourcesPath().concat("/network/4Nodes_1_PST.xiidm");
 
         Network network = Network.read("/network/4Nodes_1_PST.xiidm", MarmotTest.class.getResourceAsStream("/network/4Nodes_1_PST.xiidm"));
@@ -495,16 +511,16 @@ class MarmotTest {
         OffsetDateTime timestamp10 = OffsetDateTime.of(2025, 3, 25, 19, 30, 0, 0, ZoneOffset.UTC);
 
         Map<OffsetDateTime, RaoInput> inputPerTimestamp = new HashMap<>();
-        inputPerTimestamp.put(timestamp1, RaoInput.build(LazyNetwork.of(networkPath), crac1).build());
-        inputPerTimestamp.put(timestamp2, RaoInput.build(LazyNetwork.of(networkPath), crac2).build());
-        inputPerTimestamp.put(timestamp3, RaoInput.build(LazyNetwork.of(networkPath), crac3).build());
-        inputPerTimestamp.put(timestamp4, RaoInput.build(LazyNetwork.of(networkPath), crac4).build());
-        inputPerTimestamp.put(timestamp5, RaoInput.build(LazyNetwork.of(networkPath), crac5).build());
-        inputPerTimestamp.put(timestamp6, RaoInput.build(LazyNetwork.of(networkPath), crac6).build());
-        inputPerTimestamp.put(timestamp7, RaoInput.build(LazyNetwork.of(networkPath), crac7).build());
-        inputPerTimestamp.put(timestamp8, RaoInput.build(LazyNetwork.of(networkPath), crac8).build());
-        inputPerTimestamp.put(timestamp9, RaoInput.build(LazyNetwork.of(networkPath), crac9).build());
-        inputPerTimestamp.put(timestamp10, RaoInput.build(LazyNetwork.of(networkPath), crac10).build());
+        inputPerTimestamp.put(timestamp1, RaoInput.build(createNetwork(networkType, networkPath), crac1).build());
+        inputPerTimestamp.put(timestamp2, RaoInput.build(createNetwork(networkType, networkPath), crac2).build());
+        inputPerTimestamp.put(timestamp3, RaoInput.build(createNetwork(networkType, networkPath), crac3).build());
+        inputPerTimestamp.put(timestamp4, RaoInput.build(createNetwork(networkType, networkPath), crac4).build());
+        inputPerTimestamp.put(timestamp5, RaoInput.build(createNetwork(networkType, networkPath), crac5).build());
+        inputPerTimestamp.put(timestamp6, RaoInput.build(createNetwork(networkType, networkPath), crac6).build());
+        inputPerTimestamp.put(timestamp7, RaoInput.build(createNetwork(networkType, networkPath), crac7).build());
+        inputPerTimestamp.put(timestamp8, RaoInput.build(createNetwork(networkType, networkPath), crac8).build());
+        inputPerTimestamp.put(timestamp9, RaoInput.build(createNetwork(networkType, networkPath), crac9).build());
+        inputPerTimestamp.put(timestamp10, RaoInput.build(createNetwork(networkType, networkPath), crac10).build());
 
         TimeCoupledConstraints timeCoupledConstraints = new TimeCoupledConstraints();
         timeCoupledConstraints.addGeneratorConstraints(GeneratorConstraints.create().withGeneratorId("FFR3AA1 _generator").withUpwardPowerGradient(500.0).withDownwardPowerGradient(-500.0).build());
@@ -527,8 +543,9 @@ class MarmotTest {
         assertFunctionalCostAndRedispatchingSetPoint(crac10, timeCoupledRaoResult, 125010.0, 1250.0);
     }
 
-    @Test
-    void testWithTenTimestampsAndGeneratorConstraintsFromRaoResults() throws IOException {
+    @ParameterizedTest(name = "{0}")
+    @EnumSource(NetworkType.class)
+    void testWithTenTimestampsAndGeneratorConstraintsFromRaoResults(NetworkType networkType) throws IOException {
         String networkPath = getResourcesPath().concat("/network/4Nodes_1_PST.xiidm");
 
         Network network = Network.read("/network/4Nodes_1_PST.xiidm", MarmotTest.class.getResourceAsStream("/network/4Nodes_1_PST.xiidm"));
@@ -568,16 +585,16 @@ class MarmotTest {
         OffsetDateTime timestamp10 = OffsetDateTime.of(2025, 3, 25, 19, 30, 0, 0, ZoneOffset.UTC);
 
         Map<OffsetDateTime, RaoInput> inputPerTimestamp = new HashMap<>();
-        inputPerTimestamp.put(timestamp1, RaoInput.build(LazyNetwork.of(networkPath), crac1).build());
-        inputPerTimestamp.put(timestamp2, RaoInput.build(LazyNetwork.of(networkPath), crac2).build());
-        inputPerTimestamp.put(timestamp3, RaoInput.build(LazyNetwork.of(networkPath), crac3).build());
-        inputPerTimestamp.put(timestamp4, RaoInput.build(LazyNetwork.of(networkPath), crac4).build());
-        inputPerTimestamp.put(timestamp5, RaoInput.build(LazyNetwork.of(networkPath), crac5).build());
-        inputPerTimestamp.put(timestamp6, RaoInput.build(LazyNetwork.of(networkPath), crac6).build());
-        inputPerTimestamp.put(timestamp7, RaoInput.build(LazyNetwork.of(networkPath), crac7).build());
-        inputPerTimestamp.put(timestamp8, RaoInput.build(LazyNetwork.of(networkPath), crac8).build());
-        inputPerTimestamp.put(timestamp9, RaoInput.build(LazyNetwork.of(networkPath), crac9).build());
-        inputPerTimestamp.put(timestamp10, RaoInput.build(LazyNetwork.of(networkPath), crac10).build());
+        inputPerTimestamp.put(timestamp1, RaoInput.build(createNetwork(networkType, networkPath), crac1).build());
+        inputPerTimestamp.put(timestamp2, RaoInput.build(createNetwork(networkType, networkPath), crac2).build());
+        inputPerTimestamp.put(timestamp3, RaoInput.build(createNetwork(networkType, networkPath), crac3).build());
+        inputPerTimestamp.put(timestamp4, RaoInput.build(createNetwork(networkType, networkPath), crac4).build());
+        inputPerTimestamp.put(timestamp5, RaoInput.build(createNetwork(networkType, networkPath), crac5).build());
+        inputPerTimestamp.put(timestamp6, RaoInput.build(createNetwork(networkType, networkPath), crac6).build());
+        inputPerTimestamp.put(timestamp7, RaoInput.build(createNetwork(networkType, networkPath), crac7).build());
+        inputPerTimestamp.put(timestamp8, RaoInput.build(createNetwork(networkType, networkPath), crac8).build());
+        inputPerTimestamp.put(timestamp9, RaoInput.build(createNetwork(networkType, networkPath), crac9).build());
+        inputPerTimestamp.put(timestamp10, RaoInput.build(createNetwork(networkType, networkPath), crac10).build());
 
         TimeCoupledConstraints timeCoupledConstraints = new TimeCoupledConstraints();
         timeCoupledConstraints.addGeneratorConstraints(
@@ -618,8 +635,9 @@ class MarmotTest {
         assertFunctionalCostAndRedispatchingSetPoint(crac10, timeCoupledRaoResult, 125010.0, 2500.0);
     }
 
-    @Test
-    void testCaseWithInfeasibleLinearProblem() throws IOException {
+    @ParameterizedTest(name = "{0}")
+    @EnumSource(NetworkType.class)
+    void testCaseWithInfeasibleLinearProblem(NetworkType networkType) throws IOException {
         // set-up log appender
         Logger logger = (Logger) LoggerFactory.getLogger(TechnicalLogs.class);
         ListAppender<ILoggingEvent> listAppender = new ListAppender<>();
@@ -638,8 +656,8 @@ class MarmotTest {
         RaoParameters raoParameters = JsonRaoParameters.read(MarmotTest.class.getResourceAsStream("/parameters/RaoParameters_minCost_megawatt_dc_with_offset.json"), ReportNode.NO_OP);
 
         TemporalData<RaoInput> inputPerTimestamp = new TemporalDataImpl<>();
-        inputPerTimestamp.put(OffsetDateTime.of(2026, 5, 11, 0, 30, 0, 0, ZoneOffset.UTC), RaoInput.build(network00, crac00).build());
-        inputPerTimestamp.put(OffsetDateTime.of(2026, 5, 11, 1, 30, 0, 0, ZoneOffset.UTC), RaoInput.build(network01, crac01).build());
+        inputPerTimestamp.put(OffsetDateTime.of(2026, 5, 11, 0, 30, 0, 0, ZoneOffset.UTC), RaoInput.build(createNetwork(networkType, network00), crac00).build());
+        inputPerTimestamp.put(OffsetDateTime.of(2026, 5, 11, 1, 30, 0, 0, ZoneOffset.UTC), RaoInput.build(createNetwork(networkType, network01), crac01).build());
 
         TimeCoupledRaoInput timeCoupledRaoInput = new TimeCoupledRaoInput(inputPerTimestamp, timeCoupledConstraints);
         RaoResult timeCoupledRaoResult = new Marmot().run(timeCoupledRaoInput, raoParameters, ReportNode.NO_OP).join();
@@ -673,8 +691,68 @@ class MarmotTest {
         file.delete();
     }
 
-    @Test
-    void testWithCurativePst() throws IOException {
+    private Network createNetwork(NetworkType networkType, String networkPath) throws IOException {
+        if (networkType == NetworkType.NORMAL) {
+            return trackNormalNetwork(Network.read(networkPath));
+        }
+        return LazyNetwork.of(networkPath);
+    }
+
+    private Network createNetwork(NetworkType networkType, Network network) throws IOException {
+        if (networkType == NetworkType.NORMAL) {
+            return trackNormalNetwork(network);
+        }
+        return new LazyNetwork(network);
+    }
+
+    private Network trackNormalNetwork(Network network) throws IOException {
+        String workingVariantId = network.getVariantManager().getWorkingVariantId();
+        Set<String> variantIds = new HashSet<>(network.getVariantManager().getVariantIds());
+        Path snapshotPath = tempDir.resolve("network-" + normalNetworkSnapshots.size() + ".jiidm");
+        network.write("JIIDM", new Properties(), snapshotPath);
+        normalNetworkSnapshots.put(network, new NetworkSnapshot(variantIds, workingVariantId, Files.readAllBytes(snapshotPath)));
+        return network;
+    }
+
+    @AfterEach
+    void assertNormalNetworksUnchanged() throws IOException {
+        for (Map.Entry<Network, NetworkSnapshot> entry : normalNetworkSnapshots.entrySet()) {
+            Network network = entry.getKey();
+            NetworkSnapshot snapshot = entry.getValue();
+            String currentWorkingVariantId = network.getVariantManager().getWorkingVariantId();
+            Set<String> currentVariantIds = new HashSet<>(network.getVariantManager().getVariantIds());
+            byte[] currentContents = null;
+            if (currentVariantIds.contains(snapshot.workingVariantId())) {
+                Path currentPath = tempDir.resolve("network-current-" + normalNetworkSnapshots.size() + ".jiidm");
+                try {
+                    network.getVariantManager().setWorkingVariant(snapshot.workingVariantId());
+                    network.write("JIIDM", new Properties(), currentPath);
+                    currentContents = Files.readAllBytes(currentPath);
+                } finally {
+                    network.getVariantManager().setWorkingVariant(currentWorkingVariantId);
+                }
+            }
+            byte[] finalCurrentContents = currentContents;
+            assertAll(
+                () -> assertEquals(snapshot.variantIds(), currentVariantIds, "Marmot must not add or remove network variants"),
+                () -> assertEquals(snapshot.workingVariantId(), currentWorkingVariantId, "Marmot must not change the working variant"),
+                () -> assertNotNull(finalCurrentContents, "Marmot must not remove the initial variant"),
+                () -> assertArrayEquals(snapshot.contents(), finalCurrentContents, "Marmot must not modify the initial variant")
+            );
+        }
+    }
+
+    private record NetworkSnapshot(Set<String> variantIds, String workingVariantId, byte[] contents) {
+    }
+
+    private enum NetworkType {
+        NORMAL,
+        LAZY
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @EnumSource(NetworkType.class)
+    void testWithCurativePst(NetworkType networkType) throws IOException {
         Network network00 = Network.read("/network/3Nodes6Lines.uct", MarmotTest.class.getResourceAsStream("/network/3Nodes6Lines.uct"));
         Network network01 = Network.read("/network/3Nodes6Lines.uct", MarmotTest.class.getResourceAsStream("/network/3Nodes6Lines.uct"));
         Crac crac00 = Crac.read("crac-2-psts-0030.json", MarmotTest.class.getResourceAsStream("/crac/crac-2-psts-0030.json"), network00);
@@ -683,8 +761,8 @@ class MarmotTest {
         RaoParameters raoParameters = JsonRaoParameters.read(MarmotTest.class.getResourceAsStream("/parameters/RaoParameters_minCost_megawatt_dc_with_offset.json"), ReportNode.NO_OP);
 
         TemporalData<RaoInput> inputPerTimestamp = new TemporalDataImpl<>();
-        inputPerTimestamp.put(OffsetDateTime.of(2026, 5, 28, 0, 30, 0, 0, ZoneOffset.UTC), RaoInput.build(network00, crac00).build());
-        inputPerTimestamp.put(OffsetDateTime.of(2026, 5, 28, 1, 30, 0, 0, ZoneOffset.UTC), RaoInput.build(network01, crac01).build());
+        inputPerTimestamp.put(OffsetDateTime.of(2026, 5, 28, 0, 30, 0, 0, ZoneOffset.UTC), RaoInput.build(createNetwork(networkType, network00), crac00).build());
+        inputPerTimestamp.put(OffsetDateTime.of(2026, 5, 28, 1, 30, 0, 0, ZoneOffset.UTC), RaoInput.build(createNetwork(networkType, network01), crac01).build());
 
         TimeCoupledRaoInput input = new TimeCoupledRaoInput(inputPerTimestamp, timeCoupledConstraints);
 
