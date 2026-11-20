@@ -40,7 +40,6 @@ import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 class HybridPstProblemFillerTest extends AbstractFillerTest {
@@ -159,7 +158,7 @@ class HybridPstProblemFillerTest extends AbstractFillerTest {
                 assertEquals(pst.convertTapToAngle(tap), tapToAngleConversionConstraint.ub(), DOUBLE_TOLERANCE);
                 OpenRaoMPVariable pstTapUpwardVariationVariable = linearProblem.getPstTapVariationVariable(pst, state, LinearProblem.VariationDirectionExtension.UPWARD);
                 OpenRaoMPVariable pstTapDownwardVariationVariable = linearProblem.getPstTapVariationVariable(pst, state, LinearProblem.VariationDirectionExtension.DOWNWARD);
-                assertEquals(- pst.convertTapToAngle(tap + 1) + pst.convertTapToAngle(tap), tapToAngleConversionConstraint.getCoefficient(pstTapUpwardVariationVariable), DOUBLE_TOLERANCE);
+                assertEquals(-pst.convertTapToAngle(tap + 1) + pst.convertTapToAngle(tap), tapToAngleConversionConstraint.getCoefficient(pstTapUpwardVariationVariable), DOUBLE_TOLERANCE);
                 assertEquals(pst.convertTapToAngle(tap) - pst.convertTapToAngle(tap - 1), tapToAngleConversionConstraint.getCoefficient(pstTapDownwardVariationVariable), DOUBLE_TOLERANCE);
 
             }

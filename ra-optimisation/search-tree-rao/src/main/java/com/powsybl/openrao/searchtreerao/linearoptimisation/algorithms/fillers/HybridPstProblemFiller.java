@@ -12,8 +12,6 @@ import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.RangeActionActivationResult;
 import com.powsybl.openrao.searchtreerao.result.api.SensitivityResult;
 
-import java.util.List;
-
 public class HybridPstProblemFiller implements ProblemFiller {
     private final ContinuousRangeActionGroupFiller continuousFiller;
     private final DiscretePstTapFiller discreteFiller;

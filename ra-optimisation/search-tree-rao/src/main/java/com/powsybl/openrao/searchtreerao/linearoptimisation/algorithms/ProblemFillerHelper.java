@@ -184,7 +184,6 @@ public final class ProblemFillerHelper {
                 problemFillers.add(discretePstGroupFiller);
             }
 
-
             ContinuousRangeActionGroupFiller continuousRangeActionGroupFiller = new ContinuousRangeActionGroupFiller(otherRa);
             problemFillers.add(continuousRangeActionGroupFiller);
         } else if (SearchTreeRaoRangeActionsOptimizationParameters.PstModel.CONTINUOUS.equals(pstModel)) {

@@ -227,15 +227,13 @@ public final class IteratingLinearOptimizer {
             if (solveStatus == LinearProblemStatus.OPTIMAL || solveStatus == LinearProblemStatus.FEASIBLE) {
                 RangeActionActivationResult updatedLinearProblemResult = new LinearProblemResult(linearProblem, input.prePerimeterSetpoints(), input.optimizationPerimeter());
                 rangeActionActivationResult = roundResult(updatedLinearProblemResult, bestResult, input, parameters);
-            }
-            else {
+            } else {
                 TECHNICAL_LOGS.debug("Iteration {}: linear optimization failed", iteration);
                 return rangeActionActivationResult;
             }
         }
         return rangeActionActivationResult;
     }
-
 
     private static LinearProblemStatus solveLinearProblem(LinearProblem linearProblem, int iteration) {
         TECHNICAL_LOGS.debug("Iteration {}: linear optimization [start]", iteration);
