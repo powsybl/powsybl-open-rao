@@ -43,7 +43,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.slf4j.LoggerFactory;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -357,45 +356,19 @@ class CastorFullOptimizationTest {
     }
 
     @Test
-    void testAutomatonReportsAreNestedInTheirContingencyScenario() {
-        network = Network.read("small-network-2P.uct", getClass().getResourceAsStream("/network/small-network-2P.uct"));
-        crac = CracFactory.findDefault().create("crac");
-        crac.newInstant("preventive", InstantKind.PREVENTIVE)
-            .newInstant("outage", InstantKind.OUTAGE)
-            .newInstant("auto", InstantKind.AUTO)
-            .newInstant("curative", InstantKind.CURATIVE);
-        crac.newContingency().withId("co1").withContingencyElement("FFR2AA1  FFR3AA1  1", ContingencyElementType.LINE).add();
-        crac.newContingency().withId("co2").withContingencyElement("FFR1AA1  FFR3AA1  1", ContingencyElementType.LINE).add();
-        for (String contingencyId : List.of("co1", "co2")) {
-            crac.newFlowCnec().withId("cnec-auto-" + contingencyId).withInstant("auto").withContingency(contingencyId).withNetworkElement("FFR1AA1  FFR4AA1  1").withNominalVoltage(400.)
-                .newThreshold().withSide(TwoSides.ONE).withMax(2500.).withUnit(Unit.AMPERE).add()
-                .withOptimized().add();
-        }
-        crac.newNetworkAction().withId("pst_fr@10-auto")
-            .newPhaseTapChangerTapPositionAction().withNetworkElement("FFR2AA1  FFR4AA1  1").withTapPosition(10).add()
-            .newOnInstantUsageRule().withInstant("auto").add()
-            .add();
-        raoInput = RaoInput.build(network, crac).build();
+    void testAutomatonReportsAreNestedInTheirContingencyScenario() throws IOException {
+        setup("2Nodes8ParallelLines5LinesClosed.uct", "small-crac-costly-auto-and-curative-4-scenarios.json");
         RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_2P_v2.json"), ReportNode.NO_OP);
         ReportNode rootReportNode = ReportsTestUtils.getTestRootNode();
 
         new CastorFullOptimization(raoInput, raoParameters, null, rootReportNode).run().join();
 
-        List<ReportNode> scenarioReportNodes = findReportNodes(rootReportNode, "openrao.searchtreerao.reportOptimizingScenarioForContingency");
-        assertEquals(2, scenarioReportNodes.size());
-        for (ReportNode scenarioReportNode : scenarioReportNodes) {
-            assertEquals(1, findReportNodes(scenarioReportNode, "openrao.searchtreerao.reportOptimizingAutomatonState").size());
-        }
-        assertEquals(2, findReportNodes(rootReportNode, "openrao.searchtreerao.reportOptimizingAutomatonState").size());
-    }
-
-    private static List<ReportNode> findReportNodes(ReportNode reportNode, String messageKey) {
-        List<ReportNode> found = new ArrayList<>();
-        if (messageKey.equals(reportNode.getMessageKey())) {
-            found.add(reportNode);
-        }
-        reportNode.getChildren().forEach(child -> found.addAll(findReportNodes(child, messageKey)));
-        return found;
+        List<ReportNode> automatonReportNodes = ReportsTestUtils.findReportNodes(rootReportNode, "openrao.searchtreerao.reportOptimizingAutomatonState");
+        List<ReportNode> automatonReportNodesInScenarios = ReportsTestUtils.findReportNodes(rootReportNode, "openrao.searchtreerao.reportOptimizingScenarioForContingency").stream()
+            .flatMap(scenarioReportNode -> ReportsTestUtils.findReportNodes(scenarioReportNode, "openrao.searchtreerao.reportOptimizingAutomatonState").stream())
+            .toList();
+        assertEquals(2, automatonReportNodes.size());
+        assertEquals(automatonReportNodes, automatonReportNodesInScenarios);
     }
 
     @Test
