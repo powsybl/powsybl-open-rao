@@ -14,6 +14,7 @@ import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.raoresult.impl.RaoResultImpl;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.RaoProvider;
+import com.powsybl.openrao.raoapi.RaoStopCondition;
 import com.powsybl.openrao.raoapi.TimeCoupledRaoInput;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 
@@ -30,14 +31,16 @@ public class AnotherRaoProviderMock implements RaoProvider {
     public CompletableFuture<RaoResult> run(final RaoInput raoInput,
                                             final RaoParameters parameters,
                                             final Instant targetEndInstant,
-                                            final ReportNode reportNode) {
+                                            final ReportNode reportNode,
+                                            final RaoStopCondition raoStopCondition) {
         return run(raoInput, parameters, reportNode);
     }
 
     @Override
     public CompletableFuture<RaoResult> run(final RaoInput raoInput,
                                             final RaoParameters parameters,
-                                            final ReportNode reportNode) {
+                                            final ReportNode reportNode,
+                                            final RaoStopCondition raoStopCondition) {
         RaoResultImpl raoResult = RaoResultImpl.builder(raoInput.getCrac()).build();
         return CompletableFuture.completedFuture(raoResult);
     }
@@ -48,7 +51,10 @@ public class AnotherRaoProviderMock implements RaoProvider {
     }
 
     @Override
-    public CompletableFuture<RaoResult> run(TimeCoupledRaoInput raoInput, RaoParameters parameters, ReportNode reportNode) {
+    public CompletableFuture<RaoResult> run(final TimeCoupledRaoInput raoInput,
+                                            final RaoParameters parameters,
+                                            final ReportNode reportNode,
+                                            final RaoStopCondition raoStopCondition) {
         throw new OpenRaoException("Time-coupled optimization is not supported");
     }
 }

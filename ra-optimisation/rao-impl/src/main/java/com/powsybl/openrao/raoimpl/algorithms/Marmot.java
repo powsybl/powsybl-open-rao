@@ -27,6 +27,7 @@ import com.powsybl.openrao.data.raoresult.api.extension.Metadata;
 import com.powsybl.openrao.data.raoresult.impl.RaoResultImpl;
 import com.powsybl.openrao.raoapi.LazyNetwork;
 import com.powsybl.openrao.raoapi.RaoInput;
+import com.powsybl.openrao.raoapi.RaoStopCondition;
 import com.powsybl.openrao.raoapi.TimeCoupledRaoInput;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.MarmotParameters;
@@ -230,13 +231,15 @@ class Marmot {
                                                                       final TemporalData<Set<FlowCnec>> consideredCnecs,
                                                                       final TemporalData<RaoParameters> raoParameters,
                                                                       final int parallelism,
-                                                                      final ReportNode reportNode) {
+                                                                      final ReportNode reportNode,
+                                                                      final RaoStopCondition raoStopCondition) {
         return MarmotUtils.smartMap(raoInputs, raoInput ->
                 runSingleTopologicalOptimization(
                     raoInput,
                     consideredCnecs,
                     raoParameters.getData(MarmotUtils.getTimestamp(raoInput)).orElseThrow(),
-                    reportNode
+                    reportNode,
+                    raoStopCondition
                 ),
             parallelism
         );
@@ -253,10 +256,11 @@ class Marmot {
     private static RaoResult runSingleTopologicalOptimization(final RaoInput raoInput,
                                                               final TemporalData<Set<FlowCnec>> consideredCnecs,
                                                               final RaoParameters raoParameters,
-                                                              final ReportNode reportNode) {
+                                                              final ReportNode reportNode,
+                                                              final RaoStopCondition raoStopCondition) {
         OffsetDateTime timestamp = MarmotUtils.getTimestamp(raoInput);
         final ReportNode raoRunReportNode = MarmotReports.reportMarmotRunningRaoForTimestamp(reportNode, timestamp);
-        RaoResult raoResult = new FastRao().run(raoInput, raoParameters, null, raoRunReportNode).join();
+        RaoResult raoResult = new FastRao().run(raoInput, raoParameters, null, raoRunReportNode, raoStopCondition).join();
         CriticalCnecsResult criticalCnecsResult = raoResult.getExtension(CriticalCnecsResult.class);
         Set<FlowCnec> critcalCnecs = (criticalCnecsResult != null) ?
             criticalCnecsResult.getCriticalCnecIds().stream().map(id -> raoInput.getCrac().getFlowCnec(id)).collect(Collectors.toSet()) :
@@ -377,7 +381,8 @@ class Marmot {
                                                                                 final TemporalData<Set<FlowCnec>> consideredCnecs,
                                                                                 final ObjectiveFunction objectiveFunction,
                                                                                 final int parallelism,
-                                                                                final ReportNode reportNode) {
+                                                                                final ReportNode reportNode,
+                                                                                final RaoStopCondition raoStopCondition) {
 
         // -- Build IteratingLinearOptimizertimeCoupledInput
         TemporalData<OptimizationPerimeter> optimizationPerimeterPerTimestamp = computeOptimizationPerimetersPerTimestamp(raoInput.getRaoInputs().map(RaoInput::getCrac), consideredCnecs, parallelism);
@@ -437,7 +442,7 @@ class Marmot {
         parameters.getExtension(OpenRaoSearchTreeParameters.class).getLoopFlowParameters().ifPresent(linearOptimizerParametersBuilder::withLoopFlowParametersExtension);
         IteratingLinearOptimizerParameters linearOptimizerParameters = linearOptimizerParametersBuilder.build();
 
-        return TimeCoupledIteratingLinearOptimizer.optimize(timeCoupledLinearOptimizerInput, linearOptimizerParameters, parallelism, reportNode);
+        return TimeCoupledIteratingLinearOptimizer.optimize(timeCoupledLinearOptimizerInput, linearOptimizerParameters, parallelism, reportNode, raoStopCondition);
     }
 
     private static TemporalData<OptimizationPerimeter> computeOptimizationPerimetersPerTimestamp(TemporalData<Crac> cracs, TemporalData<Set<FlowCnec>> consideredCnecs, int parallelism) {
@@ -616,7 +621,8 @@ class Marmot {
 
     CompletableFuture<RaoResult> run(final TimeCoupledRaoInput timeCoupledRaoInput,
                                      final RaoParameters raoParameters,
-                                     final ReportNode reportNode) {
+                                     final ReportNode reportNode,
+                                     final RaoStopCondition raoStopCondition) {
         if (!raoParameters.hasExtension(MarmotParameters.class)) {
             MarmotReports.reportMissingMarmotParametersExtension(reportNode);
             raoParameters.addExtension(MarmotParameters.class, new MarmotParameters());
@@ -653,19 +659,28 @@ class Marmot {
         TemporalData<PrePerimeterResult> initialResults = runAllInitialSensitivityAnalyses(initialInputs, raoParametersDuplicates, parallelism, initialSensiReportNode);
         MarmotReports.reportMarmotRunningInitialSensiAnalysesEnd();
 
+        // checkpoint: carry on to the next step?
+        raoStopCondition.checkNotStopped();
+
         // 2. Evaluate the initial value of the global objective function
         final ReportNode globalObjFuncInitialValueEvalReportNode = MarmotReports.reportMarmotEvaluatingInitialValueOfGlobalObjFunction(reportNode);
         ObjectiveFunction fullObjectiveFunction = buildGlobalObjectiveFunction(cracs, new GlobalFlowResult(initialResults), raoParameters);
         LinearOptimizationResult initialObjectiveFunctionResult = getInitialObjectiveFunctionResult(initialResults, fullObjectiveFunction, globalObjFuncInitialValueEvalReportNode);
         MarmotReports.reportMarmotEvaluatingInitialValueOfGlobalObjFunctionEnd();
 
+        // checkpoint: carry on to the next step?
+        raoStopCondition.checkNotStopped();
+
         // 3. Run independent RAOs to compute and apply the optimal preventive remedial actions
         final ReportNode topologicalOptimizationReportNode = MarmotReports.reportMarmotTopologicalOptimization(reportNode);
         TemporalData<Set<FlowCnec>> consideredCnecs = new TemporalDataImpl<>(); // used for FastRAO
         final TemporalData<RaoResult> topologicalOptimizationResults = timeCoupledRaoInput.getPreComputedRaoResults() == null
-            ? runTopologicalOptimization(initialInputs, consideredCnecs, raoParametersDuplicates, parallelism, topologicalOptimizationReportNode)
+            ? runTopologicalOptimization(initialInputs, consideredCnecs, raoParametersDuplicates, parallelism, topologicalOptimizationReportNode, raoStopCondition)
             : applyPreventiveToposFromRaoResults(initialInputs, timeCoupledRaoInput.getPreComputedRaoResults(), consideredCnecs, parallelism, topologicalOptimizationReportNode);
         MarmotReports.reportMarmotTopologicalOptimizationEnd();
+
+        // checkpoint: carry on to the next step?
+        raoStopCondition.checkNotStopped();
 
         // TODO : Add time-coupled constraint check if none violated then return
         // boolean noTimeCoupledConstraints = timeCoupledRaoInput.getTimeCoupledConstraints().getGeneratorConstraints().isEmpty();
@@ -701,6 +716,9 @@ class Marmot {
                     )
                 ))
         );
+
+        // checkpoint: carry on to the next step?
+        raoStopCondition.checkNotStopped();
 
         // TODO: check time-coupled constraints. If one of the following requirements is met, exit:
         //  - no time-coupled constraints provided
@@ -760,7 +778,8 @@ class Marmot {
                 consideredCnecs,
                 filteredObjectiveFunction,
                 parallelism,
-                globalRaOptimForIterationReportNode
+                globalRaOptimForIterationReportNode,
+                raoStopCondition
             );
             MarmotUtils.releaseAllWithoutOverwrite(initialInputs.map(RaoInput::getNetwork));
             MarmotReports.reportMarmotGlobalRangeActionsOptimizationForIterationEnd(counter);
@@ -789,6 +808,9 @@ class Marmot {
             );
             MarmotReports.reportMarmotNextIterationOfMip(globalRangeActionsOptimizationReportNode, fullResults, raoParameters, 10);
             counter++;
+
+            // checkpoint: proceed to next loop?
+            raoStopCondition.checkNotStopped();
         } while (
             shouldContinueAndAddCnecs(sensiResults, consideredCnecs, getFlowUnit(raoParameters), marmotParameters, globalRangeActionsOptimizationReportNode)
                 && counter < marmotParameters.getMaxMipIterations()); // Stop if the worst element of each TS has been considered during MIP

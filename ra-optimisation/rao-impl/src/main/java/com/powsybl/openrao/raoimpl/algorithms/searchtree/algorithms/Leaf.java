@@ -22,6 +22,7 @@ import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
+import com.powsybl.openrao.raoapi.RaoStopCondition;
 import com.powsybl.openrao.raoimpl.algorithms.linearoptimisation.algorithms.IteratingLinearOptimizer;
 import com.powsybl.openrao.raoimpl.algorithms.linearoptimisation.inputs.IteratingLinearOptimizerInput;
 import com.powsybl.openrao.raoimpl.algorithms.linearoptimisation.parameters.IteratingLinearOptimizerParameters;
@@ -239,7 +240,8 @@ public class Leaf implements OptimizationResult {
      */
     void optimize(final SearchTreeInput searchTreeInput,
                   final SearchTreeParameters parameters,
-                  final ReportNode reportNode) {
+                  final ReportNode reportNode,
+                  final RaoStopCondition raoStopCondition) {
         if (!optimizationDataPresent) {
             throw new OpenRaoException("Cannot optimize leaf, because optimization data has been deleted");
         }
@@ -296,7 +298,7 @@ public class Leaf implements OptimizationResult {
                 .withRaRangeShrinking(parameters.getTreeParameters().raRangeShrinking())
                 .build();
 
-            postOptimResult = IteratingLinearOptimizer.optimize(linearOptimizerInput, linearOptimizerParameters, reportNode);
+            postOptimResult = IteratingLinearOptimizer.optimize(linearOptimizerInput, linearOptimizerParameters, reportNode, raoStopCondition);
 
             status = Status.OPTIMIZED;
         } else if (status.equals(Status.ERROR)) {

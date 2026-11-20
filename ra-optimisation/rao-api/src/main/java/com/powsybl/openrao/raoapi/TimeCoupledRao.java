@@ -60,7 +60,7 @@ public final class TimeCoupledRao {
                 .findFirst().orElseThrow();
             RaoApiReports.reportRaoVersionAndGitCommit(reportNode, openRaoVersion.getMavenProjectVersion(), openRaoVersion.getGitVersion());
 
-            return provider.run(raoInput, parameters, reportNode).join();
+            return provider.run(raoInput, parameters, reportNode, RaoStopCondition.NO_OP).join();
         }
 
         public RaoResult run(TimeCoupledRaoInput raoInput) {

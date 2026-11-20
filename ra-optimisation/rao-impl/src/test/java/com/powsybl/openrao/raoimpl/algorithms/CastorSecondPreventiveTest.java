@@ -24,6 +24,7 @@ import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.crac.impl.utils.NetworkImportsUtil;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.raoresult.api.extension.CostResult;
+import com.powsybl.openrao.raoapi.RaoStopCondition;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
@@ -532,18 +533,18 @@ class CastorSecondPreventiveTest {
         try (MockedConstruction<SearchTree> mockedSearchTree = Mockito.mockConstruction(SearchTree.class,
             (mock, context) -> {
                 capturedParameters.set((SearchTreeParameters) context.arguments().get(1));
-                when(mock.run()).thenReturn(futureResult);
+                when(mock.run(RaoStopCondition.NO_OP)).thenReturn(futureResult);
             })) {
 
             // 1st preventive activated one network action
             when(firstPreventiveResult.getActivatedNetworkActions()).thenReturn(Set.of(na1));
-            castorSecondPreventive.optimizeSecondPreventivePerimeter(initialOutput, prePerimeterResult, firstPreventiveResult, new AppliedRemedialActions());
+            castorSecondPreventive.optimizeSecondPreventivePerimeter(initialOutput, prePerimeterResult, firstPreventiveResult, new AppliedRemedialActions(), RaoStopCondition.NO_OP);
             assertEquals(1, capturedParameters.get().getNetworkActionParameters().getNetworkActionCombinations().size());
             assertEquals(Set.of(na1), capturedParameters.get().getNetworkActionParameters().getNetworkActionCombinations().get(0).getNetworkActionSet());
 
             // 1st preventive activated no network action
             when(firstPreventiveResult.getActivatedNetworkActions()).thenReturn(Set.of());
-            castorSecondPreventive.optimizeSecondPreventivePerimeter(initialOutput, prePerimeterResult, firstPreventiveResult, new AppliedRemedialActions());
+            castorSecondPreventive.optimizeSecondPreventivePerimeter(initialOutput, prePerimeterResult, firstPreventiveResult, new AppliedRemedialActions(), RaoStopCondition.NO_OP);
             assertTrue(capturedParameters.get().getNetworkActionParameters().getNetworkActionCombinations().isEmpty());
         }
     }

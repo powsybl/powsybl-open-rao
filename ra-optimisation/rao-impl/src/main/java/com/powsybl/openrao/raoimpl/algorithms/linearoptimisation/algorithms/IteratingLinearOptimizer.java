@@ -14,6 +14,7 @@ import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.HvdcRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
+import com.powsybl.openrao.raoapi.RaoStopCondition;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.PstModel;
 import com.powsybl.openrao.raoimpl.algorithms.linearoptimisation.algorithms.linearproblem.LinearProblem;
 import com.powsybl.openrao.raoimpl.algorithms.linearoptimisation.inputs.IteratingLinearOptimizerInput;
@@ -57,7 +58,8 @@ public final class IteratingLinearOptimizer {
 
     public static LinearOptimizationResult optimize(final IteratingLinearOptimizerInput input,
                                                     final IteratingLinearOptimizerParameters parameters,
-                                                    final ReportNode reportNode) {
+                                                    final ReportNode reportNode,
+                                                    final RaoStopCondition raoStopCondition) {
 
         IteratingLinearOptimizationResultImpl bestResult = createResult(
             input.preOptimizationFlowResult(),
@@ -76,6 +78,9 @@ public final class IteratingLinearOptimizer {
             .buildFromInputsAndParameters(input, parameters);
 
         linearProblem.fill(input.preOptimizationFlowResult(), input.preOptimizationSensitivityResult());
+
+        // checkpoint: check whether to run the linear optimizer
+        raoStopCondition.checkNotStopped();
 
         for (int iteration = 1; iteration <= parameters.getMaxNumberOfIterations(); iteration++) {
             LinearProblemStatus solveStatus = solveLinearProblem(linearProblem, iteration);
@@ -104,6 +109,9 @@ public final class IteratingLinearOptimizer {
                 return bestResult;
             }
 
+            // checkpoint: check whether to run the systematic sensitivity analysis or not
+            raoStopCondition.checkNotStopped();
+
             sensitivityComputer = runSensitivityAnalysis(sensitivityComputer, iteration, currentRangeActionActivationResult, input, parameters, reportNode);
             if (sensitivityComputer.getSensitivityResult().getSensitivityStatus() == ComputationStatus.FAILURE) {
                 bestResult.setStatus(LinearProblemStatus.SENSITIVITY_COMPUTATION_FAILED);
@@ -128,6 +136,9 @@ public final class IteratingLinearOptimizer {
             } else {
                 bestResult = mipShouldStop.getLeft();
             }
+
+            // checkpoint: check whether to run a new iteration or not
+            raoStopCondition.checkNotStopped();
         }
         bestResult.setStatus(LinearProblemStatus.MAX_ITERATION_REACHED);
         return bestResult;

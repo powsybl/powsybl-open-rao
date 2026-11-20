@@ -30,6 +30,7 @@ import com.powsybl.openrao.data.raoresult.api.extension.CriticalCnecsResult;
 import com.powsybl.openrao.data.raoresult.api.extension.Metadata;
 import com.powsybl.openrao.data.raoresult.impl.RaoResultImpl;
 import com.powsybl.openrao.raoapi.RaoInput;
+import com.powsybl.openrao.raoapi.RaoStopCondition;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.FastRaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
@@ -73,7 +74,8 @@ class FastRao {
                                                final RaoParameters parameters,
                                                final Instant targetEndInstant,
                                                final Set<FlowCnec> consideredCnecs,
-                                               final ReportNode reportNode) {
+                                               final ReportNode reportNode,
+                                               final RaoStopCondition raoStopCondition) {
 
         if (!parameters.hasExtension(FastRaoParameters.class)) {
             FastRaoReports.reportMissingFastRaoParametersExtension(reportNode);
@@ -154,7 +156,8 @@ class FastRao {
                     initialRangeActionSetpointResult,
                     networkPool,
                     counter,
-                    iterationReportNode
+                    iterationReportNode,
+                    raoStopCondition
                 );
                 raoResult = filteredRaoResults.getFirst();
                 stepResult = filteredRaoResults.getSecond();
@@ -163,6 +166,9 @@ class FastRao {
 
                 worstCnec = stepResult.getMostLimitingElements(1).getFirst();
                 counter++;
+
+                // checkpoint: run another loop?
+                raoStopCondition.checkNotStopped();
             } while (!(consideredCnecs.contains(worstCnec) && consideredCnecs.containsAll(getCostlyVirtualCnecs(stepResult))));
 
             networkPool.shutdownAndAwaitTermination(24, TimeUnit.HOURS);
@@ -229,7 +235,8 @@ class FastRao {
                                                                           final RangeActionSetpointResult initialRangeActionSetpointResult,
                                                                           final AbstractNetworkPool networkPool,
                                                                           final int counter,
-                                                                          final ReportNode reportNode) throws ExecutionException, InterruptedException {
+                                                                          final ReportNode reportNode,
+                                                                          final RaoStopCondition raoStopCondition) throws ExecutionException, InterruptedException {
         Crac crac = raoInput.getCrac();
 
         // Filter CRAC to only keep flowCnecsToKeep
@@ -241,7 +248,7 @@ class FastRao {
         RaoInput filteredRaoInput = createFilteredRaoInput(raoInput, filteredCrac);
         RaoResult raoResult;
         try {
-            raoResult = new CastorFullOptimization(filteredRaoInput, parameters, targetEndInstant, filteredRaoReportNode).run().get();
+            raoResult = new CastorFullOptimization(filteredRaoInput, parameters, targetEndInstant, filteredRaoReportNode, raoStopCondition).run().get();
             List<String> preventiveNetworkActions = new ArrayList<>();
             if (!Objects.isNull(crac.getPreventiveState())) {
                 preventiveNetworkActions = raoResult.getActivatedNetworkActionsDuringState(crac.getPreventiveState()).stream()
@@ -564,7 +571,8 @@ class FastRao {
     CompletableFuture<RaoResult> run(final RaoInput raoInput,
                                      final RaoParameters parameters,
                                      final Instant targetEndInstant,
-                                     final ReportNode reportNode) {
+                                     final ReportNode reportNode,
+                                     final RaoStopCondition raoStopCondition) {
         try {
             RaoUtil.initData(raoInput, parameters, reportNode);
         } catch (OpenRaoException e) {
@@ -575,6 +583,6 @@ class FastRao {
             return CompletableFuture.completedFuture(raoResult);
         }
 
-        return CompletableFuture.completedFuture(launchFastRaoOptimization(raoInput, parameters, targetEndInstant, new HashSet<>(), reportNode));
+        return CompletableFuture.completedFuture(launchFastRaoOptimization(raoInput, parameters, targetEndInstant, new HashSet<>(), reportNode, raoStopCondition));
     }
 }
