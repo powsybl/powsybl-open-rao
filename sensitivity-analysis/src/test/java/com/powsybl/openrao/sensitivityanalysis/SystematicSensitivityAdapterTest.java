@@ -7,21 +7,39 @@
 
 package com.powsybl.openrao.sensitivityanalysis;
 
+import com.powsybl.action.Action;
+import com.powsybl.action.PhaseTapChangerTapPositionAction;
+import com.powsybl.action.RatioTapChangerTapPositionAction;
+import com.powsybl.action.TerminalsConnectionAction;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
+import com.powsybl.openrao.data.crac.api.State;
+import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
+import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.crac.impl.utils.CommonCracCreation;
 import com.powsybl.openrao.data.crac.impl.utils.NetworkImportsUtil;
 import com.powsybl.sensitivity.SensitivityAnalysisParameters;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
+import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import static com.powsybl.iidm.network.TwoSides.ONE;
 import static com.powsybl.iidm.network.TwoSides.TWO;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyDouble;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
@@ -185,6 +203,174 @@ class SystematicSensitivityAdapterTest {
 
         assertEquals(-5, result.getSensitivityOnFlow(crac.getRangeAction("pst"), crac.getFlowCnec("cnec2stateOutageContingency1"), ONE), DOUBLE_TOLERANCE);
         assertEquals(5.5, result.getSensitivityOnFlow(crac.getRangeAction("pst"), crac.getFlowCnec("cnec2stateOutageContingency1"), TWO), DOUBLE_TOLERANCE);
+    }
+
+    @Test
+    void testWithAppliedRaNotSupportedByOperatorStrategies() {
+        // range action not convertible to actions: fallback on one run per state with RA
+        Network network = NetworkImportsUtil.import12NodesNetwork();
+        String workingVariantId = network.getVariantManager().getWorkingVariantId();
+        Crac crac = CommonCracCreation.createWithPreventivePstRange(Set.of(ONE, TWO));
+        Instant curativeInstant = crac.getInstant(CURATIVE_INSTANT_ID);
+        RangeActionSensitivityProvider factorProvider = new RangeActionSensitivityProvider(crac.getRangeActions(), crac.getFlowCnecs(), Set.of(Unit.MEGAWATT, Unit.AMPERE));
+
+        RangeAction<?> unsupportedRangeAction = Mockito.mock(RangeAction.class);
+        when(unsupportedRangeAction.getCurrentSetpoint(any())).thenReturn(0.);
+        when(unsupportedRangeAction.toActions(anyDouble(), any())).thenThrow(new UnsupportedOperationException("toActions method not implemented"));
+        doAnswer(invocation -> {
+            // applying the range action moves the PST, which makes the MockSensiProvider return its "alternative" results
+            Network n = invocation.getArgument(0);
+            n.getTwoWindingsTransformer("BBE2AA1  BBE3AA1  1").getPhaseTapChanger().setTapPosition(-3);
+            return null;
+        }).when(unsupportedRangeAction).apply(any(), anyDouble());
+        AppliedRemedialActions appliedRemedialActions = new AppliedRemedialActions();
+        appliedRemedialActions.addAppliedRangeAction(crac.getState("Contingency FR1 FR3", curativeInstant), unsupportedRangeAction, -3.1);
+
+        SystematicSensitivityResult result = SystematicSensitivityAdapter.runSensitivity(
+            network,
+            factorProvider,
+            appliedRemedialActions,
+            new SensitivityAnalysisParameters(),
+            "MockSensi",
+            crac.getOutageInstant(),
+            LocalComputationManager.getDefault()
+        );
+
+        // after initial state or contingency without CRA, "standard results" of the MockSensiProvider are expected
+        assertEquals(10, result.getReferenceFlow(crac.getFlowCnec("cnec2basecase"), ONE), DOUBLE_TOLERANCE);
+        assertEquals(-15, result.getReferenceFlow(crac.getFlowCnec("cnec2basecase"), TWO), DOUBLE_TOLERANCE);
+        assertEquals(-20, result.getReferenceFlow(crac.getFlowCnec("cnec1stateCurativeContingency2"), ONE), DOUBLE_TOLERANCE);
+        assertEquals(25, result.getReferenceFlow(crac.getFlowCnec("cnec1stateCurativeContingency2"), TWO), DOUBLE_TOLERANCE);
+
+        // after contingency with CRA, "alternative" results of the MockSensiProvider are expected
+        assertEquals(-40, result.getReferenceFlow(crac.getFlowCnec("cnec2stateCurativeContingency1"), ONE), DOUBLE_TOLERANCE);
+        assertEquals(45, result.getReferenceFlow(crac.getFlowCnec("cnec2stateCurativeContingency1"), TWO), DOUBLE_TOLERANCE);
+        assertEquals(-2.5, result.getSensitivityOnFlow(crac.getRangeAction("pst"), crac.getFlowCnec("cnec2stateCurativeContingency1"), ONE), DOUBLE_TOLERANCE);
+        assertEquals(3.0, result.getSensitivityOnFlow(crac.getRangeAction("pst"), crac.getFlowCnec("cnec2stateCurativeContingency1"), TWO), DOUBLE_TOLERANCE);
+
+        // the network is left untouched
+        assertEquals(workingVariantId, network.getVariantManager().getWorkingVariantId());
+        assertEquals(1, network.getVariantManager().getVariantIds().size());
+        assertEquals(0, network.getTwoWindingsTransformer("BBE2AA1  BBE3AA1  1").getPhaseTapChanger().getTapPosition());
+    }
+
+    @Test
+    void testWithAppliedRaPartlySupportedByOperatorStrategies() {
+        Network network = NetworkImportsUtil.import12NodesNetwork();
+        Crac crac = CommonCracCreation.createWithPreventivePstRange(Set.of(ONE, TWO));
+        Instant curativeInstant = crac.getInstant(CURATIVE_INSTANT_ID);
+        RangeActionSensitivityProvider factorProvider = new RangeActionSensitivityProvider(crac.getRangeActions(), crac.getFlowCnecs(), Set.of(Unit.MEGAWATT, Unit.AMPERE));
+
+        RangeAction<?> supportedRangeAction = Mockito.mock(RangeAction.class);
+        when(supportedRangeAction.getCurrentSetpoint(any())).thenReturn(0.);
+        when(supportedRangeAction.toActions(anyDouble(), any())).thenReturn(List.of(new PhaseTapChangerTapPositionAction("pst", "BBE2AA1  BBE3AA1  1", false, -3)));
+        RangeAction<?> unsupportedRangeAction = Mockito.mock(RangeAction.class);
+        when(unsupportedRangeAction.getCurrentSetpoint(any())).thenReturn(0.);
+        when(unsupportedRangeAction.toActions(anyDouble(), any())).thenThrow(new UnsupportedOperationException("toActions method not implemented"));
+        State supportedState = crac.getState("Contingency FR1 FR3", curativeInstant);
+        State unsupportedState = crac.getState("Contingency FR1 FR2", curativeInstant);
+        AppliedRemedialActions appliedRemedialActions = new AppliedRemedialActions();
+        appliedRemedialActions.addAppliedRangeAction(supportedState, supportedRangeAction, -3.1);
+        appliedRemedialActions.addAppliedRangeAction(unsupportedState, unsupportedRangeAction, -3.1);
+
+        SystematicSensitivityResult result = SystematicSensitivityAdapter.runSensitivity(
+            network,
+            factorProvider,
+            appliedRemedialActions,
+            new SensitivityAnalysisParameters(),
+            "MockSensi",
+            crac.getOutageInstant(),
+            LocalComputationManager.getDefault()
+        );
+
+        // only the unsupported state is applied on the network
+        verify(supportedRangeAction, never()).apply(any(), anyDouble());
+        verify(unsupportedRangeAction, times(1)).apply(any(), anyDouble());
+        assertEquals(SystematicSensitivityResult.SensitivityComputationStatus.SUCCESS, result.getStatus(supportedState));
+        assertEquals(SystematicSensitivityResult.SensitivityComputationStatus.SUCCESS, result.getStatus(unsupportedState));
+        // operator strategy state: "alternative" results of the MockSensiProvider
+        assertEquals(-40, result.getReferenceFlow(crac.getFlowCnec("cnec2stateCurativeContingency1"), ONE), DOUBLE_TOLERANCE);
+        assertEquals(1, network.getVariantManager().getVariantIds().size());
+    }
+
+    @Test
+    void testFallbackPathFailureOnStateWithRa() {
+        // the provider fails on the second run, i.e. on the state with RA
+        Network network = NetworkImportsUtil.import12NodesNetwork();
+        network.setName("Second_Run_Exception");
+        Crac crac = CommonCracCreation.createWithPreventivePstRange(Set.of(ONE, TWO));
+        RangeActionSensitivityProvider factorProvider = new RangeActionSensitivityProvider(crac.getRangeActions(), crac.getFlowCnecs(), Set.of(Unit.MEGAWATT, Unit.AMPERE));
+        RangeAction<?> unsupportedRangeAction = Mockito.mock(RangeAction.class);
+        when(unsupportedRangeAction.toActions(anyDouble(), any())).thenThrow(new UnsupportedOperationException("toActions method not implemented"));
+        AppliedRemedialActions appliedRemedialActions = new AppliedRemedialActions();
+        appliedRemedialActions.addAppliedRangeAction(crac.getState("Contingency FR1 FR3", crac.getInstant(CURATIVE_INSTANT_ID)), unsupportedRangeAction, -3.1);
+
+        SystematicSensitivityResult result = SystematicSensitivityAdapter.runSensitivity(network, factorProvider, appliedRemedialActions,
+            new SensitivityAnalysisParameters(), "MockSensi", crac.getOutageInstant(), LocalComputationManager.getDefault());
+
+        assertEquals(SystematicSensitivityResult.SensitivityComputationStatus.PARTIAL_FAILURE, result.getStatus());
+        assertEquals(10, result.getReferenceFlow(crac.getFlowCnec("cnec2basecase"), ONE), DOUBLE_TOLERANCE);
+        assertEquals(network.getVariantManager().getWorkingVariantId(), network.getVariantManager().getVariantIds().iterator().next());
+    }
+
+    @Test
+    void testOnlyStatesWithRa() {
+        // all the CNECs are on the state with RA: nothing to run without RA
+        Network network = NetworkImportsUtil.import12NodesNetwork();
+        Crac crac = CommonCracCreation.createWithPreventivePstRange(Set.of(ONE, TWO));
+        State curativeState = crac.getState("Contingency FR1 FR3", crac.getInstant(CURATIVE_INSTANT_ID));
+        RangeActionSensitivityProvider factorProvider = new RangeActionSensitivityProvider(crac.getRangeActions(),
+            Set.of(crac.getFlowCnec("cnec2stateCurativeContingency1")), Set.of(Unit.MEGAWATT, Unit.AMPERE));
+        AppliedRemedialActions appliedRemedialActions = new AppliedRemedialActions();
+        appliedRemedialActions.addAppliedRangeAction(curativeState, crac.getPstRangeAction("pst"), -3.1);
+
+        SystematicSensitivityResult result = SystematicSensitivityAdapter.runSensitivity(network, factorProvider, appliedRemedialActions,
+            new SensitivityAnalysisParameters(), "MockSensi", crac.getOutageInstant(), LocalComputationManager.getDefault());
+
+        assertEquals(SystematicSensitivityResult.SensitivityComputationStatus.SUCCESS, result.getStatus());
+        assertEquals(-40, result.getReferenceFlow(crac.getFlowCnec("cnec2stateCurativeContingency1"), ONE), DOUBLE_TOLERANCE);
+    }
+
+    @Test
+    void testConvertToOperatorStrategyActions() {
+        Network network = NetworkImportsUtil.import12NodesNetwork();
+        Crac crac = CommonCracCreation.createWithPreventivePstRange(Set.of(ONE, TWO));
+        State curativeState = crac.getState("Contingency FR1 FR3", crac.getInstant(CURATIVE_INSTANT_ID));
+
+        // PST range action: supported in DC and AC
+        AppliedRemedialActions pstApplied = new AppliedRemedialActions();
+        pstApplied.addAppliedRangeAction(curativeState, crac.getPstRangeAction("pst"), -3.1);
+        OperatorStrategySupport.Mode dc = new OperatorStrategySupport.Mode(true, false);
+        OperatorStrategySupport.Mode ac = new OperatorStrategySupport.Mode(false, false);
+        Optional<List<Action>> converted = SystematicSensitivityAdapter.convertToOperatorStrategyActions(curativeState, pstApplied, network, dc);
+        assertTrue(converted.isPresent());
+        assertEquals(1, converted.get().size());
+        assertTrue(converted.get().get(0) instanceof PhaseTapChangerTapPositionAction);
+        assertTrue(SystematicSensitivityAdapter.convertToOperatorStrategyActions(curativeState, pstApplied, network, ac).isPresent());
+
+        // network action with a ratio tap changer elementary action: not supported, even in AC
+        NetworkAction rtcNetworkAction = Mockito.mock(NetworkAction.class);
+        when(rtcNetworkAction.getElementaryActions()).thenReturn(Set.of(new RatioTapChangerTapPositionAction("rtc", "BBE2AA1  BBE3AA1  1", false, 1)));
+        AppliedRemedialActions rtcApplied = new AppliedRemedialActions();
+        rtcApplied.addAppliedNetworkAction(curativeState, rtcNetworkAction);
+        assertTrue(SystematicSensitivityAdapter.convertToOperatorStrategyActions(curativeState, rtcApplied, network, dc).isEmpty());
+        assertTrue(SystematicSensitivityAdapter.convertToOperatorStrategyActions(curativeState, rtcApplied, network, ac).isEmpty());
+
+        // network action on an element OpenLoadFlow cannot find: never supported
+        NetworkAction unknownElementAction = Mockito.mock(NetworkAction.class);
+        when(unknownElementAction.getElementaryActions()).thenReturn(Set.of(new TerminalsConnectionAction("unknown", "unknown", true)));
+        AppliedRemedialActions unknownElementApplied = new AppliedRemedialActions();
+        unknownElementApplied.addAppliedNetworkAction(curativeState, unknownElementAction);
+        assertTrue(SystematicSensitivityAdapter.convertToOperatorStrategyActions(curativeState, unknownElementApplied, network, dc).isEmpty());
+        assertTrue(SystematicSensitivityAdapter.convertToOperatorStrategyActions(curativeState, unknownElementApplied, network, ac).isEmpty());
+
+        // range action that cannot be converted: never supported
+        RangeAction<?> unsupportedRangeAction = Mockito.mock(RangeAction.class);
+        when(unsupportedRangeAction.toActions(anyDouble(), any())).thenThrow(new UnsupportedOperationException("toActions method not implemented"));
+        AppliedRemedialActions unsupportedApplied = new AppliedRemedialActions();
+        unsupportedApplied.addAppliedRangeAction(curativeState, unsupportedRangeAction, 10.);
+        assertTrue(SystematicSensitivityAdapter.convertToOperatorStrategyActions(curativeState, unsupportedApplied, network, dc).isEmpty());
+        assertTrue(SystematicSensitivityAdapter.convertToOperatorStrategyActions(curativeState, unsupportedApplied, network, ac).isEmpty());
     }
 
     @Test
