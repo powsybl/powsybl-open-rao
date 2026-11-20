@@ -658,11 +658,17 @@ class Marmot {
         TemporalData<PrePerimeterResult> initialResults = runAllInitialSensitivityAnalyses(initialInputs, raoParametersDuplicates, parallelism, initialSensiReportNode);
         MarmotReports.reportMarmotRunningInitialSensiAnalysesEnd();
 
+        // checkpoint: carry on to the next step?
+        raoStopCondition.checkNotStopped();
+
         // 2. Evaluate the initial value of the global objective function
         final ReportNode globalObjFuncInitialValueEvalReportNode = MarmotReports.reportMarmotEvaluatingInitialValueOfGlobalObjFunction(reportNode);
         ObjectiveFunction fullObjectiveFunction = buildGlobalObjectiveFunction(cracs, new GlobalFlowResult(initialResults), raoParameters);
         LinearOptimizationResult initialObjectiveFunctionResult = getInitialObjectiveFunctionResult(initialResults, fullObjectiveFunction, globalObjFuncInitialValueEvalReportNode);
         MarmotReports.reportMarmotEvaluatingInitialValueOfGlobalObjFunctionEnd();
+
+        // checkpoint: carry on to the next step?
+        raoStopCondition.checkNotStopped();
 
         // 3. Run independent RAOs to compute and apply the optimal preventive remedial actions
         final ReportNode topologicalOptimizationReportNode = MarmotReports.reportMarmotTopologicalOptimization(reportNode);
@@ -671,6 +677,9 @@ class Marmot {
             ? runTopologicalOptimization(initialInputs, consideredCnecs, raoParametersDuplicates, parallelism, topologicalOptimizationReportNode, raoStopCondition)
             : applyPreventiveToposFromRaoResults(initialInputs, timeCoupledRaoInput.getPreComputedRaoResults(), consideredCnecs, parallelism, topologicalOptimizationReportNode);
         MarmotReports.reportMarmotTopologicalOptimizationEnd();
+
+        // checkpoint: carry on to the next step?
+        raoStopCondition.checkNotStopped();
 
         // TODO : Add time-coupled constraint check if none violated then return
         // boolean noTimeCoupledConstraints = timeCoupledRaoInput.getTimeCoupledConstraints().getGeneratorConstraints().isEmpty();
@@ -706,6 +715,9 @@ class Marmot {
                     )
                 ))
         );
+
+        // checkpoint: carry on to the next step?
+        raoStopCondition.checkNotStopped();
 
         // TODO: check time-coupled constraints. If one of the following requirements is met, exit:
         //  - no time-coupled constraints provided
@@ -794,6 +806,9 @@ class Marmot {
             );
             MarmotReports.reportMarmotNextIterationOfMip(globalRangeActionsOptimizationReportNode, fullResults, raoParameters, 10);
             counter++;
+
+            // checkpoint: proceed to next loop?
+            raoStopCondition.checkNotStopped();
         } while (
             shouldContinueAndAddCnecs(sensiResults, consideredCnecs, getFlowUnit(raoParameters), marmotParameters, globalRangeActionsOptimizationReportNode)
                 && counter < marmotParameters.getMaxMipIterations()); // Stop if the worst element of each TS has been considered during MIP

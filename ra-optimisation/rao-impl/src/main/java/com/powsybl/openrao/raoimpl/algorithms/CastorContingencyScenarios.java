@@ -16,6 +16,7 @@ import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
+import com.powsybl.openrao.raoapi.RaoStopCondition;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
@@ -102,7 +103,8 @@ public class CastorContingencyScenarios {
     public Map<State, PostPerimeterResult> optimizeContingencyScenarios(final Network network,
                                                                         final PrePerimeterResult prePerimeterSensitivityOutput,
                                                                         final boolean automatonsOnly,
-                                                                        final ReportNode reportNode) {
+                                                                        final ReportNode reportNode,
+                                                                        final RaoStopCondition raoStopCondition) {
         Map<State, PostPerimeterResult> contingencyScenarioResults = new ConcurrentHashMap<>();
         // Create a new variant
         String newVariant = RandomizedString.getRandomizedString(CONTINGENCY_SCENARIO, network.getVariantManager().getVariantIds(), 10);
@@ -132,7 +134,8 @@ public class CastorContingencyScenarios {
                             automatonSimulator,
                             contingencyScenarioResults,
                             remainingScenarios,
-                            scenarioOptimizationReportNode
+                            scenarioOptimizationReportNode,
+                            raoStopCondition
                         )
                     );
                 }
@@ -158,7 +161,8 @@ public class CastorContingencyScenarios {
                                final AutomatonSimulator automatonSimulator,
                                final Map<State, PostPerimeterResult> contingencyScenarioResults,
                                final AtomicInteger remainingScenarios,
-                               final ReportNode reportNode) throws InterruptedException {
+                               final ReportNode reportNode,
+                               final RaoStopCondition raoStopCondition) throws InterruptedException {
         Network networkClone = networkPool.getAvailableNetwork(); //This is where the threads actually wait for available networks
         CastorReports.reportOptimizingScenarioPostContingency(reportNode, optimizedScenario.getContingency().getId());
 
@@ -182,6 +186,10 @@ public class CastorContingencyScenarios {
                 preCurativeResult = automatonResult.getPostAutomatonSensitivityAnalysisOutput();
             }
         }
+
+        // checkpoint: check whether to optimize curative not
+        raoStopCondition.checkNotStopped();
+
         // Do not simulate curative instant if last sensitivity analysis failed
         // -- if there was no automaton state, check prePerimeterSensitivityOutput sensi status
         // -- or if there was an automaton state that failed
@@ -219,7 +227,8 @@ public class CastorContingencyScenarios {
                         previousPerimeterResult,
                         resultsPerPerimeter,
                         prePerimeterResultPerPerimeter,
-                        reportNode
+                        reportNode,
+                        raoStopCondition
                     );
                     allPreviousPerimetersSucceded = curativeResult.getSensitivityStatus() == DEFAULT;
                     applyRemedialActions(networkClone, curativeResult, curativeState);
@@ -305,7 +314,8 @@ public class CastorContingencyScenarios {
                                                          final PrePerimeterResult prePerimeterSensitivityOutput,
                                                          final Map<State, OptimizationResult> resultsPerPerimeter,
                                                          final Map<State, PrePerimeterResult> prePerimeterResultPerPerimeter,
-                                                         final ReportNode reportNode) {
+                                                         final ReportNode reportNode,
+                                                         final RaoStopCondition raoStopCondition) {
         State curativeState = curativePerimeter.getRaOptimisationState();
         CastorReports.reportOptimizingCurativeState(reportNode, curativeState.getId());
 
@@ -379,7 +389,7 @@ public class CastorContingencyScenarios {
             .withOutageInstant(crac.getOutageInstant())
             .build();
 
-        OptimizationResult result = new SearchTree(searchTreeInput, searchTreeParameters, false, reportNode).run().join();
+        OptimizationResult result = new SearchTree(searchTreeInput, searchTreeParameters, false, reportNode).run(raoStopCondition).join();
         CastorReports.reportCurativeStateOptimized(reportNode, curativeState.getId());
         return result;
     }

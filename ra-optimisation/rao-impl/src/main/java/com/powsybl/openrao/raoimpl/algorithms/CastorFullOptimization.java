@@ -109,7 +109,15 @@ class CastorFullOptimization {
             // ----- INITIAL SENSI -----
             // compute initial sensitivity on all CNECs
             // (this is necessary to have initial flows for MNEC and loopflow constraints on CNECs, in preventive and curative perimeters)
+
+            // checkpoint 1: before initial sensitivity analysis
+            raoStopCondition.checkNotStopped();
+
             runInitialSensitivityAnalysis(context, optimizationReportNode);
+
+            // checkpoint 2: after initial sensitivity analysis
+            raoStopCondition.checkNotStopped();
+
             if (context.getInitialOutput().getSensitivityStatus() == ComputationStatus.FAILURE) {
                 CommonReports.reportInitialSensitivityAnalysisFailed(optimizationReportNode);
                 RaoResult raoResult = RaoResultGenerator.failed(crac, "Initial sensitivity analysis failed");
@@ -134,7 +142,13 @@ class CastorFullOptimization {
             // mutualise the pre-perimeter sensi analysis for all contingency scenario + get after-PRA result over all CNECs
             currentStep = "post-PRA sensitivity analysis";
             final ReportNode postPraSensiAnalysisReportNode = CastorReports.reportPostPraSensiAnalysis(optimizationReportNode);
+
+            // checkpoint: before post-preventive sensitivity analysis
+            raoStopCondition.checkNotStopped();
             computePostPraSensitivity(context, postPraSensiAnalysisReportNode);
+            // checkpoint: after post-preventive sensitivity analysis
+            raoStopCondition.checkNotStopped();
+
             if (context.getPreCurativeSensitivityAnalysisOutput().getSensitivityStatus() == ComputationStatus.FAILURE) {
                 CastorReports.reportSystematicSensitivityAnalysisAfterPraFailed(postPraSensiAnalysisReportNode);
                 RaoResult raoResult = RaoResultGenerator.failed(crac, "Systematic sensitivity analysis after preventive remedial actions failed");
@@ -187,6 +201,9 @@ class CastorFullOptimization {
             final ReportNode postContingencyPerimeterOptimReportNode = CastorReports.reportPostContingencyPerimeterOptimization(curativePerimeterOptimReportNode);
             runCurativePerimeterOptimization(context, postContingencyPerimeterOptimReportNode);
             CastorReports.reportPostContingencyPerimeterOptimizationEnd();
+
+            // checkpoint: check whether to run second preventive optimization or not
+            raoStopCondition.checkNotStopped();
 
             // ----- SECOND PREVENTIVE PERIMETER OPTIMIZATION -----
             currentStep = "second preventive optimization";
@@ -269,6 +286,9 @@ class CastorFullOptimization {
         context.setPreventiveRaoTime(ChronoUnit.SECONDS.between(preventiveRaoStartInstant, preventiveRaoEndInstant));
 
         context.setPreventiveResult(preventiveResult);
+
+        // checkpoint: check whether to keep on with the optimization workflow or not
+        raoStopCondition.checkNotStopped();
     }
 
     private void computePostPraSensitivity(final RaoRunContext context, final ReportNode postPraSensiAnalysisReportNode) {
@@ -299,7 +319,8 @@ class CastorFullOptimization {
             network,
             context.getPreCurativeSensitivityAnalysisOutput(),
             false,
-            postContingencyPerimeterOptimReportNode
+            postContingencyPerimeterOptimReportNode,
+            raoStopCondition
         ));
     }
 
@@ -342,7 +363,7 @@ class CastorFullOptimization {
         RaoResult secondPreventiveRaoResults = mergedRaoResults;
         if (castorSecondPreventive.shouldRunSecondPreventiveRao(context.getPreventiveResult(), postContingencyResults.values(), mergedRaoResults, context.getPreventiveRaoTime())) {
             CastorSecondPreventive.SecondPreventiveRaoResultsHolder secondPreventiveRaoResultsHolder = castorSecondPreventive.runSecondPreventiveAndAutoRao(
-                context.getCastorContingencyScenarios(), context.getPrePerimeterSensitivityAnalysis(), initialOutput, postPreventiveResult, postContingencyResults);
+                context.getCastorContingencyScenarios(), context.getPrePerimeterSensitivityAnalysis(), initialOutput, postPreventiveResult, postContingencyResults, raoStopCondition);
             secondPreventiveRan = true;
             if (secondPreventiveRaoResultsHolder.hasFailed()) {
                 context.setMergedRaoResults(RaoResultGenerator.failed(crac, secondPreventiveRaoResultsHolder.errorMessage()));
@@ -630,7 +651,7 @@ class CastorFullOptimization {
             .withOutageInstant(crac.getOutageInstant())
             .build();
 
-        OptimizationResult optResult = new SearchTree(searchTreeInput, searchTreeParameters, true, preventivePerimeterOptimReportNode).run().join();
+        OptimizationResult optResult = new SearchTree(searchTreeInput, searchTreeParameters, true, preventivePerimeterOptimReportNode).run(raoStopCondition).join();
         applyRemedialActions(network, optResult, crac.getPreventiveState());
         return optResult;
     }

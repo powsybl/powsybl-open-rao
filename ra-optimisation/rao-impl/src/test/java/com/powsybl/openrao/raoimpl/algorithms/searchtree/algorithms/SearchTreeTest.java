@@ -28,6 +28,7 @@ import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
+import com.powsybl.openrao.raoapi.RaoStopCondition;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters;
 import com.powsybl.openrao.raoimpl.algorithms.searchtree.inputs.SearchTreeInput;
@@ -225,7 +226,7 @@ class SearchTreeTest {
         when(rootLeaf.getStatus()).thenReturn(Leaf.Status.ERROR);
         Mockito.doReturn(rootLeaf).when(searchTree).makeLeaf(optimizationPerimeter, network, prePerimeterResult, appliedRemedialActions);
 
-        OptimizationResult result = searchTree.run().get();
+        OptimizationResult result = searchTree.run(RaoStopCondition.NO_OP).get();
         assertEquals(rootLeaf, result);
     }
 
@@ -240,7 +241,7 @@ class SearchTreeTest {
         when(rootLeaf.getStatus()).thenReturn(Leaf.Status.EVALUATED);
         Mockito.doReturn(rootLeaf).when(searchTree).makeLeaf(optimizationPerimeter, network, prePerimeterResult, appliedRemedialActions);
 
-        OptimizationResult result = searchTree.run().get();
+        OptimizationResult result = searchTree.run(RaoStopCondition.NO_OP).get();
         assertEquals(rootLeaf, result);
         assertEquals(leafCost, result.getCost(), DOUBLE_TOLERANCE);
     }
@@ -257,7 +258,7 @@ class SearchTreeTest {
         when(rootLeaf.getCost()).thenReturn(2.);
         when(rootLeaf.getStatus()).thenReturn(Leaf.Status.EVALUATED, Leaf.Status.OPTIMIZED);
         Mockito.doReturn(rootLeaf).when(searchTree).makeLeaf(optimizationPerimeter, network, prePerimeterResult, appliedRemedialActions);
-        OptimizationResult result = searchTree.run().get();
+        OptimizationResult result = searchTree.run(RaoStopCondition.NO_OP).get();
         assertEquals(rootLeaf, result);
         assertEquals(2., result.getCost(), DOUBLE_TOLERANCE);
 
@@ -272,7 +273,7 @@ class SearchTreeTest {
         when(rootLeaf.getCost()).thenReturn(4., 2.);
         when(rootLeaf.getStatus()).thenReturn(Leaf.Status.EVALUATED, Leaf.Status.OPTIMIZED);
         Mockito.doReturn(rootLeaf).when(searchTree).makeLeaf(optimizationPerimeter, network, prePerimeterResult, appliedRemedialActions);
-        OptimizationResult result = searchTree.run().get();
+        OptimizationResult result = searchTree.run(RaoStopCondition.NO_OP).get();
         assertEquals(rootLeaf, result);
         assertEquals(2., result.getCost(), DOUBLE_TOLERANCE);
     }
@@ -291,7 +292,7 @@ class SearchTreeTest {
         when(childLeaf.getStatus()).thenReturn(Leaf.Status.ERROR);
         Mockito.doReturn(childLeaf).when(searchTree).createChildLeaf(network, new NetworkActionCombination(networkAction), false);
 
-        OptimizationResult result = searchTree.run().get();
+        OptimizationResult result = searchTree.run(RaoStopCondition.NO_OP).get();
         assertEquals(rootLeaf, result);
         assertEquals(4., result.getCost(), DOUBLE_TOLERANCE);
     }
@@ -350,7 +351,7 @@ class SearchTreeTest {
 
         mockLeafsCosts(rootLeafCostAfterOptim, childLeafCostAfterOptim, childLeaf);
 
-        OptimizationResult result = searchTree.run().get();
+        OptimizationResult result = searchTree.run(RaoStopCondition.NO_OP).get();
         assertEquals(childLeaf, result);
     }
 
@@ -366,7 +367,7 @@ class SearchTreeTest {
 
         mockLeafsCosts(rootLeafCostAfterOptim, childLeafCostAfterOptim, childLeaf);
 
-        OptimizationResult result = searchTree.run().get();
+        OptimizationResult result = searchTree.run(RaoStopCondition.NO_OP).get();
         assertEquals(rootLeaf, result);
     }
 
@@ -408,7 +409,7 @@ class SearchTreeTest {
         when(childLeaf2.getCost()).thenReturn(childLeaf2CostAfterOptim);
         Mockito.doReturn(childLeaf2).when(searchTree).createChildLeaf(any(), eq(availableNaCombinations.get(1)), eq(false));
 
-        OptimizationResult result = searchTree.run().get();
+        OptimizationResult result = searchTree.run(RaoStopCondition.NO_OP).get();
         assertEquals(childLeaf1, result);
     }
 
@@ -426,7 +427,7 @@ class SearchTreeTest {
 
         mockLeafsCosts(rootLeafCostAfterOptim, childLeafCostAfterOptim, childLeaf);
 
-        OptimizationResult result = searchTree.run().get();
+        OptimizationResult result = searchTree.run(RaoStopCondition.NO_OP).get();
         assertEquals(childLeaf, result);
     }
 
@@ -443,7 +444,7 @@ class SearchTreeTest {
         mockRootLeafCost(5.);
         when(rootLeaf.getOptimizedSetpoint(rangeAction2, optimizedState)).thenReturn(3.);
 
-        OptimizationResult result = searchTree.run().get();
+        OptimizationResult result = searchTree.run(RaoStopCondition.NO_OP).get();
         assertEquals(3., result.getOptimizedSetpoint(rangeAction2, optimizedState), DOUBLE_TOLERANCE);
     }
 
@@ -537,10 +538,10 @@ class SearchTreeTest {
         when(rootLeaf.getStatus()).thenReturn(Leaf.Status.EVALUATED);
         Mockito.doReturn(rootLeaf).when(searchTree).makeLeaf(optimizationPerimeter, network, prePerimeterResult, appliedRemedialActions);
         // rootLeaf should not be optimized : its virtual cost is zero so stop criterion is already reached
-        doThrow(OpenRaoException.class).when(rootLeaf).optimize(any(), any(), any());
+        doThrow(OpenRaoException.class).when(rootLeaf).optimize(any(), any(), any(), any());
 
         try {
-            searchTree.run();
+            searchTree.run(RaoStopCondition.NO_OP);
         } catch (OpenRaoException e) {
             fail("Should not have optimized rootleaf as it had already reached the stop criterion");
         }
@@ -564,7 +565,7 @@ class SearchTreeTest {
 
         ListAppender<ILoggingEvent> technical = ReportsTestUtils.getTechnicalLogs();
         ListAppender<ILoggingEvent> business = ReportsTestUtils.getBusinessLogs();
-        searchTree.run();
+        searchTree.run(RaoStopCondition.NO_OP);
         final List<ReportNode> traceReports = ReportsTestUtils.getReportsWithSeverity(reportNode, TypedValue.TRACE_SEVERITY);
         final List<ReportNode> infoReports = ReportsTestUtils.getReportsWithSeverity(reportNode, TypedValue.INFO_SEVERITY);
         assertEquals(0, traceReports.size());
@@ -597,7 +598,7 @@ class SearchTreeTest {
 
         ListAppender<ILoggingEvent> technical = ReportsTestUtils.getTechnicalLogs();
         ListAppender<ILoggingEvent> business = ReportsTestUtils.getBusinessLogs();
-        searchTree.run();
+        searchTree.run(RaoStopCondition.NO_OP);
         final List<ReportNode> traceReports = ReportsTestUtils.getReportsWithSeverity(reportNode, TypedValue.TRACE_SEVERITY);
         final List<ReportNode> infoReports = ReportsTestUtils.getReportsWithSeverity(reportNode, TypedValue.INFO_SEVERITY);
         assertEquals(1, traceReports.size());

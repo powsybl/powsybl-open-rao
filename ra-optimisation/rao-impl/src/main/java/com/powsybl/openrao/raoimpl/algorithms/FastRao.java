@@ -166,6 +166,9 @@ class FastRao {
 
                 worstCnec = stepResult.getMostLimitingElements(1).getFirst();
                 counter++;
+
+                // checkpoint: run another loop?
+                raoStopCondition.checkNotStopped();
             } while (!(consideredCnecs.contains(worstCnec) && consideredCnecs.containsAll(getCostlyVirtualCnecs(stepResult))));
 
             networkPool.shutdownAndAwaitTermination(24, TimeUnit.HOURS);
