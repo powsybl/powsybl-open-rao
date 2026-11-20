@@ -58,7 +58,7 @@ class FlowCnecInstantHelper {
         if (CapacityCalculationRegion.SOUTH_WESTERN_EUROPE.equals(ncCracCreationParameters.getCapacityCalculationRegion())) {
             SweNcCracCreationParameters sweParameters = cracCreationParameters.getExtension(SweNcCracCreationParameters.class);
             if (sweParameters != null) {
-                doNotUsePatlInFinalState = sweParameters.getTsosWhichDoNotUsePatlInFinalState().contains(tso);
+                doNotUsePatlInFinalState = tso != null && sweParameters.getTsosWhichDoNotUsePatlInFinalState().contains(tso);
             }
         }
         Set<Integer> tatlDurations = getAllTatlDurationsOnSide(branch, side);
