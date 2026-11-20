@@ -40,17 +40,22 @@ class RaoResultJsonImporterTest {
     @Test
     void existsWithWrongDocumentType() {
         String json = """
-                {
-                  "type" : "NOT_A_RAO_RESULT",
-                  "version" : "2.0"
-                }
-                """;
+            {
+              "type" : "NOT_A_RAO_RESULT",
+              "version" : "2.0"
+            }
+            """;
         assertFalse(IMPORTER.exists(new ByteArrayInputStream(json.getBytes(StandardCharsets.UTF_8))));
     }
 
     @Test
     void existsWithNotJsonObject() {
         assertFalse(IMPORTER.exists(new ByteArrayInputStream("[1, 2, 3]".getBytes(StandardCharsets.UTF_8))));
+    }
+
+    @Test
+    void existsWithEmptyJsonObject() {
+        assertFalse(IMPORTER.exists(new ByteArrayInputStream("{}".getBytes(StandardCharsets.UTF_8))));
     }
 
     @Test
