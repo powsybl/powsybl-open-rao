@@ -48,12 +48,15 @@ import com.powsybl.openrao.loopflowcomputation.LoopFlowComputationImpl;
 import com.powsybl.openrao.loopflowcomputation.LoopFlowResult;
 import com.powsybl.openrao.raoapi.LazyNetwork;
 import com.powsybl.openrao.raoapi.Rao;
+import com.powsybl.openrao.raoapi.RaoComputationInterruptedException;
 import com.powsybl.openrao.raoapi.RaoInput;
+import com.powsybl.openrao.raoapi.RaoStopCondition;
 import com.powsybl.openrao.raoapi.TimeCoupledRaoInput;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoimpl.result.extension.PreTimeCouplingOverloadedCnecs;
 import com.powsybl.openrao.raoimpl.result.extension.TimeCoupledCostResult;
 import com.powsybl.openrao.tests.utils.CoreCcPreprocessor;
+import com.powsybl.openrao.tests.utils.MaxCallsRaoStopCondition;
 import com.powsybl.openrao.tests.utils.RaoUtils;
 import com.powsybl.sensitivity.SensitivityAnalysisParameters;
 import com.powsybl.sensitivity.SensitivityVariableSet;
@@ -106,6 +109,8 @@ import static com.powsybl.openrao.tests.utils.Helpers.importNetwork;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -184,12 +189,12 @@ public class RaoSteps {
 
     @When("I launch loopflow rao with default loopflow limit as {double} percent of pmax")
     public void iLaunchRaoWithDefaultLoopflowLimit(double percentage) {
-        launchRao(null, percentage, raoImplementation, null);
+        launchRao(null, percentage, raoImplementation, null, RaoStopCondition.NO_OP);
     }
 
     @When("I launch loopflow rao at {string} with default loopflow limit as {double} percent of pmax")
     public void iLaunchRaoWithDefaultLoopflowLimit(String timestamp, double percentage) {
-        launchRao(timestamp, percentage, raoImplementation, null);
+        launchRao(timestamp, percentage, raoImplementation, null, RaoStopCondition.NO_OP);
     }
 
     @When("I launch loopflow_computation with OpenLoadFlow")
@@ -200,6 +205,21 @@ public class RaoSteps {
     @When("I launch loopflow_computation with OpenLoadFlow at {string}")
     public void iLaunchLoopflowComputation(String timestamp) {
         launchLoopflowComputation(timestamp, "OpenLoadFlow", "OpenLoadFlow");
+    }
+
+    @When("I launch rao with interruption")
+    public void iLaunchRaoWithInterruption() {
+        RaoStopCondition raoStopCondition = new MaxCallsRaoStopCondition(2);
+        RaoComputationInterruptedException exception = assertThrows(
+            RaoComputationInterruptedException.class,
+            () -> launchRao(null, null, raoImplementation, null, raoStopCondition)
+        );
+        assertEquals("RAO was interrupted.", exception.getMessage());
+    }
+
+    @Then("no RAO Result was generated")
+    public void noRaoResultWasGenerated() {
+        assertNull(CommonTestData.getRaoResult());
     }
 
     @When("I export rao reports to {string}")
@@ -899,14 +919,14 @@ public class RaoSteps {
     }
 
     private void launchRao(int timeLimit) {
-        launchRao(null, null, raoImplementation, timeLimit);
+        launchRao(null, null, raoImplementation, timeLimit, RaoStopCondition.NO_OP);
     }
 
     private void launchRao(String timestamp, String raoType) {
-        launchRao(timestamp, 0.0, raoType, null);
+        launchRao(timestamp, 0.0, raoType, null, RaoStopCondition.NO_OP);
     }
 
-    private void launchRao(String timestamp, Double loopflowLimitAsPmaxPercentageInput, String raoType, Integer timeLimit) {
+    private void launchRao(String timestamp, Double loopflowLimitAsPmaxPercentageInput, String raoType, Integer timeLimit, RaoStopCondition raoStopCondition) {
         if (CommonTestData.getTimeCoupledRaoInput() != null) {
             CommonTestData.setReportNode(
                 ReportNode.newRootReportNode()
@@ -915,7 +935,7 @@ public class RaoSteps {
                     .build()
             );
             timeCoupledRaoResult = Rao.find(raoImplementation)
-                .run(CommonTestData.getTimeCoupledRaoInput(), getRaoParameters(), CommonTestData.getReportNode());
+                .run(CommonTestData.getTimeCoupledRaoInput(), getRaoParameters(), CommonTestData.getReportNode(), raoStopCondition);
         } else {
             try {
                 CommonTestData.loadData(timestamp);
@@ -928,7 +948,7 @@ public class RaoSteps {
                         .withMessageTemplate("test.rootnode")
                         .build()
                 );
-                raoResult = RaoUtils.runRao(raoType, loopflowLimitAsPmaxPercentageInput, timeLimit, CommonTestData.getReportNode(), forceFastRao);
+                raoResult = RaoUtils.runRao(raoType, loopflowLimitAsPmaxPercentageInput, timeLimit, CommonTestData.getReportNode(), forceFastRao, raoStopCondition);
                 CommonTestData.setRaoResult(raoResult);
             } catch (IOException e) {
                 throw new UncheckedIOException(e);

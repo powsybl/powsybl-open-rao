@@ -163,7 +163,11 @@ public final class Rao {
             return run(raoInput, ReportNode.NO_OP);
         }
 
-        public RaoResult run(TimeCoupledRaoInput raoInput, RaoParameters parameters, ReportNode reportNode) {
+        public RaoResult run(RaoInput raoInput, RaoParameters raoParameters, ReportNode reportNode, RaoStopCondition raoStopCondition) {
+            return run(raoInput, raoParameters, null, reportNode, raoStopCondition);
+        }
+
+        public RaoResult run(TimeCoupledRaoInput raoInput, RaoParameters parameters, ReportNode reportNode, RaoStopCondition raoStopCondition) {
             Objects.requireNonNull(raoInput, "RAO input should not be null");
             Objects.requireNonNull(parameters, "parameters should not be null");
 
@@ -173,15 +177,15 @@ public final class Rao {
                 .findFirst().orElseThrow();
             RaoApiReports.reportRaoVersionAndGitCommit(reportNode, openRaoVersion.getMavenProjectVersion(), openRaoVersion.getGitVersion());
 
-            return provider.run(raoInput, parameters, reportNode).join();
+            return provider.run(raoInput, parameters, reportNode, raoStopCondition).join();
         }
 
         public RaoResult run(TimeCoupledRaoInput raoInput, ReportNode reportNode) {
-            return run(raoInput, RaoParameters.load(reportNode), reportNode);
+            return run(raoInput, RaoParameters.load(reportNode), reportNode, RaoStopCondition.NO_OP);
         }
 
         public RaoResult run(TimeCoupledRaoInput raoInput, RaoParameters parameters) {
-            return run(raoInput, parameters, ReportNode.NO_OP);
+            return run(raoInput, parameters, ReportNode.NO_OP, RaoStopCondition.NO_OP);
         }
 
         public RaoResult run(TimeCoupledRaoInput raoInput) {
@@ -279,8 +283,8 @@ public final class Rao {
         return find().run(raoInput);
     }
 
-    public static RaoResult run(TimeCoupledRaoInput raoInput, RaoParameters parameters, final ReportNode reportNode) {
-        return find().run(raoInput, parameters, reportNode);
+    public static RaoResult run(TimeCoupledRaoInput raoInput, RaoParameters parameters, final ReportNode reportNode, final RaoStopCondition raoStopCondition) {
+        return find().run(raoInput, parameters, reportNode, raoStopCondition);
     }
 
     public static RaoResult run(TimeCoupledRaoInput raoInput, final ReportNode reportNode) {

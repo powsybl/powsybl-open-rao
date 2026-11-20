@@ -72,7 +72,7 @@ public final class RaoUtils {
 
     public static RaoResult runRao(String raoType, Double loopflowAsPmaxPercentage,
                                    Integer timeLimitInSeconds, final ReportNode reportNode,
-                                   boolean forceFastRao) throws IOException {
+                                   boolean forceFastRao, RaoStopCondition raoStopCondition) throws IOException {
         RaoParameters raoParameters = CommonTestData.getRaoParameters();
         ZonalData<SensitivityVariableSet> glsks = CommonTestData.getLoopflowGlsks();
         // Rao with loop-flows
@@ -97,13 +97,14 @@ public final class RaoUtils {
             CommonTestData.getReferenceProgram(),
             raoParameters,
             timeLimitInSeconds,
-            reportNode
+            reportNode,
+            raoStopCondition
         );
     }
 
     private static RaoResult runRaoInMemory(Rao.Runner raoRunner, Network network, Crac crac,
                                             ZonalData<SensitivityVariableSet> glsks, ZonalData<Scalable> counterTradeGlsks, ReferenceProgram referenceProgram, RaoParameters config,
-                                            Integer timeLimitInSeconds, final ReportNode reportNode) throws IOException {
+                                            Integer timeLimitInSeconds, final ReportNode reportNode, final RaoStopCondition raoStopCondition) throws IOException {
 
         RaoInput.RaoInputBuilder raoInputBuilder = RaoInput.build(network, crac);
         raoInputBuilder.withGlskProvider(glsks);
@@ -112,9 +113,9 @@ public final class RaoUtils {
 
         RaoResult raoResult;
         if (timeLimitInSeconds != null) {
-            raoResult = raoRunner.run(raoInputBuilder.build(), config, java.time.Instant.now().plusSeconds(timeLimitInSeconds.longValue()), reportNode, RaoStopCondition.NO_OP);
+            raoResult = raoRunner.run(raoInputBuilder.build(), config, java.time.Instant.now().plusSeconds(timeLimitInSeconds.longValue()), reportNode, raoStopCondition);
         } else {
-            raoResult = raoRunner.run(raoInputBuilder.build(), config, reportNode);
+            raoResult = raoRunner.run(raoInputBuilder.build(), config, reportNode, raoStopCondition);
         }
 
         /*

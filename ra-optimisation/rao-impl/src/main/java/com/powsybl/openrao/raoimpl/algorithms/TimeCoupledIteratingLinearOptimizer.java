@@ -18,6 +18,7 @@ import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.timecoupledconstraints.PstConstraints;
+import com.powsybl.openrao.raoapi.RaoStopCondition;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters;
 import com.powsybl.openrao.raoimpl.algorithms.linearoptimisation.algorithms.BestTapFinder;
 import com.powsybl.openrao.raoimpl.algorithms.linearoptimisation.algorithms.IteratingLinearOptimizer;
@@ -59,7 +60,8 @@ public final class TimeCoupledIteratingLinearOptimizer {
     public static GlobalLinearOptimizationResult optimize(final TimeCoupledIteratingLinearOptimizerInput input,
                                                           final IteratingLinearOptimizerParameters parameters,
                                                           final int parallelism,
-                                                          final ReportNode reportNode) {
+                                                          final ReportNode reportNode,
+                                                          final RaoStopCondition raoStopCondition) {
         // 1. Initialize best result using input data
         GlobalLinearOptimizationResult bestResult = createInitialResult(
             input.iteratingLinearOptimizerInputs().map(IteratingLinearOptimizerInput::preOptimizationFlowResult),
@@ -87,6 +89,9 @@ public final class TimeCoupledIteratingLinearOptimizer {
 
         MarmotUtils.releaseAllWithoutOverwrite(input.iteratingLinearOptimizerInputs().map(IteratingLinearOptimizerInput::network));
         logInitialResult(bestResult, reportNode);
+
+        // checkpoint: check whether to run the linear optimizer
+        raoStopCondition.checkNotStopped();
 
         // 3. Iterate
         for (int iteration = 1; iteration <= parameters.getMaxNumberOfIterations(); iteration++) {
@@ -191,6 +196,9 @@ public final class TimeCoupledIteratingLinearOptimizer {
             } else {
                 bestResult = mipShouldStop.getLeft();
             }
+
+            // checkpoint: check whether to run a new iteration or not
+            raoStopCondition.checkNotStopped();
         }
 
         bestResult.setStatus(LinearProblemStatus.MAX_ITERATION_REACHED);

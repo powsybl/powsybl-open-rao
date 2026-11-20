@@ -381,7 +381,8 @@ class Marmot {
                                                                                 final TemporalData<Set<FlowCnec>> consideredCnecs,
                                                                                 final ObjectiveFunction objectiveFunction,
                                                                                 final int parallelism,
-                                                                                final ReportNode reportNode) {
+                                                                                final ReportNode reportNode,
+                                                                                final RaoStopCondition raoStopCondition) {
 
         // -- Build IteratingLinearOptimizertimeCoupledInput
         TemporalData<OptimizationPerimeter> optimizationPerimeterPerTimestamp = computeOptimizationPerimetersPerTimestamp(raoInput.getRaoInputs().map(RaoInput::getCrac), consideredCnecs, parallelism);
@@ -441,7 +442,7 @@ class Marmot {
         parameters.getExtension(OpenRaoSearchTreeParameters.class).getLoopFlowParameters().ifPresent(linearOptimizerParametersBuilder::withLoopFlowParametersExtension);
         IteratingLinearOptimizerParameters linearOptimizerParameters = linearOptimizerParametersBuilder.build();
 
-        return TimeCoupledIteratingLinearOptimizer.optimize(timeCoupledLinearOptimizerInput, linearOptimizerParameters, parallelism, reportNode);
+        return TimeCoupledIteratingLinearOptimizer.optimize(timeCoupledLinearOptimizerInput, linearOptimizerParameters, parallelism, reportNode, raoStopCondition);
     }
 
     private static TemporalData<OptimizationPerimeter> computeOptimizationPerimetersPerTimestamp(TemporalData<Crac> cracs, TemporalData<Set<FlowCnec>> consideredCnecs, int parallelism) {
@@ -777,7 +778,8 @@ class Marmot {
                 consideredCnecs,
                 filteredObjectiveFunction,
                 parallelism,
-                globalRaOptimForIterationReportNode
+                globalRaOptimForIterationReportNode,
+                raoStopCondition
             );
             MarmotUtils.releaseAllWithoutOverwrite(initialInputs.map(RaoInput::getNetwork));
             MarmotReports.reportMarmotGlobalRangeActionsOptimizationForIterationEnd(counter);
