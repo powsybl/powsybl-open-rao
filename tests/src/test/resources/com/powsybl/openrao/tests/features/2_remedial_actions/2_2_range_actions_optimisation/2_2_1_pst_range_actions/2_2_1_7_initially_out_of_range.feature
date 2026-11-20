@@ -4,7 +4,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 Feature: 2.2.1.7: PST initially out of range
-  # TODO: This feature covers
+  This feature covers PSTs whose initial tap is outside of the range defined in the CRAC. It checks the preventive case (tap out of range at import) and the curative case (tap out of range at the beginning of the curative RAO).
 
   @fast @rao @dc @preventive-only @max-min-margin
   Scenario: 2.2.1.7.1: initial PST tap outside of Range

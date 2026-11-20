@@ -4,7 +4,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 Feature: 2.2.3.1: Injection setpoint with absolute and relative target
-  # TODO: This feature covers
+  This feature covers injection range actions with absolute and relative target setpoints. It checks the preventive and the curative RAO with such an injection range action.
 
   @fast @rao @ac @preventive-only @max-min-margin
   Scenario: 2.2.3.1.1: Preventive search tree RAO with absolute injectionSetpoint preventive RA
