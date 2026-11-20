@@ -198,14 +198,6 @@ public class DiscretePstTapFiller implements ProblemFiller {
      * \total_tap_variation_up(r,s) - \total_tap_variation_down(r,s) = \tap_pst_variable(r,s) - \tap_pst_variable(r,prev_state)
      * else:
      * \total_tap_variation_up(r,s) - \total_tap_variation_down(r,s) = \tap_pst_variable(r,s) - initial_tap
-     *
-     *
-     * @param linearProblem
-     * @param pstRangeAction
-     * @param state s
-     * @param initialTap
-     * @param tapVariable
-     * @param lastAvailableRangeAction
      */
     static void addTotalPstRangeActionTapVariation(LinearProblem linearProblem,
                                                    PstRangeAction pstRangeAction,
