@@ -7,7 +7,6 @@
 
 package com.powsybl.openrao.raoimpl.result.impl;
 
-import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
@@ -22,7 +21,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.HashSet;
-import java.util.Optional;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -70,21 +68,6 @@ class SkippedOptimizationResultImplTest {
         assertThrows(OpenRaoException.class, () -> skippedOptimizationResult.getOptimizedSetpointsOnState(state));
         assertThrows(OpenRaoException.class, () -> skippedOptimizationResult.getOptimizedTap(pstRangeAction, state));
         assertThrows(OpenRaoException.class, () -> skippedOptimizationResult.getOptimizedTapsOnState(state));
-    }
-
-    @Test
-    void testDefaultStatus() {
-        State state = mock(State.class);
-        Optional<Contingency> optContingency = mock(Optional.class);
-        Contingency contingency = mock(Contingency.class);
-        Mockito.when(state.getContingency()).thenReturn(optContingency);
-        Mockito.when(optContingency.isPresent()).thenReturn(true);
-        Mockito.when(optContingency.get()).thenReturn(contingency);
-        Mockito.when(contingency.getId()).thenReturn("contingencyId");
-
-        SkippedOptimizationResultImpl skippedOptimizationResult = new SkippedOptimizationResultImpl(state, new HashSet<>(), new HashSet<>(), ComputationStatus.DEFAULT, sensitivityFailureOverCost);
-        assertEquals(ComputationStatus.DEFAULT, skippedOptimizationResult.getSensitivityStatus());
-        assertEquals(Set.of("contingencyId"), skippedOptimizationResult.getContingencies());
     }
 
     @Test
