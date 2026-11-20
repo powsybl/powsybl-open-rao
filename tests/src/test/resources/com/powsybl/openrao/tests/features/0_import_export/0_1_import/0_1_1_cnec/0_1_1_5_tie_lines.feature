@@ -4,7 +4,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 Feature: 0.1.1.5: Consider two margins on tie-lines for each half-line with relative thresholds
-  #TODO: This feature covers
+  This feature covers CNECs on tie-lines, i.e. two half-lines monitored as one CNEC. It checks the imported thresholds and the margins when the two half-lines have different absolute thresholds, and when they have different relative thresholds.
 
   @fast @crac
   Scenario: 0.1.1.5.0: Import different thresholds (absolute) on two half-lines of the same tie-line

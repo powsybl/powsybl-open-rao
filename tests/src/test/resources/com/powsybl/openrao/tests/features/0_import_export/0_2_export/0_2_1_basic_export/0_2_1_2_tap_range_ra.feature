@@ -4,7 +4,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 Feature: 0.2.1.2: Export the selected tap for a range RA in the basic output file
-  # TODO: This feature covers
+  This feature covers the export of the setpoint of a range RA in the RaoResult. It checks that the tap selected for a PST range action by the RAO is exported.
 
   @fast @rao  @ac @preventive-only @secure-flow
   Scenario: 0.2.1.2.1
