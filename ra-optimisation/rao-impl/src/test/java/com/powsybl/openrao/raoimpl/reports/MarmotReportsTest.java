@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Test;
 
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -23,6 +24,22 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * @author Vincent Bochet {@literal <vincent.bochet at rte-france.com>}
  */
 class MarmotReportsTest {
+
+    @Test
+    void testCurativeSynchronizationGlobalCostReportInEnglishAndFrench() {
+        for (Locale locale : List.of(Locale.ENGLISH, Locale.FRANCE)) {
+            ReportNode reportNode = ReportNode.newRootReportNode()
+                .withResourceBundles(TestReportResourceBundle.BASE_NAME, SearchTreeReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("test.rootnode")
+                .withLocale(locale)
+                .build();
+            MarmotReports.reportCurativeSynchronizationGlobalCost(reportNode, 100, 50, 40, 10);
+            String expected = locale.equals(Locale.ENGLISH)
+                ? "Global cost before time-coupled curative synchronization = 100.0, after = 50.0 (functional: 40.0, virtual: 10.0)."
+                : "Coût global avant synchronisation intertemporelle des parades curatives = 100.0, après = 50.0 (fonctionnel : 40.0, virtuel : 10.0).";
+            assertEquals(expected, reportNode.getChildren().getFirst().getMessage());
+        }
+    }
 
     @Test
     void testLogMarmotCnecs() {

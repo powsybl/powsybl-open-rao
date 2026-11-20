@@ -571,7 +571,7 @@ class CastorFullOptimization {
         return CompletableFuture.completedFuture(finalRaoResult);
     }
 
-    private OptimizationResult optimizePreventivePerimeter(final StateTree stateTree,
+    OptimizationResult optimizePreventivePerimeter(final StateTree stateTree,
                                                            final ToolProvider toolProvider,
                                                            final PrePerimeterResult initialResult,
                                                            final ReportNode preventivePerimeterOptimReportNode) {
