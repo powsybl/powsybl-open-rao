@@ -5,7 +5,6 @@
 
 Feature: 2.2.2.3: Optimize HVDC range actions initially in AC emulation mode
   These tests are mostly the same as the tests in 2.2.2.1. But the HVDC in the network are in AC emulation mode and the rao is ran in AC instead of DC.
-# TODO: This feature covers
 
   @fast @rao @ac @preventive-only @hvdc @max-min-margin
   Scenario: 2.2.2.3.1: HVDC range action with one preventive CNEC

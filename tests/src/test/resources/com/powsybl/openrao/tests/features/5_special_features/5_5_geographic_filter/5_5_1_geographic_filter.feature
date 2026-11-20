@@ -12,7 +12,8 @@ Feature: 5.5.1: Geographic filter
   Scenario: 5.5.1.1: Simple case, only network actions inside country, positive margin
   The parameters mentioned in the US description only allow to use RAs inside the country of the limiting element,
   but the limiting element and the RAs are in the same country in any case.
-    # TODO: this test is not so relevant because it does not test geographic filtering, as everything is in the same country
+  This scenario is not a test of the geographic filtering itself: it checks that the parameters do not break
+  the optimization when the limiting element and the remedial actions are in the same country.
     Given network file is "common/network_12nodes.uct"
     Given crac file is "common/crac_2_1_2_2_selectionTopoRA_variant1.json"
     Given configuration file is "5_special_features/5_5_geographic_filter/rao_parameters_case_91_1_1.json"
