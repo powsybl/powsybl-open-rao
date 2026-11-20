@@ -154,7 +154,7 @@ public final class TimeCoupledIteratingLinearOptimizer {
                         reportNode
                     )
                 );
-                MarmotUtils.releaseNetwork(inputForTimestamp.network());
+                MarmotUtils.releaseNetworkWithoutOverwrite(inputForTimestamp.network());
             }
 
             if (newSensitivityComputers.values().stream().anyMatch(sensitivityComputer -> sensitivityComputer.getSensitivityResult().getSensitivityStatus() == ComputationStatus.FAILURE)) {

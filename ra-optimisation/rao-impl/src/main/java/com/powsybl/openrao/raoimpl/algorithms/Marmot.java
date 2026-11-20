@@ -8,6 +8,7 @@
 package com.powsybl.openrao.raoimpl.algorithms;
 
 import com.powsybl.commons.report.ReportNode;
+import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.commons.TemporalDataImpl;
@@ -43,16 +44,37 @@ import com.powsybl.openrao.raoimpl.commons.optimizationperimeters.GlobalOptimiza
 import com.powsybl.openrao.raoimpl.commons.optimizationperimeters.OptimizationPerimeter;
 import com.powsybl.openrao.raoimpl.commons.parameters.RangeActionLimitationParameters;
 import com.powsybl.openrao.raoimpl.reports.MarmotReports;
-import com.powsybl.openrao.raoimpl.result.api.*;
+import com.powsybl.openrao.raoimpl.result.api.FlowResult;
+import com.powsybl.openrao.raoimpl.result.api.LinearOptimizationResult;
+import com.powsybl.openrao.raoimpl.result.api.LinearProblemStatus;
+import com.powsybl.openrao.raoimpl.result.api.NetworkActionsResult;
+import com.powsybl.openrao.raoimpl.result.api.ObjectiveFunctionResult;
+import com.powsybl.openrao.raoimpl.result.api.PrePerimeterResult;
+import com.powsybl.openrao.raoimpl.result.api.RangeActionActivationResult;
+import com.powsybl.openrao.raoimpl.result.api.RangeActionSetpointResult;
 import com.powsybl.openrao.raoimpl.result.extension.PreTimeCouplingOverloadedCnecs;
 import com.powsybl.openrao.raoimpl.result.extension.TimeCoupledCostResult;
-import com.powsybl.openrao.raoimpl.result.impl.*;
+import com.powsybl.openrao.raoimpl.result.impl.GlobalFlowResult;
+import com.powsybl.openrao.raoimpl.result.impl.GlobalLinearOptimizationResult;
+import com.powsybl.openrao.raoimpl.result.impl.NetworkActionsResultImpl;
+import com.powsybl.openrao.raoimpl.result.impl.PrePerimeterSensitivityResultImpl;
+import com.powsybl.openrao.raoimpl.result.impl.RangeActionActivationResultImpl;
+import com.powsybl.openrao.raoimpl.result.impl.RangeActionSetpointResultImpl;
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
+
 import java.time.OffsetDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
+
 import static com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.RaRangeShrinking.ENABLED;
 import static com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.RaRangeShrinking.ENABLED_IN_FIRST_PRAO_AND_CRAO;
 import static com.powsybl.openrao.raoimpl.algorithms.MarmotUtils.runInitialPrePerimeterSensitivityAnalysisWithoutRangeActions;
@@ -630,10 +652,8 @@ class Marmot {
 
         // Initiate lazy networks
         TemporalData<Crac> cracs = timeCoupledRaoInput.getRaoInputs().map(RaoInput::getCrac);
-        TemporalData<LazyNetwork> initialNetworks = MarmotUtils.cloneNetworks(timeCoupledRaoInput.getRaoInputs().map(RaoInput::getNetwork));
-        MarmotUtils.closeAll(timeCoupledRaoInput.getRaoInputs().map(RaoInput::getNetwork));
-
-        TemporalData<RaoInput> initialInputs = MarmotUtils.merge(initialNetworks, cracs);
+        TemporalData<Network> networks = timeCoupledRaoInput.getRaoInputs().map(RaoInput::getNetwork);
+        TemporalData<RaoInput> initialInputs = timeCoupledRaoInput.getRaoInputs();
 
         // RaoParametes are stored in a TemporalData. They're the same for every timestamp, but this prevents concurrent access when multi-threading is activated
         TemporalData<RaoParameters> raoParametersDuplicates = new TemporalDataImpl<>();
@@ -810,7 +830,7 @@ class Marmot {
                 raoParameters,
                 reportNode
             );
-            MarmotUtils.closeAll(initialNetworks);
+            MarmotUtils.closeAll(networks);
             return CompletableFuture.completedFuture(timeCoupledRaoResult);
         }
 
@@ -832,7 +852,7 @@ class Marmot {
         MarmotReports.reportMarmotInitialResults(reportNode, initialObjectiveFunctionResult, raoParameters, 10);
         MarmotReports.reportMarmotResultAfterGlobalLinearOptimization(reportNode, fullResults, raoParameters, 10);
 
-        MarmotUtils.closeAll(initialNetworks);
+        MarmotUtils.closeAll(networks);
         return CompletableFuture.completedFuture(timeCoupledRaoResult);
     }
 

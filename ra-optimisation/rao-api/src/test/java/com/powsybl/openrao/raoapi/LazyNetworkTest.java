@@ -11,6 +11,7 @@ import com.powsybl.iidm.network.BoundaryLineFilter;
 import com.powsybl.iidm.network.ContainerType;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.DcLine;
+import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
@@ -309,5 +310,22 @@ public class LazyNetworkTest {
         List<T> list = new ArrayList<>();
         iterable.forEach(list::add);
         return list;
+    }
+
+    @Test
+    void testClosingNetworkDoesNotModifyOriginalFile() throws Exception {
+        try (LazyNetwork network = new LazyNetwork("src/test/resources/12Nodes.uct")) {
+            Generator generator = network.getGenerator("BBE1AA1 _generator");
+            assertNotNull(generator);
+            assertEquals(1500.0, generator.getTargetP());
+            generator.setTargetP(0.0);
+            assertEquals(0.0, generator.getTargetP());
+        }
+        // network is closed, and re-imported to ensure that the modified targetP has not changed
+        try (LazyNetwork network = new LazyNetwork("src/test/resources/12Nodes.uct")) {
+            Generator generator = network.getGenerator("BBE1AA1 _generator");
+            assertNotNull(generator);
+            assertEquals(1500.0, generator.getTargetP());
+        }
     }
 }
