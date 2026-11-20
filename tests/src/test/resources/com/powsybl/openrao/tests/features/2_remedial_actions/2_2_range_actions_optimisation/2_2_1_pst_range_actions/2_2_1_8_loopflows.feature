@@ -4,7 +4,9 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 Feature: 2.2.1.8: MIP range action optimisation and loopflows
-  This feature covers loop-flow constraints in the range action optimization. It checks that the non-MIP optimization cannot respect loop flows, that the MIP optimization respects them, and the MIP behavior with slightly different aligned PSTs.
+  This feature covers loop-flow constraints in the range action optimization. It checks that the
+  non-MIP optimization cannot respect loop flows, that the MIP optimization respects them, and the
+  MIP behavior with slightly different aligned PSTs.
 
   @fast @rao @ac @preventive-only @loopflow @max-min-margin
   Scenario: 2.2.1.8.1: Non MIP range action optimization cannot respect loopflows

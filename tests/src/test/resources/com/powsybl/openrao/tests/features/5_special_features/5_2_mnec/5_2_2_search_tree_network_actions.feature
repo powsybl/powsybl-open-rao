@@ -4,7 +4,9 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 Feature: 5.2.2: Handle MNECs in search tree with only network actions
-  This feature covers MNECs in the search tree RAO with only network actions, compared to a reference run without MNEC. It checks that the margin on the MNEC stays positive when initially positive, and stays above (initial margin - 260 A) when initially negative.
+  This feature covers MNECs in the search tree RAO with only network actions, compared to a reference
+  run without MNEC. It checks that the margin on the MNEC stays positive when initially positive,
+  and stays above (initial margin - 260 A) when initially negative.
 
   @fast @rao @ac @preventive-only @max-min-margin
   Scenario: 5.2.2.1: reference run, no MNEC

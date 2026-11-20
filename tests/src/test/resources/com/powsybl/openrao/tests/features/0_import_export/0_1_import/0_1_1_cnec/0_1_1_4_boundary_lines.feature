@@ -4,7 +4,8 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 Feature: 0.1.1.4: Boundary lines
-  This feature covers CNECs on boundary lines (X-nodes). For a network with an X-node, it checks the margin on the boundary-line CNEC both in MW (DC) and in A (AC).
+  This feature covers CNECs on boundary lines (X-nodes). For a network with an X-node, it checks the
+  margin on the boundary-line CNEC both in MW (DC) and in A (AC).
 
   @fast @rao @dc @preventive-only @max-min-margin
   Scenario: 0.1.1.4.1 : Boundary line with no generation, RAO in MW

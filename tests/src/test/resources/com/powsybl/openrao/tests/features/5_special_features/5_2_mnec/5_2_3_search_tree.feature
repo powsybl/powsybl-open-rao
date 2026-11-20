@@ -4,7 +4,9 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 Feature: 5.2.3: Handle MNECs in search tree with range actions and network actions
-  This feature covers MNECs in the search tree RAO with range actions and network actions, compared to a reference run without MNEC. It checks the margin on one or two MNECs, including a curative state and a run on the CBCORA crac.
+  This feature covers MNECs in the search tree RAO with range actions and network actions, compared
+  to a reference run without MNEC. It checks the margin on one or two MNECs, including a curative
+  state and a run on the CBCORA crac.
 
   @fast @rao @ac @preventive-only @max-min-margin
   Scenario: 5.2.3.1: reference run, no MNEC

@@ -4,7 +4,9 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 Feature: 2.2.1.5: Limit number of PSTs with a constraint directly in the optimisation
-  This feature covers the limit of the number of PSTs as a constraint directly in the MIP optimisation (MIP version of the 2.6.x usage-limit tests). It checks the PSTs and topological actions selected under max-curative-ra and max-curative-pst-to-tso constraints.
+  This feature covers the limit of the number of PSTs as a constraint directly in the MIP
+  optimisation (MIP version of the 2.6.x usage-limit tests). It checks the PSTs and topological
+  actions selected under max-curative-ra and max-curative-pst-to-tso constraints.
 
   @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: 2.2.1.5.1: One PST and no topo (copy of 2.6.2.3 with MIP for PSTs)

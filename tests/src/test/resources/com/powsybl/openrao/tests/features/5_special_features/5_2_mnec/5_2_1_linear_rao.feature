@@ -4,7 +4,9 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 Feature: 5.2.1: Handle MNECs in linear RAO
-  This feature covers MNECs (monitored network elements without threshold) in the linear (Fast) RAO, compared to a reference run without MNEC. It checks that the margin on the MNEC stays positive when initially positive, and stays above (initial margin - 50 MW) when initially below 50 MW.
+  This feature covers MNECs (monitored network elements without threshold) in the linear (Fast) RAO,
+  compared to a reference run without MNEC. It checks that the margin on the MNEC stays positive when
+  initially positive, and stays above (initial margin - 50 MW) when initially below 50 MW.
 
   @fast @rao @dc @preventive-only @max-min-margin
   Scenario: 5.2.1.1: reference run, no MNEC

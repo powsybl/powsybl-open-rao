@@ -4,7 +4,9 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 Feature: 2.2.2.1: Handle HVDC range actions in RAO
-  This feature covers HVDC range actions in the RAO. It checks the HVDC range action in preventive and curative perimeters, with outage CNECs, with a negative initial flow or setpoint, with PST filtering, and with an inverted HVDC in the CRAC file.
+  This feature covers HVDC range actions in the RAO. It checks the HVDC range action in preventive
+  and curative perimeters, with outage CNECs, with a negative initial flow or setpoint, with PST
+  filtering, and with an inverted HVDC in the CRAC file.
 
   @fast @rao @dc @preventive-only @hvdc @max-min-margin
   Scenario: 2.2.2.1.1: HVDC range action with one preventive CNEC

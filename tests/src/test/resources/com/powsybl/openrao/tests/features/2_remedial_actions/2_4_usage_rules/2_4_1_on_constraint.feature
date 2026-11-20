@@ -4,7 +4,10 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 Feature: 2.4.1: Activate remedial actions only after a specific constraint
-  This feature covers the OnFlowConstraint usage rule: the remedial action is activated only after its constraint is violated. It checks the rule in preventive and curative states, with or without a triggered constraint, including CSE, outages, the maximum number of curative RAs, and overloads on other curative states.
+  This feature covers the OnFlowConstraint usage rule: the remedial action is activated only after
+  its constraint is violated. It checks the rule in preventive and curative states, with or without
+  a triggered constraint, including CSE, outages, the maximum number of curative RAs, and overloads
+  on other curative states.
 
   @fast @rao @ac @preventive-only @max-min-margin
   Scenario: 2.4.1.1: Preventive onConstraint RA with a constraint on the base network

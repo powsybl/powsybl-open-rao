@@ -4,7 +4,8 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 Feature: 3.3.6: Add minimum relative margin binary variable
-  This feature covers the binary variable added for the minimum relative margin in the MIP. It checks a simple case with two curative states and very low CNEC thresholds.
+  This feature covers the binary variable added for the minimum relative margin in the MIP.
+  It checks a simple case with two curative states and very low CNEC thresholds.
 
   @fast @rao @ac @contingency-scenarios @max-min-relative-margin
   Scenario: 3.3.6.1: Simple case, with 2 curative states and very low cnec thresholds

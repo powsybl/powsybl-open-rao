@@ -4,7 +4,9 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 Feature: 1.2.5: Complex automaton simulator cases
-  This feature covers complex cases of the multi-step (automaton) optimization. It checks the simulation of the automatons by batches, and the treatment of auto CNECs as limiting elements, including when a preventive action is required to secure them.
+  This feature covers complex cases of the multi-step (automaton) optimization. It checks the
+  simulation of the automatons by batches, and the treatment of auto CNECs as limiting elements,
+  including when a preventive action is required to secure them.
 
   @fast @rao @dc @contingency-scenarios @max-min-margin
   Scenario: 1.2.5.1: Automatons simulated by batches, speed-wise

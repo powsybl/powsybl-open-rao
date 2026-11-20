@@ -4,7 +4,9 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 Feature: 2.2.1.4: Handle aligned PSTs when filtering range actions
-  This feature covers the filtering of aligned PSTs by the maximum number of curative RAs. It checks the PSTs selected (or excluded) by max-curative-ra and max-curative-pst-to-tso for aligned PSTs from different TSOs.
+  This feature covers the filtering of aligned PSTs by the maximum number of curative RAs. It checks
+  the PSTs selected (or excluded) by max-curative-ra and max-curative-pst-to-tso for aligned PSTs
+  from different TSOs.
 
   @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: 2.2.1.4.1: Do not select French PST, because of max-curative-ra

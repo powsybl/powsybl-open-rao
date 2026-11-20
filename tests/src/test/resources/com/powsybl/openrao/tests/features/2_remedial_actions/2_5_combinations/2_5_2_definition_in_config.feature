@@ -4,7 +4,10 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 Feature: 2.5.2: Handle combined RAs by configuration
-  This feature covers combined remedial actions (several RAs used together as one) defined in the configuration file. It checks the optimal combinations in preventive and curative, the impact of the maximum number of curative RAs, the suboptimal combinations, the OnFlowConstraint usage rule with combinations, and the combinations not imported.
+  This feature covers combined remedial actions (several RAs used together as one) defined in the
+  configuration file. It checks the optimal combinations in preventive and curative, the impact of
+  the maximum number of curative RAs, the suboptimal combinations, the OnFlowConstraint usage rule
+  with combinations, and the combinations not imported.
 
   @fast @rao @ac @preventive-only @max-min-margin
   Scenario: 2.5.2.1: Optimal combination in preventive, at first depth
