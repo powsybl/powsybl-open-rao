@@ -90,7 +90,7 @@ class RaoTest {
         TimeCoupledRaoInput input = Mockito.mock(TimeCoupledRaoInput.class);
         RaoParameters parameters = new RaoParameters(ReportNode.NO_OP);
 
-        assertSame(expected, runner.run(input, parameters, ReportNode.NO_OP));
+        assertSame(expected, runner.run(input, parameters, ReportNode.NO_OP, RaoStopCondition.NO_OP));
         assertSame(expected, runner.run(input, parameters));
         assertSame(expected, runner.run(input, ReportNode.NO_OP));
         assertSame(expected, runner.run(input));
@@ -119,9 +119,9 @@ class RaoTest {
         Rao.Runner runner = new Rao.Runner(mockTimeCoupledProvider(Mockito.mock(RaoResult.class)));
         TimeCoupledRaoInput input = Mockito.mock(TimeCoupledRaoInput.class);
         RaoParameters parameters = new RaoParameters(ReportNode.NO_OP);
-        NullPointerException exception = assertThrows(NullPointerException.class, () -> runner.run((TimeCoupledRaoInput) null, parameters, ReportNode.NO_OP));
+        NullPointerException exception = assertThrows(NullPointerException.class, () -> runner.run((TimeCoupledRaoInput) null, parameters, ReportNode.NO_OP, RaoStopCondition.NO_OP));
         assertEquals("RAO input should not be null", exception.getMessage());
-        exception = assertThrows(NullPointerException.class, () -> runner.run(input, (RaoParameters) null, ReportNode.NO_OP));
+        exception = assertThrows(NullPointerException.class, () -> runner.run(input, (RaoParameters) null, ReportNode.NO_OP, RaoStopCondition.NO_OP));
         assertEquals("parameters should not be null", exception.getMessage());
     }
 
