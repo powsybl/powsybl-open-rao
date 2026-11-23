@@ -83,6 +83,20 @@ class RaoParametersConsistencyTest {
     }
 
     @Test
+    void testSetOptionalParametersToNull() {
+        parameters.setMnecParameters(new MnecParameters());
+        parameters.setRelativeMarginsParameters(new com.powsybl.openrao.raoapi.parameters.RelativeMarginsParameters());
+        parameters.setLoopFlowParameters(new LoopFlowParameters());
+
+        parameters.setMnecParameters(null);
+        parameters.setRelativeMarginsParameters(null);
+        parameters.setLoopFlowParameters(null);
+        assertFalse(parameters.getMnecParameters().isPresent());
+        assertFalse(parameters.getRelativeMarginsParameters().isPresent());
+        assertFalse(parameters.getLoopFlowParameters().isPresent());
+    }
+
+    @Test
     void testRelativePositiveMargins() {
         assertTrue(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN.relativePositiveMargins());
         assertFalse(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN.relativePositiveMargins());
