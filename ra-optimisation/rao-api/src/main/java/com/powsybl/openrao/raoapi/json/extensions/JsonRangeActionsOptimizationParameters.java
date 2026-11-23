@@ -64,14 +64,8 @@ final class JsonRangeActionsOptimizationParameters {
                     jsonParser.nextToken();
                     searchTreeParameters.getRangeActionsOptimizationParameters().setPstSensitivityThreshold(jsonParser.getDoubleValue());
                 }
-                case PST_MODEL -> {
-                    SearchTreeRaoRangeActionsOptimizationParameters.PstModel pstModel = stringToPstModel(jsonParser.nextTextValue());
-                    if (pstModel.equals(SearchTreeRaoRangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS)) {
-                        searchTreeParameters.getRangeActionsOptimizationParameters().setPstModel(HYBRID);
-                    } else {
-                        searchTreeParameters.getRangeActionsOptimizationParameters().setPstModel(pstModel);
-                    }
-                }
+                case PST_MODEL ->
+                    searchTreeParameters.getRangeActionsOptimizationParameters().setPstModel(stringToPstModel(jsonParser.nextTextValue()));
 
                 case HVDC_SENSITIVITY_THRESHOLD -> {
                     jsonParser.nextToken();
