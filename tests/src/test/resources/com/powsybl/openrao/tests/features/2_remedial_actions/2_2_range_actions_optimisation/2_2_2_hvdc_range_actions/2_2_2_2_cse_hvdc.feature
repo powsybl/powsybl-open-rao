@@ -4,7 +4,9 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 Feature: 2.2.2.2: Handle CSE's HVDCs with range actions on injections
-  # TODO: This feature covers
+  This feature covers CSE HVDCs modelled as injection range actions. It checks the same cases as
+  2.2.2.1 (preventive and curative perimeters, outage CNECs, negative setpoint, PST filtering) for
+  an HVDC defined as an injection range action.
 
   @fast @rao @dc @preventive-only @hvdc @max-min-margin
   Scenario: 2.2.2.2.1: UCTE HVDC as InjectionRangeAction with one preventive CNEC

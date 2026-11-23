@@ -100,7 +100,28 @@ class FastRaoTest {
         assertEquals("The RAO only went through first preventive", metadata.getExecutionDetails().get());
     }
 
-    //TODO : add costly objec function exemple
+    @Test
+    void testCostlyObjectiveFunction() throws IOException {
+        // Costly objective function (MIN_COST): the RAO minimizes the remedial actions costs instead of the minimal margin
+        Network network = Network.read("2Nodes4ParallelLines.uct", getClass().getResourceAsStream("/network/2Nodes4ParallelLines.uct"));
+        Crac crac = Crac.read("small-crac-costly-preventive-only.json", getClass().getResourceAsStream("/crac/small-crac-costly-preventive-only.json"), network);
+        RaoInput individualRaoInput = RaoInput.build(network, crac).build();
+        RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_dc_minObjective.json"), ReportNode.NO_OP);
+        raoParameters.addExtension(FastRaoParameters.class, new FastRaoParameters());
+        RaoResult raoResult = FastRao.launchFastRaoOptimization(individualRaoInput, raoParameters, null, new HashSet<>(), ReportNode.NO_OP);
+
+        // The RAO activates the least costly combination of network actions to secure the network
+        assertEquals(Set.of(crac.getNetworkAction("closeBeFr4")), raoResult.getActivatedNetworkActionsDuringState(crac.getPreventiveState()));
+
+        CostResult costResult = raoResult.getExtension(CostResult.class);
+        assertNotNull(costResult);
+        assertEquals(10.0, costResult.getFunctionalCost(crac.getPreventiveInstant()), 1e-1);
+
+        Metadata metadata = raoResult.getExtension(Metadata.class);
+        assertNotNull(metadata);
+        assertEquals(ComputationStatus.DEFAULT, metadata.getComputationStatus());
+        assertEquals("The RAO only went through first preventive", metadata.getExecutionDetails().orElse(null));
+    }
 
     @Test
     void testInitialSensiFailed() throws IOException {
