@@ -26,6 +26,7 @@ import static com.powsybl.openrao.raoapi.RaoParametersCommons.RA_RANGE_SHRINKING
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.RELATIVE_MIP_GAP;
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.SOLVER;
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.SOLVER_SPECIFIC_PARAMETERS;
+import static com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.PstModel.HYBRID;
 
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
@@ -63,8 +64,15 @@ final class JsonRangeActionsOptimizationParameters {
                     jsonParser.nextToken();
                     searchTreeParameters.getRangeActionsOptimizationParameters().setPstSensitivityThreshold(jsonParser.getDoubleValue());
                 }
-                case PST_MODEL ->
-                    searchTreeParameters.getRangeActionsOptimizationParameters().setPstModel(stringToPstModel(jsonParser.nextTextValue()));
+                case PST_MODEL -> {
+                    SearchTreeRaoRangeActionsOptimizationParameters.PstModel pstModel = stringToPstModel(jsonParser.nextTextValue());
+                    if (pstModel.equals(SearchTreeRaoRangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS)) {
+                        searchTreeParameters.getRangeActionsOptimizationParameters().setPstModel(HYBRID);
+                    } else {
+                        searchTreeParameters.getRangeActionsOptimizationParameters().setPstModel(pstModel);
+                    }
+                }
+
                 case HVDC_SENSITIVITY_THRESHOLD -> {
                     jsonParser.nextToken();
                     searchTreeParameters.getRangeActionsOptimizationParameters().setHvdcSensitivityThreshold(jsonParser.getDoubleValue());
