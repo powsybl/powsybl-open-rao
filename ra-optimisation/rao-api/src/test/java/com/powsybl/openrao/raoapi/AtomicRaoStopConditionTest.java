@@ -9,8 +9,6 @@ package com.powsybl.openrao.raoapi;
 
 import org.junit.jupiter.api.Test;
 
-import java.util.concurrent.atomic.AtomicBoolean;
-
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -23,14 +21,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class AtomicRaoStopConditionTest {
     @Test
     void testUserManuallyInterruptsRao() {
-        AtomicBoolean stopCondition = new AtomicBoolean(false);
-        AtomicRaoStopCondition atomicRaoStopCondition = new AtomicRaoStopCondition(stopCondition);
+        AtomicRaoStopCondition atomicRaoStopCondition = new AtomicRaoStopCondition();
 
         assertFalse(atomicRaoStopCondition.shouldStop());
         assertDoesNotThrow(atomicRaoStopCondition::checkNotStopped);
 
         // user manually sets the stop condition to true
-        stopCondition.set(true);
+        atomicRaoStopCondition.sendStopSignal();
 
         assertTrue(atomicRaoStopCondition.shouldStop());
         RaoInterruptedException exception = assertThrows(RaoInterruptedException.class, atomicRaoStopCondition::checkNotStopped);

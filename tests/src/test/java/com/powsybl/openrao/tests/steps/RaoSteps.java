@@ -48,8 +48,8 @@ import com.powsybl.openrao.loopflowcomputation.LoopFlowComputationImpl;
 import com.powsybl.openrao.loopflowcomputation.LoopFlowResult;
 import com.powsybl.openrao.raoapi.LazyNetwork;
 import com.powsybl.openrao.raoapi.Rao;
-import com.powsybl.openrao.raoapi.RaoInterruptedException;
 import com.powsybl.openrao.raoapi.RaoInput;
+import com.powsybl.openrao.raoapi.RaoInterruptedException;
 import com.powsybl.openrao.raoapi.RaoStopCondition;
 import com.powsybl.openrao.raoapi.TimeCoupledRaoInput;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
@@ -211,7 +211,7 @@ public class RaoSteps {
         class MaxCallsRaoStopCondition implements RaoStopCondition {
             private int maxCalls;
 
-            public MaxCallsRaoStopCondition(int maxCalls) {
+            MaxCallsRaoStopCondition(int maxCalls) {
                 this.maxCalls = maxCalls;
             }
 

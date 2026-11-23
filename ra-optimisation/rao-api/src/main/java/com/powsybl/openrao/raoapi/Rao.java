@@ -32,6 +32,8 @@ import java.util.concurrent.CompletableFuture;
  */
 public final class Rao {
 
+    // TODO: deprecate methods based on targetEndInstant as it can now be handled by EndInstantRaoStopCondition
+
     private Rao() {
         throw new AssertionError("Utility class should not been instantiated");
     }
