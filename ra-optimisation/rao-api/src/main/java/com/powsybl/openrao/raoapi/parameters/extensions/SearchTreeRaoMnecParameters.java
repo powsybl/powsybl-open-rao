@@ -28,6 +28,14 @@ public class SearchTreeRaoMnecParameters {
     private double violationCost = DEFAULT_VIOLATION_COST;
     private double constraintAdjustmentCoefficient = DEFAULT_CONSTRAINT_ADJUSTMENT_COEFFICIENT;
 
+    public SearchTreeRaoMnecParameters() {
+    }
+
+    public SearchTreeRaoMnecParameters(final SearchTreeRaoMnecParameters other) {
+        this.violationCost = other.violationCost;
+        this.constraintAdjustmentCoefficient = other.constraintAdjustmentCoefficient;
+    }
+
     public double getViolationCost() {
         return violationCost;
     }

@@ -49,6 +49,19 @@ public class SearchTreeRaoRangeActionsOptimizationParameters {
     private LinearOptimizationSolver linearOptimizationSolver = new LinearOptimizationSolver();
     private RaRangeShrinking raRangeShrinking = DEFAULT_RA_RANGE_SHRINKING;
 
+    public SearchTreeRaoRangeActionsOptimizationParameters() {
+    }
+
+    public SearchTreeRaoRangeActionsOptimizationParameters(final SearchTreeRaoRangeActionsOptimizationParameters other) {
+        this.maxMipIterations = other.maxMipIterations;
+        this.pstSensitivityThreshold = other.pstSensitivityThreshold;
+        this.pstModel = other.pstModel;
+        this.hvdcSensitivityThreshold = other.hvdcSensitivityThreshold;
+        this.injectionRaSensitivityThreshold = other.injectionRaSensitivityThreshold;
+        this.linearOptimizationSolver = new LinearOptimizationSolver(other.linearOptimizationSolver);
+        this.raRangeShrinking = other.raRangeShrinking;
+    }
+
     public enum PstModel {
         CONTINUOUS,
         APPROXIMATED_INTEGERS
@@ -67,6 +80,15 @@ public class SearchTreeRaoRangeActionsOptimizationParameters {
         private Solver solver = DEFAULT_SOLVER;
         private double relativeMipGap = DEFAULT_RELATIVE_MIP_GAP;
         private String solverSpecificParameters = DEFAULT_SOLVER_SPECIFIC_PARAMETERS;
+
+        public LinearOptimizationSolver() {
+        }
+
+        public LinearOptimizationSolver(final LinearOptimizationSolver other) {
+            this.solver = other.solver;
+            this.relativeMipGap = other.relativeMipGap;
+            this.solverSpecificParameters = other.solverSpecificParameters;
+        }
 
         public Solver getSolver() {
             return solver;

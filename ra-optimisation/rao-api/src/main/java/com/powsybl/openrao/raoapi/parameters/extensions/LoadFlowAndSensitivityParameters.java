@@ -46,6 +46,15 @@ public class LoadFlowAndSensitivityParameters {
         this.reportNode = reportNode;
     }
 
+    // reportNode is a shared logging context, not data to clone
+    public LoadFlowAndSensitivityParameters(final LoadFlowAndSensitivityParameters other) {
+        this.loadFlowProvider = other.loadFlowProvider;
+        this.sensitivityProvider = other.sensitivityProvider;
+        this.sensitivityFailureOvercost = other.sensitivityFailureOvercost;
+        this.sensitivityWithLoadFlowParameters = cleanLoadFlowParameters(copySensitivityAnalysisParameters(other.sensitivityWithLoadFlowParameters));
+        this.reportNode = other.reportNode;
+    }
+
     // Getters and setters
     public SensitivityAnalysisParameters getSensitivityWithLoadFlowParameters() {
         return sensitivityWithLoadFlowParameters;
@@ -123,6 +132,19 @@ public class LoadFlowAndSensitivityParameters {
             return raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getLoadFlowAndSensitivityParameters().getSensitivityWithLoadFlowParameters();
         }
         return cleanLoadFlowParameters(new SensitivityAnalysisParameters());
+    }
+
+    // SensitivityAnalysisParameters has no copy constructor of its own, so it is rebuilt field by field;
+    // its nested LoadFlowParameters does expose a copy() method, which is used here.
+    private static SensitivityAnalysisParameters copySensitivityAnalysisParameters(SensitivityAnalysisParameters other) {
+        return new SensitivityAnalysisParameters()
+            .setLoadFlowParameters(other.getLoadFlowParameters().copy())
+            .setFlowFlowSensitivityValueThreshold(other.getFlowFlowSensitivityValueThreshold())
+            .setVoltageVoltageSensitivityValueThreshold(other.getVoltageVoltageSensitivityValueThreshold())
+            .setFlowVoltageSensitivityValueThreshold(other.getFlowVoltageSensitivityValueThreshold())
+            .setAngleFlowSensitivityValueThreshold(other.getAngleFlowSensitivityValueThreshold())
+            .setOperatorStrategiesCalculationMode(other.getOperatorStrategiesCalculationMode())
+            .setDebugDir(other.getDebugDir());
     }
 
     private static SensitivityAnalysisParameters cleanLoadFlowParameters(SensitivityAnalysisParameters sensitivityAnalysisParameters) {

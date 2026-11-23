@@ -51,6 +51,17 @@ public class SearchTreeRaoTopoOptimizationParameters {
         this.reportNode = reportNode;
     }
 
+    // reportNode is a shared logging context, not data to clone
+    public SearchTreeRaoTopoOptimizationParameters(final SearchTreeRaoTopoOptimizationParameters other) {
+        this.maxPreventiveSearchTreeDepth = other.maxPreventiveSearchTreeDepth;
+        this.maxCurativeSearchTreeDepth = other.maxCurativeSearchTreeDepth;
+        this.predefinedCombinations = new ArrayList<>(other.predefinedCombinations);
+        this.skipActionsFarFromMostLimitingElement = other.skipActionsFarFromMostLimitingElement;
+        this.maxNumberOfBoundariesForSkippingActions = other.maxNumberOfBoundariesForSkippingActions;
+        this.allowElectricalIslandCreation = other.allowElectricalIslandCreation;
+        this.reportNode = other.reportNode;
+    }
+
     public void setMaxPreventiveSearchTreeDepth(int maxPreventiveSearchTreeDepth) {
         this.maxPreventiveSearchTreeDepth = maxPreventiveSearchTreeDepth;
     }

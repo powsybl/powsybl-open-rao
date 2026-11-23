@@ -37,6 +37,13 @@ public class TopoOptimizationParameters {
         this.reportNode = reportNode;
     }
 
+    // reportNode is a shared logging context, not data to clone
+    public TopoOptimizationParameters(final TopoOptimizationParameters other) {
+        this.relativeMinImpactThreshold = other.relativeMinImpactThreshold;
+        this.absoluteMinImpactThreshold = other.absoluteMinImpactThreshold;
+        this.reportNode = other.reportNode;
+    }
+
     public void setRelativeMinImpactThreshold(double relativeMinImpactThreshold) {
         if (relativeMinImpactThreshold < 0) {
             RaoApiReports.reportNegativeRelativeMinimumImpactThreshold(reportNode, relativeMinImpactThreshold);

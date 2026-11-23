@@ -32,6 +32,15 @@ public class RangeActionsOptimizationParameters {
     private double hvdcRAMinImpactThreshold = DEFAULT_HVDC_RA_MIN_IMPACT_THRESHOLD;
     private double injectionRAMinImpactThreshold = DEFAULT_INJECTION_RA_MIN_IMPACT_THRESHOLD;
 
+    public RangeActionsOptimizationParameters() {
+    }
+
+    public RangeActionsOptimizationParameters(final RangeActionsOptimizationParameters other) {
+        this.pstRAMinImpactThreshold = other.pstRAMinImpactThreshold;
+        this.hvdcRAMinImpactThreshold = other.hvdcRAMinImpactThreshold;
+        this.injectionRAMinImpactThreshold = other.injectionRAMinImpactThreshold;
+    }
+
     // Getters and setters
     public double getPstRAMinImpactThreshold() {
         return pstRAMinImpactThreshold;

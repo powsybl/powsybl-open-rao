@@ -43,6 +43,19 @@ public class OpenRaoSearchTreeParameters extends AbstractExtension<RaoParameters
         this.loopFlowParameters = Optional.empty();
     }
 
+    public OpenRaoSearchTreeParameters(final OpenRaoSearchTreeParameters other) {
+        this.objectiveFunctionParameters = new SearchTreeRaoObjectiveFunctionParameters(other.objectiveFunctionParameters);
+        this.rangeActionsOptimizationParameters = new SearchTreeRaoRangeActionsOptimizationParameters(other.rangeActionsOptimizationParameters);
+        this.topoOptimizationParameters = new SearchTreeRaoTopoOptimizationParameters(other.topoOptimizationParameters);
+        this.multithreadingParameters = new MultithreadingParameters(other.multithreadingParameters);
+        this.secondPreventiveRaoParameters = new SecondPreventiveRaoParameters(other.secondPreventiveRaoParameters);
+        this.loadFlowAndSensitivityParameters = new LoadFlowAndSensitivityParameters(other.loadFlowAndSensitivityParameters);
+        this.minMarginsParameters = other.minMarginsParameters.map(SearchTreeRaoCostlyMinMarginParameters::new);
+        this.mnecParameters = other.mnecParameters.map(SearchTreeRaoMnecParameters::new);
+        this.relativeMarginsParameters = other.relativeMarginsParameters.map(SearchTreeRaoRelativeMarginsParameters::new);
+        this.loopFlowParameters = other.loopFlowParameters.map(SearchTreeRaoLoopFlowParameters::new);
+    }
+
     // Getters and setters
     public void setObjectiveFunctionParameters(SearchTreeRaoObjectiveFunctionParameters objectiveFunctionParameters) {
         this.objectiveFunctionParameters = objectiveFunctionParameters;

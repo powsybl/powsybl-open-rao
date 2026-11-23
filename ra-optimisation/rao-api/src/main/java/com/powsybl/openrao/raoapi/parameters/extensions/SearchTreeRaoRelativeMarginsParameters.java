@@ -29,6 +29,14 @@ public class SearchTreeRaoRelativeMarginsParameters {
     private double ptdfSumLowerBound = DEFAULT_PTDF_SUM_LOWER_BOUND;
     private PtdfApproximation ptdfApproximation = DEFAULT_PTDF_APPROXIMATION;
 
+    public SearchTreeRaoRelativeMarginsParameters() {
+    }
+
+    public SearchTreeRaoRelativeMarginsParameters(final SearchTreeRaoRelativeMarginsParameters other) {
+        this.ptdfSumLowerBound = other.ptdfSumLowerBound;
+        this.ptdfApproximation = other.ptdfApproximation;
+    }
+
     public double getPtdfSumLowerBound() {
         return ptdfSumLowerBound;
     }

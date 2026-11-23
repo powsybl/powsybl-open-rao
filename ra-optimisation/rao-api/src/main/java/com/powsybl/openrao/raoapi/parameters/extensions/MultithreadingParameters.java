@@ -25,6 +25,13 @@ public class MultithreadingParameters {
     private static final int DEFAULT_AVAILABLE_CPUS = 1;
     private int availableCPUs = DEFAULT_AVAILABLE_CPUS;
 
+    public MultithreadingParameters() {
+    }
+
+    public MultithreadingParameters(final MultithreadingParameters other) {
+        this.availableCPUs = other.availableCPUs;
+    }
+
     public int getAvailableCPUs() {
         return availableCPUs;
     }

@@ -31,6 +31,15 @@ public class SearchTreeRaoLoopFlowParameters {
     private double constraintAdjustmentCoefficient = DEFAULT_CONSTRAINT_ADJUSTMENT_COEFFICIENT;
     private double violationCost = DEFAULT_VIOLATION_COST;
 
+    public SearchTreeRaoLoopFlowParameters() {
+    }
+
+    public SearchTreeRaoLoopFlowParameters(final SearchTreeRaoLoopFlowParameters other) {
+        this.ptdfApproximation = other.ptdfApproximation;
+        this.constraintAdjustmentCoefficient = other.constraintAdjustmentCoefficient;
+        this.violationCost = other.violationCost;
+    }
+
     // Getters and setters
 
     public PtdfApproximation getPtdfApproximation() {

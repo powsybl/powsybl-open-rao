@@ -25,6 +25,14 @@ public class SearchTreeRaoCostlyMinMarginParameters {
     private double shiftedViolationPenalty = DEFAULT_SHIFTED_VIOLATION_PENALTY;
     private double shiftedViolationThreshold = DEFAULT_SHIFTED_VIOLATION_THRESHOLD;
 
+    public SearchTreeRaoCostlyMinMarginParameters() {
+    }
+
+    public SearchTreeRaoCostlyMinMarginParameters(final SearchTreeRaoCostlyMinMarginParameters other) {
+        this.shiftedViolationPenalty = other.shiftedViolationPenalty;
+        this.shiftedViolationThreshold = other.shiftedViolationThreshold;
+    }
+
     public double getShiftedViolationPenalty() {
         return shiftedViolationPenalty;
     }

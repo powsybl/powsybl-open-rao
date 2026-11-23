@@ -28,6 +28,14 @@ public class ObjectiveFunctionParameters {
     private ObjectiveFunctionType type = DEFAULT_OBJECTIVE_FUNCTION;
     private boolean enforceCurativeSecurity = DEFAULT_ENFORCE_CURATIVE_SECURITY;
 
+    public ObjectiveFunctionParameters() {
+    }
+
+    public ObjectiveFunctionParameters(final ObjectiveFunctionParameters other) {
+        this.type = other.type;
+        this.enforceCurativeSecurity = other.enforceCurativeSecurity;
+    }
+
     // Enum
     public enum ObjectiveFunctionType {
         SECURE_FLOW,

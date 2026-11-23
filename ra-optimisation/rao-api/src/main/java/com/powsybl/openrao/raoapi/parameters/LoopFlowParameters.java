@@ -32,6 +32,14 @@ public class LoopFlowParameters {
     private double acceptableIncrease = DEFAULT_ACCEPTABLE_INCREASE;
     private Set<Country> countries = DEFAULT_COUNTRIES;
 
+    public LoopFlowParameters() {
+    }
+
+    public LoopFlowParameters(final LoopFlowParameters other) {
+        this.acceptableIncrease = other.acceptableIncrease;
+        this.countries = new HashSet<>(other.countries);
+    }
+
     // Getters and setters
     public double getAcceptableIncrease() {
         return acceptableIncrease;

@@ -38,6 +38,19 @@ public class MarmotParameters extends AbstractExtension<RaoParameters> {
     private boolean curativeRangeActionsSynchronization = DEFAULT_CURATIVE_RANGE_ACTIONS_SYNCHRONIZATION;
     private boolean curativeTopologicalActionsSynchronization = DEFAULT_CURATIVE_TOPOLOGICAL_ACTIONS_SYNCHRONIZATION;
 
+    public MarmotParameters() {
+    }
+
+    public MarmotParameters(final MarmotParameters other) {
+        this.numberOfCnecsToAddPerVirtualCostName = other.numberOfCnecsToAddPerVirtualCostName;
+        this.minRelativeImprovementOnMargin = other.minRelativeImprovementOnMargin;
+        this.marginWindowToConsider = other.marginWindowToConsider;
+        this.maxMipIterations = other.maxMipIterations;
+        this.numberOfThreads = other.numberOfThreads;
+        this.curativeRangeActionsSynchronization = other.curativeRangeActionsSynchronization;
+        this.curativeTopologicalActionsSynchronization = other.curativeTopologicalActionsSynchronization;
+    }
+
     public int getNumberOfCnecsToAddPerVirtualCostName() {
         return numberOfCnecsToAddPerVirtualCostName;
     }
