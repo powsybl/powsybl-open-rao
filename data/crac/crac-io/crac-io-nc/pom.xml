@@ -29,10 +29,6 @@
             <artifactId>open-rao-crac-io-commons</artifactId>
         </dependency>
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>open-rao-crac-util</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.eclipse.rdf4j</groupId>
             <artifactId>rdf4j-rio-rdfxml</artifactId>
         </dependency>
@@ -43,6 +39,10 @@
         <dependency>
             <groupId>com.powsybl</groupId>
             <artifactId>powsybl-triple-store-impl-rdf4j</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.powsybl</groupId>
+            <artifactId>powsybl-network-area</artifactId>
         </dependency>
 
         <!-- Runtime dependencies -->

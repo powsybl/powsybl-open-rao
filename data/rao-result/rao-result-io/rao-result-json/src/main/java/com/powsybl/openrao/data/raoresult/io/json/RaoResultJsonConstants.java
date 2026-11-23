@@ -10,7 +10,6 @@ package com.powsybl.openrao.data.raoresult.io.json;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
-import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
@@ -36,11 +35,12 @@ public final class RaoResultJsonConstants {
     private RaoResultJsonConstants() {
     }
 
-    public static final String RAO_RESULT_IO_VERSION = "1.9";
+    public static final String RAO_RESULT_IO_VERSION = "2.0";
     // v1.6 : voltage cnecs' voltage values are divided into minVoltage and maxVoltage
     // v1.7 : replaced "optimizationStepsExecuted" with "executionDetails"
     // v1.8 : export tap instead of set-point for PST range actions
     // v1.9 : add securityStatus map
+    // v2.0 : gather remedial actions in "remedialActionActivations" and collect other data in extensions
 
     // header
     public static final String TYPE = "type";
@@ -93,6 +93,13 @@ public final class RaoResultJsonConstants {
     public static final String AFTER_PRA_SETPOINT = "afterPraSetpoint";
     public static final String TAP = "tap";
     public static final String SETPOINT = "setpoint";
+
+    // remedialActionActivations
+    public static final String REMEDIAL_ACTION_ACTIVATIONS = "remedialActionActivations";
+    public static final String ACTIVATED_REMEDIAL_ACTIONS = "activatedRemedialActions";
+    public static final String ID = "id";
+    public static final String TIMESTAMP = "timestamp";
+    public static final String SET_POINT = "setPoint";
 
     // instants
     public static final String INSTANT = "instant";
@@ -202,12 +209,6 @@ public final class RaoResultJsonConstants {
     }
 
     // serialization of enums
-    public static String serializeSide(TwoSides side) {
-        return switch (side) {
-            case ONE -> SIDE_ONE;
-            case TWO -> SIDE_TWO;
-        };
-    }
 
     public static String serializeInstantId(Instant instant) {
         if (instant == null) {
@@ -274,10 +275,16 @@ public final class RaoResultJsonConstants {
         jsonGenerator.writeEndObject();
     }
 
-    public static void deserializeSecurityStatus(RaoResultImpl raoResult, JsonParser jsonParser) throws IOException {
+    public static void deserializeSecurityStatus(RaoResultImpl.RaoResultImplBuilder raoResultBuilder, JsonParser jsonParser) throws IOException {
         while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
             jsonParser.nextToken();
-            raoResult.setSecurityStatus(PhysicalParameter.valueOf(jsonParser.currentName().toUpperCase()), jsonParser.getBooleanValue());
+            PhysicalParameter physicalParameter;
+            try {
+                physicalParameter = PhysicalParameter.valueOf(jsonParser.currentName().toUpperCase());
+            } catch (IllegalArgumentException e) {
+                throw new OpenRaoException("Unknown physical parameter %s".formatted(jsonParser.currentName()));
+            }
+            raoResultBuilder.withSecurityStatus(physicalParameter, jsonParser.getBooleanValue());
         }
     }
 

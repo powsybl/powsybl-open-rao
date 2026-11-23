@@ -4,7 +4,9 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 Feature: 0.1.1.3: Handle transformers
-    #TODO: This feature covers
+  This feature covers CNECs on transformers. On a small network with two voltage levels, it checks
+  that the CNECs on the two-winding transformers are imported, and that the margins (in MW for DC,
+  in A for AC) and the upper thresholds are correctly computed in preventive and curative states.
 
   @fast @rao @dc @preventive-only @max-min-margin
   Scenario: 0.1.1.3.1: Handle transformers on a small test case in DC

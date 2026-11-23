@@ -21,6 +21,7 @@ import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.loopflowextension.LoopFlowThresholdAdder;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
+import com.powsybl.openrao.data.raoresult.api.extension.FlowResult;
 import com.powsybl.openrao.data.raoresult.io.cne.commons.CneHelper;
 import com.powsybl.openrao.data.raoresult.io.cne.commons.CneUtil;
 import com.powsybl.openrao.data.raoresult.io.cne.core.xsd.Analog;
@@ -60,6 +61,7 @@ class CoreCneCnecsCreatorTest {
 
     private Crac crac;
     private RaoResult raoResult;
+    private FlowResult flowResult;
     private RaoParameters raoParameters;
     private Instant curativeInstant;
     private Properties properties;
@@ -74,6 +76,8 @@ class CoreCneCnecsCreatorTest {
             .newInstant(CURATIVE_INSTANT_ID, InstantKind.CURATIVE);
         curativeInstant = crac.getInstant(CURATIVE_INSTANT_ID);
         raoResult = Mockito.mock(RaoResult.class);
+        flowResult = Mockito.mock(FlowResult.class);
+        Mockito.when(raoResult.getExtension(FlowResult.class)).thenReturn(flowResult);
         raoParameters = new RaoParameters(ReportNode.NO_OP);
 
         properties = new Properties();
@@ -156,13 +160,15 @@ class CoreCneCnecsCreatorTest {
 
     private void mockCnecResult(FlowCnec cnec, double flowMw, double marginMw, double relMarginMw, double ptdf) {
         TwoSides monitoredSide = cnec.getMonitoredSides().contains(TwoSides.ONE) ? TwoSides.ONE : TwoSides.TWO;
-        Mockito.when(raoResult.getFlow(any(), eq(cnec), eq(monitoredSide), eq(Unit.AMPERE))).thenThrow(new OpenRaoException("No ampere allowed"));
-        Mockito.when(raoResult.getFlow(any(), eq(cnec), eq(monitoredSide), eq(Unit.MEGAWATT))).thenReturn(flowMw);
-        Mockito.when(raoResult.getMargin(any(), eq(cnec), eq(Unit.AMPERE))).thenThrow(new OpenRaoException("No ampere allowed"));
-        Mockito.when(raoResult.getMargin(any(), eq(cnec), eq(Unit.MEGAWATT))).thenReturn(marginMw);
-        Mockito.when(raoResult.getRelativeMargin(any(), eq(cnec), eq(Unit.AMPERE))).thenThrow(new OpenRaoException("No ampere allowed"));
-        Mockito.when(raoResult.getRelativeMargin(any(), eq(cnec), eq(Unit.MEGAWATT))).thenReturn(relMarginMw);
-        Mockito.when(raoResult.getPtdfZonalSum(any(), eq(cnec), eq(monitoredSide))).thenReturn(ptdf);
+        Mockito.when(flowResult.getFlow(any(), eq(cnec), eq(monitoredSide), eq(Unit.AMPERE))).thenThrow(new OpenRaoException("No ampere allowed"));
+        Mockito.when(flowResult.getFlow(any(), eq(cnec), eq(monitoredSide), eq(Unit.AMPERE))).thenThrow(new OpenRaoException("No ampere allowed"));
+        Mockito.when(flowResult.getFlow(any(), eq(cnec), eq(monitoredSide), eq(Unit.MEGAWATT))).thenReturn(flowMw);
+        Mockito.when(flowResult.getMargin(any(), eq(cnec), eq(Unit.AMPERE))).thenThrow(new OpenRaoException("No ampere allowed"));
+        Mockito.when(flowResult.getMargin(any(), eq(cnec), eq(Unit.MEGAWATT))).thenReturn(marginMw);
+        Mockito.when(flowResult.getRelativeMargin(any(), eq(cnec), eq(Unit.AMPERE))).thenThrow(new OpenRaoException("No ampere allowed"));
+        Mockito.when(flowResult.getRelativeMargin(any(), eq(cnec), eq(Unit.MEGAWATT))).thenReturn(relMarginMw);
+        Mockito.when(flowResult.getPtdfZonalSum(any(), eq(cnec), eq(monitoredSide))).thenReturn(ptdf);
+        Mockito.when(raoResult.getExtension(FlowResult.class)).thenReturn(flowResult);
     }
 
     @Test
@@ -209,11 +215,6 @@ class CoreCneCnecsCreatorTest {
         checkConstraintSeriesContent(cnecsConstraintSeries.get(1), cnec2, "B57", List.of("10X1001A1001A361"), false,
             800., null, null, 10., 1443., 1000., .2, null, null,
             190., 950., null, null);
-        /* TODO : reactivate this when we go back to exporting B54 series even if no CRAs are applied
-        checkConstraintSeriesContent(cnecsConstraintSeries.get(2), cnec2, "B54", List.of("10X1001A1001A361"), false,
-            800., 1443., 1000., 10., null, null, .2, 200., 950.,
-            null, null, null, null);
-                 */
 
         // then cnec1 (name starts with bbb)
         checkConstraintSeriesContent(cnecsConstraintSeries.get(2), cnec1, "B88", List.of("10XFR-RTE------Q"), false,
@@ -222,11 +223,6 @@ class CoreCneCnecsCreatorTest {
         checkConstraintSeriesContent(cnecsConstraintSeries.get(3), cnec1, "B57", List.of("10XFR-RTE------Q"), false,
             80., null, null, 0., 144., 100., .1, null, null,
             20., 200., null, null);
-        /* TODO : reactivate this when we go back to exporting B54 series even if no CRAs are applied
-        checkConstraintSeriesContent(cnecsConstraintSeries.get(5), cnec1, "B54", List.of("10XFR-RTE------Q"), false,
-            80., 144., 100., 0., null, null, .1, 20., 200.,
-            null, null, null, null);
-                 */
     }
 
     @Test
@@ -261,11 +257,6 @@ class CoreCneCnecsCreatorTest {
         checkConstraintSeriesContent(cnecsConstraintSeries.get(1), cnec1, "B57", List.of("10XDE-VE-TRANSMK"), true,
             80., null, null, 0., 144., 100., .1, null, null,
             20., 200., null, null);
-        /* TODO : reactivate this when we go back to exporting B54 series even if no CRAs are applied
-        checkConstraintSeriesContent(cnecsConstraintSeries.get(2), cnec1, "B54", List.of("10XDE-VE-TRANSMK"), true,
-            80., 144., 100., 0., null, null, null, 20., null,
-            null, null, null, null);
-         */
     }
 
     @Test
@@ -295,28 +286,12 @@ class CoreCneCnecsCreatorTest {
         // check size
         assertEquals(2, cnecsConstraintSeries.size());
 
-        /* TODO : reactivate this when we go back to exporting CNEC+MNEC branches as both a CNEC and a MNEC
-        checkConstraintSeriesContent(cnecsConstraintSeries.get(0), cnec1, "B88", List.of("10XDE-RWENET---W"), true,
-            80., 144., 100., 10., 144., 100., null, 20., null,
-            20., null, null, null);
-        checkConstraintSeriesContent(cnecsConstraintSeries.get(1), cnec1, "B57", List.of("10XDE-RWENET---W"), true,
-            80., null, null, 10., 144., 100., null, null, null,
-            20., null, null, null);
-        checkConstraintSeriesContent(cnecsConstraintSeries.get(2), cnec1, "B54", List.of("10XDE-RWENET---W"), true,
-            80., 144., 100., 10., null, null, null, 20., null,
-            null, null, null, null);*/
-
         checkConstraintSeriesContent(cnecsConstraintSeries.get(0), cnec1, "B88", List.of("10XDE-RWENET---W"), false,
             80., 144., 100., 10., 144., 100., .1, 10., 100.,
             10., 100., null, null);
         checkConstraintSeriesContent(cnecsConstraintSeries.get(1), cnec1, "B57", List.of("10XDE-RWENET---W"), false,
             80., null, null, 10., 144., 100., .1, null, null,
             10., 100., null, null);
-        /* TODO : reactivate this when we go back to exporting B54 series even if no CRAs are applied
-        checkConstraintSeriesContent(cnecsConstraintSeries.get(2), cnec1, "B54", List.of("10XDE-RWENET---W"), false,
-            80., 144., 100., 10., null, null, .1, 20., 100.,
-            null, null, null, null);
-         */
     }
 
     @Test
@@ -380,11 +355,6 @@ class CoreCneCnecsCreatorTest {
         checkConstraintSeriesContent(cnecsConstraintSeries.get(4), cnecPrev, "B57", tsos, false,
             80., null, null, 30., 144., 100., .1, null, null,
             -10., -10., null, null);
-        /* TODO : reactivate this when we go back to exporting B54 series even if no CRAs are applied
-        checkConstraintSeriesContent(cnecsConstraintSeries.get(5), cnecPrev, "B54", tsos, false,
-            80., 144., 100., 30., null, null, .1, 20., -10.,
-            null, null, null, null);
-                 */
 
         // curative cnecs
         checkConstraintSeriesContent(cnecsConstraintSeries.get(0), cnecCur, "B88", tsos, false,
@@ -413,7 +383,7 @@ class CoreCneCnecsCreatorTest {
         cnec1.newExtension(LoopFlowThresholdAdder.class).withValue(321.).withUnit(Unit.MEGAWATT).add();
 
         mockCnecResult(cnec1, 80, 20, 200, .1);
-        Mockito.when(raoResult.getLoopFlow(any(), eq(cnec1), eq(TwoSides.TWO), eq(Unit.MEGAWATT))).thenReturn(123.);
+        Mockito.when(flowResult.getLoopFlow(any(), eq(cnec1), eq(TwoSides.TWO), eq(Unit.MEGAWATT))).thenReturn(123.);
 
         properties.setProperty("rao-result.export.core-cne.with-loop-flows", "true");
 
@@ -432,10 +402,5 @@ class CoreCneCnecsCreatorTest {
         checkConstraintSeriesContent(cnecsConstraintSeries.get(1), cnec1, "B57", tsos, false,
             80., null, null, 0., 144., 100., .1, null, null,
             20., 200., 123., 321.);
-        /* TODO : reactivate this when we go back to exporting B54 series even if no CRAs are applied
-        checkConstraintSeriesContent(cnecsConstraintSeries.get(2), cnec1, "B54", countries, false,
-            80., 144., 100., 0., null, null, .1, 20., 200.,
-            null, null, 123., 321.);
-                 */
     }
 }

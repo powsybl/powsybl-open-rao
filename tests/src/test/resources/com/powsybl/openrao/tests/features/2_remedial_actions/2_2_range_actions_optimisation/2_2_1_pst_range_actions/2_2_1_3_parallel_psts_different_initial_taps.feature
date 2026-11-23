@@ -3,8 +3,8 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-Feature: 2.2.1.3: Handle parallel PSTs with different initial taps
-    # TODO: This feature covers
+Feature: 2.2.1.3: Handle aligned PSTs with different initial taps
+  This feature covers aligned PSTs with different initial taps.
 
   @fast @rao @ac @preventive-only @search-tree-rao @max-min-margin
   Scenario: 2.2.1.3.1: Preventive search tree RAO with two aligned PSTs with different initial taps

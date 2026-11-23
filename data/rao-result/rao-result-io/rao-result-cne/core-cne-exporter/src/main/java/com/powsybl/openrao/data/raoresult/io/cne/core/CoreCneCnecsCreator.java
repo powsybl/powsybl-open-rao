@@ -73,7 +73,6 @@ public final class CoreCneCnecsCreator {
     }
 
     private CoreCneCnecsCreator() {
-
     }
 
     public List<ConstraintSeries> generate() {
@@ -107,7 +106,6 @@ public final class CoreCneCnecsCreator {
             );
         } else if (cneHelper.getCrac().getFlowCnec(outageBranchCnecId).isMonitored()) {
             // A49 (MNEC)
-            // TODO : remove 'else' when we go back to exporting CNEC+MNEC branches as both a CNEC and a MNEC
             constraintSeries.addAll(
                 createConstraintSeriesOfCnec(branchCnecCreationContext, outageBranchCnecId, curativeBranchCnecId, true, cneHelper)
             );
@@ -160,7 +158,6 @@ public final class CoreCneCnecsCreator {
             (!cneHelper.getRaoResult().getActivatedNetworkActionsDuringState(cneHelper.getCrac().getState(optionalContingency.get(), curativeInstant)).isEmpty()
                 || !cneHelper.getRaoResult().getActivatedRangeActionsDuringState(cneHelper.getCrac().getState(optionalContingency.get(), curativeInstant)).isEmpty())) {
             // B54
-            // TODO : remove the 'if' condition when we go back to exporting B54 series even if no CRAs are applied
             List<Analog> measurementsB54 = createB54MeasurementsOfCnec(curativeCnec, shouldInvertBranchDirection);
             MonitoredRegisteredResource monitoredRegisteredResourceB54 = newMonitoredRegisteredResource(nativeCnecId, curativeCnec.getName(), measurementsB54);
             constraintSeriesB54.getMonitoredSeries().add(newMonitoredSeries(nativeCnecId, curativeCnec.getName() + contingencySuffix, monitoredRegisteredResourceB54));
@@ -245,7 +242,7 @@ public final class CoreCneCnecsCreator {
         if (resultState != null && resultState.isCurative() && cnec.getState().getInstant().isPreventive()) {
             resultState = cracCreationContext.getCrac().getPreventiveInstant();
         }
-        return cneHelper.getRaoResult().getFlow(resultState, cnec, side, Unit.MEGAWATT);
+        return cneHelper.getFlowResult().getFlow(resultState, cnec, side, Unit.MEGAWATT);
     }
 
     private double getCnecMargin(FlowCnec cnec, Instant optimizedInstant, Unit unit, boolean deductFrmFromThreshold) {
@@ -262,7 +259,10 @@ public final class CoreCneCnecsCreator {
         if (resultState != null && resultState.isCurative() && cnec.getState().getInstant().isPreventive()) {
             resultState = cracCreationContext.getCrac().getPreventiveInstant();
         }
-        return absoluteMargin > 0 ? absoluteMargin / cneHelper.getRaoResult().getPtdfZonalSum(resultState, cnec, getMonitoredSide(cnec)) : absoluteMargin;
+
+        return absoluteMargin > 0
+            ? absoluteMargin / cneHelper.getFlowResult().getPtdfZonalSum(resultState, cnec, getMonitoredSide(cnec))
+            : absoluteMargin;
     }
 
     private Analog createFlowMeasurement(FlowCnec cnec, Instant optimizedInstant, Unit unit, boolean shouldInvertBranchDirection) {
@@ -319,7 +319,6 @@ public final class CoreCneCnecsCreator {
     }
 
     private void getThresholdToMarginMapAsCnec(FlowCnec cnec, Unit unit, boolean deductFrmFromThreshold, Map<Double, Double> thresholdToMarginMap, double flow, TwoSides side) {
-        // TODO : remove this when we go back to considering FRM in the exported threshold
         double flowUnitMultiplier = getFlowUnitMultiplier(cnec.getNominalVoltage(side), Unit.MEGAWATT, unit);
         double frm = deductFrmFromThreshold ? 0 : cnec.getReliabilityMargin() * flowUnitMultiplier;
         // Only look at fixed thresholds
@@ -337,7 +336,7 @@ public final class CoreCneCnecsCreator {
     }
 
     private Analog createPtdfZonalSumMeasurement(FlowCnec cnec) {
-        double absPtdfSum = cneHelper.getRaoResult().getPtdfZonalSum(null, cnec, getMonitoredSide(cnec));
+        double absPtdfSum = cneHelper.getFlowResult().getPtdfZonalSum(null, cnec, getMonitoredSide(cnec));
         return newPtdfMeasurement(SUM_PTDF_MEASUREMENT_TYPE, absPtdfSum);
     }
 
@@ -348,7 +347,7 @@ public final class CoreCneCnecsCreator {
         }
         List<Analog> measurements = new ArrayList<>();
         try {
-            double loopflow = cneHelper.getRaoResult().getLoopFlow(resultOptimState, cnec, getMonitoredSide(cnec), Unit.MEGAWATT);
+            double loopflow = cneHelper.getFlowResult().getLoopFlow(resultOptimState, cnec, getMonitoredSide(cnec), Unit.MEGAWATT);
             LoopFlowThreshold loopFlowExtension = cnec.getExtension(LoopFlowThreshold.class);
             if (!Objects.isNull(loopFlowExtension) && !Double.isNaN(loopflow)) {
                 double invert = shouldInvertBranchDirection ? -1 : 1;

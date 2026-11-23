@@ -12,7 +12,8 @@ Feature: 5.5.1: Geographic filter
   Scenario: 5.5.1.1: Simple case, only network actions inside country, positive margin
   The parameters mentioned in the US description only allow to use RAs inside the country of the limiting element,
   but the limiting element and the RAs are in the same country in any case.
-    # TODO: this test is not so relevant because it does not test geographic filtering, as everything is in the same country
+  This scenario is not a test of the geographic filtering itself: it checks that the parameters do not break
+  the optimization when the limiting element and the remedial actions are in the same country.
     Given network file is "common/network_12nodes.uct"
     Given crac file is "common/crac_2_1_2_2_selectionTopoRA_variant1.json"
     Given configuration file is "5_special_features/5_5_geographic_filter/rao_parameters_case_91_1_1.json"
@@ -26,12 +27,11 @@ Feature: 5.5.1: Geographic filter
 
   @fast @rao @ac @preventive-only @max-min-margin
   Scenario: 5.5.1.2: Simple case, only network actions inside country, max margin
-    # TODO: this description is written in comments, while in other files the descriptions are not inside comments
-    # Before the first depth, the limiting cnec is a tie-line between FR and DE
-    # So only RA "Open tie-line FR DE" can be used
-    # At the end of the first depth RAO, the new limiting element is a tie-line between FR and BE
-    # So the RA "PST @1" can now be used, but won't be because combining it with the first RA does not improve the solution
-    # This results in a solution that is less optimal than using "PST @1" alone (83A, see test case 5.5.1.3 variant 1)
+  Before the first depth, the limiting cnec is a tie-line between FR and DE,
+  so only RA "Open tie-line FR DE" can be used.
+  At the end of the first depth RAO, the new limiting element is a tie-line between FR and BE,
+  so the RA "PST @1" can now be used, but won't be because combining it with the first RA does not improve the solution.
+  This results in a solution that is less optimal than using "PST @1" alone (83A, see test case 5.5.1.3 variant 1).
     Given network file is "common/network_12nodes.uct"
     Given crac file is "common/crac_2_1_2_2_selectionTopoRA_variant1.json"
     Given configuration file is "common/rao_parameters_case_common.json"

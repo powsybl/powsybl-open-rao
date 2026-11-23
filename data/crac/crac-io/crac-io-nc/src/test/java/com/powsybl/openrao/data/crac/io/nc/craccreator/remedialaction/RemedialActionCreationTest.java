@@ -137,6 +137,7 @@ class RemedialActionCreationTest {
             NcCracCreationTestUtil.CURATIVE_3_INSTANT_ID);
 
         assertEquals(3, ((NetworkAction) importedRemedialActions.get(4)).getElementaryActions().size());
+        assertEquals("10XDE-VE-------2", importedRemedialActions.get(4).getOperator()); // EIC not in TsoEICode: raw EIC fallback
         NcCracCreationTestUtil.assertHasOnInstantUsageRule(cracCreationContext, "remedial-action-5", NcCracCreationTestUtil.PREVENTIVE_INSTANT_ID);
 
         NcCracCreationTestUtil.assertPstRangeActionImported(
@@ -251,7 +252,7 @@ class RemedialActionCreationTest {
             .toList();
         assertEquals(10, importedRemedialActions.size());
 
-        NcCracCreationTestUtil.assertPstRangeActionImported((PstRangeAction) importedRemedialActions.get(0),
+        NcCracCreationTestUtil.assertPstRangeActionImported((PstRangeAction) importedRemedialActions.getFirst(),
             "remedial-action-1", "RTE_RA1", "BBE2AA1  BBE3AA1  1", null, null, "RTE");
         assertEquals(1, importedRemedialActions.get(0).getUsageRules().size());
         NcCracCreationTestUtil.assertHasOnInstantUsageRule(cracCreationContext, "remedial-action-1", NcCracCreationTestUtil.PREVENTIVE_INSTANT_ID);
