@@ -5,13 +5,19 @@
 The [ENTSO-E Network Codes profiles](https://www.entsoe.eu/data/cim/cim-for-grid-models-exchange/#_Network_Code__NC__profiles)
 is an extension of the CIM standard. The CRAC data is split over different profiles that reference one another.
 
+## CGMES Network Data
+
+To work properly, the NC CRAC importer expects the network data to come from source CGMES files with the objects being
+imported using their `RDF:ID` instead of their `mRID`. The `"iidm.import.cgmes.source-for-iidm-id"` PowSyBl CGMES import
+parameter must be set to `"rdfID"` for the NC importer to work properly.
+
 ## Header overview
 
 The OpenRAO importer only supports NC version `2.4` (see
 [ENTSO-E website](https://www.entsoe.eu/Documents/CIM_documents/Grid_Model_CIM/MetadataAndHeaderDataExchangeSpecification_v2.3.0.pdf)).
 
-> Note: NC profiles in version `2.2` are expected to be imported correctly thanks to backward compatibility, but this
-> has not been tested.
+> Note: NC profiles in version `2.2` and `2.3` are expected to be imported correctly thanks to backward compatibility,
+> but this has not been thoroughly tested.
 
 > ⚠️ **NCP v2.5 is NOT supported.** The v2.5 application profiles publish their vocabulary under new
 > namespaces (`nc` = `https://cim4.eu/ns/nc#`, `cim` = `https://cim.ucaiug.io/ns#`) while the importer
@@ -470,10 +476,10 @@ The CNEC's threshold value (in DEGREES) is determined by the `normalValue` field
 positive. Whether this is the maximum or minimum threshold of the CNEC depends on the `OperationalLimitType`'
 s `direction`:
 
-- if the `direction` is `high`, the maximum value of the threshold is `+ normalValue`
-- if the `direction` is `low`, the minimum value of the threshold is `- normalValue`
+- if the `direction` is `high`, the maximum value of the threshold is `+ normalValue` and it has no minimum value;
+- if the `direction` is `low`, the minimum value of the threshold is `- normalValue` and it has no maximum value;
 - if the `direction` is `absoluteValue`, the maximum value of the threshold is + `normalValue` and the minimum value of
-  the threshold is `- normalValue`
+  the threshold is `- normalValue`.
 
 An angle CNEC also has two terminals, one being the importing element and the other being the exporting element, which
 imposes the flow direction. Two terminals are referenced by the angle CNEC in the NC profiles. The first one (called
