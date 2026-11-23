@@ -12,19 +12,13 @@ import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
-import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.sensitivity.SensitivityVariableSet;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
-
-import java.util.HashSet;
-import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
@@ -33,7 +27,6 @@ import static org.mockito.Mockito.mock;
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
 class SkippedOptimizationResultImplTest {
-    private final double sensitivityFailureOverCost = 10000; // DEFAULT_SENSITIVITY_FAILURE_OVERCOST value
 
     @Test
     void testBasicReturns() {
@@ -45,7 +38,9 @@ class SkippedOptimizationResultImplTest {
         PstRangeAction pstRangeAction = mock(PstRangeAction.class);
         RangeAction<?> rangeAction = mock(RangeAction.class);
 
-        SkippedOptimizationResultImpl skippedOptimizationResult = new SkippedOptimizationResultImpl(state, new HashSet<>(), new HashSet<>(), ComputationStatus.FAILURE, sensitivityFailureOverCost);
+        // DEFAULT_SENSITIVITY_FAILURE_OVERCOST value
+        double sensitivityFailureOverCost = 10000;
+        SkippedOptimizationResultImpl skippedOptimizationResult = new SkippedOptimizationResultImpl(state, sensitivityFailureOverCost);
 
         assertEquals(ComputationStatus.FAILURE, skippedOptimizationResult.getSensitivityStatus());
         assertEquals(ComputationStatus.FAILURE, skippedOptimizationResult.getSensitivityStatus(state));
@@ -67,25 +62,9 @@ class SkippedOptimizationResultImplTest {
         assertThrows(OpenRaoException.class, () -> skippedOptimizationResult.getOptimizedSetpoint(rangeAction, state));
         assertThrows(OpenRaoException.class, () -> skippedOptimizationResult.getOptimizedSetpointsOnState(state));
         assertThrows(OpenRaoException.class, () -> skippedOptimizationResult.getOptimizedTap(pstRangeAction, state));
-        assertThrows(OpenRaoException.class, () -> skippedOptimizationResult.getOptimizedTapsOnState(state));
-    }
-
-    @Test
-    void testActivation() {
-        State state = mock(State.class);
-        NetworkAction na1 = Mockito.mock(NetworkAction.class);
-        NetworkAction na2 = Mockito.mock(NetworkAction.class);
-        NetworkAction na3 = Mockito.mock(NetworkAction.class);
-        RangeAction<?> ra1 = Mockito.mock(RangeAction.class);
-        RangeAction<?> ra2 = Mockito.mock(RangeAction.class);
-        Set<NetworkAction> networkActions = Set.of(na1, na2);
-        Set<RangeAction<?>> rangeActions = Set.of(ra1, ra2);
-        SkippedOptimizationResultImpl skippedOptimizationResult = new SkippedOptimizationResultImpl(state, networkActions, rangeActions, ComputationStatus.DEFAULT, sensitivityFailureOverCost);
-        assertEquals(networkActions, skippedOptimizationResult.getActivatedNetworkActions());
-        assertTrue(skippedOptimizationResult.isActivated(na1));
-        assertTrue(skippedOptimizationResult.isActivated(na2));
-        assertFalse(skippedOptimizationResult.isActivated(na3));
-        assertEquals(rangeActions, skippedOptimizationResult.getRangeActions());
-        assertEquals(rangeActions, skippedOptimizationResult.getActivatedRangeActions(state));
+        assertThrows(OpenRaoException.class, () -> skippedOptimizationResult.getActivatedNetworkActions());
+        assertThrows(OpenRaoException.class, () -> skippedOptimizationResult.getActivatedRangeActions(state));
+        assertThrows(OpenRaoException.class, () -> skippedOptimizationResult.getRangeActions());
+        assertThrows(OpenRaoException.class, () -> skippedOptimizationResult.getActivatedRangeActionsPerState());
     }
 }

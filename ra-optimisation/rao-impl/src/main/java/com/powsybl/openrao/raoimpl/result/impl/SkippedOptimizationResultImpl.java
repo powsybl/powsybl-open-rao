@@ -33,18 +33,10 @@ public class SkippedOptimizationResultImpl implements OptimizationResult {
     private static final String SHOULD_NOT_BE_USED = "Should not be used: optimization result has been skipped.";
     private static final String SENSITIVITY_FAILURE_COST = "sensitivity-failure-cost";
     private final State state;
-    private final Set<NetworkAction> activatedNetworkActions;
-    private final Set<RangeAction<?>> activatedRangeActions;
     private final double sensitivityFailureOverCost;
 
-    public SkippedOptimizationResultImpl(State state,
-                                         Set<NetworkAction> activatedNetworkActions,
-                                         Set<RangeAction<?>> activatedRangeActions,
-                                         ComputationStatus computationStatus,
-                                         double sensitivityFailureOverCost) {
+    public SkippedOptimizationResultImpl(State state, double sensitivityFailureOverCost) {
         this.state = state;
-        this.activatedNetworkActions = activatedNetworkActions;
-        this.activatedRangeActions = activatedRangeActions;
         this.sensitivityFailureOverCost = sensitivityFailureOverCost;
     }
 
@@ -106,17 +98,17 @@ public class SkippedOptimizationResultImpl implements OptimizationResult {
 
     @Override
     public boolean isActivated(NetworkAction networkAction) {
-        return activatedNetworkActions.contains(networkAction);
+        throw new OpenRaoException(SHOULD_NOT_BE_USED);
     }
 
     @Override
     public Set<NetworkAction> getActivatedNetworkActions() {
-        return new HashSet<>(activatedNetworkActions);
+        throw new OpenRaoException(SHOULD_NOT_BE_USED);
     }
 
     @Override
     public Map<State, Set<NetworkAction>> getActivatedNetworkActionsPerState() {
-        return Map.of(state, activatedNetworkActions);
+        throw new OpenRaoException(SHOULD_NOT_BE_USED);
     }
 
     @Override
@@ -161,17 +153,17 @@ public class SkippedOptimizationResultImpl implements OptimizationResult {
 
     @Override
     public Set<RangeAction<?>> getRangeActions() {
-        return activatedRangeActions;
+        throw new OpenRaoException(SHOULD_NOT_BE_USED);
     }
 
     @Override
     public Set<RangeAction<?>> getActivatedRangeActions(State state) {
-        return activatedRangeActions;
+        throw new OpenRaoException(SHOULD_NOT_BE_USED);
     }
 
     @Override
     public Map<State, Set<RangeAction<?>>> getActivatedRangeActionsPerState() {
-        return Map.of(state, activatedRangeActions);
+        throw new OpenRaoException(SHOULD_NOT_BE_USED);
     }
 
     @Override
