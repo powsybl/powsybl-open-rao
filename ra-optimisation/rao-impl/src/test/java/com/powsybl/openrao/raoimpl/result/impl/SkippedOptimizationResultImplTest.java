@@ -60,11 +60,12 @@ class SkippedOptimizationResultImplTest {
         assertThrows(OpenRaoException.class, () -> skippedOptimizationResult.getPtdfZonalSums());
         assertThrows(OpenRaoException.class, () -> skippedOptimizationResult.getCostlyElements("emptyString", 10));
         assertThrows(OpenRaoException.class, () -> skippedOptimizationResult.getOptimizedSetpoint(rangeAction, state));
-        assertThrows(OpenRaoException.class, () -> skippedOptimizationResult.getOptimizedSetpointsOnState(state));
         assertThrows(OpenRaoException.class, () -> skippedOptimizationResult.getOptimizedTap(pstRangeAction, state));
-        assertThrows(OpenRaoException.class, () -> skippedOptimizationResult.getActivatedNetworkActions());
-        assertThrows(OpenRaoException.class, () -> skippedOptimizationResult.getActivatedRangeActions(state));
-        assertThrows(OpenRaoException.class, () -> skippedOptimizationResult.getRangeActions());
-        assertThrows(OpenRaoException.class, () -> skippedOptimizationResult.getActivatedRangeActionsPerState());
+
+        assertTrue(skippedOptimizationResult.getOptimizedSetpointsOnState(state).isEmpty());
+        assertTrue(skippedOptimizationResult.getActivatedNetworkActions().isEmpty());
+        assertTrue(skippedOptimizationResult.getActivatedRangeActions(state).isEmpty());
+        assertTrue(skippedOptimizationResult.getRangeActions().isEmpty());
+        assertTrue(skippedOptimizationResult.getActivatedRangeActionsPerState().isEmpty());
     }
 }

@@ -21,6 +21,7 @@ import com.powsybl.openrao.raoimpl.result.api.OptimizationResult;
 import com.powsybl.sensitivity.SensitivityVariableSet;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -98,17 +99,17 @@ public class SkippedOptimizationResultImpl implements OptimizationResult {
 
     @Override
     public boolean isActivated(NetworkAction networkAction) {
-        throw new OpenRaoException(SHOULD_NOT_BE_USED);
+        return false;
     }
 
     @Override
     public Set<NetworkAction> getActivatedNetworkActions() {
-        throw new OpenRaoException(SHOULD_NOT_BE_USED);
+        return Collections.emptySet();
     }
 
     @Override
     public Map<State, Set<NetworkAction>> getActivatedNetworkActionsPerState() {
-        throw new OpenRaoException(SHOULD_NOT_BE_USED);
+        return Collections.emptyMap();
     }
 
     @Override
@@ -153,17 +154,17 @@ public class SkippedOptimizationResultImpl implements OptimizationResult {
 
     @Override
     public Set<RangeAction<?>> getRangeActions() {
-        throw new OpenRaoException(SHOULD_NOT_BE_USED);
+        return Collections.emptySet();
     }
 
     @Override
     public Set<RangeAction<?>> getActivatedRangeActions(State state) {
-        throw new OpenRaoException(SHOULD_NOT_BE_USED);
+        return Collections.emptySet();
     }
 
     @Override
     public Map<State, Set<RangeAction<?>>> getActivatedRangeActionsPerState() {
-        throw new OpenRaoException(SHOULD_NOT_BE_USED);
+        return Collections.emptyMap();
     }
 
     @Override
@@ -173,7 +174,7 @@ public class SkippedOptimizationResultImpl implements OptimizationResult {
 
     @Override
     public Map<RangeAction<?>, Double> getOptimizedSetpointsOnState(State state) {
-        throw new OpenRaoException(SHOULD_NOT_BE_USED);
+        return Collections.emptyMap();
     }
 
     @Override
@@ -188,7 +189,7 @@ public class SkippedOptimizationResultImpl implements OptimizationResult {
 
     @Override
     public Map<PstRangeAction, Integer> getOptimizedTapsOnState(State state) {
-        throw new OpenRaoException(SHOULD_NOT_BE_USED);
+        return Collections.emptyMap();
     }
 
     @Override
