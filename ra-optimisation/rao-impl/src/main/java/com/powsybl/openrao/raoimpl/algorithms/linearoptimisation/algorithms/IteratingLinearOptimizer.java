@@ -337,11 +337,11 @@ public final class IteratingLinearOptimizer {
         return Pair.of(bestResult, !raRangeShrinking);
     }
 
-    private static RangeActionActivationResult roundResult(RangeActionActivationResult linearProblemResult,
-                                                           IteratingLinearOptimizationResultImpl previousResult,
-                                                           IteratingLinearOptimizerInput input,
-                                                           IteratingLinearOptimizerParameters parameters,
-                                                           int iteration) {
+    static RangeActionActivationResult roundResult(RangeActionActivationResult linearProblemResult,
+                                                   IteratingLinearOptimizationResultImpl previousResult,
+                                                   IteratingLinearOptimizerInput input,
+                                                   IteratingLinearOptimizerParameters parameters,
+                                                   int iteration) {
         RangeActionActivationResultImpl roundedResult = roundPsts(linearProblemResult, previousResult, input, parameters, iteration);
         roundOtherRas(linearProblemResult, input.optimizationPerimeter(), roundedResult);
         return roundedResult;

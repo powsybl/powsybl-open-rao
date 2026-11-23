@@ -5,12 +5,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers;
+package com.powsybl.openrao.raoimpl.algorithms.linearoptimisation.algorithms.fillers;
 
-import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblem;
-import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
-import com.powsybl.openrao.searchtreerao.result.api.RangeActionActivationResult;
-import com.powsybl.openrao.searchtreerao.result.api.SensitivityResult;
+import com.powsybl.openrao.raoimpl.algorithms.linearoptimisation.algorithms.linearproblem.LinearProblem;
+import com.powsybl.openrao.raoimpl.result.api.FlowResult;
+import com.powsybl.openrao.raoimpl.result.api.RangeActionActivationResult;
+import com.powsybl.openrao.raoimpl.result.api.SensitivityResult;
 
 public class HybridPstProblemFiller implements ProblemFiller {
     private final ContinuousRangeActionGroupFiller continuousFiller;
