@@ -30,13 +30,20 @@ public class HybridPstProblemFiller implements ProblemFiller {
     public void fill(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult, RangeActionActivationResult rangeActionActivationResult) {
         this.flowResult = flowResult;
         this.sensitivityResult = sensitivityResult;
-        continuousFiller.fill(linearProblem, flowResult, sensitivityResult, rangeActionActivationResult);
+        if (discretePhaseFilled) {
+            discreteFiller.fill(linearProblem, flowResult, sensitivityResult, rangeActionActivationResult);
+            discretePstGroupFiller.fill(linearProblem, flowResult, sensitivityResult, rangeActionActivationResult);
+        } else {
+            continuousFiller.fill(linearProblem, flowResult, sensitivityResult, rangeActionActivationResult);
+        }
     }
 
     @Override
     public void updateBetweenMipIteration(LinearProblem linearProblem, RangeActionActivationResult rangeActionActivationResult) {
-        // after first continuous solve only do discrete solve
+        // Remove continuous PST groups variable and constraint before the first discrete solve
+        // Setpoint variables and constraint remain
         if (!discretePhaseFilled) {
+            continuousFiller.remove(linearProblem);
             discreteFiller.fill(linearProblem, flowResult, sensitivityResult, rangeActionActivationResult);
             discretePstGroupFiller.fill(linearProblem, flowResult, sensitivityResult, rangeActionActivationResult);
             discretePhaseFilled = true;

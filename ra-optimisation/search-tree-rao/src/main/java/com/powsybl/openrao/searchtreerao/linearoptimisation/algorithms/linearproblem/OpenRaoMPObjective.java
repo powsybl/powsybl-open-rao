@@ -13,9 +13,13 @@ import com.google.ortools.linearsolver.MPObjective;
  * @author Philippe Edwards {@literal <philippe.edwards at rte-international.com>}
  */
 public class OpenRaoMPObjective {
-    private final MPObjective mpObjective;
+    private MPObjective mpObjective;
 
     protected OpenRaoMPObjective(MPObjective mpObjective) {
+        this.mpObjective = mpObjective;
+    }
+
+    void setMPObjective(MPObjective mpObjective) {
         this.mpObjective = mpObjective;
     }
 
