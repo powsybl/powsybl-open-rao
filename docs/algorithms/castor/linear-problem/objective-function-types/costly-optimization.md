@@ -54,7 +54,15 @@ Using the same notations as in the
 participation of the costs of remedial actions to the objective function is the sum of the activation and
 variation costs of remedial actions for all optimization states.
 
-<!-- TODO: rajouter tableaux de parametres-->
+The cost parameters of remedial actions are defined in the CRAC, per remedial action:
+
+| CRAC field            | Meaning                                                                                                       | Unit                            |
+|-----------------------|---------------------------------------------------------------------------------------------------------------|---------------------------------|
+| `activationCost`      | one-shot cost incurred when the RAO activates the remedial action                                             | monetary cost                   |
+| `variationCosts.up`   | cost for each upward variation (per tap for PSTs, per MW for HVDC, redispatching and injection range actions) | monetary cost per tap or per MW |
+| `variationCosts.down` | cost for each downward variation (same units as `variationCosts.up`)                                          | monetary cost per tap or per MW |
+
+See the [CRAC JSON documentation](../../../../input-data/crac/json.md) for the field definitions.
 
 $$\text{Minimize } \sum_{r \in \mathcal{RA}} \sum_{s \in \mathcal{S}} c(r, s)$$
 
