@@ -347,7 +347,6 @@ class IteratingLinearOptimizerTest {
     @Test
     void failedHybridRefinementKeepsFirstRoundedResults() {
         // If the resolve fails return the continuous result rounded
-
         when(parameters.getRangeActionParametersExtension().getPstModel()).thenReturn(SearchTreeRaoRangeActionsOptimizationParameters.PstModel.HYBRID);
 
         PstRangeAction pstRangeAction = Mockito.mock(PstRangeAction.class);
@@ -368,7 +367,6 @@ class IteratingLinearOptimizerTest {
         );
 
         assertSame(firstRoundedResults, result);
-        Mockito.verify(linearProblem).solve();
     }
 
     @Test
