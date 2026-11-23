@@ -26,7 +26,6 @@ import static com.powsybl.openrao.raoapi.RaoParametersCommons.RA_RANGE_SHRINKING
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.RELATIVE_MIP_GAP;
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.SOLVER;
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.SOLVER_SPECIFIC_PARAMETERS;
-import static com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.PstModel.HYBRID;
 
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
