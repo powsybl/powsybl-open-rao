@@ -16,6 +16,8 @@ import com.powsybl.openrao.searchtreerao.result.api.LinearProblemStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.Set;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -331,5 +333,62 @@ class OpenRaoMPSolverTest {
         assertEquals(0., OpenRaoMPSolver.roundDouble(1e-6 * 0.999), 1e-12);
         assertEquals(0., OpenRaoMPSolver.roundDouble(1e-7), 1e-12);
         assertEquals(0., OpenRaoMPSolver.roundDouble(1e-11), 1e-12);
+    }
+
+    @Test
+    void testRemoveVariablesAndConstraintsReloadsRetainedModelAndKeepsWrappersUsable() {
+        OpenRaoMPVariable x = openRaoMPSolver.makeNumVar(0, 10, "x");
+        OpenRaoMPVariable y = openRaoMPSolver.makeNumVar(-5, 5, "y");
+        OpenRaoMPVariable z = openRaoMPSolver.makeNumVar(1, 3, "z");
+
+        OpenRaoMPConstraint constraintToKeep = openRaoMPSolver.makeConstraint(-openRaoMPSolver.infinity(), 7, "constraintToKeep");
+        constraintToKeep.setCoefficient(x, 2);
+        constraintToKeep.setCoefficient(y, 3);
+        constraintToKeep.setCoefficient(z, 4);
+
+        OpenRaoMPConstraint constraintToRemove = openRaoMPSolver.makeConstraint(1, 9, "constraintToRemove");
+        constraintToRemove.setCoefficient(x, 5);
+        constraintToRemove.setCoefficient(y, 6);
+
+        openRaoMPSolver.getObjective().setCoefficient(x, 10);
+        openRaoMPSolver.getObjective().setCoefficient(y, 20);
+        openRaoMPSolver.getObjective().setCoefficient(z, 30);
+        openRaoMPSolver.setMaximization();
+
+        openRaoMPSolver.removeVariablesAndConstraints(Set.of("y"), Set.of("constraintToRemove"));
+
+        assertEquals(2, openRaoMPSolver.numVariables());
+        assertEquals(1, openRaoMPSolver.numConstraints());
+        assertTrue(openRaoMPSolver.hasVariable("x"));
+        assertFalse(openRaoMPSolver.hasVariable("y"));
+        assertTrue(openRaoMPSolver.hasVariable("z"));
+        assertTrue(openRaoMPSolver.hasConstraint("constraintToKeep"));
+        assertFalse(openRaoMPSolver.hasConstraint("constraintToRemove"));
+
+        MPSolver retainedMpSolver = openRaoMPSolver.getMpSolver();
+        assertNotNull(retainedMpSolver.lookupVariableOrNull("x"));
+        assertEquals(null, retainedMpSolver.lookupVariableOrNull("y"));
+        assertNotNull(retainedMpSolver.lookupVariableOrNull("z"));
+        assertNotNull(retainedMpSolver.lookupConstraintOrNull("constraintToKeep"));
+        assertEquals(null, retainedMpSolver.lookupConstraintOrNull("constraintToRemove"));
+
+        assertEquals(0, constraintToKeep.getCoefficient(y), DOUBLE_TOLERANCE);
+        assertEquals(2, constraintToKeep.getCoefficient(x), DOUBLE_TOLERANCE);
+        assertEquals(4, constraintToKeep.getCoefficient(z), DOUBLE_TOLERANCE);
+        assertEquals(10, openRaoMPSolver.getObjective().getCoefficient(x), DOUBLE_TOLERANCE);
+        assertEquals(30, openRaoMPSolver.getObjective().getCoefficient(z), DOUBLE_TOLERANCE);
+        assertTrue(retainedMpSolver.objective().maximization());
+
+        x.setBounds(2, 8);
+        z.setUb(2);
+        constraintToKeep.setCoefficient(x, 11);
+        openRaoMPSolver.getObjective().setCoefficient(z, 12);
+
+        assertEquals(2, retainedMpSolver.lookupVariableOrNull("x").lb(), DOUBLE_TOLERANCE);
+        assertEquals(8, retainedMpSolver.lookupVariableOrNull("x").ub(), DOUBLE_TOLERANCE);
+        assertEquals(2, retainedMpSolver.lookupVariableOrNull("z").ub(), DOUBLE_TOLERANCE);
+        assertEquals(11, retainedMpSolver.lookupConstraintOrNull("constraintToKeep")
+            .getCoefficient(retainedMpSolver.lookupVariableOrNull("x")), DOUBLE_TOLERANCE);
+        assertEquals(12, retainedMpSolver.objective().getCoefficient(retainedMpSolver.lookupVariableOrNull("z")), DOUBLE_TOLERANCE);
     }
 }
