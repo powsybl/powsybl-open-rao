@@ -52,10 +52,6 @@
       "topological-actions-optimization" : {
         "max-preventive-search-tree-depth" : 3,
         "max-curative-search-tree-depth" : 3,
-        "max-preventive-search-tree-depth-dc" : 2,
-        "max-curative-search-tree-depth-dc" : 1,
-        "preventive-dc-solution-usage" : "HINT",
-        "curative-dc-solution-usage" : "FORCED",
         "predefined-combinations" : [ [ "na1", "na2" ], [ "na3", "na4", "na5" ] ],
         "skip-actions-far-from-most-limiting-element" : true,
         "max-number-of-boundaries-for-skipping-actions" : 3,
@@ -211,6 +207,12 @@
       "costly-min-margin-parameters" : {
         "shifted-violation-penalty" : 1000.0,
         "shifted-violation-threshold" : 0.0
+      },
+      "pre-solve-parameters" : {
+        "max-preventive-search-tree-depth" : 2,
+        "max-curative-search-tree-depth" : 1,
+        "preventive-solution-usage" : "HINT",
+        "curative-solution-usage" : "FORCED"
       }
     }
   }

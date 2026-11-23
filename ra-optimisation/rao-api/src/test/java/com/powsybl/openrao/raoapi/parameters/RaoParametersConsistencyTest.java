@@ -13,6 +13,7 @@ import com.powsybl.openrao.commons.EICode;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.raoapi.ZoneToZonePtdfDefinition;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoPreSolveParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -105,15 +106,16 @@ class RaoParametersConsistencyTest {
     }
 
     @Test
-    void testNegativeMaxSearchTreeDepthDc() {
-        stParameters.getTopoOptimizationParameters().setMaxPreventiveSearchTreeDepthDc(3);
-        stParameters.getTopoOptimizationParameters().setMaxCurativeSearchTreeDepthDc(2);
-        assertEquals(3, stParameters.getTopoOptimizationParameters().getMaxPreventiveSearchTreeDepthDc());
-        assertEquals(2, stParameters.getTopoOptimizationParameters().getMaxCurativeSearchTreeDepthDc());
-        stParameters.getTopoOptimizationParameters().setMaxPreventiveSearchTreeDepthDc(-1);
-        stParameters.getTopoOptimizationParameters().setMaxCurativeSearchTreeDepthDc(-5);
-        assertEquals(0, stParameters.getTopoOptimizationParameters().getMaxPreventiveSearchTreeDepthDc());
-        assertEquals(0, stParameters.getTopoOptimizationParameters().getMaxCurativeSearchTreeDepthDc());
+    void testNegativeMaxSearchTreeDepthPreSolve() {
+        SearchTreeRaoPreSolveParameters preSolveParameters = new SearchTreeRaoPreSolveParameters(ReportNode.NO_OP);
+        preSolveParameters.setMaxPreventiveSearchTreeDepth(3);
+        preSolveParameters.setMaxCurativeSearchTreeDepth(2);
+        assertEquals(3, preSolveParameters.getMaxPreventiveSearchTreeDepth());
+        assertEquals(2, preSolveParameters.getMaxCurativeSearchTreeDepth());
+        preSolveParameters.setMaxPreventiveSearchTreeDepth(-1);
+        preSolveParameters.setMaxCurativeSearchTreeDepth(-5);
+        assertEquals(0, preSolveParameters.getMaxPreventiveSearchTreeDepth());
+        assertEquals(0, preSolveParameters.getMaxCurativeSearchTreeDepth());
     }
 
     @Test

@@ -17,10 +17,11 @@ import com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityPa
 import com.powsybl.openrao.raoapi.parameters.extensions.MultithreadingParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.PtdfApproximation;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoPreSolveParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoPreSolveParameters.SolutionUsage;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.PstModel;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.RaRangeShrinking;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.Solver;
-import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoTopoOptimizationParameters.DcSolutionUsage;
 import com.powsybl.openrao.raoapi.parameters.extensions.SecondPreventiveRaoParameters;
 import org.junit.jupiter.api.Test;
 
@@ -77,10 +78,6 @@ class RaoParametersYamlConfigTest extends AbstractSerDeTest {
         TopoOptimizationParameters topoOptimizationParameters = parameters.getTopoOptimizationParameters();
         assertEquals(3, searchTreeParameters.getTopoOptimizationParameters().getMaxPreventiveSearchTreeDepth(), DOUBLE_TOLERANCE);
         assertEquals(3, searchTreeParameters.getTopoOptimizationParameters().getMaxCurativeSearchTreeDepth(), DOUBLE_TOLERANCE);
-        assertEquals(2, searchTreeParameters.getTopoOptimizationParameters().getMaxPreventiveSearchTreeDepthDc());
-        assertEquals(1, searchTreeParameters.getTopoOptimizationParameters().getMaxCurativeSearchTreeDepthDc());
-        assertEquals(DcSolutionUsage.HINT, searchTreeParameters.getTopoOptimizationParameters().getPreventiveDcSolutionUsage());
-        assertEquals(DcSolutionUsage.FORCED, searchTreeParameters.getTopoOptimizationParameters().getCurativeDcSolutionUsage());
         assertEquals(List.of(List.of("na1", "na2"), List.of("na3", "na4", "na5")), searchTreeParameters.getTopoOptimizationParameters().getPredefinedCombinations());
         assertEquals(0.02, topoOptimizationParameters.getRelativeMinImpactThreshold(), DOUBLE_TOLERANCE);
         assertEquals(2.0, topoOptimizationParameters.getAbsoluteMinImpactThreshold(), DOUBLE_TOLERANCE);
@@ -129,6 +126,12 @@ class RaoParametersYamlConfigTest extends AbstractSerDeTest {
 
         assertEquals(1000.0, searchTreeParameters.getMinMarginsParameters().get().getShiftedViolationPenalty());
         assertEquals(0.0, searchTreeParameters.getMinMarginsParameters().get().getShiftedViolationThreshold());
+
+        assertTrue(searchTreeParameters.getPreSolveParameters().isPresent());
+        assertEquals(2, SearchTreeRaoPreSolveParameters.getMaxPreventiveSearchTreeDepth(parameters));
+        assertEquals(1, SearchTreeRaoPreSolveParameters.getMaxCurativeSearchTreeDepth(parameters));
+        assertEquals(SolutionUsage.HINT, SearchTreeRaoPreSolveParameters.getPreventiveSolutionUsage(parameters));
+        assertEquals(SolutionUsage.FORCED, SearchTreeRaoPreSolveParameters.getCurativeSolutionUsage(parameters));
 
         // Compare to json
         roundTripTest(
@@ -199,10 +202,6 @@ class RaoParametersYamlConfigTest extends AbstractSerDeTest {
         TopoOptimizationParameters topoOptimizationParameters = parameters.getTopoOptimizationParameters();
         assertEquals(3, searchTreeParameters.getTopoOptimizationParameters().getMaxPreventiveSearchTreeDepth(), DOUBLE_TOLERANCE);
         assertEquals(3, searchTreeParameters.getTopoOptimizationParameters().getMaxCurativeSearchTreeDepth(), DOUBLE_TOLERANCE);
-        assertEquals(0, searchTreeParameters.getTopoOptimizationParameters().getMaxPreventiveSearchTreeDepthDc());
-        assertEquals(0, searchTreeParameters.getTopoOptimizationParameters().getMaxCurativeSearchTreeDepthDc());
-        assertEquals(DcSolutionUsage.HINT, searchTreeParameters.getTopoOptimizationParameters().getPreventiveDcSolutionUsage());
-        assertEquals(DcSolutionUsage.HINT, searchTreeParameters.getTopoOptimizationParameters().getCurativeDcSolutionUsage());
         assertEquals(List.of(List.of("na1", "na2"), List.of("na3", "na4", "na5")), searchTreeParameters.getTopoOptimizationParameters().getPredefinedCombinations());
         assertEquals(0.02, topoOptimizationParameters.getRelativeMinImpactThreshold(), DOUBLE_TOLERANCE);
         assertEquals(2.0, topoOptimizationParameters.getAbsoluteMinImpactThreshold(), DOUBLE_TOLERANCE);

@@ -24,7 +24,7 @@ import com.powsybl.openrao.raoapi.json.JsonRaoParameters;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters;
-import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoTopoOptimizationParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoPreSolveParameters;
 import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
 import com.powsybl.openrao.searchtreerao.commons.ToolProvider;
 import com.powsybl.openrao.searchtreerao.commons.objectivefunction.ObjectiveFunction;
@@ -240,11 +240,12 @@ public class CastorFullOptimization {
         return new RaoRunContext(new SearchTreeRunContext(ToolProvider.buildFromRaoInputAndParameters(raoInput, raoParameters), raoParameters));
     }
 
-    // no pre-solve if both DC searchtree depth parameters set to 0, no network action or the RAO already runs on DC sensitivities
+    // no pre-solve if the pre-solve-parameters block is absent, both search-tree depth parameters are set to 0, no network action or the RAO already runs on DC sensitivities
     private boolean isPreSolveUsable() {
-        boolean preSolveDepthRequested = SearchTreeRaoTopoOptimizationParameters.getMaxPreventiveSearchTreeDepthDc(raoParameters) > 0
-            || SearchTreeRaoTopoOptimizationParameters.getMaxCurativeSearchTreeDepthDc(raoParameters) > 0;
-        return preSolveDepthRequested
+        boolean preSolveDepthRequested = SearchTreeRaoPreSolveParameters.getMaxPreventiveSearchTreeDepth(raoParameters) > 0
+            || SearchTreeRaoPreSolveParameters.getMaxCurativeSearchTreeDepth(raoParameters) > 0;
+        return SearchTreeRaoPreSolveParameters.isActivated(raoParameters)
+            && preSolveDepthRequested
             && !crac.getNetworkActions().isEmpty()
             && !LoadFlowAndSensitivityParameters.getSensitivityWithLoadFlowParameters(raoParameters).getLoadFlowParameters().isDc();
     }
@@ -635,10 +636,10 @@ public class CastorFullOptimization {
             stateTree.getOperatorsNotSharingCras(), preventivePerimeterOptimReportNode);
 
         Set<NetworkAction> preSolveCombination = Set.of();
-        if (context.isPreSolveEnabled() && SearchTreeRaoTopoOptimizationParameters.getMaxPreventiveSearchTreeDepthDc(raoParameters) > 0) {
+        if (context.isPreSolveEnabled() && SearchTreeRaoPreSolveParameters.getMaxPreventiveSearchTreeDepth(raoParameters) > 0) {
             preSolveCombination = runPreventivePreSolve(context, preventivePerimeterOptimReportNode);
             injectPreSolveCombination(searchTreeParameters, preSolveCombination,
-                SearchTreeRaoTopoOptimizationParameters.getPreventiveDcSolutionUsage(raoParameters));
+                SearchTreeRaoPreSolveParameters.getPreventiveSolutionUsage(raoParameters));
         }
 
         Set<State> statesToOptimize = new HashSet<>(optPerimeter.getMonitoredStates());

@@ -8,7 +8,7 @@
 package com.powsybl.openrao.searchtreerao.castor.algorithm;
 
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
-import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoTopoOptimizationParameters.DcSolutionUsage;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoPreSolveParameters.SolutionUsage;
 import com.powsybl.openrao.searchtreerao.commons.NetworkActionCombination;
 import com.powsybl.openrao.searchtreerao.commons.parameters.NetworkActionParameters;
 import com.powsybl.openrao.searchtreerao.searchtree.parameters.SearchTreeParameters;
@@ -44,7 +44,7 @@ class CastorSearchTreeHelperTest {
 
     @Test
     void emptyCombinationIsNoOp() {
-        CastorSearchTreeHelper.injectPreSolveCombination(searchTreeParameters, Set.of(), DcSolutionUsage.HINT);
+        CastorSearchTreeHelper.injectPreSolveCombination(searchTreeParameters, Set.of(), SolutionUsage.HINT);
 
         assertTrue(networkActionParameters.getNetworkActionCombinations().isEmpty());
         assertTrue(networkActionParameters.getForcedCombinations().isEmpty());
@@ -54,7 +54,7 @@ class CastorSearchTreeHelperTest {
     void hintAddsPredefinedCombination() {
         Set<NetworkAction> combination = Set.of(networkAction1, networkAction2);
 
-        CastorSearchTreeHelper.injectPreSolveCombination(searchTreeParameters, combination, DcSolutionUsage.HINT);
+        CastorSearchTreeHelper.injectPreSolveCombination(searchTreeParameters, combination, SolutionUsage.HINT);
 
         assertEquals(1, networkActionParameters.getNetworkActionCombinations().size());
         NetworkActionCombination addedCombination = networkActionParameters.getNetworkActionCombinations().getFirst();
@@ -67,7 +67,7 @@ class CastorSearchTreeHelperTest {
     void forcedSetsForcedCombination() {
         Set<NetworkAction> combination = Set.of(networkAction1, networkAction2);
 
-        CastorSearchTreeHelper.injectPreSolveCombination(searchTreeParameters, combination, DcSolutionUsage.FORCED);
+        CastorSearchTreeHelper.injectPreSolveCombination(searchTreeParameters, combination, SolutionUsage.FORCED);
 
         assertTrue(networkActionParameters.getNetworkActionCombinations().isEmpty());
         assertEquals(1, networkActionParameters.getForcedCombinations().size());

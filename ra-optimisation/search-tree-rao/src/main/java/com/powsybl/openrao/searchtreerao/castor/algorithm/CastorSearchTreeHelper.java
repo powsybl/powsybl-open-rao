@@ -15,7 +15,7 @@ import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
-import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoTopoOptimizationParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoPreSolveParameters;
 import com.powsybl.openrao.searchtreerao.commons.NetworkActionCombination;
 import com.powsybl.openrao.searchtreerao.commons.ToolProvider;
 import com.powsybl.openrao.searchtreerao.commons.objectivefunction.ObjectiveFunction;
@@ -96,12 +96,12 @@ final class CastorSearchTreeHelper {
      */
     static void injectPreSolveCombination(final SearchTreeParameters mainSearchTreeParameters,
                                           final Set<NetworkAction> preSolveCombination,
-                                          final SearchTreeRaoTopoOptimizationParameters.DcSolutionUsage preSolveUsage) {
+                                          final SearchTreeRaoPreSolveParameters.SolutionUsage preSolveUsage) {
         if (preSolveCombination.isEmpty()) {
             return;
         }
         NetworkActionCombination combination = new NetworkActionCombination(preSolveCombination, true);
-        if (preSolveUsage == SearchTreeRaoTopoOptimizationParameters.DcSolutionUsage.FORCED) {
+        if (preSolveUsage == SearchTreeRaoPreSolveParameters.SolutionUsage.FORCED) {
             mainSearchTreeParameters.getNetworkActionParameters().addForcedNetworkActionCombination(combination);
         } else {
             mainSearchTreeParameters.getNetworkActionParameters().addHintedNetworkActionCombination(combination);

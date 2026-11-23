@@ -18,7 +18,7 @@ import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
-import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoTopoOptimizationParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoPreSolveParameters;
 import com.powsybl.openrao.searchtreerao.commons.ToolProvider;
 import com.powsybl.openrao.searchtreerao.commons.objectivefunction.ObjectiveFunction;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.AbstractOptimizationPerimeter;
@@ -367,7 +367,7 @@ public class CastorContingencyScenarios {
         if (presolve != null && preSolveTreeParameters.maximumSearchDepth() > 0) {
             preSolveCombination = runCurativePreSolve(curativePerimeter, network, prePerimeterSensitivityOutput, reportNode);
             injectPreSolveCombination(searchTreeParameters, preSolveCombination,
-                SearchTreeRaoTopoOptimizationParameters.getCurativeDcSolutionUsage(raoParameters));
+                SearchTreeRaoPreSolveParameters.getCurativeSolutionUsage(raoParameters));
         }
 
         searchTreeParameters.decreaseRemedialActionUsageLimits(resultsPerPerimeter, prePerimeterResultPerPerimeter);

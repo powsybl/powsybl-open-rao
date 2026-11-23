@@ -26,6 +26,7 @@ import static com.powsybl.openrao.raoapi.RaoParametersCommons.LOOP_FLOW_PARAMETE
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.MNEC_PARAMETERS;
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.MULTI_THREADING;
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.OBJECTIVE_FUNCTION;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.PRE_SOLVE_PARAMETERS;
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.RANGE_ACTIONS_OPTIMIZATION;
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.RELATIVE_MARGINS;
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.SEARCH_TREE_PARAMETERS;
@@ -50,6 +51,7 @@ public class JsonOpenRaoSearchTreeParameters implements JsonRaoParameters.Extens
         JsonRelativeMarginsParameters.serialize(parameters, jsonGenerator);
         JsonLoopFlowParameters.serialize(parameters, jsonGenerator);
         JsonMinMarginsParameters.serialize(parameters, jsonGenerator);
+        JsonPreSolveParameters.serialize(parameters, jsonGenerator);
         jsonGenerator.writeEndObject();
     }
 
@@ -114,6 +116,10 @@ public class JsonOpenRaoSearchTreeParameters implements JsonRaoParameters.Extens
                 case COSTLY_MIN_MARGIN_PARAMETERS -> {
                     parser.nextToken();
                     JsonMinMarginsParameters.deserialize(parser, parameters);
+                }
+                case PRE_SOLVE_PARAMETERS -> {
+                    parser.nextToken();
+                    JsonPreSolveParameters.deserialize(parser, parameters, reportNode);
                 }
                 default ->
                     throw new OpenRaoException("Unexpected field in OpenRAO search tree parameters: " + parser.currentName());

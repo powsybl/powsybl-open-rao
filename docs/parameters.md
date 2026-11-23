@@ -73,10 +73,6 @@ Examples of RAO parameters with business and implementation-specific parameters
       "topological-actions-optimization" : {
         "max-preventive-search-tree-depth" : 2,
         "max-curative-search-tree-depth" : 2,
-        "max-preventive-search-tree-depth-dc" : 0,
-        "max-curative-search-tree-depth-dc" : 0,
-        "preventive-dc-solution-usage" : "HINT",
-        "curative-dc-solution-usage" : "HINT",
         "predefined-combinations" : [ "na1 + na2", "na4 + na5 + na6"],
         "skip-actions-far-from-most-limiting-element" : false,
         "max-number-of-boundaries-for-skipping-actions" : 2,
@@ -154,6 +150,12 @@ Examples of RAO parameters with business and implementation-specific parameters
         "ptdf-boundaries" : [ "{FR}-{BE}", "{FR}-{DE}", "{BE}-{NL}", "{NL}-{DE}", "{DE}-{PL}", "{DE}-{CZ}", "{DE}-{AT}", "{PL}-{CZ}", "{PL}-{SK}", "{CZ}-{SK}", "{CZ}-{AT}", "{AT}-{HU}", "{AT}-{SI}", "{SI}-{HR}", "{SK}-{HU}", "{HU}-{RO}", "{HU}-{HR}", "{BE}-{22Y201903144---9}-{DE}+{22Y201903145---4}" ],
         "ptdf-approximation" : "FIXED_PTDF",
         "ptdf-sum-lower-bound" : 0.01
+      },
+      "pre-solve-parameters" : {
+        "max-preventive-search-tree-depth" : 0,
+        "max-curative-search-tree-depth" : 0,
+        "preventive-solution-usage" : "HINT",
+        "curative-solution-usage" : "HINT"
       }
     }
   }
@@ -185,13 +187,15 @@ rao-topological-actions-optimization:
 search-tree-topological-actions-optimization:
   max-preventive-search-tree-depth: 3
   max-curative-search-tree-depth: 3
-  max-preventive-search-tree-depth-dc: 0
-  max-curative-search-tree-depth-dc: 0
-  preventive-dc-solution-usage: HINT
-  curative-dc-solution-usage: HINT
   predefined-combinations: [ "{na1}+{na2}", "{na3}+{na4}+{na5}" ]
   relative-minimum-impact-threshold: 0.0
   absolute-minimum-impact-threshold: 2.0
+
+search-tree-pre-solve-parameters:
+  max-preventive-search-tree-depth: 0
+  max-curative-search-tree-depth: 0
+  preventive-solution-usage: HINT
+  curative-solution-usage: HINT
 
 search-tree-multi-threading:
   available-cpus: 4

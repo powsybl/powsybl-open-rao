@@ -32,36 +32,18 @@ public class SearchTreeRaoTopoOptimizationParameters {
     private static final boolean DEFAULT_SKIP_ACTIONS_FAR_FROM_MOST_LIMITING_ELEMENT = false;
     private static final int DEFAULT_MAX_NUMBER_OF_BOUNDARIES_FOR_SKIPPING_ACTIONS = 2;
     private static final boolean DEFAULT_ALLOW_ELECTRICAL_ISLAND_CREATION = true;
-    private static final int DEFAULT_MAX_SEARCH_TREE_DEPTH_DC = 0;
-    private static final DcSolutionUsage DEFAULT_DC_SOLUTION_USAGE = DcSolutionUsage.HINT;
     // Attributes
     private int maxPreventiveSearchTreeDepth;
     private int maxCurativeSearchTreeDepth;
-    private int maxPreventiveSearchTreeDepthDc;
-    private int maxCurativeSearchTreeDepthDc;
-    private DcSolutionUsage preventiveDcSolutionUsage;
-    private DcSolutionUsage curativeDcSolutionUsage;
     private List<List<String>> predefinedCombinations;
     private boolean skipActionsFarFromMostLimitingElement;
     private int maxNumberOfBoundariesForSkippingActions;
     private boolean allowElectricalIslandCreation;
     private final ReportNode reportNode;
 
-    /**
-     * How the AC search tree uses the network action combination found by the DC pre-solve
-     */
-    public enum DcSolutionUsage {
-        HINT,
-        FORCED
-    }
-
     public SearchTreeRaoTopoOptimizationParameters(final ReportNode reportNode) {
         this.maxPreventiveSearchTreeDepth = DEFAULT_MAX_SEARCH_TREE_DEPTH;
         this.maxCurativeSearchTreeDepth = DEFAULT_MAX_SEARCH_TREE_DEPTH;
-        this.maxPreventiveSearchTreeDepthDc = DEFAULT_MAX_SEARCH_TREE_DEPTH_DC;
-        this.maxCurativeSearchTreeDepthDc = DEFAULT_MAX_SEARCH_TREE_DEPTH_DC;
-        this.preventiveDcSolutionUsage = DEFAULT_DC_SOLUTION_USAGE;
-        this.curativeDcSolutionUsage = DEFAULT_DC_SOLUTION_USAGE;
         this.predefinedCombinations = DEFAULT_PREDEFINED_COMBINATIONS;
         this.skipActionsFarFromMostLimitingElement = DEFAULT_SKIP_ACTIONS_FAR_FROM_MOST_LIMITING_ELEMENT;
         this.maxNumberOfBoundariesForSkippingActions = DEFAULT_MAX_NUMBER_OF_BOUNDARIES_FOR_SKIPPING_ACTIONS;
@@ -75,30 +57,6 @@ public class SearchTreeRaoTopoOptimizationParameters {
 
     public void setMaxCurativeSearchTreeDepth(int maxCurativeSearchTreeDepth) {
         this.maxCurativeSearchTreeDepth = maxCurativeSearchTreeDepth;
-    }
-
-    public void setMaxPreventiveSearchTreeDepthDc(int maxPreventiveSearchTreeDepthDc) {
-        this.maxPreventiveSearchTreeDepthDc = nonNegativeDcDepth(MAX_PREVENTIVE_SEARCH_TREE_DEPTH_DC, maxPreventiveSearchTreeDepthDc);
-    }
-
-    public void setMaxCurativeSearchTreeDepthDc(int maxCurativeSearchTreeDepthDc) {
-        this.maxCurativeSearchTreeDepthDc = nonNegativeDcDepth(MAX_CURATIVE_SEARCH_TREE_DEPTH_DC, maxCurativeSearchTreeDepthDc);
-    }
-
-    private int nonNegativeDcDepth(String parameterName, int depth) {
-        if (depth < 0) {
-            RaoApiReports.reportNegativeMaxSearchTreeDepthDc(reportNode, parameterName, depth);
-            return 0;
-        }
-        return depth;
-    }
-
-    public void setPreventiveDcSolutionUsage(DcSolutionUsage preventiveDcSolutionUsage) {
-        this.preventiveDcSolutionUsage = preventiveDcSolutionUsage;
-    }
-
-    public void setCurativeDcSolutionUsage(DcSolutionUsage curativeDcSolutionUsage) {
-        this.curativeDcSolutionUsage = curativeDcSolutionUsage;
     }
 
     public void setPredefinedCombinations(List<List<String>> predefinedCombinations) {
@@ -130,22 +88,6 @@ public class SearchTreeRaoTopoOptimizationParameters {
         return maxCurativeSearchTreeDepth;
     }
 
-    public int getMaxPreventiveSearchTreeDepthDc() {
-        return maxPreventiveSearchTreeDepthDc;
-    }
-
-    public int getMaxCurativeSearchTreeDepthDc() {
-        return maxCurativeSearchTreeDepthDc;
-    }
-
-    public DcSolutionUsage getPreventiveDcSolutionUsage() {
-        return preventiveDcSolutionUsage;
-    }
-
-    public DcSolutionUsage getCurativeDcSolutionUsage() {
-        return curativeDcSolutionUsage;
-    }
-
     public boolean getSkipActionsFarFromMostLimitingElement() {
         return skipActionsFarFromMostLimitingElement;
     }
@@ -169,10 +111,6 @@ public class SearchTreeRaoTopoOptimizationParameters {
                 .ifPresent(config -> {
                     parameters.setMaxPreventiveSearchTreeDepth(config.getIntProperty(MAX_PREVENTIVE_SEARCH_TREE_DEPTH, DEFAULT_MAX_SEARCH_TREE_DEPTH));
                     parameters.setMaxCurativeSearchTreeDepth(config.getIntProperty(MAX_CURATIVE_SEARCH_TREE_DEPTH, DEFAULT_MAX_SEARCH_TREE_DEPTH));
-                    parameters.setMaxPreventiveSearchTreeDepthDc(config.getIntProperty(MAX_PREVENTIVE_SEARCH_TREE_DEPTH_DC, DEFAULT_MAX_SEARCH_TREE_DEPTH_DC));
-                    parameters.setMaxCurativeSearchTreeDepthDc(config.getIntProperty(MAX_CURATIVE_SEARCH_TREE_DEPTH_DC, DEFAULT_MAX_SEARCH_TREE_DEPTH_DC));
-                    parameters.setPreventiveDcSolutionUsage(config.getEnumProperty(PREVENTIVE_DC_SOLUTION_USAGE, DcSolutionUsage.class, DEFAULT_DC_SOLUTION_USAGE));
-                    parameters.setCurativeDcSolutionUsage(config.getEnumProperty(CURATIVE_DC_SOLUTION_USAGE, DcSolutionUsage.class, DEFAULT_DC_SOLUTION_USAGE));
                     parameters.setPredefinedCombinations(ParametersUtil.convertListToListOfList(
                         config.getStringListProperty(PREDEFINED_COMBINATIONS, ParametersUtil.convertListOfListToList(DEFAULT_PREDEFINED_COMBINATIONS))
                     ));
@@ -195,34 +133,6 @@ public class SearchTreeRaoTopoOptimizationParameters {
             return parameters.getExtension(OpenRaoSearchTreeParameters.class).getTopoOptimizationParameters().getMaxCurativeSearchTreeDepth();
         }
         return DEFAULT_MAX_SEARCH_TREE_DEPTH;
-    }
-
-    public static int getMaxPreventiveSearchTreeDepthDc(RaoParameters parameters) {
-        if (parameters.hasExtension(OpenRaoSearchTreeParameters.class)) {
-            return parameters.getExtension(OpenRaoSearchTreeParameters.class).getTopoOptimizationParameters().getMaxPreventiveSearchTreeDepthDc();
-        }
-        return DEFAULT_MAX_SEARCH_TREE_DEPTH_DC;
-    }
-
-    public static int getMaxCurativeSearchTreeDepthDc(RaoParameters parameters) {
-        if (parameters.hasExtension(OpenRaoSearchTreeParameters.class)) {
-            return parameters.getExtension(OpenRaoSearchTreeParameters.class).getTopoOptimizationParameters().getMaxCurativeSearchTreeDepthDc();
-        }
-        return DEFAULT_MAX_SEARCH_TREE_DEPTH_DC;
-    }
-
-    public static DcSolutionUsage getPreventiveDcSolutionUsage(RaoParameters parameters) {
-        if (parameters.hasExtension(OpenRaoSearchTreeParameters.class)) {
-            return parameters.getExtension(OpenRaoSearchTreeParameters.class).getTopoOptimizationParameters().getPreventiveDcSolutionUsage();
-        }
-        return DEFAULT_DC_SOLUTION_USAGE;
-    }
-
-    public static DcSolutionUsage getCurativeDcSolutionUsage(RaoParameters parameters) {
-        if (parameters.hasExtension(OpenRaoSearchTreeParameters.class)) {
-            return parameters.getExtension(OpenRaoSearchTreeParameters.class).getTopoOptimizationParameters().getCurativeDcSolutionUsage();
-        }
-        return DEFAULT_DC_SOLUTION_USAGE;
     }
 
     public static boolean isSkipActionsFarFromMostLimitingElement(RaoParameters raoParameters) {

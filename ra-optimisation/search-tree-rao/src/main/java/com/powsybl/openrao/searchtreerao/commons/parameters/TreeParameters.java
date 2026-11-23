@@ -9,15 +9,14 @@ package com.powsybl.openrao.searchtreerao.commons.parameters;
 
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoPreSolveParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters;
 
 import static com.powsybl.openrao.raoapi.parameters.extensions.MultithreadingParameters.getAvailableCPUs;
 import static com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoObjectiveFunctionParameters.getCurativeMinObjImprovement;
 import static com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.getRaRangeShrinking;
 import static com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoTopoOptimizationParameters.getMaxCurativeSearchTreeDepth;
-import static com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoTopoOptimizationParameters.getMaxCurativeSearchTreeDepthDc;
 import static com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoTopoOptimizationParameters.getMaxPreventiveSearchTreeDepth;
-import static com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoTopoOptimizationParameters.getMaxPreventiveSearchTreeDepthDc;
 
 /**
  * This class contains internal OpenRAO parameters used in the SearchTree algorithm.
@@ -39,7 +38,7 @@ public record TreeParameters(StopCriterion stopCriterion, double targetObjective
     }
 
     public static TreeParameters buildForPreventivePerimeterPreSolve(RaoParameters parameters) {
-        return buildForPreventivePerimeter(parameters, getMaxPreventiveSearchTreeDepthDc(parameters));
+        return buildForPreventivePerimeter(parameters, SearchTreeRaoPreSolveParameters.getMaxPreventiveSearchTreeDepth(parameters));
     }
 
     private static TreeParameters buildForPreventivePerimeter(RaoParameters parameters, int maximumSearchDepth) {
@@ -66,7 +65,7 @@ public record TreeParameters(StopCriterion stopCriterion, double targetObjective
     }
 
     public static TreeParameters buildForCurativePerimeterPreSolve(RaoParameters parameters, Double preventiveOptimizedCost) {
-        return buildForCurativePerimeter(parameters, preventiveOptimizedCost, getMaxCurativeSearchTreeDepthDc(parameters));
+        return buildForCurativePerimeter(parameters, preventiveOptimizedCost, SearchTreeRaoPreSolveParameters.getMaxCurativeSearchTreeDepth(parameters));
     }
 
     private static TreeParameters buildForCurativePerimeter(RaoParameters parameters, Double preventiveOptimizedCost, int maximumSearchDepth) {
@@ -95,7 +94,7 @@ public record TreeParameters(StopCriterion stopCriterion, double targetObjective
     }
 
     public static TreeParameters buildForSecondPreventivePerimeterPreSolve(RaoParameters parameters) {
-        return buildForSecondPreventivePerimeter(parameters, getMaxPreventiveSearchTreeDepthDc(parameters));
+        return buildForSecondPreventivePerimeter(parameters, SearchTreeRaoPreSolveParameters.getMaxPreventiveSearchTreeDepth(parameters));
     }
 
     private static TreeParameters buildForSecondPreventivePerimeter(RaoParameters parameters, int maximumSearchDepth) {

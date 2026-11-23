@@ -36,8 +36,9 @@ import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoPreSolveParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoPreSolveParameters.SolutionUsage;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoTopoOptimizationParameters;
-import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoTopoOptimizationParameters.DcSolutionUsage;
 import com.powsybl.openrao.raoapi.parameters.extensions.SecondPreventiveRaoParameters;
 import com.powsybl.openrao.searchtreerao.reports.ReportsTestUtils;
 import org.junit.jupiter.api.Test;
@@ -132,13 +133,13 @@ class CastorFullOptimizationTest {
         checkExecutionDetails(raoResult, OptimizationStepsExecuted.SECOND_PREVENTIVE_IMPROVED_FIRST);
     }
 
-    private void enableDcPreSolve(RaoParameters raoParameters, DcSolutionUsage dcSolutionUsage) {
-        SearchTreeRaoTopoOptimizationParameters topoOptimizationParameters =
-            raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getTopoOptimizationParameters();
-        topoOptimizationParameters.setMaxPreventiveSearchTreeDepthDc(5);
-        topoOptimizationParameters.setMaxCurativeSearchTreeDepthDc(5);
-        topoOptimizationParameters.setPreventiveDcSolutionUsage(dcSolutionUsage);
-        topoOptimizationParameters.setCurativeDcSolutionUsage(dcSolutionUsage);
+    private void enableDcPreSolve(RaoParameters raoParameters, SolutionUsage solutionUsage) {
+        SearchTreeRaoPreSolveParameters preSolveParameters = new SearchTreeRaoPreSolveParameters(ReportNode.NO_OP);
+        preSolveParameters.setMaxPreventiveSearchTreeDepth(5);
+        preSolveParameters.setMaxCurativeSearchTreeDepth(5);
+        preSolveParameters.setPreventiveSolutionUsage(solutionUsage);
+        preSolveParameters.setCurativeSolutionUsage(solutionUsage);
+        raoParameters.getExtension(OpenRaoSearchTreeParameters.class).setPreSolveParameters(preSolveParameters);
     }
 
     private void activatePossibleCurativeImprovementSecondPreventive(RaoParameters raoParameters) {
@@ -163,7 +164,7 @@ class CastorFullOptimizationTest {
     void smallRaoWithout2PAndDcPreSolveHint() throws IOException {
         setup("small-network-2P.uct", "small-crac-2P.json");
         RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_2P_v2.json"), ReportNode.NO_OP);
-        enableDcPreSolve(raoParameters, DcSolutionUsage.HINT);
+        enableDcPreSolve(raoParameters, SolutionUsage.HINT);
         List<ILoggingEvent> technicalLogs = ReportsTestUtils.getTechnicalLogs().list;
 
         RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null, ReportNode.NO_OP).run().join();
@@ -181,7 +182,7 @@ class CastorFullOptimizationTest {
     void smallRaoWithout2PAndDcPreSolveForced() throws IOException {
         setup("small-network-2P.uct", "small-crac-2P.json");
         RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_2P_v2.json"), ReportNode.NO_OP);
-        enableDcPreSolve(raoParameters, DcSolutionUsage.FORCED);
+        enableDcPreSolve(raoParameters, SolutionUsage.FORCED);
         List<ILoggingEvent> technicalLogs = ReportsTestUtils.getTechnicalLogs().list;
 
         RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null, ReportNode.NO_OP).run().join();
@@ -200,7 +201,7 @@ class CastorFullOptimizationTest {
         setup("small-network-2P.uct", "small-crac-2P.json");
         RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_2P_v2.json"), ReportNode.NO_OP);
         activatePossibleCurativeImprovementSecondPreventive(raoParameters);
-        enableDcPreSolve(raoParameters, DcSolutionUsage.HINT);
+        enableDcPreSolve(raoParameters, SolutionUsage.HINT);
         List<ILoggingEvent> technicalLogs = ReportsTestUtils.getTechnicalLogs().list;
 
         RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null, ReportNode.NO_OP).run().join();
@@ -220,7 +221,7 @@ class CastorFullOptimizationTest {
         setup("small-network-2P.uct", "small-crac-2P.json");
         RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_2P_v2.json"), ReportNode.NO_OP);
         activatePossibleCurativeImprovementSecondPreventive(raoParameters);
-        enableDcPreSolve(raoParameters, DcSolutionUsage.FORCED);
+        enableDcPreSolve(raoParameters, SolutionUsage.FORCED);
         List<ILoggingEvent> technicalLogs = ReportsTestUtils.getTechnicalLogs().list;
 
         RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null, ReportNode.NO_OP).run().join();
@@ -255,8 +256,10 @@ class CastorFullOptimizationTest {
         SearchTreeRaoTopoOptimizationParameters topoOptimizationParameters =
             raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getTopoOptimizationParameters();
         topoOptimizationParameters.setMaxPreventiveSearchTreeDepth(1);
-        topoOptimizationParameters.setMaxPreventiveSearchTreeDepthDc(2);
-        topoOptimizationParameters.setPreventiveDcSolutionUsage(DcSolutionUsage.HINT);
+        SearchTreeRaoPreSolveParameters preSolveParameters = new SearchTreeRaoPreSolveParameters(ReportNode.NO_OP);
+        preSolveParameters.setMaxPreventiveSearchTreeDepth(2);
+        preSolveParameters.setPreventiveSolutionUsage(SolutionUsage.HINT);
+        raoParameters.getExtension(OpenRaoSearchTreeParameters.class).setPreSolveParameters(preSolveParameters);
 
         RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null, ReportNode.NO_OP).run().join();
         assertEquals(Set.of(crac.getNetworkAction("close_de3_de4"), crac.getNetworkAction("close_fr1_fr5")), raoResult.getActivatedNetworkActionsDuringState(crac.getPreventiveState()));
@@ -271,8 +274,10 @@ class CastorFullOptimizationTest {
         SearchTreeRaoTopoOptimizationParameters topoOptimizationParameters =
             raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getTopoOptimizationParameters();
         topoOptimizationParameters.setMaxPreventiveSearchTreeDepth(1);
-        topoOptimizationParameters.setMaxPreventiveSearchTreeDepthDc(2);
-        topoOptimizationParameters.setPreventiveDcSolutionUsage(DcSolutionUsage.FORCED);
+        SearchTreeRaoPreSolveParameters preSolveParameters = new SearchTreeRaoPreSolveParameters(ReportNode.NO_OP);
+        preSolveParameters.setMaxPreventiveSearchTreeDepth(2);
+        preSolveParameters.setPreventiveSolutionUsage(SolutionUsage.FORCED);
+        raoParameters.getExtension(OpenRaoSearchTreeParameters.class).setPreSolveParameters(preSolveParameters);
 
         RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null, ReportNode.NO_OP).run().join();
         assertEquals(Set.of(crac.getNetworkAction("close_de3_de4"), crac.getNetworkAction("close_fr1_fr5")), raoResult.getActivatedNetworkActionsDuringState(crac.getPreventiveState()));

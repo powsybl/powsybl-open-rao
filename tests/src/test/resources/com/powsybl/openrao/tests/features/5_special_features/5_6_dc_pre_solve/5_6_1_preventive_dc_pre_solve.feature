@@ -4,7 +4,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 Feature: 5.6.1: DC pre-solve (HINT/FORCED)
-  This feature covers the max-preventive-search-tree-depth-dc and preventive-dc-solution-usage parameters: a
+  This feature covers the pre-solve-parameters' max-preventive-search-tree-depth and preventive-solution-usage: a
   faster DC search runs ahead of the AC preventive search tree and proposes a network action combination, which
   is then injected into the AC search either as a HINT (competes with single actions at depth 1) or as a FORCED
   choice (replaces depth 1 entirely). It reuses the dataset from 2.5.2.7 (combination better than individuals),

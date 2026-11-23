@@ -44,10 +44,6 @@
       "topological-actions-optimization" : {
         "max-preventive-search-tree-depth" : 3,
         "max-curative-search-tree-depth" : 3,
-        "max-preventive-search-tree-depth-dc" : 0,
-        "max-curative-search-tree-depth-dc" : 0,
-        "preventive-dc-solution-usage" : "HINT",
-        "curative-dc-solution-usage" : "HINT",
         "predefined-combinations" : [ [ "na1", "na2" ], [ "na3", "na4", "na5" ] ],
         "skip-actions-far-from-most-limiting-element" : true,
         "max-number-of-boundaries-for-skipping-actions" : 2,

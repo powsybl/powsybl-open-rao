@@ -11,7 +11,6 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
-import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoTopoOptimizationParameters;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -32,10 +31,6 @@ final class JsonTopoOptimizationParameters {
         jsonGenerator.writeObjectFieldStart(TOPOLOGICAL_ACTIONS_OPTIMIZATION);
         jsonGenerator.writeNumberField(MAX_PREVENTIVE_SEARCH_TREE_DEPTH, parameters.getTopoOptimizationParameters().getMaxPreventiveSearchTreeDepth());
         jsonGenerator.writeNumberField(MAX_CURATIVE_SEARCH_TREE_DEPTH, parameters.getTopoOptimizationParameters().getMaxCurativeSearchTreeDepth());
-        jsonGenerator.writeNumberField(MAX_PREVENTIVE_SEARCH_TREE_DEPTH_DC, parameters.getTopoOptimizationParameters().getMaxPreventiveSearchTreeDepthDc());
-        jsonGenerator.writeNumberField(MAX_CURATIVE_SEARCH_TREE_DEPTH_DC, parameters.getTopoOptimizationParameters().getMaxCurativeSearchTreeDepthDc());
-        jsonGenerator.writeObjectField(PREVENTIVE_DC_SOLUTION_USAGE, parameters.getTopoOptimizationParameters().getPreventiveDcSolutionUsage());
-        jsonGenerator.writeObjectField(CURATIVE_DC_SOLUTION_USAGE, parameters.getTopoOptimizationParameters().getCurativeDcSolutionUsage());
         jsonGenerator.writeFieldName(PREDEFINED_COMBINATIONS);
         jsonGenerator.writeStartArray();
         for (List<String> naIdCombination : parameters.getTopoOptimizationParameters().getPredefinedCombinations()) {
@@ -63,18 +58,6 @@ final class JsonTopoOptimizationParameters {
                     jsonParser.nextToken();
                     searchTreeParameters.getTopoOptimizationParameters().setMaxCurativeSearchTreeDepth(jsonParser.getIntValue());
                 }
-                case MAX_PREVENTIVE_SEARCH_TREE_DEPTH_DC -> {
-                    jsonParser.nextToken();
-                    searchTreeParameters.getTopoOptimizationParameters().setMaxPreventiveSearchTreeDepthDc(jsonParser.getIntValue());
-                }
-                case MAX_CURATIVE_SEARCH_TREE_DEPTH_DC -> {
-                    jsonParser.nextToken();
-                    searchTreeParameters.getTopoOptimizationParameters().setMaxCurativeSearchTreeDepthDc(jsonParser.getIntValue());
-                }
-                case PREVENTIVE_DC_SOLUTION_USAGE ->
-                    searchTreeParameters.getTopoOptimizationParameters().setPreventiveDcSolutionUsage(stringToDcSolutionUsage(jsonParser.nextTextValue()));
-                case CURATIVE_DC_SOLUTION_USAGE ->
-                    searchTreeParameters.getTopoOptimizationParameters().setCurativeDcSolutionUsage(stringToDcSolutionUsage(jsonParser.nextTextValue()));
                 case PREDEFINED_COMBINATIONS ->
                     searchTreeParameters.getTopoOptimizationParameters().setPredefinedCombinations(readListOfListOfString(jsonParser));
                 case SKIP_ACTIONS_FAR_FROM_MOST_LIMITING_ELEMENT -> {
@@ -95,14 +78,6 @@ final class JsonTopoOptimizationParameters {
                     jsonParser.currentName())
                 );
             }
-        }
-    }
-
-    private static SearchTreeRaoTopoOptimizationParameters.DcSolutionUsage stringToDcSolutionUsage(String string) {
-        try {
-            return SearchTreeRaoTopoOptimizationParameters.DcSolutionUsage.valueOf(string);
-        } catch (IllegalArgumentException e) {
-            throw new OpenRaoException(String.format("Unknown DC solution usage: %s", string));
         }
     }
 

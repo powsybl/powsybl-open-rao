@@ -26,7 +26,7 @@ public final class RaoParametersCommons {
         3.3: remove objective function unit field
         3.4: add marmot-parameters
         3.5: add curative remedial actions synchronization parameters in marmot parameters && add allow-electrical-island-creation, remove pst-regulation-parameters
-        3.6: add DC pre-solve parameters (max-preventive-search-tree-depth-dc, max-curative-search-tree-depth-dc, preventive-dc-solution-usage, curative-dc-solution-usage)
+        3.6: add optional pre-solve-parameters block (max-preventive-search-tree-depth, max-curative-search-tree-depth, preventive-solution-usage, curative-solution-usage)
     */
 
     public static final String RAO_PARAMETERS_VERSION = "3.6";
@@ -70,10 +70,6 @@ public final class RaoParametersCommons {
 
     public static final String MAX_PREVENTIVE_SEARCH_TREE_DEPTH = "max-preventive-search-tree-depth";
     public static final String MAX_CURATIVE_SEARCH_TREE_DEPTH = "max-curative-search-tree-depth";
-    public static final String MAX_PREVENTIVE_SEARCH_TREE_DEPTH_DC = "max-preventive-search-tree-depth-dc";
-    public static final String MAX_CURATIVE_SEARCH_TREE_DEPTH_DC = "max-curative-search-tree-depth-dc";
-    public static final String PREVENTIVE_DC_SOLUTION_USAGE = "preventive-dc-solution-usage";
-    public static final String CURATIVE_DC_SOLUTION_USAGE = "curative-dc-solution-usage";
     public static final String PREDEFINED_COMBINATIONS = "predefined-combinations";
     public static final String RELATIVE_MINIMUM_IMPACT_THRESHOLD = "relative-minimum-impact-threshold";
     public static final String ABSOLUTE_MINIMUM_IMPACT_THRESHOLD = "absolute-minimum-impact-threshold";
@@ -161,4 +157,10 @@ public final class RaoParametersCommons {
     public static final String ST_COSTLY_MIN_MARGIN_SECTION = "search-tree-costly-min-margin-parameters";
     public static final String SHIFTED_VIOLATION_PENALTY = "shifted-violation-penalty";
     public static final String SHIFTED_VIOLATION_THRESHOLD = "shifted-violation-threshold";
+
+    // -- Pre-solve parameters
+    public static final String PRE_SOLVE_PARAMETERS = "pre-solve-parameters";
+    public static final String ST_PRE_SOLVE_PARAMETERS_SECTION = "search-tree-pre-solve-parameters";
+    public static final String PREVENTIVE_SOLUTION_USAGE = "preventive-solution-usage";
+    public static final String CURATIVE_SOLUTION_USAGE = "curative-solution-usage";
 }

@@ -146,6 +146,8 @@ See also [FastRAO parameters section](../../parameters/implementation-specific-p
 The search-tree runs a sensitivity analysis for each network action combination it tests, and again at each iteration
 of the [linear optimization](linear-problem.md) of range actions. Sensitivity analysis is much faster in DC than in AC.
 
+The DC pre-solve is an optional feature: it is disabled unless the `pre-solve-parameters` block is added to the
+`open-rao-search-tree-parameters` extension (see [Pre-solve optional parameter](../../parameters/implementation-specific-parameters.md#pre-solve-optional-parameter)).
 When the DC pre-solve is enabled for an instant, each perimeter of this instant is optimized in two steps:
 
 1. **DC search-tree**: a complete search-tree is run with DC sensitivities, with its own maximum depth. It returns a
@@ -185,6 +187,6 @@ logged.
 > search-tree still evaluates it with the AC model.
 
 ---
-See also: [DC pre-solve parameters](../../parameters/implementation-specific-parameters.md#max-preventive-search-tree-depth-dc)
+See also: [DC pre-solve parameters](../../parameters/implementation-specific-parameters.md#pre-solve-optional-parameter)
 
 ---

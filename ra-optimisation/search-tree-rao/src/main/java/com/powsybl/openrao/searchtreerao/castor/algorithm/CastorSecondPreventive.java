@@ -21,7 +21,7 @@ import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.raoresult.api.extension.CostResult;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
-import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoTopoOptimizationParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoPreSolveParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SecondPreventiveRaoParameters;
 import com.powsybl.openrao.searchtreerao.commons.NetworkActionCombination;
 import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
@@ -387,10 +387,10 @@ public class CastorSecondPreventive {
         }
 
         Set<NetworkAction> preSolveCombination = Set.of();
-        if (presolve != null && SearchTreeRaoTopoOptimizationParameters.getMaxPreventiveSearchTreeDepthDc(raoParameters) > 0) {
+        if (presolve != null && SearchTreeRaoPreSolveParameters.getMaxPreventiveSearchTreeDepth(raoParameters) > 0) {
             preSolveCombination = runSecondPreventivePreSolve(appliedCras, secondPreventiveReportNode);
             injectPreSolveCombination(searchTreeParameters, preSolveCombination,
-                SearchTreeRaoTopoOptimizationParameters.getPreventiveDcSolutionUsage(raoParameters));
+                SearchTreeRaoPreSolveParameters.getPreventiveSolutionUsage(raoParameters));
         }
 
         Set<State> statesToOptimize = new HashSet<>(optPerimeter.getMonitoredStates());

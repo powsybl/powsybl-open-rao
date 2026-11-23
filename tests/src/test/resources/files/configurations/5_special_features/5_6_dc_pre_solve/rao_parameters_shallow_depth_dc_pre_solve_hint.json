@@ -39,8 +39,6 @@
       "topological-actions-optimization" : {
         "max-preventive-search-tree-depth" : 1,
         "max-curative-search-tree-depth" : 1,
-        "max-preventive-search-tree-depth-dc" : 2,
-        "preventive-dc-solution-usage" : "HINT",
         "predefined-combinations" : [ ],
         "skip-actions-far-from-most-limiting-element" : false,
         "max-number-of-boundaries-for-skipping-actions" : 2
@@ -81,6 +79,10 @@
       "mnec-parameters" : {
         "violation-cost" : 10.0,
         "constraint-adjustment-coefficient" : 0.0
+      },
+      "pre-solve-parameters" : {
+        "max-preventive-search-tree-depth" : 2,
+        "preventive-solution-usage" : "HINT"
       }
     }
   }

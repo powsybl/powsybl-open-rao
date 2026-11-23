@@ -72,15 +72,15 @@ public final class RaoApiReports {
         BUSINESS_WARNS.warn("The value {} provided for max number of boundaries for skipping actions is smaller than 0. It will be set to 0.", maxNumberOfBoundariesForSkippingActions);
     }
 
-    public static void reportNegativeMaxSearchTreeDepthDc(final ReportNode parentNode, final String parameterName, final int maxSearchTreeDepthDc) {
+    public static void reportNegativeMaxSearchTreeDepthPreSolve(final ReportNode parentNode, final String parameterName, final int maxSearchTreeDepthPreSolve) {
         parentNode.newReportNode()
-                .withMessageTemplate("openrao.raoapi.reportNegativeMaxSearchTreeDepthDc")
+                .withMessageTemplate("openrao.raoapi.reportNegativeMaxSearchTreeDepthPreSolve")
                 .withUntypedValue("parameterName", parameterName)
-                .withUntypedValue("maxSearchTreeDepthDc", maxSearchTreeDepthDc)
+                .withUntypedValue("maxSearchTreeDepthDc", maxSearchTreeDepthPreSolve)
                 .withSeverity(WARN_SEVERITY)
                 .add();
 
-        BUSINESS_WARNS.warn("The value {} provided for {} is smaller than 0. It will be set to 0.", maxSearchTreeDepthDc, parameterName);
+        BUSINESS_WARNS.warn("The value {} provided for {} is smaller than 0. It will be set to 0.", maxSearchTreeDepthPreSolve, parameterName);
     }
 
     public static void reportCappingRelativeMinimumImpactThreshold(final ReportNode parentNode, final double relativeMinImpactThreshold) {
