@@ -4,9 +4,10 @@ Feature: 7.2: Merit order CT Actions
   All scenarios use 2NodesFR1NodeBE:
         - FR1 and FR2 produce 500 MW each and BE consumes 1000 MW
         - all lines have the same reactance and a 600 MW limit.
+  ========================
   WARNINGS : The merit order glsk are currently hard coded in the test as the data are currently not accessible in powsybl core
-            The scenarios are not run until the RAO consumes the merit-order GLSK.
-
+             This hard coded glsk will be replace before the merge of the corresponding pull request
+  ========================
   @rao @counter-trading
   Scenario: 7.2.1: Merit order, first tranche sufficient
     Given network file is "counter-trading/2NodesFR1NodeBE.uct"
@@ -65,7 +66,7 @@ Feature: 7.2: Merit order CT Actions
     Then the generator "FFR2AA1 _generator" should have a targetP of 400 MW after PRA
     Then the value of the objective function after PRA should be 20010.0
 
-  @rao @counter-trading @dont-run
+  @rao @counter-trading
   Scenario: 7.2.4: Merit order, upward direction only, same generator in two tranches
     Given network file is "counter-trading/2NodesFR1NodeBE.uct"
     Given crac file is "counter-trading/crac-2-nodes-fr-1-node-be.json"
@@ -85,7 +86,7 @@ Feature: 7.2: Merit order CT Actions
     Then the generator "BBE1AA1 _generator" should have a targetP of -600 MW after PRA
     Then the value of the objective function after PRA should be 20010.0
 
-  @rao @counter-trading @dont-run
+  @rao @counter-trading
   Scenario: 7.2.5: Merit order, downward direction in FR and upward direction in BE
     Given network file is "counter-trading/2NodesFR1NodeBE.uct"
     Given crac file is "counter-trading/crac-2-nodes-fr-1-node-be.json"
@@ -109,7 +110,7 @@ Feature: 7.2: Merit order CT Actions
     Then the generator "BBE1AA1 _generator" should have a targetP of -600 MW after PRA
     Then the value of the objective function after PRA should be 20010.0
 
-  @rao @counter-trading @dont-run
+  @rao @counter-trading
   Scenario: 7.2.6: Merit order, upward and downward lists in both areas, only the needed direction is used
     Given network file is "counter-trading/2NodesFR1NodeBE.uct"
     Given crac file is "counter-trading/crac-2-nodes-fr-1-node-be.json"
