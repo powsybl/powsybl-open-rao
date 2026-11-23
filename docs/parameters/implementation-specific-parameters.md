@@ -54,8 +54,9 @@ These parameters (`range-actions-optimization`) tune the [linear optimizer](../a
     more precise and thus has the advantage of better respecting Loop-Flow and MNEC constraints. But it introduces
     integer variables (tap positions) and can be harder to solve.  
     See [Using integer variables for PST taps](../algorithms/castor/linear-problem/discrete-pst-tap-filler.md).
-  - **HYBRID**: reserved for a hybrid approach that first optimizes continuous angle set-points, then refines the result
-    with approximated integer tap positions. 
+  - **HYBRID**: First optimizes continuous angle set-points, then rebuilds and resolves the problem with approximated
+  integer tap positions anchored around the continuous solution. The discrete refinement is performed before checking convergence. 
+  This option is incompatible with PST gradient constraint and maximum elementary-action limits; use **APPROXIMATED_INTEGERS** for those cases.
 
 ##### pst-sensitivity-threshold
 - **Expected value**: numeric value, unit: [flow unit](business-parameters.md#objective-function-parameters) / ° (per degree)
