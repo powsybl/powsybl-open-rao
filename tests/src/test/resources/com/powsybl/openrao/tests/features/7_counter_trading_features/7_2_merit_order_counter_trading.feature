@@ -7,7 +7,7 @@ Feature: 7.2: Merit order CT Actions
   WARNINGS : The merit order glsk are currently hard coded in the test as the data are currently not accessible in powsybl core
             The scenarios are not run until the RAO consumes the merit-order GLSK.
 
-  @rao @counter-trading @dont-run
+  @rao @counter-trading
   Scenario: 7.2.1: Merit order, first tranche sufficient
     Given network file is "counter-trading/2NodesFR1NodeBE.uct"
     Given crac file is "counter-trading/crac-2-nodes-fr-1-node-be.json"
@@ -26,7 +26,7 @@ Feature: 7.2: Merit order CT Actions
     Then the generator "FFR2AA1 _generator" should have a targetP of 500 MW after PRA
     Then the value of the objective function after PRA should be 20010.0
 
-  @rao @counter-trading @dont-run
+  @rao @counter-trading
   Scenario: 7.2.2: Merit order, first tranche saturated
     Given network file is "counter-trading/2NodesFR1NodeBE.uct"
     Given crac file is "counter-trading/crac-2-nodes-fr-1-node-be.json"
@@ -45,7 +45,7 @@ Feature: 7.2: Merit order CT Actions
     Then the generator "FFR2AA1 _generator" should have a targetP of 300 MW after PRA
     Then the value of the objective function after PRA should be 20010.0
 
-  @rao @counter-trading @dont-run
+  @rao @counter-trading
   Scenario: 7.2.3: Merit order, same generator in two tranches
     Given network file is "counter-trading/2NodesFR1NodeBE.uct"
     Given crac file is "counter-trading/crac-2-nodes-fr-1-node-be.json"

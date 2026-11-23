@@ -135,7 +135,7 @@ public class CounterTradeAreaBalanceFiller implements ProblemFiller {
         }
 
         boolean up = direction == LinearProblem.VariationDirectionExtension.UPWARD;
-        double totalM = 0.0; // sum of m_h over the stages that can be reached
+        double totalM = 0.0; // reachable volume
         for (int h = 0; h <= lastStage; h++) {
             totalM += order.get(h).cumulativeAllocation();
         }
