@@ -50,8 +50,7 @@ import org.mockito.stubbing.Answer;
 import java.lang.reflect.Method;
 import java.util.*;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
@@ -346,20 +345,78 @@ class IteratingLinearOptimizerTest {
     }
 
     @Test
-    void failedHybridRefinementDoesNotAcceptContinuousSeed() {
-        when(parameters.getMaxNumberOfIterations()).thenReturn(1);
+    void failedHybridRefinementKeepsFirstRoundedResults() {
+        // If the resolve fails return the continuous result rounded
+
         when(parameters.getRangeActionParametersExtension().getPstModel()).thenReturn(SearchTreeRaoRangeActionsOptimizationParameters.PstModel.HYBRID);
-        configureHybridPstRangeAction();
-        mockLinearProblem(List.of(LinearProblemStatus.OPTIMAL, LinearProblemStatus.INFEASIBLE), List.of(0.));
-        mockFunctionalCost(100.);
-        prepareLinearProblemBuilder();
 
-        LinearOptimizationResult result = IteratingLinearOptimizer.optimize(input, parameters, ReportNode.NO_OP);
+        PstRangeAction pstRangeAction = Mockito.mock(PstRangeAction.class);
+        State state = Mockito.mock(State.class);
+        OptimizationPerimeter optimizationPerimeter = Mockito.mock(OptimizationPerimeter.class);
+        when(optimizationPerimeter.getRangeActionsPerState()).thenReturn(Map.of(state, Set.of(pstRangeAction)));
 
-        // Kept the result from the first iteration (continuous pass + round result)
-        assertEquals(LinearProblemStatus.OPTIMAL, result.getStatus());
-        assertEquals(0., result.getOptimizedSetpoint(rangeAction, optimizedState), DOUBLE_TOLERANCE);
-        Mockito.verify(linearProblem, Mockito.times(2)).solve();
+        IteratingLinearOptimizerInput iteratingInput = Mockito.mock(IteratingLinearOptimizerInput.class);
+        when(iteratingInput.optimizationPerimeter()).thenReturn(optimizationPerimeter);
+
+        RangeActionActivationResult firstRoundedResults = Mockito.mock(RangeActionActivationResult.class);
+
+        LinearProblem linearProblem = Mockito.mock(LinearProblem.class);
+        when(linearProblem.solve()).thenReturn(LinearProblemStatus.INFEASIBLE);
+
+        RangeActionActivationResult result = IteratingLinearOptimizer.reSolveIfApproximatedIntegerOrHybridPstModel(
+            Mockito.mock(IteratingLinearOptimizationResultImpl.class), linearProblem, 1, firstRoundedResults, iteratingInput, parameters
+        );
+
+        assertSame(firstRoundedResults, result);
+        Mockito.verify(linearProblem).solve();
+    }
+
+    @Test
+    void noPstInOptimizationPerimeter() {
+        // if no PST in optimization perimeter no need to do a resolve
+        when(parameters.getRangeActionParametersExtension().getPstModel()).thenReturn(SearchTreeRaoRangeActionsOptimizationParameters.PstModel.HYBRID);
+        OptimizationPerimeter optimizationPerimeter = Mockito.mock(OptimizationPerimeter.class);
+        when(optimizationPerimeter.getRangeActionsPerState()).thenReturn(Map.of());
+        IteratingLinearOptimizerInput iteratingInput = Mockito.mock(IteratingLinearOptimizerInput.class);
+        when(iteratingInput.optimizationPerimeter()).thenReturn(optimizationPerimeter);
+        RangeActionActivationResult firstRoundedResult = Mockito.mock(RangeActionActivationResult.class);
+        LinearProblem linearProblem = Mockito.mock(LinearProblem.class);
+
+        RangeActionActivationResult result = IteratingLinearOptimizer.reSolveIfApproximatedIntegerOrHybridPstModel(
+            Mockito.mock(IteratingLinearOptimizationResultImpl.class), linearProblem, 1, firstRoundedResult, iteratingInput, parameters
+        );
+        assertSame(firstRoundedResult, result);
+        Mockito.verifyNoInteractions(linearProblem);
+    }
+
+    @Test
+    void hybridRoundingUsesBestTapFinderFirstIterationOnlyWhenHybridPst() {
+        when(parameters.getRangeActionParametersExtension().getPstModel()).thenReturn(SearchTreeRaoRangeActionsOptimizationParameters.PstModel.HYBRID);
+        when(parameters.getFlowUnit()).thenReturn(Unit.MEGAWATT);
+        IteratingLinearOptimizerInput input = Mockito.mock(IteratingLinearOptimizerInput.class);
+        OptimizationPerimeter optimizationPerimeter = Mockito.mock(OptimizationPerimeter.class);
+        when(optimizationPerimeter.getRangeActionsPerState()).thenReturn(Map.of());
+        when(input.optimizationPerimeter()).thenReturn(optimizationPerimeter);
+        Network network = Mockito.mock(Network.class);
+        when(input.network()).thenReturn(network);
+        RangeActionSetpointResult prePerimeterSetpoints = new RangeActionSetpointResultImpl(Map.of());
+        when(input.prePerimeterSetpoints()).thenReturn(prePerimeterSetpoints);
+        RangeActionActivationResult linearProblemResult = Mockito.mock(RangeActionActivationResult.class);
+        IteratingLinearOptimizationResultImpl previousResult = Mockito.mock(IteratingLinearOptimizationResultImpl.class);
+        RangeActionActivationResultImpl roundedResult = new RangeActionActivationResultImpl(prePerimeterSetpoints);
+
+        try (MockedStatic<BestTapFinder> bestTapFinder = Mockito.mockStatic(BestTapFinder.class)) {
+            bestTapFinder.when(() -> BestTapFinder.round(
+                linearProblemResult, network, optimizationPerimeter, prePerimeterSetpoints, previousResult, Unit.MEGAWATT
+            )).thenReturn(roundedResult);
+
+            assertSame(roundedResult, IteratingLinearOptimizer.roundResult(linearProblemResult, previousResult, input, parameters, 1));
+            assertNotSame(roundedResult, IteratingLinearOptimizer.roundResult(linearProblemResult, previousResult, input, parameters, 2));
+
+            bestTapFinder.verify(() -> BestTapFinder.round(
+                linearProblemResult, network, optimizationPerimeter, prePerimeterSetpoints, previousResult, Unit.MEGAWATT
+            ), Mockito.times(1));
+        }
     }
 
     @Test

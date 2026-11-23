@@ -135,13 +135,15 @@ public final class TimeCoupledIteratingLinearOptimizer {
                         rangeActionActivationPerTimestamp.getData(timestamp).orElseThrow(),
                         bestResult,
                         input.iteratingLinearOptimizerInputs().getData(timestamp).orElseThrow(),
-                        parameters
+                        parameters,
+                        iteration
                     )
                 );
             }
 
             rangeActionActivationPerTimestamp = new TemporalDataImpl<>(roundedResults);
-            rangeActionActivationPerTimestamp = resolveIfApproximatedPstTaps(bestResult, linearProblem, iteration, rangeActionActivationPerTimestamp, input, parameters, problemFillers, parallelism);
+            rangeActionActivationPerTimestamp = reSolveIfApproximatedIntegerOrHybridPstModel(
+                bestResult, linearProblem, iteration, rangeActionActivationPerTimestamp, input, parameters, problemFillers, parallelism);
 
             // d. Check if set-points have changed; if no, return the best result
             if (!hasAnyRangeActionChanged(
@@ -321,9 +323,9 @@ public final class TimeCoupledIteratingLinearOptimizer {
         timeCoupledProblemFillers.forEach(problemFiller -> problemFiller.fill(linearProblem, null, null, null));
     }
 
-    private static void updateLinearProblemBetweenMipIterations(LinearProblem linearProblem,
-                                                                TemporalData<List<ProblemFiller>> problemFillers,
-                                                                TemporalData<RangeActionActivationResult> rangeActionActivationResults) {
+    static void updateLinearProblemBetweenMipIterations(LinearProblem linearProblem,
+                                                        TemporalData<List<ProblemFiller>> problemFillers,
+                                                        TemporalData<RangeActionActivationResult> rangeActionActivationResults) {
         List<OffsetDateTime> timestamps = problemFillers.getTimestamps();
         timestamps.forEach(timestamp -> {
             List<ProblemFiller> problemFillersForTimestamp = problemFillers.getData(timestamp).orElseThrow();
@@ -449,31 +451,34 @@ public final class TimeCoupledIteratingLinearOptimizer {
     }
 
     // Set-point rounding
-    private static TemporalData<RangeActionActivationResult> resolveIfApproximatedPstTaps(GlobalLinearOptimizationResult bestResult,
-                                                                                          LinearProblem linearProblem,
-                                                                                          int iteration,
-                                                                                          TemporalData<RangeActionActivationResult> currentRangeActionActivationResults,
-                                                                                          TimeCoupledIteratingLinearOptimizerInput input,
-                                                                                          IteratingLinearOptimizerParameters parameters,
-                                                                                          TemporalData<List<ProblemFiller>> problemFillers,
-                                                                                          int parallelism) {
-        if (input.iteratingLinearOptimizerInputs().getDataPerTimestamp().values().stream()
-            .map(i -> i.prePerimeterSetpoints().getRangeActions()).flatMap(Collection::stream)
-            .noneMatch(PstRangeAction.class::isInstance)) {
-            return currentRangeActionActivationResults;
-        }
-        LinearProblemStatus solveStatus;
-        TemporalData<RangeActionActivationResult> rangeActionActivationResults = currentRangeActionActivationResults;
-        if (getPstModel(parameters.getRangeActionParametersExtension()).equals(SearchTreeRaoRangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS)) {
+    static TemporalData<RangeActionActivationResult> reSolveIfApproximatedIntegerOrHybridPstModel(GlobalLinearOptimizationResult bestResult,
+                                                                                                  LinearProblem linearProblem,
+                                                                                                  int iteration,
+                                                                                                  TemporalData<RangeActionActivationResult> currentRangeActionActivationResults,
+                                                                                                  TimeCoupledIteratingLinearOptimizerInput input,
+                                                                                                  IteratingLinearOptimizerParameters parameters,
+                                                                                                  TemporalData<List<ProblemFiller>> problemFillers,
+                                                                                                  int parallelism) {
+        SearchTreeRaoRangeActionsOptimizationParameters.PstModel pstModel = getPstModel(parameters.getRangeActionParametersExtension());
 
-            // if the PST approximation is APPROXIMATED_INTEGERS, we re-solve the optimization problem
+        TECHNICAL_LOGS.info("Re-solve the linear problem (PST model: {})", pstModel.toString());
+
+        boolean hasPstInOptimizationPerimeter = input.iteratingLinearOptimizerInputs().getDataPerTimestamp().values().stream()
+            .flatMap(i -> i.optimizationPerimeter().getRangeActionsPerState().values().stream())
+            .flatMap(Collection::stream)
+            .anyMatch(PstRangeAction.class::isInstance);
+
+        if (hasPstInOptimizationPerimeter && (pstModel.equals(SearchTreeRaoRangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS)
+            || pstModel.equals(SearchTreeRaoRangeActionsOptimizationParameters.PstModel.HYBRID))) {
+
+            // if the PST approximation is APPROXIMATED_INTEGERS or HYBRID, we re-solve the optimization problem
             // but first, we update it, with an adjustment of the PSTs angleToTap conversion factors, to
             // be more accurate in the neighboring of the previous solution
 
             // (idea: if too long, we could relax the first MIP, but no so straightforward to do with or-tools)
-            updateLinearProblemBetweenMipIterations(linearProblem, problemFillers, rangeActionActivationResults);
+            updateLinearProblemBetweenMipIterations(linearProblem, problemFillers, currentRangeActionActivationResults);
 
-            solveStatus = solveLinearProblem(linearProblem, iteration);
+            LinearProblemStatus solveStatus = solveLinearProblem(linearProblem, iteration);
             if (solveStatus == LinearProblemStatus.OPTIMAL || solveStatus == LinearProblemStatus.FEASIBLE) {
                 TemporalData<RangeActionActivationResult> updatedLinearProblemResults = retrieveRangeActionActivationResults(
                     linearProblem,
@@ -481,17 +486,18 @@ public final class TimeCoupledIteratingLinearOptimizer {
                     input.iteratingLinearOptimizerInputs().map(IteratingLinearOptimizerInput::optimizationPerimeter)
                 );
 
-                rangeActionActivationResults = MarmotUtils.smartMap(
+                return MarmotUtils.smartMap(
                     input.iteratingLinearOptimizerInputs(),
                     i -> {
                         OffsetDateTime timestamp = i.optimizationPerimeter().getMainOptimizationState().getTimestamp().orElseThrow();
-                        return roundResult(updatedLinearProblemResults.getData(timestamp).orElseThrow(), bestResult, i, parameters);
+                        return roundResult(updatedLinearProblemResults.getData(timestamp).orElseThrow(), bestResult, i, parameters, iteration);
                     },
                     parallelism
                 );
             }
+            TECHNICAL_LOGS.debug("Re-solve of the linear problem failed with status {}", solveStatus);
         }
-        return rangeActionActivationResults;
+        return currentRangeActionActivationResults;
     }
 
     // Logging
@@ -536,11 +542,12 @@ public final class TimeCoupledIteratingLinearOptimizer {
         });
     }
 
-    private static RangeActionActivationResult roundResult(RangeActionActivationResult linearProblemResult,
-                                                           LinearOptimizationResult previousResult,
-                                                           IteratingLinearOptimizerInput input,
-                                                           IteratingLinearOptimizerParameters parameters) {
-        RangeActionActivationResultImpl roundedResult = roundPsts(linearProblemResult, previousResult, input, parameters);
+    static RangeActionActivationResult roundResult(RangeActionActivationResult linearProblemResult,
+                                                   LinearOptimizationResult previousResult,
+                                                   IteratingLinearOptimizerInput input,
+                                                   IteratingLinearOptimizerParameters parameters,
+                                                   int iteration) {
+        RangeActionActivationResultImpl roundedResult = roundPsts(linearProblemResult, previousResult, input, parameters, iteration);
         roundOtherRas(linearProblemResult, input.optimizationPerimeter(), roundedResult);
         return roundedResult;
     }
@@ -548,8 +555,11 @@ public final class TimeCoupledIteratingLinearOptimizer {
     private static RangeActionActivationResultImpl roundPsts(RangeActionActivationResult linearProblemResult,
                                                              LinearOptimizationResult previousResult,
                                                              IteratingLinearOptimizerInput input,
-                                                             IteratingLinearOptimizerParameters parameters) {
-        if (getPstModel(parameters.getRangeActionParametersExtension()).equals(SearchTreeRaoRangeActionsOptimizationParameters.PstModel.CONTINUOUS)) {
+                                                             IteratingLinearOptimizerParameters parameters,
+                                                             int iteration) {
+        SearchTreeRaoRangeActionsOptimizationParameters.PstModel pstModel = getPstModel(parameters.getRangeActionParametersExtension());
+        if (pstModel.equals(SearchTreeRaoRangeActionsOptimizationParameters.PstModel.CONTINUOUS)
+            || pstModel.equals(SearchTreeRaoRangeActionsOptimizationParameters.PstModel.HYBRID) && iteration == 1) {
             RangeActionActivationResultImpl roundedResult = BestTapFinder.round(
                 linearProblemResult,
                 input.network(),
