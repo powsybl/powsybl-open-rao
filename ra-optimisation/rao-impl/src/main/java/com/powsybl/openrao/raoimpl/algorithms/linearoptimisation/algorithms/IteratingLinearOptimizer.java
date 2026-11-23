@@ -206,12 +206,13 @@ public final class IteratingLinearOptimizer {
                                                                                     final IteratingLinearOptimizerParameters parameters) {
 
         PstModel pstModel = getPstModel(parameters.getRangeActionParametersExtension());
-        TECHNICAL_LOGS.debug("Re-solve the linear problem (PST model: {})", pstModel.toString());
 
         LinearProblemStatus solveStatus;
         RangeActionActivationResult rangeActionActivationResult = currentRangeActionActivationResult;
         if (rangeActionActivationResult.getRangeActions().stream().anyMatch(PstRangeAction.class::isInstance) &&
             (pstModel.equals(PstModel.APPROXIMATED_INTEGERS) || pstModel.equals(PstModel.HYBRID))) {
+
+            TECHNICAL_LOGS.debug("Re-solve the linear problem (PST model: {})", pstModel.toString());
 
             // if the PST approximation is APPROXIMATED_INTEGERS or HYBRID, we re-solve the optimization problem
             // but first, we update it, with an adjustment of the PSTs angleToTap conversion factors, to

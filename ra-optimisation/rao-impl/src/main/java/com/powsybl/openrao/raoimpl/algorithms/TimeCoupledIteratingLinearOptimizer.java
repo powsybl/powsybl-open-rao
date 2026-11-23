@@ -448,8 +448,6 @@ public final class TimeCoupledIteratingLinearOptimizer {
                                                                                                   int parallelism) {
         SearchTreeRaoRangeActionsOptimizationParameters.PstModel pstModel = getPstModel(parameters.getRangeActionParametersExtension());
 
-        TECHNICAL_LOGS.info("Re-solve the linear problem (PST model: {})", pstModel.toString());
-
         boolean hasPstInOptimizationPerimeter = input.iteratingLinearOptimizerInputs().getDataPerTimestamp().values().stream()
             .flatMap(i -> i.optimizationPerimeter().getRangeActionsPerState().values().stream())
             .flatMap(Collection::stream)
@@ -457,6 +455,8 @@ public final class TimeCoupledIteratingLinearOptimizer {
 
         if (hasPstInOptimizationPerimeter && (pstModel.equals(SearchTreeRaoRangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS)
             || pstModel.equals(SearchTreeRaoRangeActionsOptimizationParameters.PstModel.HYBRID))) {
+
+            TECHNICAL_LOGS.info("Re-solve the linear problem (PST model: {})", pstModel.toString());
 
             // if the PST approximation is APPROXIMATED_INTEGERS or HYBRID, we re-solve the optimization problem
             // but first, we update it, with an adjustment of the PSTs angleToTap conversion factors, to
