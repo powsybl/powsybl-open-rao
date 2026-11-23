@@ -33,7 +33,7 @@ class AtomicRaoStopConditionTest {
         stopCondition.set(true);
 
         assertTrue(atomicRaoStopCondition.shouldStop());
-        RaoComputationInterruptedException exception = assertThrows(RaoComputationInterruptedException.class, atomicRaoStopCondition::checkNotStopped);
+        RaoInterruptedException exception = assertThrows(RaoInterruptedException.class, atomicRaoStopCondition::checkNotStopped);
         assertEquals("RAO was interrupted.", exception.getMessage());
     }
 }

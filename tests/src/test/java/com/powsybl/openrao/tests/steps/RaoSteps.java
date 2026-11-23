@@ -48,7 +48,7 @@ import com.powsybl.openrao.loopflowcomputation.LoopFlowComputationImpl;
 import com.powsybl.openrao.loopflowcomputation.LoopFlowResult;
 import com.powsybl.openrao.raoapi.LazyNetwork;
 import com.powsybl.openrao.raoapi.Rao;
-import com.powsybl.openrao.raoapi.RaoComputationInterruptedException;
+import com.powsybl.openrao.raoapi.RaoInterruptedException;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.RaoStopCondition;
 import com.powsybl.openrao.raoapi.TimeCoupledRaoInput;
@@ -56,7 +56,6 @@ import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoimpl.result.extension.PreTimeCouplingOverloadedCnecs;
 import com.powsybl.openrao.raoimpl.result.extension.TimeCoupledCostResult;
 import com.powsybl.openrao.tests.utils.CoreCcPreprocessor;
-import com.powsybl.openrao.tests.utils.MaxCallsRaoStopCondition;
 import com.powsybl.openrao.tests.utils.RaoUtils;
 import com.powsybl.sensitivity.SensitivityAnalysisParameters;
 import com.powsybl.sensitivity.SensitivityVariableSet;
@@ -209,9 +208,23 @@ public class RaoSteps {
 
     @When("I launch rao with interruption")
     public void iLaunchRaoWithInterruption() {
+        class MaxCallsRaoStopCondition implements RaoStopCondition {
+            private int maxCalls;
+
+            public MaxCallsRaoStopCondition(int maxCalls) {
+                this.maxCalls = maxCalls;
+            }
+
+            @Override
+            public boolean shouldStop() {
+                maxCalls--;
+                return maxCalls <= 0;
+            }
+        }
+
         RaoStopCondition raoStopCondition = new MaxCallsRaoStopCondition(2);
-        RaoComputationInterruptedException exception = assertThrows(
-            RaoComputationInterruptedException.class,
+        RaoInterruptedException exception = assertThrows(
+            RaoInterruptedException.class,
             () -> launchRao(null, null, raoImplementation, null, raoStopCondition)
         );
         assertEquals("RAO was interrupted.", exception.getMessage());

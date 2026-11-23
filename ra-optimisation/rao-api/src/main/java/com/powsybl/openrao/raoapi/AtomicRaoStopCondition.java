@@ -15,12 +15,16 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class AtomicRaoStopCondition implements RaoStopCondition {
     private final AtomicBoolean atomicShouldStop;
 
-    public AtomicRaoStopCondition(AtomicBoolean atomicShouldStop) {
-        this.atomicShouldStop = atomicShouldStop;
+    public AtomicRaoStopCondition() {
+        this.atomicShouldStop = new AtomicBoolean(false);
     }
 
     @Override
     public boolean shouldStop() {
         return atomicShouldStop.get();
+    }
+
+    public void sendStopSignal() {
+        atomicShouldStop.set(true);
     }
 }

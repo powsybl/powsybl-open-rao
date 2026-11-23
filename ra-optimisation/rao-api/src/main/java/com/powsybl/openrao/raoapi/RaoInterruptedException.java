@@ -10,8 +10,8 @@ package com.powsybl.openrao.raoapi;
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public class RaoComputationInterruptedException extends RuntimeException {
-    public RaoComputationInterruptedException() {
+public class RaoInterruptedException extends RuntimeException {
+    public RaoInterruptedException() {
         super("RAO was interrupted.");
     }
 }

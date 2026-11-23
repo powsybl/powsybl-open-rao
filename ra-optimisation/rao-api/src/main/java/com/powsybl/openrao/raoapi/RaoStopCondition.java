@@ -21,7 +21,7 @@ public interface RaoStopCondition {
      */
     default void checkNotStopped() {
         if (shouldStop()) {
-            throw new RaoComputationInterruptedException();
+            throw new RaoInterruptedException();
         }
     }
 

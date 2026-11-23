@@ -18,7 +18,7 @@ import com.powsybl.openrao.data.raoresult.api.OptimizationStepsExecuted;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.raoresult.api.extension.CostResult;
 import com.powsybl.openrao.data.raoresult.api.extension.Metadata;
-import com.powsybl.openrao.raoapi.RaoComputationInterruptedException;
+import com.powsybl.openrao.raoapi.RaoInterruptedException;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.RaoStopCondition;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
@@ -236,7 +236,7 @@ class CastorFullOptimization {
 
             return postCheckResults(context.getMergedRaoResults(), context.getInitialOutput(), raoParameters.getObjectiveFunctionParameters(), true,
                 optimizationReportNode, flowUnit, secondPreventiveRan);
-        } catch (RaoComputationInterruptedException interruptedException) {
+        } catch (RaoInterruptedException interruptedException) {
             throw interruptedException;
         } catch (Exception e) {
             CastorReports.reportExceptionMessageAndStacktrace(optimizationReportNode, e);
