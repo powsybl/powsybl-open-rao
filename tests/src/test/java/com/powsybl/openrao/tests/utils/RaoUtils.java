@@ -23,8 +23,11 @@ import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.refprog.referenceprogram.ReferenceProgram;
 import com.powsybl.openrao.raoapi.Rao;
 import com.powsybl.openrao.raoapi.RaoInput;
+import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.FastRaoParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters;
 import com.powsybl.openrao.raoimpl.commons.RaoUtil;
 import com.powsybl.openrao.tests.steps.CommonTestData;
 import com.powsybl.sensitivity.SensitivityVariableSet;
@@ -36,6 +39,8 @@ import java.util.HashSet;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
+
+import static com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.getPstModel;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
@@ -73,6 +78,15 @@ public final class RaoUtils {
                                    Integer timeLimitInSeconds, final ReportNode reportNode,
                                    boolean forceFastRao) throws IOException {
         RaoParameters raoParameters = CommonTestData.getRaoParameters();
+        SearchTreeRaoRangeActionsOptimizationParameters.PstModel pstModel = getPstModel(raoParameters);
+        if (pstModel.equals(SearchTreeRaoRangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS)) {
+            if (!raoParameters.getObjectiveFunctionParameters().getType().equals(ObjectiveFunctionParameters.ObjectiveFunctionType.MIN_COST) &&
+                CommonTestData.getCrac().getRaUsageLimitsPerInstant().values().stream().allMatch(rl -> rl.getMaxElementaryActionsPerTso().isEmpty())
+            ) {
+                raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getRangeActionsOptimizationParameters().setPstModel(SearchTreeRaoRangeActionsOptimizationParameters.PstModel.HYBRID);
+            }
+        }
+
         ZonalData<SensitivityVariableSet> glsks = CommonTestData.getLoopflowGlsks();
         // Rao with loop-flows
         if (raoParameters.getLoopFlowParameters().isPresent() && glsks != null) {
