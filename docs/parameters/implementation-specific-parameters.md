@@ -56,7 +56,7 @@ These parameters (`range-actions-optimization`) tune the [linear optimizer](../a
     See [Using integer variables for PST taps](../algorithms/castor/linear-problem/discrete-pst-tap-filler.md).
   - **HYBRID**: First optimizes continuous angle set-points, then rebuilds and resolves the problem with approximated
   integer tap positions anchored around the continuous solution. The discrete refinement is performed before checking convergence. 
-  This option is incompatible with PST gradient constraint and maximum elementary-action limits; use **APPROXIMATED_INTEGERS** for those cases.
+  This option is incompatible with MIN_COST objective function, PST gradient constraint and maximum elementary-action limits; use **APPROXIMATED_INTEGERS** for those cases.
 
 ##### pst-sensitivity-threshold
 - **Expected value**: numeric value, unit: [flow unit](business-parameters.md#objective-function-parameters) / ° (per degree)

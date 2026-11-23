@@ -41,7 +41,7 @@ public class CostCoreProblemFiller extends AbstractCoreProblemFiller {
                                  SearchTreeRaoRangeActionsOptimizationParameters.PstModel pstModel,
                                  OffsetDateTime timestamp) {
         super(optimizationContext, prePerimeterRangeActionSetpoints, rangeActionParameters, rangeActionParametersExtension, unit, raRangeShrinking, pstModel, timestamp);
-        if (SearchTreeRaoRangeActionsOptimizationParameters.PstModel.CONTINUOUS.equals(pstModel)) {
+        if (!SearchTreeRaoRangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS.equals(pstModel)) {
             throw new OpenRaoException("Costly remedial action optimization is only available for the APPROXIMATED_INTEGERS mode of PST range actions.");
         }
     }
