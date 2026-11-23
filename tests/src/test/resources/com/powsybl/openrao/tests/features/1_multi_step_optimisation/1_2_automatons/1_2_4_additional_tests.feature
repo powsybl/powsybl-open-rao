@@ -4,7 +4,10 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 Feature: 1.2.4: Additional tests to check various fixes concerning automaton state
-  ##TODO: This feature covers
+  This feature covers various fixes of the multi-step (automaton) optimization. It checks the
+  application of curative CNECs after a second preventive, the second-preventive condition, the
+  selection of the worst CNEC after each optimization step, and the RaoResult after PRA for curative
+  CNECs with a second preventive.
 
   @fast @rao @dc @second-preventive @max-min-margin
   Scenario: 1.2.4.1: Test fix apply auto for curative CNECs post 2P

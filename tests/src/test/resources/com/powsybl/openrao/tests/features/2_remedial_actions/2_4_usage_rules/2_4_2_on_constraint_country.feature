@@ -4,7 +4,10 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 Feature: 2.4.2: activate remedial actions only after a constraint in a specific country
-  # TODO: This feature covers
+  This feature covers the OnFlowConstraintInCountry usage rule: the remedial action is activated
+  only after a constraint in a given country is violated. It checks the rule in preventive and
+  curative states, including CSE, the maximum number of curative RAs, and the activation after a
+  given outage.
 
   @fast @rao @ac @preventive-only @max-min-margin
   Scenario: 2.4.2.1: Preventive onConstraint RA with constraint on base network
