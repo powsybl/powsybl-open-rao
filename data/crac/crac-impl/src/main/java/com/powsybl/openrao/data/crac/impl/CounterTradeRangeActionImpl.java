@@ -174,8 +174,11 @@ public class CounterTradeRangeActionImpl extends AbstractRangeAction<CounterTrad
         this.glsk = new HashMap<>();
         this.glsk.put(area, new HashMap<>());
 
-        zonalGlsk.getData(area)
-                 .getVariablesById()
+        SensitivityVariableSet areaGlsk = zonalGlsk.getData(area);
+        if (areaGlsk == null) {
+            throw new OpenRaoException(String.format("No GLSK found for area %s of counter-trading action %s", area, getId()));
+        }
+        areaGlsk.getVariablesById()
                  .forEach((id, variable) -> glsk.get(area).put(id, variable.getWeight()));
     }
 

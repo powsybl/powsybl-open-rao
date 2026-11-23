@@ -129,6 +129,11 @@ public class CounterTradeAreaBalanceFiller implements ProblemFiller {
                                         LinearProblem.VariationDirectionExtension direction,
                                         OpenRaoMPConstraint decomposition, OpenRaoMPVariable delta) {
 
+        if (order.isEmpty()) {
+            // no generator available in the area for this direction: the CT action is pinned to 0 by the decomposition constraint
+            return;
+        }
+
         boolean up = direction == LinearProblem.VariationDirectionExtension.UPWARD;
         double totalM = 0.0; // sum of m_h over the stages that can be reached
         for (int h = 0; h <= lastStage; h++) {
@@ -205,6 +210,11 @@ public class CounterTradeAreaBalanceFiller implements ProblemFiller {
                                     OpenRaoMPConstraint flowConstraint, List<GlskGeneratorAllocation> order, int lastStage,
                                     LinearProblem.VariationDirectionExtension direction,
                                     double directionSign, double currentMagnitude) {
+
+        if (order.isEmpty()) {
+            // no generator available in the area for this direction: no dispatch variable exists to carry a flow impact
+            return;
+        }
 
         String tailId = "counterTrade_" + ra.getId() + "_tail_" + direction.name(); // use a method to get the correct name?
         double tailWeight = 0.0;

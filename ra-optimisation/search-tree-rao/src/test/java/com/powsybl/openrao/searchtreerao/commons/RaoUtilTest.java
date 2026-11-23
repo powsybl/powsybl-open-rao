@@ -26,6 +26,7 @@ import com.powsybl.openrao.data.crac.api.*;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.networkaction.ActionType;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
+import com.powsybl.openrao.data.crac.api.rangeaction.CounterTradeRangeActionAdder;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.crac.api.usagerule.OnConstraint;
 import com.powsybl.openrao.data.crac.api.usagerule.OnInstant;
@@ -536,6 +537,33 @@ class RaoUtilTest {
         );
         assertEquals("Unable to apply contingency InvalidContingency", exception.getMessage());
 
+    }
+
+    @Test
+    void testCounterTradingSeveralActionsOnSameArea() {
+        addCounterTradeAction("ctFr1").withAreaId("FR").add();
+        addCounterTradeAction("ctFr2").withAreaId("FR").add();
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> RaoUtil.initData(raoInput, raoParameters, ReportNode.NO_OP));
+        assertEquals("Several counter trading actions target area FR: only one counter trading action per area is supported", exception.getMessage());
+    }
+
+    @Test
+    void testCounterTradingAndInjectionOnSameGenerator() {
+        addCounterTradeAction("ctFr").withAreaId("FR").add();
+        crac.newInjectionRangeAction().withId("redispatchFr")
+            .withNetworkElementAndKey(1, "FFR1AA1 _generator")
+            .newRange().withMin(-1000).withMax(1000).add()
+            .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add()
+            .add();
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> RaoUtil.initData(raoInput, raoParameters, ReportNode.NO_OP));
+        assertEquals("Generator FFR1AA1 _generator is both subject to injection range action redispatchFr"
+            + " and to the GLSK of a counter-trading action: this combination is not supported", exception.getMessage());
+    }
+
+    private CounterTradeRangeActionAdder addCounterTradeAction(String id) {
+        return crac.newCounterTradeRangeAction().withId(id)
+            .newRange().withMin(-1000).withMax(1000).add()
+            .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add();
     }
 
     @ParameterizedTest

@@ -193,6 +193,9 @@ public final class GeneratorOrderingComputer {
     }
 
     public static int lastReachableLayer(List<GlskGeneratorAllocation> order, double maxMagnitude) {
+        if (order.isEmpty()) {
+            return 0;
+        }
         double cumulative = 0.0;
         for (int k = 0; k < order.size(); k++) {
             cumulative += order.get(k).cumulativeAllocation();

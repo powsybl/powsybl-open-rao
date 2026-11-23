@@ -24,6 +24,7 @@ import com.powsybl.openrao.data.crac.api.RemedialAction;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.Cnec;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
+import com.powsybl.openrao.data.crac.api.rangeaction.CounterTradeRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.crac.api.usagerule.OnConstraint;
 import com.powsybl.openrao.data.crac.api.usagerule.OnContingencyState;
@@ -79,12 +80,16 @@ public final class RaoUtil {
         initNetwork(raoInput.getNetwork(), raoInput.getNetworkVariantId());
         updateHvdcRangeActionInitialSetpoint(raoInput.getCrac(), raoInput.getNetwork(), raoParameters, reportNode);
         addNetworkActionAssociatedWithHvdcRangeAction(raoInput.getCrac(), raoInput.getNetwork());
+        checkCounterTradingPreconditions(raoInput);
         checkCurativeRaUsageLimit(raoInput.getCrac());
         if (raoInput.getGlskProvider() == null) {
             updateCounterTradeRangeActionGlsks(raoInput.getCrac(), raoInput.getNetwork()); // proportional to generators
         } else {
             updateCounterTradeRangeActionGlsks(raoInput.getCrac(), raoInput.getGlskProvider());
         }
+        // needs the GLSKs filled above
+        checkCounterTradingInjectionOverlap(raoInput.getCrac());
+
     }
 
     /**
@@ -263,6 +268,42 @@ public final class RaoUtil {
         }
     }
 
+    private static void checkCounterTradingPreconditions(RaoInput raoInput) {
+        raoInput.getCrac().getCounterTradeRangeActions().stream()
+            .filter(action -> action.getAreaId() == null)
+            .findFirst()
+            .ifPresent(action -> {
+                throw new OpenRaoException(format(
+                    "Counter trading action %s does not define an area.", action.getId()));
+            });
+        raoInput.getCrac().getCounterTradeRangeActions().stream()
+            .collect(Collectors.groupingBy(CounterTradeRangeAction::getAreaId, Collectors.counting()))
+            .entrySet().stream()
+            .filter(entry -> entry.getValue() > 1)
+            .findFirst()
+            .ifPresent(entry -> {
+                throw new OpenRaoException(format(
+                    "Several counter trading actions target area %s: only one counter trading action per area is supported", entry.getKey()));
+            });
+    }
+
+    // a generator redispatched by an injection range action must not belong to a counter-trading GLSK: composing the two
+    // is not supported yet, since the injection changes the proportions the GLSK was computed from
+    private static void checkCounterTradingInjectionOverlap(Crac crac) {
+        Set<String> counterTradedGeneratorIds = crac.getCounterTradeRangeActions().stream()
+            .flatMap(ra -> ra.getGlsk().getOrDefault(ra.getAreaId(), Map.of()).keySet().stream())
+            .collect(Collectors.toSet());
+        crac.getInjectionRangeActions().forEach(injectionRangeAction ->
+            injectionRangeAction.getInjectionDistributionKeysIds().keySet().stream()
+                .filter(counterTradedGeneratorIds::contains)
+                .findFirst()
+                .ifPresent(generatorId -> {
+                    throw new OpenRaoException(format(
+                        "Generator %s is both subject to injection range action %s and to the GLSK of a counter-trading action: this combination is not supported",
+                        generatorId, injectionRangeAction.getId()));
+                }));
+    }
+
     public static void checkCnecsThresholdsUnit(final RaoParameters raoParameters,
                                                 final RaoInput raoInput,
                                                 final ReportNode reportNode) {
@@ -348,8 +389,8 @@ public final class RaoUtil {
 
             if (previousUsageStateOptional.isPresent()) {
                 Optional<RangeAction<?>> correspondingRa = optimizationContext.getRangeActionsPerState().get(previousUsageStateOptional.get()).stream()
-                    .filter(ra -> ra.getId().equals(rangeAction.getId()) || ra.getNetworkElementsIds().equals(rangeAction.getNetworkElementsIds()))
-                    .findAny();
+                        .filter(ra -> ra.getId().equals(rangeAction.getId()) || sameLever(ra, rangeAction))
+                        .findAny();
 
                 if (correspondingRa.isPresent()) {
                     return Pair.of(correspondingRa.get(), previousUsageStateOptional.get());
@@ -360,6 +401,14 @@ public final class RaoUtil {
         } else {
             throw new OpenRaoException("Linear optimization does not handle range actions which are neither PREVENTIVE nor CURATIVE.");
         }
+    }
+
+    // CT actions have no network element: two of them act on the same lever when they share the same area.
+    private static boolean sameLever(RangeAction<?> ra1, RangeAction<?> ra2) {
+        if (ra1 instanceof CounterTradeRangeAction ct1 && ra2 instanceof CounterTradeRangeAction ct2) {
+            return Objects.equals(ct1.getAreaId(), ct2.getAreaId());
+        }
+        return ra1.getNetworkElementsIds().equals(ra2.getNetworkElementsIds());
     }
 
     public static double getLargestCnecThreshold(Set<FlowCnec> flowCnecs, Unit unit) {

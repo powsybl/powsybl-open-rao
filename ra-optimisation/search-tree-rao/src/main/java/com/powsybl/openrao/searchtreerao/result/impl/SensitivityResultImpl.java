@@ -68,6 +68,13 @@ public class SensitivityResultImpl implements SensitivityResult {
         return multiplier * sensitivityValue;
     }
 
+    @Override
+    public double getSensitivityValue(FlowCnec flowCnec, TwoSides side, String variableId, Unit unit) {
+        double multiplier = getSensitivityMultiplier(flowCnec, side, unit, "variable id");
+        double sensitivityValue = systematicSensitivityResult.getSensitivityOnFlow(variableId, flowCnec, side);
+        return multiplier * sensitivityValue;
+    }
+
     double getSensitivityMultiplier(FlowCnec flowCnec, TwoSides side, Unit targetUnit, String sensitivityType) {
         if (targetUnit == Unit.MEGAWATT) {
             return 1.0;
@@ -75,17 +82,6 @@ public class SensitivityResultImpl implements SensitivityResult {
             return UnitConverter.getFlowUnitMultiplier(flowCnec.getNominalVoltage(side), Unit.MEGAWATT, Unit.AMPERE);
         } else {
             throw new OpenRaoException(format("Unknown unit for sensitivity value on %s : %s.", sensitivityType, targetUnit));
-        }
-    }
-
-    @Override
-    public double getSensitivityValue(FlowCnec flowCnec, TwoSides side, String variableId, Unit unit) {
-        if (unit == Unit.MEGAWATT) {
-            return systematicSensitivityResult.getSensitivityOnFlow(variableId, flowCnec, side);
-        } else if (unit == Unit.AMPERE) {
-            return systematicSensitivityResult.getSensitivityOnIntensity(variableId, flowCnec, side);
-        } else {
-            throw new OpenRaoException(format("Unknown unit for sensitivity value on variable id : %s.", unit));
         }
     }
 }
