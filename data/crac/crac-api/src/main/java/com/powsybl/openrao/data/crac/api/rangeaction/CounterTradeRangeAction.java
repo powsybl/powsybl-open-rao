@@ -11,8 +11,8 @@ import com.google.common.annotations.Beta;
 import com.powsybl.glsk.commons.ZonalData;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.CounterTradeGeneratorOrdering;
-import com.powsybl.openrao.data.crac.api.ConnectedArea;
 import com.powsybl.openrao.commons.MeritOrderGlsk;
+import com.powsybl.openrao.data.crac.api.ConnectedArea;
 import com.powsybl.sensitivity.SensitivityVariableSet;
 
 import java.util.List;
