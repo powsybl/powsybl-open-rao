@@ -97,7 +97,6 @@ public final class IteratingLinearOptimizer {
             RangeActionActivationResult currentRangeActionActivationResult = roundResult(linearProblemResult, bestResult, input, parameters);
             currentRangeActionActivationResult = reSolveIfApproximatedIntegerOrHybridPstModel(
                 bestResult, linearProblem, iteration, currentRangeActionActivationResult, input, parameters, reportNode);
-            // TODO: what if pst in hybrid mode, and the approximated_integer phase fails -> should we return bestResult or currentRangeActionActivationResult?
             currentRangeActionActivationResult = updateWithHvdcRangeActionIfNecessary((RangeActionActivationResultImpl) currentRangeActionActivationResult, input);
 
             if (!hasAnyRangeActionChanged(currentRangeActionActivationResult, previousResult, input.optimizationPerimeter())) {
