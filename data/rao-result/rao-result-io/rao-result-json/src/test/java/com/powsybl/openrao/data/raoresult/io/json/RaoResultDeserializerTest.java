@@ -34,7 +34,7 @@ class RaoResultDeserializerTest {
         Crac crac = ExhaustiveCracCreation.create();
         InputStream raoResultStream = getClass().getResourceAsStream("/rao-result-with-tap-for-non-pst-range-action.json");
         OpenRaoException exception = assertThrows(OpenRaoException.class, () -> RaoResult.read(raoResultStream, crac));
-        assertEquals("Taps can only be defined for PST range actions.", exception.getMessage());
+        assertEquals("Cannot define a tap for remedial action 'injectionRange1Id' because it is not a PST range action.", exception.getMessage());
     }
 
     @Test
@@ -42,7 +42,7 @@ class RaoResultDeserializerTest {
         Crac crac = ExhaustiveCracCreation.create();
         InputStream raoResultStream = getClass().getResourceAsStream("/rao-result-with-unnecessary-pst-range-action-set-point.json");
         OpenRaoException exception = assertThrows(OpenRaoException.class, () -> RaoResult.read(raoResultStream, crac));
-        assertEquals("Since version 1.8, only the taps are reported for PST range actions.", exception.getMessage());
+        assertEquals("Cannot define a set-point for remedial action 'pstRange1Id' because it is not a standard range action.", exception.getMessage());
     }
 
     @Test
