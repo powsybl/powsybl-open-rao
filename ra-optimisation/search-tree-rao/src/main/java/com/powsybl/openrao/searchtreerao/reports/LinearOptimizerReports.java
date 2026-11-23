@@ -8,7 +8,6 @@
 package com.powsybl.openrao.searchtreerao.reports;
 
 import com.powsybl.commons.report.ReportNode;
-import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.PstModel;
 import com.powsybl.openrao.searchtreerao.result.api.LinearProblemStatus;
 
 import java.util.Locale;
@@ -147,14 +146,5 @@ public final class LinearOptimizerReports {
             .add();
 
         TECHNICAL_LOGS.info("Iteration {}: same results as previous iterations, optimal solution found", iteration);
-    }
-
-    public static void reportReSolveIfApproximatedIntegerOrHybridPstModel(final ReportNode parentNode, final PstModel pstModel) {
-        parentNode.newReportNode()
-            .withMessageTemplate("openrao.searchtreerao.reportReSolveIfApproximatedIntegerOrHybridPstModel")
-            .withUntypedValue("pstModel", pstModel.toString())
-            .add();
-
-        TECHNICAL_LOGS.info("Re-solve the linear problem (PST model: {})", pstModel.toString());
     }
 }
