@@ -27,7 +27,6 @@ import com.powsybl.openrao.searchtreerao.result.api.SensitivityResult;
 import com.powsybl.openrao.searchtreerao.result.impl.RangeActionActivationResultImpl;
 import com.powsybl.openrao.searchtreerao.result.impl.RangeActionSetpointResultImpl;
 import org.junit.jupiter.api.Test;
-import org.mockito.InOrder;
 
 import java.io.IOException;
 import java.util.Map;
@@ -36,16 +35,15 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 class HybridPstProblemFillerTest extends AbstractFillerTest {
 
     @Test
-    // TODO : we should delete continuous related variable later on
     void continuousAndDiscretePstModelsCoexistAcrossMipIterations() throws IOException {
         init();
         addPstGroupInCrac();
@@ -129,16 +127,15 @@ class HybridPstProblemFillerTest extends AbstractFillerTest {
             // - is variation previous iteration * 2 (up and down) * 2 (pst1 and pst2)
             // - up or down variation constraint * 2 (pst1 and pst2)
             // - tap constraint * 2 (pst1 and pst2)
-            assertEquals(22, linearProblem.numVariables());
-            assertEquals(19, linearProblem.numConstraints());
+            // variable & constraint removed: PST group setpoint variable (1) and constraint (2)
+            assertEquals(21, linearProblem.numVariables());
+            assertEquals(17, linearProblem.numConstraints());
             OpenRaoMPVariable groupTap = linearProblem.getPstGroupTapVariable("group1", state);
             for (PstRangeAction pst : pstRangeActions.get(state)) {
+                // setpoint variable remains but not group setpoint variable and constraint
                 OpenRaoMPVariable setpoint = linearProblem.getRangeActionSetpointVariable(pst, state);
-                OpenRaoMPConstraint groupSetpointConstraint = linearProblem.getRangeActionGroupSetpointConstraint(pst, state);
-                // The continuous setpoint/group equation remains: each PST setpoint has coefficient +1,
-                // and the shared continuous group setpoint has coefficient -1.
-                assertEquals(1, groupSetpointConstraint.getCoefficient(setpoint), DOUBLE_TOLERANCE);
-                assertEquals(-1, groupSetpointConstraint.getCoefficient(groupSetpoint), DOUBLE_TOLERANCE);
+                assertThrows(OpenRaoException.class, () -> linearProblem.getRangeActionGroupSetpointConstraint(pst, state));
+                assertThrows(OpenRaoException.class, () -> linearProblem.getRangeActionGroupSetpointVariable("group1", state));
 
                 // Each PST retains both directional variation binaries and the constraint linking their choices.
                 assertNotNull(linearProblem.getPstTapVariationBinary(pst, state, LinearProblem.VariationDirectionExtension.UPWARD));
@@ -173,45 +170,49 @@ class HybridPstProblemFillerTest extends AbstractFillerTest {
     // inputs and the continuous solution, and that subsequent updates reuse it without rebuilding.
     @Test
     void fillsDiscreteModelOnceWithLatestInputsAndUpdatesItBetweenMipIterations() {
+        // create hybrid filler
         LinearProblem linearProblem = mock(LinearProblem.class);
         ContinuousRangeActionGroupFiller continuousFiller = mock(ContinuousRangeActionGroupFiller.class);
         DiscretePstTapFiller discreteFiller = mock(DiscretePstTapFiller.class);
         DiscretePstGroupFiller discreteGroupFiller = mock(DiscretePstGroupFiller.class);
         HybridPstProblemFiller hybridFiller = new HybridPstProblemFiller(continuousFiller, discreteFiller, discreteGroupFiller);
 
+        // First call to hybridFiller.fill -> fill the problem using continuousGroupFiller, no interaction with discrete fillers
         FlowResult firstFlowResult = mock(FlowResult.class);
         SensitivityResult firstSensitivityResult = mock(SensitivityResult.class);
         RangeActionActivationResult initialActivation = mock(RangeActionActivationResult.class);
         hybridFiller.fill(linearProblem, firstFlowResult, firstSensitivityResult, initialActivation);
-
-        FlowResult updatedFlowResult = mock(FlowResult.class);
-        SensitivityResult updatedSensitivityResult = mock(SensitivityResult.class);
-        RangeActionActivationResult updatedActivation = mock(RangeActionActivationResult.class);
-        hybridFiller.fill(linearProblem, updatedFlowResult, updatedSensitivityResult, updatedActivation);
         // The discrete and discrete group fillers are not called.
         verifyNoInteractions(discreteFiller, discreteGroupFiller);
         // check that hybridFiller.fill(...) forwarded both calls to continuousFiller.fill(...)
         verify(continuousFiller).fill(linearProblem, firstFlowResult, firstSensitivityResult, initialActivation);
-        verify(continuousFiller).fill(linearProblem, updatedFlowResult, updatedSensitivityResult, updatedActivation);
 
+        // First call to updateBetweenMipIteration, fill discrete fillers + update the bounds with continuous solution
         RangeActionActivationResult firstContinuousSolution = mock(RangeActionActivationResult.class);
         hybridFiller.updateBetweenMipIteration(linearProblem, firstContinuousSolution);
+        verify(discreteFiller).fill(linearProblem, firstFlowResult, firstSensitivityResult, firstContinuousSolution);
+        verify(discreteGroupFiller).fill(linearProblem, firstFlowResult, firstSensitivityResult, firstContinuousSolution);
+        verify(discreteFiller).updateBetweenMipIteration(linearProblem, firstContinuousSolution);
+        verify(discreteGroupFiller).updateBetweenMipIteration(linearProblem, firstContinuousSolution);
+        verify(continuousFiller).remove(linearProblem);
+        verifyNoMoreInteractions(continuousFiller, discreteFiller, discreteGroupFiller);
+
+        // Second call to fill, forward the call to discrete fillers
+        FlowResult updatedFlowResult = mock(FlowResult.class);
+        SensitivityResult updatedSensitivityResult = mock(SensitivityResult.class);
+        RangeActionActivationResult updatedActivation = mock(RangeActionActivationResult.class);
+        hybridFiller.fill(linearProblem, updatedFlowResult, updatedSensitivityResult, updatedActivation);
+        // fill using discrete filler and not continuous filler
+        verify(discreteFiller).fill(linearProblem, updatedFlowResult, updatedSensitivityResult, updatedActivation);
+        verify(discreteGroupFiller).fill(linearProblem, updatedFlowResult, updatedSensitivityResult, updatedActivation);
+        // Initial fill and removal were verified above; no further continuous calls are allowed.
+        verifyNoMoreInteractions(continuousFiller);
+
+        // Second call to updateBetweenMipIteration, forward the call to discrete fillers
         RangeActionActivationResult secondContinuousSolution = mock(RangeActionActivationResult.class);
         hybridFiller.updateBetweenMipIteration(linearProblem, secondContinuousSolution);
-
-        FlowResult postTransitionFlowResult = mock(FlowResult.class);
-        SensitivityResult postTransitionSensitivityResult = mock(SensitivityResult.class);
-        RangeActionActivationResult postTransitionActivation = mock(RangeActionActivationResult.class);
-        hybridFiller.fill(linearProblem, postTransitionFlowResult, postTransitionSensitivityResult, postTransitionActivation);
-        RangeActionActivationResult thirdContinuousSolution = mock(RangeActionActivationResult.class);
-        hybridFiller.updateBetweenMipIteration(linearProblem, thirdContinuousSolution);
-
-        verify(continuousFiller).fill(linearProblem, postTransitionFlowResult, postTransitionSensitivityResult, postTransitionActivation);
-        InOrder discreteFillerCalls = inOrder(discreteFiller, discreteGroupFiller);
-        discreteFillerCalls.verify(discreteFiller).fill(linearProblem, updatedFlowResult, updatedSensitivityResult, firstContinuousSolution);
-        discreteFillerCalls.verify(discreteGroupFiller).fill(linearProblem, updatedFlowResult, updatedSensitivityResult, firstContinuousSolution);
-        discreteFillerCalls.verify(discreteFiller).updateBetweenMipIteration(linearProblem, firstContinuousSolution);
-        discreteFillerCalls.verify(discreteFiller).updateBetweenMipIteration(linearProblem, secondContinuousSolution);
-        discreteFillerCalls.verify(discreteFiller).updateBetweenMipIteration(linearProblem, thirdContinuousSolution);
+        verify(discreteFiller).updateBetweenMipIteration(linearProblem, secondContinuousSolution);
+        verify(discreteGroupFiller).updateBetweenMipIteration(linearProblem, secondContinuousSolution);
+        verifyNoMoreInteractions(continuousFiller, discreteFiller, discreteGroupFiller);
     }
 }
