@@ -102,19 +102,19 @@ final class RemedialActionActivationsDeserializer {
             switch (remedialAction) {
                 case null -> throw new OpenRaoException("Missing or unknown remedial action.");
                 case NetworkAction networkAction -> {
-                    checkNoTap(remedialAction, tap, jsonParser);
-                    checkNoSetPoint(remedialAction, setPoint, jsonParser);
+                    checkNoTap(remedialAction, tap);
+                    checkNoSetPoint(remedialAction, setPoint);
                     activatedNetworkActions.add(networkAction);
                 }
                 case PstRangeAction pstRangeAction -> {
                     if (tap == null) {
                         throw new OpenRaoException("Missing tap for PST range action '%s'.".formatted(remedialAction.getId()));
                     }
-                    checkNoSetPoint(remedialAction, setPoint, jsonParser);
+                    checkNoSetPoint(remedialAction, setPoint);
                     activatedPstRangeActions.put(pstRangeAction, tap);
                 }
                 case StandardRangeAction<?> standardRangeAction -> {
-                    checkNoTap(remedialAction, tap, jsonParser);
+                    checkNoTap(remedialAction, tap);
                     if (setPoint == null) {
                         throw new OpenRaoException("Missing set-point for standard range action '%s'.".formatted(remedialAction.getId()));
                     }
@@ -126,13 +126,13 @@ final class RemedialActionActivationsDeserializer {
         }
     }
 
-    private static void checkNoTap(RemedialAction<?> remedialAction, Integer tap, JsonParser jsonParser) throws IOException {
+    private static void checkNoTap(RemedialAction<?> remedialAction, Integer tap) {
         if (tap != null) {
             throw new OpenRaoException("Cannot define a tap for remedial action '%s' because it is not a PST range action.".formatted(remedialAction.getId()));
         }
     }
 
-    private static void checkNoSetPoint(RemedialAction<?> remedialAction, Double setPoint, JsonParser jsonParser) throws IOException {
+    private static void checkNoSetPoint(RemedialAction<?> remedialAction, Double setPoint) {
         if (setPoint != null) {
             throw new OpenRaoException("Cannot define a set-point for remedial action '%s' because it is not a standard range action.".formatted(remedialAction.getId()));
         }
