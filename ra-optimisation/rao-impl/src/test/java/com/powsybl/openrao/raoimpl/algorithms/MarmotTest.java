@@ -679,7 +679,7 @@ class MarmotTest {
         raoParameters.setLoopFlowParameters(new LoopFlowParameters());
 
         Marmot marmot = new Marmot();
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> marmot.run(input, raoParameters, ReportNode.NO_OP));
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> marmot.run(input, raoParameters, ReportNode.NO_OP, RaoStopCondition.NO_OP));
         assertEquals("MARMOT does not support loop-flow constraints, which rely on commercial flows and PTDF zonal sums. Use CASTOR or FastRAO instead.", exception.getMessage());
     }
 
