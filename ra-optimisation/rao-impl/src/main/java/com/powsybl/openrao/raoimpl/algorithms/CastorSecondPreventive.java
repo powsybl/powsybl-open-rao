@@ -325,9 +325,6 @@ public class CastorSecondPreventive {
             raoStopCondition
         );
 
-        // checkpoint: post sensitivity analysis
-        raoStopCondition.checkNotStopped();
-
         if (postPraSensitivityAnalysisOutput.getSensitivityStatus() == ComputationStatus.FAILURE) {
             CastorReports.reportSystematicSensitivityAnalysisAfterPraAfterSecondPreventiveFailed(secondPreventiveReportNode);
         }
@@ -420,7 +417,7 @@ public class CastorSecondPreventive {
             .withOutageInstant(crac.getOutageInstant())
             .build();
 
-        OptimizationResult result = new SearchTree(searchTreeInput, searchTreeParameters, true, secondPreventiveReportNode).run(raoStopCondition).join();
+        OptimizationResult result = new SearchTree(searchTreeInput, searchTreeParameters, true, secondPreventiveReportNode, raoStopCondition).run().join();
 
         // apply PRAs
         network.getVariantManager().setWorkingVariant(SECOND_PREVENTIVE_SCENARIO_BEFORE_OPT);

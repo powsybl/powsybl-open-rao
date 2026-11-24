@@ -534,7 +534,7 @@ class CastorSecondPreventiveTest {
         try (MockedConstruction<SearchTree> mockedSearchTree = Mockito.mockConstruction(SearchTree.class,
             (mock, context) -> {
                 capturedParameters.set((SearchTreeParameters) context.arguments().get(1));
-                when(mock.run(RaoStopCondition.NO_OP)).thenReturn(futureResult);
+                when(mock.run()).thenReturn(futureResult);
             })) {
 
             // 1st preventive activated one network action

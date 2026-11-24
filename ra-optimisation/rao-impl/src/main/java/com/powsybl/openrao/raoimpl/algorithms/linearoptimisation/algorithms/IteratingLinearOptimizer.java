@@ -106,9 +106,6 @@ public final class IteratingLinearOptimizer {
                 return bestResult;
             }
 
-            // checkpoint: check whether to run the systematic sensitivity analysis or not
-            raoStopCondition.checkNotStopped();
-
             sensitivityComputer = runSensitivityAnalysis(sensitivityComputer, iteration, currentRangeActionActivationResult, input, parameters, reportNode, raoStopCondition);
             if (sensitivityComputer.getSensitivityResult().getSensitivityStatus() == ComputationStatus.FAILURE) {
                 bestResult.setStatus(LinearProblemStatus.SENSITIVITY_COMPUTATION_FAILED);
@@ -133,9 +130,6 @@ public final class IteratingLinearOptimizer {
             } else {
                 bestResult = mipShouldStop.getLeft();
             }
-
-            // checkpoint: check whether to run a new iteration or not
-            raoStopCondition.checkNotStopped();
         }
         bestResult.setStatus(LinearProblemStatus.MAX_ITERATION_REACHED);
         return bestResult;

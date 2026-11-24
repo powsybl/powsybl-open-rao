@@ -83,6 +83,7 @@ public class SearchTree {
     private final boolean purelyVirtual;
     private final SearchTreeBloomer bloomer;
     private final ReportNode reportNode;
+    private final RaoStopCondition raoStopCondition;
 
     private Leaf rootLeaf;
     private Leaf optimalLeaf;
@@ -94,12 +95,14 @@ public class SearchTree {
     public SearchTree(final SearchTreeInput input,
                       final SearchTreeParameters parameters,
                       final boolean verbose,
-                      final ReportNode reportNode) {
+                      final ReportNode reportNode,
+                      final RaoStopCondition raoStopCondition) {
         // inputs
         this.input = input;
         this.parameters = parameters;
         this.verbose = verbose;
         this.reportNode = reportNode;
+        this.raoStopCondition = raoStopCondition;
 
         // build from inputs
         this.purelyVirtual = input.getOptimizationPerimeter().getOptimizedFlowCnecs().isEmpty();
@@ -110,15 +113,12 @@ public class SearchTree {
         }
     }
 
-    public CompletableFuture<OptimizationResult> run(final RaoStopCondition raoStopCondition) {
+    public CompletableFuture<OptimizationResult> run() {
         String preSearchTreeVariantId = input.getNetwork().getVariantManager().getWorkingVariantId();
         input.getNetwork().getVariantManager().cloneVariant(preSearchTreeVariantId, SEARCH_TREE_WORKING_VARIANT_ID, true);
         input.getNetwork().getVariantManager().setWorkingVariant(SEARCH_TREE_WORKING_VARIANT_ID); // the variant used for root leaf and all the child leaves
         try {
             initLeaves(input);
-
-            // checkpoint: check whether to start search-tree or not
-            raoStopCondition.checkNotStopped();
 
             TECHNICAL_LOGS.debug("Evaluating root leaf");
 
@@ -154,7 +154,7 @@ public class SearchTree {
                 return CompletableFuture.completedFuture(rootLeaf);
             }
 
-            iterateOnTree(raoStopCondition);
+            iterateOnTree();
 
             SearchTreeReports.reportSearchTreeRaoCompletedWithStatus(reportNode, optimalLeaf.getSensitivityStatus());
 
@@ -181,7 +181,7 @@ public class SearchTree {
         return new Leaf(optimizationPerimeter, network, prePerimeterOutput, appliedRemedialActionsInSecondaryStates);
     }
 
-    private void iterateOnTree(final RaoStopCondition raoStopCondition) {
+    private void iterateOnTree() {
         int depth = 0;
         boolean hasImproved = true;
         if (input.getOptimizationPerimeter().getNetworkActions().isEmpty()) {
@@ -196,7 +196,7 @@ public class SearchTree {
                 final int depthForLogs = depth + 1;
                 final ReportNode searchDepthReportNode = SearchTreeReports.reportSearchDepth(reportNode, depthForLogs);
                 previousDepthOptimalLeaf = optimalLeaf;
-                updateOptimalLeafWithNextDepthBestLeaf(networkPool, searchDepthReportNode, raoStopCondition);
+                updateOptimalLeafWithNextDepthBestLeaf(networkPool, searchDepthReportNode);
                 hasImproved = previousDepthOptimalLeaf != optimalLeaf; // It means this depth evaluation has improved the global cost
                 if (hasImproved) {
                     SearchTreeReports.reportSearchDepthEnd(depthForLogs);
@@ -211,9 +211,6 @@ public class SearchTree {
                 if (depth >= parameters.getTreeParameters().maximumSearchDepth()) {
                     SearchTreeReports.reportMaxSearchDepthReached(reportNode, verbose);
                 }
-
-                // checkpoint: check whether to go deeper in the tree or not
-                raoStopCondition.checkNotStopped();
             }
             networkPool.shutdownAndAwaitTermination(24, TimeUnit.HOURS);
         } catch (InterruptedException e) {
@@ -225,7 +222,7 @@ public class SearchTree {
     /**
      * Evaluate all the leaves. We use OpenRaoNetworkPool to parallelize the computation
      */
-    private void updateOptimalLeafWithNextDepthBestLeaf(final AbstractNetworkPool networkPool, final ReportNode reportNode, final RaoStopCondition raoStopCondition) throws InterruptedException {
+    private void updateOptimalLeafWithNextDepthBestLeaf(final AbstractNetworkPool networkPool, final ReportNode reportNode) throws InterruptedException {
 
         TreeSet<NetworkActionCombination> naCombinationsSorted = new TreeSet<>(this::deterministicNetworkActionCombinationComparison);
         input.getNetwork().getVariantManager().setWorkingVariant(SEARCH_TREE_WORKING_VARIANT_ID);
@@ -242,7 +239,7 @@ public class SearchTree {
         AtomicInteger remainingLeaves = new AtomicInteger(numberOfCombinations);
         List<ForkJoinTask<Object>> tasks = naCombinationsSorted.stream().map(naCombination -> {
                 final ReportNode leafOptimizationReportNode = SearchTreeReports.reportLeafOptimization(reportNode, verbose, naCombination.getConcatenatedId());
-                return networkPool.submit(() -> optimizeOneLeaf(networkPool, naCombination, remainingLeaves, leafOptimizationReportNode, raoStopCondition));
+                return networkPool.submit(() -> optimizeOneLeaf(networkPool, naCombination, remainingLeaves, leafOptimizationReportNode));
             }
         ).toList();
         for (ForkJoinTask<Object> task : tasks) {
@@ -257,8 +254,7 @@ public class SearchTree {
     private Object optimizeOneLeaf(final AbstractNetworkPool networkPool,
                                    final NetworkActionCombination naCombination,
                                    final AtomicInteger remainingLeaves,
-                                   final ReportNode reportNode,
-                                   final RaoStopCondition raoStopCondition) throws InterruptedException {
+                                   final ReportNode reportNode) throws InterruptedException {
         Network networkClone = networkPool.getAvailableNetwork(); //This is where the threads actually wait for available networks
         try {
             if (combinationFulfillingStopCriterion.isEmpty() || deterministicNetworkActionCombinationComparison(naCombination, combinationFulfillingStopCriterion.get()) < 0) {
@@ -393,9 +389,6 @@ public class SearchTree {
         } else {
             SearchTreeReports.reportNoRangeActionToOptimize(reportNode);
         }
-
-        // checkpoint: check whether to keep on optimizing leaves or not
-        raoStopCondition.checkNotStopped();
     }
 
     private SensitivityComputer getSensitivityComputerForEvaluation(final boolean isRootLeaf, final ReportNode reportNode) {

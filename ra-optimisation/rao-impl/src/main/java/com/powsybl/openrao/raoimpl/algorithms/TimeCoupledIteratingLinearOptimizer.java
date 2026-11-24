@@ -90,9 +90,6 @@ public final class TimeCoupledIteratingLinearOptimizer {
         MarmotUtils.releaseAllWithoutOverwrite(input.iteratingLinearOptimizerInputs().map(IteratingLinearOptimizerInput::network));
         logInitialResult(bestResult, reportNode);
 
-        // checkpoint: check whether to run the linear optimizer
-        raoStopCondition.checkNotStopped();
-
         // 3. Iterate
         for (int iteration = 1; iteration <= parameters.getMaxNumberOfIterations(); iteration++) {
             // a. Solve linear problem
@@ -198,8 +195,6 @@ public final class TimeCoupledIteratingLinearOptimizer {
                 bestResult = mipShouldStop.getLeft();
             }
 
-            // checkpoint: check whether to run a new iteration or not
-            raoStopCondition.checkNotStopped();
         }
 
         bestResult.setStatus(LinearProblemStatus.MAX_ITERATION_REACHED);

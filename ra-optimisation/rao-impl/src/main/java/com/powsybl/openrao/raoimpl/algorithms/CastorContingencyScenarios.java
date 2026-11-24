@@ -188,9 +188,6 @@ public class CastorContingencyScenarios {
             }
         }
 
-        // checkpoint: check whether to optimize curative not
-        raoStopCondition.checkNotStopped();
-
         // Do not simulate curative instant if last sensitivity analysis failed
         // -- if there was no automaton state, check prePerimeterSensitivityOutput sensi status
         // -- or if there was an automaton state that failed
@@ -393,7 +390,7 @@ public class CastorContingencyScenarios {
             .withOutageInstant(crac.getOutageInstant())
             .build();
 
-        OptimizationResult result = new SearchTree(searchTreeInput, searchTreeParameters, false, reportNode).run(raoStopCondition).join();
+        OptimizationResult result = new SearchTree(searchTreeInput, searchTreeParameters, false, reportNode, raoStopCondition).run().join();
         CastorReports.reportCurativeStateOptimized(reportNode, curativeState.getId());
         return result;
     }
