@@ -11,6 +11,7 @@ import com.google.auto.service.AutoService;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
+import com.powsybl.openrao.raoapi.EndInstantRaoStopCondition;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.RaoProvider;
 import com.powsybl.openrao.raoapi.RaoStopCondition;
@@ -18,6 +19,7 @@ import com.powsybl.openrao.raoapi.TimeCoupledRaoInput;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.FastRaoParameters;
 import com.powsybl.openrao.raoimpl.reports.OpenRaoReports;
+
 import java.time.Instant;
 import java.util.concurrent.CompletableFuture;
 
@@ -26,7 +28,7 @@ import java.util.concurrent.CompletableFuture;
  *
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-@AutoService({RaoProvider.class})
+@AutoService(RaoProvider.class)
 public class OpenRao implements RaoProvider {
     @Override
     public String getName() {
@@ -44,7 +46,20 @@ public class OpenRao implements RaoProvider {
         return run(raoInput, parameters, null, reportNode, raoStopCondition);
     }
 
+    /**
+     * @deprecated since 7.6.0, use {@link EndInstantRaoStopCondition} instead of {@code targetEndInstant}.
+     */
+    @Deprecated(since = "7.6.0")
     @Override
+    public CompletableFuture<RaoResult> run(RaoInput raoInput, RaoParameters parameters, Instant targetEndInstant, ReportNode reportNode) {
+        return run(raoInput, parameters, targetEndInstant, reportNode, RaoStopCondition.NO_OP);
+    }
+
+    /**
+     * @deprecated since 7.6.0, use {@link EndInstantRaoStopCondition} instead of {@code targetEndInstant}.
+     * This method will be made private in 8.0.0.
+     */
+    @Deprecated(since = "7.6.0")
     public CompletableFuture<RaoResult> run(RaoInput raoInput, RaoParameters parameters, Instant targetEndInstant, ReportNode reportNode, RaoStopCondition raoStopCondition) {
         FastRaoParameters fastRaoParameters = parameters.getExtension(FastRaoParameters.class);
         if (raoInput.getCrac().getInstants(InstantKind.CURATIVE).size() > 1) {

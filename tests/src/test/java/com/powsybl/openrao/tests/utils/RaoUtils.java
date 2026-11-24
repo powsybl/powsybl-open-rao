@@ -113,7 +113,7 @@ public final class RaoUtils {
 
         RaoResult raoResult;
         if (timeLimitInSeconds != null) {
-            raoResult = raoRunner.run(raoInputBuilder.build(), config, java.time.Instant.now().plusSeconds(timeLimitInSeconds.longValue()), reportNode, raoStopCondition);
+            raoResult = raoRunner.run(raoInputBuilder.build(), config, java.time.Instant.now().plusSeconds(timeLimitInSeconds.longValue()), reportNode);
         } else {
             raoResult = raoRunner.run(raoInputBuilder.build(), config, reportNode, raoStopCondition);
         }

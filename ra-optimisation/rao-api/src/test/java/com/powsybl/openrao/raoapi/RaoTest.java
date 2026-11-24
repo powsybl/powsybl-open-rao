@@ -152,7 +152,8 @@ class RaoTest {
         RaoParameters parameters = new RaoParameters(ReportNode.NO_OP);
         Instant targetEndInstant = Instant.now().plusSeconds(3600);
 
-        assertNotNull(runner.run(raoInput, parameters, targetEndInstant, ReportNode.NO_OP, RaoStopCondition.NO_OP));
+        assertNotNull(runner.run(raoInput, parameters, targetEndInstant, ReportNode.NO_OP));
+        assertNotNull(runner.run(raoInput, parameters, ReportNode.NO_OP, RaoStopCondition.NO_OP));
         assertNotNull(runner.run(raoInput, parameters, targetEndInstant));
         assertNotNull(runner.run(raoInput, parameters, ReportNode.NO_OP));
         assertNotNull(runner.run(raoInput, parameters));
@@ -169,8 +170,12 @@ class RaoTest {
         assertEquals("RAO input should not be null", exception.getMessage());
         exception = assertThrows(NullPointerException.class, () -> runner.run(raoInput, (RaoParameters) null));
         assertEquals("parameters should not be null", exception.getMessage());
-        exception = assertThrows(NullPointerException.class, () -> runner.run(raoInput, parameters, null, null, null));
+        exception = assertThrows(NullPointerException.class, () -> runner.run(raoInput, parameters, (Instant) null, null));
         assertEquals("ReportNode should not be null", exception.getMessage());
+        exception = assertThrows(NullPointerException.class, () -> runner.run(raoInput, parameters, null, (RaoStopCondition) null));
+        assertEquals("ReportNode should not be null", exception.getMessage());
+        exception = assertThrows(NullPointerException.class, () -> runner.run(raoInput, parameters, ReportNode.NO_OP, null));
+        assertEquals("RAO stop condition should not be null", exception.getMessage());
         exception = assertThrows(NullPointerException.class, () -> runner.runAsync((RaoInput) null, parameters));
         assertEquals("RAO input should not be null", exception.getMessage());
         exception = assertThrows(NullPointerException.class, () -> runner.runAsync(raoInput, (RaoParameters) null));

@@ -30,15 +30,26 @@ public interface RaoProvider {
      */
     CompletableFuture<RaoResult> run(RaoInput raoInput, RaoParameters parameters, ReportNode reportNode, RaoStopCondition raoStopCondition);
 
+    /**
+     * @param raoInput         Data to optimize. Contains a Crac, a Network, the ID of the current network variant, and more
+     * @param parameters       RAO parameters.
+     * @param reportNode       Parent reportNode.
+     * @return A completable future of a RaoResult it gathers all the optimization results.
+     */
     default CompletableFuture<RaoResult> run(RaoInput raoInput, RaoParameters parameters, ReportNode reportNode) {
         return run(raoInput, parameters, reportNode, RaoStopCondition.NO_OP);
     }
 
-    CompletableFuture<RaoResult> run(RaoInput raoInput, RaoParameters parameters, Instant targetEndInstant, ReportNode reportNode, RaoStopCondition raoStopCondition);
-
-    default CompletableFuture<RaoResult> run(RaoInput raoInput, RaoParameters parameters, Instant targetEndInstant, ReportNode reportNode) {
-        return run(raoInput, parameters, targetEndInstant, reportNode, RaoStopCondition.NO_OP);
-    }
+    /**
+     * @param raoInput         Data to optimize. Contains a Crac, a Network, the ID of the current network variant, and more
+     * @param parameters       RAO parameters.
+     * @param targetEndInstant Instant until which the RAO is allowed to run.
+     * @param reportNode       Parent reportNode.
+     * @return A completable future of a RaoResult it gathers all the optimization results.
+     * @deprecated since 7.6.0, {@code targetEndInstant} can be replaced by {@link EndInstantRaoStopCondition}
+     */
+    @Deprecated(since = "7.6.0")
+    CompletableFuture<RaoResult> run(RaoInput raoInput, RaoParameters parameters, Instant targetEndInstant, ReportNode reportNode);
 
     /**
      * @param raoInput         Data to optimize. Contains Cracs and Networks for each timestamp and gradient constraints

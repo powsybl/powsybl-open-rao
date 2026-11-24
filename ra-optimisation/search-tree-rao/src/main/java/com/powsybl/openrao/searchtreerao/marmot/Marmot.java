@@ -11,6 +11,7 @@ import com.google.auto.service.AutoService;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
+import com.powsybl.openrao.raoapi.EndInstantRaoStopCondition;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.RaoProvider;
 import com.powsybl.openrao.raoapi.RaoStopCondition;
@@ -60,7 +61,20 @@ public class Marmot implements RaoProvider, TimeCoupledRaoProvider {
         return run(raoInput, parameters, null, reportNode, raoStopCondition);
     }
 
+    /**
+     * @deprecated since 7.6.0, use {@link EndInstantRaoStopCondition} instead of {@code targetEndInstant}.
+     */
+    @Deprecated(since = "7.6.0")
     @Override
+    public CompletableFuture<RaoResult> run(RaoInput raoInput, RaoParameters parameters, Instant targetEndInstant, ReportNode reportNode) {
+        return run(raoInput, parameters, targetEndInstant, reportNode, RaoStopCondition.NO_OP);
+    }
+
+    /**
+     * @deprecated since 7.6.0, use {@link EndInstantRaoStopCondition} instead of {@code targetEndInstant}.
+     * This method will be made private in 8.0.0.
+     */
+    @Deprecated(since = "7.6.0")
     public CompletableFuture<RaoResult> run(final RaoInput raoInput,
                                             final RaoParameters parameters,
                                             final Instant targetEndInstant,

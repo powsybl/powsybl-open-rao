@@ -34,8 +34,9 @@ public class RaoProviderMock implements RaoProvider {
     }
 
     @Override
-    public CompletableFuture<RaoResult> run(RaoInput raoInput, RaoParameters parameters, Instant targetEndInstant, ReportNode reportNode, RaoStopCondition raoStopCondition) {
-        return run(raoInput, parameters, reportNode);
+    public CompletableFuture<RaoResult> run(RaoInput raoInput, RaoParameters parameters, Instant targetEndInstant, ReportNode reportNode) {
+        RaoResultImpl raoResult = RaoResultImpl.builder(raoInput.getCrac()).build();
+        return CompletableFuture.completedFuture(raoResult);
     }
 
     @Override

@@ -32,8 +32,6 @@ import java.util.concurrent.CompletableFuture;
  */
 public final class Rao {
 
-    // TODO: deprecate methods based on targetEndInstant as it can now be handled by EndInstantRaoStopCondition
-
     private Rao() {
         throw new AssertionError("Utility class should not been instantiated");
     }
@@ -53,6 +51,10 @@ public final class Rao {
             this.provider = Objects.requireNonNull(provider);
         }
 
+        /**
+         * @deprecated since 7.6.0, use {@link EndInstantRaoStopCondition} instead of {@code targetEndInstant}.
+         */
+        @Deprecated(since = "7.6.0")
         public CompletableFuture<RaoResult> runAsync(final RaoInput raoInput,
                                                      final RaoParameters parameters,
                                                      final Instant targetEndInstant,
@@ -70,6 +72,28 @@ public final class Rao {
             return provider.run(raoInput, parameters, targetEndInstant, reportNode);
         }
 
+        public CompletableFuture<RaoResult> runAsync(final RaoInput raoInput,
+                                                     final RaoParameters parameters,
+                                                     final ReportNode reportNode,
+                                                     final RaoStopCondition raoStopCondition) {
+            Objects.requireNonNull(raoInput, "RAO input should not be null");
+            Objects.requireNonNull(parameters, "parameters should not be null");
+            Objects.requireNonNull(raoStopCondition, "RAO stop condition should not be null");
+
+            Version openRaoVersion = ServiceLoader.load(Version.class).stream()
+                .map(ServiceLoader.Provider::get)
+                .filter(version -> version.getRepositoryName().equals("open-rao"))
+                .findFirst().orElseThrow();
+
+            RaoApiReports.reportRaoVersionAndGitCommit(reportNode, openRaoVersion.getMavenProjectVersion(), openRaoVersion.getGitVersion());
+
+            return provider.run(raoInput, parameters, reportNode, raoStopCondition);
+        }
+
+        /**
+         * @deprecated since 7.6.0, use {@link EndInstantRaoStopCondition} instead of {@code targetEndInstant}.
+         */
+        @Deprecated(since = "7.6.0")
         public CompletableFuture<RaoResult> runAsync(final RaoInput raoInput, final RaoParameters parameters, final Instant targetEndInstant) {
             return runAsync(raoInput, parameters, targetEndInstant, ReportNode.NO_OP);
         }
@@ -90,10 +114,18 @@ public final class Rao {
             return runAsync(raoInput, (Instant) null, ReportNode.NO_OP);
         }
 
+        /**
+         * @deprecated since 7.6.0, use {@link EndInstantRaoStopCondition} instead of {@code targetEndInstant}.
+         */
+        @Deprecated(since = "7.6.0")
         public CompletableFuture<RaoResult> runAsync(final RaoInput raoInput, final Instant targetEndInstant, final ReportNode reportNode) {
             return runAsync(raoInput, RaoParameters.load(reportNode), targetEndInstant, reportNode);
         }
 
+        /**
+         * @deprecated since 7.6.0, use {@link EndInstantRaoStopCondition} instead of {@code targetEndInstant}.
+         */
+        @Deprecated(since = "7.6.0")
         public CompletableFuture<RaoResult> runAsync(final RaoInput raoInput, final Instant targetEndInstant) {
             return runAsync(raoInput, RaoParameters.load(ReportNode.NO_OP), targetEndInstant, ReportNode.NO_OP);
         }
@@ -126,11 +158,14 @@ public final class Rao {
             return runAsync(raoInput, ReportNode.NO_OP);
         }
 
+        /**
+         * @deprecated since 7.6.0, use {@link EndInstantRaoStopCondition} instead of {@code targetEndInstant}.
+         */
+        @Deprecated(since = "7.6.0")
         public RaoResult run(final RaoInput raoInput,
                              final RaoParameters parameters,
                              final Instant targetEndInstant,
-                             final ReportNode reportNode,
-                             final RaoStopCondition raoStopCondition) {
+                             final ReportNode reportNode) {
             Objects.requireNonNull(raoInput, "RAO input should not be null");
             Objects.requireNonNull(parameters, "parameters should not be null");
             Objects.requireNonNull(reportNode, "ReportNode should not be null");
@@ -142,31 +177,50 @@ public final class Rao {
 
             RaoApiReports.reportRaoVersionAndGitCommit(reportNode, openRaoVersion.getMavenProjectVersion(), openRaoVersion.getGitVersion());
 
-            return provider.run(raoInput, parameters, targetEndInstant, reportNode, raoStopCondition).join();
+            return provider.run(raoInput, parameters, targetEndInstant, reportNode).join();
+        }
+
+        public RaoResult run(final RaoInput raoInput,
+                             final RaoParameters parameters,
+                             final ReportNode reportNode,
+                             final RaoStopCondition raoStopCondition) {
+            Objects.requireNonNull(raoInput, "RAO input should not be null");
+            Objects.requireNonNull(parameters, "parameters should not be null");
+            Objects.requireNonNull(reportNode, "ReportNode should not be null");
+            Objects.requireNonNull(raoStopCondition, "RAO stop condition should not be null");
+
+            Version openRaoVersion = ServiceLoader.load(Version.class).stream()
+                .map(ServiceLoader.Provider::get)
+                .filter(version -> version.getRepositoryName().equals("open-rao"))
+                .findFirst().orElseThrow();
+
+            RaoApiReports.reportRaoVersionAndGitCommit(reportNode, openRaoVersion.getMavenProjectVersion(), openRaoVersion.getGitVersion());
+
+            return provider.run(raoInput, parameters, reportNode, raoStopCondition).join();
         }
 
         public RaoResult run(final RaoInput raoInput, final RaoParameters parameters, final Instant targetEndInstant) {
-            return run(raoInput, parameters, targetEndInstant, ReportNode.NO_OP, RaoStopCondition.NO_OP);
+            return run(raoInput, parameters, targetEndInstant, ReportNode.NO_OP);
         }
 
         public RaoResult run(final RaoInput raoInput, final RaoParameters parameters, final ReportNode reportNode) {
-            return run(raoInput, parameters, null, reportNode, RaoStopCondition.NO_OP);
+            return run(raoInput, parameters, reportNode, RaoStopCondition.NO_OP);
         }
 
         public RaoResult run(final RaoInput raoInput, final RaoParameters parameters) {
             return run(raoInput, parameters, ReportNode.NO_OP);
         }
 
+        public RaoResult run(final RaoInput raoInput, final RaoStopCondition raoStopCondition) {
+            return run(raoInput, RaoParameters.load(ReportNode.NO_OP), ReportNode.NO_OP, raoStopCondition);
+        }
+
         public RaoResult run(final RaoInput raoInput, final ReportNode reportNode) {
-            return run(raoInput, RaoParameters.load(reportNode), null, reportNode, RaoStopCondition.NO_OP);
+            return run(raoInput, RaoParameters.load(reportNode), reportNode, RaoStopCondition.NO_OP);
         }
 
         public RaoResult run(final RaoInput raoInput) {
             return run(raoInput, ReportNode.NO_OP);
-        }
-
-        public RaoResult run(RaoInput raoInput, RaoParameters raoParameters, ReportNode reportNode, RaoStopCondition raoStopCondition) {
-            return run(raoInput, raoParameters, null, reportNode, raoStopCondition);
         }
 
         public RaoResult run(TimeCoupledRaoInput raoInput, RaoParameters parameters, ReportNode reportNode, RaoStopCondition raoStopCondition) {
@@ -265,14 +319,26 @@ public final class Rao {
         return new Runner(provider);
     }
 
+    /**
+     * @deprecated since 7.6.0, use {@link EndInstantRaoStopCondition} instead of {@code targetEndInstant}.
+     */
+    @Deprecated(since = "7.6.0")
     public static CompletableFuture<RaoResult> runAsync(RaoInput raoInput, RaoParameters parameters, Instant targetEndInstant) {
         return find().runAsync(raoInput, parameters, targetEndInstant);
     }
 
+    /**
+     * @deprecated since 7.6.0, use {@link EndInstantRaoStopCondition} instead of {@code targetEndInstant}.
+     */
+    @Deprecated(since = "7.6.0")
     public static CompletableFuture<RaoResult> runAsync(RaoInput raoInput, Instant targetEndInstant) {
         return find().runAsync(raoInput, targetEndInstant);
     }
 
+    /**
+     * @deprecated since 7.6.0, use {@link EndInstantRaoStopCondition} instead of {@code targetEndInstant}.
+     */
+    @Deprecated(since = "7.6.0")
     public static RaoResult run(RaoInput raoInput, RaoParameters parameters, Instant targetEndInstant) {
         return find().run(raoInput, parameters, targetEndInstant);
     }
