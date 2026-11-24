@@ -3,8 +3,8 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-Feature: 2.2.1.2: Handle parallel PSTs
-  # TODO: This feature covers
+Feature: 2.2.1.2: Handle aligned PSTs
+  This feature covers aligned PSTs (two PSTs that must have the same setpoint).
 
   @fast @rao @ac @preventive-only @search-tree-rao @max-min-margin
   Scenario: 2.2.1.2.1: Preventive search tree RAO with two aligned PSTs

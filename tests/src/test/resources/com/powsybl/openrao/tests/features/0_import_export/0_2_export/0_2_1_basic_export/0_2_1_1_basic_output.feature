@@ -4,7 +4,9 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 Feature: 0.2.1.1: Generate a basic output file after RAO computation
-  # TODO: This feature covers
+  This feature covers the content of the basic output file generated after a RAO. For a secured and
+  an unsecured optimization, it checks the thresholds, the initial flows, the flows after PRA and
+  after CRA, and the used remedial actions reported in the output file.
 
   @fast @rao @ac @preventive-only @secure-flow
   Scenario: 0.2.1.1.1: Secure optimization

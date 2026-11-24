@@ -4,7 +4,9 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 Feature: 2.2.2.1: Handle HVDC range actions in RAO
-  # TODO: This feature covers
+  This feature covers HVDC range actions in the RAO. It checks the HVDC range action in preventive
+  and curative perimeters, with outage CNECs, with a negative initial flow or setpoint, with PST
+  filtering, and with an inverted HVDC in the CRAC file.
 
   @fast @rao @dc @preventive-only @hvdc @max-min-margin
   Scenario: 2.2.2.1.1: HVDC range action with one preventive CNEC
@@ -30,8 +32,6 @@ Feature: 2.2.2.1: Handle HVDC range actions in RAO
     Then the worst margin is 191 MW
     Then the margin on cnec "be1_be2_n - BBE1AA11->BBE2AA11 - preventive" after PRA should be 191 MW
     Then the margin on cnec "be1_fr5_n - BBE1AA11->FFR5AA11 - preventive" after PRA should be 191 MW
-
-    
 
   @fast @rao @dc @preventive-only @hvdc @max-min-margin
   Scenario: 2.2.2.1.3: HVDC range action with PST range action and two preventive CNECs
