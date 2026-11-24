@@ -18,6 +18,7 @@ import com.powsybl.openrao.data.raoresult.api.OptimizationStepsExecuted;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.raoresult.api.extension.CostResult;
 import com.powsybl.openrao.data.raoresult.api.extension.Metadata;
+import com.powsybl.openrao.data.raoresult.impl.RaoResultImpl;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.RaoInterruptedException;
 import com.powsybl.openrao.raoapi.RaoStopCondition;
@@ -105,8 +106,11 @@ class CastorFullOptimization {
         String initialVariantName = network.getVariantManager().getWorkingVariantId();
         Unit flowUnit = RaoUtil.getFlowUnit(raoParameters);
 
+        RaoUtil.initData(raoInput, raoParameters, reportNode);
+        RaoResult intermediateRaoResult = RaoResultImpl.builder(crac).build();
+        String earlyStoppingStep = "RAO was interrupted before any result could be produced.";
+
         try {
-            RaoUtil.initData(raoInput, raoParameters, reportNode);
             boolean costOptimization = raoParameters.getObjectiveFunctionParameters().getType().costOptimization();
             RaoRunContext context = createContext();
             if (crac.getFlowCnecs().isEmpty()) {
@@ -124,13 +128,7 @@ class CastorFullOptimization {
             // compute initial sensitivity on all CNECs
             // (this is necessary to have initial flows for MNEC and loopflow constraints on CNECs, in preventive and curative perimeters)
 
-            // checkpoint 1: before initial sensitivity analysis
-            raoStopCondition.checkNotStopped();
-
             runInitialSensitivityAnalysis(context, optimizationReportNode);
-
-            // checkpoint 2: after initial sensitivity analysis
-            raoStopCondition.checkNotStopped();
 
             if (context.getInitialOutput().getSensitivityStatus() == ComputationStatus.FAILURE) {
                 CommonReports.reportInitialSensitivityAnalysisFailed(optimizationReportNode);
@@ -151,6 +149,12 @@ class CastorFullOptimization {
             final ReportNode preventivePerimeterOptimReportNode = CastorReports.reportPreventivePerimeterOptimization(optimizationReportNode);
             runFirstPreventiveOptimization(context, preventivePerimeterOptimReportNode);
             CastorReports.reportPreventivePerimeterOptimizationEnd();
+
+            // generate post-PRA intermediate RAO Result
+            RaoResultImpl.RaoResultImplBuilder intermediateRaoResultBuilder = RaoResultImpl.builder(crac);
+            RaoUtil.fillForState(intermediateRaoResultBuilder, context.getPreventiveResult(), crac.getPreventiveState());
+            intermediateRaoResult = intermediateRaoResultBuilder.build();
+            earlyStoppingStep = "RAO was interrupted after preventive optimization and before curative optimization.";
 
             // ----- SENSI POST-PRA -----
             // mutualise the pre-perimeter sensi analysis for all contingency scenario + get after-PRA result over all CNECs
@@ -210,6 +214,12 @@ class CastorFullOptimization {
             runCurativePerimeterOptimization(context, postContingencyPerimeterOptimReportNode);
             CastorReports.reportPostContingencyPerimeterOptimizationEnd();
 
+            // generate post-PRA intermediate RAO Result
+            context.getPostContingencyResults().forEach((state, postPerimeterResult) ->
+                RaoUtil.fillForState(intermediateRaoResultBuilder, postPerimeterResult.optimizationResult(), state));
+            intermediateRaoResult = intermediateRaoResultBuilder.build();
+            earlyStoppingStep = "RAO was interrupted after contingency scenarios optimization.";
+
             // ----- SECOND PREVENTIVE PERIMETER OPTIMIZATION -----
             currentStep = "second preventive optimization";
 
@@ -241,7 +251,7 @@ class CastorFullOptimization {
             return postCheckResults(context.getMergedRaoResults(), context.getInitialOutput(), raoParameters.getObjectiveFunctionParameters(), true,
                 optimizationReportNode, flowUnit, secondPreventiveRan);
         } catch (RaoInterruptedException interruptedException) {
-            throw interruptedException;
+            throw RaoUtil.handleRaoInterruptedException(intermediateRaoResult, earlyStoppingStep);
         } catch (Exception e) {
             CastorReports.reportExceptionMessageAndStacktrace(optimizationReportNode, e);
             RaoResult raoResult = RaoResultGenerator.failed(crac, String.format("RAO failed during %s : %s", currentStep, e.getMessage()));

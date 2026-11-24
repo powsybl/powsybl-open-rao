@@ -31,9 +31,12 @@ import com.powsybl.openrao.data.crac.api.usagerule.OnFlowConstraintInCountry;
 import com.powsybl.openrao.data.crac.api.usagerule.OnInstant;
 import com.powsybl.openrao.data.crac.api.usagerule.UsageRule;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
+import com.powsybl.openrao.data.raoresult.api.RaoResult;
+import com.powsybl.openrao.data.raoresult.api.extension.Metadata;
 import com.powsybl.openrao.data.raoresult.impl.RaoResultImpl;
 import com.powsybl.openrao.data.refprog.referenceprogram.ReferenceProgramBuilder;
 import com.powsybl.openrao.raoapi.RaoInput;
+import com.powsybl.openrao.raoapi.RaoInterruptedException;
 import com.powsybl.openrao.raoapi.parameters.NotOptimizedCnecsParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
@@ -463,5 +466,14 @@ public final class RaoUtil {
         return notOptimizedCnecsParameters.getDoNotOptimizeCurativeCnecsForTsosWithoutCras()
             ? crac.findOperatorsNotSharingCras()
             : Collections.emptySet();
+    }
+
+    public static RaoInterruptedException handleRaoInterruptedException(final RaoResult intermediateRaoResult, final String earlyStoppingStep) {
+        if (intermediateRaoResult.getExtension(Metadata.class) != null) {
+            intermediateRaoResult.removeExtension(Metadata.class);
+        }
+        Metadata metadata = Metadata.builder().withExecutionDetails(earlyStoppingStep).build();
+        intermediateRaoResult.addExtension(Metadata.class, metadata);
+        return new RaoInterruptedException(intermediateRaoResult);
     }
 }

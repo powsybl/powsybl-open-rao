@@ -188,12 +188,7 @@ class FastRao {
             Thread.currentThread().interrupt();
             throw new OpenRaoException("Error while running full FAST RAO loop", e);
         } catch (RaoInterruptedException interruptedException) {
-            if (raoResult.getExtension(Metadata.class) != null) {
-                raoResult.removeExtension(Metadata.class);
-            }
-            Metadata metadata = Metadata.builder().withExecutionDetails(earlyStoppingStep).build();
-            raoResult.addExtension(Metadata.class, metadata);
-            throw new RaoInterruptedException(raoResult);
+            throw RaoUtil.handleRaoInterruptedException(raoResult, earlyStoppingStep);
         }
     }
 
