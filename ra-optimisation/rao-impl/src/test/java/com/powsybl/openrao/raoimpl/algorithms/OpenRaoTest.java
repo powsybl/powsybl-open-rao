@@ -75,7 +75,7 @@ class OpenRaoTest {
     void testTimeCoupledInputUsesMarmot() {
         RaoResult timeCoupledRaoResult = mock(RaoResult.class);
         try (MockedConstruction<Marmot> marmot = mockConstruction(Marmot.class,
-            (m, context) -> when(m.run(any(TimeCoupledRaoInput.class), any(), any())).thenReturn(CompletableFuture.completedFuture(timeCoupledRaoResult)))) {
+            (m, context) -> when(m.run(any(TimeCoupledRaoInput.class), any(), any(), any())).thenReturn(CompletableFuture.completedFuture(timeCoupledRaoResult)))) {
             RaoResult result = new OpenRao().run(mock(TimeCoupledRaoInput.class), new RaoParameters(ReportNode.NO_OP), ReportNode.NO_OP).join();
             assertSame(timeCoupledRaoResult, result);
             assertEquals(1, marmot.constructed().size());
@@ -103,7 +103,7 @@ class OpenRaoTest {
         RaoParameters parameters = new RaoParameters(ReportNode.NO_OP);
         parameters.addExtension(FastRaoParameters.class, new FastRaoParameters());
         try (MockedConstruction<FastRao> fastRao = mockConstruction(FastRao.class,
-                (m, context) -> when(m.run(any(RaoInput.class), any(), any(), any())).thenReturn(CompletableFuture.completedFuture(raoResult)));
+                (m, context) -> when(m.run(any(RaoInput.class), any(), any(), any(), any())).thenReturn(CompletableFuture.completedFuture(raoResult)));
              MockedConstruction<CastorFullOptimization> castor = mockConstruction(CastorFullOptimization.class)) {
             assertSame(raoResult, new OpenRao().run(mockRaoInput(1), parameters, ReportNode.NO_OP).join());
             assertEquals(1, fastRao.constructed().size());

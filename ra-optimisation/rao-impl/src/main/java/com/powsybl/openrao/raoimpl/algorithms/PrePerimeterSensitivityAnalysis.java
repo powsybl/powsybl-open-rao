@@ -13,6 +13,7 @@ import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
+import com.powsybl.openrao.raoapi.RaoStopCondition;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoimpl.commons.SensitivityComputer;
 import com.powsybl.openrao.raoimpl.commons.ToolProvider;
@@ -44,15 +45,18 @@ public class PrePerimeterSensitivityAnalysis extends AbstractMultiPerimeterSensi
                                            Set<RangeAction<?>> rangeActions,
                                            RaoParameters raoParameters,
                                            ToolProvider toolProvider,
-                                           boolean multiThreadedSensitivities) {
-        super(crac, flowCnecs, rangeActions, raoParameters, toolProvider, multiThreadedSensitivities);
+                                           boolean multiThreadedSensitivities,
+                                           final RaoStopCondition raoStopCondition) {
+        super(crac, flowCnecs, rangeActions, raoParameters, toolProvider, multiThreadedSensitivities, raoStopCondition);
     }
 
     public PrePerimeterResult runInitialSensitivityAnalysis(final Network network, final ReportNode reportNode) {
         return runInitialSensitivityAnalysis(network, Set.of(), reportNode);
     }
 
-    public PrePerimeterResult runInitialSensitivityAnalysis(final Network network, final Set<State> optimizedStates, final ReportNode reportNode) {
+    public PrePerimeterResult runInitialSensitivityAnalysis(final Network network,
+                                                            final Set<State> optimizedStates,
+                                                            final ReportNode reportNode) {
         SensitivityComputer.SensitivityComputerBuilder sensitivityComputerBuilder = buildSensiBuilder(reportNode)
             .withOutageInstant(crac.getOutageInstant())
             .withComputationManager(computationManager);
@@ -100,9 +104,11 @@ public class PrePerimeterSensitivityAnalysis extends AbstractMultiPerimeterSensi
             .withRangeActions(rangeActions);
     }
 
-    private PrePerimeterResult runAndGetResult(final Network network, final ObjectiveFunction objectiveFunction, final ReportNode reportNode) {
+    private PrePerimeterResult runAndGetResult(final Network network,
+                                               final ObjectiveFunction objectiveFunction,
+                                               final ReportNode reportNode) {
         int oldThreadCount = setNewThreadCountAndGetOldValue();
-        sensitivityComputer.compute(network);
+        sensitivityComputer.compute(network, raoStopCondition);
         resetThreadCount(oldThreadCount);
         FlowResult flowResult = sensitivityComputer.getBranchResult(network);
         SensitivityResult sensitivityResult = sensitivityComputer.getSensitivityResult();

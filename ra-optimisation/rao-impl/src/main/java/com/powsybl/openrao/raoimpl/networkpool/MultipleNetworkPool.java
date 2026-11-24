@@ -11,6 +11,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VariantManagerConstants;
 import com.powsybl.iidm.serde.NetworkSerDe;
 import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.raoapi.RaoInterruptedException;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -80,6 +81,9 @@ public class MultipleNetworkPool extends AbstractNetworkPool {
                         networkNumberOfClones++;
                     }
                 } catch (ExecutionException e) {
+                    if (e.getCause() instanceof RaoInterruptedException raoInterruptedException) {
+                        throw raoInterruptedException;
+                    }
                     throw new OpenRaoException(e);
                 }
             }

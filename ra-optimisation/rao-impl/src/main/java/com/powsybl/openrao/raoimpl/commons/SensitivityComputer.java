@@ -15,6 +15,7 @@ import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.loopflowcomputation.LoopFlowComputation;
+import com.powsybl.openrao.raoapi.RaoStopCondition;
 import com.powsybl.openrao.raoimpl.commons.adapter.BranchResultAdapter;
 import com.powsybl.openrao.raoimpl.commons.adapter.BranchResultAdapterImpl;
 import com.powsybl.openrao.raoimpl.result.api.FlowResult;
@@ -39,8 +40,10 @@ public final class SensitivityComputer {
         // Should not be used
     }
 
-    public void compute(Network network) {
+    public void compute(Network network, RaoStopCondition raoStopCondition) {
+        raoStopCondition.checkNotStopped(); // checkpoint: before sensitivity computation
         result = systematicSensitivityInterface.run(network);
+        raoStopCondition.checkNotStopped(); // checkpoint: after sensitivity computation
     }
 
     public FlowResult getBranchResult(Network network) {

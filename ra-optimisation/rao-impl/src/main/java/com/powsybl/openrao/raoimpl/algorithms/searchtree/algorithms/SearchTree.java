@@ -12,6 +12,8 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
+import com.powsybl.openrao.raoapi.RaoInterruptedException;
+import com.powsybl.openrao.raoapi.RaoStopCondition;
 import com.powsybl.openrao.raoimpl.algorithms.searchtree.inputs.SearchTreeInput;
 import com.powsybl.openrao.raoimpl.algorithms.searchtree.parameters.SearchTreeParameters;
 import com.powsybl.openrao.raoimpl.commons.HvdcUtils;
@@ -82,6 +84,7 @@ public class SearchTree {
     private final boolean purelyVirtual;
     private final SearchTreeBloomer bloomer;
     private final ReportNode reportNode;
+    private final RaoStopCondition raoStopCondition;
 
     private Leaf rootLeaf;
     private Leaf optimalLeaf;
@@ -93,12 +96,14 @@ public class SearchTree {
     public SearchTree(final SearchTreeInput input,
                       final SearchTreeParameters parameters,
                       final boolean verbose,
-                      final ReportNode reportNode) {
+                      final ReportNode reportNode,
+                      final RaoStopCondition raoStopCondition) {
         // inputs
         this.input = input;
         this.parameters = parameters;
         this.verbose = verbose;
         this.reportNode = reportNode;
+        this.raoStopCondition = raoStopCondition;
 
         // build from inputs
         this.purelyVirtual = input.getOptimizationPerimeter().getOptimizedFlowCnecs().isEmpty();
@@ -118,7 +123,7 @@ public class SearchTree {
 
             TECHNICAL_LOGS.debug("Evaluating root leaf");
 
-            rootLeaf.evaluate(input.getObjectiveFunction(), getSensitivityComputerForEvaluation(true, reportNode), reportNode);
+            rootLeaf.evaluate(input.getObjectiveFunction(), getSensitivityComputerForEvaluation(true, reportNode), reportNode, raoStopCondition);
             if (rootLeaf.getStatus().equals(Leaf.Status.ERROR)) {
                 SearchTreeReports.reportCouldNotEvaluateLeaf(reportNode, verbose, rootLeaf);
                 reportOptimizationSummary(rootLeaf);
@@ -137,7 +142,7 @@ public class SearchTree {
             reportTechnicalMostLimitingElements(rootLeaf, NUMBER_LOGGED_ELEMENTS_DURING_TREE);
 
             SearchTreeReports.reportLinearOptimizationOnRootLeaf(reportNode);
-            optimizeLeaf(rootLeaf, reportNode);
+            optimizeLeaf(rootLeaf, reportNode, raoStopCondition);
 
             SearchTreeReports.reportRootLeaf(reportNode, verbose, rootLeaf);
             SearchTreeReports.reportRangeActions(reportNode, optimalLeaf, input.getOptimizationPerimeter());
@@ -242,6 +247,9 @@ public class SearchTree {
             try {
                 task.get();
             } catch (ExecutionException e) {
+                if (e.getCause() instanceof RaoInterruptedException raoInterruptedException) {
+                    throw raoInterruptedException;
+                }
                 throw new OpenRaoException(e);
             }
         }
@@ -273,7 +281,7 @@ public class SearchTree {
                             ra.apply(networkClone, previousDepthOptimalLeaf.getOptimizedSetpoint(ra, input.getOptimizationPerimeter().getMainOptimizationState()))
                         );
                 }
-                optimizeNextLeafAndUpdate(naCombination, shouldRangeActionBeRemoved, networkClone, reportNode);
+                optimizeNextLeafAndUpdate(naCombination, shouldRangeActionBeRemoved, networkClone, reportNode, raoStopCondition);
 
             } else {
                 SearchTreeReports.reportSkippingOptimization(reportNode, verbose, naCombination.getConcatenatedId());
@@ -328,7 +336,8 @@ public class SearchTree {
     void optimizeNextLeafAndUpdate(final NetworkActionCombination naCombination,
                                    final boolean shouldRangeActionBeRemoved,
                                    final Network network,
-                                   final ReportNode reportNode) {
+                                   final ReportNode reportNode,
+                                   final RaoStopCondition raoStopCondition) {
         Leaf leaf;
         try {
             // We get initial range action results from the previous optimal leaf
@@ -340,7 +349,7 @@ public class SearchTree {
             return;
         }
         // We evaluate the leaf with taking the results of the previous optimal leaf if we do not want to update some results
-        leaf.evaluate(input.getObjectiveFunction(), getSensitivityComputerForEvaluation(shouldRangeActionBeRemoved, reportNode), reportNode);
+        leaf.evaluate(input.getObjectiveFunction(), getSensitivityComputerForEvaluation(shouldRangeActionBeRemoved, reportNode), reportNode, raoStopCondition);
 
         SearchTreeReports.reportEvaluatedLeaf(reportNode, verbose, leaf);
         if (!leaf.getStatus().equals(Leaf.Status.ERROR)) {
@@ -348,7 +357,7 @@ public class SearchTree {
                 if (combinationFulfillingStopCriterion.isPresent() && deterministicNetworkActionCombinationComparison(naCombination, combinationFulfillingStopCriterion.get()) > 0) {
                     SearchTreeReports.reportSkippingOptimization(reportNode, verbose, naCombination.getConcatenatedId());
                 } else {
-                    optimizeLeaf(leaf, reportNode);
+                    optimizeLeaf(leaf, reportNode, raoStopCondition);
 
                     SearchTreeReports.reportOptimizedLeaf(reportNode, verbose, leaf);
                     reportVirtualCostInformation(reportNode, leaf, true);
@@ -375,9 +384,9 @@ public class SearchTree {
             initialNumberOfConnectedComponent);
     }
 
-    private void optimizeLeaf(final Leaf leaf, final ReportNode reportNode) {
+    private void optimizeLeaf(final Leaf leaf, final ReportNode reportNode, final RaoStopCondition raoStopCondition) {
         if (!input.getOptimizationPerimeter().getRangeActions().isEmpty()) {
-            leaf.optimize(input, parameters, reportNode);
+            leaf.optimize(input, parameters, reportNode, raoStopCondition);
             if (!leaf.getStatus().equals(Leaf.Status.OPTIMIZED)) {
                 SearchTreeReports.reportFailedToOptimizeLeaf(reportNode, verbose, leaf);
             }

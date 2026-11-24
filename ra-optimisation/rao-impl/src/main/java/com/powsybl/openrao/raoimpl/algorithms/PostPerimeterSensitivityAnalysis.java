@@ -15,6 +15,7 @@ import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
+import com.powsybl.openrao.raoapi.RaoStopCondition;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoimpl.commons.SensitivityComputer;
 import com.powsybl.openrao.raoimpl.commons.ToolProvider;
@@ -42,16 +43,18 @@ public class PostPerimeterSensitivityAnalysis extends AbstractMultiPerimeterSens
                                             Set<RangeAction<?>> rangeActions,
                                             RaoParameters raoParameters,
                                             ToolProvider toolProvider,
-                                            boolean multiThreadedSensitivities) {
-        super(crac, flowCnecs, rangeActions, raoParameters, toolProvider, multiThreadedSensitivities);
+                                            boolean multiThreadedSensitivities,
+                                            final RaoStopCondition raoStopCondition) {
+        super(crac, flowCnecs, rangeActions, raoParameters, toolProvider, multiThreadedSensitivities, raoStopCondition);
     }
 
     public PostPerimeterSensitivityAnalysis(Crac crac,
                                             Set<State> states,
                                             RaoParameters raoParameters,
                                             ToolProvider toolProvider,
-                                            boolean multiThreadedSensitivities) {
-        super(crac, states, raoParameters, toolProvider, multiThreadedSensitivities);
+                                            boolean multiThreadedSensitivities,
+                                            final RaoStopCondition raoStopCondition) {
+        super(crac, states, raoParameters, toolProvider, multiThreadedSensitivities, raoStopCondition);
     }
 
     /**
@@ -77,7 +80,7 @@ public class PostPerimeterSensitivityAnalysis extends AbstractMultiPerimeterSens
             SensitivityComputer sensitivityComputer = buildSensitivityComputer(initialFlowResult, appliedCurativeRemedialActions, reportNode);
 
             int oldThreadCount = setNewThreadCountAndGetOldValue();
-            sensitivityComputer.compute(network);
+            sensitivityComputer.compute(network, raoStopCondition);
             resetThreadCount(oldThreadCount);
             flowResult.set(sensitivityComputer.getBranchResult(network));
             sensitivityResult.set(sensitivityComputer.getSensitivityResult());
@@ -167,7 +170,7 @@ public class PostPerimeterSensitivityAnalysis extends AbstractMultiPerimeterSens
             );
 
             int oldThreadCount = PostPerimeterSensitivityAnalysis.this.setNewThreadCountAndGetOldValue();
-            sensitivityComputer.compute(network);
+            sensitivityComputer.compute(network, raoStopCondition);
             PostPerimeterSensitivityAnalysis.this.resetThreadCount(oldThreadCount);
             flowResult.set(sensitivityComputer.getBranchResult(network));
             sensitivityResult.set(sensitivityComputer.getSensitivityResult());

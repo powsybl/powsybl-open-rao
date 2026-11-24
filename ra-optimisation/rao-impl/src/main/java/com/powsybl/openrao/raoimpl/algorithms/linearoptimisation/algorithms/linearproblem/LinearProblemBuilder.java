@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.raoimpl.algorithms.linearoptimisation.algorithms.linearproblem;
 
+import com.powsybl.openrao.raoapi.RaoStopCondition;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters;
 import com.powsybl.openrao.raoimpl.algorithms.linearoptimisation.algorithms.ProblemFillerHelper;
 import com.powsybl.openrao.raoimpl.algorithms.linearoptimisation.algorithms.fillers.ProblemFiller;
@@ -27,23 +28,30 @@ public class LinearProblemBuilder {
     private double relativeMipGap = SearchTreeRaoRangeActionsOptimizationParameters.LinearOptimizationSolver.DEFAULT_RELATIVE_MIP_GAP;
     private String solverSpecificParameters = SearchTreeRaoRangeActionsOptimizationParameters.LinearOptimizationSolver.DEFAULT_SOLVER_SPECIFIC_PARAMETERS;
     private RangeActionActivationResult initialRangeActionActivationResult;
+    private RaoStopCondition raoStopCondition = RaoStopCondition.NO_OP;
 
-    public LinearProblem buildFromInputsAndParameters(IteratingLinearOptimizerInput inputs, IteratingLinearOptimizerParameters parameters) {
+    public LinearProblem buildFromInputsAndParameters(IteratingLinearOptimizerInput inputs, IteratingLinearOptimizerParameters parameters, final RaoStopCondition raoStopCondition) {
         Objects.requireNonNull(inputs);
         Objects.requireNonNull(parameters);
 
         this.withSolver(parameters.getSolverParameters().getSolver())
             .withRelativeMipGap(parameters.getSolverParameters().getRelativeMipGap())
             .withSolverSpecificParameters(parameters.getSolverParameters().getSolverSpecificParameters())
-            .withInitialRangeActionActivationResult(inputs.raActivationFromParentLeaf());
+            .withInitialRangeActionActivationResult(inputs.raActivationFromParentLeaf())
+            .withRaoStopCondition(raoStopCondition);
 
         ProblemFillerHelper.getProblemFillers(inputs, parameters, inputs.optimizationPerimeter().getMainOptimizationState().getTimestamp().orElse(null)).forEach(this::withProblemFiller);
 
-        return new LinearProblem(problemFillers, initialRangeActionActivationResult, solver, relativeMipGap, solverSpecificParameters);
+        return new LinearProblem(problemFillers, initialRangeActionActivationResult, solver, relativeMipGap, solverSpecificParameters, this.raoStopCondition);
     }
 
     public LinearProblem build() {
-        return new LinearProblem(problemFillers, initialRangeActionActivationResult, solver, relativeMipGap, solverSpecificParameters);
+        return new LinearProblem(problemFillers, initialRangeActionActivationResult, solver, relativeMipGap, solverSpecificParameters, raoStopCondition);
+    }
+
+    public LinearProblemBuilder withRaoStopCondition(RaoStopCondition raoStopCondition) {
+        this.raoStopCondition = raoStopCondition;
+        return this;
     }
 
     public LinearProblemBuilder withProblemFiller(ProblemFiller problemFiller) {

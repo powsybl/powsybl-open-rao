@@ -30,6 +30,8 @@ import com.powsybl.openrao.data.raoresult.api.extension.CriticalCnecsResult;
 import com.powsybl.openrao.data.raoresult.api.extension.Metadata;
 import com.powsybl.openrao.data.raoresult.impl.RaoResultImpl;
 import com.powsybl.openrao.raoapi.RaoInput;
+import com.powsybl.openrao.raoapi.RaoInterruptedException;
+import com.powsybl.openrao.raoapi.RaoStopCondition;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.FastRaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
@@ -73,7 +75,8 @@ class FastRao {
                                                final RaoParameters parameters,
                                                final Instant targetEndInstant,
                                                final Set<FlowCnec> consideredCnecs,
-                                               final ReportNode reportNode) {
+                                               final ReportNode reportNode,
+                                               final RaoStopCondition raoStopCondition) {
 
         if (!parameters.hasExtension(FastRaoParameters.class)) {
             FastRaoReports.reportMissingFastRaoParametersExtension(reportNode);
@@ -84,6 +87,9 @@ class FastRao {
             FastRaoReports.reportFastRaoDoesNotSupportMultiCurativeOptimization(reportNode);
             return RaoResultGenerator.failed(raoInput.getCrac(), "Fast Rao does not support multi-curative optimization");
         }
+
+        RaoResultImpl raoResult = RaoResultImpl.builder(raoInput.getCrac()).build();
+        String earlyStoppingStep = "RAO was interrupted before any result could be produced.";
 
         try {
             // Retrieve input data
@@ -98,7 +104,9 @@ class FastRao {
                 crac.getRangeActions().isEmpty() ? new HashSet<>() : Set.of(crac.getRangeActions().stream().findFirst().orElseThrow()),
                 parameters,
                 toolProvider,
-                false);
+                false,
+                raoStopCondition
+            );
 
             // Run initial sensi (for initial values, and to know which cnecs to put in the first rao)
             PrePerimeterResult initialResultWithoutUpdatedRangeActionSetpointResult = prePerimeterSensitivityAnalysis.runInitialSensitivityAnalysis(raoInput.getNetwork(), reportNode);
@@ -117,9 +125,9 @@ class FastRao {
             if (initialResult.getSensitivityStatus() == ComputationStatus.FAILURE) {
                 CommonReports.reportInitialSensitivityAnalysisFailed(reportNode);
                 String failureReason = "Initial sensitivity analysis failed";
-                RaoResult raoResult = RaoResultImpl.builder(raoInput.getCrac()).build();
-                MetadataHelper.fillAndAddWithGlobalFailure(raoInput.getCrac(), raoResult, failureReason);
-                return raoResult;
+                RaoResult failedRaoResult = RaoResultImpl.builder(raoInput.getCrac()).build();
+                MetadataHelper.fillAndAddWithGlobalFailure(raoInput.getCrac(), failedRaoResult, failureReason);
+                return failedRaoResult;
             }
 
             FastRaoReports.reportFastRaoInitialSensitivityAnalysisResults(reportNode,
@@ -131,7 +139,6 @@ class FastRao {
 
             PrePerimeterResult stepResult = initialResult;
             FlowCnec worstCnec;
-            RaoResultImpl raoResult;
             AbstractNetworkPool networkPool = AbstractNetworkPool.create(raoInput.getNetwork(), raoInput.getNetworkVariantId(), 3, true);
             int counter = 1;
 
@@ -154,7 +161,8 @@ class FastRao {
                     initialRangeActionSetpointResult,
                     networkPool,
                     counter,
-                    iterationReportNode
+                    iterationReportNode,
+                    raoStopCondition
                 );
                 raoResult = filteredRaoResults.getFirst();
                 stepResult = filteredRaoResults.getSecond();
@@ -162,7 +170,9 @@ class FastRao {
                 FastRaoReports.reportFastRaoIterationIntermediateResult(iterationReportNode, counter, stepResult, parameters, NUMBER_LOGGED_ELEMENTS_DURING_RAO);
 
                 worstCnec = stepResult.getMostLimitingElements(1).getFirst();
+                earlyStoppingStep = "RAO was interrupted after global MIP iteration n°" + counter + ".";
                 counter++;
+
             } while (!(consideredCnecs.contains(worstCnec) && consideredCnecs.containsAll(getCostlyVirtualCnecs(stepResult))));
 
             networkPool.shutdownAndAwaitTermination(24, TimeUnit.HOURS);
@@ -174,9 +184,16 @@ class FastRao {
                 new CriticalCnecsResult(consideredCnecs.stream().map(FlowCnec::getId).collect(Collectors.toSet()))
             );
             return raoResult;
-        } catch (InterruptedException | ExecutionException e) {
+        } catch (ExecutionException e) {
+            if (e.getCause() instanceof RaoInterruptedException) {
+                throw RaoUtil.handleRaoInterruptedException(raoResult, earlyStoppingStep);
+            }
+            throw new OpenRaoException("Error while running full FAST RAO loop", e);
+        } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new OpenRaoException("Error while running full FAST RAO loop", e);
+        } catch (RaoInterruptedException interruptedException) {
+            throw RaoUtil.handleRaoInterruptedException(raoResult, earlyStoppingStep);
         }
     }
 
@@ -229,7 +246,8 @@ class FastRao {
                                                                           final RangeActionSetpointResult initialRangeActionSetpointResult,
                                                                           final AbstractNetworkPool networkPool,
                                                                           final int counter,
-                                                                          final ReportNode reportNode) throws ExecutionException, InterruptedException {
+                                                                          final ReportNode reportNode,
+                                                                          final RaoStopCondition raoStopCondition) throws ExecutionException, InterruptedException {
         Crac crac = raoInput.getCrac();
 
         // Filter CRAC to only keep flowCnecsToKeep
@@ -241,7 +259,7 @@ class FastRao {
         RaoInput filteredRaoInput = createFilteredRaoInput(raoInput, filteredCrac);
         RaoResult raoResult;
         try {
-            raoResult = new CastorFullOptimization(filteredRaoInput, parameters, targetEndInstant, filteredRaoReportNode).run().get();
+            raoResult = new CastorFullOptimization(filteredRaoInput, parameters, targetEndInstant, filteredRaoReportNode, raoStopCondition).run().get();
             List<String> preventiveNetworkActions = new ArrayList<>();
             if (!Objects.isNull(crac.getPreventiveState())) {
                 preventiveNetworkActions = raoResult.getActivatedNetworkActionsDuringState(crac.getPreventiveState()).stream()
@@ -256,10 +274,14 @@ class FastRao {
                 }
                 parameters.getExtension(OpenRaoSearchTreeParameters.class).getTopoOptimizationParameters().setPredefinedCombinations(predefinedCombinations);
             }
-        } catch (InterruptedException | ExecutionException e) {
+        } catch (ExecutionException e) {
+            if (e.getCause() instanceof RaoInterruptedException raoInterruptedException) {
+                throw raoInterruptedException;
+            }
+            throw new OpenRaoException("Error while running filtered RAO", e);
+        } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new OpenRaoException("Error while running filtered RAO", e);
-
         }
 
         FastRaoReports.reportFastRaoIterationRunFilteredRaoEnd(counter);
@@ -287,7 +309,8 @@ class FastRao {
             parameters,
             toolProvider,
             InstantKind.PREVENTIVE,
-            fullSensiAnalysisReportNode
+            fullSensiAnalysisReportNode,
+            raoStopCondition
         );
 
         // 2) Post ARA
@@ -302,7 +325,8 @@ class FastRao {
             parameters,
             toolProvider,
             InstantKind.AUTO,
-            fullSensiAnalysisReportNode
+            fullSensiAnalysisReportNode,
+            raoStopCondition
         );
 
         // 3) Post CRA
@@ -317,7 +341,8 @@ class FastRao {
             parameters,
             toolProvider,
             InstantKind.CURATIVE,
-            fullSensiAnalysisReportNode
+            fullSensiAnalysisReportNode,
+            raoStopCondition
         );
 
         // Wait for all futures to finish before releasing the network
@@ -327,6 +352,9 @@ class FastRao {
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             } catch (ExecutionException e) {
+                if (e.getCause() instanceof RaoInterruptedException raoInterruptedException) {
+                    throw raoInterruptedException;
+                }
                 throw new OpenRaoException(e);
             }
         }
@@ -457,7 +485,8 @@ class FastRao {
         RaoParameters parameters,
         ToolProvider toolProvider,
         InstantKind instantKind,
-        final ReportNode reportNode) {
+        final ReportNode reportNode,
+        final RaoStopCondition raoStopCondition) {
 
         // Collect all activated remedial actions (for costly evaluation)
         RemedialActionActivationResult remedialActionActivationResult = createRemedialActionsActivationResults(instantKind, raoResult, crac, initialRangeActionSetpointResult);
@@ -483,7 +512,9 @@ class FastRao {
             crac.getRangeActions().isEmpty() ? new HashSet<>() : Set.of(crac.getRangeActions().stream().findFirst().orElseThrow()),
             parameters,
             toolProvider,
-            false);
+            false,
+            raoStopCondition
+        );
 
         // Run asynchronously
         return perimeterSensiAnalysis.runAsyncBasedOnInitialPreviousAndActivatedRa(
@@ -564,7 +595,8 @@ class FastRao {
     CompletableFuture<RaoResult> run(final RaoInput raoInput,
                                      final RaoParameters parameters,
                                      final Instant targetEndInstant,
-                                     final ReportNode reportNode) {
+                                     final ReportNode reportNode,
+                                     final RaoStopCondition raoStopCondition) {
         try {
             RaoUtil.initData(raoInput, parameters, reportNode);
         } catch (OpenRaoException e) {
@@ -575,6 +607,6 @@ class FastRao {
             return CompletableFuture.completedFuture(raoResult);
         }
 
-        return CompletableFuture.completedFuture(launchFastRaoOptimization(raoInput, parameters, targetEndInstant, new HashSet<>(), reportNode));
+        return CompletableFuture.completedFuture(launchFastRaoOptimization(raoInput, parameters, targetEndInstant, new HashSet<>(), reportNode, raoStopCondition));
     }
 }

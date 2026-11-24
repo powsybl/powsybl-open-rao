@@ -23,6 +23,7 @@ import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.refprog.referenceprogram.ReferenceProgram;
 import com.powsybl.openrao.raoapi.Rao;
 import com.powsybl.openrao.raoapi.RaoInput;
+import com.powsybl.openrao.raoapi.RaoStopCondition;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.FastRaoParameters;
 import com.powsybl.openrao.raoimpl.commons.RaoUtil;
@@ -69,9 +70,11 @@ public final class RaoUtils {
         }
     }
 
-    public static RaoResult runRao(String raoType, Double loopflowAsPmaxPercentage,
-                                   Integer timeLimitInSeconds, final ReportNode reportNode,
-                                   boolean forceFastRao) throws IOException {
+    public static RaoResult runRao(String raoType,
+                                   Double loopflowAsPmaxPercentage,
+                                   final ReportNode reportNode,
+                                   boolean forceFastRao,
+                                   RaoStopCondition raoStopCondition) throws IOException {
         RaoParameters raoParameters = CommonTestData.getRaoParameters();
         ZonalData<SensitivityVariableSet> glsks = CommonTestData.getLoopflowGlsks();
         // Rao with loop-flows
@@ -95,26 +98,21 @@ public final class RaoUtils {
             CommonTestData.getCounterTradeGlsks(),
             CommonTestData.getReferenceProgram(),
             raoParameters,
-            timeLimitInSeconds,
-            reportNode
+            reportNode,
+            raoStopCondition
         );
     }
 
     private static RaoResult runRaoInMemory(Rao.Runner raoRunner, Network network, Crac crac,
                                             ZonalData<SensitivityVariableSet> glsks, ZonalData<Scalable> counterTradeGlsks, ReferenceProgram referenceProgram, RaoParameters config,
-                                            Integer timeLimitInSeconds, final ReportNode reportNode) throws IOException {
+                                            final ReportNode reportNode, final RaoStopCondition raoStopCondition) throws IOException {
 
         RaoInput.RaoInputBuilder raoInputBuilder = RaoInput.build(network, crac);
         raoInputBuilder.withGlskProvider(glsks);
         raoInputBuilder.withCounterTradeGlskProvider(counterTradeGlsks);
         raoInputBuilder.withRefProg(referenceProgram);
 
-        RaoResult raoResult;
-        if (timeLimitInSeconds != null) {
-            raoResult = raoRunner.run(raoInputBuilder.build(), config, java.time.Instant.now().plusSeconds(timeLimitInSeconds.longValue()), reportNode);
-        } else {
-            raoResult = raoRunner.run(raoInputBuilder.build(), config, reportNode);
-        }
+        RaoResult raoResult = raoRunner.run(raoInputBuilder.build(), config, reportNode, raoStopCondition);
 
         /*
         roundTrip on RaoResult

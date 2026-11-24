@@ -23,6 +23,7 @@ import com.powsybl.openrao.data.raoresult.api.extension.FlowResult;
 import com.powsybl.openrao.data.raoresult.api.extension.Metadata;
 import com.powsybl.openrao.data.raoresult.impl.RaoResultImpl;
 import com.powsybl.openrao.raoapi.RaoInput;
+import com.powsybl.openrao.raoapi.RaoStopCondition;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoimpl.algorithms.PostPerimeterSensitivityAnalysis;
 import com.powsybl.openrao.raoimpl.algorithms.PrePerimeterSensitivityAnalysis;
@@ -113,7 +114,7 @@ final class RaoResultHelper {
                 RaoInput.build(network, crac).build(), raoParameters
             );
             final PrePerimeterSensitivityAnalysis initialPrePerimeterSensitivityAnalysis = new PrePerimeterSensitivityAnalysis(
-                crac, crac.getFlowCnecs(), crac.getRangeActions(), raoParameters, toolProvider, true
+                crac, crac.getFlowCnecs(), crac.getRangeActions(), raoParameters, toolProvider, true, RaoStopCondition.NO_OP
             );
             final PrePerimeterResult initialFlowResult = initialPrePerimeterSensitivityAnalysis.runInitialSensitivityAnalysis(network, reportNode);
 
@@ -153,8 +154,9 @@ final class RaoResultHelper {
             );
 
             final PostPerimeterResult preventivePostPerimeterResult =
-                new PostPerimeterSensitivityAnalysis(crac, crac.getFlowCnecs(), crac.getRangeActions(), raoParameters, toolProvider, true)
-                    .runBasedOnInitialPreviousAndOptimizationResults(network, initialFlowResult, preventivePrePerimeterResult, Set.of(), preventiveResult, new AppliedRemedialActions(), reportNode);
+                new PostPerimeterSensitivityAnalysis(crac, crac.getFlowCnecs(), crac.getRangeActions(), raoParameters, toolProvider, true, RaoStopCondition.NO_OP)
+                    .runBasedOnInitialPreviousAndOptimizationResults(network, initialFlowResult, preventivePrePerimeterResult, Set.of(),
+                        preventiveResult, new AppliedRemedialActions(), reportNode);
 
             final Map<State, PostPerimeterResult> postMergingContingencyResults = new ConcurrentHashMap<>();
 
@@ -282,7 +284,7 @@ final class RaoResultHelper {
                 );
 
                 final PrePerimeterSensitivityAnalysis statePrePerimeterSensitivityAnalysis = new PrePerimeterSensitivityAnalysis(
-                    crac, crac.getFlowCnecs(state), crac.getRangeActions(), raoParameters, toolProvider, true
+                    crac, crac.getFlowCnecs(state), crac.getRangeActions(), raoParameters, toolProvider, true, RaoStopCondition.NO_OP
                 );
 
                 final PrePerimeterResult statePrePerimeterResult = statePrePerimeterSensitivityAnalysis.runBasedOnInitialResults(
@@ -302,7 +304,7 @@ final class RaoResultHelper {
                     .collect(Collectors.toSet());
 
                 final PostPerimeterResult statePostPerimeterResult =
-                    new PostPerimeterSensitivityAnalysis(crac, statePostPerimeterFlowCnecs, crac.getRangeActions(), raoParameters, toolProvider, true)
+                    new PostPerimeterSensitivityAnalysis(crac, statePostPerimeterFlowCnecs, crac.getRangeActions(), raoParameters, toolProvider, true, RaoStopCondition.NO_OP)
                         .runBasedOnInitialPreviousAndOptimizationResults(
                             network,
                             initialFlowResult,

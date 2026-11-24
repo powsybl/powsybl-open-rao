@@ -28,6 +28,7 @@ import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
+import com.powsybl.openrao.raoapi.RaoStopCondition;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters;
 import com.powsybl.openrao.raoimpl.algorithms.searchtree.inputs.SearchTreeInput;
@@ -124,7 +125,7 @@ class SearchTreeTest {
         setSearchTreeInput();
         searchTreeParameters = Mockito.mock(SearchTreeParameters.class);
         setSearchTreeParameters();
-        searchTree = Mockito.spy(new SearchTree(searchTreeInput, searchTreeParameters, true, reportNode));
+        searchTree = Mockito.spy(new SearchTree(searchTreeInput, searchTreeParameters, true, reportNode, RaoStopCondition.NO_OP));
         when(searchTreeParameters.getObjectiveFunction()).thenReturn(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN);
         when(searchTreeParameters.getFlowUnit()).thenReturn(Unit.MEGAWATT);
         mockNetworkPool(network);
@@ -302,10 +303,10 @@ class SearchTreeTest {
         when(sensitivityComputer.getSensitivityResult()).thenReturn(sensitivityResult);
         when(sensitivityResult.getSensitivityStatus()).thenReturn(ComputationStatus.DEFAULT);
         when(sensitivityComputer.getBranchResult(network)).thenReturn(null);
-        Mockito.doNothing().when(sensitivityComputer).compute(network);
+        Mockito.doNothing().when(sensitivityComputer).compute(network, RaoStopCondition.NO_OP);
         ObjectiveFunction objectiveFunction = Mockito.mock(ObjectiveFunction.class);
         when(objectiveFunction.evaluate(any(), any(), any())).thenReturn(null);
-        leaf.evaluate(objectiveFunction, sensitivityComputer, reportNode);
+        leaf.evaluate(objectiveFunction, sensitivityComputer, reportNode, RaoStopCondition.NO_OP);
     }
 
     @Test
@@ -537,7 +538,7 @@ class SearchTreeTest {
         when(rootLeaf.getStatus()).thenReturn(Leaf.Status.EVALUATED);
         Mockito.doReturn(rootLeaf).when(searchTree).makeLeaf(optimizationPerimeter, network, prePerimeterResult, appliedRemedialActions);
         // rootLeaf should not be optimized : its virtual cost is zero so stop criterion is already reached
-        doThrow(OpenRaoException.class).when(rootLeaf).optimize(any(), any(), any());
+        doThrow(OpenRaoException.class).when(rootLeaf).optimize(any(), any(), any(), any());
 
         try {
             searchTree.run();
@@ -580,7 +581,7 @@ class SearchTreeTest {
 
     @Test
     void testLogsDontVerbose() {
-        searchTree = Mockito.spy(new SearchTree(searchTreeInput, searchTreeParameters, false, reportNode));
+        searchTree = Mockito.spy(new SearchTree(searchTreeInput, searchTreeParameters, false, reportNode, RaoStopCondition.NO_OP));
         raoWithoutLoopFlowLimitation();
 
         when(rootLeaf.getStatus()).thenReturn(Leaf.Status.ERROR);

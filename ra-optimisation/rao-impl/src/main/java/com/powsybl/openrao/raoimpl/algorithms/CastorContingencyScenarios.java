@@ -16,6 +16,8 @@ import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
+import com.powsybl.openrao.raoapi.RaoInterruptedException;
+import com.powsybl.openrao.raoapi.RaoStopCondition;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
@@ -31,16 +33,37 @@ import com.powsybl.openrao.raoimpl.commons.parameters.TreeParameters;
 import com.powsybl.openrao.raoimpl.commons.parameters.UnoptimizedCnecParameters;
 import com.powsybl.openrao.raoimpl.networkpool.AbstractNetworkPool;
 import com.powsybl.openrao.raoimpl.reports.CastorReports;
-import com.powsybl.openrao.raoimpl.result.api.*;
-import com.powsybl.openrao.raoimpl.result.impl.*;
+import com.powsybl.openrao.raoimpl.result.api.NetworkActionsResult;
+import com.powsybl.openrao.raoimpl.result.api.ObjectiveFunctionResult;
+import com.powsybl.openrao.raoimpl.result.api.OptimizationResult;
+import com.powsybl.openrao.raoimpl.result.api.PrePerimeterResult;
+import com.powsybl.openrao.raoimpl.result.api.RangeActionActivationResult;
+import com.powsybl.openrao.raoimpl.result.api.RangeActionSetpointResult;
+import com.powsybl.openrao.raoimpl.result.api.RemedialActionActivationResult;
+import com.powsybl.openrao.raoimpl.result.impl.AutomatonPerimeterResultImpl;
+import com.powsybl.openrao.raoimpl.result.impl.NetworkActionsResultImpl;
+import com.powsybl.openrao.raoimpl.result.impl.OptimizationResultImpl;
+import com.powsybl.openrao.raoimpl.result.impl.PostPerimeterResult;
+import com.powsybl.openrao.raoimpl.result.impl.PrePerimeterSensitivityResultImpl;
+import com.powsybl.openrao.raoimpl.result.impl.RangeActionActivationResultImpl;
+import com.powsybl.openrao.raoimpl.result.impl.RangeActionSetpointResultImpl;
+import com.powsybl.openrao.raoimpl.result.impl.RemedialActionActivationResultImpl;
+import com.powsybl.openrao.raoimpl.result.impl.SkippedOptimizationResultImpl;
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
-import java.util.*;
+
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ForkJoinTask;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
+
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
 import static com.powsybl.openrao.data.raoresult.api.ComputationStatus.DEFAULT;
 import static com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters.getSensitivityFailureOvercost;
@@ -67,19 +90,22 @@ public class CastorContingencyScenarios {
     private final StateTree stateTree;
     private final TreeParameters curativeTreeParameters;
     private final PrePerimeterResult initialSensitivityOutput;
+    private final RaoStopCondition raoStopCondition;
 
     public CastorContingencyScenarios(Crac crac,
                                       RaoParameters raoParameters,
                                       ToolProvider toolProvider,
                                       StateTree stateTree,
                                       TreeParameters curativeTreeParameters,
-                                      PrePerimeterResult initialSensitivityOutput) {
+                                      PrePerimeterResult initialSensitivityOutput,
+                                      final RaoStopCondition raoStopCondition) {
         this.crac = crac;
         this.raoParameters = raoParameters;
         this.toolProvider = toolProvider;
         this.stateTree = stateTree;
         this.curativeTreeParameters = curativeTreeParameters;
         this.initialSensitivityOutput = initialSensitivityOutput;
+        this.raoStopCondition = raoStopCondition;
     }
 
     static boolean isStopCriterionChecked(ObjectiveFunctionResult result, TreeParameters treeParameters) {
@@ -117,7 +143,8 @@ public class CastorContingencyScenarios {
             prePerimeterSensitivityOutput,
             stateTree.getOperatorsNotSharingCras(),
             NUMBER_LOGGED_ELEMENTS_DURING_RAO,
-            reportNode
+            reportNode,
+            raoStopCondition
         );
         // Go through all contingency scenarios
         try (AbstractNetworkPool networkPool = AbstractNetworkPool.create(network, newVariant, getAvailableCPUs(raoParameters), true)) {
@@ -141,6 +168,9 @@ public class CastorContingencyScenarios {
                 try {
                     task.get();
                 } catch (ExecutionException e) {
+                    if (e.getCause() instanceof RaoInterruptedException raoInterruptedException) {
+                        throw raoInterruptedException;
+                    }
                     throw new OpenRaoException(e);
                 }
             }
@@ -182,6 +212,7 @@ public class CastorContingencyScenarios {
                 preCurativeResult = automatonResult.getPostAutomatonSensitivityAnalysisOutput();
             }
         }
+
         // Do not simulate curative instant if last sensitivity analysis failed
         // -- if there was no automaton state, check prePerimeterSensitivityOutput sensi status
         // -- or if there was an automaton state that failed
@@ -279,7 +310,7 @@ public class CastorContingencyScenarios {
         crac.getStates(state.getContingency().orElseThrow()).stream()
             .filter(s -> s.getInstant().comesAfter(state.getInstant()))
             .forEach(statesToConsider::add);
-        PostPerimeterSensitivityAnalysis postPerimeterSensitivityAnalysis = new PostPerimeterSensitivityAnalysis(crac, statesToConsider, raoParameters, toolProvider, false);
+        PostPerimeterSensitivityAnalysis postPerimeterSensitivityAnalysis = new PostPerimeterSensitivityAnalysis(crac, statesToConsider, raoParameters, toolProvider, false, raoStopCondition);
 
         return postPerimeterSensitivityAnalysis.runBasedOnInitialPreviousAndOptimizationResults(
             networkClone,
@@ -297,7 +328,7 @@ public class CastorContingencyScenarios {
         for (State curativeState : curativePerimeter.getAllStates()) {
             flowCnecsInSensi.addAll(crac.getFlowCnecs(curativeState));
         }
-        return new PrePerimeterSensitivityAnalysis(crac, flowCnecsInSensi, rangeActionsInSensi, raoParameters, toolProvider, false);
+        return new PrePerimeterSensitivityAnalysis(crac, flowCnecsInSensi, rangeActionsInSensi, raoParameters, toolProvider, false, raoStopCondition);
     }
 
     private OptimizationResult optimizeCurativePerimeter(final Perimeter curativePerimeter,
@@ -379,7 +410,7 @@ public class CastorContingencyScenarios {
             .withOutageInstant(crac.getOutageInstant())
             .build();
 
-        OptimizationResult result = new SearchTree(searchTreeInput, searchTreeParameters, false, reportNode).run().join();
+        OptimizationResult result = new SearchTree(searchTreeInput, searchTreeParameters, false, reportNode, raoStopCondition).run().join();
         CastorReports.reportCurativeStateOptimized(reportNode, curativeState.getId());
         return result;
     }

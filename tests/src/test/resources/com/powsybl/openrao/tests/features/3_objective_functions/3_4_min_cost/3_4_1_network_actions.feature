@@ -323,7 +323,7 @@ Feature: 3.4.1: Costly network actions optimization
     Given network file is "3_objective_functions/3_4_min_cost/network_12nodes_0130.uct"
     Given crac file is "common/cbcora_3_4_13.xml"
     # The CRAC file defines 2 CNECs, 1 MNEC and 1 topological action (Close Line NL2 BE3 2)
-    Given configuration file is "common/rao_parameters_min_cost_megawatt_dc.json"
+    Given configuration file is "common/rao_parameters_min_cost_megawatt_dc_withFastRaoExtension.json"
     When I launch rao at "2019-01-08 01:30"
     # No curative perimeter
     Then the execution details should be "The RAO only went through first preventive"

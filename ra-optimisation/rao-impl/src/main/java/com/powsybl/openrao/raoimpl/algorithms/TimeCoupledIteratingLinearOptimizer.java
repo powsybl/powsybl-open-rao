@@ -18,6 +18,7 @@ import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.timecoupledconstraints.PstConstraints;
+import com.powsybl.openrao.raoapi.RaoStopCondition;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters;
 import com.powsybl.openrao.raoimpl.algorithms.linearoptimisation.algorithms.BestTapFinder;
 import com.powsybl.openrao.raoimpl.algorithms.linearoptimisation.algorithms.IteratingLinearOptimizer;
@@ -59,7 +60,8 @@ public final class TimeCoupledIteratingLinearOptimizer {
     public static GlobalLinearOptimizationResult optimize(final TimeCoupledIteratingLinearOptimizerInput input,
                                                           final IteratingLinearOptimizerParameters parameters,
                                                           final int parallelism,
-                                                          final ReportNode reportNode) {
+                                                          final ReportNode reportNode,
+                                                          final RaoStopCondition raoStopCondition) {
         // 1. Initialize best result using input data
         GlobalLinearOptimizationResult bestResult = createInitialResult(
             input.iteratingLinearOptimizerInputs().map(IteratingLinearOptimizerInput::preOptimizationFlowResult),
@@ -76,7 +78,7 @@ public final class TimeCoupledIteratingLinearOptimizer {
         // 2. Initialize linear problem using input data
         TemporalData<List<ProblemFiller>> problemFillers = getProblemFillersPerTimestamp(input, parameters);
         List<ProblemFiller> timeCoupledProblemFillers = getTimeCoupledProblemFillers(input, parameters);
-        LinearProblem linearProblem = buildLinearProblem(problemFillers, timeCoupledProblemFillers, parameters);
+        LinearProblem linearProblem = buildLinearProblem(problemFillers, timeCoupledProblemFillers, parameters, raoStopCondition);
         fillLinearProblem(
             linearProblem,
             problemFillers,
@@ -151,7 +153,8 @@ public final class TimeCoupledIteratingLinearOptimizer {
                         rangeActionActivationPerTimestamp.getData(timestamp).orElseThrow(),
                         inputForTimestamp,
                         parameters,
-                        reportNode
+                        reportNode,
+                        raoStopCondition
                     )
                 );
                 MarmotUtils.releaseNetwork(inputForTimestamp.network());
@@ -191,6 +194,7 @@ public final class TimeCoupledIteratingLinearOptimizer {
             } else {
                 bestResult = mipShouldStop.getLeft();
             }
+
         }
 
         bestResult.setStatus(LinearProblemStatus.MAX_ITERATION_REACHED);
@@ -274,8 +278,12 @@ public final class TimeCoupledIteratingLinearOptimizer {
             .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
-    private static LinearProblem buildLinearProblem(TemporalData<List<ProblemFiller>> problemFillers, List<ProblemFiller> timeCoupledProblemFillers, IteratingLinearOptimizerParameters parameters) {
+    private static LinearProblem buildLinearProblem(TemporalData<List<ProblemFiller>> problemFillers,
+                                                    List<ProblemFiller> timeCoupledProblemFillers,
+                                                    IteratingLinearOptimizerParameters parameters,
+                                                    final RaoStopCondition raoStopCondition) {
         LinearProblemBuilder linearProblemBuilder = LinearProblem.create()
+            .withRaoStopCondition(raoStopCondition)
             .withSolver(parameters.getSolverParameters().getSolver())
             .withRelativeMipGap(parameters.getSolverParameters().getRelativeMipGap())
             .withSolverSpecificParameters(parameters.getSolverParameters().getSolverSpecificParameters());
@@ -346,7 +354,8 @@ public final class TimeCoupledIteratingLinearOptimizer {
                                                               final RangeActionActivationResult currentRangeActionActivationResult,
                                                               final IteratingLinearOptimizerInput input,
                                                               final IteratingLinearOptimizerParameters parameters,
-                                                              final ReportNode reportNode) {
+                                                              final ReportNode reportNode,
+                                                              final RaoStopCondition raoStopCondition) {
         SensitivityComputer tmpSensitivityComputer = sensitivityComputer;
         // TODO: if we want to force 2P, shoud always be global
         if (input.optimizationPerimeter() instanceof GlobalOptimizationPerimeter) {
@@ -358,7 +367,7 @@ public final class TimeCoupledIteratingLinearOptimizer {
                 tmpSensitivityComputer = createSensitivityComputer(input.preOptimizationAppliedRemedialActions(), input, parameters, reportNode);
             }
         }
-        runSensitivityAnalysis(tmpSensitivityComputer, input.network(), iteration, reportNode);
+        runSensitivityAnalysis(tmpSensitivityComputer, input.network(), iteration, reportNode, raoStopCondition);
         return tmpSensitivityComputer;
     }
 
@@ -393,8 +402,9 @@ public final class TimeCoupledIteratingLinearOptimizer {
     private static void runSensitivityAnalysis(final SensitivityComputer sensitivityComputer,
                                                final Network network,
                                                final int iteration,
-                                               final ReportNode reportNode) {
-        sensitivityComputer.compute(network);
+                                               final ReportNode reportNode,
+                                               final RaoStopCondition raoStopCondition) {
+        sensitivityComputer.compute(network, raoStopCondition);
         if (sensitivityComputer.getSensitivityResult().getSensitivityStatus() == ComputationStatus.FAILURE) {
             LinearOptimizerReports.reportSystematicSensitivityComputationFailedAtIteration(reportNode, iteration);
         }

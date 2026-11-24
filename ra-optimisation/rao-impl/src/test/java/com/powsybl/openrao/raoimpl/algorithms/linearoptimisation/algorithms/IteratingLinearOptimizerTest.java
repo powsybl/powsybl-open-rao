@@ -20,6 +20,7 @@ import com.powsybl.openrao.data.crac.api.rangeaction.HvdcRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.crac.impl.utils.NetworkImportsUtil;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
+import com.powsybl.openrao.raoapi.RaoStopCondition;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters;
 import com.powsybl.openrao.raoimpl.algorithms.linearoptimisation.algorithms.linearproblem.LinearProblem;
@@ -158,7 +159,7 @@ class IteratingLinearOptimizerTest {
 
     private void prepareLinearProblemBuilder() {
         LinearProblemBuilder linearProblemBuilder = Mockito.mock(LinearProblemBuilder.class);
-        when(linearProblemBuilder.buildFromInputsAndParameters(Mockito.any(), Mockito.any())).thenReturn(linearProblem);
+        when(linearProblemBuilder.buildFromInputsAndParameters(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(linearProblem);
         linearProblemMockedStatic.when(LinearProblem::create).thenReturn(linearProblemBuilder);
     }
 
@@ -208,7 +209,7 @@ class IteratingLinearOptimizerTest {
         mockLinearProblem(List.of(LinearProblemStatus.INFEASIBLE), Collections.emptyList());
         mockFunctionalCost(100.);
         prepareLinearProblemBuilder();
-        LinearOptimizationResult result = IteratingLinearOptimizer.optimize(input, parameters, ReportNode.NO_OP);
+        LinearOptimizationResult result = IteratingLinearOptimizer.optimize(input, parameters, ReportNode.NO_OP, RaoStopCondition.NO_OP);
 
         assertEquals(LinearProblemStatus.INFEASIBLE, result.getStatus());
     }
@@ -219,7 +220,7 @@ class IteratingLinearOptimizerTest {
         mockFunctionalCost(100.);
         prepareLinearProblemBuilder();
 
-        LinearOptimizationResult result = IteratingLinearOptimizer.optimize(input, parameters, ReportNode.NO_OP);
+        LinearOptimizationResult result = IteratingLinearOptimizer.optimize(input, parameters, ReportNode.NO_OP, RaoStopCondition.NO_OP);
 
         assertEquals(LinearProblemStatus.OPTIMAL, result.getStatus());
         assertEquals(1, ((IteratingLinearOptimizationResultImpl) result).getNbOfIteration());
@@ -233,7 +234,7 @@ class IteratingLinearOptimizerTest {
         mockFunctionalCost(100., 50.);
         prepareLinearProblemBuilder();
 
-        LinearOptimizationResult result = IteratingLinearOptimizer.optimize(input, parameters, ReportNode.NO_OP);
+        LinearOptimizationResult result = IteratingLinearOptimizer.optimize(input, parameters, ReportNode.NO_OP, RaoStopCondition.NO_OP);
 
         assertEquals(LinearProblemStatus.OPTIMAL, result.getStatus());
         assertEquals(2, ((IteratingLinearOptimizationResultImpl) result).getNbOfIteration());
@@ -248,7 +249,7 @@ class IteratingLinearOptimizerTest {
         mockFunctionalCost(100., 150., 140., 130., 120., 110.);
         prepareLinearProblemBuilder();
 
-        LinearOptimizationResult result = IteratingLinearOptimizer.optimize(input, parameters, ReportNode.NO_OP);
+        LinearOptimizationResult result = IteratingLinearOptimizer.optimize(input, parameters, ReportNode.NO_OP, RaoStopCondition.NO_OP);
 
         assertEquals(LinearProblemStatus.MAX_ITERATION_REACHED, result.getStatus());
         assertEquals(5, ((IteratingLinearOptimizationResultImpl) result).getNbOfIteration());
@@ -262,7 +263,7 @@ class IteratingLinearOptimizerTest {
         mockFunctionalCost(100., 150., 140., 130., 120., 110.);
         prepareLinearProblemBuilder();
 
-        LinearOptimizationResult result = IteratingLinearOptimizer.optimize(input, parameters, ReportNode.NO_OP);
+        LinearOptimizationResult result = IteratingLinearOptimizer.optimize(input, parameters, ReportNode.NO_OP, RaoStopCondition.NO_OP);
 
         assertEquals(LinearProblemStatus.OPTIMAL, result.getStatus());
         assertEquals(1, ((IteratingLinearOptimizationResultImpl) result).getNbOfIteration());
@@ -277,7 +278,7 @@ class IteratingLinearOptimizerTest {
         mockFunctionalCost(100., 120., 105., 90., 100., 95.);
         prepareLinearProblemBuilder();
 
-        LinearOptimizationResult result = IteratingLinearOptimizer.optimize(input, parameters, ReportNode.NO_OP);
+        LinearOptimizationResult result = IteratingLinearOptimizer.optimize(input, parameters, ReportNode.NO_OP, RaoStopCondition.NO_OP);
 
         assertEquals(LinearProblemStatus.MAX_ITERATION_REACHED, result.getStatus());
         assertEquals(5, ((IteratingLinearOptimizationResultImpl) result).getNbOfIteration());
@@ -291,7 +292,7 @@ class IteratingLinearOptimizerTest {
         mockFunctionalCost(100., 90., 80., 70., 60., 50.);
         prepareLinearProblemBuilder();
 
-        LinearOptimizationResult result = IteratingLinearOptimizer.optimize(input, parameters, ReportNode.NO_OP);
+        LinearOptimizationResult result = IteratingLinearOptimizer.optimize(input, parameters, ReportNode.NO_OP, RaoStopCondition.NO_OP);
 
         assertEquals(LinearProblemStatus.MAX_ITERATION_REACHED, result.getStatus());
         assertEquals(5, ((IteratingLinearOptimizationResultImpl) result).getNbOfIteration());
@@ -305,7 +306,7 @@ class IteratingLinearOptimizerTest {
         mockFunctionalCost(100., 50.);
         prepareLinearProblemBuilder();
 
-        LinearOptimizationResult result = IteratingLinearOptimizer.optimize(input, parameters, ReportNode.NO_OP);
+        LinearOptimizationResult result = IteratingLinearOptimizer.optimize(input, parameters, ReportNode.NO_OP, RaoStopCondition.NO_OP);
 
         assertEquals(LinearProblemStatus.FEASIBLE, result.getStatus());
         assertEquals(2, ((IteratingLinearOptimizationResultImpl) result).getNbOfIteration());
@@ -318,12 +319,12 @@ class IteratingLinearOptimizerTest {
         SensitivityResult sensitivityResult = Mockito.mock(SensitivityResult.class);
         Mockito.when(sensitivityComputer.getSensitivityResult()).thenReturn(sensitivityResult);
         Mockito.when(sensitivityResult.getSensitivityStatus()).thenReturn(ComputationStatus.FAILURE);
-        Mockito.doNothing().when(sensitivityComputer).compute(network);
+        Mockito.doNothing().when(sensitivityComputer).compute(network, RaoStopCondition.NO_OP);
         mockLinearProblem(List.of(LinearProblemStatus.OPTIMAL), List.of(1.));
         mockFunctionalCost(100.);
         prepareLinearProblemBuilder();
 
-        LinearOptimizationResult result = IteratingLinearOptimizer.optimize(input, parameters, ReportNode.NO_OP);
+        LinearOptimizationResult result = IteratingLinearOptimizer.optimize(input, parameters, ReportNode.NO_OP, RaoStopCondition.NO_OP);
 
         assertEquals(LinearProblemStatus.SENSITIVITY_COMPUTATION_FAILED, result.getStatus());
         assertEquals(1, ((IteratingLinearOptimizationResultImpl) result).getNbOfIteration());
@@ -352,7 +353,7 @@ class IteratingLinearOptimizerTest {
         when(input.raActivationFromParentLeaf()).thenReturn(rangeActionActivationResult);
         prepareLinearProblemBuilder();
 
-        IteratingLinearOptimizer.optimize(input, parameters, ReportNode.NO_OP);
+        IteratingLinearOptimizer.optimize(input, parameters, ReportNode.NO_OP, RaoStopCondition.NO_OP);
         assertEquals(3, network.getTwoWindingsTransformer("BBE2AA1  BBE3AA1  1").getPhaseTapChanger().getTapPosition());
     }
 

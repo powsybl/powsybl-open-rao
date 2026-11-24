@@ -24,6 +24,7 @@ import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.crac.api.usagerule.OnContingencyState;
 import com.powsybl.openrao.data.crac.api.usagerule.OnInstant;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
+import com.powsybl.openrao.raoapi.RaoStopCondition;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoimpl.commons.RaoUtil;
 import com.powsybl.openrao.raoimpl.commons.ToolProvider;
@@ -67,6 +68,7 @@ public final class AutomatonSimulator {
     private final Set<String> operatorsNotSharingCras;
     private final int numberLoggedElementsDuringRao;
     private final ReportNode reportNode;
+    private final RaoStopCondition raoStopCondition;
 
     public AutomatonSimulator(final Crac crac,
                               final RaoParameters raoParameters,
@@ -75,7 +77,8 @@ public final class AutomatonSimulator {
                               final PrePerimeterResult prePerimeterSensitivityOutput,
                               final Set<String> operatorsNotSharingCras,
                               final int numberLoggedElementsDuringRao,
-                              final ReportNode reportNode) {
+                              final ReportNode reportNode,
+                              final RaoStopCondition raoStopCondition) {
         this.crac = crac;
         this.raoParameters = raoParameters;
         this.flowUnit = getFlowUnit(raoParameters);
@@ -85,6 +88,7 @@ public final class AutomatonSimulator {
         this.operatorsNotSharingCras = operatorsNotSharingCras;
         this.numberLoggedElementsDuringRao = numberLoggedElementsDuringRao;
         this.reportNode = reportNode;
+        this.raoStopCondition = raoStopCondition;
     }
 
     public static Map<RangeAction<?>, Double> getRangeActionsAndTheirTapsAppliedOnState(OptimizationResult optimizationResult, State state) {
@@ -378,7 +382,7 @@ public final class AutomatonSimulator {
             flowCnecsInSensi.addAll(crac.getFlowCnecs(curativeState));
             rangeActionsInSensi.addAll(crac.getRangeActions(curativeState));
         }
-        return new PrePerimeterSensitivityAnalysis(crac, flowCnecsInSensi, rangeActionsInSensi, raoParameters, toolProvider, false);
+        return new PrePerimeterSensitivityAnalysis(crac, flowCnecsInSensi, rangeActionsInSensi, raoParameters, toolProvider, false, raoStopCondition);
     }
 
     private AutomatonPerimeterResultImpl createFailedAutomatonPerimeterResult(PrePerimeterResult preAutomatonSensitivityAnalysisOutput,
@@ -599,7 +603,11 @@ public final class AutomatonSimulator {
      * The sensitivity analysis is run on curative range actions, to be used at curative instant.
      * This function returns a prePerimeterResult that will be used to build an AutomatonPerimeterResult.
      */
-    private PrePerimeterResult runPostRangeAutomatonsSensitivityComputation(State automatonState, Set<State> curativeStates, Network network, int speed, ReportNode simulationReportNode) {
+    private PrePerimeterResult runPostRangeAutomatonsSensitivityComputation(State automatonState,
+                                                                            Set<State> curativeStates,
+                                                                            Network network,
+                                                                            int speed,
+                                                                            ReportNode simulationReportNode) {
         // -- Run sensitivity computation before running curative RAO later
         // -- Get curative range actions
         Set<RangeAction<?>> curativeRangeActions = new HashSet<>();
@@ -615,7 +623,8 @@ public final class AutomatonSimulator {
             curativeRangeActions,
             raoParameters,
             toolProvider,
-            false);
+            false,
+            raoStopCondition);
 
         // Run computation
         AutomatonSimulatorReports.reportRunPostRangeSensitivityAnalysisForStateAndSpeed(simulationReportNode, automatonState.getId(), speed);

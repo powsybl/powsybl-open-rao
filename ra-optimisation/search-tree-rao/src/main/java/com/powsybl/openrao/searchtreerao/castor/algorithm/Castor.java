@@ -13,8 +13,10 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
+import com.powsybl.openrao.raoapi.EndInstantRaoStopCondition;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.RaoProvider;
+import com.powsybl.openrao.raoapi.RaoStopCondition;
 import com.powsybl.openrao.raoapi.TimeCoupledRaoInput;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.FastRaoParameters;
@@ -56,20 +58,37 @@ public class Castor implements RaoProvider {
     }
 
     @Override
-    public CompletableFuture<RaoResult> run(final RaoInput raoInput, final RaoParameters parameters, final ReportNode reportNode) {
-        return run(raoInput, parameters, null, reportNode);
+    public CompletableFuture<RaoResult> run(final RaoInput raoInput, final RaoParameters parameters, final ReportNode reportNode, final RaoStopCondition raoStopCondition) {
+        return run(raoInput, parameters, null, reportNode, raoStopCondition);
     }
 
+    /**
+     * @deprecated since 7.6.0, use {@link EndInstantRaoStopCondition} instead of {@code targetEndInstant}.
+     */
+    @Deprecated(since = "7.6.0")
     @Override
-    public CompletableFuture<RaoResult> run(final RaoInput raoInput, final RaoParameters parameters, final Instant targetEndInstant, final ReportNode reportNode) {
+    public CompletableFuture<RaoResult> run(RaoInput raoInput, RaoParameters parameters, Instant targetEndInstant, ReportNode reportNode) {
+        return run(raoInput, parameters, targetEndInstant, reportNode, RaoStopCondition.NO_OP);
+    }
+
+    /**
+     * @deprecated since 7.6.0, use {@link EndInstantRaoStopCondition} instead of {@code targetEndInstant}.
+     * This method will be made private in 8.0.0.
+     */
+    @Deprecated(since = "7.6.0")
+    public CompletableFuture<RaoResult> run(final RaoInput raoInput,
+                                            final RaoParameters parameters,
+                                            final Instant targetEndInstant,
+                                            final ReportNode reportNode,
+                                            final RaoStopCondition raoStopCondition) {
         if (parameters.hasExtension(FastRaoParameters.class)) {
             parameters.removeExtension(FastRaoParameters.class);
         }
-        return new OpenRao().run(raoInput, parameters, targetEndInstant, reportNode);
+        return new OpenRao().run(raoInput, parameters, targetEndInstant, reportNode, raoStopCondition);
     }
 
     @Override
-    public CompletableFuture<RaoResult> run(TimeCoupledRaoInput raoInput, RaoParameters parameters, ReportNode reportNode) {
+    public CompletableFuture<RaoResult> run(TimeCoupledRaoInput raoInput, RaoParameters parameters, ReportNode reportNode, RaoStopCondition raoStopCondition) {
         throw new OpenRaoException("Time-coupled optimization is not supported by CASTOR");
     }
 }

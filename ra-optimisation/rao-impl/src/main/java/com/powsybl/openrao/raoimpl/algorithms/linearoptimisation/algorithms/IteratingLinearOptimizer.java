@@ -14,6 +14,7 @@ import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.HvdcRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
+import com.powsybl.openrao.raoapi.RaoStopCondition;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.PstModel;
 import com.powsybl.openrao.raoimpl.algorithms.linearoptimisation.algorithms.linearproblem.LinearProblem;
 import com.powsybl.openrao.raoimpl.algorithms.linearoptimisation.inputs.IteratingLinearOptimizerInput;
@@ -57,7 +58,8 @@ public final class IteratingLinearOptimizer {
 
     public static LinearOptimizationResult optimize(final IteratingLinearOptimizerInput input,
                                                     final IteratingLinearOptimizerParameters parameters,
-                                                    final ReportNode reportNode) {
+                                                    final ReportNode reportNode,
+                                                    final RaoStopCondition raoStopCondition) {
 
         IteratingLinearOptimizationResultImpl bestResult = createResult(
             input.preOptimizationFlowResult(),
@@ -73,7 +75,7 @@ public final class IteratingLinearOptimizer {
         SensitivityComputer sensitivityComputer = null;
 
         LinearProblem linearProblem = LinearProblem.create()
-            .buildFromInputsAndParameters(input, parameters);
+            .buildFromInputsAndParameters(input, parameters, raoStopCondition);
 
         linearProblem.fill(input.preOptimizationFlowResult(), input.preOptimizationSensitivityResult());
 
@@ -104,7 +106,7 @@ public final class IteratingLinearOptimizer {
                 return bestResult;
             }
 
-            sensitivityComputer = runSensitivityAnalysis(sensitivityComputer, iteration, currentRangeActionActivationResult, input, parameters, reportNode);
+            sensitivityComputer = runSensitivityAnalysis(sensitivityComputer, iteration, currentRangeActionActivationResult, input, parameters, reportNode, raoStopCondition);
             if (sensitivityComputer.getSensitivityResult().getSensitivityStatus() == ComputationStatus.FAILURE) {
                 bestResult.setStatus(LinearProblemStatus.SENSITIVITY_COMPUTATION_FAILED);
                 return bestResult;
@@ -138,7 +140,8 @@ public final class IteratingLinearOptimizer {
                                                               final RangeActionActivationResult currentRangeActionActivationResult,
                                                               final IteratingLinearOptimizerInput input,
                                                               final IteratingLinearOptimizerParameters parameters,
-                                                              final ReportNode reportNode) {
+                                                              final ReportNode reportNode,
+                                                              final RaoStopCondition raoStopCondition) {
         SensitivityComputer tmpSensitivityComputer = sensitivityComputer;
         if (input.optimizationPerimeter() instanceof GlobalOptimizationPerimeter) {
             AppliedRemedialActions appliedRemedialActionsInSecondaryStates = applyRangeActions(currentRangeActionActivationResult, input);
@@ -149,7 +152,7 @@ public final class IteratingLinearOptimizer {
                 tmpSensitivityComputer = createSensitivityComputer(input.preOptimizationAppliedRemedialActions(), input, parameters, reportNode);
             }
         }
-        runSensitivityAnalysis(tmpSensitivityComputer, input.network(), iteration, reportNode);
+        runSensitivityAnalysis(tmpSensitivityComputer, input.network(), iteration, reportNode, raoStopCondition);
         return tmpSensitivityComputer;
     }
 
@@ -283,8 +286,9 @@ public final class IteratingLinearOptimizer {
     private static void runSensitivityAnalysis(final SensitivityComputer sensitivityComputer,
                                                final Network network,
                                                final int iteration,
-                                               final ReportNode reportNode) {
-        sensitivityComputer.compute(network);
+                                               final ReportNode reportNode,
+                                               final RaoStopCondition raoStopCondition) {
+        sensitivityComputer.compute(network, raoStopCondition);
         if (sensitivityComputer.getSensitivityResult().getSensitivityStatus() == ComputationStatus.FAILURE) {
             LinearOptimizerReports.reportSystematicSensitivityComputationFailedAtIteration(reportNode, iteration);
         }

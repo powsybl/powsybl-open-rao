@@ -9,6 +9,7 @@ package com.powsybl.openrao.raoimpl.algorithms.linearoptimisation.algorithms;
 
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.State;
+import com.powsybl.openrao.raoapi.RaoStopCondition;
 import com.powsybl.openrao.raoapi.parameters.LoopFlowParameters;
 import com.powsybl.openrao.raoapi.parameters.MnecParameters;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
@@ -99,7 +100,7 @@ class LinearProblemBuilderTest {
         when(parameters.getObjectiveFunction()).thenReturn(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN);
         when(parameters.getFlowUnit()).thenReturn(Unit.MEGAWATT);
 
-        LinearProblem linearProblem = linearProblemBuilder.buildFromInputsAndParameters(inputs, parameters);
+        LinearProblem linearProblem = linearProblemBuilder.buildFromInputsAndParameters(inputs, parameters, RaoStopCondition.NO_OP);
         assertNotNull(linearProblem);
         List<ProblemFiller> fillers = linearProblem.getFillers();
         assertEquals(3, fillers.size());
@@ -114,7 +115,7 @@ class LinearProblemBuilderTest {
         when(parameters.getObjectiveFunction()).thenReturn(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN);
         when(parameters.getFlowUnit()).thenReturn(Unit.MEGAWATT);
 
-        LinearProblem linearProblem = linearProblemBuilder.buildFromInputsAndParameters(inputs, parameters);
+        LinearProblem linearProblem = linearProblemBuilder.buildFromInputsAndParameters(inputs, parameters, RaoStopCondition.NO_OP);
         assertNotNull(linearProblem);
         List<ProblemFiller> fillers = linearProblem.getFillers();
         assertEquals(5, fillers.size());
@@ -131,7 +132,7 @@ class LinearProblemBuilderTest {
         when(parameters.getObjectiveFunction()).thenReturn(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN);
         when(parameters.getFlowUnit()).thenReturn(Unit.MEGAWATT);
 
-        LinearProblem linearProblem = linearProblemBuilder.buildFromInputsAndParameters(inputs, parameters);
+        LinearProblem linearProblem = linearProblemBuilder.buildFromInputsAndParameters(inputs, parameters, RaoStopCondition.NO_OP);
         assertNotNull(linearProblem);
         List<ProblemFiller> fillers = linearProblem.getFillers();
         assertEquals(3, fillers.size());
@@ -151,7 +152,7 @@ class LinearProblemBuilderTest {
         when(parameters.isRaoWithLoopFlowLimitation()).thenReturn(true);
         when(parameters.getUnoptimizedCnecParameters()).thenReturn(Mockito.mock(UnoptimizedCnecParameters.class));
 
-        LinearProblem linearProblem = linearProblemBuilder.buildFromInputsAndParameters(inputs, parameters);
+        LinearProblem linearProblem = linearProblemBuilder.buildFromInputsAndParameters(inputs, parameters, RaoStopCondition.NO_OP);
         assertNotNull(linearProblem);
         List<ProblemFiller> fillers = linearProblem.getFillers();
         assertEquals(6, fillers.size());
@@ -173,7 +174,7 @@ class LinearProblemBuilderTest {
         when(optimizationPerimeter.getRangeActionOptimizationStates()).thenReturn(Set.of(Mockito.mock(State.class)));
         when(raLimitationParameters.areRangeActionLimitedForState(Mockito.any())).thenReturn(true);
 
-        LinearProblem linearProblem = linearProblemBuilder.buildFromInputsAndParameters(inputs, parameters);
+        LinearProblem linearProblem = linearProblemBuilder.buildFromInputsAndParameters(inputs, parameters, RaoStopCondition.NO_OP);
         assertNotNull(linearProblem);
         List<ProblemFiller> fillers = linearProblem.getFillers();
         assertEquals(4, fillers.size());
