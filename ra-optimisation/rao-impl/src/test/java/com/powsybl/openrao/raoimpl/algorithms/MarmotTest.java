@@ -743,4 +743,8 @@ class MarmotTest {
             curative1, Set.of(crac.getRangeAction("PST - curative-1"))), perimeter.getRangeActionsPerState());
         assertEquals(Set.of(preventive1, curative1), perimeter.getRangeActionOptimizationStates());
     }
+
+    // TODO: test with interruption before any computation -> ensure RAO result is empty + execution details
+    // TODO: test with interruption after topological optimization -> ensure RAO result not empty + execution details + violated constraints
+    // TODO: test with interruption during MIP -> ensure RAO result not empty + execution details + result sub-optimal
 }
