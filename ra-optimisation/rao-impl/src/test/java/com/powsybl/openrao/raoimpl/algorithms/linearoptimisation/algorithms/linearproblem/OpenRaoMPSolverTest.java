@@ -7,15 +7,21 @@
 
 package com.powsybl.openrao.raoimpl.algorithms.linearoptimisation.algorithms.linearproblem;
 
-import com.google.ortools.linearsolver.MPConstraint;
-import com.google.ortools.linearsolver.MPSolver;
-import com.google.ortools.linearsolver.MPVariable;
+import com.google.ortools.mathopt.LinearConstraint;
+import com.google.ortools.mathopt.SolveResult;
+import com.google.ortools.mathopt.SolverType;
+import com.google.ortools.mathopt.Variable;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters;
 import com.powsybl.openrao.raoimpl.result.api.LinearProblemStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import static com.google.ortools.mathopt.SolveResult.TerminationReason.*;
+import static com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.Solver.CBC;
+import static com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.Solver.GUROBI;
+import static com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.Solver.SCIP;
+import static com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.Solver.XPRESS;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -30,23 +36,21 @@ class OpenRaoMPSolverTest {
     static final double DOUBLE_TOLERANCE = 1e-4;
 
     private OpenRaoMPSolver openRaoMPSolver;
-    private MPSolver mpSolver;
 
     @BeforeEach
     void setUp() {
-        openRaoMPSolver = new OpenRaoMPSolver("test", SearchTreeRaoRangeActionsOptimizationParameters.Solver.SCIP);
-        mpSolver = openRaoMPSolver.getMpSolver();
+        openRaoMPSolver = new OpenRaoMPSolver("test", SCIP);
     }
 
     @Test
     void basicTest() {
         assertNotNull(openRaoMPSolver.getObjective());
-        assertEquals(SearchTreeRaoRangeActionsOptimizationParameters.Solver.SCIP, openRaoMPSolver.getSolver());
-        assertEquals(MPSolver.OptimizationProblemType.SCIP_MIXED_INTEGER_PROGRAMMING, openRaoMPSolver.getMpSolver().problemType());
+        assertEquals(SCIP, openRaoMPSolver.getSolver());
+        assertEquals(SolverType.GSCIP, OpenRaoMPSolver.getOrToolsSolverType(SCIP));
 
-        openRaoMPSolver = new OpenRaoMPSolver("rao_test_prob", SearchTreeRaoRangeActionsOptimizationParameters.Solver.CBC);
-        assertEquals(SearchTreeRaoRangeActionsOptimizationParameters.Solver.CBC, openRaoMPSolver.getSolver());
-        assertEquals(MPSolver.OptimizationProblemType.CBC_MIXED_INTEGER_PROGRAMMING, openRaoMPSolver.getMpSolver().problemType());
+        openRaoMPSolver = new OpenRaoMPSolver("rao_test_prob", XPRESS);
+        assertEquals(XPRESS, openRaoMPSolver.getSolver());
+        assertEquals(SolverType.XPRESS, OpenRaoMPSolver.getOrToolsSolverType(XPRESS));
     }
 
     @Test
@@ -72,7 +76,7 @@ class OpenRaoMPSolverTest {
         assertEquals(1, openRaoMPSolver.numVariables());
 
         // Check OR-Tools object
-        MPVariable orToolsVar1 = mpSolver.lookupVariableOrNull(varName);
+        Variable orToolsVar1 = openRaoMPSolver.getVariable(varName).getVariable();
         assertNotNull(orToolsVar1);
 
         checkVarBounds(var1, orToolsVar1, -5, 3.6);
@@ -86,31 +90,33 @@ class OpenRaoMPSolverTest {
         checkVarBounds(var1, orToolsVar1, -98.5, -97.6);
     }
 
-    private void checkVarBounds(OpenRaoMPVariable raoVar, MPVariable ortoolsVar, double expectedLb, double expectedUb) {
+    private void checkVarBounds(OpenRaoMPVariable raoVar, Variable ortoolsVar, double expectedLb, double expectedUb) {
         // OpenRAO object
         assertEquals(expectedLb, raoVar.lb(), DOUBLE_TOLERANCE);
         assertEquals(expectedUb, raoVar.ub(), DOUBLE_TOLERANCE);
         // OR-Tools object
-        assertEquals(expectedLb, ortoolsVar.lb(), DOUBLE_TOLERANCE);
-        assertEquals(expectedUb, ortoolsVar.ub(), DOUBLE_TOLERANCE);
+        assertEquals(expectedLb, ortoolsVar.getLowerBound(), DOUBLE_TOLERANCE);
+        assertEquals(expectedUb, ortoolsVar.getUpperBound(), DOUBLE_TOLERANCE);
     }
 
     @Test
     void testAddIntVar() {
         openRaoMPSolver.makeIntVar(5, 10, "var1");
-        MPVariable orToolsVar = mpSolver.lookupVariableOrNull("var1");
+        Variable orToolsVar = openRaoMPSolver.getVariable("var1").getVariable();
         assertNotNull(orToolsVar);
-        assertEquals(5., orToolsVar.lb(), DOUBLE_TOLERANCE);
-        assertEquals(10., orToolsVar.ub(), DOUBLE_TOLERANCE);
+        assertEquals(5., orToolsVar.getLowerBound(), DOUBLE_TOLERANCE);
+        assertEquals(10., orToolsVar.getUpperBound(), DOUBLE_TOLERANCE);
+        assertTrue(orToolsVar.isInteger());
     }
 
     @Test
     void testAddBoolVar() {
         openRaoMPSolver.makeBoolVar("var1");
-        MPVariable orToolsVar = mpSolver.lookupVariableOrNull("var1");
+        Variable orToolsVar = openRaoMPSolver.getVariable("var1").getVariable();
         assertNotNull(orToolsVar);
-        assertEquals(0., orToolsVar.lb(), DOUBLE_TOLERANCE);
-        assertEquals(1., orToolsVar.ub(), DOUBLE_TOLERANCE);
+        assertEquals(0., orToolsVar.getLowerBound(), DOUBLE_TOLERANCE);
+        assertEquals(1., orToolsVar.getUpperBound(), DOUBLE_TOLERANCE);
+        assertTrue(orToolsVar.isInteger());
     }
 
     @Test
@@ -143,10 +149,10 @@ class OpenRaoMPSolverTest {
         assertEquals(constName, const1.name());
 
         // Check OR-Tools object
-        MPConstraint orToolsConst1 = mpSolver.lookupConstraintOrNull(constName);
+        LinearConstraint orToolsConst1 = openRaoMPSolver.getConstraint(constName).getLinearConstraint();
         assertNotNull(orToolsConst1);
-        MPVariable orToolsVar1 = mpSolver.lookupVariableOrNull(varName);
-        assertEquals(648.9, orToolsConst1.getCoefficient(orToolsVar1), DOUBLE_TOLERANCE);
+        Variable orToolsVar1 = openRaoMPSolver.getVariable(varName).getVariable();
+        assertEquals(648.9, orToolsConst1.getTerm(orToolsVar1), DOUBLE_TOLERANCE);
 
         checkConstBounds(const1, orToolsConst1, -121.6, 65.956);
 
@@ -161,16 +167,16 @@ class OpenRaoMPSolverTest {
         // Change coef & check
         const1.setCoefficient(var1, 465.9);
         assertEquals(465.9, const1.getCoefficient(var1), DOUBLE_TOLERANCE);
-        assertEquals(465.9, orToolsConst1.getCoefficient(orToolsVar1), DOUBLE_TOLERANCE);
+        assertEquals(465.9, orToolsConst1.getTerm(orToolsVar1), DOUBLE_TOLERANCE);
     }
 
-    private void checkConstBounds(OpenRaoMPConstraint raoConst, MPConstraint ortoolsConst, double expectedLb, double expectedUb) {
+    private void checkConstBounds(OpenRaoMPConstraint raoConst, LinearConstraint ortoolsConst, double expectedLb, double expectedUb) {
         // OpenRAO object
         assertEquals(expectedLb, raoConst.lb(), DOUBLE_TOLERANCE);
         assertEquals(expectedUb, raoConst.ub(), DOUBLE_TOLERANCE);
         // OR-Tools object
-        assertEquals(expectedLb, ortoolsConst.lb(), DOUBLE_TOLERANCE);
-        assertEquals(expectedUb, ortoolsConst.ub(), DOUBLE_TOLERANCE);
+        assertEquals(expectedLb, ortoolsConst.getLowerBound(), DOUBLE_TOLERANCE);
+        assertEquals(expectedUb, ortoolsConst.getUpperBound(), DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -179,17 +185,17 @@ class OpenRaoMPSolverTest {
         // Add constraint
         OpenRaoMPConstraint const1 = openRaoMPSolver.makeConstraint(constName);
 
-        // Check OpenRaoMPConstraint
-        assertEquals(-openRaoMPSolver.infinity(), const1.lb(), openRaoMPSolver.infinity() * 1e-3);
-        assertEquals(openRaoMPSolver.infinity(), const1.ub(), openRaoMPSolver.infinity() * 1e-3);
+        // Check OpenRAO object
+        assertEquals(-Double.POSITIVE_INFINITY, const1.lb());
+        assertEquals(Double.POSITIVE_INFINITY, const1.ub());
         assertTrue(openRaoMPSolver.hasConstraint(constName));
         assertEquals(const1, openRaoMPSolver.getConstraint(constName));
 
         // Check OR-Tools object
-        MPConstraint orToolsConst1 = mpSolver.lookupConstraintOrNull(constName);
+        LinearConstraint orToolsConst1 = openRaoMPSolver.getConstraint(constName).getLinearConstraint();
         assertNotNull(orToolsConst1);
-        assertEquals(-openRaoMPSolver.infinity(), orToolsConst1.lb(), openRaoMPSolver.infinity() * 1e-3);
-        assertEquals(openRaoMPSolver.infinity(), orToolsConst1.ub(), openRaoMPSolver.infinity() * 1e-3);
+        assertEquals(-Double.POSITIVE_INFINITY, orToolsConst1.getLowerBound());
+        assertEquals(Double.POSITIVE_INFINITY, orToolsConst1.getUpperBound());
     }
 
     @Test
@@ -219,18 +225,26 @@ class OpenRaoMPSolverTest {
     @Test
     void testSetSolverSpecificParametersAsString() {
         assertTrue(openRaoMPSolver.setSolverSpecificParametersAsString(null)); // acceptable
-        assertTrue(openRaoMPSolver.setSolverSpecificParametersAsString("parallel/maxnthreads 1, lp/presolving TRUE")); // acceptable SCIP parameters
-        assertFalse(openRaoMPSolver.setSolverSpecificParametersAsString("parallel/maxnthreads 1, lp/pre_solving TRUE")); // not acceptable SCIP parameters
+        assertTrue(openRaoMPSolver.setSolverSpecificParametersAsString("parallel/maxnthreads 1, lp/presolving TRUE")); // SCIP parameters
+        assertFalse(openRaoMPSolver.setSolverSpecificParametersAsString("invalid_parameter")); // no value after the parameter name
+        assertFalse(openRaoMPSolver.setSolverSpecificParametersAsString("")); // no parameter
     }
 
     @Test
     void testConvertResultStatus() {
-        assertEquals(LinearProblemStatus.OPTIMAL, OpenRaoMPSolver.convertResultStatus(MPSolver.ResultStatus.OPTIMAL));
-        assertEquals(LinearProblemStatus.ABNORMAL, OpenRaoMPSolver.convertResultStatus(MPSolver.ResultStatus.ABNORMAL));
-        assertEquals(LinearProblemStatus.FEASIBLE, OpenRaoMPSolver.convertResultStatus(MPSolver.ResultStatus.FEASIBLE));
-        assertEquals(LinearProblemStatus.UNBOUNDED, OpenRaoMPSolver.convertResultStatus(MPSolver.ResultStatus.UNBOUNDED));
-        assertEquals(LinearProblemStatus.INFEASIBLE, OpenRaoMPSolver.convertResultStatus(MPSolver.ResultStatus.INFEASIBLE));
-        assertEquals(LinearProblemStatus.NOT_SOLVED, OpenRaoMPSolver.convertResultStatus(MPSolver.ResultStatus.NOT_SOLVED));
+        SolveResult.ProblemStatus feasibleStatus = new SolveResult.ProblemStatus(SolveResult.FeasibilityStatus.FEASIBLE, SolveResult.FeasibilityStatus.FEASIBLE, false);
+        SolveResult.ProblemStatus infeasibleStatus = new SolveResult.ProblemStatus(SolveResult.FeasibilityStatus.INFEASIBLE, SolveResult.FeasibilityStatus.INFEASIBLE, true);
+        SolveResult.ProblemStatus unboundedStatus = new SolveResult.ProblemStatus(SolveResult.FeasibilityStatus.FEASIBLE, SolveResult.FeasibilityStatus.INFEASIBLE, false);
+
+        assertEquals(LinearProblemStatus.OPTIMAL, OpenRaoMPSolver.convertResultStatus(OPTIMAL, feasibleStatus));
+        assertEquals(LinearProblemStatus.FEASIBLE, OpenRaoMPSolver.convertResultStatus(FEASIBLE, feasibleStatus));
+        assertEquals(LinearProblemStatus.INFEASIBLE, OpenRaoMPSolver.convertResultStatus(INFEASIBLE, infeasibleStatus));
+        assertEquals(LinearProblemStatus.UNBOUNDED, OpenRaoMPSolver.convertResultStatus(UNBOUNDED, unboundedStatus));
+        assertEquals(LinearProblemStatus.UNBOUNDED, OpenRaoMPSolver.convertResultStatus(INFEASIBLE_OR_UNBOUNDED, unboundedStatus));
+        assertEquals(LinearProblemStatus.INFEASIBLE, OpenRaoMPSolver.convertResultStatus(INFEASIBLE_OR_UNBOUNDED, infeasibleStatus));
+        assertEquals(LinearProblemStatus.NOT_SOLVED, OpenRaoMPSolver.convertResultStatus(NO_SOLUTION_FOUND, feasibleStatus));
+        assertEquals(LinearProblemStatus.ABNORMAL, OpenRaoMPSolver.convertResultStatus(NUMERICAL_ERROR, feasibleStatus));
+        assertEquals(LinearProblemStatus.ABNORMAL, OpenRaoMPSolver.convertResultStatus(OTHER_ERROR, feasibleStatus));
     }
 
     @Test
@@ -248,11 +262,11 @@ class OpenRaoMPSolverTest {
 
         openRaoMPSolver.getObjective().setCoefficient(var1, 3.5);
         assertEquals(3.5, openRaoMPSolver.getObjective().getCoefficient(var1));
-        assertEquals(3.5, mpSolver.objective().getCoefficient(mpSolver.lookupVariableOrNull(varName)));
+        assertEquals(3.5, openRaoMPSolver.getModel().getObjective().getLinearTerm(var1.getVariable()));
 
         openRaoMPSolver.getObjective().setCoefficient(var1, -963.5);
         assertEquals(-963.5, openRaoMPSolver.getObjective().getCoefficient(var1));
-        assertEquals(-963.5, mpSolver.objective().getCoefficient(mpSolver.lookupVariableOrNull(varName)));
+        assertEquals(-963.5, openRaoMPSolver.getModel().getObjective().getLinearTerm(var1.getVariable()));
     }
 
     private void checkObjectiveSense(boolean minim) {
@@ -260,8 +274,8 @@ class OpenRaoMPSolverTest {
         assertEquals(minim, openRaoMPSolver.isMinimization());
         assertEquals(!minim, openRaoMPSolver.isMaximization());
         // OR-Tools object
-        assertEquals(minim, mpSolver.objective().minimization());
-        assertEquals(!minim, mpSolver.objective().maximization());
+        assertEquals(minim, !openRaoMPSolver.getModel().getObjective().isMaximize());
+        assertEquals(!minim, openRaoMPSolver.getModel().getObjective().isMaximize());
     }
 
     @Test
@@ -281,8 +295,7 @@ class OpenRaoMPSolverTest {
         openRaoMPSolver.setMaximization();
         LinearProblemStatus result = openRaoMPSolver.solve();
 
-        assertTrue(mpSolver.objective().maximization());
-        assertFalse(mpSolver.objective().minimization());
+        assertTrue(openRaoMPSolver.getModel().getObjective().isMaximize());
         assertEquals(LinearProblemStatus.OPTIMAL, result);
         assertEquals(4., x.solutionValue(), DOUBLE_TOLERANCE);
         assertEquals(6., y.solutionValue(), DOUBLE_TOLERANCE);
@@ -291,37 +304,31 @@ class OpenRaoMPSolverTest {
         openRaoMPSolver.resetModel();
         assertNotNull(openRaoMPSolver.getObjective());
         checkObjectiveSense(false);
-        assertEquals(SearchTreeRaoRangeActionsOptimizationParameters.Solver.SCIP, openRaoMPSolver.getSolver());
-        assertEquals(MPSolver.OptimizationProblemType.SCIP_MIXED_INTEGER_PROGRAMMING, openRaoMPSolver.getMpSolver().problemType());
+        assertEquals(SCIP, openRaoMPSolver.getSolver());
+        assertEquals(SolverType.GSCIP, OpenRaoMPSolver.getOrToolsSolverType(SCIP));
     }
 
     @Test
     void testInfinity() {
-        OpenRaoMPSolver solver = new OpenRaoMPSolver("solver", SearchTreeRaoRangeActionsOptimizationParameters.Solver.CBC);
-        assertEquals(Double.POSITIVE_INFINITY, solver.infinity());
-
-        solver = new OpenRaoMPSolver("solver", SearchTreeRaoRangeActionsOptimizationParameters.Solver.SCIP);
-        assertEquals(1e23, solver.infinity());
-
-        // can't test XPRESS because we need the link to the library
+        // OR-Tools MathOpt handles infinite bounds natively, for every solver
+        for (var solverType : new SearchTreeRaoRangeActionsOptimizationParameters.Solver[] {SCIP, XPRESS, GUROBI}) {
+            OpenRaoMPSolver solver = new OpenRaoMPSolver("solver", solverType);
+            assertEquals(Double.POSITIVE_INFINITY, solver.infinity());
+        }
     }
 
     @Test
-    void testGurobiInfinity() {
-        // can't instantiate a GUROBI solver because we need the link to the library and a licence
-        assertEquals(1E30, OpenRaoMPSolver.getSolverInfinity(SearchTreeRaoRangeActionsOptimizationParameters.Solver.GUROBI));
-    }
+    void testOrToolsSolverType() {
+        assertEquals(SolverType.GSCIP, OpenRaoMPSolver.getOrToolsSolverType(SCIP));
+        assertEquals(SolverType.XPRESS, OpenRaoMPSolver.getOrToolsSolverType(XPRESS));
+        assertEquals(SolverType.GUROBI, OpenRaoMPSolver.getOrToolsSolverType(GUROBI));
 
-    @Test
-    void testOrToolsProblemType() {
-        assertEquals(MPSolver.OptimizationProblemType.CBC_MIXED_INTEGER_PROGRAMMING,
-                OpenRaoMPSolver.getOrToolsProblemType(SearchTreeRaoRangeActionsOptimizationParameters.Solver.CBC));
-        assertEquals(MPSolver.OptimizationProblemType.SCIP_MIXED_INTEGER_PROGRAMMING,
-                OpenRaoMPSolver.getOrToolsProblemType(SearchTreeRaoRangeActionsOptimizationParameters.Solver.SCIP));
-        assertEquals(MPSolver.OptimizationProblemType.XPRESS_MIXED_INTEGER_PROGRAMMING,
-                OpenRaoMPSolver.getOrToolsProblemType(SearchTreeRaoRangeActionsOptimizationParameters.Solver.XPRESS));
-        assertEquals(MPSolver.OptimizationProblemType.GUROBI_MIXED_INTEGER_PROGRAMMING,
-                OpenRaoMPSolver.getOrToolsProblemType(SearchTreeRaoRangeActionsOptimizationParameters.Solver.GUROBI));
+        // CBC is not supported anymore by OR-Tools MathOpt
+        Exception e = assertThrows(OpenRaoException.class, () -> OpenRaoMPSolver.getOrToolsSolverType(CBC));
+        assertTrue(e.getMessage().contains("CBC"));
+        // constructing the solver fails fast as well
+        e = assertThrows(OpenRaoException.class, () -> new OpenRaoMPSolver("solver", CBC));
+        assertTrue(e.getMessage().contains("CBC"));
     }
 
     @Test

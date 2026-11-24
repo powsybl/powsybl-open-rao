@@ -394,8 +394,9 @@ public abstract class AbstractCoreProblemFiller implements ProblemFiller {
             maxAbsoluteSetpoint = Math.max(setPointMinAbsoluteTap, setPointMaxAbsoluteTap);
             // Make sure we stay in the range by multiplying the relative tap by the smallest angle between taps.
             // (As long as minRelativeTap is negative (or zero) and maxRelativeTap is positive (or zero).)
-            minRelativeSetpoint = minRelativeTap * pstRangeAction.getSmallestAngleStep();
-            maxRelativeSetpoint = maxRelativeTap * pstRangeAction.getSmallestAngleStep();
+            // If the relative range is unbounded, it stays unbounded (multiplying by zero would give NaN).
+            minRelativeSetpoint = Double.isFinite(minRelativeTap) ? minRelativeTap * pstRangeAction.getSmallestAngleStep() : minRelativeTap;
+            maxRelativeSetpoint = Double.isFinite(maxRelativeTap) ? maxRelativeTap * pstRangeAction.getSmallestAngleStep() : maxRelativeTap;
         } else if (rangeAction instanceof StandardRangeAction<?> standardRangeAction) {
             List<StandardRange> ranges = standardRangeAction.getRanges();
             for (StandardRange range : ranges) {

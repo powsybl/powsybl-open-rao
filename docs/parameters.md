@@ -65,9 +65,9 @@ Examples of RAO parameters with business and implementation-specific parameters
         "hvdc-sensitivity-threshold" : 0.0,
         "injection-ra-sensitivity-threshold" : 0.0,
         "linear-optimization-solver" : {
-          "solver" : "CBC",
+          "solver" : "SCIP",
           "relative-mip-gap" : 0.001,
-          "solver-specific-parameters" : "THREADS 10 MAXTIME 3000"
+          "solver-specific-parameters" : "parallel/maxnthreads 10"
         }
       },
       "topological-actions-optimization" : {
@@ -172,7 +172,7 @@ search-tree-range-actions-optimization:
   pst-model: APPROXIMATED_INTEGERS
 
 search-tree-linear-optimization-solver:
-  solver: CBC
+  solver: SCIP
 
 rao-topological-actions-optimization:
   relative-minimum-impact-threshold: 0.0
