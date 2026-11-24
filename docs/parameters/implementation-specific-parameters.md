@@ -110,10 +110,11 @@ These are parameters that tune the solver used to solve the MIP problem.
   - "SCIP"
   - "XPRESS"
   - "GUROBI"
+  - "HIGHS"
 - **Default value**: "SCIP"
 - **Usage**: the solver called for optimizing the linear problem.  
   Note that theoretically all solvers supported by OR-Tools can be called, but the OpenRAO interface only allows SCIP
-  (open-source, Apache License 2.0), XPRESS and GUROBI (commercial) for the moment.  
+  (open-source, Apache License 2.0), HiGHS (open-source, MIT license), XPRESS and GUROBI (commercial) for the moment.  
   XPRESS and GUROBI require their respective native libraries to be installed and a valid license to be available.  
   If needed, other solvers can be easily added.  
 

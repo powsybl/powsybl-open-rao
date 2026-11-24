@@ -10,6 +10,7 @@ package com.powsybl.openrao.raoimpl.algorithms.linearoptimisation.algorithms.lin
 import com.google.ortools.GScipParameters;
 import com.google.ortools.Loader;
 import com.google.ortools.mathopt.GurobiParametersProto;
+import com.google.ortools.mathopt.HighsOptionsProto;
 import com.google.ortools.mathopt.LinearConstraint;
 import com.google.ortools.mathopt.MathOptInternalException;
 import com.google.ortools.mathopt.Model;
@@ -56,6 +57,7 @@ public class OpenRaoMPSolver {
     private GScipParameters gscipParameters;
     private GurobiParametersProto gurobiParameters;
     private XpressParametersProto xpressParameters;
+    private HighsOptionsProto highsParameters;
     Map<String, OpenRaoMPConstraint> constraints = new TreeMap<>();
     Map<String, OpenRaoMPVariable> variables = new TreeMap<>();
     OpenRaoMPObjective objective;
@@ -95,7 +97,8 @@ public class OpenRaoMPSolver {
             case SCIP -> SolverType.GSCIP;
             case XPRESS -> SolverType.XPRESS;
             case GUROBI -> SolverType.GUROBI;
-            case CBC -> throw new OpenRaoException("CBC is no longer supported by OR-Tools MathOpt. Please use SCIP, XPRESS or GUROBI in the RAO parameters.");
+            case HIGHS -> SolverType.HIGHS;
+            case CBC -> throw new OpenRaoException("CBC is no longer supported by OR-Tools MathOpt. Please use SCIP, XPRESS, GUROBI or HIGHS in the RAO parameters.");
             default -> throw new OpenRaoException(String.format("unknown solver %s in RAO parameters", solver));
         };
     }
@@ -184,6 +187,7 @@ public class OpenRaoMPSolver {
         gscipParameters = null;
         gurobiParameters = null;
         xpressParameters = null;
+        highsParameters = null;
         if (solverSpecificParameters != null) {
             List<String[]> parsedParameters = parseParameters(solverSpecificParameters);
             if (parsedParameters == null) {
@@ -226,6 +230,25 @@ public class OpenRaoMPSolver {
                             .setValue(parameter[1]));
                     }
                     xpressParameters = builder.build();
+                }
+                case HIGHS -> {
+                    HighsOptionsProto.Builder builder = HighsOptionsProto.newBuilder();
+                    for (String[] parameter : parsedParameters) {
+                        String name = parameter[0];
+                        String value = parameter[1];
+                        if ("TRUE".equalsIgnoreCase(value)) {
+                            builder.putBoolOptions(name, true);
+                        } else if ("FALSE".equalsIgnoreCase(value)) {
+                            builder.putBoolOptions(name, false);
+                        } else if (isLong(value)) {
+                            builder.putIntOptions(name, Integer.parseInt(value));
+                        } else if (isDouble(value)) {
+                            builder.putDoubleOptions(name, Double.parseDouble(value));
+                        } else {
+                            builder.putStringOptions(name, value);
+                        }
+                    }
+                    highsParameters = builder.build();
                 }
                 default -> throw new OpenRaoException(String.format("unknown solver %s in RAO parameters", solver));
             }
@@ -310,6 +333,9 @@ public class OpenRaoMPSolver {
         }
         if (xpressParameters != null) {
             solveParameters.setXpress(xpressParameters);
+        }
+        if (highsParameters != null) {
+            solveParameters.setHighs(highsParameters);
         }
 
         SolveResult result;

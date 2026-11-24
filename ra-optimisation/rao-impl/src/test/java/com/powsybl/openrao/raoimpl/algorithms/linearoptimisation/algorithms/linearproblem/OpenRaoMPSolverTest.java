@@ -20,6 +20,7 @@ import org.junit.jupiter.api.Test;
 import static com.google.ortools.mathopt.SolveResult.TerminationReason.*;
 import static com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.Solver.CBC;
 import static com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.Solver.GUROBI;
+import static com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.Solver.HIGHS;
 import static com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.Solver.SCIP;
 import static com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.Solver.XPRESS;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -309,9 +310,42 @@ class OpenRaoMPSolverTest {
     }
 
     @Test
+    void testSolveWithHiGhs() {
+        // Maximize 2 * x + y
+        // such that: x + 2 * y <= 12
+        //            x - y >= 1
+        //            x <= y + 2
+        //            x, y integers, 0 <= x <= 10, 0 <= y <= 10
+        // Should result in: x = 5, y = 3, obj = 13
+        OpenRaoMPSolver highsSolver = new OpenRaoMPSolver("highs_test", HIGHS);
+        // HiGHS-specific parameters must parse without error
+        assertTrue(highsSolver.setSolverSpecificParametersAsString("output_flag FALSE, time_limit 30"));
+        OpenRaoMPVariable x = highsSolver.makeIntVar(0, 10, "x");
+        OpenRaoMPVariable y = highsSolver.makeIntVar(0, 10, "y");
+        OpenRaoMPConstraint c1 = highsSolver.makeConstraint(-highsSolver.infinity(), 12, "c1");
+        c1.setCoefficient(x, 1);
+        c1.setCoefficient(y, 2);
+        OpenRaoMPConstraint c2 = highsSolver.makeConstraint(1, highsSolver.infinity(), "c2");
+        c2.setCoefficient(x, 1);
+        c2.setCoefficient(y, -1);
+        OpenRaoMPConstraint c3 = highsSolver.makeConstraint(-highsSolver.infinity(), 2, "c3");
+        c3.setCoefficient(x, 1);
+        c3.setCoefficient(y, -1);
+        highsSolver.getObjective().setCoefficient(x, 2);
+        highsSolver.getObjective().setCoefficient(y, 1);
+        highsSolver.setMaximization();
+        LinearProblemStatus result = highsSolver.solve();
+
+        assertEquals(HIGHS, highsSolver.getSolver());
+        assertEquals(LinearProblemStatus.OPTIMAL, result);
+        assertEquals(5., x.solutionValue(), DOUBLE_TOLERANCE);
+        assertEquals(3., y.solutionValue(), DOUBLE_TOLERANCE);
+    }
+
+    @Test
     void testInfinity() {
         // OR-Tools MathOpt handles infinite bounds natively, for every solver
-        for (var solverType : new SearchTreeRaoRangeActionsOptimizationParameters.Solver[] {SCIP, XPRESS, GUROBI}) {
+        for (var solverType : new SearchTreeRaoRangeActionsOptimizationParameters.Solver[] {SCIP, XPRESS, GUROBI, HIGHS}) {
             OpenRaoMPSolver solver = new OpenRaoMPSolver("solver", solverType);
             assertEquals(Double.POSITIVE_INFINITY, solver.infinity());
         }
@@ -322,6 +356,7 @@ class OpenRaoMPSolverTest {
         assertEquals(SolverType.GSCIP, OpenRaoMPSolver.getOrToolsSolverType(SCIP));
         assertEquals(SolverType.XPRESS, OpenRaoMPSolver.getOrToolsSolverType(XPRESS));
         assertEquals(SolverType.GUROBI, OpenRaoMPSolver.getOrToolsSolverType(GUROBI));
+        assertEquals(SolverType.HIGHS, OpenRaoMPSolver.getOrToolsSolverType(HIGHS));
 
         // CBC is not supported anymore by OR-Tools MathOpt
         Exception e = assertThrows(OpenRaoException.class, () -> OpenRaoMPSolver.getOrToolsSolverType(CBC));
