@@ -109,7 +109,7 @@ class FastRaoTest {
         RaoInput individualRaoInput = RaoInput.build(network, crac).build();
         RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_dc_minObjective.json"), ReportNode.NO_OP);
         raoParameters.addExtension(FastRaoParameters.class, new FastRaoParameters());
-        RaoResult raoResult = FastRao.launchFastRaoOptimization(individualRaoInput, raoParameters, null, new HashSet<>(), ReportNode.NO_OP);
+        RaoResult raoResult = FastRao.launchFastRaoOptimization(individualRaoInput, raoParameters, null, new HashSet<>(), ReportNode.NO_OP, RaoStopCondition.NO_OP);
 
         // The RAO activates the least costly combination of network actions to secure the network
         assertEquals(Set.of(crac.getNetworkAction("closeBeFr4")), raoResult.getActivatedNetworkActionsDuringState(crac.getPreventiveState()));
