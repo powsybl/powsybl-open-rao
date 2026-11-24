@@ -9,10 +9,14 @@ package com.powsybl.openrao.raoimpl.algorithms;
 
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.report.ReportNode;
+import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
+import com.powsybl.openrao.data.raoresult.impl.RaoResultImpl;
 import com.powsybl.openrao.raoapi.EndInstantRaoStopCondition;
 import com.powsybl.openrao.raoapi.RaoInput;
+import com.powsybl.openrao.raoapi.RaoInterruptedException;
 import com.powsybl.openrao.raoapi.RaoProvider;
 import com.powsybl.openrao.raoapi.RaoStopCondition;
 import com.powsybl.openrao.raoapi.TimeCoupledRaoInput;
@@ -21,6 +25,7 @@ import com.powsybl.openrao.raoapi.parameters.extensions.FastRaoParameters;
 import com.powsybl.openrao.raoimpl.reports.OpenRaoReports;
 
 import java.time.Instant;
+import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -38,7 +43,13 @@ public class OpenRao implements RaoProvider {
     @Override
     public CompletableFuture<RaoResult> run(TimeCoupledRaoInput raoInput, RaoParameters parameters, ReportNode reportNode, RaoStopCondition raoStopCondition) {
         OpenRaoReports.reportTimeCoupledSituationDetected(reportNode);
-        return new Marmot().run(raoInput, parameters, reportNode, raoStopCondition);
+        try {
+            return new Marmot().run(raoInput, parameters, reportNode, raoStopCondition);
+        } catch (RaoInterruptedException interruptedException) {
+            return CompletableFuture.completedFuture(
+                interruptedException.getRaoResult().orElse(RaoResultImpl.builder(raoInput.getRaoInputs().map(RaoInput::getCrac)).build())
+            );
+        }
     }
 
     @Override
@@ -61,16 +72,27 @@ public class OpenRao implements RaoProvider {
      */
     @Deprecated(since = "7.6.0")
     public CompletableFuture<RaoResult> run(RaoInput raoInput, RaoParameters parameters, Instant targetEndInstant, ReportNode reportNode, RaoStopCondition raoStopCondition) {
+        Crac crac = raoInput.getCrac();
         FastRaoParameters fastRaoParameters = parameters.getExtension(FastRaoParameters.class);
         if (raoInput.getCrac().getInstants(InstantKind.CURATIVE).size() > 1) {
             OpenRaoReports.reportMultiCurativeSituationDetected(reportNode);
-            return new CastorFullOptimization(raoInput, parameters, targetEndInstant, reportNode, raoStopCondition).run();
+            return wrapEngineWithInterruptionCheck(crac, () -> new CastorFullOptimization(raoInput, parameters, targetEndInstant, reportNode, raoStopCondition).run());
         } else if (fastRaoParameters == null) {
             OpenRaoReports.reportCastorAlgorithmSelected(reportNode);
-            return new CastorFullOptimization(raoInput, parameters, targetEndInstant, reportNode, raoStopCondition).run();
+            return wrapEngineWithInterruptionCheck(crac, () -> new CastorFullOptimization(raoInput, parameters, targetEndInstant, reportNode, raoStopCondition).run());
         } else {
             OpenRaoReports.reportFastRaoAlgorithmSelected(reportNode);
-            return new FastRao().run(raoInput, parameters, targetEndInstant, reportNode, raoStopCondition);
+            return wrapEngineWithInterruptionCheck(crac, () -> new FastRao().run(raoInput, parameters, targetEndInstant, reportNode, raoStopCondition));
+        }
+    }
+
+    private static CompletableFuture<RaoResult> wrapEngineWithInterruptionCheck(Crac crac, Callable<CompletableFuture<RaoResult>> engine) {
+        try {
+            return engine.call();
+        } catch (RaoInterruptedException interruptedException) {
+            return CompletableFuture.completedFuture(interruptedException.getRaoResult().orElse(RaoResultImpl.builder(crac).build()));
+        } catch (Exception e) {
+            throw new OpenRaoException(e.getMessage());
         }
     }
 }

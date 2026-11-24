@@ -7,11 +7,26 @@
 
 package com.powsybl.openrao.raoapi;
 
+import com.powsybl.openrao.data.raoresult.api.RaoResult;
+
+import java.util.Optional;
+
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
 public class RaoInterruptedException extends RuntimeException {
+    private final RaoResult raoResult;
+
     public RaoInterruptedException() {
+        this(null);
+    }
+
+    public RaoInterruptedException(RaoResult raoResult) {
         super("RAO was interrupted.");
+        this.raoResult = raoResult;
+    }
+
+    public Optional<RaoResult> getRaoResult() {
+        return Optional.ofNullable(raoResult);
     }
 }

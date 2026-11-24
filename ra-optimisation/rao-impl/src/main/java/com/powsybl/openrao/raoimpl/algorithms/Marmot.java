@@ -889,8 +889,7 @@ class Marmot {
                 .withExecutionDetails(earlyStoppingStep)
                 .build();
             intermediateRaoResult.addExtension(Metadata.class, metadata);
-            // TODO: rethrow exception with RAO Result inside
-            return CompletableFuture.completedFuture(intermediateRaoResult);
+            throw new RaoInterruptedException(intermediateRaoResult);
         }
     }
 
