@@ -14,6 +14,7 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.openrao.commons.CounterTradeGeneratorOrdering;
 import com.powsybl.openrao.commons.GeneratorOrderingComputer;
 import com.powsybl.openrao.commons.GlskGeneratorAllocation;
+import com.powsybl.openrao.commons.MeritOrderGlsk;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.ConnectedArea;
 import com.powsybl.openrao.data.crac.api.range.StandardRange;
@@ -23,6 +24,8 @@ import com.powsybl.openrao.data.crac.api.usagerule.UsageRule;
 import com.powsybl.sensitivity.SensitivityVariableSet;
 
 import java.util.*;
+
+import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WARNS;
 
 /**
  * @author Gabriel Plante {@literal <gabriel.plante_externe at rte-france.com>}
@@ -100,8 +103,13 @@ public class CounterTradeRangeActionImpl extends AbstractRangeAction<CounterTrad
         }
         List<GlskGeneratorAllocation> order = upward ? generatorOrdering.upwardOrder() : generatorOrdering.downwardOrder();
 
-        Map<String, Double> dispatch = GeneratorOrderingComputer.computeDispatchQuantity(
-            order, GeneratorOrderingComputer.layerAllocation(order, Math.abs(setpoint)));
+        double[] x = GeneratorOrderingComputer.layerAllocation(order, Math.abs(setpoint));
+        Map<String, Double> dispatch;
+        if (generatorOrdering.meritOrder()) {
+            dispatch = GeneratorOrderingComputer.meritOrderDispatchQuantity(order, x);
+        } else {
+            dispatch = GeneratorOrderingComputer.computeDispatchQuantity(order, x);
+        }
 
         double sign = upward ? 1.0 : -1.0;
         generatorOrdering.initialTargetP().forEach((generatorId, p0) -> {
@@ -226,10 +234,26 @@ public class CounterTradeRangeActionImpl extends AbstractRangeAction<CounterTrad
 
     public void computeGeneratorOrdering(Network network, double tolerance) {
         Map<String, Double> weights = getGlsk().get(area);
-        this.generatorOrdering = GeneratorOrderingComputer.compute(
+        this.generatorOrdering = GeneratorOrderingComputer.computeFromProportional(
                 weights,
                 network,
                 tolerance,
+                getMinAdmissibleSetpoint(0),
+                getMaxAdmissibleSetpoint(0)
+        );
+    }
+
+    @Override
+    public void computeGeneratorOrdering(MeritOrderGlsk meritOrderGlsk, Network network) {
+        if (getMaxAdmissibleSetpoint(0) > 0 && meritOrderGlsk.upward().isEmpty()) {
+            BUSINESS_WARNS.warn("Counter trade range action {} allows an increase but its merit order has no upward tranche", getId());
+        }
+        if (getMinAdmissibleSetpoint(0) < 0 && meritOrderGlsk.downward().isEmpty()) {
+            BUSINESS_WARNS.warn("Counter trade range action {} allows a decrease but its merit order has no downward tranche", getId());
+        }
+        this.generatorOrdering = GeneratorOrderingComputer.computeFromMeritOrder(
+                meritOrderGlsk,
+                network,
                 getMinAdmissibleSetpoint(0),
                 getMaxAdmissibleSetpoint(0)
         );

@@ -74,7 +74,7 @@ public class CounterTradeAreaBalanceFiller implements ProblemFiller {
 
             for (CounterTradeRangeAction ra : counterTradeRangeActions) {
                 // add the border balance constraints between CT on each area and its borders
-                fillBorderBalance(linearProblem, ra, state, counterTradeActionsByArea.keySet(), alreadyCreatedBorders);
+                fillBorderBalance(linearProblem, ra, state, counterTradeActionsByArea, alreadyCreatedBorders);
                 // add the generation dispatch
                 fillGeneratorDispatch(linearProblem, ra, state);
             }
@@ -83,7 +83,7 @@ public class CounterTradeAreaBalanceFiller implements ProblemFiller {
     }
 
     private void fillBorderBalance(LinearProblem linearProblem, CounterTradeRangeAction ra, State state,
-                                   Set<String> areasWithCt,
+                                   Map<String, CounterTradeRangeAction> counterTradeActionsByArea,
                                    Set<String> alreadyCreatedBorders) {
         String area = ra.getAreaId();
         OpenRaoMPVariable ctVar = linearProblem.getRangeActionSetpointVariable(ra, state);
@@ -93,10 +93,10 @@ public class CounterTradeAreaBalanceFiller implements ProblemFiller {
         boolean hasBorder = false;
         for (ConnectedArea connected : ra.getConnectedAreas()) {
             String neighbour = connected.getAreaId();
-            if (!areasWithCt.contains(neighbour)) {
+            if (!counterTradeActionsByArea.containsKey(neighbour)) {
                 continue; // no CT on the other side: border fixed to 0, no variable
             }
-            OpenRaoMPVariable borderVar = getOrCreateBorderVariable(linearProblem, area, neighbour, state, alreadyCreatedBorders);
+            OpenRaoMPVariable borderVar = getOrCreateBorderVariable(linearProblem, area, neighbour, state, alreadyCreatedBorders, counterTradeActionsByArea);
             balance.setCoefficient(borderVar, borderSign(area, neighbour));
             hasBorder = true;
         }
@@ -135,7 +135,7 @@ public class CounterTradeAreaBalanceFiller implements ProblemFiller {
         }
 
         boolean up = direction == LinearProblem.VariationDirectionExtension.UPWARD;
-        double totalM = 0.0; // sum of m_h over the stages that can be reached
+        double totalM = 0.0; // reachable volume
         for (int h = 0; h <= lastStage; h++) {
             totalM += order.get(h).cumulativeAllocation();
         }
@@ -152,26 +152,26 @@ public class CounterTradeAreaBalanceFiller implements ProblemFiller {
             String generatorId = allocation.generatorId();
             double bound = Math.min(allocation.cumulativeAllocation(), maxMagnitude);
 
-            OpenRaoMPVariable x = linearProblem.addCounterTradeGeneratorDispatchVariable(bound, generatorId, areaId, state, direction);
+            OpenRaoMPVariable x = linearProblem.addCounterTradeGeneratorDispatchVariable(bound, generatorId, h, areaId, state, direction);
 
             exclusivity.setCoefficient(x, 1.0);
             decomposition.setCoefficient(x, up ? -1.0 : 1.0);
 
             // x - m_h y_{h-1} <=0
             if (previousY != null) {
-                OpenRaoMPConstraint orderCtr = linearProblem.addCounterTradeGeneratorOrderConstraint(generatorId, areaId, state, direction);
+                OpenRaoMPConstraint orderCtr = linearProblem.addCounterTradeGeneratorOrderConstraint(generatorId, h, areaId, state, direction);
                 orderCtr.setCoefficient(x, 1.0);
                 orderCtr.setCoefficient(previousY, -bound);
             }
             if (h < lastStage) {
-                OpenRaoMPVariable y = linearProblem.addCounterTradeGeneratorSaturationBinary(generatorId, areaId, state, direction);
+                OpenRaoMPVariable y = linearProblem.addCounterTradeGeneratorSaturationBinary(generatorId, h, areaId, state, direction);
                 // x - m_h * y >= 0
-                OpenRaoMPConstraint link = linearProblem.addCounterTradeGeneratorSaturationLinkConstraint(generatorId, areaId, state, direction);
+                OpenRaoMPConstraint link = linearProblem.addCounterTradeGeneratorSaturationLinkConstraint(generatorId, h, areaId, state, direction);
                 link.setCoefficient(x, 1.0);
                 link.setCoefficient(y, -bound);
                 // y - y_{h-1} <=0
                 if (previousY != null) {
-                    OpenRaoMPConstraint monotonic = linearProblem.addCounterTradeSaturationOrderConstraint(generatorId, areaId, state, direction);
+                    OpenRaoMPConstraint monotonic = linearProblem.addCounterTradeSaturationOrderConstraint(generatorId, h, areaId, state, direction);
                     monotonic.setCoefficient(y, 1.0);
                     monotonic.setCoefficient(previousY, -1.0);
                 }
@@ -216,17 +216,23 @@ public class CounterTradeAreaBalanceFiller implements ProblemFiller {
             return;
         }
 
-        String tailId = "counterTrade_" + ra.getId() + "_tail_" + direction.name(); // use a method to get the correct name?
-        double tailWeight = 0.0;
-        for (int i = lastStage; i < order.size(); i++) {
-            tailWeight += order.get(i).weight();
-        }
-        double tailSensitivity = tailWeight * sensitivityResult.getSensitivityValue(cnec, side, tailId, unit);
+        double[] sigma;
+        if (ra.getGeneratorOrdering().meritOrder()) {
+            sigma = GeneratorOrderingComputer.meritOrderSensitivities(order, lastStage,
+                    generatorId -> sensitivityResult.getSensitivityValue(cnec, side, generatorId, unit));
+        } else {
+            String tailId = "counterTrade_" + ra.getId() + "_tail_" + direction.name(); // use a method to get the correct name?
+            double tailWeight = 0.0;
+            for (int i = lastStage; i < order.size(); i++) {
+                tailWeight += order.get(i).weight();
+            }
+            double tailSensitivity = tailWeight * sensitivityResult.getSensitivityValue(cnec, side, tailId, unit);
 
-        double[] sigma = GeneratorOrderingComputer.stageSensitivities(order, lastStage,
-                generatorId -> sensitivityResult.getSensitivityValue(cnec, side, generatorId, unit),
-                tailSensitivity);
-        Map<String, Double> xCurrent = GeneratorOrderingComputer.layerAllocation(order, currentMagnitude);
+            sigma = GeneratorOrderingComputer.stageSensitivities(order, lastStage,
+                    generatorId -> sensitivityResult.getSensitivityValue(cnec, side, generatorId, unit),
+                    tailSensitivity);
+        }
+        double[] xCurrent = GeneratorOrderingComputer.layerAllocation(order, currentMagnitude);
 
         for (int h = 0; h <= lastStage; h++) {
             double sensitivity = directionSign * sigma[h];
@@ -235,8 +241,8 @@ public class CounterTradeAreaBalanceFiller implements ProblemFiller {
             }
             String generatorId = order.get(h).generatorId();
             OpenRaoMPVariable x = linearProblem.getCounterTradeGeneratorDispatchVariable(
-                    generatorId, ra.getAreaId(), state, direction);
-            double xCur = xCurrent.get(generatorId);
+                    generatorId, h, ra.getAreaId(), state, direction);
+            double xCur = xCurrent[h];
 
             flowConstraint.setLb(flowConstraint.lb() - sensitivity * xCur);
             flowConstraint.setUb(flowConstraint.ub() - sensitivity * xCur);
@@ -245,11 +251,17 @@ public class CounterTradeAreaBalanceFiller implements ProblemFiller {
     }
 
     private OpenRaoMPVariable getOrCreateBorderVariable(LinearProblem linearProblem, String areaId, String neighbourId,
-                                                        State state, Set<String> alreadyCreatedBorders) {
-        return alreadyCreatedBorders.add(borderKey(areaId, neighbourId))
-                ? linearProblem.addCounterTradeBorderExchangeVariable(
-                -linearProblem.infinity(), linearProblem.infinity(), areaId, neighbourId, state)
-                : linearProblem.getCounterTradeBorderExchangeVariable(areaId, neighbourId, state);
+                                                        State state, Set<String> alreadyCreatedBorders,
+                                                        Map<String, CounterTradeRangeAction> counterTradeActionsByArea) {
+        if (!alreadyCreatedBorders.add(borderKey(areaId, neighbourId))) {
+            return linearProblem.getCounterTradeBorderExchangeVariable(areaId, neighbourId, state);
+        }
+        // the exchange cannot exceed what the receiving side is allowed to increase
+        String fromArea = borderSign(areaId, neighbourId) > 0 ? areaId : neighbourId;
+        String toArea = fromArea.equals(areaId) ? neighbourId : areaId;
+        double ub = Math.max(0, counterTradeActionsByArea.get(fromArea).getMaxAdmissibleSetpoint(0));
+        double lb = -Math.max(0, counterTradeActionsByArea.get(toArea).getMaxAdmissibleSetpoint(0));
+        return linearProblem.addCounterTradeBorderExchangeVariable(lb, ub, areaId, neighbourId, state);
     }
 
     private static String borderKey(String areaId, String neighbourId) {

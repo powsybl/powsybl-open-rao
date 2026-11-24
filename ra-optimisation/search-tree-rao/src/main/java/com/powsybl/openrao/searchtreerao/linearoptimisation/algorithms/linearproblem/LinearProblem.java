@@ -21,9 +21,6 @@ import com.powsybl.openrao.searchtreerao.result.api.LinearProblemStatus;
 import com.powsybl.openrao.searchtreerao.result.api.RangeActionActivationResult;
 import com.powsybl.openrao.searchtreerao.result.api.SensitivityResult;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -134,18 +131,6 @@ public final class LinearProblem {
         solver.setRelativeMipGap(relativeMipGap);
         solver.setSolverSpecificParametersAsString(solverSpecificParameters);
         return solver.solve();
-    }
-
-    public void printLp(String lpName) {
-        String lp = solver.getMpSolver().exportModelAsLpFormat();
-        try {
-            Files.writeString(
-                    Paths.get(lpName),
-                    lp
-            );
-        } catch (IOException e) {
-            throw new RuntimeException("Error in LP file export", e);
-        }
     }
 
     public OpenRaoMPObjective getObjective() {
@@ -670,28 +655,28 @@ public final class LinearProblem {
         return solver.makeConstraint(-infinity(), ub, counterTradeExclusivityConstraintId(areaId, state, variation));
     }
 
-    public OpenRaoMPVariable addCounterTradeGeneratorDispatchVariable(double ub, String generatorId, String areaId, State state, VariationDirectionExtension variation) {
-        return solver.makeNumVar(0.0, ub, counterTradeGeneratorDispatchVariableId(generatorId, areaId, state, variation));
+    public OpenRaoMPVariable addCounterTradeGeneratorDispatchVariable(double ub, String generatorId, int layer, String areaId, State state, VariationDirectionExtension variation) {
+        return solver.makeNumVar(0.0, ub, counterTradeGeneratorDispatchVariableId(generatorId, layer, areaId, state, variation));
     }
 
-    public OpenRaoMPVariable getCounterTradeGeneratorDispatchVariable(String generatorId, String areaId, State state, VariationDirectionExtension variation) {
-        return solver.getVariable(counterTradeGeneratorDispatchVariableId(generatorId, areaId, state, variation));
+    public OpenRaoMPVariable getCounterTradeGeneratorDispatchVariable(String generatorId, int layer, String areaId, State state, VariationDirectionExtension variation) {
+        return solver.getVariable(counterTradeGeneratorDispatchVariableId(generatorId, layer, areaId, state, variation));
     }
 
-    public OpenRaoMPVariable addCounterTradeGeneratorSaturationBinary(String generatorId, String areaId, State state, VariationDirectionExtension variation) {
-        return solver.makeBoolVar(counterTradeGeneratorSaturationBinaryVariableId(generatorId, areaId, state, variation));
+    public OpenRaoMPVariable addCounterTradeGeneratorSaturationBinary(String generatorId, int layer, String areaId, State state, VariationDirectionExtension variation) {
+        return solver.makeBoolVar(counterTradeGeneratorSaturationBinaryVariableId(generatorId, layer, areaId, state, variation));
     }
 
-    public OpenRaoMPConstraint addCounterTradeGeneratorSaturationLinkConstraint(String generatorId, String areaId, State state, VariationDirectionExtension variation) {
-        return solver.makeConstraint(0.0, infinity(), counterTradeGeneratorSaturationLinkConstraintId(generatorId, areaId, state, variation));
+    public OpenRaoMPConstraint addCounterTradeGeneratorSaturationLinkConstraint(String generatorId, int layer, String areaId, State state, VariationDirectionExtension variation) {
+        return solver.makeConstraint(0.0, infinity(), counterTradeGeneratorSaturationLinkConstraintId(generatorId, layer, areaId, state, variation));
     }
 
-    public OpenRaoMPConstraint addCounterTradeGeneratorOrderConstraint(String generatorId, String areaId, State state, VariationDirectionExtension variation) {
-        return solver.makeConstraint(-infinity(), 0.0, counterTradeGeneratorOrderConstraintId(generatorId, areaId, state, variation));
+    public OpenRaoMPConstraint addCounterTradeGeneratorOrderConstraint(String generatorId, int layer, String areaId, State state, VariationDirectionExtension variation) {
+        return solver.makeConstraint(-infinity(), 0.0, counterTradeGeneratorOrderConstraintId(generatorId, layer, areaId, state, variation));
     }
 
-    public OpenRaoMPConstraint addCounterTradeSaturationOrderConstraint(String generatorId, String areaId, State state, VariationDirectionExtension direction) {
-        return solver.makeConstraint(-infinity(), 0.0, counterTradeSaturationOrderConstraintId(generatorId, areaId, state, direction));
+    public OpenRaoMPConstraint addCounterTradeSaturationOrderConstraint(String generatorId, int layer, String areaId, State state, VariationDirectionExtension direction) {
+        return solver.makeConstraint(-infinity(), 0.0, counterTradeSaturationOrderConstraintId(generatorId, layer, areaId, state, direction));
     }
 
     public double infinity() {

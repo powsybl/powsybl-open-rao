@@ -136,24 +136,24 @@ public final class LinearProblemIdGenerator {
         return formatName(COUNTERTRADE_DECOMPOSITION, area, state.getId(), variation.toString(), CONSTRAINT_SUFFIX);
     }
 
-    public static String counterTradeGeneratorDispatchVariableId(String generatorId, String area, State state, LinearProblem.VariationDirectionExtension variation) {
-        return formatName(area, generatorId + variation.toString(), state.getId(), COUNTERTRADE_DISPATCH, VARIABLE_SUFFIX);
+    public static String counterTradeGeneratorDispatchVariableId(String generatorId, int layer, String area, State state, LinearProblem.VariationDirectionExtension variation) {
+        return formatName(area, generatorId + "_" + layer + variation.toString(), state.getId(), COUNTERTRADE_DISPATCH, VARIABLE_SUFFIX);
     }
 
-    public static String counterTradeGeneratorSaturationBinaryVariableId(String generatorId, String area, State state, LinearProblem.VariationDirectionExtension variation) {
-        return formatName(area, generatorId + variation.toString(), state.getId(), COUNTERTRADE_SATURATION, VARIABLE_SUFFIX);
+    public static String counterTradeGeneratorSaturationBinaryVariableId(String generatorId, int layer, String area, State state, LinearProblem.VariationDirectionExtension variation) {
+        return formatName(area, generatorId + "_" + layer + variation.toString(), state.getId(), COUNTERTRADE_SATURATION, VARIABLE_SUFFIX);
     }
 
-    public static String counterTradeGeneratorSaturationLinkConstraintId(String generatorId, String area, State state, LinearProblem.VariationDirectionExtension variation) {
-        return formatName(COUNTERTRADE_SATURATION, area, generatorId + variation.toString(), state.getId(), CONSTRAINT_SUFFIX);
+    public static String counterTradeGeneratorSaturationLinkConstraintId(String generatorId, int layer, String area, State state, LinearProblem.VariationDirectionExtension variation) {
+        return formatName(COUNTERTRADE_SATURATION, area, generatorId + "_" + layer + variation.toString(), state.getId(), CONSTRAINT_SUFFIX);
     }
 
-    public static String counterTradeGeneratorOrderConstraintId(String generatorId, String area, State state, LinearProblem.VariationDirectionExtension variation) {
-        return formatName(COUNTERTRADE_ORDER, area, generatorId + variation.toString(), state.getId(), CONSTRAINT_SUFFIX);
+    public static String counterTradeGeneratorOrderConstraintId(String generatorId, int layer, String area, State state, LinearProblem.VariationDirectionExtension variation) {
+        return formatName(COUNTERTRADE_ORDER, area, generatorId + "_" + layer + variation.toString(), state.getId(), CONSTRAINT_SUFFIX);
     }
 
-    public static String counterTradeSaturationOrderConstraintId(String generatorId, String area, State state, LinearProblem.VariationDirectionExtension variation) {
-        return formatName(COUNTERTRADE_SATURATION_ORDER, area, generatorId + variation.toString(), state.getId(), CONSTRAINT_SUFFIX);
+    public static String counterTradeSaturationOrderConstraintId(String generatorId, int layer, String area, State state, LinearProblem.VariationDirectionExtension variation) {
+        return formatName(COUNTERTRADE_SATURATION_ORDER, area, generatorId + "_" + layer + variation.toString(), state.getId(), CONSTRAINT_SUFFIX);
     }
 
     public static String rangeActionRelativeSetpointConstraintId(RangeAction<?> rangeAction, State state, LinearProblem.RaRangeShrinking raRangeShrinking) {

@@ -43,7 +43,7 @@ public final class GeneratorOrderingComputer {
      * @param maxDownwardMagnitude      the maximal admissible positive setpoint decrease
      * @param maxUpwardMagnitude        the maximal admissible positive setpoint increase
      */
-    public static CounterTradeGeneratorOrdering compute(
+    public static CounterTradeGeneratorOrdering computeFromProportional(
             Map<String, Double> glskWeights,
             Network network,
             double tolerance,
@@ -98,7 +98,70 @@ public final class GeneratorOrderingComputer {
                 downwardLastStage,
                 max(0, -maxDownwardMagnitude),
                 initialTargetP,
-                zeroWeightIds);
+                zeroWeightIds,
+                false);
+    }
+
+    public static CounterTradeGeneratorOrdering computeFromMeritOrder(
+            MeritOrderGlsk meritOrderGlsk,
+            Network network,
+            double maxDownwardMagnitude,
+            double maxUpwardMagnitude) {
+        Map<String, Double> initialTargetP = new HashMap<>();
+        Set<String> ignoredIds = new HashSet<>();
+        List<GlskGeneratorAllocation> upward = meritOrderLayers(meritOrderGlsk.upward(), true, network, initialTargetP, ignoredIds);
+        List<GlskGeneratorAllocation> downward = meritOrderLayers(meritOrderGlsk.downward(), false, network, initialTargetP, ignoredIds);
+        int upwardLastStage = lastReachableLayer(upward, max(0, maxUpwardMagnitude));
+        int downwardLastStage = lastReachableLayer(downward, max(0, -maxDownwardMagnitude));
+
+        return new CounterTradeGeneratorOrdering(
+                upward,
+                downward,
+                upwardLastStage,
+                max(0, maxUpwardMagnitude),
+                downwardLastStage,
+                max(0, -maxDownwardMagnitude),
+                initialTargetP,
+                ignoredIds,
+                true);
+    }
+
+    private static List<GlskGeneratorAllocation> meritOrderLayers(
+            List<MeritOrderTranche> tranches,
+            boolean upward,
+            Network network,
+            Map<String, Double> initialTargetP,
+            Set<String> ignoredIds) {
+        Map<String, Double> positions = new HashMap<>();
+        List<GlskGeneratorAllocation> layers = new ArrayList<>();
+        for (MeritOrderTranche tranche : tranches) {
+            String generatorId = tranche.generatorId();
+            Generator generator = network.getGenerator(generatorId);
+            if (generator == null || !hasUsableActivePowerRange(generator)) {
+                ignoredIds.add(generatorId);
+                continue;
+            }
+            double initialP = generator.getTargetP();
+            initialTargetP.put(generatorId, initialP);
+            double lower = max(tranche.minP(), generator.getMinP());
+            double upper = Math.min(tranche.maxP(), generator.getMaxP());
+            double position = positions.getOrDefault(generatorId, initialP);
+            if (position < lower || position > upper) {
+                continue;
+            }
+            double capacity;
+            if (upward) {
+                capacity = upper - position;
+                positions.put(generatorId, upper);
+            } else {
+                capacity = position - lower;
+                positions.put(generatorId, lower);
+            }
+            if (capacity > 0) {
+                layers.add(new GlskGeneratorAllocation(generatorId, 1.0, capacity, capacity, capacity));
+            }
+        }
+        return layers;
     }
 
     private static boolean hasUsableActivePowerRange(Generator generator) {
@@ -139,7 +202,7 @@ public final class GeneratorOrderingComputer {
      */
     public static Map<String, Double> computeDispatchQuantity(
             List<GlskGeneratorAllocation> sortedAllocations,
-            Map<String, Double> ctXValue) {
+            double[] ctXValue) {
 
         int n = sortedAllocations.size();
         double[] suffixSum = new double[n + 1];
@@ -149,9 +212,7 @@ public final class GeneratorOrderingComputer {
 
         double[] ratio = new double[n + 1];
         for (int h = 0; h < n; h++) {
-            String generatorId = sortedAllocations.get(h).generatorId();
-            double xh = ctXValue.getOrDefault(generatorId, 0.0);
-            ratio[h + 1] = ratio[h] + xh / suffixSum[h];
+            ratio[h + 1] = ratio[h] + ctXValue[h] / suffixSum[h];
         }
 
         Map<String, Double> result = new LinkedHashMap<>();
@@ -162,12 +223,20 @@ public final class GeneratorOrderingComputer {
         return result;
     }
 
-    public static Map<String, Double> layerAllocation(List<GlskGeneratorAllocation> order, double magnitude) {
-        Map<String, Double> x = new LinkedHashMap<>();
+    public static Map<String, Double> meritOrderDispatchQuantity(List<GlskGeneratorAllocation> order, double[] ctXValue) {
+        Map<String, Double> result = new HashMap<>();
+        for (int h = 0; h < order.size(); h++) {
+            result.merge(order.get(h).generatorId(), ctXValue[h], Double::sum);
+        }
+        return result;
+    }
+
+    public static double[] layerAllocation(List<GlskGeneratorAllocation> order, double magnitude) {
+        double[] x = new double[order.size()];
         double remaining = magnitude;
-        for (GlskGeneratorAllocation allocation : order) {
-            double xh = Math.min(remaining, allocation.cumulativeAllocation());
-            x.put(allocation.generatorId(), xh);
+        for (int h = 0; h < order.size(); h++) {
+            double xh = Math.min(remaining, order.get(h).cumulativeAllocation());
+            x[h] = xh;
             remaining -= xh;
         }
         return x; // any leftover means the setpoint exceeds total capacity
@@ -188,6 +257,15 @@ public final class GeneratorOrderingComputer {
             weightedSum += a.weight() * individualSensitivity.applyAsDouble(a.generatorId());
             suffixWeight += a.weight();
             sigma[h] = weightedSum / suffixWeight;
+        }
+        return sigma;
+    }
+
+    public static double[] meritOrderSensitivities(List<GlskGeneratorAllocation> order, int lastStage,
+                                                   ToDoubleFunction<String> sensitivityOfGenerator) {
+        double[] sigma = new double[lastStage + 1];
+        for (int h = 0; h <= lastStage; h++) {
+            sigma[h] = sensitivityOfGenerator.applyAsDouble(order.get(h).generatorId());
         }
         return sigma;
     }
