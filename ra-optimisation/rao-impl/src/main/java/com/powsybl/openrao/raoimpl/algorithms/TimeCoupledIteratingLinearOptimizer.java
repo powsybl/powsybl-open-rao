@@ -360,11 +360,11 @@ public final class TimeCoupledIteratingLinearOptimizer {
         // TODO: if we want to force 2P, shoud always be global
         if (input.optimizationPerimeter() instanceof GlobalOptimizationPerimeter) {
             AppliedRemedialActions appliedRemedialActionsInSecondaryStates = IteratingLinearOptimizer.applyRangeActions(currentRangeActionActivationResult, input);
-            tmpSensitivityComputer = createSensitivityComputer(appliedRemedialActionsInSecondaryStates, input, parameters, reportNode, raoStopCondition);
+            tmpSensitivityComputer = createSensitivityComputer(appliedRemedialActionsInSecondaryStates, input, parameters, reportNode);
         } else {
             IteratingLinearOptimizer.applyRangeActions(currentRangeActionActivationResult, input);
             if (tmpSensitivityComputer == null) { // first iteration, do not need to be updated afterwards
-                tmpSensitivityComputer = createSensitivityComputer(input.preOptimizationAppliedRemedialActions(), input, parameters, reportNode, raoStopCondition);
+                tmpSensitivityComputer = createSensitivityComputer(input.preOptimizationAppliedRemedialActions(), input, parameters, reportNode);
             }
         }
         runSensitivityAnalysis(tmpSensitivityComputer, input.network(), iteration, reportNode, raoStopCondition);
@@ -374,8 +374,7 @@ public final class TimeCoupledIteratingLinearOptimizer {
     private static SensitivityComputer createSensitivityComputer(final AppliedRemedialActions appliedRemedialActions,
                                                                  final IteratingLinearOptimizerInput input,
                                                                  final IteratingLinearOptimizerParameters parameters,
-                                                                 final ReportNode reportNode,
-                                                                 final RaoStopCondition raoStopCondition) {
+                                                                 final ReportNode reportNode) {
 
         SensitivityComputer.SensitivityComputerBuilder builder = SensitivityComputer.create(reportNode)
             .withCnecs(input.optimizationPerimeter().getFlowCnecs())
