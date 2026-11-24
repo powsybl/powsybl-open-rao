@@ -83,3 +83,8 @@ computation times.
 Currently, MARMOT only supports power gradient constraints but new
 [time-coupled constraints](castor/linear-problem/time-coupled-constraints.md) like minimum/maximum up/off times will
 be added in the future.
+
+MARMOT also does not support **loop-flow constraints** yet: they rely on commercial flows and
+PTDF zonal sums, which MARMOT does not compute nor report. Running MARMOT with
+`loop-flow-parameters` set fails fast with an `OpenRaoException`. Use
+[CASTOR](castor.md) or [FastRAO](castor.md) for now.
