@@ -110,29 +110,30 @@ public class CostCoreProblemFiller extends AbstractCoreProblemFiller {
     @Override
     protected void fillObjective(LinearProblem linearProblem) {
         optimizationContext.getRangeActionsPerState().forEach((state, rangeActions) -> rangeActions.forEach(ra -> {
-            OpenRaoMPVariable upwardVariationVariable = linearProblem.getRangeActionVariationVariable(ra, state, LinearProblem.VariationDirectionExtension.UPWARD);
-            OpenRaoMPVariable downwardVariationVariable = linearProblem.getRangeActionVariationVariable(ra, state, LinearProblem.VariationDirectionExtension.DOWNWARD);
-
-            double defaultVariationCost = getRangeActionPenaltyCost(ra, rangeActionParameters);
-            if (!(ra instanceof PstRangeAction)) {
-                linearProblem.getObjective().setCoefficient(upwardVariationVariable, ra.getVariationCost(VariationDirection.UP).orElse(defaultVariationCost));
-                linearProblem.getObjective().setCoefficient(downwardVariationVariable, ra.getVariationCost(VariationDirection.DOWN).orElse(defaultVariationCost));
-            }
-
-            // pst costs are considered in the discreteTapFiller if the PST model is APPROXIMATED_INTEGER
-            // If the PST model is CONTINUOUS, we approximate the cost of a setpoint variable from the cost per tap with coefficient = max_tap - min_tap / max_setpoint - min_setpoint
-            if (ra instanceof PstRangeAction && rangeActionParametersExtension.getPstModel() == SearchTreeRaoRangeActionsOptimizationParameters.PstModel.CONTINUOUS) {
-                PstRangeAction pstRangeAction = (PstRangeAction) ra;
-                double coefficient = (Collections.max(pstRangeAction.getTapToAngleConversionMap().keySet()) - Collections.min(pstRangeAction.getTapToAngleConversionMap().keySet())) /
-                    (Collections.max(pstRangeAction.getTapToAngleConversionMap().values()) - Collections.min(pstRangeAction.getTapToAngleConversionMap().values()));
-                linearProblem.getObjective().setCoefficient(upwardVariationVariable, ra.getVariationCost(VariationDirection.UP).orElse(defaultVariationCost) * coefficient);
-                linearProblem.getObjective().setCoefficient(downwardVariationVariable, ra.getVariationCost(VariationDirection.DOWN).orElse(defaultVariationCost) * coefficient);
-            }
-
+            addVariationCosts(linearProblem, state, ra);
             if (ra.getActivationCost().isPresent() && ra.getActivationCost().get() > 0) {
                 OpenRaoMPVariable activationVariable = linearProblem.getRangeActionVariationBinary(ra, state);
                 linearProblem.getObjective().setCoefficient(activationVariable, ra.getActivationCost().get());
             }
         }));
+    }
+
+    private void addVariationCosts(LinearProblem linearProblem, State state, RangeAction<?> ra) {
+        OpenRaoMPVariable upwardVariationVariable = linearProblem.getRangeActionVariationVariable(ra, state, LinearProblem.VariationDirectionExtension.UPWARD);
+        OpenRaoMPVariable downwardVariationVariable = linearProblem.getRangeActionVariationVariable(ra, state, LinearProblem.VariationDirectionExtension.DOWNWARD);
+        double defaultVariationCost = getRangeActionPenaltyCost(ra, rangeActionParameters);
+        if (!(ra instanceof PstRangeAction)) {
+            linearProblem.getObjective().setCoefficient(upwardVariationVariable, ra.getVariationCost(VariationDirection.UP).orElse(defaultVariationCost));
+            linearProblem.getObjective().setCoefficient(downwardVariationVariable, ra.getVariationCost(VariationDirection.DOWN).orElse(defaultVariationCost));
+        }
+        // pst costs are considered in the discreteTapFiller if the PST model is APPROXIMATED_INTEGER
+        // If the PST model is CONTINUOUS, we approximate the cost of a setpoint variable from the cost per tap with coefficient = max_tap - min_tap / max_setpoint - min_setpoint
+        if (ra instanceof PstRangeAction && rangeActionParametersExtension.getPstModel() == SearchTreeRaoRangeActionsOptimizationParameters.PstModel.CONTINUOUS) {
+            PstRangeAction pstRangeAction = (PstRangeAction) ra;
+            double coefficient = (Collections.max(pstRangeAction.getTapToAngleConversionMap().keySet()) - Collections.min(pstRangeAction.getTapToAngleConversionMap().keySet())) /
+                (Collections.max(pstRangeAction.getTapToAngleConversionMap().values()) - Collections.min(pstRangeAction.getTapToAngleConversionMap().values()));
+            linearProblem.getObjective().setCoefficient(upwardVariationVariable, ra.getVariationCost(VariationDirection.UP).orElse(defaultVariationCost) * coefficient);
+            linearProblem.getObjective().setCoefficient(downwardVariationVariable, ra.getVariationCost(VariationDirection.DOWN).orElse(defaultVariationCost) * coefficient);
+        }
     }
 }
