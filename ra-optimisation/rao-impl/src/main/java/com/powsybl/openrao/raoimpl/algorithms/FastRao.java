@@ -30,6 +30,7 @@ import com.powsybl.openrao.data.raoresult.api.extension.CriticalCnecsResult;
 import com.powsybl.openrao.data.raoresult.api.extension.Metadata;
 import com.powsybl.openrao.data.raoresult.impl.RaoResultImpl;
 import com.powsybl.openrao.raoapi.RaoInput;
+import com.powsybl.openrao.raoapi.RaoInterruptedException;
 import com.powsybl.openrao.raoapi.RaoStopCondition;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.FastRaoParameters;
@@ -87,6 +88,9 @@ class FastRao {
             return RaoResultGenerator.failed(raoInput.getCrac(), "Fast Rao does not support multi-curative optimization");
         }
 
+        RaoResultImpl raoResult = RaoResultImpl.builder(raoInput.getCrac()).build();
+        String earlyStoppingStep = "RAO was interrupted before any result could be produced.";
+
         try {
             // Retrieve input data
             Crac crac = raoInput.getCrac();
@@ -121,9 +125,9 @@ class FastRao {
             if (initialResult.getSensitivityStatus() == ComputationStatus.FAILURE) {
                 CommonReports.reportInitialSensitivityAnalysisFailed(reportNode);
                 String failureReason = "Initial sensitivity analysis failed";
-                RaoResult raoResult = RaoResultImpl.builder(raoInput.getCrac()).build();
-                MetadataHelper.fillAndAddWithGlobalFailure(raoInput.getCrac(), raoResult, failureReason);
-                return raoResult;
+                RaoResult failedRaoResult = RaoResultImpl.builder(raoInput.getCrac()).build();
+                MetadataHelper.fillAndAddWithGlobalFailure(raoInput.getCrac(), failedRaoResult, failureReason);
+                return failedRaoResult;
             }
 
             FastRaoReports.reportFastRaoInitialSensitivityAnalysisResults(reportNode,
@@ -135,7 +139,6 @@ class FastRao {
 
             PrePerimeterResult stepResult = initialResult;
             FlowCnec worstCnec;
-            RaoResultImpl raoResult;
             AbstractNetworkPool networkPool = AbstractNetworkPool.create(raoInput.getNetwork(), raoInput.getNetworkVariantId(), 3, true);
             int counter = 1;
 
@@ -167,6 +170,7 @@ class FastRao {
                 FastRaoReports.reportFastRaoIterationIntermediateResult(iterationReportNode, counter, stepResult, parameters, NUMBER_LOGGED_ELEMENTS_DURING_RAO);
 
                 worstCnec = stepResult.getMostLimitingElements(1).getFirst();
+                earlyStoppingStep = "RAO was interrupted after global MIP iteration n°" + counter + ".";
                 counter++;
 
             } while (!(consideredCnecs.contains(worstCnec) && consideredCnecs.containsAll(getCostlyVirtualCnecs(stepResult))));
@@ -183,6 +187,13 @@ class FastRao {
         } catch (InterruptedException | ExecutionException e) {
             Thread.currentThread().interrupt();
             throw new OpenRaoException("Error while running full FAST RAO loop", e);
+        } catch (RaoInterruptedException interruptedException) {
+            if (raoResult.getExtension(Metadata.class) != null) {
+                raoResult.removeExtension(Metadata.class);
+            }
+            Metadata metadata = Metadata.builder().withExecutionDetails(earlyStoppingStep).build();
+            raoResult.addExtension(Metadata.class, metadata);
+            throw new RaoInterruptedException(raoResult);
         }
     }
 
