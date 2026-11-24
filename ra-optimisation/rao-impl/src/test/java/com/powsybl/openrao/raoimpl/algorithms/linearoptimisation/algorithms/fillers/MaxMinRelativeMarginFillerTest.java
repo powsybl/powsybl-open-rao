@@ -12,7 +12,6 @@ import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
-import com.powsybl.openrao.raoapi.RaoStopCondition;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
@@ -118,7 +117,7 @@ class MaxMinRelativeMarginFillerTest extends AbstractFillerTest {
             .withProblemFiller(maxMinRelativeMarginFiller)
             .withSolver(SearchTreeRaoRangeActionsOptimizationParameters.Solver.SCIP)
             .withInitialRangeActionActivationResult(getInitialRangeActionActivationResult())
-            .build(RaoStopCondition.NO_OP);
+            .build();
         linearProblem.fill(flowResult, sensitivityResult);
     }
 

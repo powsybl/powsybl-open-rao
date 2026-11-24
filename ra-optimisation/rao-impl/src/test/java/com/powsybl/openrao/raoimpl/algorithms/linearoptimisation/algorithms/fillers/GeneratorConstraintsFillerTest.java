@@ -23,7 +23,6 @@ import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.timecoupledconstraints.GeneratorConstraints;
 import com.powsybl.openrao.data.timecoupledconstraints.TimeCoupledConstraints;
 import com.powsybl.openrao.raoapi.RaoInput;
-import com.powsybl.openrao.raoapi.RaoStopCondition;
 import com.powsybl.openrao.raoapi.TimeCoupledRaoInput;
 import com.powsybl.openrao.raoapi.json.JsonRaoParameters;
 import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
@@ -143,7 +142,7 @@ class GeneratorConstraintsFillerTest {
         when(flowResult.getFlow(any(), any(), any())).thenReturn(5000.0);
         SensitivityResult sensitivityResult = Mockito.mock(SensitivityResult.class);
         when(sensitivityResult.getSensitivityStatus(any())).thenReturn(ComputationStatus.DEFAULT);
-        linearProblem = linearProblemBuilder.build(RaoStopCondition.NO_OP);
+        linearProblem = linearProblemBuilder.build();
         linearProblem.fill(flowResult, sensitivityResult);
     }
 

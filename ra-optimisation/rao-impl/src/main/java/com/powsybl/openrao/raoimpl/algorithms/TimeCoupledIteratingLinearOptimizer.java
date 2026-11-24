@@ -283,6 +283,7 @@ public final class TimeCoupledIteratingLinearOptimizer {
                                                     IteratingLinearOptimizerParameters parameters,
                                                     final RaoStopCondition raoStopCondition) {
         LinearProblemBuilder linearProblemBuilder = LinearProblem.create()
+            .withRaoStopCondition(raoStopCondition)
             .withSolver(parameters.getSolverParameters().getSolver())
             .withRelativeMipGap(parameters.getSolverParameters().getRelativeMipGap())
             .withSolverSpecificParameters(parameters.getSolverParameters().getSolverSpecificParameters());
@@ -291,7 +292,7 @@ public final class TimeCoupledIteratingLinearOptimizer {
         problemFillers.getDataPerTimestamp().values().forEach(problemFillerOfTimestamp -> problemFillerOfTimestamp.forEach(linearProblemBuilder::withProblemFiller));
         timeCoupledProblemFillers.forEach(linearProblemBuilder::withProblemFiller);
 
-        return linearProblemBuilder.build(raoStopCondition);
+        return linearProblemBuilder.build();
     }
 
     private static void fillLinearProblem(LinearProblem linearProblem,

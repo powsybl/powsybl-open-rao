@@ -25,7 +25,6 @@ import com.powsybl.openrao.data.crac.io.commons.PstHelper;
 import com.powsybl.openrao.data.crac.io.commons.iidm.IidmPstHelper;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.raoapi.RaoInput;
-import com.powsybl.openrao.raoapi.RaoStopCondition;
 import com.powsybl.openrao.raoapi.json.JsonRaoParameters;
 import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
@@ -123,7 +122,7 @@ class RangeActionsSynchronizationFillerTest {
         when(flowResult.getFlow(any(), any(), any())).thenReturn(0.0);
         SensitivityResult sensitivityResult = Mockito.mock(SensitivityResult.class);
         when(sensitivityResult.getSensitivityStatus(any())).thenReturn(ComputationStatus.DEFAULT);
-        linearProblem = linearProblemBuilder.build(RaoStopCondition.NO_OP);
+        linearProblem = linearProblemBuilder.build();
         linearProblem.fill(flowResult, sensitivityResult);
     }
 

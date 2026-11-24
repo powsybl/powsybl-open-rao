@@ -14,7 +14,6 @@ import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
-import com.powsybl.openrao.raoapi.RaoStopCondition;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoCostlyMinMarginParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters;
@@ -128,7 +127,7 @@ class UnoptimizedCnecFillerMarginDecreaseRuleTest extends AbstractFillerTest {
             .withProblemFiller(maxMinMarginFiller)
             .withProblemFiller(unoptimizedCnecFiller)
             .withSolver(SearchTreeRaoRangeActionsOptimizationParameters.Solver.SCIP)
-            .build(RaoStopCondition.NO_OP);
+            .build();
         linearProblem.fill(flowResult, sensitivityResult);
     }
 
@@ -163,7 +162,7 @@ class UnoptimizedCnecFillerMarginDecreaseRuleTest extends AbstractFillerTest {
             .withProblemFiller(maxMinRelativeMarginFiller)
             .withProblemFiller(unoptimizedCnecFiller)
             .withSolver(SearchTreeRaoRangeActionsOptimizationParameters.Solver.SCIP)
-            .build(RaoStopCondition.NO_OP);
+            .build();
         linearProblem.fill(flowResult, sensitivityResult);
     }
 
