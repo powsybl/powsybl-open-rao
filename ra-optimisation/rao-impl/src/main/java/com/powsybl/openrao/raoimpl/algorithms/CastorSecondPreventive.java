@@ -73,6 +73,7 @@ public class CastorSecondPreventive {
     private final ToolProvider toolProvider;
     private final java.time.Instant targetEndInstant;
     private final ReportNode secondPreventiveReportNode;
+    private final RaoStopCondition raoStopCondition;
 
     public CastorSecondPreventive(final Crac crac,
                                   final RaoParameters raoParameters,
@@ -80,7 +81,8 @@ public class CastorSecondPreventive {
                                   final StateTree stateTree,
                                   final ToolProvider toolProvider,
                                   final java.time.Instant targetEndInstant,
-                                  final ReportNode secondPreventiveReportNode) {
+                                  final ReportNode secondPreventiveReportNode,
+                                  final RaoStopCondition raoStopCondition) {
         this.crac = crac;
         this.raoParameters = raoParameters;
         this.network = network;
@@ -88,6 +90,7 @@ public class CastorSecondPreventive {
         this.toolProvider = toolProvider;
         this.targetEndInstant = targetEndInstant;
         this.secondPreventiveReportNode = secondPreventiveReportNode;
+        this.raoStopCondition = raoStopCondition;
     }
 
     /**
@@ -151,12 +154,11 @@ public class CastorSecondPreventive {
                                                                    PrePerimeterSensitivityAnalysis prePerimeterSensitivityAnalysis,
                                                                    PrePerimeterResult initialOutput,
                                                                    PostPerimeterResult firstPreventiveResult,
-                                                                   Map<State, PostPerimeterResult> postContingencyResults,
-                                                                   RaoStopCondition raoStopCondition) {
+                                                                   Map<State, PostPerimeterResult> postContingencyResults) {
         // Run 2nd preventive RAO
         SecondPreventiveRaoResult secondPreventiveRaoResult;
         try {
-            secondPreventiveRaoResult = runSecondPreventiveRao(prePerimeterSensitivityAnalysis, initialOutput, firstPreventiveResult.optimizationResult(), postContingencyResults, raoStopCondition);
+            secondPreventiveRaoResult = runSecondPreventiveRao(prePerimeterSensitivityAnalysis, initialOutput, firstPreventiveResult.optimizationResult(), postContingencyResults);
             if (secondPreventiveRaoResult.postPraSensitivityAnalysisOutput.getSensitivityStatus() == ComputationStatus.FAILURE) {
                 return SecondPreventiveRaoResultsHolder.failed("Post-PRA sensitivity analysis failed during 2nd preventive RAO");
             }
@@ -209,7 +211,8 @@ public class CastorSecondPreventive {
                 initialOutput,
                 Collections.emptySet(),
                 appliedArasAndCras,
-                secondPreventiveReportNode
+                secondPreventiveReportNode,
+                raoStopCondition
             );
         if (postCraSensitivityAnalysisOutput.getSensitivityStatus() == ComputationStatus.FAILURE) {
             CastorReports.reportSystematicSensitivityAnalysisAfterCraAfterSecondPreventiveFailed(secondPreventiveReportNode);
@@ -266,8 +269,7 @@ public class CastorSecondPreventive {
     private SecondPreventiveRaoResult runSecondPreventiveRao(PrePerimeterSensitivityAnalysis prePerimeterSensitivityAnalysis,
                                                              PrePerimeterResult initialOutput,
                                                              OptimizationResult firstPreventiveResult,
-                                                             Map<State, PostPerimeterResult> postContingencyResults,
-                                                             RaoStopCondition raoStopCondition) {
+                                                             Map<State, PostPerimeterResult> postContingencyResults) {
         // Go back to the initial state of the network, saved in the SECOND_PREVENTIVE_STATE variant
         network.getVariantManager().setWorkingVariant(SECOND_PREVENTIVE_SCENARIO_BEFORE_OPT);
 
@@ -286,10 +288,7 @@ public class CastorSecondPreventive {
         // If any sensitivity computation fails, fail and fall back to 1st preventive result
         // TODO: can we / do we want to improve this behavior by excluding the failed contingencies?
         PrePerimeterResult sensiWithPostContingencyRemedialActions = prePerimeterSensitivityAnalysis
-            .runBasedOnInitialResults(network, initialOutput, stateTree.getOperatorsNotSharingCras(), appliedArasAndCras, secondPreventiveReportNode);
-
-        // checkpoint: post sensitivity analysis
-        raoStopCondition.checkNotStopped();
+            .runBasedOnInitialResults(network, initialOutput, stateTree.getOperatorsNotSharingCras(), appliedArasAndCras, secondPreventiveReportNode, raoStopCondition);
 
         if (sensiWithPostContingencyRemedialActions.getSensitivityStatus() == FAILURE) {
             throw new OpenRaoException("Systematic sensitivity analysis after curative remedial actions before second preventive optimization failed");
@@ -313,8 +312,7 @@ public class CastorSecondPreventive {
             initialOutput,
             sensiWithPostContingencyRemedialActions,
             firstPreventiveResult,
-            appliedArasAndCras,
-            raoStopCondition
+            appliedArasAndCras
         ).join();
 
         // Re-run sensitivity computation based on PRAs without CRAs, to access after PRA results
@@ -323,7 +321,8 @@ public class CastorSecondPreventive {
             initialOutput,
             stateTree.getOperatorsNotSharingCras(),
             null,
-            secondPreventiveReportNode
+            secondPreventiveReportNode,
+            raoStopCondition
         );
 
         // checkpoint: post sensitivity analysis
@@ -369,8 +368,7 @@ public class CastorSecondPreventive {
     CompletableFuture<OptimizationResult> optimizeSecondPreventivePerimeter(PrePerimeterResult initialOutput,
                                                                             PrePerimeterResult prePerimeterResult,
                                                                             OptimizationResult firstPreventiveResult,
-                                                                            AppliedRemedialActions appliedCras,
-                                                                            RaoStopCondition raoStopCondition) {
+                                                                            AppliedRemedialActions appliedCras) {
 
         OptimizationPerimeter optPerimeter;
         State preventiveState = crac.getPreventiveState();

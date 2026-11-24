@@ -20,6 +20,7 @@ import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.timecoupledconstraints.PstConstraints;
 import com.powsybl.openrao.raoapi.RaoInput;
+import com.powsybl.openrao.raoapi.RaoStopCondition;
 import com.powsybl.openrao.raoapi.json.JsonRaoParameters;
 import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
@@ -127,7 +128,7 @@ class PstConstraintsFillerTest {
         when(sensitivityResult.getSensitivityStatus(any())).thenReturn(ComputationStatus.DEFAULT);
         linearProblem = linearProblemBuilder
             .withInitialRangeActionActivationResult(new RangeActionActivationResultImpl(new RangeActionSetpointResultImpl(initialSetpoints)))
-            .build();
+            .build(RaoStopCondition.NO_OP);
         linearProblem.fill(flowResult, sensitivityResult);
     }
 

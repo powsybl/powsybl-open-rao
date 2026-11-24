@@ -103,7 +103,8 @@ class FastRao {
                 false);
 
             // Run initial sensi (for initial values, and to know which cnecs to put in the first rao)
-            PrePerimeterResult initialResultWithoutUpdatedRangeActionSetpointResult = prePerimeterSensitivityAnalysis.runInitialSensitivityAnalysis(raoInput.getNetwork(), reportNode);
+            PrePerimeterResult initialResultWithoutUpdatedRangeActionSetpointResult = prePerimeterSensitivityAnalysis.runInitialSensitivityAnalysis(
+                raoInput.getNetwork(), reportNode, raoStopCondition);
             RangeActionSetpointResult initialRangeActionSetpointResult = RangeActionSetpointResultImpl.buildWithSetpointsFromNetwork(raoInput.getNetwork(), crac.getRangeActions());
             PrePerimeterResult initialResult = new PrePerimeterSensitivityResultImpl(
                 initialResultWithoutUpdatedRangeActionSetpointResult.getFlowResult(),
@@ -294,7 +295,8 @@ class FastRao {
             parameters,
             toolProvider,
             InstantKind.PREVENTIVE,
-            fullSensiAnalysisReportNode
+            fullSensiAnalysisReportNode,
+            raoStopCondition
         );
 
         // 2) Post ARA
@@ -309,7 +311,8 @@ class FastRao {
             parameters,
             toolProvider,
             InstantKind.AUTO,
-            fullSensiAnalysisReportNode
+            fullSensiAnalysisReportNode,
+            raoStopCondition
         );
 
         // 3) Post CRA
@@ -324,7 +327,8 @@ class FastRao {
             parameters,
             toolProvider,
             InstantKind.CURATIVE,
-            fullSensiAnalysisReportNode
+            fullSensiAnalysisReportNode,
+            raoStopCondition
         );
 
         // Wait for all futures to finish before releasing the network
@@ -464,7 +468,8 @@ class FastRao {
         RaoParameters parameters,
         ToolProvider toolProvider,
         InstantKind instantKind,
-        final ReportNode reportNode) {
+        final ReportNode reportNode,
+        final RaoStopCondition raoStopCondition) {
 
         // Collect all activated remedial actions (for costly evaluation)
         RemedialActionActivationResult remedialActionActivationResult = createRemedialActionsActivationResults(instantKind, raoResult, crac, initialRangeActionSetpointResult);
@@ -500,7 +505,8 @@ class FastRao {
             operatorsNotSharingCras,
             remedialActionActivationResult,
             appliedRemedialActions,
-            reportNode
+            reportNode,
+            raoStopCondition
         );
     }
 

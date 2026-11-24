@@ -17,6 +17,7 @@ import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.raoapi.RaoInput;
+import com.powsybl.openrao.raoapi.RaoStopCondition;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
 import com.powsybl.openrao.raoimpl.result.api.FlowResult;
@@ -88,7 +89,7 @@ class MarmotUtilsTest {
         RangeAction<?> pstDeTimestamp3 = crac3.getRangeAction("pstDe - 1800");
 
         // Timestamp 1
-        PrePerimeterResult prePerimeterResult1 = runInitialSensitivityAnalysis(inputs.getData(timestamp1).get(), parameters, ReportNode.NO_OP);
+        PrePerimeterResult prePerimeterResult1 = runInitialSensitivityAnalysis(inputs.getData(timestamp1).get(), parameters, ReportNode.NO_OP, RaoStopCondition.NO_OP);
 
         FlowResult flowResultTimestamp1 = prePerimeterResult1.getFlowResult();
         assertFlowValueMw(flowResultTimestamp1, preventiveCnecTimestamp1, -382.0);
@@ -102,7 +103,7 @@ class MarmotUtilsTest {
         // assertEquals(12, setPointResultTimestamp1.getTap((PstRangeAction) pstBeTimestamp1));
 
         // Timestamp 2
-        PrePerimeterResult prePerimeterResult2 = runInitialSensitivityAnalysis(inputs.getData(timestamp2).get(), parameters, ReportNode.NO_OP);
+        PrePerimeterResult prePerimeterResult2 = runInitialSensitivityAnalysis(inputs.getData(timestamp2).get(), parameters, ReportNode.NO_OP, RaoStopCondition.NO_OP);
 
         FlowResult flowResultTimestamp2 = prePerimeterResult2.getFlowResult();
         assertFlowValueMw(flowResultTimestamp2, preventiveCnecTimestamp2, -382.0);
@@ -116,7 +117,7 @@ class MarmotUtilsTest {
         // assertEquals(12, setPointResultTimestamp2.getTap((PstRangeAction) pstBeTimestamp2));
 
         // Timestamp 3
-        PrePerimeterResult prePerimeterResult3 = runInitialSensitivityAnalysis(inputs.getData(timestamp3).get(), parameters, ReportNode.NO_OP);
+        PrePerimeterResult prePerimeterResult3 = runInitialSensitivityAnalysis(inputs.getData(timestamp3).get(), parameters, ReportNode.NO_OP, RaoStopCondition.NO_OP);
 
         FlowResult flowResultTimestamp3 = prePerimeterResult3.getFlowResult();
         assertFlowValueMw(flowResultTimestamp3, preventiveCnecTimestamp3, -382.0);

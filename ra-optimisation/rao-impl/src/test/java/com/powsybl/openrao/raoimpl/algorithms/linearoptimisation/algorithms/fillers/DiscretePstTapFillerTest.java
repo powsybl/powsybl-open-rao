@@ -13,6 +13,7 @@ import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.range.RangeType;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
+import com.powsybl.openrao.raoapi.RaoStopCondition;
 import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.PstModel;
@@ -109,7 +110,7 @@ class DiscretePstTapFillerTest extends AbstractFillerTest {
             .withProblemFiller(discretePstTapFiller)
             .withSolver(Solver.SCIP)
             .withInitialRangeActionActivationResult(getInitialRangeActionActivationResult())
-            .build();
+            .build(RaoStopCondition.NO_OP);
 
         // fill linear problem
         linearProblem.fill(flowResult, sensitivityResult);

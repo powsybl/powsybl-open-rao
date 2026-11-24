@@ -17,6 +17,7 @@ import com.powsybl.openrao.data.crac.api.rangeaction.HvdcRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
+import com.powsybl.openrao.raoapi.RaoStopCondition;
 import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.PstModel;
@@ -225,7 +226,7 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
             .withProblemFiller(coreProblemFiller)
             .withProblemFiller(raUsageLimitsFiller)
             .withSolver(Solver.SCIP)
-            .build();
+            .build(RaoStopCondition.NO_OP);
         linearProblem.fill(flowResult, sensitivityResult);
 
         rangeActionsPerState.get(state).forEach(ra -> {
@@ -248,7 +249,7 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
             .withProblemFiller(coreProblemFiller)
             .withProblemFiller(raUsageLimitsFiller)
             .withSolver(Solver.SCIP)
-            .build();
+            .build(RaoStopCondition.NO_OP);
         linearProblem.fill(flowResult, sensitivityResult);
 
         rangeActionsPerState.get(state).forEach(ra -> {
@@ -287,7 +288,7 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
             .withProblemFiller(coreProblemFiller)
             .withProblemFiller(raUsageLimitsFiller)
             .withSolver(Solver.SCIP)
-            .build();
+            .build(RaoStopCondition.NO_OP);
         linearProblem.fill(flowResult, sensitivityResult);
 
         rangeActionsPerState.get(state).forEach(ra -> {
@@ -326,7 +327,7 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
             .withProblemFiller(coreProblemFiller)
             .withProblemFiller(raUsageLimitsFiller)
             .withSolver(Solver.SCIP)
-            .build();
+            .build(RaoStopCondition.NO_OP);
         linearProblem.fill(flowResult, sensitivityResult);
 
         Exception e = assertThrows(OpenRaoException.class, () -> linearProblem.getMaxPstPerTsoConstraint("opA", state));
@@ -357,7 +358,7 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
             .withProblemFiller(coreProblemFiller)
             .withProblemFiller(raUsageLimitsFiller)
             .withSolver(Solver.SCIP)
-            .build();
+            .build(RaoStopCondition.NO_OP);
         linearProblem.fill(flowResult, sensitivityResult);
 
         Exception e = assertThrows(OpenRaoException.class, () -> linearProblem.getMaxRaConstraint(state));
@@ -379,7 +380,7 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
             .withProblemFiller(coreProblemFiller)
             .withProblemFiller(raUsageLimitsFiller)
             .withSolver(Solver.SCIP)
-            .build();
+            .build(RaoStopCondition.NO_OP);
         linearProblem.fill(flowResult, sensitivityResult);
 
         OpenRaoMPConstraint constraint = linearProblem.getMaxRaConstraint(state);
@@ -406,7 +407,7 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
             .withProblemFiller(coreProblemFiller)
             .withProblemFiller(raUsageLimitsFiller)
             .withSolver(Solver.SCIP)
-            .build();
+            .build(RaoStopCondition.NO_OP);
         linearProblem.fill(flowResult, sensitivityResult);
 
         Exception exception = assertThrows(OpenRaoException.class, () -> linearProblem.getMaxRaConstraint(state));
@@ -429,7 +430,7 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
             .withProblemFiller(coreProblemFiller)
             .withProblemFiller(raUsageLimitsFiller)
             .withSolver(Solver.SCIP)
-            .build();
+            .build(RaoStopCondition.NO_OP);
         linearProblem.fill(flowResult, sensitivityResult);
 
         Exception exception = assertThrows(OpenRaoException.class, () -> linearProblem.getMaxRaConstraint(state));
@@ -451,7 +452,7 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
             .withProblemFiller(coreProblemFiller)
             .withProblemFiller(raUsageLimitsFiller)
             .withSolver(Solver.SCIP)
-            .build();
+            .build(RaoStopCondition.NO_OP);
         linearProblem.fill(flowResult, sensitivityResult);
 
         OpenRaoMPConstraint constraintA = linearProblem.getMaxRaPerTsoConstraint("opA", state);
@@ -492,7 +493,7 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
             .withProblemFiller(coreProblemFiller)
             .withProblemFiller(raUsageLimitsFiller)
             .withSolver(Solver.SCIP)
-            .build();
+            .build(RaoStopCondition.NO_OP);
         linearProblem.fill(flowResult, sensitivityResult);
 
         OpenRaoMPConstraint constraintA = linearProblem.getMaxPstPerTsoConstraint("opA", state);
@@ -561,7 +562,7 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
             .withProblemFiller(raUsageLimitsFiller)
             .withSolver(Solver.SCIP)
             .withInitialRangeActionActivationResult(prePerimeterRangeActionActivationResult)
-            .build();
+            .build(RaoStopCondition.NO_OP);
 
         linearProblem.fill(flowResult, sensitivityResult);
         // TSO max elementary actions constraint
@@ -626,7 +627,7 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
             .withProblemFiller(coreProblemFiller)
             .withProblemFiller(raUsageLimitsFiller)
             .withSolver(Solver.SCIP)
-            .build();
+            .build(RaoStopCondition.NO_OP);
         linearProblem.fill(flowResult, sensitivityResult);
 
         // Check the constraint for all states
@@ -682,7 +683,7 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
             .withProblemFiller(coreProblemFiller)
             .withProblemFiller(raUsageLimitsFiller)
             .withSolver(Solver.SCIP)
-            .build();
+            .build(RaoStopCondition.NO_OP);
         linearProblem.fill(flowResult, sensitivityResult);
 
         // co1Curative1
@@ -724,7 +725,7 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
             .withProblemFiller(coreProblemFiller)
             .withProblemFiller(raUsageLimitsFiller)
             .withSolver(Solver.SCIP)
-            .build();
+            .build(RaoStopCondition.NO_OP);
 
         linearProblem.fill(flowResult, sensitivityResult);
 
@@ -795,7 +796,7 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
             .withProblemFiller(coreProblemFiller)
             .withProblemFiller(raUsageLimitsFiller)
             .withSolver(Solver.SCIP)
-            .build();
+            .build(RaoStopCondition.NO_OP);
 
         linearProblem.fill(flowResult, sensitivityResult);
 
@@ -848,7 +849,7 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
             .withProblemFiller(coreProblemFiller)
             .withProblemFiller(raUsageLimitsFiller)
             .withSolver(Solver.SCIP)
-            .build();
+            .build(RaoStopCondition.NO_OP);
 
         linearProblem.fill(flowResult, sensitivityResult);
 
@@ -917,7 +918,7 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
             .withProblemFiller(coreProblemFiller)
             .withProblemFiller(raUsageLimitsFiller)
             .withSolver(Solver.SCIP)
-            .build();
+            .build(RaoStopCondition.NO_OP);
 
         linearProblem.fill(flowResult, sensitivityResult);
 
@@ -994,7 +995,7 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
             .withProblemFiller(raUsageLimitsFiller)
             .withSolver(Solver.SCIP)
             .withInitialRangeActionActivationResult(prePerimeterRangeActionActivationResult)
-            .build();
+            .build(RaoStopCondition.NO_OP);
 
         linearProblem.fill(flowResult, sensitivityResult);
 
@@ -1082,7 +1083,7 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
             .withProblemFiller(raUsageLimitsFiller)
             .withSolver(Solver.SCIP)
             .withInitialRangeActionActivationResult(prePerimeterRangeActionActivationResult)
-            .build();
+            .build(RaoStopCondition.NO_OP);
 
         linearProblem.fill(flowResult, sensitivityResult);
 

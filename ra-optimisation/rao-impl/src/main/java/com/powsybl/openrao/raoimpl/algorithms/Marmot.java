@@ -176,7 +176,8 @@ class Marmot {
                                                                                               final TemporalData<PrePerimeterResult> initialResults,
                                                                                               final TemporalData<RaoParameters> raoParameters,
                                                                                               final int parallelism,
-                                                                                              final ReportNode reportNode) {
+                                                                                              final ReportNode reportNode,
+                                                                                              final RaoStopCondition raoStopCondition) {
         return MarmotUtils.smartMap(
             postTopoInputs,
             raoInput -> applyActionsAndRunFullSensitivityAnalysisForTimestamp(
@@ -186,7 +187,8 @@ class Marmot {
                 filteredResult,
                 initialResults,
                 raoParameters,
-                reportNode
+                reportNode,
+                raoStopCondition
             ),
             parallelism
         );
@@ -198,7 +200,8 @@ class Marmot {
                                                                                             final LinearOptimizationResult filteredResult,
                                                                                             final TemporalData<PrePerimeterResult> initialResults,
                                                                                             final TemporalData<RaoParameters> raoParameters,
-                                                                                            final ReportNode reportNode) {
+                                                                                            final ReportNode reportNode,
+                                                                                            final RaoStopCondition raoStopCondition) {
         OffsetDateTime timestamp = MarmotUtils.getTimestamp(raoInput);
         State preventiveState = raoInput.getCrac().getPreventiveState();
         raoInput.getCrac().getRangeActions(preventiveState).forEach(rangeAction ->
@@ -221,7 +224,8 @@ class Marmot {
             allCurativeActions,
             initialResults.getData(timestamp).orElseThrow(),
             raoParameters.getData(timestamp).orElseThrow(),
-            reportNode
+            reportNode,
+            raoStopCondition
         );
         MarmotUtils.releaseNetworkWithoutOverwrite(raoInput.getNetwork());
         return sensitivityAnalysisResults;
@@ -313,7 +317,8 @@ class Marmot {
     private static TemporalData<PrePerimeterResult> runAllInitialSensitivityAnalyses(final TemporalData<RaoInput> raoInputs,
                                                                                      final TemporalData<RaoParameters> raoParameters,
                                                                                      final int parallelism,
-                                                                                     final ReportNode reportNode) {
+                                                                                     final ReportNode reportNode,
+                                                                                     final RaoStopCondition raoStopCondition) {
         return MarmotUtils.smartMap(
             raoInputs,
             raoInput -> {
@@ -321,7 +326,8 @@ class Marmot {
                 PrePerimeterResult sensitivityAnalysisResult = MarmotUtils.runInitialSensitivityAnalysis(
                     raoInput,
                     raoParameters.getData(timestamp).orElseThrow(),
-                    reportNode
+                    reportNode,
+                    raoStopCondition
                 );
                 MarmotUtils.releaseNetworkWithoutOverwrite(raoInput.getNetwork());
                 return sensitivityAnalysisResult;
@@ -336,7 +342,8 @@ class Marmot {
                                                                                                   final TemporalData<RaoParameters> raoParameters,
                                                                                                   final TemporalData<Set<FlowCnec>> consideredCnecs,
                                                                                                   final int parallelism,
-                                                                                                  final ReportNode reportNode) {
+                                                                                                  final ReportNode reportNode,
+                                                                                                  final RaoStopCondition raoStopCondition) {
         return MarmotUtils.smartMap(
             raoInputs,
             raoInput -> {
@@ -347,7 +354,8 @@ class Marmot {
                     initialFlowResults.getData(timestamp).orElseThrow(),
                     raoParameters.getData(timestamp).orElseThrow(),
                     consideredCnecs.getData(timestamp).orElseThrow(),
-                    reportNode
+                    reportNode,
+                    raoStopCondition
                 );
                 MarmotUtils.releaseNetworkWithoutOverwrite(raoInput.getNetwork());
                 return sensitivityAnalysisResult;
@@ -656,7 +664,7 @@ class Marmot {
         // WARNING: initial results do not contain range actions set-points nor sensitivity results
         //  -> faster sensitivity computations
         //  -> initial set-points of MIP are computed after the independent RAOs of step 3
-        TemporalData<PrePerimeterResult> initialResults = runAllInitialSensitivityAnalyses(initialInputs, raoParametersDuplicates, parallelism, initialSensiReportNode);
+        TemporalData<PrePerimeterResult> initialResults = runAllInitialSensitivityAnalyses(initialInputs, raoParametersDuplicates, parallelism, initialSensiReportNode, raoStopCondition);
         MarmotReports.reportMarmotRunningInitialSensiAnalysesEnd();
 
         // checkpoint: carry on to the next step?
@@ -753,7 +761,8 @@ class Marmot {
                 raoParametersDuplicates,
                 consideredCnecs,
                 parallelism,
-                systematicTimeCoupledSensiAnalysisReportNode
+                systematicTimeCoupledSensiAnalysisReportNode,
+                raoStopCondition
             );
             MarmotReports.reportMarmotSystematicTimeCoupledSensitivityAnalysisEnd();
 
@@ -792,7 +801,8 @@ class Marmot {
                 initialResults,
                 raoParametersDuplicates,
                 parallelism,
-                reportNode
+                reportNode,
+                raoStopCondition
             );
             // Create a global result with the flows on ALL cnecs and the actions applied during MIP
             // TODO: does this contain curative setpoints?

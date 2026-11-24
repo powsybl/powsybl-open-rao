@@ -28,6 +28,7 @@ import com.powsybl.openrao.data.raoresult.api.extension.CostResult;
 import com.powsybl.openrao.data.raoresult.impl.RaoResultImpl;
 import com.powsybl.openrao.raoapi.LazyNetwork;
 import com.powsybl.openrao.raoapi.RaoInput;
+import com.powsybl.openrao.raoapi.RaoStopCondition;
 import com.powsybl.openrao.raoapi.json.JsonRaoParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoimpl.commons.RaoUtil;
@@ -72,20 +73,24 @@ public final class MarmotUtils {
         }
     }
 
-    public static PrePerimeterResult runInitialSensitivityAnalysis(final RaoInput raoInput, final RaoParameters raoParameters, final ReportNode reportNode) {
+    public static PrePerimeterResult runInitialSensitivityAnalysis(final RaoInput raoInput,
+                                                                   final RaoParameters raoParameters,
+                                                                   final ReportNode reportNode,
+                                                                   final RaoStopCondition raoStopCondition) {
         Crac crac = raoInput.getCrac();
         Network network = raoInput.getNetwork();
         ToolProvider toolProvider = ToolProvider.buildFromRaoInputAndParameters(raoInput, raoParameters);
         // do not use range actions for speed purposes
         return new PrePerimeterSensitivityAnalysis(crac, crac.getFlowCnecs(), new HashSet<>(), raoParameters, toolProvider, false)
-            .runInitialSensitivityAnalysis(network, reportNode);
+            .runInitialSensitivityAnalysis(network, reportNode, raoStopCondition);
     }
 
     public static PrePerimeterResult runInitialPrePerimeterSensitivityAnalysisWithoutRangeActions(final RaoInput raoInput,
                                                                                                   final AppliedRemedialActions curativeRemedialActions,
                                                                                                   final PrePerimeterResult initialResult,
                                                                                                   final RaoParameters raoParameters,
-                                                                                                  final ReportNode reportNode) {
+                                                                                                  final ReportNode reportNode,
+                                                                                                  final RaoStopCondition raoStopCondition) {
         Crac crac = raoInput.getCrac();
         Network network = raoInput.getNetwork();
         return new PrePerimeterSensitivityAnalysis(
@@ -95,7 +100,7 @@ public final class MarmotUtils {
             raoParameters,
             ToolProvider.buildFromRaoInputAndParameters(raoInput, raoParameters),
             false
-        ).runBasedOnInitialResults(network, initialResult, null, curativeRemedialActions, reportNode);
+        ).runBasedOnInitialResults(network, initialResult, null, curativeRemedialActions, reportNode, raoStopCondition);
     }
 
     public static TemporalData<AppliedRemedialActions> getAppliedRemedialActionsInCurative(TemporalData<Crac> cracs, TemporalData<RaoResult> raoResults) {
@@ -125,13 +130,14 @@ public final class MarmotUtils {
                                                                                 final FlowResult initialFlowResult,
                                                                                 final RaoParameters raoParameters,
                                                                                 final Set<FlowCnec> consideredCnecs,
-                                                                                final ReportNode reportNode) {
+                                                                                final ReportNode reportNode,
+                                                                                final RaoStopCondition raoStopCondition) {
         Crac crac = raoInput.getCrac();
         Network network = raoInput.getNetwork();
         Set<RangeAction<?>> rangeActions = new HashSet<>(crac.getRangeActions());
         ToolProvider toolProvider = ToolProvider.buildFromRaoInputAndParameters(raoInput, raoParameters);
         return new PrePerimeterSensitivityAnalysis(crac, consideredCnecs, rangeActions, raoParameters, toolProvider, false)
-            .runBasedOnInitialResults(network, initialFlowResult, Set.of(), curativeRemedialActions, reportNode);
+            .runBasedOnInitialResults(network, initialFlowResult, Set.of(), curativeRemedialActions, reportNode, raoStopCondition);
     }
 
     public static void fillRaoResult(TemporalData<Crac> cracs,

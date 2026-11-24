@@ -13,6 +13,7 @@ import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
+import com.powsybl.openrao.raoapi.RaoStopCondition;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoCostlyMinMarginParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters;
@@ -89,7 +90,7 @@ class MaxMinMarginFillerTest extends AbstractFillerTest {
             .withProblemFiller(maxMinMarginFiller)
             .withSolver(SearchTreeRaoRangeActionsOptimizationParameters.Solver.SCIP)
             .withInitialRangeActionActivationResult(getInitialRangeActionActivationResult())
-            .build();
+            .build(RaoStopCondition.NO_OP);
         linearProblem.fill(flowResult, sensitivityResult);
     }
 
@@ -183,7 +184,7 @@ class MaxMinMarginFillerTest extends AbstractFillerTest {
         linearProblem = new LinearProblemBuilder()
             .withProblemFiller(maxMinMarginFiller)
             .withSolver(SearchTreeRaoRangeActionsOptimizationParameters.Solver.SCIP)
-            .build();
+            .build(RaoStopCondition.NO_OP);
 
         // AbsoluteRangeActionVariables present, but no the FlowVariables
         linearProblem.addRangeActionVariationVariable(0.0, pstRangeAction, cnec1.getState(), LinearProblem.VariationDirectionExtension.UPWARD);
@@ -198,7 +199,7 @@ class MaxMinMarginFillerTest extends AbstractFillerTest {
         linearProblem = new LinearProblemBuilder()
             .withProblemFiller(maxMinMarginFiller)
             .withSolver(SearchTreeRaoRangeActionsOptimizationParameters.Solver.SCIP)
-            .build();
+            .build(RaoStopCondition.NO_OP);
 
         // FlowVariables present , but not the absoluteRangeActionVariables present,
         // This should work since range actions can be filtered out by the MarginCoreProblemFiller if their number

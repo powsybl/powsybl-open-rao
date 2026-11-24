@@ -164,7 +164,7 @@ class CastorSecondPreventiveTest {
         when(postOptimizationResult2.optimizationResult()).thenReturn(optimizationResult2);
 
         Collection<PostPerimeterResult> curativeResults = Set.of(postOptimizationResult1, postOptimizationResult2);
-        CastorSecondPreventive castorSecondPreventive = new CastorSecondPreventive(crac, parameters, network, null, null, null, ReportNode.NO_OP);
+        CastorSecondPreventive castorSecondPreventive = new CastorSecondPreventive(crac, parameters, network, null, null, null, ReportNode.NO_OP, RaoStopCondition.NO_OP);
 
         // No SearchTreeRaoParameters extension
         assertFalse(castorSecondPreventive.shouldRunSecondPreventiveRao(preventiveResult, curativeResults, null, 0));
@@ -222,7 +222,7 @@ class CastorSecondPreventiveTest {
         searchTreeParameters.getObjectiveFunctionParameters().setCurativeMinObjImprovement(10., ReportNode.NO_OP);
         parameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.SECURE_FLOW);
         when(preventiveResult.getCost()).thenReturn(-500.);
-        CastorSecondPreventive castorSecondPreventive = new CastorSecondPreventive(crac, parameters, network, null, null, null, ReportNode.NO_OP);
+        CastorSecondPreventive castorSecondPreventive = new CastorSecondPreventive(crac, parameters, network, null, null, null, ReportNode.NO_OP, RaoStopCondition.NO_OP);
 
         CostResult costResult = CostResult.builder()
             .addFunctionalCostResult(null, -100.0)
@@ -272,7 +272,8 @@ class CastorSecondPreventiveTest {
 
         searchTreeParameters.getSecondPreventiveRaoParameters().setExecutionCondition(SecondPreventiveRaoParameters.ExecutionCondition.POSSIBLE_CURATIVE_IMPROVEMENT);
         // Default objective function parameters are enough for SecondPreventiveRaoParameters to be true if there is enough time
-        CastorSecondPreventive castorSecondPreventive = new CastorSecondPreventive(crac, parameters, network, null, null, java.time.Instant.now().plusSeconds(200), ReportNode.NO_OP);
+        CastorSecondPreventive castorSecondPreventive = new CastorSecondPreventive(crac, parameters, network, null, null,
+            java.time.Instant.now().plusSeconds(200), ReportNode.NO_OP, RaoStopCondition.NO_OP);
 
         // Enough time
         assertTrue(castorSecondPreventive.shouldRunSecondPreventiveRao(preventiveResult, curativeResults, null, 100));
@@ -312,7 +313,7 @@ class CastorSecondPreventiveTest {
             .addFunctionalCostResult(curativeInstant, -120.0);
         when(postFirstRaoResult.getExtension(CostResult.class)).thenReturn(costResultBuilder.build());
 
-        CastorSecondPreventive castorSecondPreventive = new CastorSecondPreventive(crac, parameters, network, null, null, null, ReportNode.NO_OP);
+        CastorSecondPreventive castorSecondPreventive = new CastorSecondPreventive(crac, parameters, network, null, null, null, ReportNode.NO_OP, RaoStopCondition.NO_OP);
 
         assertFalse(castorSecondPreventive.shouldRunSecondPreventiveRao(preventiveResult, curativeResults, postFirstRaoResult, 0));
 
@@ -350,7 +351,7 @@ class CastorSecondPreventiveTest {
         when(postOptimizationResult2.optimizationResult()).thenReturn(optimResult2);
 
         Map<State, PostPerimeterResult> curativeResults = Map.of(state1, postOptimizationResult1, state2, postOptimizationResult2);
-        CastorSecondPreventive castorSecondPreventive = new CastorSecondPreventive(crac, null, network, null, null, null, ReportNode.NO_OP);
+        CastorSecondPreventive castorSecondPreventive = new CastorSecondPreventive(crac, null, network, null, null, null, ReportNode.NO_OP, RaoStopCondition.NO_OP);
 
         AppliedRemedialActions appliedRemedialActions = new AppliedRemedialActions();
         castorSecondPreventive.addAppliedNetworkActionsPostContingency(Set.of(autoInstant), appliedRemedialActions, curativeResults);
@@ -416,7 +417,7 @@ class CastorSecondPreventiveTest {
 
         Map<State, PostPerimeterResult> postContingencyResults = Map.of(state11, postOptimizationResult11, state12, postOptimizationResult12,
             state21, postOptimizationResult21, state22, postOptimizationResult22);
-        CastorSecondPreventive castorSecondPreventive = new CastorSecondPreventive(crac, null, network, null, null, null, ReportNode.NO_OP);
+        CastorSecondPreventive castorSecondPreventive = new CastorSecondPreventive(crac, null, network, null, null, null, ReportNode.NO_OP, RaoStopCondition.NO_OP);
 
         castorSecondPreventive.addAppliedNetworkActionsPostContingency(Set.of(), appliedRemedialActions, postContingencyResults);
 
@@ -474,7 +475,7 @@ class CastorSecondPreventiveTest {
 
         Map<State, PostPerimeterResult> postContingencyResults = Map.of(state11, postOptimizationResult11, state12, postOptimizationResult12,
             state21, postOptimizationResult21, state22, postOptimizationResult22);
-        CastorSecondPreventive castorSecondPreventive = new CastorSecondPreventive(crac, null, network, null, null, null, ReportNode.NO_OP);
+        CastorSecondPreventive castorSecondPreventive = new CastorSecondPreventive(crac, null, network, null, null, null, ReportNode.NO_OP, RaoStopCondition.NO_OP);
 
         castorSecondPreventive.addAppliedRangeActionsPostContingency(Set.of(), appliedRemedialActions, postContingencyResults);
 
@@ -519,7 +520,7 @@ class CastorSecondPreventiveTest {
         PrePerimeterResult prePerimeterResult = Mockito.mock(PrePerimeterResult.class);
         OptimizationResult firstPreventiveResult = Mockito.mock(OptimizationResult.class);
 
-        CastorSecondPreventive castorSecondPreventive = new CastorSecondPreventive(crac, raoParameters, network, stateTree, null, null, ReportNode.NO_OP);
+        CastorSecondPreventive castorSecondPreventive = new CastorSecondPreventive(crac, raoParameters, network, stateTree, null, null, ReportNode.NO_OP, RaoStopCondition.NO_OP);
 
         // Prepare Mock SearchTree behavior
         OptimizationResult mockResult = Mockito.mock(OptimizationResult.class);
@@ -538,13 +539,13 @@ class CastorSecondPreventiveTest {
 
             // 1st preventive activated one network action
             when(firstPreventiveResult.getActivatedNetworkActions()).thenReturn(Set.of(na1));
-            castorSecondPreventive.optimizeSecondPreventivePerimeter(initialOutput, prePerimeterResult, firstPreventiveResult, new AppliedRemedialActions(), RaoStopCondition.NO_OP);
+            castorSecondPreventive.optimizeSecondPreventivePerimeter(initialOutput, prePerimeterResult, firstPreventiveResult, new AppliedRemedialActions());
             assertEquals(1, capturedParameters.get().getNetworkActionParameters().getNetworkActionCombinations().size());
             assertEquals(Set.of(na1), capturedParameters.get().getNetworkActionParameters().getNetworkActionCombinations().get(0).getNetworkActionSet());
 
             // 1st preventive activated no network action
             when(firstPreventiveResult.getActivatedNetworkActions()).thenReturn(Set.of());
-            castorSecondPreventive.optimizeSecondPreventivePerimeter(initialOutput, prePerimeterResult, firstPreventiveResult, new AppliedRemedialActions(), RaoStopCondition.NO_OP);
+            castorSecondPreventive.optimizeSecondPreventivePerimeter(initialOutput, prePerimeterResult, firstPreventiveResult, new AppliedRemedialActions());
             assertTrue(capturedParameters.get().getNetworkActionParameters().getNetworkActionCombinations().isEmpty());
         }
     }

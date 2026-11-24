@@ -13,6 +13,7 @@ import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
+import com.powsybl.openrao.raoapi.RaoStopCondition;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters;
 import com.powsybl.openrao.raoimpl.algorithms.linearoptimisation.algorithms.fillers.ProblemFiller;
 import com.powsybl.openrao.raoimpl.result.api.FlowResult;
@@ -41,6 +42,7 @@ public final class LinearProblem {
     private final RangeActionActivationResult raActivationFromParentLeaf;
     private final double relativeMipGap;
     private final String solverSpecificParameters;
+    private final RaoStopCondition raoStopCondition;
 
     public enum AbsExtension {
         POSITIVE,
@@ -95,12 +97,14 @@ public final class LinearProblem {
                   RangeActionActivationResult raActivationFromParentLeaf,
                   SearchTreeRaoRangeActionsOptimizationParameters.Solver solver,
                   double relativeMipGap,
-                  String solverSpecificParameters) {
+                  String solverSpecificParameters,
+                  RaoStopCondition raoStopCondition) {
         this.solver = new OpenRaoMPSolver(OPT_PROBLEM_NAME, solver);
         this.fillerList = fillerList;
         this.raActivationFromParentLeaf = raActivationFromParentLeaf;
         this.relativeMipGap = relativeMipGap;
         this.solverSpecificParameters = solverSpecificParameters;
+        this.raoStopCondition = raoStopCondition;
         this.solver.setMinimization();
     }
 
@@ -129,7 +133,10 @@ public final class LinearProblem {
     public LinearProblemStatus solve() {
         solver.setRelativeMipGap(relativeMipGap);
         solver.setSolverSpecificParametersAsString(solverSpecificParameters);
-        return solver.solve();
+        raoStopCondition.checkNotStopped(); // checkpoint: before MIP
+        LinearProblemStatus status = solver.solve();
+        raoStopCondition.checkNotStopped(); // checkpoint: after MIP
+        return status;
     }
 
     public OpenRaoMPObjective getObjective() {

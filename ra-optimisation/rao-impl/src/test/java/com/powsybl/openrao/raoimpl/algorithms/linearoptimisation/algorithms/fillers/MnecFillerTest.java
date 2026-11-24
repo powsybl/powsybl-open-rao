@@ -17,6 +17,7 @@ import com.powsybl.openrao.data.crac.api.cnec.Cnec;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
+import com.powsybl.openrao.raoapi.RaoStopCondition;
 import com.powsybl.openrao.raoapi.parameters.MnecParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoMnecParameters;
@@ -150,7 +151,7 @@ class MnecFillerTest extends AbstractFillerTest {
             .withProblemFiller(coreProblemFiller)
             .withProblemFiller(mnecFiller)
             .withSolver(Solver.SCIP)
-            .build();
+            .build(RaoStopCondition.NO_OP);
         linearProblem.fill(flowResult, sensitivityResult);
     }
 
@@ -262,7 +263,7 @@ class MnecFillerTest extends AbstractFillerTest {
             .withProblemFiller(coreProblemFiller)
             .withProblemFiller(mnecFiller)
             .withSolver(Solver.SCIP)
-            .build();
+            .build(RaoStopCondition.NO_OP);
         linearProblem.fill(flowResult, sensitivityResult);
 
         Exception e = assertThrows(OpenRaoException.class, () -> linearProblem.getMnecFlowConstraint(mnec3, TwoSides.ONE, LinearProblem.MarginExtension.ABOVE_THRESHOLD, Optional.empty()));

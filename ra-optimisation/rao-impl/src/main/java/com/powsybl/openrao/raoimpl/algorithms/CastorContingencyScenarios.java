@@ -119,7 +119,8 @@ public class CastorContingencyScenarios {
             prePerimeterSensitivityOutput,
             stateTree.getOperatorsNotSharingCras(),
             NUMBER_LOGGED_ELEMENTS_DURING_RAO,
-            reportNode
+            reportNode,
+            raoStopCondition
         );
         // Go through all contingency scenarios
         try (AbstractNetworkPool networkPool = AbstractNetworkPool.create(network, newVariant, getAvailableCPUs(raoParameters), true)) {
@@ -178,7 +179,7 @@ public class CastorContingencyScenarios {
         if (automatonState.isPresent()) {
             AutomatonPerimeterResultImpl automatonResult = automatonSimulator.simulateAutomatonState(automatonState.get(), curativeStates, networkClone);
             //recompute sensi and objective function considering auto + all instants following auto
-            PostPerimeterResult postAutoResult = getResultPostState(automatonState.get(), networkClone, prePerimeterSensitivityOutput, automatonResult, reportNode);
+            PostPerimeterResult postAutoResult = getResultPostState(automatonState.get(), networkClone, prePerimeterSensitivityOutput, automatonResult, reportNode, raoStopCondition);
             contingencyScenarioResults.put(automatonState.get(), postAutoResult);
             if (automatonResult.getComputationStatus() == ComputationStatus.FAILURE) {
                 autoStateSensiFailed = true;
@@ -216,7 +217,8 @@ public class CastorContingencyScenarios {
                             null,
                             stateTree.getOperatorsNotSharingCras(),
                             null,
-                            reportNode
+                            reportNode,
+                            raoStopCondition
                         );
                 }
                 prePerimeterResultPerPerimeter.put(curativePerimeter.getRaOptimisationState(), previousPerimeterResult);
@@ -233,7 +235,7 @@ public class CastorContingencyScenarios {
                     allPreviousPerimetersSucceded = curativeResult.getSensitivityStatus() == DEFAULT;
                     applyRemedialActions(networkClone, curativeResult, curativeState);
                     //recompute sensi and objective function considering curative + all instants following curative (useful if multi curative)
-                    PostPerimeterResult postCurativeResult = getResultPostState(curativeState, networkClone, previousPerimeterResult, curativeResult, reportNode);
+                    PostPerimeterResult postCurativeResult = getResultPostState(curativeState, networkClone, previousPerimeterResult, curativeResult, reportNode, raoStopCondition);
                     contingencyScenarioResults.put(curativeState, postCurativeResult);
                     previousPerimeterResult = null;
                     if (allPreviousPerimetersSucceded) {
@@ -271,7 +273,8 @@ public class CastorContingencyScenarios {
                                                    final Network networkClone,
                                                    final PrePerimeterResult prePerimeterSensitivityOutput,
                                                    final OptimizationResult optimizationResult,
-                                                   final ReportNode reportNode) {
+                                                   final ReportNode reportNode,
+                                                   final RaoStopCondition raoStopCondition) {
         // if it's the last instant, no need to recompute things because the optimization result already contains all following states. (none)
         if (state.getInstant().equals(crac.getLastInstant())) {
             return new PostPerimeterResult(optimizationResult,
@@ -297,7 +300,8 @@ public class CastorContingencyScenarios {
             stateTree.getOperatorsNotSharingCras(),
             optimizationResult,
             new AppliedRemedialActions(),
-            reportNode);
+            reportNode,
+            raoStopCondition);
     }
 
     private PrePerimeterSensitivityAnalysis getPreCurativePerimeterSensitivityAnalysis(Perimeter curativePerimeter) {

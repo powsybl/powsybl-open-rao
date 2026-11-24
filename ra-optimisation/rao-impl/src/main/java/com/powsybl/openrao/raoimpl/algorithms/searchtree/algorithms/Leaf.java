@@ -205,7 +205,8 @@ public class Leaf implements OptimizationResult {
      */
     void evaluate(final ObjectiveFunction objectiveFunction,
                   final SensitivityComputer sensitivityComputer,
-                  final ReportNode reportNode) {
+                  final ReportNode reportNode,
+                  final RaoStopCondition raoStopCondition) {
         RemedialActionActivationResult remedialActionActivationResult = new RemedialActionActivationResultImpl(
             raActivationResultFromParentLeaf,
             new NetworkActionsResultImpl(Map.of(optimizationPerimeter.getMainOptimizationState(), appliedNetworkActionsInPrimaryState))
@@ -216,7 +217,7 @@ public class Leaf implements OptimizationResult {
             return;
         }
         TECHNICAL_LOGS.debug("Evaluating {}", this);
-        sensitivityComputer.compute(network);
+        sensitivityComputer.compute(network, raoStopCondition);
         if (sensitivityComputer.getSensitivityResult().getSensitivityStatus() == ComputationStatus.FAILURE) {
             SearchTreeReports.reportFailedToEvaluateLeafSensiFailed(reportNode);
             status = Status.ERROR;

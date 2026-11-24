@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.raoimpl.algorithms.linearoptimisation.algorithms.linearproblem;
 
+import com.powsybl.openrao.raoapi.RaoStopCondition;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters;
 import com.powsybl.openrao.raoimpl.algorithms.linearoptimisation.algorithms.ProblemFillerHelper;
 import com.powsybl.openrao.raoimpl.algorithms.linearoptimisation.algorithms.fillers.ProblemFiller;
@@ -28,7 +29,7 @@ public class LinearProblemBuilder {
     private String solverSpecificParameters = SearchTreeRaoRangeActionsOptimizationParameters.LinearOptimizationSolver.DEFAULT_SOLVER_SPECIFIC_PARAMETERS;
     private RangeActionActivationResult initialRangeActionActivationResult;
 
-    public LinearProblem buildFromInputsAndParameters(IteratingLinearOptimizerInput inputs, IteratingLinearOptimizerParameters parameters) {
+    public LinearProblem buildFromInputsAndParameters(IteratingLinearOptimizerInput inputs, IteratingLinearOptimizerParameters parameters, final RaoStopCondition raoStopCondition) {
         Objects.requireNonNull(inputs);
         Objects.requireNonNull(parameters);
 
@@ -39,11 +40,12 @@ public class LinearProblemBuilder {
 
         ProblemFillerHelper.getProblemFillers(inputs, parameters, inputs.optimizationPerimeter().getMainOptimizationState().getTimestamp().orElse(null)).forEach(this::withProblemFiller);
 
-        return new LinearProblem(problemFillers, initialRangeActionActivationResult, solver, relativeMipGap, solverSpecificParameters);
+        return new LinearProblem(problemFillers, initialRangeActionActivationResult, solver, relativeMipGap, solverSpecificParameters, raoStopCondition);
     }
 
-    public LinearProblem build() {
-        return new LinearProblem(problemFillers, initialRangeActionActivationResult, solver, relativeMipGap, solverSpecificParameters);
+    // FIXME: do not use argument here
+    public LinearProblem build(final RaoStopCondition raoStopCondition) {
+        return new LinearProblem(problemFillers, initialRangeActionActivationResult, solver, relativeMipGap, solverSpecificParameters, raoStopCondition);
     }
 
     public LinearProblemBuilder withProblemFiller(ProblemFiller problemFiller) {

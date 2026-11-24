@@ -23,6 +23,7 @@ import com.powsybl.openrao.data.raoresult.api.extension.FlowResult;
 import com.powsybl.openrao.data.raoresult.api.extension.Metadata;
 import com.powsybl.openrao.data.raoresult.impl.RaoResultImpl;
 import com.powsybl.openrao.raoapi.RaoInput;
+import com.powsybl.openrao.raoapi.RaoStopCondition;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoimpl.algorithms.PostPerimeterSensitivityAnalysis;
 import com.powsybl.openrao.raoimpl.algorithms.PrePerimeterSensitivityAnalysis;
@@ -115,7 +116,7 @@ final class RaoResultHelper {
             final PrePerimeterSensitivityAnalysis initialPrePerimeterSensitivityAnalysis = new PrePerimeterSensitivityAnalysis(
                 crac, crac.getFlowCnecs(), crac.getRangeActions(), raoParameters, toolProvider, true
             );
-            final PrePerimeterResult initialFlowResult = initialPrePerimeterSensitivityAnalysis.runInitialSensitivityAnalysis(network, reportNode);
+            final PrePerimeterResult initialFlowResult = initialPrePerimeterSensitivityAnalysis.runInitialSensitivityAnalysis(network, reportNode, RaoStopCondition.NO_OP);
 
             // create a new network variant from initial variant to perform the results merging
             final String variantName = "RaoResultMerging";
@@ -136,7 +137,7 @@ final class RaoResultHelper {
 
             // this result is only used as a data holder for flows: it does not contain the proper objective function value in costly
             final PrePerimeterResult preventivePrePerimeterResult = initialPrePerimeterSensitivityAnalysis.runBasedOnInitialResults(
-                network, initialFlowResult, Set.of(), new AppliedRemedialActions(), reportNode
+                network, initialFlowResult, Set.of(), new AppliedRemedialActions(), reportNode, RaoStopCondition.NO_OP
             );
 
             RangeActionActivationResultImpl preventiveRangeActionActivationResult = new RangeActionActivationResultImpl(initialFlowResult);
@@ -154,7 +155,8 @@ final class RaoResultHelper {
 
             final PostPerimeterResult preventivePostPerimeterResult =
                 new PostPerimeterSensitivityAnalysis(crac, crac.getFlowCnecs(), crac.getRangeActions(), raoParameters, toolProvider, true)
-                    .runBasedOnInitialPreviousAndOptimizationResults(network, initialFlowResult, preventivePrePerimeterResult, Set.of(), preventiveResult, new AppliedRemedialActions(), reportNode);
+                    .runBasedOnInitialPreviousAndOptimizationResults(network, initialFlowResult, preventivePrePerimeterResult, Set.of(),
+                        preventiveResult, new AppliedRemedialActions(), reportNode, RaoStopCondition.NO_OP);
 
             final Map<State, PostPerimeterResult> postMergingContingencyResults = new ConcurrentHashMap<>();
 
@@ -286,7 +288,7 @@ final class RaoResultHelper {
                 );
 
                 final PrePerimeterResult statePrePerimeterResult = statePrePerimeterSensitivityAnalysis.runBasedOnInitialResults(
-                    network, initialFlowResult, Collections.emptySet(), allAppliedRemedialActions, reportNode
+                    network, initialFlowResult, Collections.emptySet(), allAppliedRemedialActions, reportNode, RaoStopCondition.NO_OP
                 );
 
                 final OptimizationResult stateOptimizationResult = new OptimizationResultImpl(
@@ -310,7 +312,8 @@ final class RaoResultHelper {
                             Set.of(),
                             stateOptimizationResult,
                             allAppliedRemedialActions,
-                            reportNode
+                            reportNode,
+                            RaoStopCondition.NO_OP
                         );
                 postMergingContingencyResults.put(state, statePostPerimeterResult);
 

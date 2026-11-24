@@ -122,7 +122,7 @@ public class SearchTree {
 
             TECHNICAL_LOGS.debug("Evaluating root leaf");
 
-            rootLeaf.evaluate(input.getObjectiveFunction(), getSensitivityComputerForEvaluation(true, reportNode), reportNode);
+            rootLeaf.evaluate(input.getObjectiveFunction(), getSensitivityComputerForEvaluation(true, reportNode), reportNode, raoStopCondition);
             if (rootLeaf.getStatus().equals(Leaf.Status.ERROR)) {
                 SearchTreeReports.reportCouldNotEvaluateLeaf(reportNode, verbose, rootLeaf);
                 reportOptimizationSummary(rootLeaf);
@@ -349,7 +349,7 @@ public class SearchTree {
             return;
         }
         // We evaluate the leaf with taking the results of the previous optimal leaf if we do not want to update some results
-        leaf.evaluate(input.getObjectiveFunction(), getSensitivityComputerForEvaluation(shouldRangeActionBeRemoved, reportNode), reportNode);
+        leaf.evaluate(input.getObjectiveFunction(), getSensitivityComputerForEvaluation(shouldRangeActionBeRemoved, reportNode), reportNode, raoStopCondition);
 
         SearchTreeReports.reportEvaluatedLeaf(reportNode, verbose, leaf);
         if (!leaf.getStatus().equals(Leaf.Status.ERROR)) {

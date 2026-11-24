@@ -15,6 +15,7 @@ import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
+import com.powsybl.openrao.raoapi.RaoStopCondition;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoimpl.commons.SensitivityComputer;
 import com.powsybl.openrao.raoimpl.commons.ToolProvider;
@@ -68,7 +69,8 @@ public class PostPerimeterSensitivityAnalysis extends AbstractMultiPerimeterSens
                                                                                final Set<String> operatorsNotSharingCras,
                                                                                final OptimizationResult optimizationResult,
                                                                                final AppliedRemedialActions appliedCurativeRemedialActions,
-                                                                               final ReportNode reportNode) {
+                                                                               final ReportNode reportNode,
+                                                                               final RaoStopCondition raoStopCondition) {
 
         AtomicReference<FlowResult> flowResult = new AtomicReference<>();
         AtomicReference<SensitivityResult> sensitivityResult = new AtomicReference<>();
@@ -77,7 +79,7 @@ public class PostPerimeterSensitivityAnalysis extends AbstractMultiPerimeterSens
             SensitivityComputer sensitivityComputer = buildSensitivityComputer(initialFlowResult, appliedCurativeRemedialActions, reportNode);
 
             int oldThreadCount = setNewThreadCountAndGetOldValue();
-            sensitivityComputer.compute(network);
+            sensitivityComputer.compute(network, raoStopCondition);
             resetThreadCount(oldThreadCount);
             flowResult.set(sensitivityComputer.getBranchResult(network));
             sensitivityResult.set(sensitivityComputer.getSensitivityResult());
@@ -134,7 +136,8 @@ public class PostPerimeterSensitivityAnalysis extends AbstractMultiPerimeterSens
                                                                                                final Set<String> operatorsNotSharingCras,
                                                                                                final RemedialActionActivationResult remedialActionActivationResult,
                                                                                                final AppliedRemedialActions appliedCurativeRemedialActions,
-                                                                                               final ReportNode reportNode) {
+                                                                                               final ReportNode reportNode,
+                                                                                               final RaoStopCondition raoStopCondition) {
         return CompletableFuture.supplyAsync(() -> computePostPerimeterResult(
             network,
             initialFlowResult,
@@ -142,7 +145,8 @@ public class PostPerimeterSensitivityAnalysis extends AbstractMultiPerimeterSens
             operatorsNotSharingCras,
             remedialActionActivationResult,
             appliedCurativeRemedialActions,
-            reportNode
+            reportNode,
+            raoStopCondition
         ));
     }
 
@@ -152,7 +156,8 @@ public class PostPerimeterSensitivityAnalysis extends AbstractMultiPerimeterSens
                                                            final Set<String> operatorsNotSharingCras,
                                                            final RemedialActionActivationResult remedialActionActivationResult,
                                                            final AppliedRemedialActions appliedCurativeRemedialActions,
-                                                           final ReportNode reportNode) {
+                                                           final ReportNode reportNode,
+                                                           final RaoStopCondition raoStopCondition) {
         AtomicReference<FlowResult> flowResult = new AtomicReference<>();
         AtomicReference<SensitivityResult> sensitivityResult = new AtomicReference<>();
         boolean actionWasTaken = PostPerimeterSensitivityAnalysis.this.actionWasTaken(
@@ -167,7 +172,7 @@ public class PostPerimeterSensitivityAnalysis extends AbstractMultiPerimeterSens
             );
 
             int oldThreadCount = PostPerimeterSensitivityAnalysis.this.setNewThreadCountAndGetOldValue();
-            sensitivityComputer.compute(network);
+            sensitivityComputer.compute(network, raoStopCondition);
             PostPerimeterSensitivityAnalysis.this.resetThreadCount(oldThreadCount);
             flowResult.set(sensitivityComputer.getBranchResult(network));
             sensitivityResult.set(sensitivityComputer.getSensitivityResult());
