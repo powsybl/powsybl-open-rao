@@ -16,6 +16,7 @@ import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
+import com.powsybl.openrao.raoapi.RaoInterruptedException;
 import com.powsybl.openrao.raoapi.RaoStopCondition;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters;
@@ -167,6 +168,9 @@ public class CastorContingencyScenarios {
                 try {
                     task.get();
                 } catch (ExecutionException e) {
+                    if (e.getCause() instanceof RaoInterruptedException raoInterruptedException) {
+                        throw raoInterruptedException;
+                    }
                     throw new OpenRaoException(e);
                 }
             }

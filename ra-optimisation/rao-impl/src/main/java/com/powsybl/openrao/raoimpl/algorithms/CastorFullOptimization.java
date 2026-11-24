@@ -106,11 +106,11 @@ class CastorFullOptimization {
         String initialVariantName = network.getVariantManager().getWorkingVariantId();
         Unit flowUnit = RaoUtil.getFlowUnit(raoParameters);
 
-        RaoUtil.initData(raoInput, raoParameters, reportNode);
         RaoResult intermediateRaoResult = RaoResultImpl.builder(crac).build();
         String earlyStoppingStep = "RAO was interrupted before any result could be produced.";
 
         try {
+            RaoUtil.initData(raoInput, raoParameters, reportNode);
             boolean costOptimization = raoParameters.getObjectiveFunctionParameters().getType().costOptimization();
             RaoRunContext context = createContext();
             if (crac.getFlowCnecs().isEmpty()) {

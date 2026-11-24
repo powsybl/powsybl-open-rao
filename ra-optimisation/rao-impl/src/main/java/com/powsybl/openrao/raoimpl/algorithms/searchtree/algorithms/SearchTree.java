@@ -12,6 +12,7 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
+import com.powsybl.openrao.raoapi.RaoInterruptedException;
 import com.powsybl.openrao.raoapi.RaoStopCondition;
 import com.powsybl.openrao.raoimpl.algorithms.searchtree.inputs.SearchTreeInput;
 import com.powsybl.openrao.raoimpl.algorithms.searchtree.parameters.SearchTreeParameters;
@@ -246,6 +247,9 @@ public class SearchTree {
             try {
                 task.get();
             } catch (ExecutionException e) {
+                if (e.getCause() instanceof RaoInterruptedException raoInterruptedException) {
+                    throw raoInterruptedException;
+                }
                 throw new OpenRaoException(e);
             }
         }

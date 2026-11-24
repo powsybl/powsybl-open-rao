@@ -184,7 +184,12 @@ class FastRao {
                 new CriticalCnecsResult(consideredCnecs.stream().map(FlowCnec::getId).collect(Collectors.toSet()))
             );
             return raoResult;
-        } catch (InterruptedException | ExecutionException e) {
+        } catch (ExecutionException e) {
+            if (e.getCause() instanceof RaoInterruptedException) {
+                throw RaoUtil.handleRaoInterruptedException(raoResult, earlyStoppingStep);
+            }
+            throw new OpenRaoException("Error while running full FAST RAO loop", e);
+        } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new OpenRaoException("Error while running full FAST RAO loop", e);
         } catch (RaoInterruptedException interruptedException) {
@@ -269,10 +274,14 @@ class FastRao {
                 }
                 parameters.getExtension(OpenRaoSearchTreeParameters.class).getTopoOptimizationParameters().setPredefinedCombinations(predefinedCombinations);
             }
-        } catch (InterruptedException | ExecutionException e) {
+        } catch (ExecutionException e) {
+            if (e.getCause() instanceof RaoInterruptedException raoInterruptedException) {
+                throw raoInterruptedException;
+            }
+            throw new OpenRaoException("Error while running filtered RAO", e);
+        } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new OpenRaoException("Error while running filtered RAO", e);
-
         }
 
         FastRaoReports.reportFastRaoIterationRunFilteredRaoEnd(counter);
@@ -343,6 +352,9 @@ class FastRao {
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             } catch (ExecutionException e) {
+                if (e.getCause() instanceof RaoInterruptedException raoInterruptedException) {
+                    throw raoInterruptedException;
+                }
                 throw new OpenRaoException(e);
             }
         }
