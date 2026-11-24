@@ -13,8 +13,6 @@ import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.rangeaction.CounterTradeRangeAction;
 import com.powsybl.openrao.sensitivityanalysis.SystematicSensitivityResult;
 
-import java.util.Map;
-
 /**
  * @author Guillaume Verger {@literal <guillaume.verger at artelys.com>}
  */
@@ -45,25 +43,6 @@ public class CounterTradeRangeActionSensiHandler implements RangeActionSensiHand
     @Override
     public void checkConsistency(Network network) {
         // Consistency is ok?
-    }
-
-    //    public Map<String, Float> getPositiveGlskMap() {
-    //        // TODO: how to get GLSK from here?
-    //        return counterTradeRangeAction.getGlsk().get(counterTradeRangeAction.getExportingArea()).entrySet()
-    //                .stream().filter(e -> e.getValue() > 0)
-    //                .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().floatValue()));
-    //        //return Map.of("country", (float) 1.);
-    //    }
-
-    //    public Map<String, Float> getNegativeGlskMap() {
-    //        // TODO: how to get GLSK from here?
-    //        return Map.of("country", (float) 1.);
-    //    }
-
-    private double getSumOfValues(Map<String, Float> glskMap) {
-        return glskMap.values().stream()
-                .mapToDouble(v -> v)
-                .sum();
     }
 
     public String getPositiveGlskMapId() {

@@ -21,9 +21,6 @@ import com.powsybl.openrao.raoimpl.result.api.LinearProblemStatus;
 import com.powsybl.openrao.raoimpl.result.api.RangeActionActivationResult;
 import com.powsybl.openrao.raoimpl.result.api.SensitivityResult;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -134,18 +131,6 @@ public final class LinearProblem {
         solver.setRelativeMipGap(relativeMipGap);
         solver.setSolverSpecificParametersAsString(solverSpecificParameters);
         return solver.solve();
-    }
-
-    public void printLp(String lpName) {
-        String lp = solver.getMpSolver().exportModelAsLpFormat();
-        try {
-            Files.writeString(
-                    Paths.get(lpName),
-                    lp
-            );
-        } catch (IOException e) {
-            throw new RuntimeException("Error in LP file export", e);
-        }
     }
 
     public OpenRaoMPObjective getObjective() {

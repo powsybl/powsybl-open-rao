@@ -78,7 +78,6 @@ public final class IteratingLinearOptimizer {
         linearProblem.fill(input.preOptimizationFlowResult(), input.preOptimizationSensitivityResult());
 
         for (int iteration = 1; iteration <= parameters.getMaxNumberOfIterations(); iteration++) {
-            printLpLinearProblem(linearProblem, iteration);
             LinearProblemStatus solveStatus = solveLinearProblem(linearProblem, iteration);
             bestResult.setNbOfIteration(iteration);
             if (solveStatus == LinearProblemStatus.FEASIBLE) {
@@ -224,11 +223,6 @@ public final class IteratingLinearOptimizer {
         return status;
     }
 
-    private static void printLpLinearProblem(LinearProblem linearProblem, int iteration) {
-        String lpName = "lpModel" + iteration + ".lp";
-        linearProblem.printLp(lpName);
-    }
-
     private static boolean hasAnyRangeActionChanged(RangeActionActivationResult newRangeActionActivationResult,
                                                     RangeActionActivationResult oldRangeActionActivationResult,
                                                     OptimizationPerimeter optimizationContext) {
@@ -363,7 +357,7 @@ public final class IteratingLinearOptimizer {
                               RangeActionActivationResultImpl roundedResult) {
         optimizationContext.getRangeActionsPerState().keySet().forEach(state -> linearProblemResult.getActivatedRangeActions(state).stream()
             .filter(ra -> !(ra instanceof PstRangeAction))
-                .forEach(ra -> roundedResult.putResult(ra, state, Math.round(linearProblemResult.getOptimizedSetpoint(ra, state)))));
+            .forEach(ra -> roundedResult.putResult(ra, state, Math.round(linearProblemResult.getOptimizedSetpoint(ra, state)))));
     }
 
     private static void logBetterResult(final int iteration,
