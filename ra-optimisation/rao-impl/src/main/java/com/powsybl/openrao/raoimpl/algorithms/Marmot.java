@@ -9,6 +9,7 @@ package com.powsybl.openrao.raoimpl.algorithms;
 
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.TwoSides;
+import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.commons.TemporalDataImpl;
 import com.powsybl.openrao.commons.Unit;
@@ -584,7 +585,7 @@ class Marmot {
         cracs.getDataPerTimestamp().values().forEach(
             crac -> crac.getFlowCnecs().forEach(
                 flowCnec -> {
-                    // TODO: it is assumed that no commercial flows or PTDF zonal sums are at stake
+                    // commercial flows and PTDF zonal sums are rejected by validateUnsupportedFeatures (loop-flow CNECs not supported yet)
                     PrePerimeterResult prePerimeterResult = initialResults.getData(crac.getTimestamp().orElseThrow()).orElseThrow();
                     flowResultBuilder.addFlowMeasurement(prePerimeterResult.getFlow(flowCnec, TwoSides.ONE, flowUnit), null, flowCnec, TwoSides.ONE, flowUnit)
                         .addFlowMeasurement(prePerimeterResult.getFlow(flowCnec, TwoSides.TWO, flowUnit), null, flowCnec, TwoSides.TWO, flowUnit)
@@ -599,6 +600,20 @@ class Marmot {
             )
         );
         return flowResultBuilder.build();
+    }
+
+    /**
+     * Fails fast when the RAO parameters enable features that MARMOT does not support yet.
+     * Loop-flow constraints rely on commercial flows and PTDF zonal sums, which the MARMOT
+     * flow result extension does not provide.
+     * See the "Limitations" section of the MARMOT documentation (readthedocs).
+     */
+    private static void validateUnsupportedFeatures(RaoParameters parameters) {
+        if (parameters.getLoopFlowParameters().isPresent()) {
+            throw new OpenRaoException(
+                "MARMOT does not support loop-flow constraints, which rely on commercial flows and PTDF zonal sums. "
+                    + "Use CASTOR or FastRAO instead.");
+        }
     }
 
     private static Metadata getMetadataExtension(TemporalData<Crac> cracs, FlowResult globalFlowResult) {
@@ -671,6 +686,9 @@ class Marmot {
         MarmotUtils.closeAll(timeCoupledRaoInput.getRaoInputs().map(RaoInput::getNetwork));
 
         TemporalData<RaoInput> initialInputs = MarmotUtils.merge(initialNetworks, cracs);
+
+        // Reject inputs enabling features that are not supported yet, before running any computation
+        validateUnsupportedFeatures(raoParameters);
 
         // RaoParametes are stored in a TemporalData. They're the same for every timestamp, but this prevents concurrent access when multi-threading is activated
         TemporalData<RaoParameters> raoParametersDuplicates = new TemporalDataImpl<>();

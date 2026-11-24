@@ -4,7 +4,10 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 Feature: 2.3.1: Basic redispatching actions (free and costly)
-  # TODO: This feature covers
+  This feature covers basic redispatching actions, both free (max margin) and costly (min cost). It
+  checks redispatching on a 2-node network, unbalanced redispatching, multiple redispatching actions
+  keeping the network balanced, a disconnected generator, and that redispatching is not limited by
+  the PMax of a generator defined in the network.
 
   @fast @rao @dc @redispatching @preventive-only @max-min-margin
   Scenario: 2.3.1.1.a: Extremely basic redispatching on 2 nodes network - maxMargin
