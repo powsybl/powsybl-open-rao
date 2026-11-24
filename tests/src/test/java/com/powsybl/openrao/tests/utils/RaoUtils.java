@@ -70,9 +70,11 @@ public final class RaoUtils {
         }
     }
 
-    public static RaoResult runRao(String raoType, Double loopflowAsPmaxPercentage,
-                                   Integer timeLimitInSeconds, final ReportNode reportNode,
-                                   boolean forceFastRao, RaoStopCondition raoStopCondition) throws IOException {
+    public static RaoResult runRao(String raoType,
+                                   Double loopflowAsPmaxPercentage,
+                                   final ReportNode reportNode,
+                                   boolean forceFastRao,
+                                   RaoStopCondition raoStopCondition) throws IOException {
         RaoParameters raoParameters = CommonTestData.getRaoParameters();
         ZonalData<SensitivityVariableSet> glsks = CommonTestData.getLoopflowGlsks();
         // Rao with loop-flows
@@ -96,7 +98,6 @@ public final class RaoUtils {
             CommonTestData.getCounterTradeGlsks(),
             CommonTestData.getReferenceProgram(),
             raoParameters,
-            timeLimitInSeconds,
             reportNode,
             raoStopCondition
         );
@@ -104,19 +105,14 @@ public final class RaoUtils {
 
     private static RaoResult runRaoInMemory(Rao.Runner raoRunner, Network network, Crac crac,
                                             ZonalData<SensitivityVariableSet> glsks, ZonalData<Scalable> counterTradeGlsks, ReferenceProgram referenceProgram, RaoParameters config,
-                                            Integer timeLimitInSeconds, final ReportNode reportNode, final RaoStopCondition raoStopCondition) throws IOException {
+                                            final ReportNode reportNode, final RaoStopCondition raoStopCondition) throws IOException {
 
         RaoInput.RaoInputBuilder raoInputBuilder = RaoInput.build(network, crac);
         raoInputBuilder.withGlskProvider(glsks);
         raoInputBuilder.withCounterTradeGlskProvider(counterTradeGlsks);
         raoInputBuilder.withRefProg(referenceProgram);
 
-        RaoResult raoResult;
-        if (timeLimitInSeconds != null) {
-            raoResult = raoRunner.run(raoInputBuilder.build(), config, java.time.Instant.now().plusSeconds(timeLimitInSeconds.longValue()), reportNode);
-        } else {
-            raoResult = raoRunner.run(raoInputBuilder.build(), config, reportNode, raoStopCondition);
-        }
+        RaoResult raoResult = raoRunner.run(raoInputBuilder.build(), config, reportNode, raoStopCondition);
 
         /*
         roundTrip on RaoResult

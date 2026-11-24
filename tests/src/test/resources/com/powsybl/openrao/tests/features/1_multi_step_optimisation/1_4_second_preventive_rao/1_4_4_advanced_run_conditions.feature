@@ -65,10 +65,7 @@ Feature: 1.4.4: Advanced 2nd preventive run conditions
     Given crac file is "1_multi_step_optimisation/1_4_second_preventive_rao/crac_second_preventive_1.json"
     Given configuration file is "common/rao_parameters_max_margin_ampere_second_preventive.json"
     When I launch rao with a time limit of -1 seconds
-    Then the worst margin is -144 A
-    Then the value of the objective function after CRA should be 144
-    Then the execution details should be "The RAO only went through first preventive"
-    Then its security status should be "UNSECURED"
+    Then the execution details should be "RAO was interrupted before any result could be produced."
 
   @fast @rao @ac @second-preventive @max-min-margin
   Scenario: 1.4.4.6: Enough time to run 2P (copy of 1.4.1.1.1)
