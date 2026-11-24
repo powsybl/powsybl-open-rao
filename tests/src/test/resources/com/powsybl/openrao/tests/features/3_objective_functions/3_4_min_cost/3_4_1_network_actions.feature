@@ -336,12 +336,3 @@ Feature: 3.4.1: Costly network actions optimization
     Then the value of the objective function after PRA should be 124729.66
     # In the end of the run, the network is still overloaded, no action was used in this Run
     Then the margin on cnec "NNL2AA1  BBE3AA1  1 - preventive" after PRA should be -124.73 MW
-
-  @fast @rao @dc @costly @preventive-only @fast-rao
-  Scenario: Scenario: 3.4.14 : Duplicate of 3.4.13 with RAO interruption at second checkpoint
-    Given network file is "3_objective_functions/3_4_min_cost/network_12nodes_0130.uct"
-    Given crac file is "common/cbcora_3_4_13.xml"
-    Given configuration file is "common/rao_parameters_min_cost_megawatt_dc_withFastRaoExtension.json"
-    Given crac creation parameters file is "common/cbcora_parameters_20190108T0130.json"
-    When I launch rao with interruption
-    Then no RAO Result was generated

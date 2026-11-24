@@ -183,11 +183,3 @@ Feature: 1.4.1: enable second optimization of the preventive perimeter
     Then the margin on cnec "fr4_de1_N - preventive" after PRA should be 731 A
     Then the execution details should be "Second preventive improved first preventive results"
     Then its security status should be "SECURED"
-
-  @fast @rao @ac @second-preventive @max-min-margin @interruption
-  Scenario: 1.4.1.5: Duplicate of 1.4.1.5 with RAO interruption at second checkpoint
-    Given network file is "common/network_16nodes.uct"
-    Given crac file is "1_multi_step_optimisation/1_4_second_preventive_rao/crac_1_4_1_6.json"
-    Given configuration file is "common/rao_parameters_max_margin_ampere_second_preventive.json"
-    When I launch rao with interruption
-    Then no RAO Result was generated

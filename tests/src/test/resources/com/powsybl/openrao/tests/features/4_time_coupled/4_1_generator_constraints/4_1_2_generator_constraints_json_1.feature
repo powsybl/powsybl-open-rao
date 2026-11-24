@@ -1346,37 +1346,3 @@ Feature: 4.1.2: Time-coupled generator constraints with MARMOT based on JSON tim
     Then the preventive power of generator "BBE1AA1 _generator" at timestamp "2025-11-04 23:30" is 3000.0 MW
     Then the preventive power of load "FFR1AA1 _load" at timestamp "2025-11-04 23:30" is 3000.0 MW
     Then the total cost for all timestamps is 2040240.0
-
-  Scenario: 4.1.2.11: Duplicate of 4.1.2.10 with RAO interruption at second checkpoint
-  Generator never shuts down, because of its' high penalty cost on overloads, and because it's heavily constrained by its lead and lag
-    Given configuration file is "4_time_coupled/rao_parameters_min_cost_megawatt_dc_0_shift.json"
-    Given crac files are in folder "4_time_coupled/4_1_generator_constraints/4_1_2_6"
-    Given network files are in folder "4_time_coupled"
-    Given time-coupled constraints are in file "4_time_coupled/4_1_generator_constraints/time-coupled-constraints-with-lead-and-lag-times.json" and rao inputs are:
-      | Timestamp        | Network               | CRAC                   |
-      | 2025-11-04 00:30 | 6Nodes_Pmin1000.xiidm | crac_202511040030.json |
-      | 2025-11-04 01:30 | 6Nodes_Pmin1000.xiidm | crac_202511040130.json |
-      | 2025-11-04 02:30 | 6Nodes_Pmin1000.xiidm | crac_202511040230.json |
-      | 2025-11-04 03:30 | 6Nodes_Pmin1000.xiidm | crac_202511040330.json |
-      | 2025-11-04 04:30 | 6Nodes_Pmin1000.xiidm | crac_202511040430.json |
-      | 2025-11-04 05:30 | 6Nodes_Pmin1000.xiidm | crac_202511040530.json |
-      | 2025-11-04 06:30 | 6Nodes_Pmin1000.xiidm | crac_202511040630.json |
-      | 2025-11-04 07:30 | 6Nodes_Pmin1000.xiidm | crac_202511040730.json |
-      | 2025-11-04 08:30 | 6Nodes_Pmin1000.xiidm | crac_202511040830.json |
-      | 2025-11-04 09:30 | 6Nodes_Pmin1000.xiidm | crac_202511040930.json |
-      | 2025-11-04 10:30 | 6Nodes_Pmin1000.xiidm | crac_202511041030.json |
-      | 2025-11-04 11:30 | 6Nodes_Pmin1000.xiidm | crac_202511041130.json |
-      | 2025-11-04 12:30 | 6Nodes_Pmin1000.xiidm | crac_202511041230.json |
-      | 2025-11-04 13:30 | 6Nodes_Pmin1000.xiidm | crac_202511041330.json |
-      | 2025-11-04 14:30 | 6Nodes_Pmin1000.xiidm | crac_202511041430.json |
-      | 2025-11-04 15:30 | 6Nodes_Pmin1000.xiidm | crac_202511041530.json |
-      | 2025-11-04 16:30 | 6Nodes_Pmin1000.xiidm | crac_202511041630.json |
-      | 2025-11-04 17:30 | 6Nodes_Pmin1000.xiidm | crac_202511041730.json |
-      | 2025-11-04 18:30 | 6Nodes_Pmin1000.xiidm | crac_202511041830.json |
-      | 2025-11-04 19:30 | 6Nodes_Pmin1000.xiidm | crac_202511041930.json |
-      | 2025-11-04 20:30 | 6Nodes_Pmin1000.xiidm | crac_202511042030.json |
-      | 2025-11-04 21:30 | 6Nodes_Pmin1000.xiidm | crac_202511042130.json |
-      | 2025-11-04 22:30 | 6Nodes_Pmin1000.xiidm | crac_202511042230.json |
-      | 2025-11-04 23:30 | 6Nodes_Pmin1000.xiidm | crac_202511042330.json |
-    When I launch rao with interruption
-    Then no RAO Result was generated

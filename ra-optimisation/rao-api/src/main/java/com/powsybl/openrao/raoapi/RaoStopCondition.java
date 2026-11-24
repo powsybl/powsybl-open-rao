@@ -7,6 +7,8 @@
 
 package com.powsybl.openrao.raoapi;
 
+import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
+
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
@@ -21,6 +23,7 @@ public interface RaoStopCondition {
      */
     default void checkNotStopped() {
         if (shouldStop()) {
+            OpenRaoLoggerProvider.BUSINESS_WARNS.warn("RAO interruption.");
             throw new RaoInterruptedException();
         }
     }

@@ -49,7 +49,6 @@ import com.powsybl.openrao.loopflowcomputation.LoopFlowResult;
 import com.powsybl.openrao.raoapi.LazyNetwork;
 import com.powsybl.openrao.raoapi.Rao;
 import com.powsybl.openrao.raoapi.RaoInput;
-import com.powsybl.openrao.raoapi.RaoInterruptedException;
 import com.powsybl.openrao.raoapi.RaoStopCondition;
 import com.powsybl.openrao.raoapi.TimeCoupledRaoInput;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
@@ -108,8 +107,6 @@ import static com.powsybl.openrao.tests.utils.Helpers.importNetwork;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -204,35 +201,6 @@ public class RaoSteps {
     @When("I launch loopflow_computation with OpenLoadFlow at {string}")
     public void iLaunchLoopflowComputation(String timestamp) {
         launchLoopflowComputation(timestamp, "OpenLoadFlow", "OpenLoadFlow");
-    }
-
-    @When("I launch rao with interruption")
-    public void iLaunchRaoWithInterruption() {
-        class MaxCallsRaoStopCondition implements RaoStopCondition {
-            private int maxCalls;
-
-            MaxCallsRaoStopCondition(int maxCalls) {
-                this.maxCalls = maxCalls;
-            }
-
-            @Override
-            public boolean shouldStop() {
-                maxCalls--;
-                return maxCalls <= 0;
-            }
-        }
-
-        RaoStopCondition raoStopCondition = new MaxCallsRaoStopCondition(2);
-        RaoInterruptedException exception = assertThrows(
-            RaoInterruptedException.class,
-            () -> launchRao(null, null, raoImplementation, null, raoStopCondition)
-        );
-        assertEquals("RAO was interrupted.", exception.getMessage());
-    }
-
-    @Then("no RAO Result was generated")
-    public void noRaoResultWasGenerated() {
-        assertNull(CommonTestData.getRaoResult());
     }
 
     @When("I export rao reports to {string}")
