@@ -288,8 +288,7 @@ public final class AutomatonSimulator {
                 speed,
                 topoSimulationResult.getActivatedNetworkActions(),
                 rangeAutomatonSimulationResult.perimeterResult(),
-                simulationReportNode,
-                raoStopCondition
+                simulationReportNode
             );
 
             // Sensitivity analysis failed :
@@ -318,8 +317,7 @@ public final class AutomatonSimulator {
                 initialSetPoints,
                 rangeAutomatonSimulationResult.rangeActionsWithSetpoint(),
                 topoSimulationResult,
-                simulationReportNode,
-                raoStopCondition
+                simulationReportNode
             );
 
             // Sensitivity analysis failed :
@@ -384,7 +382,7 @@ public final class AutomatonSimulator {
             flowCnecsInSensi.addAll(crac.getFlowCnecs(curativeState));
             rangeActionsInSensi.addAll(crac.getRangeActions(curativeState));
         }
-        return new PrePerimeterSensitivityAnalysis(crac, flowCnecsInSensi, rangeActionsInSensi, raoParameters, toolProvider, false);
+        return new PrePerimeterSensitivityAnalysis(crac, flowCnecsInSensi, rangeActionsInSensi, raoParameters, toolProvider, false, raoStopCondition);
     }
 
     private AutomatonPerimeterResultImpl createFailedAutomatonPerimeterResult(PrePerimeterResult preAutomatonSensitivityAnalysisOutput,
@@ -423,8 +421,7 @@ public final class AutomatonSimulator {
                                                                 PrePerimeterSensitivityAnalysis preAutoPstOptimizationSensitivityAnalysis,
                                                                 int speed, Set<NetworkAction> previouslyActivatedTopologicalAutomatons,
                                                                 PrePerimeterResult preAutomatonsPerimeterResult,
-                                                                final ReportNode simulationReportNode,
-                                                                final RaoStopCondition raoStopCondition) {
+                                                                final ReportNode simulationReportNode) {
         // -- Apply network actions
         // -- First get forced network actions: except for AC emulation deactivation network actions, it will be deactivated when the range action is optimized.
         Set<FlowCnec> flowCnecs = crac.getFlowCnecs(automatonState);
@@ -464,8 +461,7 @@ public final class AutomatonSimulator {
                 initialFlowResult,
                 operatorsNotSharingCras,
                 null,
-                simulationReportNode,
-                raoStopCondition
+                simulationReportNode
             );
             if (automatonRangeActionOptimizationSensitivityAnalysisOutput.getSensitivityStatus(automatonState) == ComputationStatus.FAILURE) {
                 return new TopoAutomatonSimulationResult(automatonRangeActionOptimizationSensitivityAnalysisOutput, allAppliedAutomatons);
@@ -494,8 +490,7 @@ public final class AutomatonSimulator {
                                                            Map<RangeAction<?>, Double> initialSetPoints,
                                                            Map<RangeAction<?>, Double> setPoints,
                                                            TopoAutomatonSimulationResult topoSimulationResult,
-                                                           ReportNode simulationReportNode,
-                                                           RaoStopCondition raoStopCondition) {
+                                                           ReportNode simulationReportNode) {
         PrePerimeterResult finalPostAutoResult = postTopoResult;
         // -- Create groups of aligned range actions
         List<List<RangeAction<?>>> rangeActionsOnAutomatonState = buildRangeActionsGroupsForSpeed(finalPostAutoResult, automatonState, network, speed, simulationReportNode);
@@ -523,8 +518,7 @@ public final class AutomatonSimulator {
                 finalPostAutoResult,
                 automatonState,
                 topoSimulationResult,
-                simulationReportNode,
-                raoStopCondition);
+                simulationReportNode);
             finalPostAutoResult = postShiftResult.perimeterResult();
             activatedRangeActions.addAll(postShiftResult.activatedRangeActions());
             allActivatedRangeAutomatons.addAll(postShiftResult.activatedRangeActions());
@@ -535,7 +529,7 @@ public final class AutomatonSimulator {
         }
 
         if (!activatedRangeActions.isEmpty()) {
-            finalPostAutoResult = runPostRangeAutomatonsSensitivityComputation(automatonState, curativeStates, network, speed, simulationReportNode, raoStopCondition);
+            finalPostAutoResult = runPostRangeAutomatonsSensitivityComputation(automatonState, curativeStates, network, speed, simulationReportNode);
             if (finalPostAutoResult.getSensitivityStatus(automatonState) == ComputationStatus.FAILURE) {
                 return new RangeAutomatonSimulationResult(finalPostAutoResult, allActivatedRangeAutomatons, initialSetPoints, rangeActionsWithSetpoint);
             }
@@ -613,8 +607,7 @@ public final class AutomatonSimulator {
                                                                             Set<State> curativeStates,
                                                                             Network network,
                                                                             int speed,
-                                                                            ReportNode simulationReportNode,
-                                                                            RaoStopCondition raoStopCondition) {
+                                                                            ReportNode simulationReportNode) {
         // -- Run sensitivity computation before running curative RAO later
         // -- Get curative range actions
         Set<RangeAction<?>> curativeRangeActions = new HashSet<>();
@@ -630,11 +623,12 @@ public final class AutomatonSimulator {
             curativeRangeActions,
             raoParameters,
             toolProvider,
-            false);
+            false,
+            raoStopCondition);
 
         // Run computation
         AutomatonSimulatorReports.reportRunPostRangeSensitivityAnalysisForStateAndSpeed(simulationReportNode, automatonState.getId(), speed);
-        return prePerimeterSensitivityAnalysis.runBasedOnInitialResults(network, initialFlowResult, operatorsNotSharingCras, null, simulationReportNode, raoStopCondition);
+        return prePerimeterSensitivityAnalysis.runBasedOnInitialResults(network, initialFlowResult, operatorsNotSharingCras, null, simulationReportNode);
     }
 
     /**
@@ -649,8 +643,7 @@ public final class AutomatonSimulator {
                                                                                                    final PrePerimeterResult prePerimeterSensitivityOutput,
                                                                                                    final State automatonState,
                                                                                                    final TopoAutomatonSimulationResult topoSimulationResult,
-                                                                                                   final ReportNode simulationReportNode,
-                                                                                                   final RaoStopCondition raoStopCondition) {
+                                                                                                   final ReportNode simulationReportNode) {
 
         // Get HVDC range actions affected by AC emulation
         Set<HvdcRangeAction> hvdcRasWithControl =
@@ -685,8 +678,7 @@ public final class AutomatonSimulator {
             initialFlowResult,
             operatorsNotSharingCras,
             null,
-            simulationReportNode,
-            raoStopCondition
+            simulationReportNode
         );
         MostLimitingElementsReports.reportTechnicalMostLimitingElements(
             simulationReportNode,
@@ -718,8 +710,7 @@ public final class AutomatonSimulator {
                                                                          final PrePerimeterResult prePerimeterSensitivityOutput,
                                                                          final State automatonState,
                                                                          final TopoAutomatonSimulationResult topoSimulationResult,
-                                                                         final ReportNode simulationReportNode,
-                                                                         final RaoStopCondition raoStopCondition) {
+                                                                         final ReportNode simulationReportNode) {
 
         Set<Pair<FlowCnec, TwoSides>> flowCnecsToBeExcluded = new HashSet<>();
         PrePerimeterResult automatonRangeActionOptimizationSensitivityAnalysisOutput = prePerimeterSensitivityOutput;
@@ -738,8 +729,7 @@ public final class AutomatonSimulator {
                 automatonRangeActionOptimizationSensitivityAnalysisOutput,
                 automatonState,
                 topoSimulationResult,
-                simulationReportNode,
-                raoStopCondition
+                simulationReportNode
             );
             automatonRangeActionOptimizationSensitivityAnalysisOutput = result.getLeft();
             activatedRangeActionsWithSetpoint.putAll(result.getRight());
@@ -812,8 +802,7 @@ public final class AutomatonSimulator {
                 initialFlowResult,
                 operatorsNotSharingCras,
                 null,
-                simulationReportNode,
-                raoStopCondition
+                simulationReportNode
             );
             // If sensitivity analysis fails, stop shifting and return all applied range actions
             if (automatonRangeActionOptimizationSensitivityAnalysisOutput.getSensitivityStatus(automatonState) == ComputationStatus.FAILURE) {

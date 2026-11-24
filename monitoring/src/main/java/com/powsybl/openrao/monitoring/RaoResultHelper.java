@@ -114,9 +114,9 @@ final class RaoResultHelper {
                 RaoInput.build(network, crac).build(), raoParameters
             );
             final PrePerimeterSensitivityAnalysis initialPrePerimeterSensitivityAnalysis = new PrePerimeterSensitivityAnalysis(
-                crac, crac.getFlowCnecs(), crac.getRangeActions(), raoParameters, toolProvider, true
+                crac, crac.getFlowCnecs(), crac.getRangeActions(), raoParameters, toolProvider, true, RaoStopCondition.NO_OP
             );
-            final PrePerimeterResult initialFlowResult = initialPrePerimeterSensitivityAnalysis.runInitialSensitivityAnalysis(network, reportNode, RaoStopCondition.NO_OP);
+            final PrePerimeterResult initialFlowResult = initialPrePerimeterSensitivityAnalysis.runInitialSensitivityAnalysis(network, reportNode);
 
             // create a new network variant from initial variant to perform the results merging
             final String variantName = "RaoResultMerging";
@@ -137,7 +137,7 @@ final class RaoResultHelper {
 
             // this result is only used as a data holder for flows: it does not contain the proper objective function value in costly
             final PrePerimeterResult preventivePrePerimeterResult = initialPrePerimeterSensitivityAnalysis.runBasedOnInitialResults(
-                network, initialFlowResult, Set.of(), new AppliedRemedialActions(), reportNode, RaoStopCondition.NO_OP
+                network, initialFlowResult, Set.of(), new AppliedRemedialActions(), reportNode
             );
 
             RangeActionActivationResultImpl preventiveRangeActionActivationResult = new RangeActionActivationResultImpl(initialFlowResult);
@@ -154,9 +154,9 @@ final class RaoResultHelper {
             );
 
             final PostPerimeterResult preventivePostPerimeterResult =
-                new PostPerimeterSensitivityAnalysis(crac, crac.getFlowCnecs(), crac.getRangeActions(), raoParameters, toolProvider, true)
+                new PostPerimeterSensitivityAnalysis(crac, crac.getFlowCnecs(), crac.getRangeActions(), raoParameters, toolProvider, true, RaoStopCondition.NO_OP)
                     .runBasedOnInitialPreviousAndOptimizationResults(network, initialFlowResult, preventivePrePerimeterResult, Set.of(),
-                        preventiveResult, new AppliedRemedialActions(), reportNode, RaoStopCondition.NO_OP);
+                        preventiveResult, new AppliedRemedialActions(), reportNode);
 
             final Map<State, PostPerimeterResult> postMergingContingencyResults = new ConcurrentHashMap<>();
 
@@ -284,11 +284,11 @@ final class RaoResultHelper {
                 );
 
                 final PrePerimeterSensitivityAnalysis statePrePerimeterSensitivityAnalysis = new PrePerimeterSensitivityAnalysis(
-                    crac, crac.getFlowCnecs(state), crac.getRangeActions(), raoParameters, toolProvider, true
+                    crac, crac.getFlowCnecs(state), crac.getRangeActions(), raoParameters, toolProvider, true, RaoStopCondition.NO_OP
                 );
 
                 final PrePerimeterResult statePrePerimeterResult = statePrePerimeterSensitivityAnalysis.runBasedOnInitialResults(
-                    network, initialFlowResult, Collections.emptySet(), allAppliedRemedialActions, reportNode, RaoStopCondition.NO_OP
+                    network, initialFlowResult, Collections.emptySet(), allAppliedRemedialActions, reportNode
                 );
 
                 final OptimizationResult stateOptimizationResult = new OptimizationResultImpl(
@@ -304,7 +304,7 @@ final class RaoResultHelper {
                     .collect(Collectors.toSet());
 
                 final PostPerimeterResult statePostPerimeterResult =
-                    new PostPerimeterSensitivityAnalysis(crac, statePostPerimeterFlowCnecs, crac.getRangeActions(), raoParameters, toolProvider, true)
+                    new PostPerimeterSensitivityAnalysis(crac, statePostPerimeterFlowCnecs, crac.getRangeActions(), raoParameters, toolProvider, true, RaoStopCondition.NO_OP)
                         .runBasedOnInitialPreviousAndOptimizationResults(
                             network,
                             initialFlowResult,
@@ -312,8 +312,7 @@ final class RaoResultHelper {
                             Set.of(),
                             stateOptimizationResult,
                             allAppliedRemedialActions,
-                            reportNode,
-                            RaoStopCondition.NO_OP
+                            reportNode
                         );
                 postMergingContingencyResults.put(state, statePostPerimeterResult);
 

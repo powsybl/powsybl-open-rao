@@ -110,8 +110,9 @@ class CastorFullOptimization {
             boolean costOptimization = raoParameters.getObjectiveFunctionParameters().getType().costOptimization();
             RaoRunContext context = createContext();
             if (crac.getFlowCnecs().isEmpty()) {
-                PrePerimeterResult initialResult = new PrePerimeterSensitivityAnalysis(crac, crac.getFlowCnecs(), crac.getRangeActions(), raoParameters, context.getToolProvider(), true)
-                    .runInitialSensitivityAnalysis(network, optimizationReportNode, raoStopCondition);
+                PrePerimeterResult initialResult = new PrePerimeterSensitivityAnalysis(crac, crac.getFlowCnecs(), crac.getRangeActions(), raoParameters,
+                    context.getToolProvider(), true, raoStopCondition)
+                    .runInitialSensitivityAnalysis(network, optimizationReportNode);
                 RaoResult raoResult = RaoResultGenerator.empty(crac, OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY, initialResult, raoParameters);
                 return CompletableFuture.completedFuture(raoResult);
             }
@@ -260,10 +261,10 @@ class CastorFullOptimization {
      */
     private void runInitialSensitivityAnalysis(final RaoRunContext context, final ReportNode optimizationReportNode) {
         PrePerimeterSensitivityAnalysis prePerimeterSensitivityAnalysis = new PrePerimeterSensitivityAnalysis(
-            crac, crac.getFlowCnecs(), crac.getRangeActions(), raoParameters, context.getToolProvider(), true);
+            crac, crac.getFlowCnecs(), crac.getRangeActions(), raoParameters, context.getToolProvider(), true, raoStopCondition);
         context.setPrePerimeterSensitivityAnalysis(prePerimeterSensitivityAnalysis);
 
-        context.setInitialOutput(prePerimeterSensitivityAnalysis.runInitialSensitivityAnalysis(network, optimizationReportNode, raoStopCondition));
+        context.setInitialOutput(prePerimeterSensitivityAnalysis.runInitialSensitivityAnalysis(network, optimizationReportNode));
     }
 
     private void runFirstPreventiveOptimization(final RaoRunContext context, final ReportNode preventivePerimeterOptimReportNode) {
@@ -304,10 +305,10 @@ class CastorFullOptimization {
         applyRemedialActions(network, preventiveResult, crac.getPreventiveState());
 
         PostPerimeterResult postPreventiveResult = new PostPerimeterSensitivityAnalysis(
-            crac, crac.getFlowCnecs(), crac.getRangeActions(), raoParameters, context.getToolProvider(), true)
+            crac, crac.getFlowCnecs(), crac.getRangeActions(), raoParameters, context.getToolProvider(), true, raoStopCondition)
             .runBasedOnInitialPreviousAndOptimizationResults(
                 network, initialOutput, initialOutput, Collections.emptySet(),
-                preventiveResult, null, postPraSensiAnalysisReportNode, raoStopCondition);
+                preventiveResult, null, postPraSensiAnalysisReportNode);
         context.setPostPreventiveResult(postPreventiveResult);
         context.setPreCurativeSensitivityAnalysisOutput(postPreventiveResult.prePerimeterResultForAllFollowingStates());
     }
@@ -315,15 +316,14 @@ class CastorFullOptimization {
     private void runCurativePerimeterOptimization(final RaoRunContext context, final ReportNode postContingencyPerimeterOptimReportNode) {
         TreeParameters curativeTreeParameters = TreeParameters.buildForCurativePerimeter(raoParameters, context.getPreventiveResult().getCost());
         CastorContingencyScenarios castorContingencyScenarios = new CastorContingencyScenarios(
-            crac, raoParameters, context.getToolProvider(), context.getStateTree(), curativeTreeParameters, context.getInitialOutput());
+            crac, raoParameters, context.getToolProvider(), context.getStateTree(), curativeTreeParameters, context.getInitialOutput(), raoStopCondition);
         context.setCastorContingencyScenarios(castorContingencyScenarios);
 
         context.setPostContingencyResults(castorContingencyScenarios.optimizeContingencyScenarios(
             network,
             context.getPreCurativeSensitivityAnalysisOutput(),
             false,
-            postContingencyPerimeterOptimReportNode,
-            raoStopCondition
+            postContingencyPerimeterOptimReportNode
         ));
     }
 
@@ -507,8 +507,8 @@ class CastorFullOptimization {
                                                             final OptimizationResult preventiveResult,
                                                             final ReportNode reportNode) {
         PostPerimeterResult postPreventiveResult;
-        postPreventiveResult = new PostPerimeterSensitivityAnalysis(crac, crac.getFlowCnecs(), crac.getRangeActions(), raoParameters, toolProvider, true)
-            .runBasedOnInitialPreviousAndOptimizationResults(network, initialOutput, initialOutput, Collections.emptySet(), preventiveResult, null, reportNode, raoStopCondition);
+        postPreventiveResult = new PostPerimeterSensitivityAnalysis(crac, crac.getFlowCnecs(), crac.getRangeActions(), raoParameters, toolProvider, true, raoStopCondition)
+            .runBasedOnInitialPreviousAndOptimizationResults(network, initialOutput, initialOutput, Collections.emptySet(), preventiveResult, null, reportNode);
         return postPreventiveResult;
     }
 

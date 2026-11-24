@@ -15,6 +15,7 @@ import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
+import com.powsybl.openrao.raoapi.RaoStopCondition;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.*;
 import com.powsybl.openrao.raoimpl.commons.SensitivityComputer;
@@ -39,6 +40,7 @@ public abstract class AbstractMultiPerimeterSensitivityAnalysis {
     protected final RaoParameters raoParameters;
     protected final ToolProvider toolProvider;
     protected final boolean multiThreadedSensitivities;
+    protected final RaoStopCondition raoStopCondition;
 
     protected ComputationManager computationManager = LocalComputationManager.getDefault();
 
@@ -47,20 +49,23 @@ public abstract class AbstractMultiPerimeterSensitivityAnalysis {
                                                         Set<RangeAction<?>> rangeActions,
                                                         RaoParameters raoParameters,
                                                         ToolProvider toolProvider,
-                                                        boolean multiThreadedSensitivities) {
+                                                        boolean multiThreadedSensitivities,
+                                                        final RaoStopCondition raoStopCondition) {
         this.crac = crac;
         this.flowCnecs = flowCnecs;
         this.rangeActions = rangeActions;
         this.toolProvider = toolProvider;
         this.raoParameters = raoParameters;
         this.multiThreadedSensitivities = multiThreadedSensitivities;
+        this.raoStopCondition = raoStopCondition;
     }
 
     protected AbstractMultiPerimeterSensitivityAnalysis(Crac crac,
                                                         Set<State> states,
                                                         RaoParameters raoParameters,
                                                         ToolProvider toolProvider,
-                                                        boolean multiThreadedSensitivities) {
+                                                        boolean multiThreadedSensitivities,
+                                                        final RaoStopCondition raoStopCondition) {
         this.crac = crac;
         this.rangeActions = new HashSet<>();
         this.flowCnecs = new HashSet<>();
@@ -71,6 +76,7 @@ public abstract class AbstractMultiPerimeterSensitivityAnalysis {
         this.toolProvider = toolProvider;
         this.raoParameters = raoParameters;
         this.multiThreadedSensitivities = multiThreadedSensitivities;
+        this.raoStopCondition = raoStopCondition;
     }
 
     public void setComputationManager(final ComputationManager computationManager) {

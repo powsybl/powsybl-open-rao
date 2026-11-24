@@ -45,18 +45,18 @@ public class PrePerimeterSensitivityAnalysis extends AbstractMultiPerimeterSensi
                                            Set<RangeAction<?>> rangeActions,
                                            RaoParameters raoParameters,
                                            ToolProvider toolProvider,
-                                           boolean multiThreadedSensitivities) {
-        super(crac, flowCnecs, rangeActions, raoParameters, toolProvider, multiThreadedSensitivities);
+                                           boolean multiThreadedSensitivities,
+                                           final RaoStopCondition raoStopCondition) {
+        super(crac, flowCnecs, rangeActions, raoParameters, toolProvider, multiThreadedSensitivities, raoStopCondition);
     }
 
-    public PrePerimeterResult runInitialSensitivityAnalysis(final Network network, final ReportNode reportNode, final RaoStopCondition raoStopCondition) {
-        return runInitialSensitivityAnalysis(network, Set.of(), reportNode, raoStopCondition);
+    public PrePerimeterResult runInitialSensitivityAnalysis(final Network network, final ReportNode reportNode) {
+        return runInitialSensitivityAnalysis(network, Set.of(), reportNode);
     }
 
     public PrePerimeterResult runInitialSensitivityAnalysis(final Network network,
                                                             final Set<State> optimizedStates,
-                                                            final ReportNode reportNode,
-                                                            final RaoStopCondition raoStopCondition) {
+                                                            final ReportNode reportNode) {
         SensitivityComputer.SensitivityComputerBuilder sensitivityComputerBuilder = buildSensiBuilder(reportNode)
             .withOutageInstant(crac.getOutageInstant())
             .withComputationManager(computationManager);
@@ -70,15 +70,14 @@ public class PrePerimeterSensitivityAnalysis extends AbstractMultiPerimeterSensi
         sensitivityComputer = sensitivityComputerBuilder.build();
         objectiveFunction = ObjectiveFunction.buildForInitialSensitivityComputation(flowCnecs, raoParameters, optimizedStates);
 
-        return runAndGetResult(network, objectiveFunction, reportNode, raoStopCondition);
+        return runAndGetResult(network, objectiveFunction, reportNode);
     }
 
     public PrePerimeterResult runBasedOnInitialResults(final Network network,
                                                        final FlowResult initialFlowResult,
                                                        final Set<String> operatorsNotSharingCras,
                                                        final AppliedRemedialActions appliedCurativeRemedialActions,
-                                                       final ReportNode reportNode,
-                                                       final RaoStopCondition raoStopCondition) {
+                                                       final ReportNode reportNode) {
 
         sensitivityComputer = buildSensitivityComputer(initialFlowResult, appliedCurativeRemedialActions, reportNode);
         objectiveFunction = ObjectiveFunction.build(
@@ -91,7 +90,7 @@ public class PrePerimeterSensitivityAnalysis extends AbstractMultiPerimeterSensi
             Objects.isNull(crac.getPreventiveState()) ? Collections.emptySet() : Set.of(crac.getPreventiveState())
         );
 
-        return runAndGetResult(network, objectiveFunction, reportNode, raoStopCondition);
+        return runAndGetResult(network, objectiveFunction, reportNode);
     }
 
     public ObjectiveFunction getObjectiveFunction() {
@@ -107,8 +106,7 @@ public class PrePerimeterSensitivityAnalysis extends AbstractMultiPerimeterSensi
 
     private PrePerimeterResult runAndGetResult(final Network network,
                                                final ObjectiveFunction objectiveFunction,
-                                               final ReportNode reportNode,
-                                               final RaoStopCondition raoStopCondition) {
+                                               final ReportNode reportNode) {
         int oldThreadCount = setNewThreadCountAndGetOldValue();
         sensitivityComputer.compute(network, raoStopCondition);
         resetThreadCount(oldThreadCount);

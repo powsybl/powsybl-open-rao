@@ -43,16 +43,18 @@ public class PostPerimeterSensitivityAnalysis extends AbstractMultiPerimeterSens
                                             Set<RangeAction<?>> rangeActions,
                                             RaoParameters raoParameters,
                                             ToolProvider toolProvider,
-                                            boolean multiThreadedSensitivities) {
-        super(crac, flowCnecs, rangeActions, raoParameters, toolProvider, multiThreadedSensitivities);
+                                            boolean multiThreadedSensitivities,
+                                            final RaoStopCondition raoStopCondition) {
+        super(crac, flowCnecs, rangeActions, raoParameters, toolProvider, multiThreadedSensitivities, raoStopCondition);
     }
 
     public PostPerimeterSensitivityAnalysis(Crac crac,
                                             Set<State> states,
                                             RaoParameters raoParameters,
                                             ToolProvider toolProvider,
-                                            boolean multiThreadedSensitivities) {
-        super(crac, states, raoParameters, toolProvider, multiThreadedSensitivities);
+                                            boolean multiThreadedSensitivities,
+                                            final RaoStopCondition raoStopCondition) {
+        super(crac, states, raoParameters, toolProvider, multiThreadedSensitivities, raoStopCondition);
     }
 
     /**
@@ -69,8 +71,7 @@ public class PostPerimeterSensitivityAnalysis extends AbstractMultiPerimeterSens
                                                                                final Set<String> operatorsNotSharingCras,
                                                                                final OptimizationResult optimizationResult,
                                                                                final AppliedRemedialActions appliedCurativeRemedialActions,
-                                                                               final ReportNode reportNode,
-                                                                               final RaoStopCondition raoStopCondition) {
+                                                                               final ReportNode reportNode) {
 
         AtomicReference<FlowResult> flowResult = new AtomicReference<>();
         AtomicReference<SensitivityResult> sensitivityResult = new AtomicReference<>();
@@ -136,8 +137,7 @@ public class PostPerimeterSensitivityAnalysis extends AbstractMultiPerimeterSens
                                                                                                final Set<String> operatorsNotSharingCras,
                                                                                                final RemedialActionActivationResult remedialActionActivationResult,
                                                                                                final AppliedRemedialActions appliedCurativeRemedialActions,
-                                                                                               final ReportNode reportNode,
-                                                                                               final RaoStopCondition raoStopCondition) {
+                                                                                               final ReportNode reportNode) {
         return CompletableFuture.supplyAsync(() -> computePostPerimeterResult(
             network,
             initialFlowResult,
@@ -145,8 +145,7 @@ public class PostPerimeterSensitivityAnalysis extends AbstractMultiPerimeterSens
             operatorsNotSharingCras,
             remedialActionActivationResult,
             appliedCurativeRemedialActions,
-            reportNode,
-            raoStopCondition
+            reportNode
         ));
     }
 
@@ -156,8 +155,7 @@ public class PostPerimeterSensitivityAnalysis extends AbstractMultiPerimeterSens
                                                            final Set<String> operatorsNotSharingCras,
                                                            final RemedialActionActivationResult remedialActionActivationResult,
                                                            final AppliedRemedialActions appliedCurativeRemedialActions,
-                                                           final ReportNode reportNode,
-                                                           final RaoStopCondition raoStopCondition) {
+                                                           final ReportNode reportNode) {
         AtomicReference<FlowResult> flowResult = new AtomicReference<>();
         AtomicReference<SensitivityResult> sensitivityResult = new AtomicReference<>();
         boolean actionWasTaken = PostPerimeterSensitivityAnalysis.this.actionWasTaken(

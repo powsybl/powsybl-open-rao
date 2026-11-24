@@ -173,8 +173,7 @@ public class CastorSecondPreventive {
             network,
             secondPreventiveRaoResult.postPraSensitivityAnalysisOutput,
             true,
-            secondAutomatonSimulationReportNode,
-            raoStopCondition
+            secondAutomatonSimulationReportNode
         );
         CastorReports.reportSecondAutomatonSimulationEnd();
 
@@ -211,8 +210,7 @@ public class CastorSecondPreventive {
                 initialOutput,
                 Collections.emptySet(),
                 appliedArasAndCras,
-                secondPreventiveReportNode,
-                raoStopCondition
+                secondPreventiveReportNode
             );
         if (postCraSensitivityAnalysisOutput.getSensitivityStatus() == ComputationStatus.FAILURE) {
             CastorReports.reportSystematicSensitivityAnalysisAfterCraAfterSecondPreventiveFailed(secondPreventiveReportNode);
@@ -288,7 +286,7 @@ public class CastorSecondPreventive {
         // If any sensitivity computation fails, fail and fall back to 1st preventive result
         // TODO: can we / do we want to improve this behavior by excluding the failed contingencies?
         PrePerimeterResult sensiWithPostContingencyRemedialActions = prePerimeterSensitivityAnalysis
-            .runBasedOnInitialResults(network, initialOutput, stateTree.getOperatorsNotSharingCras(), appliedArasAndCras, secondPreventiveReportNode, raoStopCondition);
+            .runBasedOnInitialResults(network, initialOutput, stateTree.getOperatorsNotSharingCras(), appliedArasAndCras, secondPreventiveReportNode);
 
         if (sensiWithPostContingencyRemedialActions.getSensitivityStatus() == FAILURE) {
             throw new OpenRaoException("Systematic sensitivity analysis after curative remedial actions before second preventive optimization failed");
@@ -321,8 +319,7 @@ public class CastorSecondPreventive {
             initialOutput,
             stateTree.getOperatorsNotSharingCras(),
             null,
-            secondPreventiveReportNode,
-            raoStopCondition
+            secondPreventiveReportNode
         );
 
         if (postPraSensitivityAnalysisOutput.getSensitivityStatus() == ComputationStatus.FAILURE) {

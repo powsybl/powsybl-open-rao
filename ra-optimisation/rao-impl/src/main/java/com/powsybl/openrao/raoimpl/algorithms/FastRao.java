@@ -100,11 +100,12 @@ class FastRao {
                 crac.getRangeActions().isEmpty() ? new HashSet<>() : Set.of(crac.getRangeActions().stream().findFirst().orElseThrow()),
                 parameters,
                 toolProvider,
-                false);
+                false,
+                raoStopCondition
+            );
 
             // Run initial sensi (for initial values, and to know which cnecs to put in the first rao)
-            PrePerimeterResult initialResultWithoutUpdatedRangeActionSetpointResult = prePerimeterSensitivityAnalysis.runInitialSensitivityAnalysis(
-                raoInput.getNetwork(), reportNode, raoStopCondition);
+            PrePerimeterResult initialResultWithoutUpdatedRangeActionSetpointResult = prePerimeterSensitivityAnalysis.runInitialSensitivityAnalysis(raoInput.getNetwork(), reportNode);
             RangeActionSetpointResult initialRangeActionSetpointResult = RangeActionSetpointResultImpl.buildWithSetpointsFromNetwork(raoInput.getNetwork(), crac.getRangeActions());
             PrePerimeterResult initialResult = new PrePerimeterSensitivityResultImpl(
                 initialResultWithoutUpdatedRangeActionSetpointResult.getFlowResult(),
@@ -493,7 +494,9 @@ class FastRao {
             crac.getRangeActions().isEmpty() ? new HashSet<>() : Set.of(crac.getRangeActions().stream().findFirst().orElseThrow()),
             parameters,
             toolProvider,
-            false);
+            false,
+            raoStopCondition
+        );
 
         // Run asynchronously
         return perimeterSensiAnalysis.runAsyncBasedOnInitialPreviousAndActivatedRa(
@@ -503,8 +506,7 @@ class FastRao {
             operatorsNotSharingCras,
             remedialActionActivationResult,
             appliedRemedialActions,
-            reportNode,
-            raoStopCondition
+            reportNode
         );
     }
 

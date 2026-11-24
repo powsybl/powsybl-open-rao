@@ -81,8 +81,8 @@ public final class MarmotUtils {
         Network network = raoInput.getNetwork();
         ToolProvider toolProvider = ToolProvider.buildFromRaoInputAndParameters(raoInput, raoParameters);
         // do not use range actions for speed purposes
-        return new PrePerimeterSensitivityAnalysis(crac, crac.getFlowCnecs(), new HashSet<>(), raoParameters, toolProvider, false)
-            .runInitialSensitivityAnalysis(network, reportNode, raoStopCondition);
+        return new PrePerimeterSensitivityAnalysis(crac, crac.getFlowCnecs(), new HashSet<>(), raoParameters, toolProvider, false, raoStopCondition)
+            .runInitialSensitivityAnalysis(network, reportNode);
     }
 
     public static PrePerimeterResult runInitialPrePerimeterSensitivityAnalysisWithoutRangeActions(final RaoInput raoInput,
@@ -99,8 +99,9 @@ public final class MarmotUtils {
             new HashSet<>(), // with no range actions for faster computations, only flow values are required
             raoParameters,
             ToolProvider.buildFromRaoInputAndParameters(raoInput, raoParameters),
-            false
-        ).runBasedOnInitialResults(network, initialResult, null, curativeRemedialActions, reportNode, raoStopCondition);
+            false,
+            raoStopCondition
+        ).runBasedOnInitialResults(network, initialResult, null, curativeRemedialActions, reportNode);
     }
 
     public static TemporalData<AppliedRemedialActions> getAppliedRemedialActionsInCurative(TemporalData<Crac> cracs, TemporalData<RaoResult> raoResults) {
@@ -136,8 +137,8 @@ public final class MarmotUtils {
         Network network = raoInput.getNetwork();
         Set<RangeAction<?>> rangeActions = new HashSet<>(crac.getRangeActions());
         ToolProvider toolProvider = ToolProvider.buildFromRaoInputAndParameters(raoInput, raoParameters);
-        return new PrePerimeterSensitivityAnalysis(crac, consideredCnecs, rangeActions, raoParameters, toolProvider, false)
-            .runBasedOnInitialResults(network, initialFlowResult, Set.of(), curativeRemedialActions, reportNode, raoStopCondition);
+        return new PrePerimeterSensitivityAnalysis(crac, consideredCnecs, rangeActions, raoParameters, toolProvider, false, raoStopCondition)
+            .runBasedOnInitialResults(network, initialFlowResult, Set.of(), curativeRemedialActions, reportNode);
     }
 
     public static void fillRaoResult(TemporalData<Crac> cracs,
