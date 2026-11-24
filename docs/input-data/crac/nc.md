@@ -14,7 +14,7 @@ parameter must be set to `"rdfID"` for the NC importer to work properly.
 ## Header overview
 
 The OpenRAO importer only supports NC version `2.4` (see
-[ENTSO-E website](https://www.entsoe.eu/Documents/CIM_documents/Grid_Model_CIM/MetadataAndHeaderDataExchangeSpecification_v2.3.0.pdf)).
+[ENTSO-E website](https://eepublicdownloads.entsoe.eu/clean-documents/CIM_documents/Grid_Model_CIM/MetadataDatasetDistributionSpecification_v2-4-0.pdf)).
 
 > Note: NC profiles in version `2.2` and `2.3` are expected to be imported correctly thanks to backward compatibility,
 > but this has not been thoroughly tested.
@@ -487,8 +487,8 @@ imposes the flow direction. Two terminals are referenced by the angle CNEC in th
 *terminal_2*) is referenced by the `OperationalLimitSet`'s `Terminal` field. The flow direction is determined depending
 on the `VoltageAngleLimit`'s `isFlowToRefTerminal` field value:
 
-- if it is missing or `false`, the importing element is *terminal_1* and the exporting element is *terminal_2*
-- if it is `true`, the exporting element is *terminal_1* and the importing element is *terminal_2*
+- if it is missing or `true`, the importing element is *terminal_1* and the exporting element is *terminal_2*
+- if it is `false`, the exporting element is *terminal_1* and the importing element is *terminal_2*
 
 > ⚠️ Note that if the `OperationalLimitType`'s `direction` is **not** `absoluteValue`, the `isFlowToRefTerminal` must be
 > present otherwise the angle CNEC will be ignored.
