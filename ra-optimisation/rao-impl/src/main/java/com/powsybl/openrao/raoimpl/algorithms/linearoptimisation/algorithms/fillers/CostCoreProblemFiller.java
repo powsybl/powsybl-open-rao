@@ -91,7 +91,7 @@ public class CostCoreProblemFiller extends AbstractCoreProblemFiller {
             } else {
                 // range action have been activated in a previous instant
                 // getRangeActionSetpointVariable from previous instant
-                List<Double> minAndMaxAbsoluteAndRelativeSetpoints = getMinAndMaxAbsoluteAndRelativeSetpoints(rangeAction, linearProblem.infinity());
+                List<Double> minAndMaxAbsoluteAndRelativeSetpoints = RangeActionSetpointBounds.getMinAndMaxAbsoluteAndRelativeSetpoints(rangeAction, linearProblem.infinity());
                 minSetPoint = minAndMaxAbsoluteAndRelativeSetpoints.get(0);
                 maxSetPoint = minAndMaxAbsoluteAndRelativeSetpoints.get(1);
             }
