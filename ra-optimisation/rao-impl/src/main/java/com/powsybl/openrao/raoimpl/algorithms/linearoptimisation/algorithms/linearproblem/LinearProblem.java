@@ -112,6 +112,8 @@ public final class LinearProblem {
     }
 
     public void reset() {
+        this.variablesToRemove = new HashSet<>();
+        this.constraintsToRemove = new HashSet<>();
         solver.resetModel();
     }
 

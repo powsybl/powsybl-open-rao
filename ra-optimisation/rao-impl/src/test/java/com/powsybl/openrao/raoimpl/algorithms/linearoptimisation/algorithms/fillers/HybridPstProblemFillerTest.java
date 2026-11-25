@@ -100,7 +100,6 @@ class HybridPstProblemFillerTest extends AbstractFillerTest {
         assertEquals(7, linearProblem.numConstraints());
 
         // Keep references to continuous setpoints to verify they coexist with the discrete PST model.
-        OpenRaoMPVariable groupSetpoint = linearProblem.getRangeActionGroupSetpointVariable("group1", state);
         OpenRaoMPVariable nonPstSetpoint = linearProblem.getRangeActionSetpointVariable(nonPstRangeAction, state);
 
         // Before the first MIP update, neither an individual PST tap nor a PST group tap is present.
@@ -113,6 +112,7 @@ class HybridPstProblemFillerTest extends AbstractFillerTest {
             activationResult.putResult(pstRa1, state, pstRa1.convertTapToAngle(tap));
             activationResult.putResult(pstRa2, state, pstRa2.convertTapToAngle(tap));
             linearProblem.updateBetweenMipIteration(activationResult);
+            linearProblem.solve();
 
             // The discrete PST fillers add 11 variables and 12 constraints
             // ContinuousRangeActionGroup variables and constraints are removed
@@ -134,7 +134,6 @@ class HybridPstProblemFillerTest extends AbstractFillerTest {
             OpenRaoMPVariable groupTap = linearProblem.getPstGroupTapVariable("group1", state);
             for (PstRangeAction pst : pstRangeActions.get(state)) {
                 // setpoint variable remains but not group setpoint variable and constraint
-                OpenRaoMPVariable setpoint = linearProblem.getRangeActionSetpointVariable(pst, state);
                 assertThrows(OpenRaoException.class, () -> linearProblem.getRangeActionGroupSetpointConstraint(pst, state));
                 assertThrows(OpenRaoException.class, () -> linearProblem.getRangeActionGroupSetpointVariable("group1", state));
 
