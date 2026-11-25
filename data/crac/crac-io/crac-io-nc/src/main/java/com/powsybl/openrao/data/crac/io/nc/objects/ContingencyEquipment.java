@@ -23,7 +23,7 @@ import java.util.Optional;
 public record ContingencyEquipment(String mrid, String contingency, String contingentStatus, String equipment) implements NCObject {
 
     public boolean isEquipmentOutOfService() {
-        return NcConstants.OUT_OF_SERVICE_CONTINGENT_STATUS.equals(contingentStatus);
+        return NcConstants.isOutOfServiceContingentStatus(contingentStatus);
     }
 
     public Identifiable<?> getEquipmentInNetwork(Network network) {

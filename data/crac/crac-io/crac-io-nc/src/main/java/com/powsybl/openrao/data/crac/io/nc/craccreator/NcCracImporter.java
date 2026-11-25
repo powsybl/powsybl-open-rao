@@ -13,11 +13,10 @@ import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.openrao.data.crac.api.CracCreationContext;
 import com.powsybl.openrao.data.crac.api.io.Importer;
 import com.powsybl.openrao.data.crac.api.parameters.CracCreationParameters;
-import com.powsybl.openrao.data.crac.io.commons.OpenRaoImportException;
-import com.powsybl.openrao.data.crac.io.commons.api.ImportStatus;
 import com.powsybl.openrao.data.crac.io.nc.NcCrac;
 import com.powsybl.openrao.data.crac.io.nc.craccreator.constants.NcConstants;
 import com.powsybl.openrao.data.crac.io.nc.craccreator.constants.NcKeyword;
+import com.powsybl.openrao.data.crac.io.nc.craccreator.constants.NcVersion;
 import com.powsybl.triplestore.api.TripleStore;
 import com.powsybl.triplestore.api.TripleStoreFactory;
 import org.apache.commons.io.FilenameUtils;
@@ -57,20 +56,32 @@ public class NcCracImporter implements Importer {
     }
 
     /**
+     * Default maximum number of entries of a NC zip package, checked to avoid a ddos attack with a malicious zip file.
+     * A caller that has to import a larger package (e.g. a full multi-region test package) can raise it
+     * through {@link #importNativeCrac(InputStream, int)}.
+     */
+    public static final int DEFAULT_MAX_NB_ZIP_ENTRIES = 200;
+
+    /**
      * @param inputStream : zip file inputStream
      * @return nc native crac, the tripleStore contains data of every rdf file included in the zip
      * each context of the tripleStore contains one rdf file data
      */
-    private NcCrac importNativeCrac(InputStream inputStream) {
+    NcCrac importNativeCrac(InputStream inputStream) {
+        return importNativeCrac(inputStream, DEFAULT_MAX_NB_ZIP_ENTRIES);
+    }
+
+    NcCrac importNativeCrac(InputStream inputStream, int maxNbEntries) {
         TripleStore tripleStoreNcProfile = TripleStoreFactory.create(NcConstants.TRIPLESTORE_RDF4J_NAME);
         ZipEntry zipEntry;
         Map<String, Set<String>> keywordMap = new HashMap<>();
         Set<String> ncp25Files = new LinkedHashSet<>();
+        Set<String> ncp25ConformsToFiles = new LinkedHashSet<>();
+        Set<String> ncp24ConformsToFiles = new LinkedHashSet<>();
         Pattern keywordPattern = Pattern.compile("<dcat:keyword>([A-Z]{2,3})</dcat:keyword>");
         Pattern ncp25Pattern = Pattern.compile(NcConstants.NCP25_NAMESPACE_PATTERN);
-        //max number of entries and max size of entry are checked to avoid ddos attack with malicious zip file
-        //TODO parametrization for gridcapa_swe_csa service
-        int maxNbEntries = 200;
+        Pattern ncp25ConformsToPattern = Pattern.compile(NcConstants.NCP25_CONFORMS_TO_PATTERN);
+        Pattern ncp24ConformsToPattern = Pattern.compile(NcConstants.NCP24_CONFORMS_TO_PATTERN);
         int maxSizeEntry = 1_000_000_000;
         try (ZipInputStream zipInputStream = new ZipInputStream(inputStream)) {
             int countEntries = 0;
@@ -78,18 +89,20 @@ public class NcCracImporter implements Importer {
                 countEntries++;
                 if (!zipEntry.isDirectory()) {
                     importZipEntry(zipEntry, zipInputStream, new NcZipImportContext(
-                        maxSizeEntry, keywordPattern, ncp25Pattern, keywordMap, ncp25Files, tripleStoreNcProfile));
+                        maxSizeEntry, keywordPattern, ncp25Pattern, ncp25ConformsToPattern, ncp24ConformsToPattern,
+                        keywordMap, ncp25Files, ncp25ConformsToFiles, ncp24ConformsToFiles, tripleStoreNcProfile));
                 }
+            }
+            if (zipInputStream.getNextEntry() != null) {
+                OpenRaoLoggerProvider.BUSINESS_WARNS.warn("NC crac import: the zip contains more than {} entries, "
+                    + "the remaining entries are not imported", maxNbEntries);
             }
         } catch (IOException e) {
             OpenRaoLoggerProvider.TECHNICAL_LOGS.error("NC crac import interrupted, cause : {}", e.getMessage());
         }
-        if (!ncp25Files.isEmpty()) {
-            throw new OpenRaoImportException(ImportStatus.NOT_YET_HANDLED_BY_OPEN_RAO,
-                "NCP version 2.5 is not supported by the NC CRAC importer (only NCP version 2.4 is supported). "
-                    + "NCP 2.5 vocabulary detected in file(s): " + ncp25Files);
-        }
-        return new NcCrac(tripleStoreNcProfile, keywordMap);
+        NcVersion ncVersion = NcVersionDetector.detectVersion(ncp25Files, ncp25ConformsToFiles, ncp24ConformsToFiles);
+        OpenRaoLoggerProvider.BUSINESS_LOGS.info("NC crac import: detected NCP version {}", ncVersion.getLabel());
+        return new NcCrac(tripleStoreNcProfile, keywordMap, ncVersion);
     }
 
     /**
@@ -99,8 +112,12 @@ public class NcCracImporter implements Importer {
     private record NcZipImportContext(int maxSizeEntry,
                                       Pattern keywordPattern,
                                       Pattern ncp25Pattern,
+                                      Pattern ncp25ConformsToPattern,
+                                      Pattern ncp24ConformsToPattern,
                                       Map<String, Set<String>> keywordMap,
                                       Set<String> ncp25Files,
+                                      Set<String> ncp25ConformsToFiles,
+                                      Set<String> ncp24ConformsToFiles,
                                       TripleStore tripleStoreNcProfile) {
     }
 
@@ -166,6 +183,12 @@ public class NcCracImporter implements Importer {
                 }
                 if (context.ncp25Pattern().matcher(stringBuffer).find()) {
                     context.ncp25Files().add(zipEntry.getName());
+                }
+                if (context.ncp25ConformsToPattern().matcher(stringBuffer).find()) {
+                    context.ncp25ConformsToFiles().add(zipEntry.getName());
+                }
+                if (context.ncp24ConformsToPattern().matcher(stringBuffer).find()) {
+                    context.ncp24ConformsToFiles().add(zipEntry.getName());
                 }
             }
         }

@@ -111,7 +111,7 @@ public class PstRangeActionCreator {
             for (StaticPropertyRange nativeStaticPropertyRange : linkedStaticPropertyRangesToTapPositionAction) {
                 NcCracUtils.checkPropertyReference(remedialActionId, "StaticPropertyRange", PropertyReference.TAP_CHANGER, nativeStaticPropertyRange.propertyReference());
 
-                if (!ValueOffsetKind.ABSOLUTE.toString().equals(nativeStaticPropertyRange.valueKind())) {
+                if (!ValueOffsetKind.ABSOLUTE.matches(nativeStaticPropertyRange.valueKind())) {
                     throw new OpenRaoImportException(
                         ImportStatus.INCONSISTENCY_IN_DATA,
                         String.format(
@@ -121,7 +121,7 @@ public class PstRangeActionCreator {
                     );
                 } else {
                     int normalValue = (int) nativeStaticPropertyRange.normalValue();
-                    if (RelativeDirectionKind.DOWN.toString().equals(nativeStaticPropertyRange.direction())) {
+                    if (RelativeDirectionKind.DOWN.matches(nativeStaticPropertyRange.direction())) {
                         normalValueDown.ifPresent(value -> {
                             throw new OpenRaoImportException(
                                 ImportStatus.INCONSISTENCY_IN_DATA,
@@ -132,7 +132,7 @@ public class PstRangeActionCreator {
                             );
                         });
                         normalValueDown = Optional.of(normalValue);
-                    } else if (RelativeDirectionKind.UP.toString().equals(nativeStaticPropertyRange.direction())) {
+                    } else if (RelativeDirectionKind.UP.matches(nativeStaticPropertyRange.direction())) {
                         normalValueUp.ifPresent(value -> {
                             throw new OpenRaoImportException(
                                 ImportStatus.INCONSISTENCY_IN_DATA,
