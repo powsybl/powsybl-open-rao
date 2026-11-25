@@ -19,6 +19,10 @@ public class OpenRaoMPConstraint {
         this.mpConstraint = mpConstraint;
     }
 
+    void setMPConstraint(MPConstraint mpConstraint) {
+        this.mpConstraint = mpConstraint;
+    }
+
     public String name() {
         return mpConstraint.name();
     }

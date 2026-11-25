@@ -219,11 +219,6 @@ public final class IteratingLinearOptimizer {
             // be more accurate in the neighboring of the previous solution
 
             // (idea: if too long, we could relax the first MIP, but no so straightforward to do with or-tools)
-            if (pstModel.equals(PstModel.HYBRID)) {
-                // reset and refill the problem
-                linearProblem.updateBetweenSensiIteration(bestResult.getBranchResult(), bestResult.getSensitivityResult(), rangeActionActivationResult);
-            }
-            // update the bound of the discrete pst constraint
             linearProblem.updateBetweenMipIteration(rangeActionActivationResult);
 
             solveStatus = solveLinearProblem(linearProblem, iteration);

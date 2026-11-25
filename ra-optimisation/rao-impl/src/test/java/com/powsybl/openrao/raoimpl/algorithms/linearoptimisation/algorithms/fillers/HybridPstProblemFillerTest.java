@@ -99,6 +99,10 @@ class HybridPstProblemFillerTest extends AbstractFillerTest {
         assertEquals(11, linearProblem.numVariables());
         assertEquals(7, linearProblem.numConstraints());
 
+        // Keep references to continuous setpoints to verify they coexist with the discrete PST model.
+        OpenRaoMPVariable groupSetpoint = linearProblem.getRangeActionGroupSetpointVariable("group1", state);
+        OpenRaoMPVariable nonPstSetpoint = linearProblem.getRangeActionSetpointVariable(nonPstRangeAction, state);
+
         // Before the first MIP update, neither an individual PST tap nor a PST group tap is present.
         assertThrows(OpenRaoException.class, () -> linearProblem.getTapVariable(pstRa1, state));
         assertThrows(OpenRaoException.class, () -> linearProblem.getPstGroupTapVariable("group1", state));
@@ -108,7 +112,6 @@ class HybridPstProblemFillerTest extends AbstractFillerTest {
         for (int tap = 1; tap <= 2; tap++) {
             activationResult.putResult(pstRa1, state, pstRa1.convertTapToAngle(tap));
             activationResult.putResult(pstRa2, state, pstRa2.convertTapToAngle(tap));
-            linearProblem.updateBetweenSensiIteration(flowResult, sensitivityResult, activationResult);
             linearProblem.updateBetweenMipIteration(activationResult);
 
             // The discrete PST fillers add 11 variables and 12 constraints while preserving the original
@@ -157,7 +160,6 @@ class HybridPstProblemFillerTest extends AbstractFillerTest {
 
             }
             // Non-PST group modeling and the core injection-balance constraint remain after the PST transition.
-            OpenRaoMPVariable nonPstSetpoint = linearProblem.getRangeActionSetpointVariable(nonPstRangeAction, state);
             assertEquals(1, linearProblem.getRangeActionGroupSetpointConstraint(nonPstRangeAction, state).getCoefficient(nonPstSetpoint), DOUBLE_TOLERANCE);
             assertNotNull(linearProblem.getRangeActionGroupSetpointVariable("non-pst-group", state));
             assertNotNull(linearProblem.getInjectionBalanceConstraint(state));
@@ -184,22 +186,18 @@ class HybridPstProblemFillerTest extends AbstractFillerTest {
         verifyNoInteractions(discreteFiller, discreteGroupFiller);
         // check that hybridFiller.fill(...) forwarded both calls to continuousFiller.fill(...)
         verify(continuousFiller).fill(linearProblem, firstFlowResult, firstSensitivityResult, initialActivation);
-        verifyNoMoreInteractions(continuousFiller, discreteFiller, discreteGroupFiller);
 
-        // second call to fill, forward the call to discrete fillers
+        // First call to updateBetweenMipIteration, fill discrete fillers + update the bounds with continuous solution
         RangeActionActivationResult firstContinuousSolution = mock(RangeActionActivationResult.class);
-        hybridFiller.fill(linearProblem, firstFlowResult, firstSensitivityResult, firstContinuousSolution);
+        hybridFiller.updateBetweenMipIteration(linearProblem, firstContinuousSolution);
         verify(discreteFiller).fill(linearProblem, firstFlowResult, firstSensitivityResult, firstContinuousSolution);
         verify(discreteGroupFiller).fill(linearProblem, firstFlowResult, firstSensitivityResult, firstContinuousSolution);
-        verifyNoMoreInteractions(continuousFiller, discreteFiller, discreteGroupFiller);
-
-        // first call to updateBetweenMipIteration, update discrete fillers
-        hybridFiller.updateBetweenMipIteration(linearProblem, firstContinuousSolution);
         verify(discreteFiller).updateBetweenMipIteration(linearProblem, firstContinuousSolution);
         verify(discreteGroupFiller).updateBetweenMipIteration(linearProblem, firstContinuousSolution);
+        verify(continuousFiller).remove(linearProblem);
         verifyNoMoreInteractions(continuousFiller, discreteFiller, discreteGroupFiller);
 
-        // third call to fill (equivalent of second iteration in iteratingLinearOptimizer), forward the call to discrete fillers
+        // Second call to fill, forward the call to discrete fillers
         FlowResult updatedFlowResult = mock(FlowResult.class);
         SensitivityResult updatedSensitivityResult = mock(SensitivityResult.class);
         RangeActionActivationResult updatedActivation = mock(RangeActionActivationResult.class);

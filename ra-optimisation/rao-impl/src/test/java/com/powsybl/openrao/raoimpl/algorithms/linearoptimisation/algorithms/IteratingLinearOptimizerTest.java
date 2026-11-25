@@ -345,32 +345,6 @@ class IteratingLinearOptimizerTest {
     }
 
     @Test
-    void hybridRefinementKeepsRoundedSetpointsAfterOptimalSolve() {
-        when(parameters.getRangeActionParametersExtension().getPstModel()).thenReturn(SearchTreeRaoRangeActionsOptimizationParameters.PstModel.HYBRID);
-        configureHybridPstRangeAction();
-        when(linearProblem.solve()).thenReturn(LinearProblemStatus.OPTIMAL);
-        OpenRaoMPVariable variationVariable = Mockito.mock(OpenRaoMPVariable.class);
-        when(variationVariable.solutionValue()).thenReturn(0.);
-        when(linearProblem.getRangeActionVariationVariable(rangeAction, optimizedState, LinearProblem.VariationDirectionExtension.UPWARD)).thenReturn(variationVariable);
-        when(linearProblem.getRangeActionVariationVariable(rangeAction, optimizedState, LinearProblem.VariationDirectionExtension.DOWNWARD)).thenReturn(variationVariable);
-
-        IteratingLinearOptimizationResultImpl bestResult = Mockito.mock(IteratingLinearOptimizationResultImpl.class);
-        FlowResult bestBranchResult = Mockito.mock(FlowResult.class);
-        SensitivityResult bestSensitivityResult = Mockito.mock(SensitivityResult.class);
-        when(bestResult.getBranchResult()).thenReturn(bestBranchResult);
-        when(bestResult.getSensitivityResult()).thenReturn(bestSensitivityResult);
-
-        RangeActionActivationResult result = IteratingLinearOptimizer.reSolveIfApproximatedIntegerOrHybridPstModel(
-            bestResult, linearProblem, 1, rangeActionActivationResult, input, parameters
-        );
-        assertNotSame(rangeActionActivationResult, result);
-        assertEquals(rangeActionActivationResult.getOptimizedSetpoint(rangeAction, optimizedState), result.getOptimizedSetpoint(rangeAction, optimizedState), DOUBLE_TOLERANCE);
-        Mockito.verify(linearProblem, Mockito.times(1)).solve();
-        Mockito.verify(linearProblem, Mockito.times(1)).updateBetweenMipIteration(rangeActionActivationResult);
-        Mockito.verify(linearProblem, Mockito.times(1)).updateBetweenSensiIteration(bestBranchResult, bestSensitivityResult, rangeActionActivationResult);
-    }
-
-    @Test
     void failedHybridRefinementKeepsFirstRoundedResults() {
         // If the resolve fails return the continuous result rounded
         when(parameters.getRangeActionParametersExtension().getPstModel()).thenReturn(SearchTreeRaoRangeActionsOptimizationParameters.PstModel.HYBRID);

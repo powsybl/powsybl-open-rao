@@ -21,8 +21,11 @@ import com.powsybl.openrao.raoimpl.result.api.RangeActionActivationResult;
 import com.powsybl.openrao.raoimpl.result.api.SensitivityResult;
 
 import java.time.OffsetDateTime;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import static com.powsybl.openrao.raoimpl.algorithms.linearoptimisation.algorithms.linearproblem.LinearProblemIdGenerator.*;
 
@@ -271,6 +274,18 @@ public final class LinearProblem {
 
     public OpenRaoMPConstraint getRangeActionGroupSetpointConstraint(RangeAction<?> rangeAction, State state) {
         return solver.getConstraint(rangeActionGroupSetpointConstraintId(rangeAction, state));
+    }
+
+    public void removeRangeActionGroups(Map<State, Set<RangeAction<?>>> rangeActionsPerState) {
+        Set<String> variableNames = new HashSet<>();
+        Set<String> constraintNames = new HashSet<>();
+        rangeActionsPerState.forEach((state, rangeActions) -> rangeActions.forEach(rangeAction ->
+            rangeAction.getGroupId().ifPresent(groupId -> {
+                variableNames.add(rangeActionGroupSetpointVariableId(groupId, state));
+                constraintNames.add(rangeActionGroupSetpointConstraintId(rangeAction, state));
+            })
+        ));
+        solver.removeVariablesAndConstraints(variableNames, constraintNames);
     }
 
     public OpenRaoMPConstraint addPstGroupTapConstraint(double lb, double ub, PstRangeAction rangeAction, State state) {

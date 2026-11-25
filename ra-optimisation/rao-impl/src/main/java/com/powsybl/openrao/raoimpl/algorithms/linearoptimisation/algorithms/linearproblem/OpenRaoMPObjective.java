@@ -19,6 +19,10 @@ public class OpenRaoMPObjective {
         this.mpObjective = mpObjective;
     }
 
+    void setMPObjective(MPObjective mpObjective) {
+        this.mpObjective = mpObjective;
+    }
+
     public double getCoefficient(OpenRaoMPVariable variable) {
         return mpObjective.getCoefficient(variable.getMPVariable());
     }

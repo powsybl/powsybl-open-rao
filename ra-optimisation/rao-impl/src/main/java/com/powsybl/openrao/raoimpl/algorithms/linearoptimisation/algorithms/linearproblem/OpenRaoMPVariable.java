@@ -47,6 +47,10 @@ public class OpenRaoMPVariable {
         return mpVariable;
     }
 
+    void setMPVariable(MPVariable mpVariable) {
+        this.mpVariable = mpVariable;
+    }
+
     public double solutionValue() {
         return mpVariable.solutionValue();
     }
