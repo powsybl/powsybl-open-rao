@@ -29,6 +29,7 @@ search-tree-range-actions-optimization:
     pst-sensitivity-threshold: 0.2
     pst-model: APPROXIMATED_INTEGERS
     ra-range-shrinking: ENABLED
+    linear-problem-cnec-filtering: SAFE_BOUNDS
     hvdc-sensitivity-threshold: 0.2
     injection-ra-sensitivity-threshold: 0.3
 

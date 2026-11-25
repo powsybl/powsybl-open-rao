@@ -18,6 +18,7 @@ import java.io.IOException;
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.HVDC_SENSITIVITY_THRESHOLD;
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.INJECTION_RA_SENSITIVITY_THRESHOLD;
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.LINEAR_OPTIMIZATION_SOLVER;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.LINEAR_PROBLEM_CNEC_FILTERING;
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.MAX_MIP_ITERATIONS;
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.PST_MODEL;
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.PST_SENSITIVITY_THRESHOLD;
@@ -44,6 +45,7 @@ final class JsonRangeActionsOptimizationParameters {
         jsonGenerator.writeNumberField(HVDC_SENSITIVITY_THRESHOLD, parameters.getRangeActionsOptimizationParameters().getHvdcSensitivityThreshold());
         jsonGenerator.writeNumberField(INJECTION_RA_SENSITIVITY_THRESHOLD, parameters.getRangeActionsOptimizationParameters().getInjectionRaSensitivityThreshold());
         jsonGenerator.writeObjectField(RA_RANGE_SHRINKING, parameters.getRangeActionsOptimizationParameters().getRaRangeShrinking());
+        jsonGenerator.writeObjectField(LINEAR_PROBLEM_CNEC_FILTERING, parameters.getRangeActionsOptimizationParameters().getLinearProblemCnecFiltering());
         jsonGenerator.writeObjectFieldStart(LINEAR_OPTIMIZATION_SOLVER);
         jsonGenerator.writeObjectField(SOLVER, parameters.getRangeActionsOptimizationParameters().getLinearOptimizationSolver().getSolver());
         jsonGenerator.writeNumberField(RELATIVE_MIP_GAP, parameters.getRangeActionsOptimizationParameters().getLinearOptimizationSolver().getRelativeMipGap());
@@ -79,6 +81,8 @@ final class JsonRangeActionsOptimizationParameters {
                 }
                 case RA_RANGE_SHRINKING ->
                     searchTreeParameters.getRangeActionsOptimizationParameters().setRaRangeShrinking(stringToRaRangeShrinking(jsonParser.nextTextValue()));
+                case LINEAR_PROBLEM_CNEC_FILTERING ->
+                    searchTreeParameters.getRangeActionsOptimizationParameters().setLinearProblemCnecFiltering(stringToLinearProblemCnecFiltering(jsonParser.nextTextValue()));
                 default -> throw new OpenRaoException(String.format(
                     "Cannot deserialize range action optimization parameters: unexpected field in %s (%s)",
                     RANGE_ACTIONS_OPTIMIZATION,
@@ -115,6 +119,14 @@ final class JsonRangeActionsOptimizationParameters {
             return SearchTreeRaoRangeActionsOptimizationParameters.PstModel.valueOf(string);
         } catch (IllegalArgumentException e) {
             throw new OpenRaoException(String.format("Unknown Pst model: %s", string));
+        }
+    }
+
+    private static SearchTreeRaoRangeActionsOptimizationParameters.LinearProblemCnecFiltering stringToLinearProblemCnecFiltering(String string) {
+        try {
+            return SearchTreeRaoRangeActionsOptimizationParameters.LinearProblemCnecFiltering.valueOf(string);
+        } catch (IllegalArgumentException e) {
+            throw new OpenRaoException(String.format("Unknown linear problem cnec filtering: %s", string));
         }
     }
 

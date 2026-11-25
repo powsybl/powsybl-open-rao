@@ -35,6 +35,7 @@
         "hvdc-sensitivity-threshold" : 0.2,
         "injection-ra-sensitivity-threshold" : 0.3,
         "ra-range-shrinking" : "ENABLED",
+        "linear-problem-cnec-filtering" : "SAFE_BOUNDS",
         "linear-optimization-solver" : {
           "solver" : "SCIP",
           "relative-mip-gap" : 0.004,

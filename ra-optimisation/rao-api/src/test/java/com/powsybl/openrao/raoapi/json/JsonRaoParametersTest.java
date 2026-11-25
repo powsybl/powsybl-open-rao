@@ -27,6 +27,7 @@ import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoCostlyMinMa
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoLoopFlowParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoMnecParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.LinearProblemCnecFiltering;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.PstModel;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.RaRangeShrinking;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRelativeMarginsParameters;
@@ -88,6 +89,7 @@ class JsonRaoParametersTest extends AbstractSerDeTest {
         searchTreeParameters.getRangeActionsOptimizationParameters().getLinearOptimizationSolver().setRelativeMipGap(1e-5);
         searchTreeParameters.getRangeActionsOptimizationParameters().setPstModel(PstModel.APPROXIMATED_INTEGERS);
         searchTreeParameters.getRangeActionsOptimizationParameters().setRaRangeShrinking(RaRangeShrinking.ENABLED);
+        searchTreeParameters.getRangeActionsOptimizationParameters().setLinearProblemCnecFiltering(LinearProblemCnecFiltering.SAFE_BOUNDS);
         // TopologicalActions optimization parameters
         searchTreeParameters.getTopoOptimizationParameters().setMaxPreventiveSearchTreeDepth(10);
         searchTreeParameters.getTopoOptimizationParameters().setMaxCurativeSearchTreeDepth(10);
@@ -175,6 +177,55 @@ class JsonRaoParametersTest extends AbstractSerDeTest {
         RaoParameters readParameters = JsonRaoParameters.read(new ByteArrayInputStream(outputStream.toByteArray()), ReportNode.NO_OP);
         assertEquals(SearchTreeRaoRangeActionsOptimizationParameters.Solver.GUROBI,
             readParameters.getExtension(OpenRaoSearchTreeParameters.class).getRangeActionsOptimizationParameters().getLinearOptimizationSolver().getSolver());
+    }
+
+    @Test
+    void linearProblemCnecFilteringRoundTrip() {
+        RaoParameters parameters = new RaoParameters(ReportNode.NO_OP);
+        parameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters(ReportNode.NO_OP));
+        parameters.getExtension(OpenRaoSearchTreeParameters.class).getRangeActionsOptimizationParameters().setLinearProblemCnecFiltering(LinearProblemCnecFiltering.SAFE_BOUNDS);
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        JsonRaoParameters.write(parameters, outputStream, ReportNode.NO_OP);
+        RaoParameters readParameters = JsonRaoParameters.read(new ByteArrayInputStream(outputStream.toByteArray()), ReportNode.NO_OP);
+        assertEquals(LinearProblemCnecFiltering.SAFE_BOUNDS,
+            readParameters.getExtension(OpenRaoSearchTreeParameters.class).getRangeActionsOptimizationParameters().getLinearProblemCnecFiltering());
+    }
+
+    @Test
+    void linearProblemCnecFilteringDefaultsToDisabledWhenAbsent() {
+        String json = """
+                {
+                  "version": "%s",
+                  "extensions": {
+                    "open-rao-search-tree-parameters": {
+                      "range-actions-optimization": {
+                        "max-mip-iterations": 3
+                      }
+                    }
+                  }
+                }
+                """.formatted(RAO_PARAMETERS_VERSION);
+        RaoParameters readParameters = JsonRaoParameters.read(new ByteArrayInputStream(json.getBytes(StandardCharsets.UTF_8)), ReportNode.NO_OP);
+        assertEquals(LinearProblemCnecFiltering.DISABLED,
+            readParameters.getExtension(OpenRaoSearchTreeParameters.class).getRangeActionsOptimizationParameters().getLinearProblemCnecFiltering());
+    }
+
+    @Test
+    void readUnknownLinearProblemCnecFiltering() {
+        String json = """
+                {
+                  "version": "%s",
+                  "extensions": {
+                    "open-rao-search-tree-parameters": {
+                      "range-actions-optimization": {
+                        "linear-problem-cnec-filtering": "FOO"
+                      }
+                    }
+                  }
+                }
+                """.formatted(RAO_PARAMETERS_VERSION);
+        InputStream inputStream = new ByteArrayInputStream(json.getBytes(StandardCharsets.UTF_8));
+        assertThrows(OpenRaoException.class, () -> JsonRaoParameters.read(inputStream, ReportNode.NO_OP));
     }
 
     @Test

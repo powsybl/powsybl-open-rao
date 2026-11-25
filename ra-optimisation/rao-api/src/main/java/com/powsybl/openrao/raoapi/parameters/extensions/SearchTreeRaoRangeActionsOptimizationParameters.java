@@ -16,6 +16,7 @@ import java.util.Objects;
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.HVDC_SENSITIVITY_THRESHOLD;
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.INJECTION_RA_SENSITIVITY_THRESHOLD;
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.LINEAR_OPTIMIZATION_SOLVER_SECTION;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.LINEAR_PROBLEM_CNEC_FILTERING;
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.MAX_MIP_ITERATIONS;
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.PST_MODEL;
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.PST_SENSITIVITY_THRESHOLD;
@@ -40,6 +41,7 @@ public class SearchTreeRaoRangeActionsOptimizationParameters {
     private static final double DEFAULT_HVDC_SENSITIVITY_THRESHOLD = 1e-6;
     private static final double DEFAULT_INJECTION_RA_SENSITIVITY_THRESHOLD = 1e-6;
     private static final RaRangeShrinking DEFAULT_RA_RANGE_SHRINKING = RaRangeShrinking.DISABLED;
+    private static final LinearProblemCnecFiltering DEFAULT_LINEAR_PROBLEM_CNEC_FILTERING = LinearProblemCnecFiltering.DISABLED;
     // Attributes
     private int maxMipIterations = DEFAULT_MAX_MIP_ITERATIONS;
     private double pstSensitivityThreshold = DEFAULT_PST_SENSITIVITY_THRESHOLD;
@@ -48,6 +50,7 @@ public class SearchTreeRaoRangeActionsOptimizationParameters {
     private double injectionRaSensitivityThreshold = DEFAULT_INJECTION_RA_SENSITIVITY_THRESHOLD;
     private LinearOptimizationSolver linearOptimizationSolver = new LinearOptimizationSolver();
     private RaRangeShrinking raRangeShrinking = DEFAULT_RA_RANGE_SHRINKING;
+    private LinearProblemCnecFiltering linearProblemCnecFiltering = DEFAULT_LINEAR_PROBLEM_CNEC_FILTERING;
 
     public enum PstModel {
         CONTINUOUS,
@@ -58,6 +61,11 @@ public class SearchTreeRaoRangeActionsOptimizationParameters {
         DISABLED,
         ENABLED,
         ENABLED_IN_FIRST_PRAO_AND_CRAO
+    }
+
+    public enum LinearProblemCnecFiltering {
+        DISABLED,
+        SAFE_BOUNDS
     }
 
     public static class LinearOptimizationSolver {
@@ -178,6 +186,14 @@ public class SearchTreeRaoRangeActionsOptimizationParameters {
         return raRangeShrinking;
     }
 
+    public void setLinearProblemCnecFiltering(LinearProblemCnecFiltering linearProblemCnecFiltering) {
+        this.linearProblemCnecFiltering = linearProblemCnecFiltering;
+    }
+
+    public LinearProblemCnecFiltering getLinearProblemCnecFiltering() {
+        return linearProblemCnecFiltering;
+    }
+
     public static SearchTreeRaoRangeActionsOptimizationParameters load(PlatformConfig platformConfig) {
         Objects.requireNonNull(platformConfig);
         SearchTreeRaoRangeActionsOptimizationParameters parameters = new SearchTreeRaoRangeActionsOptimizationParameters();
@@ -189,6 +205,7 @@ public class SearchTreeRaoRangeActionsOptimizationParameters {
                 parameters.setHvdcSensitivityThreshold(config.getDoubleProperty(HVDC_SENSITIVITY_THRESHOLD, DEFAULT_HVDC_SENSITIVITY_THRESHOLD));
                 parameters.setInjectionRaSensitivityThreshold(config.getDoubleProperty(INJECTION_RA_SENSITIVITY_THRESHOLD, DEFAULT_INJECTION_RA_SENSITIVITY_THRESHOLD));
                 parameters.setRaRangeShrinking(config.getEnumProperty(RA_RANGE_SHRINKING, RaRangeShrinking.class, DEFAULT_RA_RANGE_SHRINKING));
+                parameters.setLinearProblemCnecFiltering(config.getEnumProperty(LINEAR_PROBLEM_CNEC_FILTERING, LinearProblemCnecFiltering.class, DEFAULT_LINEAR_PROBLEM_CNEC_FILTERING));
             });
         parameters.setLinearOptimizationSolver(LinearOptimizationSolver.load(platformConfig));
         return parameters;
@@ -229,6 +246,13 @@ public class SearchTreeRaoRangeActionsOptimizationParameters {
             return rangeActionsOptimizationParameters.getPstModel();
         }
         return DEFAULT_PST_MODEL;
+    }
+
+    public static LinearProblemCnecFiltering getLinearProblemCnecFiltering(SearchTreeRaoRangeActionsOptimizationParameters rangeActionsOptimizationParameters) {
+        if (!Objects.isNull(rangeActionsOptimizationParameters)) {
+            return rangeActionsOptimizationParameters.getLinearProblemCnecFiltering();
+        }
+        return DEFAULT_LINEAR_PROBLEM_CNEC_FILTERING;
     }
 
     public static double getPstSensitivityThreshold(SearchTreeRaoRangeActionsOptimizationParameters rangeActionsOptimizationParameters) {

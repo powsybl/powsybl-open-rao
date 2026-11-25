@@ -102,6 +102,17 @@ These parameters (`range-actions-optimization`) tune the [linear optimizer](../a
     sensitivity computations in the second preventive RAO can be slow (due to the larger optimization perimeter), thus
     computation time loss may outweigh the gains of RA range shrinking.
 
+##### linear-problem-cnec-filtering
+- **Expected value**: one of the following:
+  - "DISABLED"
+  - "SAFE_BOUNDS"
+- **Default value**: "DISABLED"
+- **Usage**: allows the linear problem to skip flow CNECs that provably cannot change its optimal value.
+  - **DISABLED**: all flow CNECs are added to the linear problem.
+  - **SAFE_BOUNDS**: flow CNECs that cannot constrain the optimum, according to safe bounds on their flow, are not
+    added to the linear problem. This keeps the optimal value of the MIP unchanged; however, the range action
+    set-points may differ between equally good optima.
+
 ##### linear-optimization-solver
 These are parameters that tune the solver used to solve the MIP problem.
 

@@ -17,6 +17,7 @@ import com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityPa
 import com.powsybl.openrao.raoapi.parameters.extensions.MultithreadingParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.PtdfApproximation;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.LinearProblemCnecFiltering;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.PstModel;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.RaRangeShrinking;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.Solver;
@@ -183,6 +184,7 @@ class RaoParametersYamlConfigTest extends AbstractSerDeTest {
         assertEquals(0.2, searchTreeParameters.getRangeActionsOptimizationParameters().getPstSensitivityThreshold(), DOUBLE_TOLERANCE);
         assertEquals(PstModel.APPROXIMATED_INTEGERS, searchTreeParameters.getRangeActionsOptimizationParameters().getPstModel());
         assertEquals(RaRangeShrinking.ENABLED, searchTreeParameters.getRangeActionsOptimizationParameters().getRaRangeShrinking());
+        assertEquals(LinearProblemCnecFiltering.SAFE_BOUNDS, searchTreeParameters.getRangeActionsOptimizationParameters().getLinearProblemCnecFiltering());
         assertEquals(0.002, rangeActionsOptimizationParameters.getHvdcRAMinImpactThreshold(), DOUBLE_TOLERANCE);
         assertEquals(0.2, searchTreeParameters.getRangeActionsOptimizationParameters().getHvdcSensitivityThreshold(), DOUBLE_TOLERANCE);
         assertEquals(0.003, rangeActionsOptimizationParameters.getInjectionRAMinImpactThreshold(), DOUBLE_TOLERANCE);
