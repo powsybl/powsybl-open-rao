@@ -34,8 +34,10 @@ import static com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRang
 /**
  * Computes which range actions (and at which state) impact a flow CNEC in the linear problem,
  * with the corresponding sensitivity.
+ *
+ * @author Guillaume Verger {@literal <guillaume.verger at artelys.com>}
  */
-public class RangeActionImpacts {
+public final class RangeActionImpacts {
     public record Impact(RangeAction<?> rangeAction, State state, double sensitivity) {
     }
 
@@ -43,6 +45,7 @@ public class RangeActionImpacts {
     private final SearchTreeRaoRangeActionsOptimizationParameters rangeActionParametersExtension;
     private final Unit unit;
     private final Map<RangeAction<?>, Set<RangeAction<?>>> memoizedSameRangeActions = new HashMap<>();
+    private final Map<State, List<State>> memoizedStatesBefore = new HashMap<>();
 
     public RangeActionImpacts(OptimizationPerimeter perimeter, SearchTreeRaoRangeActionsOptimizationParameters rangeActionParametersExtension, Unit unit) {
         this.perimeter = perimeter;
@@ -51,9 +54,7 @@ public class RangeActionImpacts {
     }
 
     public List<Impact> getImpacts(FlowCnec cnec, TwoSides side, SensitivityResult sensitivityResult) {
-        List<State> statesBeforeCnec = FillersUtil.getPreviousStates(cnec.getState(), perimeter).stream()
-            .sorted((s1, s2) -> Integer.compare(s2.getInstant().getOrder(), s1.getInstant().getOrder())) // start with curative state
-            .toList();
+        List<State> statesBeforeCnec = memoizedStatesBefore.computeIfAbsent(cnec.getState(), this::getStatesBefore);
 
         List<Impact> impacts = new ArrayList<>();
         Set<RangeAction<?>> alreadyConsideredAction = new HashSet<>();
@@ -71,6 +72,12 @@ public class RangeActionImpacts {
             }
         }
         return impacts;
+    }
+
+    private List<State> getStatesBefore(State state) {
+        return FillersUtil.getPreviousStates(state, perimeter).stream()
+            .sorted((s1, s2) -> Integer.compare(s2.getInstant().getOrder(), s1.getInstant().getOrder())) // start with curative state
+            .toList();
     }
 
     private boolean isRangeActionSensitivityAboveThreshold(RangeAction<?> rangeAction, double sensitivity) {

@@ -34,6 +34,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import java.time.OffsetDateTime;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
@@ -81,7 +82,7 @@ public abstract class AbstractCoreProblemFiller implements ProblemFiller {
         this.pstModel = pstModel;
         this.timestamp = timestamp;
         this.rangeActionImpacts = new RangeActionImpacts(optimizationContext, rangeActionParametersExtension, unit);
-        this.flowCnecFilter = flowCnecFilter;
+        this.flowCnecFilter = Objects.requireNonNull(flowCnecFilter);
     }
 
     public FlowCnecFilter getFlowCnecFilter() {

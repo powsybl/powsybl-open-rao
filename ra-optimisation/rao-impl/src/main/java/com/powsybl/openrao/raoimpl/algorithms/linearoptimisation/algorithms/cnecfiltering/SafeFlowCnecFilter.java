@@ -26,6 +26,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -123,9 +124,9 @@ public class SafeFlowCnecFilter implements FlowCnecFilter {
 
     private Set<FlowCnec> computeRemovableCnecs(FlowResult flowResult, SensitivityResult sensitivityResult, RangeActionActivationResult linearizationPoint) {
         Set<FlowCnec> candidates = FillersUtil.getFlowCnecsComputationStatusOk(perimeter.getOptimizedFlowCnecs(), sensitivityResult);
-        Set<MarginInterval> intervals = candidates.stream()
+        List<MarginInterval> intervals = candidates.stream()
             .map(cnec -> computeMarginInterval(cnec, flowResult, sensitivityResult, linearizationPoint))
-            .collect(Collectors.toSet());
+            .toList();
 
         // NaN upper bounds are sorted last by Double.compare, and then give a NaN UB which keeps every CNEC
         Optional<MarginInterval> witness = intervals.stream()

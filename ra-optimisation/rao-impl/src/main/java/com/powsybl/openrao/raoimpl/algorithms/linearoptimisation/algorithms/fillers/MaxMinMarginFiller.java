@@ -22,6 +22,7 @@ import com.powsybl.openrao.raoimpl.result.api.SensitivityResult;
 
 import java.time.OffsetDateTime;
 import java.util.Comparator;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
@@ -56,7 +57,7 @@ public class MaxMinMarginFiller implements ProblemFiller {
         this.costOptimization = costOptimization;
         this.costlyMinMarginParameters = costlyMinMarginParameters;
         this.timestamp = timestamp;
-        this.flowCnecFilter = flowCnecFilter;
+        this.flowCnecFilter = Objects.requireNonNull(flowCnecFilter);
     }
 
     public FlowCnecFilter getFlowCnecFilter() {

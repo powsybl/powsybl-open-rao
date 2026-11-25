@@ -27,6 +27,8 @@ import java.util.Map;
 /**
  * Bounds of the set-point variables of range actions in the linear problem.
  * Shared by the core problem fillers and by anything that needs to reason on the exact same bounds.
+ *
+ * @author Guillaume Verger {@literal <guillaume.verger at artelys.com>}
  */
 public final class RangeActionSetpointBounds {
     public static final double RANGE_ACTION_SETPOINT_EPSILON = 1e-5;

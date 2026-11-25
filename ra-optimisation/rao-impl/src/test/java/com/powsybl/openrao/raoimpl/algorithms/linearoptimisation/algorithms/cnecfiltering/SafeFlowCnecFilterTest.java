@@ -64,6 +64,7 @@ class SafeFlowCnecFilterTest {
     private FlowResult flowResult;
     private SensitivityResult sensitivityResult;
     private Set<FlowCnec> optimizedCnecs;
+    private RangeActionSetpointBounds.Interval pstBounds;
     private double pstMaxDistance;
 
     @BeforeEach
@@ -89,7 +90,7 @@ class SafeFlowCnecFilterTest {
         when(sensitivityResult.getSensitivityStatus(any())).thenReturn(ComputationStatus.DEFAULT);
 
         // PST at tap 0 (angle 0) with an absolute range [-15, 15]: symmetric interval around the linearization point
-        RangeActionSetpointBounds.Interval pstBounds = RangeActionSetpointBounds.getSetpointVariableBounds(perimeter, pst, preventiveState, prePerimeterSetpoints, Double.POSITIVE_INFINITY);
+        pstBounds = RangeActionSetpointBounds.getSetpointVariableBounds(perimeter, pst, preventiveState, prePerimeterSetpoints, Double.POSITIVE_INFINITY);
         pstMaxDistance = Math.max(pstBounds.max(), -pstBounds.min());
     }
 
@@ -120,9 +121,45 @@ class SafeFlowCnecFilterTest {
     }
 
     private void setMarginAndDelta(FlowResult result, FlowCnec cnec, double margin, double delta) {
+        setMarginAndDelta(result, sensitivityResult, cnec, TwoSides.ONE, margin, delta);
+    }
+
+    private void setMarginAndDelta(FlowResult result, SensitivityResult sensitivities, FlowCnec cnec, TwoSides side, double margin, double delta) {
         // flow >= 0, so the margin is THRESHOLD - flow
-        when(result.getFlow(cnec, TwoSides.ONE, Unit.MEGAWATT)).thenReturn(Double.isNaN(margin) ? Double.NaN : THRESHOLD - margin);
+        when(result.getFlow(cnec, side, Unit.MEGAWATT)).thenReturn(Double.isNaN(margin) ? Double.NaN : THRESHOLD - margin);
+        when(sensitivities.getSensitivityValue(cnec, side, pst, Unit.MEGAWATT)).thenReturn(delta / pstMaxDistance);
+    }
+
+    private FlowCnec addTwoSidedCnec(String id, double marginOne, double marginTwo, double delta) {
+        FlowCnec cnec = crac.newFlowCnec()
+            .withId(id)
+            .withNetworkElement("BBE2AA1  FFR3AA1  1")
+            .withInstant(preventiveState.getInstant().getId())
+            .withOptimized(true)
+            .newThreshold().withUnit(Unit.MEGAWATT).withSide(TwoSides.ONE).withMin(-THRESHOLD).withMax(THRESHOLD).add()
+            .newThreshold().withUnit(Unit.MEGAWATT).withSide(TwoSides.TWO).withMin(-THRESHOLD).withMax(THRESHOLD).add()
+            .add();
+        optimizedCnecs.add(cnec);
+        setMarginAndDelta(flowResult, sensitivityResult, cnec, TwoSides.ONE, marginOne, delta);
+        setMarginAndDelta(flowResult, sensitivityResult, cnec, TwoSides.TWO, marginTwo, delta);
+        return cnec;
+    }
+
+    /**
+     * Creates an optimized CNEC with a single threshold bound on side ONE ({@code min} or {@code max} may be null).
+     */
+    private FlowCnec addOneBoundCnec(String id, Double min, Double max, double flow, double delta) {
+        FlowCnec cnec = crac.newFlowCnec()
+            .withId(id)
+            .withNetworkElement("BBE2AA1  FFR3AA1  1")
+            .withInstant(preventiveState.getInstant().getId())
+            .withOptimized(true)
+            .newThreshold().withUnit(Unit.MEGAWATT).withSide(TwoSides.ONE).withMin(min).withMax(max).add()
+            .add();
+        optimizedCnecs.add(cnec);
+        when(flowResult.getFlow(cnec, TwoSides.ONE, Unit.MEGAWATT)).thenReturn(flow);
         when(sensitivityResult.getSensitivityValue(cnec, TwoSides.ONE, pst, Unit.MEGAWATT)).thenReturn(delta / pstMaxDistance);
+        return cnec;
     }
 
     private SafeFlowCnecFilter filter(MarginCriterion criterion) {
@@ -331,5 +368,70 @@ class SafeFlowCnecFilterTest {
             .map(FlowCnec::getId).collect(Collectors.toSet());
         assertEquals(Set.of("far"), kept);
         Mockito.verify(sensitivityResult, Mockito.atLeastOnce()).getSensitivityStatus(any());
+    }
+
+    @Test
+    void cacheIsInvalidatedByNewSensitivityResultAlone() {
+        // witness in [90, 110], "far" in [115, 135]: "far" is removed
+        FlowCnec witness = addCnec("witness", 100., 10.);
+        FlowCnec far = addCnec("far", 125., 10.);
+        SafeFlowCnecFilter filter = filter(MAX_MIN_MARGIN);
+        assertEquals(Set.of("witness"), retainIds(filter, allOptimized()));
+
+        // same flows, larger sensitivities: witness in [80, 120], "far" in [105, 145] -> overlapping, kept
+        SensitivityResult otherSensitivityResult = Mockito.mock(SensitivityResult.class);
+        when(otherSensitivityResult.getSensitivityStatus(any())).thenReturn(ComputationStatus.DEFAULT);
+        setMarginAndDelta(flowResult, otherSensitivityResult, witness, TwoSides.ONE, 100., 20.);
+        setMarginAndDelta(flowResult, otherSensitivityResult, far, TwoSides.ONE, 125., 20.);
+        assertEquals(Set.of("witness", "far"), filter.retain(allOptimized(), flowResult, otherSensitivityResult, linearizationPoint).stream()
+            .map(FlowCnec::getId).collect(Collectors.toSet()));
+    }
+
+    @Test
+    void cacheIsInvalidatedByNewLinearizationPointAlone() {
+        // witness in [90, 110], "far" in [115, 135]: "far" is removed
+        addCnec("witness", 100., 10.);
+        addCnec("far", 125., 10.);
+        SafeFlowCnecFilter filter = filter(MAX_MIN_MARGIN);
+        assertEquals(Set.of("witness"), retainIds(filter, allOptimized()));
+
+        // linearization point on the lower bound of the PST: the maximum distance to a bound doubles, so do the deltas
+        // witness in [80, 120], "far" in [105, 145] -> overlapping, kept
+        RangeActionActivationResult otherLinearizationPoint = Mockito.mock(RangeActionActivationResult.class);
+        when(otherLinearizationPoint.getOptimizedSetpoint(pst, preventiveState)).thenReturn(pstBounds.min());
+        assertEquals(Set.of("witness", "far"), filter.retain(allOptimized(), flowResult, sensitivityResult, otherLinearizationPoint).stream()
+            .map(FlowCnec::getId).collect(Collectors.toSet()));
+    }
+
+    @Test
+    void twoSidedCnecUsesItsMostLimitingSide() {
+        addCnec("witness", 100., 10.);
+        // far on side ONE, overlapping the witness on side TWO: low = 95 <= UB = 110, kept
+        addTwoSidedCnec("closeOnSideTwo", 1000., 105., 10.);
+        // far on both sides: removed
+        addTwoSidedCnec("farOnBothSides", 1000., 1000., 10.);
+
+        assertEquals(Set.of("witness", "closeOnSideTwo"), retainIds(filter(MAX_MIN_MARGIN), allOptimized()));
+    }
+
+    @Test
+    void twoSidedCnecCanBeWitnessThroughOneSide() {
+        addCnec("a", 100., 10.);
+        // side TWO margin in [40, 60]: UB = 60, so "a" (low = 90) is removed
+        addTwoSidedCnec("twoSided", 1000., 50., 10.);
+
+        assertEquals(Set.of("twoSided"), retainIds(filter(MAX_MIN_MARGIN), allOptimized()));
+    }
+
+    @Test
+    void oneBoundCnecUsesOneSidedMargin() {
+        // only a max threshold: margin = 2000 - (-5000) = 7000 (a two-bound threshold would give -3000)
+        addOneBoundCnec("upperOnly", null, THRESHOLD, -5000., 10.);
+        // only a min threshold: margin = -1950 - (-2000) = 50, in [40, 60] -> witness, UB = 60
+        addOneBoundCnec("lowerOnly", -THRESHOLD, null, -1950., 10.);
+        // in [90, 110] -> removed
+        addCnec("a", 100., 10.);
+
+        assertEquals(Set.of("lowerOnly"), retainIds(filter(MAX_MIN_MARGIN), allOptimized()));
     }
 }
