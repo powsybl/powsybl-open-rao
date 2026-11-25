@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.virtualhubs;
 
+import java.math.BigDecimal;
 import java.util.Objects;
 
 /**
@@ -14,14 +15,38 @@ import java.util.Objects;
  *
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
-public record VirtualHub(String code, String eic, boolean isMcParticipant, boolean isAhc, String nodeName, MarketArea relatedMa, String oppositeHub) {
-    public VirtualHub(String code, String eic, boolean isMcParticipant, boolean isAhc, String nodeName, MarketArea relatedMa, String oppositeHub) {
-        this.code = Objects.requireNonNull(code, "VirtualHub creation does not allow null code");
-        this.eic = Objects.requireNonNull(eic, "VirtualHub creation does not allow null eic");
+public record VirtualHub(String code,
+                         String eic,
+                         boolean isMcParticipant,
+                         boolean isAhc,
+                         String nodeName,
+                         MarketArea relatedMa,
+                         String oppositeHub,
+                         boolean isSdac,
+                         BigDecimal splittingFactor,
+                         BigDecimal lf,
+                         BigDecimal rlf) {
+    public VirtualHub(final String code,
+                      final String eic,
+                      final boolean isMcParticipant,
+                      final boolean isAhc,
+                      final String nodeName,
+                      final MarketArea relatedMa,
+                      final String oppositeHub,
+                      final boolean isSdac,
+                      final BigDecimal splittingFactor,
+                      final BigDecimal lf,
+                      final BigDecimal rlf) {
+        this.eic = Objects.requireNonNull(eic, "VirtualHub creation does not allow null attribute 'eic'");
+        this.code = Objects.requireNonNull(code, "VirtualHub creation does not allow null attribute 'code'");
         this.isMcParticipant = isMcParticipant;
         this.isAhc = isAhc;
         this.nodeName = nodeName;
-        this.relatedMa = Objects.requireNonNull(relatedMa, "VirtualHub creation does not allow null relatedMa");
+        this.relatedMa = Objects.requireNonNull(relatedMa, "VirtualHub creation does not allow null attribute 'relatedMa'");
         this.oppositeHub = oppositeHub;
+        this.isSdac = isSdac;
+        this.splittingFactor = splittingFactor;
+        this.lf = lf;
+        this.rlf = rlf;
     }
 }

@@ -38,6 +38,9 @@ class XmlVirtualHubsConfigurationImporterTest {
     void checkThatConfigurationFileWithHvdcElementsIsCorrectlyImported() {
         final VirtualHubsConfiguration configuration = XmlVirtualHubsConfiguration.importConfiguration(getClass().getResourceAsStream("/virtualHubsConfigurationFileWithHvdcElements.xml"));
 
+        Assertions.assertThat(configuration.getRegion()).isNotNull();
+        Assertions.assertThat(configuration.getSynchronousAreas()).hasSize(1);
+        Assertions.assertThat(configuration.getControlAreas()).hasSize(2);
         Assertions.assertThat(configuration.getMarketAreas()).hasSize(3);
         Assertions.assertThat(configuration.getVirtualHubs()).hasSize(4);
         Assertions.assertThat(configuration.getBorderDirections()).hasSize(4);
@@ -60,28 +63,36 @@ class XmlVirtualHubsConfigurationImporterTest {
         final HvdcLine line2 = pole2.lines().getFirst();
 
         SoftAssertions softly = new SoftAssertions();
-        softly.assertThat(pole1.converters()).hasSize(2);
-        softly.assertThat(pole1cvt1.node()).isEqualTo("AAAAA11A");
-        softly.assertThat(pole1cvt1.station()).isEqualTo("Station 1");
-        softly.assertThat(pole1cvt2.node()).isEqualTo("BBBBB11B");
-        softly.assertThat(pole1cvt2.station()).isEqualTo("Station 2");
-        softly.assertThat(pole1.lines()).hasSize(1);
-        softly.assertThat(line1.id()).isEqualTo("1");
-        softly.assertThat(line1.from()).isEqualTo("AAAAA11A");
-        softly.assertThat(line1.to()).isEqualTo("BBBBB11B");
+        assertPole1Content(softly, pole1, pole1cvt1, pole1cvt2, line1);
         softly.assertAll();
 
         softly = new SoftAssertions();
-        softly.assertThat(pole2.converters()).hasSize(2);
-        softly.assertThat(pole2cvt1.node()).isEqualTo("AAAAA21A");
-        softly.assertThat(pole2cvt1.station()).isEqualTo("Station 1");
-        softly.assertThat(pole2cvt2.node()).isEqualTo("BBBBB21B");
-        softly.assertThat(pole2cvt2.station()).isEqualTo("Station 2");
-        softly.assertThat(pole2.lines()).hasSize(1);
-        softly.assertThat(line2.id()).isEqualTo("2");
-        softly.assertThat(line2.from()).isEqualTo("AAAAA21A");
-        softly.assertThat(line2.to()).isEqualTo("BBBBB21B");
+        assertPole2Content(softly, pole2, pole2cvt1, pole2cvt2, line2);
         softly.assertAll();
+    }
+
+    private static void assertPole1Content(final SoftAssertions assertions, final HvdcPole pole, final HvdcConverter converter1, final HvdcConverter converter2, final HvdcLine line) {
+        assertions.assertThat(pole.converters()).hasSize(2);
+        assertions.assertThat(converter1.node()).isEqualTo("AAAAA11A");
+        assertions.assertThat(converter1.station()).isEqualTo("Station 1");
+        assertions.assertThat(converter2.node()).isEqualTo("BBBBB11B");
+        assertions.assertThat(converter2.station()).isEqualTo("Station 2");
+        assertions.assertThat(pole.lines()).hasSize(1);
+        assertions.assertThat(line.id()).isEqualTo("1");
+        assertions.assertThat(line.from()).isEqualTo("AAAAA11A");
+        assertions.assertThat(line.to()).isEqualTo("BBBBB11B");
+    }
+
+    private static void assertPole2Content(final SoftAssertions assertions, final HvdcPole pole, final HvdcConverter converter1, final HvdcConverter converter2, final HvdcLine line) {
+        assertions.assertThat(pole.converters()).hasSize(2);
+        assertions.assertThat(converter1.node()).isEqualTo("AAAAA21A");
+        assertions.assertThat(converter1.station()).isEqualTo("Station 1");
+        assertions.assertThat(converter2.node()).isEqualTo("BBBBB21B");
+        assertions.assertThat(converter2.station()).isEqualTo("Station 2");
+        assertions.assertThat(pole.lines()).hasSize(1);
+        assertions.assertThat(line.id()).isEqualTo("2");
+        assertions.assertThat(line.from()).isEqualTo("AAAAA21A");
+        assertions.assertThat(line.to()).isEqualTo("BBBBB21B");
     }
 
     @Test

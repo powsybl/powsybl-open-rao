@@ -11,6 +11,7 @@
           "poles": [
             {
               "id": "1",
+              "eic": "eicP1",
               "converters": [
                 {
                   "node": "D7AAA11A",
@@ -37,6 +38,7 @@
           "poles": [
             {
               "id": "2",
+              "eic": "eicP2",
               "converters": [
                 {
                   "node": "D7AAA21A",

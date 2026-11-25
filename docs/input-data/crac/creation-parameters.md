@@ -525,6 +525,7 @@ cracCreationParameters.addExtension(FbConstraintCracCreationParameters.class, fb
         "poles": [
           {
             "id":"pole_id",
+            "eic":"pole_eic",
             "converters" : [ {
               "node" : "NODE__1A",
               "station" : "Station1"

@@ -41,7 +41,7 @@ The UCTE node is optional. If not provided, the `<VirtualHub>` element will be i
     </MarketAreas>
     <InternalHVDCs>
         <HVDC Eic="HVDC-EIC" Code="HVDC-CODE" RelatedMA="MA1" MTHVDC="false" Bipolar="true">
-            <pole id="1">
+            <pole id="1" Eic="EicPole1">
                 <converterList>
                     <converter node="NODE__1A" station="St1"/>
                     <converter node="NODE__1B" station="St2"/>
@@ -50,7 +50,7 @@ The UCTE node is optional. If not provided, the `<VirtualHub>` element will be i
                     <line id="Line_1" from="NODE__1A" to="NODE__1B"/>
                 </lineList>
             </pole>
-            <pole id="2">
+            <pole id="2" Eic="EicPole2">
                 <converterList>
                     <converter node="NODE__2A" station="St1"/>
                     <converter node="NODE__2B" station="St2"/>

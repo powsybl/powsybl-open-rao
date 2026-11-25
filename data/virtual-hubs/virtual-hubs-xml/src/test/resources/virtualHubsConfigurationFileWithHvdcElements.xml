@@ -1,9 +1,30 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <Configuration>
+  <Region Code="RegionalCode" Eic="RegionalEic"/>
+
+  <SynchronousAreas>
+    <SynchronousArea Eic="Synchronous--EIC" Code="SA_Code" Live="true">
+      <LocalLOT3Parameters>
+        <LocalLOT3Parameter Key="IntegerParameter" Value="19"/>
+        <LocalLOT3Parameter Key="FloatParameter" Value="0.001"/>
+        <LocalLOT3Parameter Key="StringParameter" Value="Something"/>
+        <LocalLOT3Parameter Key="BooleanParameter" Value="true"/>
+      </LocalLOT3Parameters>
+      <InitialVoltages>
+        <Voltage Nominal="3.14159265358979323846264338327950" Initial="123.45" SlackSearchPriority="42"/>
+      </InitialVoltages>
+    </SynchronousArea>
+  </SynchronousAreas>
+
+  <ControlAreas>
+    <ControlArea Code="FR" Eic="10YFR-----------" MCParticipant="true" techCounterparty="false" SDAC="false"/>
+    <ControlArea Code="IT" Eic="10YIT-----------" MCParticipant="false" techCounterparty="false" SDAC="false"/>
+  </ControlAreas>
+
   <MarketAreas>
     <MarketArea Code="BE" Eic="10YBE----------2" MCParticipant="false"/>
     <MarketArea Code="ES" Eic="10YES-REE------0" MCParticipant="true" AHC="true"/>
-    <MarketArea Code="FR" Eic="10YFR-RTE------C" MCParticipant="true" AHC="false"/>
+    <MarketArea Code="FR" Eic="10YFR-RTE------C" MCParticipant="true" AHC="false" RelatedCA="FR"/>
   </MarketAreas>
   <VirtualHubs>
     <VirtualHub Eic="17Y000000930814J" Code="Virtual_Hub_FR_1" RelatedMA="FR"
@@ -17,7 +38,7 @@
   </VirtualHubs>
   <InternalHVDCs>
     <HVDC Eic="00T-ABCDEFGHIJK" Code="A1B1_TESTFILE" RelatedMA="FR" MTHVDC="false" Bipolar="true">
-      <pole id="1">
+      <pole id="1" Eic="EicPole1">
         <converterList>
           <converter node="AAAAA11A" station="Station 1" />
           <converter node="BBBBB11B" station="Station 2" />
@@ -26,7 +47,7 @@
           <line id="1" from="AAAAA11A" to="BBBBB11B" />
         </lineList>
       </pole>
-      <pole id="2">
+      <pole id="2" Eic="EicPole2">
         <converterList>
           <converter node="AAAAA21A" station="Station 1" />
           <converter node="BBBBB21B" station="Station 2" />

@@ -14,11 +14,35 @@ import java.util.Objects;
  *
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
-public record MarketArea(String code, String eic, boolean isMcParticipant, boolean isAhc) {
-    public MarketArea(String code, String eic, boolean isMcParticipant, boolean isAhc) {
-        this.code = Objects.requireNonNull(code, "MarketArea creation does not allow null code");
-        this.eic = Objects.requireNonNull(eic, "MarketArea creation does not allow null eic");
+public record MarketArea(String code,
+                         String eic,
+                         boolean isMcParticipant,
+                         boolean isAhc,
+                         boolean isTechCounterparty,
+                         boolean isSdac,
+                         SynchronousArea synchronousArea,
+                         ControlArea relatedCa,
+                         boolean isItcp,
+                         boolean isIgnoreECs) {
+    public MarketArea(final String code,
+                      final String eic,
+                      final boolean isMcParticipant,
+                      final boolean isAhc,
+                      final boolean isTechCounterparty,
+                      final boolean isSdac,
+                      final SynchronousArea synchronousArea,
+                      final ControlArea relatedCa,
+                      final boolean isItcp,
+                      final boolean isIgnoreECs) {
+        this.code = Objects.requireNonNull(code, "MarketArea creation does not allow null attribute 'code'");
+        this.eic = Objects.requireNonNull(eic, "MarketArea creation does not allow null attribute 'eic'");
         this.isMcParticipant = isMcParticipant;
         this.isAhc = isAhc;
+        this.isTechCounterparty = isTechCounterparty;
+        this.isSdac = isSdac;
+        this.synchronousArea = synchronousArea;
+        this.relatedCa = relatedCa;
+        this.isItcp = isItcp;
+        this.isIgnoreECs = isIgnoreECs;
     }
 }

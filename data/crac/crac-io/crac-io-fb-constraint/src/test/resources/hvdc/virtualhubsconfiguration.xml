@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <Configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Created="2026-01-27T11:33:43Z" xsi:noNamespaceSchemaLocation="configuration-25.xsd">
+  <MarketAreas>
+    <MarketArea Code="DE" Eic="10YCB-GERMANY--8" MCParticipant="true" AHC="false" techCounterparty="false" SDAC="false"/>
+  </MarketAreas>
   <InternalHVDCs>
     <HVDC Eic="11T-ULTRANETD4D7" Code="D4D7_test" RelatedMA="DE" MTHVDC="false" Bipolar="true">
-      <pole id="1">
+      <pole id="1" Eic="EicPole1">
         <converterList>
           <converter node="D7AAA11A" station="Esgaroth" />
           <converter node="D4AAA11B" station="Numenor" />
@@ -11,7 +14,7 @@
           <line id="Ultranet1" from="D7AAA11A" to="D4AAA11B" />
         </lineList>
       </pole>
-      <pole id="2">
+      <pole id="2" Eic="EicPole2">
         <converterList>
           <converter node="D7AAA21A" station="Esgaroth" />
           <converter node="D4AAA21B" station="Numenor" />
