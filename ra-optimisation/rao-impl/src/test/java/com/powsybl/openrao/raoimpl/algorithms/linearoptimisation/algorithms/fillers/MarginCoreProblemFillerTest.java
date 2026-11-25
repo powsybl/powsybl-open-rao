@@ -18,6 +18,7 @@ import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters;
+import com.powsybl.openrao.raoimpl.algorithms.linearoptimisation.algorithms.cnecfiltering.FlowCnecFilter;
 import com.powsybl.openrao.raoimpl.algorithms.linearoptimisation.algorithms.linearproblem.LinearProblem;
 import com.powsybl.openrao.raoimpl.algorithms.linearoptimisation.algorithms.linearproblem.LinearProblemBuilder;
 import com.powsybl.openrao.raoimpl.algorithms.linearoptimisation.algorithms.linearproblem.OpenRaoMPConstraint;
@@ -37,9 +38,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
@@ -189,6 +192,34 @@ class MarginCoreProblemFillerTest extends AbstractFillerTest {
         //      - 1 per range action (set-point variation constraints)
         assertEquals(4, linearProblem.numVariables());
         assertEquals(2, linearProblem.numConstraints());
+    }
+
+    @Test
+    void filteredCnecHasNoFlowVariable() {
+        FlowCnecFilter removeCnec2 = (cnecs, flowResult, sensitivityResult, linearizationPoint) -> cnecs.stream().filter(c -> !c.equals(cnec2)).collect(Collectors.toSet());
+        OptimizationPerimeter optimizationPerimeter = Mockito.mock(OptimizationPerimeter.class);
+        Mockito.when(optimizationPerimeter.getFlowCnecs()).thenReturn(Set.of(cnec1, cnec2));
+        Mockito.when(optimizationPerimeter.getMainOptimizationState()).thenReturn(crac.getPreventiveState());
+        Mockito.when(optimizationPerimeter.getRangeActionsPerState()).thenReturn(Map.of(crac.getPreventiveState(), Set.of(pstRangeAction)));
+        RaoParameters raoParameters = new RaoParameters(ReportNode.NO_OP);
+        raoParameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters(ReportNode.NO_OP));
+        OpenRaoSearchTreeParameters searchTreeParameters = raoParameters.getExtension(OpenRaoSearchTreeParameters.class);
+        coreProblemFiller = new MarginCoreProblemFiller(
+            optimizationPerimeter,
+            initialRangeActionSetpointResult,
+            raoParameters.getRangeActionsOptimizationParameters(),
+            searchTreeParameters.getRangeActionsOptimizationParameters(),
+            Unit.MEGAWATT,
+            false,
+            SearchTreeRaoRangeActionsOptimizationParameters.PstModel.CONTINUOUS,
+            null,
+            removeCnec2);
+        buildLinearProblem();
+
+        assertNotNull(linearProblem.getFlowVariable(cnec1, TwoSides.ONE, Optional.empty()));
+        assertThrows(OpenRaoException.class, () -> linearProblem.getFlowVariable(cnec2, TwoSides.TWO, Optional.empty()));
+        assertThrows(OpenRaoException.class, () -> linearProblem.getFlowConstraint(cnec2, TwoSides.TWO, Optional.empty()));
+        assertSame(removeCnec2, coreProblemFiller.getFlowCnecFilter());
     }
 
     @Test

@@ -19,6 +19,7 @@ import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters;
+import com.powsybl.openrao.raoimpl.algorithms.linearoptimisation.algorithms.cnecfiltering.FlowCnecFilter;
 import com.powsybl.openrao.raoimpl.algorithms.linearoptimisation.algorithms.linearproblem.LinearProblem;
 import com.powsybl.openrao.raoimpl.algorithms.linearoptimisation.algorithms.linearproblem.OpenRaoMPConstraint;
 import com.powsybl.openrao.raoimpl.algorithms.linearoptimisation.algorithms.linearproblem.OpenRaoMPVariable;
@@ -58,6 +59,7 @@ public abstract class AbstractCoreProblemFiller implements ProblemFiller {
     protected final PstModel pstModel;
     protected final OffsetDateTime timestamp;
     private final RangeActionImpacts rangeActionImpacts;
+    private final FlowCnecFilter flowCnecFilter;
 
     protected AbstractCoreProblemFiller(OptimizationPerimeter optimizationContext,
                                         RangeActionSetpointResult prePerimeterRangeActionSetpoints,
@@ -66,7 +68,8 @@ public abstract class AbstractCoreProblemFiller implements ProblemFiller {
                                         Unit unit,
                                         boolean raRangeShrinking,
                                         PstModel pstModel,
-                                        OffsetDateTime timestamp) {
+                                        OffsetDateTime timestamp,
+                                        FlowCnecFilter flowCnecFilter) {
         this.optimizationContext = optimizationContext;
         this.prePerimeterRangeActionSetpoints = prePerimeterRangeActionSetpoints;
         this.flowCnecs = new TreeSet<>(Comparator.comparing(Identifiable::getId));
@@ -78,11 +81,16 @@ public abstract class AbstractCoreProblemFiller implements ProblemFiller {
         this.pstModel = pstModel;
         this.timestamp = timestamp;
         this.rangeActionImpacts = new RangeActionImpacts(optimizationContext, rangeActionParametersExtension, unit);
+        this.flowCnecFilter = flowCnecFilter;
+    }
+
+    public FlowCnecFilter getFlowCnecFilter() {
+        return flowCnecFilter;
     }
 
     @Override
     public void fill(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult, RangeActionActivationResult rangeActionActivationResult) {
-        Set<FlowCnec> validFlowCnecs = FillersUtil.getFlowCnecsComputationStatusOk(flowCnecs, sensitivityResult);
+        Set<FlowCnec> validFlowCnecs = flowCnecFilter.retain(FillersUtil.getFlowCnecsComputationStatusOk(flowCnecs, sensitivityResult), flowResult, sensitivityResult, rangeActionActivationResult);
 
         // add variables
         buildFlowVariables(linearProblem, validFlowCnecs);

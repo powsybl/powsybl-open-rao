@@ -12,6 +12,7 @@ import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Identifiable;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoCostlyMinMarginParameters;
+import com.powsybl.openrao.raoimpl.algorithms.linearoptimisation.algorithms.cnecfiltering.FlowCnecFilter;
 import com.powsybl.openrao.raoimpl.algorithms.linearoptimisation.algorithms.linearproblem.LinearProblem;
 import com.powsybl.openrao.raoimpl.algorithms.linearoptimisation.algorithms.linearproblem.OpenRaoMPConstraint;
 import com.powsybl.openrao.raoimpl.algorithms.linearoptimisation.algorithms.linearproblem.OpenRaoMPVariable;
@@ -35,22 +36,38 @@ public class MaxMinMarginFiller implements ProblemFiller {
     private final boolean costOptimization;
     protected final OffsetDateTime timestamp;
     private final SearchTreeRaoCostlyMinMarginParameters costlyMinMarginParameters;
+    private final FlowCnecFilter flowCnecFilter;
 
     public MaxMinMarginFiller(Set<FlowCnec> optimizedCnecs,
                               Unit unit, boolean costOptimization,
                               SearchTreeRaoCostlyMinMarginParameters costlyMinMarginParameters,
                               OffsetDateTime timestamp) {
+        this(optimizedCnecs, unit, costOptimization, costlyMinMarginParameters, timestamp, FlowCnecFilter.NONE);
+    }
+
+    public MaxMinMarginFiller(Set<FlowCnec> optimizedCnecs,
+                              Unit unit, boolean costOptimization,
+                              SearchTreeRaoCostlyMinMarginParameters costlyMinMarginParameters,
+                              OffsetDateTime timestamp,
+                              FlowCnecFilter flowCnecFilter) {
         this.optimizedCnecs = new TreeSet<>(Comparator.comparing(Identifiable::getId));
         this.optimizedCnecs.addAll(optimizedCnecs);
         this.unit = unit;
         this.costOptimization = costOptimization;
         this.costlyMinMarginParameters = costlyMinMarginParameters;
         this.timestamp = timestamp;
+        this.flowCnecFilter = flowCnecFilter;
+    }
+
+    public FlowCnecFilter getFlowCnecFilter() {
+        return flowCnecFilter;
     }
 
     @Override
     public void fill(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult, RangeActionActivationResult rangeActionActivationResult) {
-        Set<FlowCnec> validFlowCnecs = FillersUtil.getFlowCnecsComputationStatusOk(optimizedCnecs, sensitivityResult);
+        Set<FlowCnec> validFlowCnecs = flowCnecFilter.retain(
+            FillersUtil.getFlowCnecsComputationStatusOk(optimizedCnecs, sensitivityResult),
+            flowResult, sensitivityResult, rangeActionActivationResult);
 
         // build variables
         buildMinimumMarginVariable(linearProblem, validFlowCnecs);

@@ -14,6 +14,7 @@ import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.raoapi.parameters.extensions.PtdfApproximation;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoCostlyMinMarginParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRelativeMarginsParameters;
+import com.powsybl.openrao.raoimpl.algorithms.linearoptimisation.algorithms.cnecfiltering.FlowCnecFilter;
 import com.powsybl.openrao.raoimpl.algorithms.linearoptimisation.algorithms.linearproblem.LinearProblem;
 import com.powsybl.openrao.raoimpl.algorithms.linearoptimisation.algorithms.linearproblem.OpenRaoMPConstraint;
 import com.powsybl.openrao.raoimpl.algorithms.linearoptimisation.algorithms.linearproblem.OpenRaoMPVariable;
@@ -44,7 +45,17 @@ public class MaxMinRelativeMarginFiller extends MaxMinMarginFiller {
                                       SearchTreeRaoCostlyMinMarginParameters maxMinMarginsParameters,
                                       SearchTreeRaoRelativeMarginsParameters maxMinRelativeMarginParameters,
                                       OffsetDateTime timestamp) {
-        super(optimizedCnecs, unit, false, maxMinMarginsParameters, timestamp);
+        this(optimizedCnecs, preOptimFlowResult, unit, maxMinMarginsParameters, maxMinRelativeMarginParameters, timestamp, FlowCnecFilter.NONE);
+    }
+
+    public MaxMinRelativeMarginFiller(Set<FlowCnec> optimizedCnecs,
+                                      FlowResult preOptimFlowResult,
+                                      Unit unit,
+                                      SearchTreeRaoCostlyMinMarginParameters maxMinMarginsParameters,
+                                      SearchTreeRaoRelativeMarginsParameters maxMinRelativeMarginParameters,
+                                      OffsetDateTime timestamp,
+                                      FlowCnecFilter flowCnecFilter) {
+        super(optimizedCnecs, unit, false, maxMinMarginsParameters, timestamp, flowCnecFilter);
         this.preOptimFlowResult = preOptimFlowResult;
         this.ptdfApproximationLevel = maxMinRelativeMarginParameters.getPtdfApproximation();
         this.unit = unit;
@@ -59,7 +70,9 @@ public class MaxMinRelativeMarginFiller extends MaxMinMarginFiller {
         super.fill(linearProblem, flowResult, sensitivityResult, rangeActionActivationResult);
         buildMinimumRelativeMarginSignBinaryVariable(linearProblem);
         updateMinimumNegativeMarginDefinition(linearProblem);
-        Set<FlowCnec> validFlowCnecs = FillersUtil.getFlowCnecsComputationStatusOk(optimizedCnecs, sensitivityResult);
+        Set<FlowCnec> validFlowCnecs = getFlowCnecFilter().retain(
+            FillersUtil.getFlowCnecsComputationStatusOk(optimizedCnecs, sensitivityResult),
+            flowResult, sensitivityResult, rangeActionActivationResult);
         buildMinimumRelativeMarginVariable(linearProblem, validFlowCnecs);
         FlowResult flowResultToUse = ptdfApproximationLevel.shouldUpdatePtdfWithPstChange() ? flowResult : preOptimFlowResult;
         buildMinimumRelativeMarginConstraints(linearProblem, validFlowCnecs, flowResultToUse);

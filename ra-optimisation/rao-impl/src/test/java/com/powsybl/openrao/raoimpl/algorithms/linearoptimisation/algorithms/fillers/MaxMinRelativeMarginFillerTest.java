@@ -9,8 +9,10 @@ package com.powsybl.openrao.raoimpl.algorithms.linearoptimisation.algorithms.fil
 
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.TwoSides;
+import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.State;
+import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
@@ -19,6 +21,7 @@ import com.powsybl.openrao.raoapi.parameters.extensions.PtdfApproximation;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoCostlyMinMarginParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRelativeMarginsParameters;
+import com.powsybl.openrao.raoimpl.algorithms.linearoptimisation.algorithms.cnecfiltering.FlowCnecFilter;
 import com.powsybl.openrao.raoimpl.algorithms.linearoptimisation.algorithms.linearproblem.LinearProblem;
 import com.powsybl.openrao.raoimpl.algorithms.linearoptimisation.algorithms.linearproblem.LinearProblemBuilder;
 import com.powsybl.openrao.raoimpl.algorithms.linearoptimisation.algorithms.linearproblem.OpenRaoMPConstraint;
@@ -37,12 +40,15 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.powsybl.openrao.commons.Unit.AMPERE;
 import static com.powsybl.openrao.commons.Unit.MEGAWATT;
 import static com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters.getSensitivityWithLoadFlowParameters;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
@@ -175,6 +181,67 @@ class MaxMinRelativeMarginFillerTest extends AbstractFillerTest {
         // check the number of variables and constraints
         assertEquals(7, linearProblem.numVariables());
         assertEquals(8, linearProblem.numConstraints());
+    }
+
+    private void createFilteredRelativeFiller(FlowCnecFilter filter) {
+        // the core filler only knows cnec2: cnec1 would fail with a missing flow variable if it was not filtered out
+        OptimizationPerimeter cnec2Perimeter = Mockito.mock(OptimizationPerimeter.class);
+        Mockito.when(cnec2Perimeter.getFlowCnecs()).thenReturn(Set.of(cnec2));
+        Mockito.when(cnec2Perimeter.getRangeActionsPerState()).thenReturn(Map.of(cnec2.getState(), Set.of(pstRangeAction)));
+        RaoParameters raoParameters = new RaoParameters(ReportNode.NO_OP);
+        coreProblemFiller = new MarginCoreProblemFiller(
+            cnec2Perimeter,
+            initialRangeActionSetpointResult,
+            raoParameters.getRangeActionsOptimizationParameters(),
+            null,
+            MEGAWATT,
+            false,
+            SearchTreeRaoRangeActionsOptimizationParameters.PstModel.CONTINUOUS,
+            null);
+
+        FlowResult initialFlowResult = Mockito.mock(FlowResult.class);
+        when(initialFlowResult.getPtdfZonalSum(cnec2, TwoSides.TWO)).thenReturn(0.9);
+        maxMinRelativeMarginFiller = new MaxMinRelativeMarginFiller(Set.of(cnec1, cnec2), initialFlowResult, MEGAWATT, minMarginsParameters, parameters, null, filter);
+        buildLinearProblem();
+    }
+
+    private static FlowCnecFilter removing(FlowCnec removed) {
+        return (cnecs, flowResult, sensitivityResult, linearizationPoint) -> cnecs.stream().filter(c -> !c.equals(removed)).collect(Collectors.toSet());
+    }
+
+    @Test
+    void filteredCnecHasNoRelativeMarginConstraint() {
+        FlowCnecFilter removeCnec1 = removing(cnec1);
+        createFilteredRelativeFiller(removeCnec1);
+
+        assertNotNull(linearProblem.getMinimumRelativeMarginConstraint(cnec2, TwoSides.TWO, LinearProblem.MarginExtension.ABOVE_THRESHOLD, Optional.empty()));
+        assertThrows(OpenRaoException.class, () -> linearProblem.getMinimumRelativeMarginConstraint(cnec1, TwoSides.ONE, LinearProblem.MarginExtension.ABOVE_THRESHOLD, Optional.empty()));
+        assertThrows(OpenRaoException.class, () -> linearProblem.getMinimumMarginConstraint(cnec1, TwoSides.ONE, LinearProblem.MarginExtension.ABOVE_THRESHOLD, Optional.empty()));
+        assertSame(removeCnec1, maxMinRelativeMarginFiller.getFlowCnecFilter());
+    }
+
+    @Test
+    void bigMUsesUnfilteredThresholds() {
+        // a CNEC with a threshold much larger than cnec1's, removed by the filter
+        FlowCnec hugeThresholdCnec = Mockito.mock(FlowCnec.class);
+        when(hugeThresholdCnec.getId()).thenReturn("huge-threshold-cnec");
+        when(hugeThresholdCnec.isOptimized()).thenReturn(true);
+        when(hugeThresholdCnec.getMonitoredSides()).thenReturn(Set.of(TwoSides.ONE));
+        when(hugeThresholdCnec.getUpperBound(TwoSides.ONE, MEGAWATT)).thenReturn(Optional.of(5000.));
+        when(hugeThresholdCnec.getLowerBound(TwoSides.ONE, MEGAWATT)).thenReturn(Optional.of(-5000.));
+        FlowCnecFilter removeHugeThresholdCnec = removing(hugeThresholdCnec);
+
+        FlowResult initialFlowResult = Mockito.mock(FlowResult.class);
+        when(initialFlowResult.getPtdfZonalSum(cnec1, TwoSides.ONE)).thenReturn(0.9);
+        maxMinRelativeMarginFiller = new MaxMinRelativeMarginFiller(Set.of(cnec1, hugeThresholdCnec), initialFlowResult, MEGAWATT, minMarginsParameters, parameters, null, removeHugeThresholdCnec);
+        buildLinearProblem();
+
+        // maxNegativeRam = 5 * highest threshold, maxPositiveRelativeRam = highest threshold / ptdfSumLowerBound, both from the unfiltered set
+        OpenRaoMPConstraint signDefinition = linearProblem.getMinimumRelMarginSignDefinitionConstraint(Optional.empty());
+        OpenRaoMPVariable signBinary = linearProblem.getMinimumRelativeMarginSignBinaryVariable(Optional.empty());
+        assertEquals(5 * 5000., signDefinition.getCoefficient(signBinary), DOUBLE_TOLERANCE);
+        OpenRaoMPConstraint setToZero = linearProblem.getMinimumRelMarginSetToZeroConstraint(Optional.empty());
+        assertEquals(-5000. / 0.01, setToZero.getCoefficient(signBinary), 1e-3);
     }
 
     private FlowResult mockFlowResult(double cnecAbsolutePtdfSum) {

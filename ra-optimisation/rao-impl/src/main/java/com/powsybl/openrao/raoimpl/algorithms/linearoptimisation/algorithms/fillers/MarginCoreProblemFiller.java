@@ -12,6 +12,7 @@ import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters;
+import com.powsybl.openrao.raoimpl.algorithms.linearoptimisation.algorithms.cnecfiltering.FlowCnecFilter;
 import com.powsybl.openrao.raoimpl.algorithms.linearoptimisation.algorithms.linearproblem.LinearProblem;
 import com.powsybl.openrao.raoimpl.algorithms.linearoptimisation.algorithms.linearproblem.OpenRaoMPVariable;
 import com.powsybl.openrao.raoimpl.commons.optimizationperimeters.OptimizationPerimeter;
@@ -32,7 +33,19 @@ public class MarginCoreProblemFiller extends AbstractCoreProblemFiller {
                                    boolean raRangeShrinking,
                                    SearchTreeRaoRangeActionsOptimizationParameters.PstModel pstModel,
                                    OffsetDateTime timestamp) {
-        super(optimizationContext, prePerimeterRangeActionSetpoints, rangeActionParameters, rangeActionParametersExtension, unit, raRangeShrinking, pstModel, timestamp);
+        this(optimizationContext, prePerimeterRangeActionSetpoints, rangeActionParameters, rangeActionParametersExtension, unit, raRangeShrinking, pstModel, timestamp, FlowCnecFilter.NONE);
+    }
+
+    public MarginCoreProblemFiller(OptimizationPerimeter optimizationContext,
+                                   RangeActionSetpointResult prePerimeterRangeActionSetpoints,
+                                   RangeActionsOptimizationParameters rangeActionParameters,
+                                   SearchTreeRaoRangeActionsOptimizationParameters rangeActionParametersExtension,
+                                   Unit unit,
+                                   boolean raRangeShrinking,
+                                   SearchTreeRaoRangeActionsOptimizationParameters.PstModel pstModel,
+                                   OffsetDateTime timestamp,
+                                   FlowCnecFilter flowCnecFilter) {
+        super(optimizationContext, prePerimeterRangeActionSetpoints, rangeActionParameters, rangeActionParametersExtension, unit, raRangeShrinking, pstModel, timestamp, flowCnecFilter);
     }
 
     /**

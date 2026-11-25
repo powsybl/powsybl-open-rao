@@ -16,6 +16,7 @@ import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoCostlyMinMarginParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters;
+import com.powsybl.openrao.raoimpl.algorithms.linearoptimisation.algorithms.cnecfiltering.FlowCnecFilter;
 import com.powsybl.openrao.raoimpl.algorithms.linearoptimisation.algorithms.linearproblem.LinearProblem;
 import com.powsybl.openrao.raoimpl.algorithms.linearoptimisation.algorithms.linearproblem.LinearProblemBuilder;
 import com.powsybl.openrao.raoimpl.algorithms.linearoptimisation.algorithms.linearproblem.OpenRaoMPConstraint;
@@ -32,9 +33,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -135,6 +138,21 @@ class MaxMinMarginFillerTest extends AbstractFillerTest {
         //      - 2 per CNEC (min margin constraints)
         assertEquals(5, linearProblem.numVariables());
         assertEquals(4, linearProblem.numConstraints());
+    }
+
+    @Test
+    void filteredCnecHasNoMinMarginConstraint() {
+        FlowCnecFilter removeCnec2 = (cnecs, flowResult, sensitivityResult, linearizationPoint) -> cnecs.stream().filter(c -> !c.equals(cnec2)).collect(Collectors.toSet());
+        SearchTreeRaoCostlyMinMarginParameters minMarginsParameters = new SearchTreeRaoCostlyMinMarginParameters();
+        minMarginsParameters.setShiftedViolationPenalty(1000.0);
+        // the core filler only knows cnec1: cnec2 would fail with a missing flow variable if it was not filtered out
+        maxMinMarginFiller = new MaxMinMarginFiller(Set.of(cnec1, cnec2), Unit.MEGAWATT, false, minMarginsParameters, null, removeCnec2);
+        buildLinearProblem();
+
+        assertNotNull(linearProblem.getMinimumMarginConstraint(cnec1, TwoSides.ONE, LinearProblem.MarginExtension.ABOVE_THRESHOLD, Optional.empty()));
+        assertThrows(OpenRaoException.class, () -> linearProblem.getMinimumMarginConstraint(cnec2, TwoSides.TWO, LinearProblem.MarginExtension.ABOVE_THRESHOLD, Optional.empty()));
+        assertThrows(OpenRaoException.class, () -> linearProblem.getMinimumMarginConstraint(cnec2, TwoSides.TWO, LinearProblem.MarginExtension.BELOW_THRESHOLD, Optional.empty()));
+        assertSame(removeCnec2, maxMinMarginFiller.getFlowCnecFilter());
     }
 
     @Test
