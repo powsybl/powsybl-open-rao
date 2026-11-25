@@ -67,6 +67,7 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
     private final Map<String, Instant> instants = new HashMap<>();
     private final Map<String, State> states = new HashMap<>();
     private final Map<String, FlowCnec> flowCnecs = new HashMap<>();
+    private Map<State, Set<FlowCnec>> flowCnecsPerState;
     private final Map<String, AngleCnec> angleCnecs = new HashMap<>();
     private final Map<String, VoltageCnec> voltageCnecs = new HashMap<>();
     private final Map<String, PstRangeAction> pstRangeActions = new HashMap<>();
@@ -514,9 +515,12 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
 
     @Override
     public Set<FlowCnec> getFlowCnecs(State state) {
-        return flowCnecs.values().stream()
-            .filter(cnec -> cnec.getState().equals(state))
-            .collect(Collectors.toSet());
+        Map<State, Set<FlowCnec>> index = flowCnecsPerState;
+        if (index == null) {
+            index = flowCnecs.values().stream().collect(Collectors.groupingBy(FlowCnec::getState, Collectors.toSet()));
+            flowCnecsPerState = index;
+        }
+        return new HashSet<>(index.getOrDefault(state, Set.of()));
     }
 
     @Override
@@ -574,6 +578,7 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
         flowCnecsToRemove.forEach(flowCnecToRemove ->
             flowCnecs.remove(flowCnecToRemove.getId())
         );
+        flowCnecsPerState = null;
         safeRemoveNetworkElements(networkElementsToRemove);
         safeRemoveStates(statesToRemove);
     }
@@ -615,6 +620,7 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
 
     void addFlowCnec(FlowCnec flowCnec) {
         flowCnecs.put(flowCnec.getId(), flowCnec);
+        flowCnecsPerState = null;
     }
 
     void addAngleCnec(AngleCnec angleCnec) {
