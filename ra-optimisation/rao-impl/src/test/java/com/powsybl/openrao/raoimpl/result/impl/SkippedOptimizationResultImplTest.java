@@ -66,6 +66,7 @@ class SkippedOptimizationResultImplTest {
         assertTrue(skippedOptimizationResult.getActivatedNetworkActions().isEmpty());
         assertTrue(skippedOptimizationResult.getActivatedRangeActions(state).isEmpty());
         assertTrue(skippedOptimizationResult.getRangeActions().isEmpty());
+        assertTrue(skippedOptimizationResult.getActivatedNetworkActionsPerState().isEmpty());
         assertTrue(skippedOptimizationResult.getActivatedRangeActionsPerState().isEmpty());
     }
 }
