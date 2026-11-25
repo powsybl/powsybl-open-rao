@@ -24,9 +24,6 @@ public class NotOptimizedCnecsParameters {
     private static final boolean DEFAULT_DO_NOT_OPTIMIZE_CURATIVE_CNECS_FOR_TSOS_WITHOUT_CRAS = false;
     private boolean doNotOptimizeCurativeCnecsForTsosWithoutCras = DEFAULT_DO_NOT_OPTIMIZE_CURATIVE_CNECS_FOR_TSOS_WITHOUT_CRAS;
 
-    public NotOptimizedCnecsParameters() {
-    }
-
     public boolean getDoNotOptimizeCurativeCnecsForTsosWithoutCras() {
         return doNotOptimizeCurativeCnecsForTsosWithoutCras;
     }

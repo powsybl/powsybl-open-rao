@@ -25,9 +25,6 @@ public class SearchTreeRaoObjectiveFunctionParameters {
     private static final double DEFAULT_CURATIVE_MIN_OBJ_IMPROVEMENT = 0;
     private double curativeMinObjImprovement = DEFAULT_CURATIVE_MIN_OBJ_IMPROVEMENT;
 
-    public SearchTreeRaoObjectiveFunctionParameters() {
-    }
-
     public double getCurativeMinObjImprovement() {
         return curativeMinObjImprovement;
     }

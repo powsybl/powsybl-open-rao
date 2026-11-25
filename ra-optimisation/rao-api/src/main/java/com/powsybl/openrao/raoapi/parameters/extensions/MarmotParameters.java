@@ -38,9 +38,6 @@ public class MarmotParameters extends AbstractExtension<RaoParameters> {
     private boolean curativeRangeActionsSynchronization = DEFAULT_CURATIVE_RANGE_ACTIONS_SYNCHRONIZATION;
     private boolean curativeTopologicalActionsSynchronization = DEFAULT_CURATIVE_TOPOLOGICAL_ACTIONS_SYNCHRONIZATION;
 
-    public MarmotParameters() {
-    }
-
     public int getNumberOfCnecsToAddPerVirtualCostName() {
         return numberOfCnecsToAddPerVirtualCostName;
     }

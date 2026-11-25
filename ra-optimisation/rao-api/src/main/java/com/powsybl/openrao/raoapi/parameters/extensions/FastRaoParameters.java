@@ -29,9 +29,6 @@ public class FastRaoParameters extends AbstractExtension<RaoParameters> {
     private boolean addUnsecureCnecs = DEFAULT_ADD_UNSECURE_CNECS;
     private double marginLimit = DEFAULT_MARGIN_LIMIT;
 
-    public FastRaoParameters() {
-    }
-
     public int getNumberOfCnecsToAdd() {
         return getNumberOfCnecsToAdd;
     }

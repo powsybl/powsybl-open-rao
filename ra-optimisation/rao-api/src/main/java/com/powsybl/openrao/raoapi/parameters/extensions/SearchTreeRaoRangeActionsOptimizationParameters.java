@@ -49,9 +49,6 @@ public class SearchTreeRaoRangeActionsOptimizationParameters {
     private LinearOptimizationSolver linearOptimizationSolver = new LinearOptimizationSolver();
     private RaRangeShrinking raRangeShrinking = DEFAULT_RA_RANGE_SHRINKING;
 
-    public SearchTreeRaoRangeActionsOptimizationParameters() {
-    }
-
     public enum PstModel {
         CONTINUOUS,
         APPROXIMATED_INTEGERS
@@ -70,9 +67,6 @@ public class SearchTreeRaoRangeActionsOptimizationParameters {
         private Solver solver = DEFAULT_SOLVER;
         private double relativeMipGap = DEFAULT_RELATIVE_MIP_GAP;
         private String solverSpecificParameters = DEFAULT_SOLVER_SPECIFIC_PARAMETERS;
-
-        public LinearOptimizationSolver() {
-        }
 
         public Solver getSolver() {
             return solver;

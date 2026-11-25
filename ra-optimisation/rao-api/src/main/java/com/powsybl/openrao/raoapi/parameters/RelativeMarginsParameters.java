@@ -29,9 +29,6 @@ public class RelativeMarginsParameters {
     private List<ZoneToZonePtdfDefinition> ptdfBoundaries = DEFAULT_RELATIVE_MARGIN_PTDF_BOUNDARIES;
     // prevents relative margins from diverging to +infinity
 
-    public RelativeMarginsParameters() {
-    }
-
     public List<ZoneToZonePtdfDefinition> getPtdfBoundaries() {
         return ptdfBoundaries;
     }

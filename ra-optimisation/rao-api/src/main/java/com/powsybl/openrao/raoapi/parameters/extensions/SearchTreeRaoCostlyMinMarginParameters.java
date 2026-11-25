@@ -25,9 +25,6 @@ public class SearchTreeRaoCostlyMinMarginParameters {
     private double shiftedViolationPenalty = DEFAULT_SHIFTED_VIOLATION_PENALTY;
     private double shiftedViolationThreshold = DEFAULT_SHIFTED_VIOLATION_THRESHOLD;
 
-    public SearchTreeRaoCostlyMinMarginParameters() {
-    }
-
     public double getShiftedViolationPenalty() {
         return shiftedViolationPenalty;
     }

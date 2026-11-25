@@ -25,9 +25,6 @@ public class MultithreadingParameters {
     private static final int DEFAULT_AVAILABLE_CPUS = 1;
     private int availableCPUs = DEFAULT_AVAILABLE_CPUS;
 
-    public MultithreadingParameters() {
-    }
-
     public int getAvailableCPUs() {
         return availableCPUs;
     }

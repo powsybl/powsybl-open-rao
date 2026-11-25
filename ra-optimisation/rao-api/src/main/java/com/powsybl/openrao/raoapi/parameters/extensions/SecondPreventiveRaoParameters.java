@@ -29,9 +29,6 @@ public class SecondPreventiveRaoParameters {
     private ExecutionCondition executionCondition = DEFAULT_EXECUTION_CONDITION;
     private boolean hintFromFirstPreventiveRao = DEFAULT_HINT_FROM_FIRST_PREVENTIVE_RAO;
 
-    public SecondPreventiveRaoParameters() {
-    }
-
     public enum ExecutionCondition {
         // do not run 2nd preventive RAO
         DISABLED,

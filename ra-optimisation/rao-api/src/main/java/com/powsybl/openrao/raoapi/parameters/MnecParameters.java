@@ -25,9 +25,6 @@ public class MnecParameters {
     private double acceptableMarginDecrease = DEFAULT_ACCEPTABLE_MARGIN_DECREASE;
     // "A equivalent cost per A violation" or "MW per MW", depending on the objective function
 
-    public MnecParameters() {
-    }
-
     public double getAcceptableMarginDecrease() {
         return acceptableMarginDecrease;
     }
