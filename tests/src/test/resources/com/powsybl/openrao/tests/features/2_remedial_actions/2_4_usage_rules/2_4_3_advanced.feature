@@ -4,7 +4,8 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 Feature: 2.4.3: Advanced usage rules tests
-  # TODO: This feature covers
+  This feature covers advanced cases of the usage rules: a flow constraint in a country, either on
+  the base network or only after a given contingency.
 
   @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: 2.4.3.1: Flow constraint in country with no contingency

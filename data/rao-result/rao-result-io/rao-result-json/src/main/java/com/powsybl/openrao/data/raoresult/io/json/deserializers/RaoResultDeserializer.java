@@ -23,31 +23,10 @@ import com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants;
 import com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.ANGLECNEC_RESULTS;
-import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.COMPUTATION_STATUS;
-import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.COMPUTATION_STATUS_MAP;
-import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.COST_RESULTS;
-import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.EXECUTION_DETAILS;
-import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.FLOWCNEC_RESULTS;
-import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.INFO;
-import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.NETWORKACTION_RESULTS;
-import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.OPTIMIZATION_STEPS_EXECUTED;
-import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.PSTRANGEACTION_RESULTS;
-import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.RANGEACTION_RESULTS;
-import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.RAO_RESULT_IO_VERSION;
-import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.RAO_RESULT_TYPE;
-import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.REMEDIAL_ACTION_ACTIVATIONS;
-import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.SECURE;
-import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.STANDARDRANGEACTION_RESULTS;
-import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.VERSION;
-import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.VOLTAGECNEC_RESULTS;
-import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.getPrimaryVersionNumber;
-import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.getSubVersionNumber;
+import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.*;
 import static com.powsybl.openrao.data.raoresult.io.json.deserializers.Utils.checkDeprecatedField;
 
 /**
@@ -219,6 +198,9 @@ public class RaoResultDeserializer extends JsonDeserializer<RaoResult> {
 
     public static String isValid(JsonParser jsonParser) throws IOException {
         String firstFieldName = jsonParser.nextFieldName();
+        if (firstFieldName == null) {
+            throw new OpenRaoException("The document is empty: it is not a valid RAO result");
+        }
         String jsonFileVersion;
 
         if (firstFieldName.equals(COMPUTATION_STATUS)) {

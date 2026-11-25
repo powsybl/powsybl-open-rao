@@ -31,7 +31,7 @@
         </dependency>
         <dependency>
             <groupId>com.powsybl</groupId>
-            <artifactId>open-rao-search-tree-rao</artifactId>
+            <artifactId>open-rao-rao-impl</artifactId>
         </dependency>
         <dependency>
             <groupId>com.powsybl</groupId>

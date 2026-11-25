@@ -25,7 +25,7 @@ import com.powsybl.openrao.raoapi.Rao;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.FastRaoParameters;
-import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
+import com.powsybl.openrao.raoimpl.commons.RaoUtil;
 import com.powsybl.openrao.tests.steps.CommonTestData;
 import com.powsybl.sensitivity.SensitivityVariableSet;
 

@@ -64,16 +64,25 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
         this.notOptimizedCnecsParameters = notOptimizedCnecsParameters;
     }
 
+    /**
+     * Sets the MNEC parameters, or removes them if {@code null}.
+     */
     public void setMnecParameters(MnecParameters mnecParameters) {
-        this.mnecParameters = Optional.of(mnecParameters);
+        this.mnecParameters = Optional.ofNullable(mnecParameters);
     }
 
+    /**
+     * Sets the relative margins parameters, or removes them if {@code null}.
+     */
     public void setRelativeMarginsParameters(RelativeMarginsParameters relativeMarginsParameters) {
-        this.relativeMarginsParameters = Optional.of(relativeMarginsParameters);
+        this.relativeMarginsParameters = Optional.ofNullable(relativeMarginsParameters);
     }
 
+    /**
+     * Sets the loop flow parameters, or removes them if {@code null}.
+     */
     public void setLoopFlowParameters(LoopFlowParameters loopFlowParameters) {
-        this.loopFlowParameters = Optional.of(loopFlowParameters);
+        this.loopFlowParameters = Optional.ofNullable(loopFlowParameters);
     }
 
     public ObjectiveFunctionParameters getObjectiveFunctionParameters() {

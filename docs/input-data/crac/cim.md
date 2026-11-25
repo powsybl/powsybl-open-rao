@@ -527,7 +527,5 @@ See below an example of an HVDC RemedialAction_Series in one direction.
 
 ## Extra rules
 
-In order to ensure the imported CRAC is usable in the RAO, OpenRAO implements the following special rules:
-- Hybrid (range-actions + network-actions) remedial actions are prohibited.
-- If AUTO CNECs exist without any automaton that can eventually secure them, these CNECs are duplicated in the 
-  outage instant in order to be secured by the preventive RAO.
+In order to ensure the imported CRAC is usable in the RAO, OpenRAO implements the following special rule: Hybrid
+(range-actions + network-actions) remedial actions are prohibited.

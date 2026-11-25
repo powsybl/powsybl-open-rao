@@ -72,9 +72,7 @@ classDiagram
   - **[REMOVED]**: happens when OpenRAO ignores elements of the CRAC because they cannot be imported, or because they are not relevant 
   for the RAO (e.g. if a contingency is defined on an element that doesn't exist in the network, or if a CNEC is neither 
   optimized nor monitored, etc.)
-  - **[ADDED]**: happens if OpenRAO decides to add elements that were not explicitly defined in the original file (e.g. if the 
-  CRAC contains AUTO CNECs without any remedial action associated, OpenRAO will automatically duplicate them in the outage 
-  instant in order to secure them during the preventive RAO)
+  - **[ADDED]**: happens if OpenRAO decides to add elements that were not explicitly defined in the original file
   - **[ALTERED]**: happens if OpenRAO imports an element after altering it or ignoring some of its components (e.g. if a monitored 
   element shall be so after multiple contingencies, among which some were not imported for any reason, then only valid 
   contingencies will be used for the created CNECs)

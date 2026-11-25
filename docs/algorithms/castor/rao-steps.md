@@ -28,6 +28,8 @@ The preventive perimeter is made up of:
 - CNECs of the “before outage situation” defined with a limit of type PATL (**P**ermanent limit). This corresponds to
   the so-called “N state” situation.
 - CNECs of the “after outage situation” defined with a limit of type **T**ATL (**T**emporary limit).
+- Auto CNECs that are not protected by any automaton (i.e. without any on-instant, on-contingency-state, on-constraint
+  or on-flow-constraint-in-country remedial actions defined for the said CNECs).
 
 Overloads potentially reached on this perimeter are to be solved with preventive actions (PRA).
 

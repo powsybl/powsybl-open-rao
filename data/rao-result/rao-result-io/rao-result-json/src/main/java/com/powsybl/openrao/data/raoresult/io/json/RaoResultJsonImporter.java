@@ -7,6 +7,8 @@
 
 package com.powsybl.openrao.data.raoresult.io.json;
 
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.google.auto.service.AutoService;
@@ -34,13 +36,11 @@ public class RaoResultJsonImporter implements Importer {
 
     @Override
     public boolean exists(InputStream inputStream) {
-        try {
-            ObjectMapper objectMapper = createObjectMapper();
-            SimpleModule module = new SimpleModule();
-            module.addDeserializer(RaoResult.class, new RaoResultDeserializer(true));
-            objectMapper.registerModule(module);
-            // TODO: replace this by a call to RaoResultDeserializer.isValid
-            objectMapper.readValue(inputStream, RaoResult.class);
+        try (JsonParser jsonParser = createObjectMapper().getFactory().createParser(inputStream)) {
+            if (jsonParser.nextToken() != JsonToken.START_OBJECT) {
+                return false;
+            }
+            RaoResultDeserializer.isValid(jsonParser);
             return true;
         } catch (OpenRaoException | IOException e) {
             return false;

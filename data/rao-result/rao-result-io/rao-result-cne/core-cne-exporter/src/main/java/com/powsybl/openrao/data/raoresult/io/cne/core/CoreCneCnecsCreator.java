@@ -106,7 +106,6 @@ public final class CoreCneCnecsCreator {
             );
         } else if (cneHelper.getCrac().getFlowCnec(outageBranchCnecId).isMonitored()) {
             // A49 (MNEC)
-            // TODO : remove 'else' when we go back to exporting CNEC+MNEC branches as both a CNEC and a MNEC
             constraintSeries.addAll(
                 createConstraintSeriesOfCnec(branchCnecCreationContext, outageBranchCnecId, curativeBranchCnecId, true, cneHelper)
             );
@@ -159,7 +158,6 @@ public final class CoreCneCnecsCreator {
             (!cneHelper.getRaoResult().getActivatedNetworkActionsDuringState(cneHelper.getCrac().getState(optionalContingency.get(), curativeInstant)).isEmpty()
                 || !cneHelper.getRaoResult().getActivatedRangeActionsDuringState(cneHelper.getCrac().getState(optionalContingency.get(), curativeInstant)).isEmpty())) {
             // B54
-            // TODO : remove the 'if' condition when we go back to exporting B54 series even if no CRAs are applied
             List<Analog> measurementsB54 = createB54MeasurementsOfCnec(curativeCnec, shouldInvertBranchDirection);
             MonitoredRegisteredResource monitoredRegisteredResourceB54 = newMonitoredRegisteredResource(nativeCnecId, curativeCnec.getName(), measurementsB54);
             constraintSeriesB54.getMonitoredSeries().add(newMonitoredSeries(nativeCnecId, curativeCnec.getName() + contingencySuffix, monitoredRegisteredResourceB54));
@@ -321,7 +319,6 @@ public final class CoreCneCnecsCreator {
     }
 
     private void getThresholdToMarginMapAsCnec(FlowCnec cnec, Unit unit, boolean deductFrmFromThreshold, Map<Double, Double> thresholdToMarginMap, double flow, TwoSides side) {
-        // TODO : remove this when we go back to considering FRM in the exported threshold
         double flowUnitMultiplier = getFlowUnitMultiplier(cnec.getNominalVoltage(side), Unit.MEGAWATT, unit);
         double frm = deductFrmFromThreshold ? 0 : cnec.getReliabilityMargin() * flowUnitMultiplier;
         // Only look at fixed thresholds
