@@ -110,9 +110,9 @@ public class FlowCnecCreator extends AbstractCnecCreator {
         // If the AssessedElement is defined with a conducting equipment, we use both max and min thresholds.
         boolean useMaxAndMinThresholds = true;
         if (nativeAssessedElement.conductingEquipment() == null) {
-            if (OperationalLimitDirectionKind.HIGH.toString().equals(nativeCurrentLimit.direction())) {
+            if (OperationalLimitDirectionKind.HIGH.matches(nativeCurrentLimit.direction())) {
                 useMaxAndMinThresholds = false;
-            } else if (!OperationalLimitDirectionKind.ABSOLUTE.toString().equals(nativeCurrentLimit.direction())) {
+            } else if (!OperationalLimitDirectionKind.ABSOLUTE.matches(nativeCurrentLimit.direction())) {
                 throw new OpenRaoImportException(
                     ImportStatus.NOT_FOR_RAO,
                     writeAssessedElementIgnoredReasonMessage("OperationalLimitType.direction is neither 'absoluteValue' nor 'high'")
@@ -312,9 +312,9 @@ public class FlowCnecCreator extends AbstractCnecCreator {
 
         if (side != null) {
             int acceptableDuration;
-            if (LimitTypeKind.PATL.toString().equals(nativeCurrentLimit.limitType())) {
+            if (LimitTypeKind.PATL.matches(nativeCurrentLimit.limitType())) {
                 acceptableDuration = Integer.MAX_VALUE;
-            } else if (LimitTypeKind.TATL.toString().equals(nativeCurrentLimit.limitType())) {
+            } else if (LimitTypeKind.TATL.matches(nativeCurrentLimit.limitType())) {
                 acceptableDuration = Integer.parseInt(nativeCurrentLimit.acceptableDuration());
             } else {
                 return thresholds;

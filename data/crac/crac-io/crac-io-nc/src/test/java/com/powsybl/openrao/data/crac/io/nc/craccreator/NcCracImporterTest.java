@@ -7,34 +7,33 @@
 
 package com.powsybl.openrao.data.crac.io.nc.craccreator;
 
+import com.powsybl.openrao.data.crac.api.CracCreationContext;
 import com.powsybl.openrao.data.crac.api.parameters.CracCreationParameters;
-import com.powsybl.openrao.data.crac.io.commons.OpenRaoImportException;
-import com.powsybl.openrao.data.crac.io.commons.api.ImportStatus;
 import org.junit.jupiter.api.Test;
 
 import java.io.InputStream;
 
 import static com.powsybl.openrao.data.crac.io.nc.craccreator.NcCracCreationTestUtil.NETWORK;
 import static com.powsybl.openrao.data.crac.io.nc.craccreator.NcCracCreationTestUtil.cracCreationDefaultParametersWithSweCsaExtension;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 class NcCracImporterTest {
 
+    /**
+     * NCP 2.5 packages are no longer rejected by the importer (see issue #2057): the zip is
+     * digested and read as an NCP 2.5 package. The CRAC creation itself fails on the
+     * missing timestamp of the default parameters, which is unrelated to the import.
+     */
     @Test
-    void ncp25PackageIsRejected() {
+    void ncp25PackageIsNoLongerRejected() {
         NcCracImporter importer = new NcCracImporter();
         CracCreationParameters parameters = cracCreationDefaultParametersWithSweCsaExtension();
         try (InputStream in = getClass().getResourceAsStream("/profiles/ncp25/NCP25.zip")) {
-            OpenRaoImportException exception = assertThrows(OpenRaoImportException.class,
-                () -> importer.importData(in, parameters, NETWORK));
-            assertEquals(ImportStatus.NOT_YET_HANDLED_BY_OPEN_RAO, exception.getImportStatus());
-            assertTrue(exception.getMessage().contains("NCP version 2.5 is not supported"));
-            assertTrue(exception.getMessage().contains("CO-v2.5.rdf"));
+            CracCreationContext creationContext = importer.importData(in, parameters, NETWORK);
+            assertNotNull(creationContext);
         } catch (Exception e) {
             throw new AssertionError(e);
         }

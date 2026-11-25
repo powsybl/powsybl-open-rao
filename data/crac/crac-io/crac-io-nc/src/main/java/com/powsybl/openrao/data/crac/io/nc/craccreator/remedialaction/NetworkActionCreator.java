@@ -305,14 +305,14 @@ public class NetworkActionCreator {
         checkStaticPropertyRangeAdequacy(remedialActionId, nativeStaticPropertyRange);
 
         double setPointValue;
-        if (ValueOffsetKind.ABSOLUTE.toString().equals(nativeStaticPropertyRange.valueKind())) {
+        if (ValueOffsetKind.ABSOLUTE.matches(nativeStaticPropertyRange.valueKind())) {
             setPointValue = nativeStaticPropertyRange.normalValue();
-        } else if (ValueOffsetKind.INCREMENTAL.toString().equals(nativeStaticPropertyRange.valueKind())) {
-            setPointValue = RelativeDirectionKind.UP.toString().equals(nativeStaticPropertyRange.direction()) ?
+        } else if (ValueOffsetKind.INCREMENTAL.matches(nativeStaticPropertyRange.valueKind())) {
+            setPointValue = RelativeDirectionKind.UP.matches(nativeStaticPropertyRange.direction()) ?
                 initialSetPoint + nativeStaticPropertyRange.normalValue() :
                 initialSetPoint - nativeStaticPropertyRange.normalValue();
         } else {
-            setPointValue = RelativeDirectionKind.UP.toString().equals(nativeStaticPropertyRange.direction()) ?
+            setPointValue = RelativeDirectionKind.UP.matches(nativeStaticPropertyRange.direction()) ?
                 initialSetPoint + (nativeStaticPropertyRange.normalValue() * initialSetPoint) / 100d :
                 initialSetPoint - (nativeStaticPropertyRange.normalValue() * initialSetPoint) / 100d;
         }
@@ -341,9 +341,9 @@ public class NetworkActionCreator {
     }
 
     private static void checkStaticPropertyRangeAdequacy(String remedialActionId, StaticPropertyRange nativeStaticPropertyRange) {
-        if (ValueOffsetKind.ABSOLUTE.toString().equals(nativeStaticPropertyRange.valueKind()) && !RelativeDirectionKind.NONE.toString().equals(nativeStaticPropertyRange.direction())
-            || !ValueOffsetKind.ABSOLUTE.toString().equals(nativeStaticPropertyRange.valueKind()) && RelativeDirectionKind.NONE.toString().equals(nativeStaticPropertyRange.direction())
-            || RelativeDirectionKind.UP_AND_DOWN.toString().equals(nativeStaticPropertyRange.direction())) {
+        if (ValueOffsetKind.ABSOLUTE.matches(nativeStaticPropertyRange.valueKind()) && !RelativeDirectionKind.NONE.matches(nativeStaticPropertyRange.direction())
+            || !ValueOffsetKind.ABSOLUTE.matches(nativeStaticPropertyRange.valueKind()) && RelativeDirectionKind.NONE.matches(nativeStaticPropertyRange.direction())
+            || RelativeDirectionKind.UP_AND_DOWN.matches(nativeStaticPropertyRange.direction())) {
             throw new OpenRaoImportException(
                 ImportStatus.INCONSISTENCY_IN_DATA,
                 String.format(
@@ -389,7 +389,7 @@ public class NetworkActionCreator {
             );
         }
 
-        if (!ValueOffsetKind.ABSOLUTE.toString().equals(nativeStaticPropertyRange.valueKind())) {
+        if (!ValueOffsetKind.ABSOLUTE.matches(nativeStaticPropertyRange.valueKind())) {
             throw new OpenRaoImportException(
                 ImportStatus.INCONSISTENCY_IN_DATA,
                 String.format(
@@ -400,7 +400,7 @@ public class NetworkActionCreator {
             );
         }
 
-        if (!RelativeDirectionKind.NONE.toString().equals(nativeStaticPropertyRange.direction())) {
+        if (!RelativeDirectionKind.NONE.matches(nativeStaticPropertyRange.direction())) {
             throw new OpenRaoImportException(
                 ImportStatus.INCONSISTENCY_IN_DATA,
                 String.format(

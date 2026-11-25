@@ -13,6 +13,7 @@ import com.powsybl.openrao.data.crac.io.nc.craccreator.NcPropertyBagsConverter;
 import com.powsybl.openrao.data.crac.io.nc.craccreator.constants.HeaderType;
 import com.powsybl.openrao.data.crac.io.nc.craccreator.constants.NcConstants;
 import com.powsybl.openrao.data.crac.io.nc.craccreator.constants.NcKeyword;
+import com.powsybl.openrao.data.crac.io.nc.craccreator.constants.NcVersion;
 import com.powsybl.openrao.data.crac.io.nc.craccreator.constants.OverridingObjectsFields;
 import com.powsybl.openrao.data.crac.io.nc.objects.*;
 import com.powsybl.triplestore.api.PropertyBag;
@@ -39,15 +40,22 @@ public class NcCrac {
 
     private final QueryCatalog queryCatalogNcCrac;
 
+    private final NcVersion version;
+
     private final Map<String, Set<String>> keywordMap;
     private Map<String, String> overridingData;
     private OffsetDateTime importTimestamp;
 
-    public NcCrac(TripleStore tripleStoreNcCrac, Map<String, Set<String>> keywordMap) {
+    public NcCrac(TripleStore tripleStoreNcCrac, Map<String, Set<String>> keywordMap, NcVersion version) {
         this.tripleStoreNcCrac = tripleStoreNcCrac;
-        this.queryCatalogNcCrac = new QueryCatalog(NcConstants.SPARQL_FILE_NC_PROFILE);
+        this.version = version;
+        this.queryCatalogNcCrac = new QueryCatalog(NcConstants.getSparqlFile(version));
         this.keywordMap = keywordMap;
         this.overridingData = new HashMap<>();
+    }
+
+    public NcVersion getVersion() {
+        return version;
     }
 
     public void clearContext(String context) {
@@ -265,7 +273,7 @@ public class NcCrac {
             List<PropertyBag> nextSchedulePbs = new ArrayList<>();
             for (PropertyBag schedulePb : entry.getValue()) {
                 String interpolationKind = schedulePb.get(NcConstants.INTERPOLATION_KIND);
-                if (NcConstants.NEXT_INTERPOLATION_KIND.equals(interpolationKind)) {
+                if (NcConstants.isNextInterpolationKind(interpolationKind)) {
                     nextSchedulePbs.add(schedulePb);
                 } else {
                     OpenRaoLoggerProvider.BUSINESS_WARNS.warn(String.format(

@@ -22,9 +22,17 @@ public enum ValueOffsetKind {
 
     private final String name;
     private static final String URL = NcConstants.ENTSOE_NS_NC_URL + "#ValueOffsetKind.";
+    private static final String URL_25 = NcConstants.NC25_NS_NC_URL + "#ValueOffsetKind.";
 
     @Override
     public String toString() {
         return URL + this.name;
+    }
+
+    /**
+     * Matches a SPARQL result value against this kind, for both the NCP 2.4 and the NCP 2.5 vocabularies.
+     */
+    public boolean matches(String url) {
+        return toString().equals(url) || (URL_25 + name).equals(url);
     }
 }

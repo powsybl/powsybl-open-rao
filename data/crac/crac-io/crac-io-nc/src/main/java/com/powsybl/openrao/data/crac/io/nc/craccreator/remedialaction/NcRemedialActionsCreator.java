@@ -113,7 +113,7 @@ public class NcRemedialActionsCreator {
                                 countertradeRemedialAction.name()
                         ));
             }
-            if (!RemedialActionKind.PREVENTIVE.toString().equals(countertradeRemedialAction.kind())) {
+            if (!RemedialActionKind.PREVENTIVE.matches(countertradeRemedialAction.kind())) {
                 throw new OpenRaoImportException(ImportStatus.NOT_YET_HANDLED_BY_OPEN_RAO,
                     String.format("Remedial action %s will not be imported because only preventive counter-trading is currently supported by the RAO.",
                         remedialActionId
@@ -410,7 +410,7 @@ public class NcRemedialActionsCreator {
     }
 
     private InstantKind getInstantKind(NativeRemedialAction nativeRemedialAction) {
-        if (RemedialActionKind.PREVENTIVE.toString().equals(nativeRemedialAction.kind())) {
+        if (RemedialActionKind.PREVENTIVE.matches(nativeRemedialAction.kind())) {
             return InstantKind.PREVENTIVE;
         }
         if (!nativeRemedialAction.isManual()) {
@@ -420,13 +420,13 @@ public class NcRemedialActionsCreator {
     }
 
     private static void checkKind(NativeRemedialAction nativeRemedialAction) {
-        if (!RemedialActionKind.CURATIVE.toString().equals(nativeRemedialAction.kind()) && !RemedialActionKind.PREVENTIVE.toString().equals(nativeRemedialAction.kind())) {
+        if (!RemedialActionKind.CURATIVE.matches(nativeRemedialAction.kind()) && !RemedialActionKind.PREVENTIVE.matches(nativeRemedialAction.kind())) {
             throw new OpenRaoImportException(
                     ImportStatus.INCONSISTENCY_IN_DATA,
                     String.format("Remedial action %s will not be imported because remedial action must be of curative or preventive kind", nativeRemedialAction.mrid())
             );
         }
-        if (RemedialActionKind.PREVENTIVE.toString().equals(nativeRemedialAction.kind()) && !nativeRemedialAction.isManual()) {
+        if (RemedialActionKind.PREVENTIVE.matches(nativeRemedialAction.kind()) && !nativeRemedialAction.isManual()) {
             throw new OpenRaoImportException(
                     ImportStatus.NOT_YET_HANDLED_BY_OPEN_RAO,
                     "OpenRAO does not support preventive automatons, remedial action %s will be ignored".formatted(nativeRemedialAction.mrid())
