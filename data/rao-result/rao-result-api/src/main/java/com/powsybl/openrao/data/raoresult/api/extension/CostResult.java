@@ -172,6 +172,10 @@ public final class CostResult extends AbstractExtension<RaoResult> {
         return new CostResultBuilder();
     }
 
+    public static CostResultBuilder builder(CostResult costResult) {
+        return new CostResultBuilder(costResult);
+    }
+
     public static final class CostResultBuilder {
         private final ElementaryCostResult initialCostResult;
         private final Map<Instant, ElementaryCostResult> costResultPerInstant;
@@ -179,6 +183,12 @@ public final class CostResult extends AbstractExtension<RaoResult> {
         private CostResultBuilder() {
             initialCostResult = new ElementaryCostResult();
             costResultPerInstant = new HashMap<>();
+        }
+
+        private CostResultBuilder(CostResult costResult) {
+            initialCostResult = new ElementaryCostResult(costResult.initialCostResult);
+            costResultPerInstant = new HashMap<>();
+            costResult.costResultPerInstant.forEach((instant, result) -> costResultPerInstant.put(instant, new ElementaryCostResult(result)));
         }
 
         public CostResultBuilder addFunctionalCostResult(Instant optimizedInstant, double functionalCost) {

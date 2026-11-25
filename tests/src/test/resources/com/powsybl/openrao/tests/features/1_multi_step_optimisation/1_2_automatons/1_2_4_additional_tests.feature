@@ -133,18 +133,20 @@ Feature: 1.2.4: Additional tests to check various fixes concerning automaton sta
 
   @fast @rao @ac @contingency-scenarios @secure-flow
   Scenario: 1.2.4.8: Preventive remedial action resolves an initially divergent contingency
-  The outage of N4042-N4043 causes an initial sensitivity failure. Preventive optimization opens
-  N4043-N4044, restoring convergence and removing the sensitivity failure cost after preventive.
-  Nevertheless, the initially failed contingency is not optimized: no automatic or curative action
-  is used, both states remain in failure, and the sensitivity failure cost is retained for them.
+  The base case converges, but the outage of N4042-N4043 causes an initial sensitivity failure.
+  Preventive optimization opens N4043-N4044, restoring convergence for this N-1. Nevertheless,
+  the initial failure is retained: no automatic or curative action is used, both states remain in
+  failure, and the sensitivity failure cost persists at every instant.
     Given network file is "0_import_export/0_2_export/0_2_3_swe_cne/nordic32.xiidm"
     Given crac file is "1_multi_step_optimisation/1_2_automatons/crac_1_2_4_8.json"
     Given configuration file is "common/rao_parameters_pos_margin_ampere.json"
     When I launch rao
     Then the calculation partially fails
     Then the sensitivity failure cost initially should be 10000.0
+    Then the initial margin on cnec "preventive" should be -126.85 A
     Then 1 remedial actions are used in preventive
     Then the remedial action "preventive-open-line" is used in preventive
+    Then the margin on cnec "auto" after PRA should be 60.12 A
     Then the sensitivity failure cost after "preventive" should be 10000.0
     Then the sensitivity failure cost after "auto" should be 10000.0
     Then the sensitivity failure cost after "curative" should be 10000.0

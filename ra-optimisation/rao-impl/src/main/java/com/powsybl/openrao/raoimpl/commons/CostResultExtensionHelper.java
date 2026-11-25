@@ -31,6 +31,16 @@ public final class CostResultExtensionHelper {
     private CostResultExtensionHelper() {
     }
 
+    public static CostResult retainInitialSensitivityFailureCost(CostResult costResult, Instant preventiveInstant) {
+        String costName = SensitivityFailureOvercostEvaluator.getEvaluatorName();
+        double initialCost = costResult.getVirtualCost(null, costName);
+        double preventiveCost = costResult.getVirtualCost(preventiveInstant, costName);
+        if (Double.isNaN(initialCost) || initialCost <= 0 || (!Double.isNaN(preventiveCost) && preventiveCost >= initialCost)) {
+            return costResult;
+        }
+        return CostResult.builder(costResult).addVirtualCostResult(preventiveInstant, costName, initialCost).build();
+    }
+
     public static CostResult convertToExtension(ObjectiveFunctionResult initialResult) {
         CostResult.CostResultBuilder costResultBuilder = CostResult.builder();
         addInitialCosts(initialResult, costResultBuilder);

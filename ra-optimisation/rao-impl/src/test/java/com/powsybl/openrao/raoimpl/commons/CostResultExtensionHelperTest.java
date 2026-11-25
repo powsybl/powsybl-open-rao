@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -56,6 +57,46 @@ class CostResultExtensionHelperTest {
         when(preventiveInstant.comesBefore(autoInstant)).thenReturn(true);
         when(preventiveInstant.comesBefore(curativeInstant)).thenReturn(true);
         when(autoInstant.comesBefore(curativeInstant)).thenReturn(true);
+    }
+
+    @Test
+    void retainInitialSensitivityFailureCost() {
+        String failureCost = "sensitivity-failure-cost";
+        CostResult original = CostResult.builder()
+            .addFunctionalCostResult(null, 100)
+            .addVirtualCostResult(null, failureCost, 10000)
+            .addFunctionalCostResult(preventiveInstant, 80)
+            .addVirtualCostResult(preventiveInstant, failureCost, 0)
+            .addVirtualCostResult(preventiveInstant, "other", 5)
+            .addFunctionalCostResult(autoInstant, 60)
+            .addVirtualCostResult(autoInstant, failureCost, 10000)
+            .build();
+
+        CostResult result = CostResultExtensionHelper.retainInitialSensitivityFailureCost(original, preventiveInstant);
+
+        assertEquals(0, original.getVirtualCost(preventiveInstant, failureCost));
+        assertEquals(10000, result.getVirtualCost(null, failureCost));
+        assertEquals(10000, result.getVirtualCost(preventiveInstant, failureCost));
+        assertEquals(80, result.getFunctionalCost(preventiveInstant));
+        assertEquals(5, result.getVirtualCost(preventiveInstant, "other"));
+        assertEquals(10000, result.getVirtualCost(autoInstant, failureCost));
+        assertEquals(60, result.getFunctionalCost(autoInstant));
+        assertSame(result, CostResultExtensionHelper.retainInitialSensitivityFailureCost(result, preventiveInstant));
+    }
+
+    @Test
+    void retainInitialSensitivityFailureCostDoesNotInventPenalty() {
+        CostResult noPenalty = CostResult.builder().addFunctionalCostResult(preventiveInstant, 1).build();
+        assertSame(noPenalty, CostResultExtensionHelper.retainInitialSensitivityFailureCost(noPenalty, preventiveInstant));
+
+        CostResult initialOnly = CostResult.builder().addVirtualCostResult(null, "sensitivity-failure-cost", 10000).build();
+        assertSame(initialOnly, CostResultExtensionHelper.retainInitialSensitivityFailureCost(initialOnly, preventiveInstant));
+
+        CostResult largerPreventiveCost = CostResult.builder()
+            .addVirtualCostResult(null, "sensitivity-failure-cost", 10000)
+            .addVirtualCostResult(preventiveInstant, "sensitivity-failure-cost", 20000)
+            .build();
+        assertSame(largerPreventiveCost, CostResultExtensionHelper.retainInitialSensitivityFailureCost(largerPreventiveCost, preventiveInstant));
     }
 
     @Test
