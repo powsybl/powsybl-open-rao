@@ -137,20 +137,19 @@ public final class ProblemFillerHelper {
 
         // MIP optimization vs. CONTINUOUS optimization
         if (APPROXIMATED_INTEGERS.equals(pstModel) || HYBRID.equals(pstModel)) {
-            // TODO: clean up
-            Map<State, Set<RangeAction<?>>> outRangeActions = new TreeMap<>(Comparator.comparing(State::getId));
-            input.optimizationPerimeter().getRangeActionsPerState().forEach((state, rangeActions) -> {
-                if (rangeActions.stream().anyMatch(PstRangeAction.class::isInstance)) {
-                    outRangeActions.put(state, rangeActions.stream().filter(PstRangeAction.class::isInstance).collect(Collectors.toCollection(
-                        () -> new TreeSet<>(Comparator.comparing(RangeAction::getId))
-                    )));
-                }
-            });
-            Map<State, Set<PstRangeAction>> pstRangeActions = copyOnlyPstRangeActions(input.optimizationPerimeter().getRangeActionsPerState());
+
+            Map<State, Set<RangeAction<?>>> pstRangeActions = copyOnlyPstRangeActions(input.optimizationPerimeter().getRangeActionsPerState());
+            Map<State, Set<PstRangeAction>> pstRangeActionsCasted = pstRangeActions.entrySet().stream()
+                .collect(Collectors.toMap(
+                    Map.Entry::getKey,
+                    entry -> entry.getValue().stream()
+                        .map(PstRangeAction.class::cast)
+                        .collect(Collectors.toSet())
+                ));
             Map<State, Set<RangeAction<?>>> otherRa = copyWithoutPstRangeActions(input.optimizationPerimeter().getRangeActionsPerState());
             DiscretePstTapFiller discretePstTapFiller = new DiscretePstTapFiller(
                 input.optimizationPerimeter(),
-                pstRangeActions,
+                pstRangeActionsCasted,
                 input.prePerimeterSetpoints(),
                 parameters.getRangeActionParameters(),
                 parameters.getObjectiveFunction().costOptimization(),
@@ -161,11 +160,11 @@ public final class ProblemFillerHelper {
 
             DiscretePstGroupFiller discretePstGroupFiller = new DiscretePstGroupFiller(
                 input.optimizationPerimeter().getMainOptimizationState(),
-                pstRangeActions
+                pstRangeActionsCasted
             );
 
             if (HYBRID.equals(pstModel)) {
-                HybridPstProblemFiller hybridPstProblemFiller = new HybridPstProblemFiller(new ContinuousRangeActionGroupFiller(outRangeActions), discretePstTapFiller, discretePstGroupFiller);
+                HybridPstProblemFiller hybridPstProblemFiller = new HybridPstProblemFiller(new ContinuousRangeActionGroupFiller(pstRangeActions), discretePstTapFiller, discretePstGroupFiller);
                 problemFillers.add(hybridPstProblemFiller);
             } else {
                 problemFillers.add(discretePstTapFiller);
@@ -207,12 +206,12 @@ public final class ProblemFillerHelper {
         return outRangeActions;
     }
 
-    private static Map<State, Set<PstRangeAction>> copyOnlyPstRangeActions(Map<State, Set<RangeAction<?>>> inRangeActions) {
-        Map<State, Set<PstRangeAction>> outRangeActions = new TreeMap<>(Comparator.comparing(State::getId));
+    private static Map<State, Set<RangeAction<?>>> copyOnlyPstRangeActions(Map<State, Set<RangeAction<?>>> inRangeActions) {
+        Map<State, Set<RangeAction<?>>> outRangeActions = new TreeMap<>(Comparator.comparing(State::getId));
         inRangeActions.forEach((state, rangeActions) -> {
             if (rangeActions.stream().anyMatch(PstRangeAction.class::isInstance)) {
-                outRangeActions.put(state, rangeActions.stream().filter(PstRangeAction.class::isInstance).map(PstRangeAction.class::cast).collect(Collectors.toCollection(
-                    () -> new TreeSet<>(Comparator.comparing(PstRangeAction::getId))
+                outRangeActions.put(state, rangeActions.stream().filter(PstRangeAction.class::isInstance).collect(Collectors.toCollection(
+                    () -> new TreeSet<>(Comparator.comparing(RangeAction::getId))
                 )));
             }
         });

@@ -82,7 +82,6 @@ public class OpenRaoMPSolver {
         return solver;
     }
 
-    //another solution: make the variables free and make the constraints irrelevant (set all the coefficients to 0 to have 0=0 for example)
     void removeVariablesAndConstraints(Set<String> variableNames, Set<String> constraintNames) {
         if (Collections.disjoint(variableNames, variables.keySet()) && Collections.disjoint(constraintNames, constraints.keySet())) {
             return;

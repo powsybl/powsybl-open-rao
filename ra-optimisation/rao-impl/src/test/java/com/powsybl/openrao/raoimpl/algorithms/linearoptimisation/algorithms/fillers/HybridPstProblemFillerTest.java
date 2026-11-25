@@ -90,7 +90,7 @@ class HybridPstProblemFillerTest extends AbstractFillerTest {
         linearProblem.fill(flowResult, sensitivityResult);
 
         // The initial 11 variables and 7 constraints cover the core model and continuous range-action
-        // range action setpoint variable * 3 (on per range action), group virtual setpoint * 2, variation variable * 2 (UP and DOWN) * 3 (one per range action) = 11 variables
+        // range action setpoint variable * 3 (one per range action), group virtual setpoint * 2, variation variable * 2 (UP and DOWN) * 3 (one per range action) = 11 variables
         // constraints:
         // - injection balance * 1
         // - group constraint  * 3
@@ -114,8 +114,9 @@ class HybridPstProblemFillerTest extends AbstractFillerTest {
             activationResult.putResult(pstRa2, state, pstRa2.convertTapToAngle(tap));
             linearProblem.updateBetweenMipIteration(activationResult);
 
-            // The discrete PST fillers add 11 variables and 12 constraints while preserving the original
-            // continuous model. Unchanged totals on the second iteration verify that none are duplicated.
+            // The discrete PST fillers add 11 variables and 12 constraints
+            // ContinuousRangeActionGroup variables and constraints are removed
+            // Unchanged totals on the second iteration verify that none are duplicated.
             // variable added :
             // - group tap virtual setpoint * 1
             // - tap variation * 2 (up and down) * 2 (pst1 and pst2)

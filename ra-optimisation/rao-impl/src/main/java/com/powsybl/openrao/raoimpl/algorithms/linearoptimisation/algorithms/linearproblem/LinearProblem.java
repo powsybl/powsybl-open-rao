@@ -44,6 +44,8 @@ public final class LinearProblem {
     private final RangeActionActivationResult raActivationFromParentLeaf;
     private final double relativeMipGap;
     private final String solverSpecificParameters;
+    private Set<String> variablesToRemove;
+    private Set<String> constraintsToRemove;
 
     public enum AbsExtension {
         POSITIVE,
@@ -105,6 +107,8 @@ public final class LinearProblem {
         this.relativeMipGap = relativeMipGap;
         this.solverSpecificParameters = solverSpecificParameters;
         this.solver.setMinimization();
+        this.variablesToRemove = new HashSet<>();
+        this.constraintsToRemove = new HashSet<>();
     }
 
     public void reset() {
@@ -132,6 +136,9 @@ public final class LinearProblem {
     public LinearProblemStatus solve() {
         solver.setRelativeMipGap(relativeMipGap);
         solver.setSolverSpecificParametersAsString(solverSpecificParameters);
+        if (!variablesToRemove.isEmpty() || !constraintsToRemove.isEmpty()) {
+            solver.removeVariablesAndConstraints(variablesToRemove, constraintsToRemove);
+        }
         return solver.solve();
     }
 
@@ -285,7 +292,8 @@ public final class LinearProblem {
                 constraintNames.add(rangeActionGroupSetpointConstraintId(rangeAction, state));
             })
         ));
-        solver.removeVariablesAndConstraints(variableNames, constraintNames);
+        this.variablesToRemove.addAll(variableNames);
+        this.constraintsToRemove.addAll(constraintNames);
     }
 
     public OpenRaoMPConstraint addPstGroupTapConstraint(double lb, double ub, PstRangeAction rangeAction, State state) {
