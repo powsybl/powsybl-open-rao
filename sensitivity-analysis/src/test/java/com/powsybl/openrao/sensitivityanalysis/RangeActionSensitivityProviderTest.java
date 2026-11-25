@@ -9,11 +9,8 @@ package com.powsybl.openrao.sensitivityanalysis;
 
 import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.ContingencyElementType;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.TopologyKind;
-import com.powsybl.iidm.network.TwoSides;
-import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.commons.Unit;
+import com.powsybl.iidm.network.*;
+import com.powsybl.openrao.commons.*;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.CracFactory;
 import com.powsybl.openrao.data.crac.api.InstantKind;
@@ -23,21 +20,15 @@ import com.powsybl.openrao.data.crac.api.rangeaction.HvdcRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.crac.impl.utils.CommonCracCreation;
 import com.powsybl.openrao.data.crac.impl.utils.NetworkImportsUtil;
-import com.powsybl.sensitivity.SensitivityFactor;
-import com.powsybl.sensitivity.SensitivityFunctionType;
-import com.powsybl.sensitivity.SensitivityVariableType;
+import com.powsybl.sensitivity.*;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
@@ -285,26 +276,174 @@ class RangeActionSensitivityProviderTest {
     }
 
     @Test
-    void testCTDoesNotThrow() {
+    void testCTWithoutGlskThrows() {
         Crac crac = CommonCracCreation.create();
         FlowCnec flowCnec = crac.newFlowCnec()
-            .withId("cnec")
-            .withNetworkElement("BBE1AA11 FFR5AA11 1")
-            .withInstant(PREVENTIVE_INSTANT_ID)
-            .newThreshold().withMax(1000.).withUnit(Unit.MEGAWATT).withSide(TwoSides.ONE).add()
-            .add();
+                .withId("cnec")
+                .withNetworkElement("BBE1AA11 FFR5AA11 1")
+                .withInstant(PREVENTIVE_INSTANT_ID)
+                .newThreshold().withMax(1000.).withUnit(Unit.MEGAWATT).withSide(TwoSides.ONE).add()
+                .add();
 
         Network network = Network.read("TestCase16NodesWithHvdc.xiidm", getClass().getResourceAsStream("/TestCase16NodesWithHvdc.xiidm"));
 
         RangeAction<?> ctRa = Mockito.mock(CounterTradeRangeAction.class);
+        Mockito.when(ctRa.getId()).thenReturn("ctRa");
         RangeActionSensitivityProvider provider = new RangeActionSensitivityProvider(Set.of(ctRa), Set.of(flowCnec), Set.of(Unit.MEGAWATT, Unit.AMPERE));
 
-        List<SensitivityFactor> factors = provider.getBasecaseFactors(network);
-        assertEquals(2, factors.size());
+        OpenRaoException e = assertThrows(OpenRaoException.class, () -> provider.getBasecaseFactors(network));
+        assertEquals("Generator ordering of ctRa has not been computed", e.getMessage());
+    }
+
+    private record CtTestSetup(FlowCnec flowCnec, Network network, List<String> beGeneratorIds, Map<String, Double> weights) { }
+
+    private CtTestSetup createSetup() {
+        Crac crac = CommonCracCreation.create();
+        FlowCnec flowCnec = crac.newFlowCnec()
+                .withId("cnec")
+                .withNetworkElement("BBE1AA11 FFR5AA11 1")
+                .withInstant(PREVENTIVE_INSTANT_ID)
+                .newThreshold().withMax(1000.).withUnit(Unit.MEGAWATT).withSide(TwoSides.ONE).add()
+                .add();
+
+        Network network = Network.read("TestCase16NodesWithHvdc.xiidm", getClass().getResourceAsStream("/TestCase16NodesWithHvdc.xiidm"));
+
+        List<String> beGeneratorIds = network.getGeneratorStream()
+                .filter(g -> g.getTerminal().getVoltageLevel().getSubstation()
+                        .flatMap(Substation::getCountry).orElse(null) == Country.BE)
+                .map(Generator::getId)
+                .sorted()
+                .toList();
+        List<Double> weightValues = List.of(0.1, 0.2, 0.3, 0.4);
+        assertEquals(weightValues.size(), beGeneratorIds.size());
+
+        Map<String, Double> weights = new HashMap<>();
+        for (int i = 0; i < beGeneratorIds.size(); i++) {
+            weights.put(beGeneratorIds.get(i), weightValues.get(i));
+        }
+        return new CtTestSetup(flowCnec, network, beGeneratorIds, weights);
+    }
+
+    @Test
+    void testCTFactorsWithGlskNoSaturation() {
+        CtTestSetup s = createSetup();
+        List<Double> weightValues = List.of(0.1, 0.2, 0.3, 0.4);
+        CounterTradeGeneratorOrdering ordering = GeneratorOrderingComputer.compute(
+                s.weights(), s.network(), 1e-3, -100, 100);
+        CounterTradeRangeAction ctRa = Mockito.mock(CounterTradeRangeAction.class);
+        Mockito.when(ctRa.getId()).thenReturn("ctRa");
+        Mockito.when(ctRa.getGeneratorOrdering()).thenReturn(ordering);
+
+        assertEquals(0, ordering.upwardLastStage());
+        assertEquals(0, ordering.downwardLastStage());
+        assertEquals(4, ordering.upwardOrder().size());
+        assertEquals(4, ordering.downwardOrder().size());
+
+        RangeActionSensitivityProvider provider = new RangeActionSensitivityProvider(Set.of(ctRa), Set.of(s.flowCnec), Set.of(Unit.MEGAWATT, Unit.AMPERE));
+        List<SensitivityFactor> factors = provider.getBasecaseFactors(s.network);
+
+        // 4a. factors: 4 functions (flow in MW and in A on side ONE) x 2 variables (up+down) = 4 factors
+        assertEquals(4, factors.size());
         for (SensitivityFactor factor : factors) {
-            // By default if no RA, then use a transformer for computing at least flows.
-            assertEquals(SensitivityVariableType.TRANSFORMER_PHASE, factor.getVariableType());
+            assertEquals(SensitivityVariableType.INJECTION_ACTIVE_POWER, factor.getVariableType());
+            assertTrue(factor.isVariableSet());
+        }
+        Set<String> variableIds = factors.stream().map(SensitivityFactor::getVariableId).collect(Collectors.toSet());
+        assertEquals(2, variableIds.size());
+
+        for (String variableSetId : variableIds) {
+            SensitivityVariableSet variableSet = provider.getVariableSets().stream()
+                    .filter(vs -> vs.getId().equals(variableSetId))
+                    .findFirst().orElseThrow();
+            Map<String, Double> varWeights = variableSet.getVariables().stream()
+                    .collect(Collectors.toMap(WeightedSensitivityVariable::getId, WeightedSensitivityVariable::getWeight));
+            assertEquals(4, varWeights.size());
+            for (int i = 0; i < s.beGeneratorIds().size(); i++) {
+                assertEquals(weightValues.get(i), varWeights.get(s.beGeneratorIds().get(i)), 1e-6);
+            }
+        }
+    }
+
+    @Test
+    void testCTFactorsWithGlskUpwardSaturation() {
+        CtTestSetup s = createSetup();
+        String saturatingId = s.beGeneratorIds().get(3);   // generator 4, weight 0.4
+
+        CounterTradeGeneratorOrdering ordering = GeneratorOrderingComputer.compute(
+                s.weights(), s.network(), 1e-3, -100, 20000);
+
+        // preconditions
+        GlskGeneratorAllocation first = ordering.upwardOrder().get(0);
+        assertEquals(saturatingId, first.generatorId());
+        assertEquals(16250., first.cumulativeAllocation(), 1e-3);
+        int k = ordering.upwardLastStage();
+        assertTrue(k >= 1);
+        assertEquals(0, ordering.downwardLastStage());
+
+        CounterTradeRangeAction ctRa = Mockito.mock(CounterTradeRangeAction.class);
+        Mockito.when(ctRa.getId()).thenReturn("ctRa");
+        Mockito.when(ctRa.getGeneratorOrdering()).thenReturn(ordering);
+
+        RangeActionSensitivityProvider provider = new RangeActionSensitivityProvider(
+                Set.of(ctRa), Set.of(s.flowCnec()), Set.of(Unit.MEGAWATT, Unit.AMPERE));
+        List<SensitivityFactor> factors = provider.getBasecaseFactors(s.network());
+
+        // number of factors: functions x (k single generators + tail up + tail down)
+        long functions = factors.stream().map(SensitivityFactor::getFunctionType).distinct().count();
+        assertEquals(functions * (k + 2), factors.size());
+
+        Map<String, List<SensitivityFactor>> byVariable = factors.stream()
+                .collect(Collectors.groupingBy(SensitivityFactor::getVariableId));
+        assertEquals(k + 2, byVariable.size());
+        byVariable.values().forEach(list -> assertEquals(functions, list.size()));
+        factors.forEach(f -> assertEquals(SensitivityVariableType.INJECTION_ACTIVE_POWER, f.getVariableType()));
+
+        // single generators: generator id and not variableSets
+        Set<String> headIds = ordering.upwardOrder().subList(0, k).stream()
+                .map(GlskGeneratorAllocation::generatorId).collect(Collectors.toSet());
+        assertTrue(headIds.contains(saturatingId));
+        for (String id : headIds) {
+            List<SensitivityFactor> list = byVariable.get(id);
+            assertNotNull(list, "Non registered generator: " + id);
+            list.forEach(f -> assertFalse(f.isVariableSet()));
         }
 
+        // tails: variable sets with the expected generators
+        Set<String> upTailIds = ordering.upwardOrder().subList(k, ordering.upwardOrder().size()).stream()
+                .map(GlskGeneratorAllocation::generatorId).collect(Collectors.toSet());
+        Set<String> downTailIds = ordering.downwardOrder().stream()
+                .map(GlskGeneratorAllocation::generatorId).collect(Collectors.toSet());
+        assertFalse(upTailIds.contains(saturatingId));
+        assertEquals(s.beGeneratorIds().size() - k, upTailIds.size());
+        assertEquals(s.beGeneratorIds().size(), downTailIds.size());
+
+        assertTailSet(provider, byVariable, upTailIds, s.weights());
+        assertTailSet(provider, byVariable, downTailIds, s.weights());
+    }
+
+    @Test
+    void testLastStageAroundSaturationPoint() {
+        CtTestSetup s = createSetup();
+        assertEquals(0, GeneratorOrderingComputer.compute(s.weights(), s.network(), 1e-3, -100, 16249).upwardLastStage());
+        assertTrue(GeneratorOrderingComputer.compute(s.weights(), s.network(), 1e-3, -100, 16251).upwardLastStage() >= 1);
+    }
+
+    private void assertTailSet(RangeActionSensitivityProvider provider,
+                               Map<String, List<SensitivityFactor>> byVariable,
+                               Set<String> expectedIds, Map<String, Double> rawWeights) {
+        SensitivityVariableSet set = provider.getVariableSets().stream()
+                .filter(vs -> vs.getVariables().stream()
+                        .map(WeightedSensitivityVariable::getId).collect(Collectors.toSet()).equals(expectedIds))
+                .findFirst()
+                .orElseThrow(() -> new AssertionError("No set with generators " + expectedIds));
+
+        byVariable.get(set.getId()).forEach(f -> assertTrue(f.isVariableSet()));
+
+        // weights are proportional to the initial ones, with or without tail normalization
+        double setTotal = set.getVariables().stream().mapToDouble(WeightedSensitivityVariable::getWeight).sum();
+        double rawTotal = expectedIds.stream().mapToDouble(rawWeights::get).sum();
+        for (WeightedSensitivityVariable v : set.getVariables()) {
+            assertEquals(rawWeights.get(v.getId()) / rawTotal, v.getWeight() / setTotal, 1e-6);
+        }
     }
 }
