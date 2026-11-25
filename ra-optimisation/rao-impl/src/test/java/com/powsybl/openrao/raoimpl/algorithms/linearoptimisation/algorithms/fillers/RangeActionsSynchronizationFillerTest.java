@@ -28,6 +28,7 @@ import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.json.JsonRaoParameters;
 import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters;
 import com.powsybl.openrao.raoimpl.algorithms.linearoptimisation.algorithms.linearproblem.LinearProblem;
 import com.powsybl.openrao.raoimpl.algorithms.linearoptimisation.algorithms.linearproblem.LinearProblemBuilder;
@@ -98,7 +99,8 @@ class RangeActionsSynchronizationFillerTest {
             crac.getRangeActions(curativeState).forEach(rangeAction -> map.put(rangeAction, 0.0));
             RangeActionSetpointResult rangeActionSetpointResult = new RangeActionSetpointResultImpl(map);
             CostCoreProblemFiller coreProblemFiller = new CostCoreProblemFiller(optimizationPerimeter, rangeActionSetpointResult,
-                    rangeActionsParameters, null, Unit.MEGAWATT, false, SearchTreeRaoRangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS, timestamp);
+                    rangeActionsParameters, parameters.getExtension(OpenRaoSearchTreeParameters.class).getRangeActionsOptimizationParameters(),
+                Unit.MEGAWATT, false, SearchTreeRaoRangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS, timestamp);
             linearProblemBuilder.withProblemFiller(coreProblemFiller);
         });
     }
