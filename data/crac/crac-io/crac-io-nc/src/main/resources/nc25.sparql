@@ -961,3 +961,104 @@ GRAPH <%s> {
                     cim:PowerTransformerEnd.PowerTransformer ?powerTransformer .
 }
 }
+
+# query: redispatchRemedialAction
+PREFIX cim: <https://cim.ucaiug.io/ns#>
+PREFIX nc: <https://cim4.eu/ns/nc#>
+
+SELECT *
+{
+    GRAPH <%s> {
+        ?redispatchRemedialAction
+            rdf:type nc:RedispatchRemedialAction ;
+            cim:IdentifiedObject.mRID ?mRID ;
+            nc:RemedialAction.normalAvailable ?normalAvailable ;
+            nc:RemedialAction.kind ?kind .
+
+        OPTIONAL {
+            ?redispatchRemedialAction cim:IdentifiedObject.name ?name .
+        }
+        OPTIONAL {
+            ?redispatchRemedialAction nc:RemedialAction.timeToImplement ?timeToImplement .
+        }
+        OPTIONAL {
+            ?redispatchRemedialAction nc:RemedialAction.RemedialActionSystemOperator ?tso .
+        }
+        OPTIONAL {
+            ?redispatchRemedialAction nc:RemedialAction.isManual ?isManual .
+        }
+    }
+}
+
+# query: powerShiftKeyStrategy
+PREFIX cim: <https://cim.ucaiug.io/ns#>
+PREFIX nc: <https://cim4.eu/ns/nc#>
+
+SELECT *
+{
+    GRAPH <%s> {
+        ?powerShiftKeyStrategy
+            rdf:type nc:PowerShiftKeyStrategy ;
+            cim:IdentifiedObject.mRID ?mRID .
+
+        OPTIONAL {
+            ?redispatchRemedialAction nc:PowerShiftKeyStrategy.PowerRemedialAction ?powerRemedialAction .
+        }
+    }
+}
+
+# query: powerShiftKeyDistribution
+PREFIX cim: <https://cim.ucaiug.io/ns#>
+PREFIX nc: <https://cim4.eu/ns/nc#>
+
+SELECT *
+{
+    GRAPH <%s> {
+        ?powerShiftKeyDistribution
+            rdf:type nc:PowerShiftKeyDistribution ;
+            cim:IdentifiedObject.mRID ?mRID ;
+            nc:PowerShiftKeyDistribution.PowerShiftKeySchedule ?powerShiftKeySchedule .
+
+        OPTIONAL {
+            ?powerShiftKeyDistribution nc:PowerShiftKeyDistribution.PowerShiftKeyStrategy ?powerShiftKeyStrategy .
+        }
+    }
+}
+
+# query: powerShiftKeySchedule
+PREFIX cim: <https://cim.ucaiug.io/ns#>
+PREFIX nc: <https://cim4.eu/ns/nc#>
+
+SELECT *
+{
+    GRAPH <%s> {
+        ?powerShiftKeySchedule
+            rdf:type nc:PowerShiftKeySchedule ;
+            cim:IdentifiedObject.mRID ?mRID ;
+            nc:BaseTimeSeries.interpolationKind ?interpolationKind .
+
+        OPTIONAL {
+            ?powerShiftKeySchedule nc:PowerShiftKeySchedule.GeneratingUnit ?generatingUnit .
+        }
+    }
+}
+
+# query: participationFactorTimePoint
+PREFIX cim: <https://cim.ucaiug.io/ns#>
+PREFIX nc: <https://cim4.eu/ns/nc#>
+
+SELECT *
+{
+    GRAPH <%s> {
+        ?participationFactorTimePoint
+            rdf:type nc:ParticipationFactorTimePoint ;
+            nc:ParticipationFactorTimePoint.PowerShiftKeySchedule ?powerShiftKeySchedule .
+
+        OPTIONAL {
+            ?participationFactorTimePoint nc:ParticipationFactorTimePoint.atTime ?atTime .
+        }
+        OPTIONAL {
+            ?participationFactorTimePoint nc:ParticipationFactorTimePoint.participationFactor ?participationFactor .
+        }
+    }
+}
