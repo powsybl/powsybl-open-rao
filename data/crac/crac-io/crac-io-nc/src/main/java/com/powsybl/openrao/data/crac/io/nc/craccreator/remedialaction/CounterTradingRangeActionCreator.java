@@ -79,10 +79,11 @@ public class CounterTradingRangeActionCreator {
         IidmCounterTradeHelper iidmCounterTradeHelper = new IidmCounterTradeHelper(area, network);
         List<String> neighbors = iidmCounterTradeHelper.getNeighbors();
 
+        // The initial net position is NaN if it cannot be computed: the economic limits are then ignored
         double initialNetPosition = computeInitialNetPosition(area, neighbors);
-        if (Double.isNaN(initialNetPosition)) {
-            throw new OpenRaoImportException(ImportStatus.INCOMPLETE_DATA,
-                    String.format("Remedial action %s will not be imported because the initial net position of area %s could not be computed from the network.", remedialActionId, area));
+        if (Double.isNaN(initialNetPosition) && hasAnyValue(countertradeRemedialAction.minEconomicP(), countertradeRemedialAction.maxEconomicP())) {
+            alterations.add(String.format("CT RA %s: NP of %s unavailable (%s). minEconomicP and maxEconomicP ignored.",
+                    remedialActionId, area, getNetPositionUnavailableReason(neighbors)));
         }
 
         // Both SSI values come from the same origin: the CountertradeRemedialAction if it provides any, the RemedialActionGroup otherwise
@@ -91,8 +92,8 @@ public class CounterTradingRangeActionCreator {
         double maxRegulatingDown = useCountertradeValues ? countertradeRemedialAction.maxRegulatingDown() : countertradeRemedialAction.groupMaxRegulatingDown();
 
         // Checks for the min and max range
-        double minRange = getMinRange(countertradeRemedialAction, remedialActionId, initialNetPosition, maxRegulatingDown, alterations);
-        double maxRange = getMaxRange(countertradeRemedialAction, remedialActionId, initialNetPosition, maxRegulatingUp, alterations);
+        double minRange = getMinRange(countertradeRemedialAction, remedialActionId, area, initialNetPosition, maxRegulatingDown, alterations);
+        double maxRange = getMaxRange(countertradeRemedialAction, remedialActionId, area, initialNetPosition, maxRegulatingUp, alterations);
         if (minRange > maxRange) {
             throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA,
                     String.format("Remedial action %s will not be imported because its range is empty: the min range %s is greater than the max range %s.",
@@ -134,6 +135,13 @@ public class CounterTradingRangeActionCreator {
     }
 
     /**
+     * Reason why the initial net position could not be computed (see computeInitialNetPosition).
+     */
+    private static String getNetPositionUnavailableReason(List<String> neighbors) {
+        return neighbors.isEmpty() ? "no neighbouring area in the network" : "missing flow on a border of the area in the network";
+    }
+
+    /**
      * Check whether the flow is missing (NaN) on a connected terminal of a line, tie-line or HVDC line between the country
      * and one of its neighbors. BorderBasedCountryArea silently counts such flows as 0, so they must be detected beforehand.
      */
@@ -143,7 +151,7 @@ public class CounterTradingRangeActionCreator {
                 network.getTieLineStream().map(tieLine -> List.of(tieLine.getTerminal1(), tieLine.getTerminal2())),
                 network.getHvdcLineStream().map(hvdcLine -> List.of(hvdcLine.getConverterStation1().getTerminal(), hvdcLine.getConverterStation2().getTerminal())))
             .flatMap(Function.identity())
-            .filter(terminals -> isBorder(terminals.get(0), terminals.get(1), country, neighbors))
+            .filter(terminals -> isBorder(terminals.getFirst(), terminals.get(1), country, neighbors))
             .flatMap(List::stream)
             .anyMatch(terminal -> terminal.isConnected() && Double.isNaN(terminal.getP()));
     }
@@ -171,82 +179,97 @@ public class CounterTradingRangeActionCreator {
 
     /**
      * Get the maximum range of a CountertradeRemedialAction, relative to the initial net position of its bidding zone.
-     * The physical limit is maxRegulatingUp and the economic limit is maxEconomicP - initialNetPosition.
-     * If both limits are provided -> use the tightest one (intersection).
-     * If only one of them is provided -> use it as the max range.
-     * If none of them is provided -> use the value from ncCracCreationParameters, or do not import the remedial action if it is not set.
+     * The regulating limit is maxRegulatingUp and the economic limit is maxEconomicP - initialNetPosition.
+     * If maxRegulatingUp is provided -> use it (a message is added if it is wider than the economic limit).
+     * Else if the economic limit is available -> use it.
+     * Else -> use the value from ncCracCreationParameters, or do not import the remedial action if it is not set.
      *
      * @param countertradeRemedialAction        Native CountertradeRemedialAction
      * @param remedialActionId                  ID of the RemedialAction (RA id)
-     * @param initialNetPosition                Initial net position of the bidding zone
+     * @param area                              Area of the remedial action
+     * @param initialNetPosition                Initial net position of the bidding zone (NaN if unavailable)
      * @param maxRegulatingUp                   SSI maxRegulatingUp value
      * @param alterations                       List to store alteration messages
      * @return the maximum range value
      */
-    private double getMaxRange(CountertradeRemedialAction countertradeRemedialAction, String remedialActionId, double initialNetPosition, double maxRegulatingUp, List<String> alterations) {
+    private double getMaxRange(CountertradeRemedialAction countertradeRemedialAction, String remedialActionId, String area, double initialNetPosition, double maxRegulatingUp, List<String> alterations) {
+        double maxEconomicP = countertradeRemedialAction.maxEconomicP();
+        // NaN if maxEconomicP or the initial net position is not available
+        double economicMaxRange = maxEconomicP - initialNetPosition;
 
-        double physicalMaxRange = maxRegulatingUp;
-        double economicMaxRange = countertradeRemedialAction.maxEconomicP() - initialNetPosition;
-
-        double maxRange;
-        if (!Double.isNaN(physicalMaxRange) && !Double.isNaN(economicMaxRange)) {
-            maxRange = Math.min(physicalMaxRange, economicMaxRange);
-        } else if (!Double.isNaN(physicalMaxRange)) {
-            maxRange = physicalMaxRange;
-        } else if (!Double.isNaN(economicMaxRange)) {
-            maxRange = economicMaxRange;
-        } else {
-            // Fallback to the value from the parameters
-            Double parametersMaxRange = ncCracCreationParameters.getCounterTradingMaxRange();
-            if (parametersMaxRange == null) {
-                throw new OpenRaoImportException(ImportStatus.INCOMPLETE_DATA,
-                        String.format("Remedial action %s will not be imported because its maximum range was not provided.", remedialActionId));
+        if (!Double.isNaN(maxRegulatingUp)) {
+            if (!Double.isNaN(economicMaxRange) && maxRegulatingUp > economicMaxRange) {
+                alterations.add(String.format("CT RA %s: upper bound = %s MW, from maxRegulatingUp. Exceeds the economic margin of %s (maxEconomicP %s MW - NP %s MW = %s MW).",
+                        remedialActionId, maxRegulatingUp, area, maxEconomicP, initialNetPosition, economicMaxRange));
             }
-            alterations.add("the maximum range was not provided. It has been set to the maximal range value of " + parametersMaxRange);
-            return parametersMaxRange;
+            return maxRegulatingUp;
         }
 
-        return maxRange;
+        if (!Double.isNaN(economicMaxRange)) {
+            alterations.add(String.format("CT RA %s: upper bound = %s MW, from maxEconomicP (%s MW) and NP of %s (%s MW). maxRegulatingUp not provided.",
+                    remedialActionId, economicMaxRange, maxEconomicP, area, initialNetPosition));
+            return economicMaxRange;
+        }
+
+        // Fallback to the value from the parameters
+        Double parametersMaxRange = ncCracCreationParameters.getCounterTradingMaxRange();
+        if (parametersMaxRange == null) {
+            throw new OpenRaoImportException(ImportStatus.INCOMPLETE_DATA,
+                    String.format("Remedial action %s will not be imported because its maximum range was not provided.", remedialActionId));
+        }
+        String reason = Double.isNaN(maxEconomicP)
+                ? "maxRegulatingUp and maxEconomicP not provided."
+                : String.format("maxRegulatingUp not provided, maxEconomicP unusable (NP of %s unavailable).", area);
+        alterations.add(String.format("CT RA %s: upper bound = %s MW, from counter-trading-max-range. %s", remedialActionId, parametersMaxRange, reason));
+        return parametersMaxRange;
     }
 
     /**
      * Get the minimum range of a CountertradeRemedialAction, relative to the initial net position of its bidding zone.
-     * The physical limit is -maxRegulatingDown and the economic limit is minEconomicP - initialNetPosition.
-     * If both limits are provided -> use the tightest one (intersection).
-     * If only one of them is provided -> use it as the min range.
-     * If none of them is provided -> use the value from ncCracCreationParameters, or do not import the remedial action if it is not set.
+     * The regulating limit is -maxRegulatingDown and the economic limit is minEconomicP - initialNetPosition.
+     * If maxRegulatingDown is provided -> use -maxRegulatingDown (a message is added if it is wider than the economic limit).
+     * Else if the economic limit is available -> use it.
+     * Else -> use the value from ncCracCreationParameters, or do not import the remedial action if it is not set.
      *
      * @param countertradeRemedialAction        Native CountertradeRemedialAction
      * @param remedialActionId                  ID of the RemedialAction (RA id)
-     * @param initialNetPosition                Initial net position of the bidding zone
+     * @param area                              Area of the remedial action
+     * @param initialNetPosition                Initial net position of the bidding zone (NaN if unavailable)
      * @param maxRegulatingDown                 SSI maxRegulatingDown value
      * @param alterations                       List to store alteration messages
      * @return the minimum range value
      */
-    private double getMinRange(CountertradeRemedialAction countertradeRemedialAction, String remedialActionId, double initialNetPosition, double maxRegulatingDown, List<String> alterations) {
+    private double getMinRange(CountertradeRemedialAction countertradeRemedialAction, String remedialActionId, String area, double initialNetPosition, double maxRegulatingDown, List<String> alterations) {
+        double minEconomicP = countertradeRemedialAction.minEconomicP();
+        double regulatingMinRange = -maxRegulatingDown;
+        // NaN if minEconomicP or the initial net position is not available
+        double economicMinRange = minEconomicP - initialNetPosition;
 
-        double physicalMinRange = -maxRegulatingDown;
-        double economicMinRange = countertradeRemedialAction.minEconomicP() - initialNetPosition;
-
-        double minRange;
-        if (!Double.isNaN(physicalMinRange) && !Double.isNaN(economicMinRange)) {
-            minRange = Math.max(physicalMinRange, economicMinRange);
-        } else if (!Double.isNaN(physicalMinRange)) {
-            minRange = physicalMinRange;
-        } else if (!Double.isNaN(economicMinRange)) {
-            minRange = economicMinRange;
-        } else {
-            // Fallback to the value from the parameters
-            Double parametersMinRange = ncCracCreationParameters.getCounterTradingMinRange();
-            if (parametersMinRange == null) {
-                throw new OpenRaoImportException(ImportStatus.INCOMPLETE_DATA,
-                        String.format("Remedial action %s will not be imported because its minimum range was not provided.", remedialActionId));
+        if (!Double.isNaN(regulatingMinRange)) {
+            if (!Double.isNaN(economicMinRange) && regulatingMinRange < economicMinRange) {
+                alterations.add(String.format("CT RA %s: lower bound = %s MW, from maxRegulatingDown. Exceeds the economic margin of %s (minEconomicP %s MW - NP %s MW = %s MW).",
+                        remedialActionId, regulatingMinRange, area, minEconomicP, initialNetPosition, economicMinRange));
             }
-            alterations.add("the minimum range was not provided. It has been set to the minimal range value of " + parametersMinRange);
-            return parametersMinRange;
+            return regulatingMinRange;
         }
 
-        return minRange;
+        if (!Double.isNaN(economicMinRange)) {
+            alterations.add(String.format("CT RA %s: lower bound = %s MW, from minEconomicP (%s MW) and NP of %s (%s MW). maxRegulatingDown not provided.",
+                    remedialActionId, economicMinRange, minEconomicP, area, initialNetPosition));
+            return economicMinRange;
+        }
+
+        // Fallback to the value from the parameters
+        Double parametersMinRange = ncCracCreationParameters.getCounterTradingMinRange();
+        if (parametersMinRange == null) {
+            throw new OpenRaoImportException(ImportStatus.INCOMPLETE_DATA,
+                    String.format("Remedial action %s will not be imported because its minimum range was not provided.", remedialActionId));
+        }
+        String reason = Double.isNaN(minEconomicP)
+                ? "maxRegulatingDown and minEconomicP not provided."
+                : String.format("maxRegulatingDown not provided, minEconomicP unusable (NP of %s unavailable).", area);
+        alterations.add(String.format("CT RA %s: lower bound = %s MW, from counter-trading-min-range. %s", remedialActionId, parametersMinRange, reason));
+        return parametersMinRange;
     }
 
     /**

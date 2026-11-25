@@ -64,12 +64,12 @@ class CounterTradingRangeActionCreatorTest {
         assertEquals(17, cracCreationContext.getCrac().getRangeActions().stream().filter(CounterTradeRangeAction.class::isInstance).count());
 
         // Ranges are relative to the FR net position (500): economic limit - net position
-        // Economic limit is the tightest for max
-        assertRange(cracCreationContext, "ct-economic-limits", -1500, 500);
-        // Physical limit is the tightest for max
+        // Regulating limits (-3000, 2000) have priority over economic limits, even if they are wider (warning)
+        assertRange(cracCreationContext, "ct-economic-limits", -3000, 2000);
+        // Regulating limits are narrower than the economic ones
         assertRange(cracCreationContext, "ct-ssi-limits", -1500, 1000);
-        // Economic limit is the tightest for min, physical limit for max
-        assertRange(cracCreationContext, "ct-mixed-limits", -500, 1000);
+        // Regulating limits have priority over economic limits
+        assertRange(cracCreationContext, "ct-mixed-limits", -2000, 1000);
         // Only physical limits
         assertRange(cracCreationContext, "ct-ssi-only", -200, 300);
         // Only economic limits
@@ -80,8 +80,8 @@ class CounterTradingRangeActionCreatorTest {
         assertRange(cracCreationContext, "ct-outdated-ssi", -2500, 1500);
         // Physical limits from the RemedialActionGroup linked through a RemedialActionDependency
         assertRange(cracCreationContext, "ct-group-limits", -900, 700);
-        // Same RemedialActionGroup shared by another CountertradeRemedialAction, economic limit is the tightest for max
-        assertRange(cracCreationContext, "ct-shared-group-limits", -900, 500);
+        // Same RemedialActionGroup shared by another CountertradeRemedialAction, the regulating limits have priority over the economic ones
+        assertRange(cracCreationContext, "ct-shared-group-limits", -900, 700);
         // RemedialActionDependency not enabled: the RemedialActionGroup physical limits are ignored
         assertRange(cracCreationContext, "ct-disabled-group-dependency", -3500, 2500);
         // Same physical limits in the CountertradeRemedialAction and the RemedialActionGroup
@@ -92,9 +92,11 @@ class CounterTradingRangeActionCreatorTest {
         assertNull(cracCreationContext.getRemedialActionCreationContext("ct-same-limits-group"));
         assertNull(cracCreationContext.getRemedialActionCreationContext("ct-different-limits-group"));
 
-        ElementaryCreationContext notAlteredContext = cracCreationContext.getRemedialActionCreationContext("ct-mixed-limits");
+        ElementaryCreationContext notAlteredContext = cracCreationContext.getRemedialActionCreationContext("ct-ssi-only");
         assertTrue(notAlteredContext.isImported());
         assertFalse(notAlteredContext.isAltered());
+        // Regulating limits wider than the economic margin: the remedial action is altered
+        assertTrue(cracCreationContext.getRemedialActionCreationContext("ct-mixed-limits").isAltered());
 
         // The sign of the net position is not checked by the importer, so the ranges are never altered
         assertFalse(cracCreationContext.getRemedialActionCreationContext("ct-ssi-limits").isAltered());
@@ -108,12 +110,14 @@ class CounterTradingRangeActionCreatorTest {
         // Ranges are relative to the FR net position (-500): economic limit - net position
         // Physical limits (-1500, 1000) are the tightest
         assertRange(cracCreationContext, "ct-ssi-limits", -1500, 1000);
-        // Economic limits (-1000, 1000) minus the net position
-        assertRange(cracCreationContext, "ct-economic-limits", -500, 1500);
+        // Regulating limits (-3000, 2000) have priority over economic limits
+        assertRange(cracCreationContext, "ct-economic-limits", -3000, 2000);
+        // Only economic limits (-2000, 3000) minus the net position
+        assertRange(cracCreationContext, "ct-economic-only", -1500, 3500);
         // Physical limit for max (300) is below the cap
         assertRange(cracCreationContext, "ct-ssi-only", -200, 300);
-        // Economic limit for min (500) is the tightest, physical limit for max (1000)
-        assertRange(cracCreationContext, "ct-mixed-limits", 500, 1000);
+        // Regulating limits have priority over economic limits
+        assertRange(cracCreationContext, "ct-mixed-limits", -2000, 1000);
 
         assertFalse(cracCreationContext.getRemedialActionCreationContext("ct-ssi-limits").isAltered());
     }
@@ -145,11 +149,11 @@ class CounterTradingRangeActionCreatorTest {
 
         // The range from the parameters is used as is
         assertRange(cracCreationContext, "ct-no-limits", -1234, 4321);
-        assertEquals("the minimum range was not provided. It has been set to the minimal range value of -1234.0, "
-                + "the maximum range was not provided. It has been set to the maximal range value of 4321.0",
+        assertEquals("CT RA ct-no-limits: lower bound = -1234.0 MW, from counter-trading-min-range. maxRegulatingDown and minEconomicP not provided., "
+                + "CT RA ct-no-limits: upper bound = 4321.0 MW, from counter-trading-max-range. maxRegulatingUp and maxEconomicP not provided.",
                 cracCreationContext.getRemedialActionCreationContext("ct-no-limits").getImportStatusDetail());
         // Parameters are only used when no limit is provided
-        assertRange(cracCreationContext, "ct-economic-limits", -1500, 500);
+        assertRange(cracCreationContext, "ct-economic-limits", -3000, 2000);
     }
 
     @Test
@@ -158,7 +162,7 @@ class CounterTradingRangeActionCreatorTest {
         NcCracCreationContext cracCreationContext = importCrac();
 
         // Imported with the creator as operator, whether the RemedialActionSystemOperator matches it or not
-        assertRange(cracCreationContext, "ct-economic-limits", -1500, 500);
+        assertRange(cracCreationContext, "ct-economic-limits", -3000, 2000);
         assertRange(cracCreationContext, "ct-different-system-operator", -1500, 500);
 
         List<String> systemOperatorWarnings = listAppender.list.stream()
@@ -204,9 +208,9 @@ class CounterTradingRangeActionCreatorTest {
         assertRaNotImported(cracCreationContext, "ct-unknown-bidding-zone", ImportStatus.INCONSISTENCY_IN_DATA,
                 "Remedial action ct-unknown-bidding-zone will not be imported because the bidding zone code XXXXX-XXX------X is invalid.");
 
-        // Range: min(4000 - 500, 1000) = 1000 < max(3000 - 500, -500) = 2500
+        // Range: economic limits only, min 4000 - 500 = 3500 > max 3000 - 500 = 2500
         assertRaNotImported(cracCreationContext, "ct-empty-range", ImportStatus.INCONSISTENCY_IN_DATA,
-                "Remedial action ct-empty-range will not be imported because its range is empty: the min range 2500.0 is greater than the max range 1000.0.");
+                "Remedial action ct-empty-range will not be imported because its range is empty: the min range 3500.0 is greater than the max range 2500.0.");
 
         // Different physical limits in the CountertradeRemedialAction and the RemedialActionGroup
         assertRaNotImported(cracCreationContext, "ct-different-ctra-and-group-limits", ImportStatus.INCONSISTENCY_IN_DATA,
@@ -262,23 +266,50 @@ class CounterTradingRangeActionCreatorTest {
     }
 
     @Test
-    void doNotImportCounterTradeRangeActionWithoutInitialNetPosition() {
+    void ignoreEconomicLimitsWithoutInitialNetPosition() {
         Network network = NcCracCreationTestUtil.getNetworkFromResource("/networks/16Nodes.zip");
         List.copyOf(network.getLineStream().toList()).forEach(Line::remove);
-        NcCracCreationContext cracCreationContext = NcCracCreationTestUtil.getNcCracCreationContext(CT_ARCHIVE, network, NcCracCreationTestUtil.cracCreationDefaultParametersWithSweCsaExtension());
-
-        assertRaNotImported(cracCreationContext, "ct-economic-limits", ImportStatus.INCOMPLETE_DATA,
-                "Remedial action ct-economic-limits will not be imported because the initial net position of area FR could not be computed from the network.");
+        assertEconomicLimitsIgnored(network, "no neighbouring area in the network");
     }
 
     @Test
-    void doNotImportCounterTradeRangeActionWithoutBorderFlow() {
+    void ignoreEconomicLimitsWithoutBorderFlow() {
         Network network = getNetworkWithFrNetPosition(FR_NET_POSITION);
         network.getLine(FR_TO_DE_LINE).getTerminal1().setP(Double.NaN);
-        NcCracCreationContext cracCreationContext = NcCracCreationTestUtil.getNcCracCreationContext(CT_ARCHIVE, network, NcCracCreationTestUtil.cracCreationDefaultParametersWithSweCsaExtension());
+        assertEconomicLimitsIgnored(network, "missing flow on a border of the area in the network");
+    }
 
-        assertRaNotImported(cracCreationContext, "ct-economic-limits", ImportStatus.INCOMPLETE_DATA,
-                "Remedial action ct-economic-limits will not be imported because the initial net position of area FR could not be computed from the network.");
+    private static void assertEconomicLimitsIgnored(Network network, String reason) {
+        CracCreationParameters cracCreationParameters = NcCracCreationTestUtil.cracCreationDefaultParametersWithSweCsaExtension();
+        cracCreationParameters.getExtension(NcCracCreationParameters.class).setCounterTradingMinRange(-1234.);
+        cracCreationParameters.getExtension(NcCracCreationParameters.class).setCounterTradingMaxRange(4321.);
+        NcCracCreationContext cracCreationContext = NcCracCreationTestUtil.getNcCracCreationContext(CT_ARCHIVE, network, cracCreationParameters);
+
+        String warning = "CT RA ct-economic-limits: NP of FR unavailable (" + reason + "). minEconomicP and maxEconomicP ignored.";
+        // Regulating limits are still used
+        assertRange(cracCreationContext, "ct-economic-limits", -3000, 2000);
+        assertTrue(cracCreationContext.getRemedialActionCreationContext("ct-economic-limits").getImportStatusDetail().contains(warning));
+        // Only economic limits: the default values are used
+        assertRange(cracCreationContext, "ct-economic-only", -1234, 4321);
+        assertTrue(cracCreationContext.getRemedialActionCreationContext("ct-economic-only").getImportStatusDetail().contains(
+                "CT RA ct-economic-only: upper bound = 4321.0 MW, from counter-trading-max-range. maxRegulatingUp not provided, maxEconomicP unusable (NP of FR unavailable)."));
+    }
+
+    @Test
+    void alterWhenRegulatingLimitWiderThanEconomicMargin() {
+        NcCracCreationContext cracCreationContext = importCrac();
+
+        String upperWarning = "CT RA ct-economic-limits: upper bound = 2000.0 MW, from maxRegulatingUp. "
+                + "Exceeds the economic margin of FR (maxEconomicP 1000.0 MW - NP 500.0 MW = 500.0 MW).";
+        String lowerWarning = "CT RA ct-economic-limits: lower bound = -3000.0 MW, from maxRegulatingDown. "
+                + "Exceeds the economic margin of FR (minEconomicP -1000.0 MW - NP 500.0 MW = -1500.0 MW).";
+        ElementaryCreationContext context = cracCreationContext.getRemedialActionCreationContext("ct-economic-limits");
+        assertTrue(context.isAltered());
+        assertTrue(context.getImportStatusDetail().contains(upperWarning));
+        assertTrue(context.getImportStatusDetail().contains(lowerWarning));
+        // Economic limits only: info message
+        assertTrue(cracCreationContext.getRemedialActionCreationContext("ct-economic-only").getImportStatusDetail().contains(
+                "CT RA ct-economic-only: upper bound = 2500.0 MW, from maxEconomicP (3000.0 MW) and NP of FR (500.0 MW). maxRegulatingUp not provided."));
     }
 
     private static Network getNetworkWithFrNetPosition(double frNetPosition) {
