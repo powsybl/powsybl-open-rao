@@ -287,21 +287,20 @@ public final class TimeCoupledIteratingLinearOptimizer {
         return linearProblemBuilder.build();
     }
 
-    private static void fillLinearProblem(LinearProblem linearProblem,
-                                          TemporalData<List<ProblemFiller>> problemFillers,
-                                          List<ProblemFiller> timeCoupledProblemFillers,
-                                          TemporalData<FlowResult> flowResults,
-                                          TemporalData<SensitivityResult> sensitivityResults,
-                                          TemporalData<RangeActionSetpointResult> setPoints) {
+    static void fillLinearProblem(LinearProblem linearProblem,
+                                  TemporalData<List<ProblemFiller>> problemFillers,
+                                  List<ProblemFiller> timeCoupledProblemFillers,
+                                  TemporalData<FlowResult> flowResults,
+                                  TemporalData<SensitivityResult> sensitivityResults,
+                                  TemporalData<RangeActionSetpointResult> setPoints) {
         List<OffsetDateTime> timestamps = problemFillers.getTimestamps();
         timestamps.forEach(timestamp -> {
             List<ProblemFiller> problemFillersForTimestamp = problemFillers.getData(timestamp).orElseThrow();
-            problemFillersForTimestamp.forEach(problemFiller -> problemFiller.fill(
-                linearProblem,
-                flowResults.getData(timestamp).orElseThrow(),
-                sensitivityResults.getData(timestamp).orElseThrow(),
-                new RangeActionActivationResultImpl(setPoints.getData(timestamp).orElseThrow())
-            ));
+            FlowResult flowResult = flowResults.getData(timestamp).orElseThrow();
+            SensitivityResult sensitivityResult = sensitivityResults.getData(timestamp).orElseThrow();
+            // one linearization point per timestamp, shared by all its fillers (the CNEC filter caches its result on identity)
+            RangeActionActivationResult linearizationPoint = new RangeActionActivationResultImpl(setPoints.getData(timestamp).orElseThrow());
+            problemFillersForTimestamp.forEach(problemFiller -> problemFiller.fill(linearProblem, flowResult, sensitivityResult, linearizationPoint));
         });
         // For now, the Power Gradient Constraint filler is the only time-coupled filler and does not use any input but the linear problem
         // A global time-coupled flow/sensitivity/set-point result does not exist anyway

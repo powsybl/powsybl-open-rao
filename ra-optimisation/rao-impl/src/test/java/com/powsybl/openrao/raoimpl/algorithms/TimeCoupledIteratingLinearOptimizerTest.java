@@ -15,11 +15,17 @@ import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.timecoupledconstraints.TimeCoupledConstraints;
 import com.powsybl.openrao.raoimpl.algorithms.linearoptimisation.algorithms.fillers.ProblemFiller;
 import com.powsybl.openrao.raoimpl.algorithms.linearoptimisation.algorithms.fillers.RangeActionsSynchronizationFiller;
+import com.powsybl.openrao.raoimpl.algorithms.linearoptimisation.algorithms.linearproblem.LinearProblem;
 import com.powsybl.openrao.raoimpl.algorithms.linearoptimisation.inputs.IteratingLinearOptimizerInput;
 import com.powsybl.openrao.raoimpl.algorithms.linearoptimisation.parameters.IteratingLinearOptimizerParameters;
 import com.powsybl.openrao.raoimpl.commons.objectivefunction.ObjectiveFunction;
 import com.powsybl.openrao.raoimpl.commons.optimizationperimeters.OptimizationPerimeter;
+import com.powsybl.openrao.raoimpl.result.api.FlowResult;
+import com.powsybl.openrao.raoimpl.result.api.RangeActionActivationResult;
+import com.powsybl.openrao.raoimpl.result.api.RangeActionSetpointResult;
+import com.powsybl.openrao.raoimpl.result.api.SensitivityResult;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
 import java.time.OffsetDateTime;
@@ -30,6 +36,10 @@ import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.mockito.ArgumentMatchers.same;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
@@ -53,6 +63,40 @@ class TimeCoupledIteratingLinearOptimizerTest {
         List<ProblemFiller> problemFillers = TimeCoupledIteratingLinearOptimizer.getTimeCoupledProblemFillers(createTimeCoupledInput(true), Mockito.mock(IteratingLinearOptimizerParameters.class));
         assertEquals(1, problemFillers.size());
         assertInstanceOf(RangeActionsSynchronizationFiller.class, problemFillers.getFirst());
+    }
+
+    @Test
+    void fillersOfOneTimestampShareTheSameLinearizationPoint() {
+        // the safe CNEC filter caches its result on the identity of its inputs: all the fillers of a timestamp must get the same objects
+        ProblemFiller filler11 = Mockito.mock(ProblemFiller.class);
+        ProblemFiller filler12 = Mockito.mock(ProblemFiller.class);
+        ProblemFiller filler21 = Mockito.mock(ProblemFiller.class);
+        ProblemFiller filler22 = Mockito.mock(ProblemFiller.class);
+        FlowResult flowResult1 = Mockito.mock(FlowResult.class);
+        FlowResult flowResult2 = Mockito.mock(FlowResult.class);
+        SensitivityResult sensitivityResult1 = Mockito.mock(SensitivityResult.class);
+        SensitivityResult sensitivityResult2 = Mockito.mock(SensitivityResult.class);
+        LinearProblem linearProblem = Mockito.mock(LinearProblem.class);
+
+        TimeCoupledIteratingLinearOptimizer.fillLinearProblem(
+            linearProblem,
+            new TemporalDataImpl<>(Map.of(TIMESTAMP_1, List.of(filler11, filler12), TIMESTAMP_2, List.of(filler21, filler22))),
+            List.of(),
+            new TemporalDataImpl<>(Map.of(TIMESTAMP_1, flowResult1, TIMESTAMP_2, flowResult2)),
+            new TemporalDataImpl<>(Map.of(TIMESTAMP_1, sensitivityResult1, TIMESTAMP_2, sensitivityResult2)),
+            new TemporalDataImpl<>(Map.of(TIMESTAMP_1, Mockito.mock(RangeActionSetpointResult.class), TIMESTAMP_2, Mockito.mock(RangeActionSetpointResult.class))));
+
+        RangeActionActivationResult linearizationPoint1 = captureLinearizationPoint(filler11, linearProblem, flowResult1, sensitivityResult1);
+        RangeActionActivationResult linearizationPoint2 = captureLinearizationPoint(filler21, linearProblem, flowResult2, sensitivityResult2);
+        assertSame(linearizationPoint1, captureLinearizationPoint(filler12, linearProblem, flowResult1, sensitivityResult1));
+        assertSame(linearizationPoint2, captureLinearizationPoint(filler22, linearProblem, flowResult2, sensitivityResult2));
+        assertNotSame(linearizationPoint1, linearizationPoint2);
+    }
+
+    private static RangeActionActivationResult captureLinearizationPoint(ProblemFiller filler, LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult) {
+        ArgumentCaptor<RangeActionActivationResult> captor = ArgumentCaptor.forClass(RangeActionActivationResult.class);
+        verify(filler).fill(same(linearProblem), same(flowResult), same(sensitivityResult), captor.capture());
+        return captor.getValue();
     }
 
     private static TimeCoupledIteratingLinearOptimizerInput createTimeCoupledInput(boolean isGlobalMip) {
