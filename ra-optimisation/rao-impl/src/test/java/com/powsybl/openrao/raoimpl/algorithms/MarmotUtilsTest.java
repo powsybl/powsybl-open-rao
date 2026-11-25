@@ -14,26 +14,34 @@ import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.commons.TemporalDataImpl;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
+import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
+import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
 import com.powsybl.openrao.raoimpl.result.api.FlowResult;
+import com.powsybl.openrao.raoimpl.result.api.LinearOptimizationResult;
 import com.powsybl.openrao.raoimpl.result.api.PrePerimeterResult;
 import com.powsybl.openrao.raoimpl.result.api.RangeActionSetpointResult;
 import com.powsybl.openrao.raoimpl.result.api.SensitivityResult;
+import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 import java.io.IOException;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.Map;
+import java.util.Set;
 
 import static com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters.getSensitivityWithLoadFlowParameters;
 import static com.powsybl.openrao.raoimpl.algorithms.MarmotUtils.runInitialSensitivityAnalysis;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.when;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
@@ -132,6 +140,36 @@ class MarmotUtilsTest {
         // assertEquals(12, setPointResultTimestamp3.getTap((PstRangeAction) pstBeTimestamp3));
         // assertEquals(0, setPointResultTimestamp3.getTap((PstRangeAction) pstDeTimestamp3));
 
+    }
+
+    @Test
+    void testBuildCurativeActionsToApply() {
+        // issue #1893: no remedial action should be applied on a state that diverged during the initial sensitivity computation
+        State curativeState = crac1.getStates().stream()
+            .filter(state -> state.getInstant().isCurative())
+            .findFirst()
+            .orElseThrow();
+        RangeAction<?> pstDe = crac1.getRangeAction("pstDe - 1600");
+
+        AppliedRemedialActions topoCurativeActions = new AppliedRemedialActions();
+        topoCurativeActions.addAppliedRangeAction(curativeState, pstDe, 5.0);
+
+        LinearOptimizationResult filteredResult = Mockito.mock(LinearOptimizationResult.class);
+        when(filteredResult.getActivatedRangeActions(curativeState)).thenReturn(Set.of(pstDe));
+        when(filteredResult.getOptimizedSetpoint(pstDe, curativeState)).thenReturn(5.0);
+
+        PrePerimeterResult initialResult = Mockito.mock(PrePerimeterResult.class);
+
+        // state did not diverge in the initial sensitivity computation: all curative RAs are applied
+        when(initialResult.getSensitivityStatus(curativeState)).thenReturn(ComputationStatus.DEFAULT);
+        AppliedRemedialActions appliedActions = Marmot.buildCurativeActionsToApply(crac1, topoCurativeActions, filteredResult, initialResult);
+        assertEquals(Map.of(pstDe, 5.0), appliedActions.getAppliedRangeActions(curativeState));
+
+        // state diverged in the initial sensitivity computation: no RA is applied, the divergence is kept
+        when(initialResult.getSensitivityStatus(curativeState)).thenReturn(ComputationStatus.FAILURE);
+        AppliedRemedialActions noActions = Marmot.buildCurativeActionsToApply(crac1, topoCurativeActions, filteredResult, initialResult);
+        assertTrue(noActions.getAppliedRangeActions(curativeState).isEmpty());
+        assertTrue(noActions.getAppliedNetworkActions(curativeState).isEmpty());
     }
 
     private static void assertFlowValueMw(FlowResult flowResult, FlowCnec flowCnec, double expectedFlowMw) {

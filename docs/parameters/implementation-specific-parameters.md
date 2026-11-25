@@ -256,7 +256,10 @@ from inside the RAO.
   If this parameter is strictly positive, the RAO will discriminate the combinations of RA for which the systematic
   analysis didn't converge. The RAO might therefore put aside the solution with the best objective-function if it has
   lead to a sensitivity failure, and instead propose a solution whose objective-function is worse, but whose associated
-  network is converging for all contingency scenarios.
+  network is converging for all contingency scenarios.  
+  Besides, when a contingency diverges during the initial sensitivity computation, no remedial action is applied on
+  this case: the divergence is kept (its causes may be unrelated to RAO, e.g. a badly modelled voltage control or a
+  weird starting point), and this overcost is reported at all its instants.
 
 ##### sensitivity-parameters
 - **Expected value**: SensitivityComputationParameters ([PowSyBl](inv:powsyblcore:std:doc#simulation/sensitivity/configuration) configuration)

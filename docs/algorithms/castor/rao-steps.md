@@ -110,6 +110,13 @@ Finally, a curative perimeter can be defined for each defined contingency. Each 
 - CNECs of the “after curative situation” defined with a limit of type PATL. All CNECs defined upon the same
   contingency.
 
+When the sensitivity computation of a contingency diverges during the initial sensitivity computation (e.g. because
+of a badly modelled voltage control, or just a weird starting point), its scenario is skipped: no remedial action is
+simulated nor applied on this case, and all its instants are reported as `FAILURE` with the
+[sensitivity-failure-overcost](../../parameters/implementation-specific-parameters.md#sensitivity-failure-overcost).
+The divergence is kept rather than masked by remedial actions, whose effects may be unrelated to RAO: this modelization
+problem has to be addressed by the TSOs in the CRAC.
+
 Overloads potentially reached on this perimeter are to be solved with curative actions.
 Preventive and automatic actions already selected in the “after automatons” situation by the first two steps are applied
 in this perimeter.

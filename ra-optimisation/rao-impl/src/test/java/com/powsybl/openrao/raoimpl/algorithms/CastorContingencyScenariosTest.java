@@ -7,12 +7,30 @@
 
 package com.powsybl.openrao.raoimpl.algorithms;
 
+import com.powsybl.commons.report.ReportNode;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.openrao.data.crac.api.Crac;
+import com.powsybl.openrao.data.crac.api.State;
+import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
+import com.powsybl.openrao.raoapi.parameters.RaoParameters;
+import com.powsybl.openrao.raoimpl.commons.ToolProvider;
 import com.powsybl.openrao.raoimpl.commons.parameters.TreeParameters;
 import com.powsybl.openrao.raoimpl.result.api.ObjectiveFunctionResult;
+import com.powsybl.openrao.raoimpl.result.api.OptimizationResult;
+import com.powsybl.openrao.raoimpl.result.api.PrePerimeterResult;
+import com.powsybl.openrao.raoimpl.result.impl.PostPerimeterResult;
+import com.powsybl.openrao.raoimpl.result.impl.SkippedOptimizationResultImpl;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import java.io.IOException;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
@@ -56,5 +74,80 @@ class CastorContingencyScenariosTest {
         when(treeParameters.stopCriterion()).thenReturn(TreeParameters.StopCriterion.AT_TARGET_OBJECTIVE_VALUE);
         when(treeParameters.targetObjectiveValue()).thenReturn(0.);
         assertTrue(CastorContingencyScenarios.isStopCriterionChecked(objectiveFunctionResult, treeParameters));
+    }
+
+    @Test
+    void testHasFailedInitialSensitivity() {
+        State state1 = Mockito.mock(State.class);
+        State state2 = Mockito.mock(State.class);
+        PrePerimeterResult initialSensitivityOutput = Mockito.mock(PrePerimeterResult.class);
+        when(initialSensitivityOutput.getSensitivityStatus(state1)).thenReturn(ComputationStatus.DEFAULT);
+        when(initialSensitivityOutput.getSensitivityStatus(state2)).thenReturn(ComputationStatus.PARTIAL_FAILURE);
+        assertFalse(CastorContingencyScenarios.hasFailedInitialSensitivity(initialSensitivityOutput, Set.of(state1, state2)));
+
+        // a diverged state in the initial sensitivity computation makes the scenario failed
+        when(initialSensitivityOutput.getSensitivityStatus(state2)).thenReturn(ComputationStatus.FAILURE);
+        assertTrue(CastorContingencyScenarios.hasFailedInitialSensitivity(initialSensitivityOutput, Set.of(state1, state2)));
+    }
+
+    /**
+     * If a contingency diverged during the initial sensitivity computation, no remedial action is simulated
+     * nor applied on its case: all its states are reported as skipped with the sensitivity failure overcost (issue #1893).
+     */
+    @Test
+    void testScenarioSkippedWhenInitialSensitivityFailed() throws IOException {
+        Network network = Network.read("12Nodes_2_pst.uct", getClass().getResourceAsStream("/network/12Nodes_2_pst.uct"));
+        Crac crac = Crac.read("small-crac-2pst-1600.json", getClass().getResourceAsStream("/crac/small-crac-2pst-1600.json"), network);
+        RaoParameters raoParameters = new RaoParameters(ReportNode.NO_OP);
+        StateTree stateTree = new StateTree(crac, ReportNode.NO_OP);
+        assertFalse(stateTree.getContingencyScenarios().isEmpty());
+
+        // the contingency diverged during the initial sensitivity computation, on all its states
+        PrePerimeterResult initialSensitivityOutput = Mockito.mock(PrePerimeterResult.class);
+        when(initialSensitivityOutput.getSensitivityStatus(Mockito.any(State.class))).thenReturn(ComputationStatus.FAILURE);
+
+        CastorContingencyScenarios castorContingencyScenarios = new CastorContingencyScenarios(
+            crac,
+            raoParameters,
+            Mockito.mock(ToolProvider.class),
+            stateTree,
+            TreeParameters.buildForCurativePerimeter(raoParameters, 0.),
+            initialSensitivityOutput
+        );
+
+        Map<State, PostPerimeterResult> results = castorContingencyScenarios.optimizeContingencyScenarios(
+            network,
+            Mockito.mock(PrePerimeterResult.class),
+            false,
+            ReportNode.NO_OP
+        );
+
+        // all states of the scenario are skipped, with the sensitivity failure overcost, and no remedial action applied
+        stateTree.getContingencyScenarios().forEach(scenario -> assertScenarioSkipped(results, scenario));
+
+        // same when only the automaton states are re-simulated (second preventive): the diverged case is not simulated
+        Map<State, PostPerimeterResult> secondRunResults = castorContingencyScenarios.optimizeContingencyScenarios(
+            network,
+            Mockito.mock(PrePerimeterResult.class),
+            true,
+            ReportNode.NO_OP
+        );
+        stateTree.getContingencyScenarios().forEach(scenario -> assertScenarioSkipped(secondRunResults, scenario));
+    }
+
+    private static void assertScenarioSkipped(Map<State, PostPerimeterResult> results, ContingencyScenario scenario) {
+        Set<State> scenarioStates = new HashSet<>();
+        scenario.getCurativePerimeters().forEach(perimeter -> scenarioStates.addAll(perimeter.getAllStates()));
+        scenario.getAutomatonState().ifPresent(scenarioStates::add);
+        scenarioStates.forEach(state -> {
+            PostPerimeterResult result = results.get(state);
+            assertNotNull(result);
+            OptimizationResult optimizationResult = result.optimizationResult();
+            assertTrue(optimizationResult instanceof SkippedOptimizationResultImpl);
+            assertEquals(ComputationStatus.FAILURE, optimizationResult.getSensitivityStatus());
+            assertEquals(10000., optimizationResult.getVirtualCost("sensitivity-failure-cost"), 1e-6);
+            assertTrue(optimizationResult.getActivatedNetworkActions().isEmpty());
+            assertTrue(optimizationResult.getActivatedRangeActions(state).isEmpty());
+        });
     }
 }
