@@ -38,6 +38,7 @@ import com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityPa
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoTopoOptimizationParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SecondPreventiveRaoParameters;
+import com.powsybl.openrao.raoimpl.reports.ReportsTestUtils;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.slf4j.LoggerFactory;
@@ -352,6 +353,22 @@ class CastorFullOptimizationTest {
         assertEquals(-20.30, costResult.getFunctionalCost(crac.getInstant("curative1")), 1.);
         assertEquals(-20.30, costResult.getFunctionalCost(crac.getInstant("curative2")), 1.);
         assertEquals(-20.30, costResult.getFunctionalCost(crac.getInstant("curative3")), 1.);
+    }
+
+    @Test
+    void testAutomatonReportsAreNestedInTheirContingencyScenario() throws IOException {
+        setup("2Nodes8ParallelLines5LinesClosed.uct", "small-crac-costly-auto-and-curative-4-scenarios.json");
+        RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_2P_v2.json"), ReportNode.NO_OP);
+        ReportNode rootReportNode = ReportsTestUtils.getTestRootNode();
+
+        new CastorFullOptimization(raoInput, raoParameters, null, rootReportNode).run().join();
+
+        List<ReportNode> automatonReportNodes = ReportsTestUtils.findReportNodes(rootReportNode, "openrao.searchtreerao.reportOptimizingAutomatonState");
+        List<ReportNode> automatonReportNodesInScenarios = ReportsTestUtils.findReportNodes(rootReportNode, "openrao.searchtreerao.reportOptimizingScenarioForContingency").stream()
+            .flatMap(scenarioReportNode -> ReportsTestUtils.findReportNodes(scenarioReportNode, "openrao.searchtreerao.reportOptimizingAutomatonState").stream())
+            .toList();
+        assertEquals(2, automatonReportNodes.size());
+        assertEquals(automatonReportNodes, automatonReportNodesInScenarios);
     }
 
     @Test
