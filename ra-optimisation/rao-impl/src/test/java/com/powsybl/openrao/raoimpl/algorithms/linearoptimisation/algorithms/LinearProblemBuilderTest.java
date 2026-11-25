@@ -9,15 +9,21 @@ package com.powsybl.openrao.raoimpl.algorithms.linearoptimisation.algorithms;
 
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.State;
+import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.raoapi.parameters.LoopFlowParameters;
 import com.powsybl.openrao.raoapi.parameters.MnecParameters;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
 import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.PtdfApproximation;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoCostlyMinMarginParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoLoopFlowParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoMnecParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRelativeMarginsParameters;
+import com.powsybl.openrao.raoimpl.algorithms.linearoptimisation.algorithms.cnecfiltering.FlowCnecFilter;
+import com.powsybl.openrao.raoimpl.algorithms.linearoptimisation.algorithms.cnecfiltering.MarginCriterion;
+import com.powsybl.openrao.raoimpl.algorithms.linearoptimisation.algorithms.cnecfiltering.SafeFlowCnecFilter;
+import com.powsybl.openrao.raoimpl.algorithms.linearoptimisation.algorithms.fillers.AbstractCoreProblemFiller;
 import com.powsybl.openrao.raoimpl.algorithms.linearoptimisation.algorithms.fillers.ContinuousRangeActionGroupFiller;
 import com.powsybl.openrao.raoimpl.algorithms.linearoptimisation.algorithms.fillers.DiscretePstGroupFiller;
 import com.powsybl.openrao.raoimpl.algorithms.linearoptimisation.algorithms.fillers.DiscretePstTapFiller;
@@ -35,19 +41,27 @@ import com.powsybl.openrao.raoimpl.algorithms.linearoptimisation.inputs.Iteratin
 import com.powsybl.openrao.raoimpl.algorithms.linearoptimisation.parameters.IteratingLinearOptimizerParameters;
 import com.powsybl.openrao.raoimpl.commons.optimizationperimeters.CurativeOptimizationPerimeter;
 import com.powsybl.openrao.raoimpl.commons.optimizationperimeters.OptimizationPerimeter;
+import com.powsybl.openrao.raoimpl.commons.optimizationperimeters.PreventiveOptimizationPerimeter;
 import com.powsybl.openrao.raoimpl.commons.parameters.RangeActionLimitationParameters;
 import com.powsybl.openrao.raoimpl.commons.parameters.UnoptimizedCnecParameters;
+import com.powsybl.openrao.raoimpl.result.api.FlowResult;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.Mockito;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.OptionalDouble;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
 /**
@@ -59,6 +73,8 @@ class LinearProblemBuilderTest {
     private IteratingLinearOptimizerParameters parameters;
     private SearchTreeRaoRangeActionsOptimizationParameters rangeActionParametersExtension;
     private OptimizationPerimeter optimizationPerimeter;
+    private SearchTreeRaoRelativeMarginsParameters relativeMarginParameters;
+    private SearchTreeRaoCostlyMinMarginParameters minMarginsParameters;
 
     @BeforeEach
     public void setup() {
@@ -73,9 +89,9 @@ class LinearProblemBuilderTest {
         when(parameters.getRangeActionParameters()).thenReturn(rangeActionParameters);
         rangeActionParametersExtension = Mockito.mock(SearchTreeRaoRangeActionsOptimizationParameters.class);
         when(parameters.getRangeActionParametersExtension()).thenReturn(rangeActionParametersExtension);
-        SearchTreeRaoRelativeMarginsParameters relativeMarginParameters = Mockito.mock(SearchTreeRaoRelativeMarginsParameters.class);
+        relativeMarginParameters = Mockito.mock(SearchTreeRaoRelativeMarginsParameters.class);
         when(parameters.getMaxMinRelativeMarginParameters()).thenReturn(relativeMarginParameters);
-        SearchTreeRaoCostlyMinMarginParameters minMarginsParameters = Mockito.mock(SearchTreeRaoCostlyMinMarginParameters.class);
+        minMarginsParameters = Mockito.mock(SearchTreeRaoCostlyMinMarginParameters.class);
         when(parameters.getMinMarginParameters()).thenReturn(minMarginsParameters);
         MnecParameters mnecParameters = Mockito.mock(MnecParameters.class);
         when(parameters.getMnecParameters()).thenReturn(mnecParameters);
@@ -181,5 +197,122 @@ class LinearProblemBuilderTest {
         assertInstanceOf(MaxMinMarginFiller.class, fillers.get(1));
         assertInstanceOf(ContinuousRangeActionGroupFiller.class, fillers.get(2));
         assertInstanceOf(RaUsageLimitsFiller.class, fillers.get(3));
+    }
+
+    private void setUpCnecFiltering(SearchTreeRaoRangeActionsOptimizationParameters.LinearProblemCnecFiltering filtering, ObjectiveFunctionParameters.ObjectiveFunctionType objectiveFunction) {
+        // costly optimization requires the APPROXIMATED_INTEGERS PST model
+        when(rangeActionParametersExtension.getPstModel()).thenReturn(objectiveFunction.costOptimization()
+            ? SearchTreeRaoRangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS
+            : SearchTreeRaoRangeActionsOptimizationParameters.PstModel.CONTINUOUS);
+        when(rangeActionParametersExtension.getLinearProblemCnecFiltering()).thenReturn(filtering);
+        when(parameters.getObjectiveFunction()).thenReturn(objectiveFunction);
+        when(parameters.getFlowUnit()).thenReturn(Unit.MEGAWATT);
+        when(minMarginsParameters.getShiftedViolationThreshold()).thenReturn(5.0);
+        when(relativeMarginParameters.getPtdfSumLowerBound()).thenReturn(0.01);
+        when(relativeMarginParameters.getPtdfApproximation()).thenReturn(PtdfApproximation.FIXED_PTDF);
+        when(inputs.preOptimizationFlowResult()).thenReturn(Mockito.mock(FlowResult.class));
+    }
+
+    private static FlowCnecFilter getCoreFilter(List<ProblemFiller> fillers) {
+        return ((AbstractCoreProblemFiller) fillers.getFirst()).getFlowCnecFilter();
+    }
+
+    private static FlowCnecFilter getMarginFilter(List<ProblemFiller> fillers) {
+        return ((MaxMinMarginFiller) fillers.get(1)).getFlowCnecFilter();
+    }
+
+    private static FlowCnec mockCnec(String id, String operator) {
+        FlowCnec cnec = Mockito.mock(FlowCnec.class);
+        when(cnec.getId()).thenReturn(id);
+        when(cnec.getOperator()).thenReturn(operator);
+        return cnec;
+    }
+
+    @ParameterizedTest
+    @EnumSource(ObjectiveFunctionParameters.ObjectiveFunctionType.class)
+    void safeBoundsFilterIsSharedByCoreAndMarginFillers(ObjectiveFunctionParameters.ObjectiveFunctionType objectiveFunction) {
+        setUpCnecFiltering(SearchTreeRaoRangeActionsOptimizationParameters.LinearProblemCnecFiltering.SAFE_BOUNDS, objectiveFunction);
+
+        List<ProblemFiller> fillers = ProblemFillerHelper.getProblemFillers(inputs, parameters, null);
+
+        FlowCnecFilter coreFilter = getCoreFilter(fillers);
+        assertInstanceOf(SafeFlowCnecFilter.class, coreFilter);
+        assertSame(coreFilter, getMarginFilter(fillers));
+        MarginCriterion expectedCriterion = switch (objectiveFunction) {
+            case SECURE_FLOW, MAX_MIN_MARGIN -> new MarginCriterion.Absolute(OptionalDouble.empty());
+            case MIN_COST -> new MarginCriterion.Absolute(OptionalDouble.of(5.0));
+            case MAX_MIN_RELATIVE_MARGIN -> new MarginCriterion.Relative(inputs.preOptimizationFlowResult(), 0.01);
+        };
+        assertEquals(expectedCriterion, ((SafeFlowCnecFilter) coreFilter).getCriterion());
+    }
+
+    @ParameterizedTest
+    @EnumSource(ObjectiveFunctionParameters.ObjectiveFunctionType.class)
+    void disabledFilteringGivesNoFilterToCoreAndMarginFillers(ObjectiveFunctionParameters.ObjectiveFunctionType objectiveFunction) {
+        setUpCnecFiltering(SearchTreeRaoRangeActionsOptimizationParameters.LinearProblemCnecFiltering.DISABLED, objectiveFunction);
+
+        List<ProblemFiller> fillers = ProblemFillerHelper.getProblemFillers(inputs, parameters, null);
+
+        assertSame(FlowCnecFilter.NONE, getCoreFilter(fillers));
+        assertSame(FlowCnecFilter.NONE, getMarginFilter(fillers));
+    }
+
+    @Test
+    void relativeCriterionUsesLinearizationPtdfsWhenTheyAreUpdatedWithPstChanges() {
+        setUpCnecFiltering(SearchTreeRaoRangeActionsOptimizationParameters.LinearProblemCnecFiltering.SAFE_BOUNDS, ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN);
+        when(relativeMarginParameters.getPtdfApproximation()).thenReturn(PtdfApproximation.UPDATE_PTDF_WITH_TOPO_AND_PST);
+
+        SafeFlowCnecFilter filter = (SafeFlowCnecFilter) ProblemFillerHelper.buildFlowCnecFilter(inputs, parameters);
+
+        assertEquals(new MarginCriterion.Relative(null, 0.01), filter.getCriterion());
+    }
+
+    @Test
+    void eachCallBuildsItsOwnFilter() {
+        setUpCnecFiltering(SearchTreeRaoRangeActionsOptimizationParameters.LinearProblemCnecFiltering.SAFE_BOUNDS, ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN);
+
+        List<ProblemFiller> firstFillers = ProblemFillerHelper.getProblemFillers(inputs, parameters, null);
+        List<ProblemFiller> secondFillers = ProblemFillerHelper.getProblemFillers(inputs, parameters, null);
+
+        assertNotSame(getCoreFilter(firstFillers), getCoreFilter(secondFillers));
+    }
+
+    @Test
+    void unoptimizedOperatorCnecsAreProtectedInCurativePerimeter() {
+        setUpCnecFiltering(SearchTreeRaoRangeActionsOptimizationParameters.LinearProblemCnecFiltering.SAFE_BOUNDS, ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN);
+        FlowCnec unoptimizedCnec = mockCnec("unoptimized", "FR");
+        FlowCnec optimizedCnec = mockCnec("optimized", "BE");
+        FlowCnec mnec = mockCnec("mnec", "BE");
+        FlowCnec loopFlowCnec = mockCnec("loop-flow", "BE");
+        when(optimizationPerimeter.getFlowCnecs()).thenReturn(Set.of(unoptimizedCnec, optimizedCnec, mnec, loopFlowCnec));
+        when(optimizationPerimeter.getMonitoredFlowCnecs()).thenReturn(Set.of(mnec));
+        when(optimizationPerimeter.getLoopFlowCnecs()).thenReturn(Set.of(loopFlowCnec));
+        when(parameters.isRaoWithMnecLimitation()).thenReturn(true);
+        when(parameters.isRaoWithLoopFlowLimitation()).thenReturn(true);
+        UnoptimizedCnecParameters unoptimizedCnecParameters = Mockito.mock(UnoptimizedCnecParameters.class);
+        when(unoptimizedCnecParameters.getOperatorsNotToOptimize()).thenReturn(Set.of("FR"));
+        when(parameters.getUnoptimizedCnecParameters()).thenReturn(unoptimizedCnecParameters);
+
+        SafeFlowCnecFilter filter = (SafeFlowCnecFilter) ProblemFillerHelper.buildFlowCnecFilter(inputs, parameters);
+
+        assertEquals(Set.of(unoptimizedCnec, mnec, loopFlowCnec), filter.getProtectedCnecs());
+        assertEquals(Set.of(unoptimizedCnec), filter.getNotWitnessCnecs());
+    }
+
+    @Test
+    void unoptimizedOperatorCnecsAreNotSpecialOutsideCurativePerimeter() {
+        setUpCnecFiltering(SearchTreeRaoRangeActionsOptimizationParameters.LinearProblemCnecFiltering.SAFE_BOUNDS, ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN);
+        OptimizationPerimeter preventivePerimeter = Mockito.mock(PreventiveOptimizationPerimeter.class);
+        when(inputs.optimizationPerimeter()).thenReturn(preventivePerimeter);
+        FlowCnec unoptimizedCnec = mockCnec("unoptimized", "FR");
+        when(preventivePerimeter.getFlowCnecs()).thenReturn(Set.of(unoptimizedCnec));
+        UnoptimizedCnecParameters unoptimizedCnecParameters = Mockito.mock(UnoptimizedCnecParameters.class);
+        when(unoptimizedCnecParameters.getOperatorsNotToOptimize()).thenReturn(Set.of("FR"));
+        when(parameters.getUnoptimizedCnecParameters()).thenReturn(unoptimizedCnecParameters);
+
+        SafeFlowCnecFilter filter = (SafeFlowCnecFilter) ProblemFillerHelper.buildFlowCnecFilter(inputs, parameters);
+
+        assertTrue(filter.getProtectedCnecs().isEmpty());
+        assertTrue(filter.getNotWitnessCnecs().isEmpty());
     }
 }

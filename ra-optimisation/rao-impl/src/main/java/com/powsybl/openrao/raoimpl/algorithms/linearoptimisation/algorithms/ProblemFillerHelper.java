@@ -8,9 +8,15 @@
 package com.powsybl.openrao.raoimpl.algorithms.linearoptimisation.algorithms;
 
 import com.powsybl.openrao.data.crac.api.State;
+import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.LinearProblemCnecFiltering;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRelativeMarginsParameters;
+import com.powsybl.openrao.raoimpl.algorithms.linearoptimisation.algorithms.cnecfiltering.FlowCnecFilter;
+import com.powsybl.openrao.raoimpl.algorithms.linearoptimisation.algorithms.cnecfiltering.MarginCriterion;
+import com.powsybl.openrao.raoimpl.algorithms.linearoptimisation.algorithms.cnecfiltering.SafeFlowCnecFilter;
 import com.powsybl.openrao.raoimpl.algorithms.linearoptimisation.algorithms.fillers.ContinuousRangeActionGroupFiller;
 import com.powsybl.openrao.raoimpl.algorithms.linearoptimisation.algorithms.fillers.CostCoreProblemFiller;
 import com.powsybl.openrao.raoimpl.algorithms.linearoptimisation.algorithms.fillers.DiscretePstGroupFiller;
@@ -22,23 +28,29 @@ import com.powsybl.openrao.raoimpl.algorithms.linearoptimisation.algorithms.fill
 import com.powsybl.openrao.raoimpl.algorithms.linearoptimisation.algorithms.fillers.MnecFiller;
 import com.powsybl.openrao.raoimpl.algorithms.linearoptimisation.algorithms.fillers.ProblemFiller;
 import com.powsybl.openrao.raoimpl.algorithms.linearoptimisation.algorithms.fillers.RaUsageLimitsFiller;
+import com.powsybl.openrao.raoimpl.algorithms.linearoptimisation.algorithms.fillers.RangeActionImpacts;
 import com.powsybl.openrao.raoimpl.algorithms.linearoptimisation.algorithms.fillers.UnoptimizedCnecFiller;
 import com.powsybl.openrao.raoimpl.algorithms.linearoptimisation.inputs.IteratingLinearOptimizerInput;
 import com.powsybl.openrao.raoimpl.algorithms.linearoptimisation.parameters.IteratingLinearOptimizerParameters;
 import com.powsybl.openrao.raoimpl.commons.optimizationperimeters.CurativeOptimizationPerimeter;
+import com.powsybl.openrao.raoimpl.commons.optimizationperimeters.OptimizationPerimeter;
+import com.powsybl.openrao.raoimpl.result.api.FlowResult;
 
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.OptionalDouble;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
+import static com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.getLinearProblemCnecFiltering;
 import static com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.getPstModel;
 
 /**
@@ -50,6 +62,8 @@ public final class ProblemFillerHelper {
 
     public static List<ProblemFiller> getProblemFillers(IteratingLinearOptimizerInput input, IteratingLinearOptimizerParameters parameters, OffsetDateTime timestamp) {
         List<ProblemFiller> problemFillers = new ArrayList<>();
+        // shared by the core filler and the margin filler so that both model the same flow CNECs
+        FlowCnecFilter flowCnecFilter = buildFlowCnecFilter(input, parameters);
 
         // Core problem filler
         if (parameters.getObjectiveFunction().costOptimization()) {
@@ -62,7 +76,8 @@ public final class ProblemFillerHelper {
                 parameters.getFlowUnit(),
                 parameters.getRaRangeShrinking(),
                 getPstModel(parameters.getRangeActionParametersExtension()),
-                timestamp
+                timestamp,
+                flowCnecFilter
             );
             problemFillers.add(costCoreProblemFiller);
         } else {
@@ -74,7 +89,8 @@ public final class ProblemFillerHelper {
                 parameters.getFlowUnit(),
                 parameters.getRaRangeShrinking(),
                 getPstModel(parameters.getRangeActionParametersExtension()),
-                timestamp
+                timestamp,
+                flowCnecFilter
             );
             problemFillers.add(marginCoreProblemFiller);
         }
@@ -87,7 +103,8 @@ public final class ProblemFillerHelper {
                 parameters.getFlowUnit(),
                 parameters.getMinMarginParameters(),
                 parameters.getMaxMinRelativeMarginParameters(),
-                timestamp
+                timestamp,
+                flowCnecFilter
             );
             problemFillers.add(maxMinRelativeMarginFiller);
         } else {
@@ -96,7 +113,8 @@ public final class ProblemFillerHelper {
                 parameters.getFlowUnit(),
                 parameters.getObjectiveFunction().costOptimization(),
                 parameters.getMinMarginParameters(),
-                timestamp
+                timestamp,
+                flowCnecFilter
             );
             problemFillers.add(maxMinMarginFiller);
         }
@@ -129,9 +147,7 @@ public final class ProblemFillerHelper {
         }
 
         // unoptimized CNECs for TSOs without curative RA
-        if (!Objects.isNull(parameters.getUnoptimizedCnecParameters())
-            && !Objects.isNull(parameters.getUnoptimizedCnecParameters().getOperatorsNotToOptimize())
-            && input.optimizationPerimeter() instanceof CurativeOptimizationPerimeter) {
+        if (isUnoptimizedCnecFillerActive(input, parameters)) {
             UnoptimizedCnecFiller unoptimizedCnecFiller = new UnoptimizedCnecFiller(
                 input.optimizationPerimeter().getFlowCnecs(),
                 input.prePerimeterFlowResult(),
@@ -184,6 +200,63 @@ public final class ProblemFillerHelper {
             problemFillers.add(raUsageLimitsFiller);
         }
         return problemFillers;
+    }
+
+    private static boolean isUnoptimizedCnecFillerActive(IteratingLinearOptimizerInput input, IteratingLinearOptimizerParameters parameters) {
+        return !Objects.isNull(parameters.getUnoptimizedCnecParameters())
+            && !Objects.isNull(parameters.getUnoptimizedCnecParameters().getOperatorsNotToOptimize())
+            && input.optimizationPerimeter() instanceof CurativeOptimizationPerimeter;
+    }
+
+    /**
+     * Builds the filter of the flow CNECs modeled by the core filler and the margin filler of one linear problem.
+     * CNECs whose flow variable is read by another filler are protected; CNECs of operators not to optimize are
+     * also excluded from the witness role, since their minimum margin constraint can be relaxed.
+     */
+    static FlowCnecFilter buildFlowCnecFilter(IteratingLinearOptimizerInput input, IteratingLinearOptimizerParameters parameters) {
+        if (getLinearProblemCnecFiltering(parameters.getRangeActionParametersExtension()) != LinearProblemCnecFiltering.SAFE_BOUNDS) {
+            return FlowCnecFilter.NONE;
+        }
+        OptimizationPerimeter perimeter = input.optimizationPerimeter();
+
+        Set<FlowCnec> notWitnessCnecs = new HashSet<>();
+        if (isUnoptimizedCnecFillerActive(input, parameters)) {
+            Set<String> operatorsNotToOptimize = parameters.getUnoptimizedCnecParameters().getOperatorsNotToOptimize();
+            perimeter.getFlowCnecs().stream()
+                .filter(cnec -> operatorsNotToOptimize.contains(cnec.getOperator()))
+                .forEach(notWitnessCnecs::add);
+        }
+
+        Set<FlowCnec> protectedCnecs = new HashSet<>(notWitnessCnecs);
+        if (parameters.isRaoWithMnecLimitation()) {
+            protectedCnecs.addAll(perimeter.getMonitoredFlowCnecs());
+        }
+        if (parameters.isRaoWithLoopFlowLimitation()) {
+            protectedCnecs.addAll(perimeter.getLoopFlowCnecs());
+        }
+
+        return new SafeFlowCnecFilter(
+            perimeter,
+            input.prePerimeterSetpoints(),
+            new RangeActionImpacts(perimeter, parameters.getRangeActionParametersExtension(), parameters.getFlowUnit()),
+            getMarginCriterion(input, parameters),
+            protectedCnecs,
+            notWitnessCnecs,
+            parameters.getFlowUnit()
+        );
+    }
+
+    private static MarginCriterion getMarginCriterion(IteratingLinearOptimizerInput input, IteratingLinearOptimizerParameters parameters) {
+        return switch (parameters.getObjectiveFunction()) {
+            case SECURE_FLOW, MAX_MIN_MARGIN -> new MarginCriterion.Absolute(OptionalDouble.empty());
+            case MIN_COST -> new MarginCriterion.Absolute(OptionalDouble.of(parameters.getMinMarginParameters().getShiftedViolationThreshold()));
+            case MAX_MIN_RELATIVE_MARGIN -> {
+                SearchTreeRaoRelativeMarginsParameters relativeMarginParameters = parameters.getMaxMinRelativeMarginParameters();
+                // same PTDF source as MaxMinRelativeMarginFiller: null means the flow result of the linearization point
+                FlowResult ptdfSource = relativeMarginParameters.getPtdfApproximation().shouldUpdatePtdfWithPstChange() ? null : input.preOptimizationFlowResult();
+                yield new MarginCriterion.Relative(ptdfSource, relativeMarginParameters.getPtdfSumLowerBound());
+            }
+        };
     }
 
     private static Map<State, Set<RangeAction<?>>> copyWithoutPstRangeActions(Map<State, Set<RangeAction<?>>> inRangeActions) {

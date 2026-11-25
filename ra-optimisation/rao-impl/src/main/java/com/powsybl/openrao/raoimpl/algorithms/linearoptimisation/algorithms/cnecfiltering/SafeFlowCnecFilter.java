@@ -22,6 +22,7 @@ import com.powsybl.openrao.raoimpl.result.api.RangeActionActivationResult;
 import com.powsybl.openrao.raoimpl.result.api.RangeActionSetpointResult;
 import com.powsybl.openrao.raoimpl.result.api.SensitivityResult;
 
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -82,6 +83,18 @@ public class SafeFlowCnecFilter implements FlowCnecFilter {
         this.protectedCnecs = new HashSet<>(protectedCnecs);
         this.notWitnessCnecs = new HashSet<>(notWitnessCnecs);
         this.unit = unit;
+    }
+
+    public MarginCriterion getCriterion() {
+        return criterion;
+    }
+
+    public Set<FlowCnec> getProtectedCnecs() {
+        return Collections.unmodifiableSet(protectedCnecs);
+    }
+
+    public Set<FlowCnec> getNotWitnessCnecs() {
+        return Collections.unmodifiableSet(notWitnessCnecs);
     }
 
     @Override
