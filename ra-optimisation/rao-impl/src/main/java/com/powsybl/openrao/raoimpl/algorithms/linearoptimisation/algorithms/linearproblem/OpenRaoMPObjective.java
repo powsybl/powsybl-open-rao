@@ -26,4 +26,11 @@ public class OpenRaoMPObjective {
     public void setCoefficient(OpenRaoMPVariable variable, double coeff) {
         mpObjective.setCoefficient(variable.getMPVariable(), OpenRaoMPSolver.roundDouble(coeff));
     }
+
+    /**
+     * @return the objective value of the last solution found by the solver
+     */
+    public double value() {
+        return mpObjective.value();
+    }
 }
