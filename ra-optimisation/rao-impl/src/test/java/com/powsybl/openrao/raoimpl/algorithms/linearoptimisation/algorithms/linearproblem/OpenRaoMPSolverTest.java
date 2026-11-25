@@ -346,6 +346,9 @@ class OpenRaoMPSolverTest {
     void testInfinity() {
         // OR-Tools MathOpt handles infinite bounds natively, for every solver
         for (var solverType : new SearchTreeRaoRangeActionsOptimizationParameters.Solver[] {SCIP, XPRESS, GUROBI, HIGHS}) {
+            if (solverType == GUROBI && OpenRaoMPSolver.resolveGurobiLibraryPath() == null) {
+                continue; // Gurobi is not installed on this machine
+            }
             OpenRaoMPSolver solver = new OpenRaoMPSolver("solver", solverType);
             assertEquals(Double.POSITIVE_INFINITY, solver.infinity());
         }
@@ -364,6 +367,15 @@ class OpenRaoMPSolverTest {
         // constructing the solver fails fast as well
         e = assertThrows(OpenRaoException.class, () -> new OpenRaoMPSolver("solver", CBC));
         assertTrue(e.getMessage().contains("CBC"));
+    }
+
+    @Test
+    void testGurobiFailsFastWhenLibraryMissing() {
+        if (OpenRaoMPSolver.resolveGurobiLibraryPath() != null) {
+            return; // Gurobi is installed on this machine, nothing to test here
+        }
+        Exception e = assertThrows(OpenRaoException.class, () -> new OpenRaoMPSolver("solver", GUROBI));
+        assertTrue(e.getMessage().contains("Gurobi shared library"));
     }
 
     @Test

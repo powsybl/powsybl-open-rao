@@ -69,7 +69,10 @@ public class OpenRaoMPSolver {
         this.solver = solver;
         this.optProblemName = optProblemName;
         // fail fast if the solver is not supported by OR-Tools MathOpt
-        getOrToolsSolverType(solver);
+        getOrToolsSolverType(this.solver);
+        if (this.solver == SearchTreeRaoRangeActionsOptimizationParameters.Solver.GUROBI) {
+            ensureGurobiLibraryLoaded();
+        }
         resetModel();
     }
 
@@ -101,6 +104,76 @@ public class OpenRaoMPSolver {
             case CBC -> throw new OpenRaoException("CBC is no longer supported by OR-Tools MathOpt. Please use SCIP, XPRESS, GUROBI or HIGHS in the RAO parameters.");
             default -> throw new OpenRaoException(String.format("unknown solver %s in RAO parameters", solver));
         };
+    }
+
+    private static volatile boolean gurobiLibraryLoaded = false;
+
+    /**
+     * Loads the Gurobi shared library into the OR-Tools native layer, if needed.
+     *
+     * OR-Tools does not link Gurobi: it is dlopen'ed at runtime, and only when
+     * {@code com.google.ortools.init.CppBridge.loadGurobiSharedLibrary} is called.
+     * Nothing in the OR-Tools Java flow calls it (see google/or-tools#5079), so
+     * without this call the first GUROBI solve aborts the JVM with a C++
+     * {@code std::bad_function_call}.
+     *
+     * Note: OR-Tools caches the load result for the whole process, so the first
+     * call must already point to a valid library, later calls do not retry.
+     */
+    static void ensureGurobiLibraryLoaded() {
+        if (gurobiLibraryLoaded) {
+            return;
+        }
+        String path = resolveGurobiLibraryPath();
+        if (path == null) {
+            throw new OpenRaoException("Could not find the Gurobi shared library (libgurobi<version>.so). "
+                + "Set the GUROBI_LIB_PATH environment variable to its full path, or GUROBI_HOME to the "
+                + "Gurobi installation directory (the one containing lib/libgurobi<version>.so). "
+                + "Note: OR-Tools 10.0-rc1 requires a Gurobi version exposing the GRBcopyparams C API (11.x and 12.x; removed in 13.x).");
+        }
+        if (!com.google.ortools.init.CppBridge.loadGurobiSharedLibrary(path)) {
+            throw new OpenRaoException(String.format(
+                "Found the Gurobi shared library at %s, but OR-Tools could not load it "
+                    + "(incompatible Gurobi version? OR-Tools 10.0-rc1 needs GRBcopyparams: use 11.x or 12.x, not 13.x).", path));
+        }
+        gurobiLibraryLoaded = true;
+        OpenRaoLoggerProvider.TECHNICAL_LOGS.info("Loaded Gurobi shared library from {}", path);
+    }
+
+    /** @return the first existing Gurobi library candidate path, or null. */
+    static String resolveGurobiLibraryPath() {
+        for (String candidate : gurobiLibraryCandidates()) {
+            if (java.nio.file.Files.isRegularFile(java.nio.file.Path.of(candidate))) {
+                return candidate;
+            }
+        }
+        return null;
+    }
+
+    private static List<String> gurobiLibraryCandidates() {
+        List<String> libDirectories = new ArrayList<>();
+        String gurobiHome = System.getenv("GUROBI_HOME");
+        if (gurobiHome != null && !gurobiHome.isBlank()) {
+            libDirectories.add(gurobiHome + "/lib");
+            libDirectories.add(gurobiHome + "/lib64");
+        }
+        for (String version : new String[] {"1203", "1202", "1201", "1200",
+            "1103", "1102", "1101", "1100"}) {
+            libDirectories.add("/opt/gurobi" + version + "/linux64/lib");
+            libDirectories.add("/opt/gurobi" + version + "/linux64/lib64");
+        }
+        List<String> candidates = new ArrayList<>();
+        String explicitPath = System.getenv("GUROBI_LIB_PATH");
+        if (explicitPath != null && !explicitPath.isBlank()) {
+            candidates.add(explicitPath);
+        }
+        String[] libraries = {"libgurobi120.so", "libgurobi110.so"};
+        for (String libDirectory : libDirectories) {
+            for (String library : libraries) {
+                candidates.add(libDirectory + "/" + library);
+            }
+        }
+        return candidates;
     }
 
     // Only for this class' tests
