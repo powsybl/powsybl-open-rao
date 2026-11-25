@@ -111,7 +111,10 @@ These parameters (`range-actions-optimization`) tune the [linear optimizer](../a
   - **DISABLED**: all flow CNECs are added to the linear problem.
   - **SAFE_BOUNDS**: flow CNECs that cannot constrain the optimum, according to safe bounds on their flow, are not
     added to the linear problem. This keeps the optimal value of the MIP unchanged; however, the range action
-    set-points may differ between equally good optima.
+    set-points may differ between equally good optima, or within the solver's relative MIP gap.
+
+  See [how CNECs are omitted from the linear problem](../algorithms/castor/linear-problem.md#omitting-flow-cnecs-that-cannot-be-limiting)
+  for details.
 
 ##### linear-optimization-solver
 These are parameters that tune the solver used to solve the MIP problem.

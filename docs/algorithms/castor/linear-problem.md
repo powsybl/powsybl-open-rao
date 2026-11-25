@@ -67,3 +67,38 @@ with $MM$ the minimum margin, $\mathcal{LRA}$ the set of LRAs, $\Delta_{lra}$ th
 
 This way, if two solutions provide (almost) the same minimum margin, the problem will favor the one that changes the setpoints the 
 least.
+
+### Omitting flow CNECs that cannot be limiting
+
+With [linear-problem-cnec-filtering](../../parameters/implementation-specific-parameters.md#linear-problem-cnec-filtering)
+set to `SAFE_BOUNDS`, the flow and minimum-margin constraints of some optimized flow CNECs are left out of each linear
+problem, when it can be proven that they cannot change its optimal objective value. This makes the problem smaller,
+which speeds up its resolution on perimeters with many CNECs.
+
+Around the reference point of the current iteration, the margin $m(c)$ of each side of an optimized FlowCnec $c$ can
+only move by at most
+
+$$\begin{equation}
+\Delta(c) = \sum_{r \in \mathcal{RA}} |\sigma_{n}(r,c)| \cdot \max\left(\overline{A}(r) - \alpha_n(r), \alpha_n(r) - \underline{A}(r)\right)
+\end{equation}$$
+
+where $\underline{A}(r)$ and $\overline{A}(r)$ are the bounds of the set-point variable of $r$ in the linear problem
+(the same sensitivity thresholds as in the linear problem are used). The margin of $c$ in the linear problem therefore
+lies in $[m(c) - \Delta(c), m(c) + \Delta(c)]$ (the per-side minimum is used for CNECs monitored on both sides, and
+both bounds are divided by the PTDF-based coefficient for [relative margins](linear-problem/objective-function-types/max-min-relative-margin-filler.md)).
+
+The CNEC with the smallest upper bound $UB$ is kept: whatever the set-points, the minimum margin of the problem is at most
+$UB$. Any other CNEC whose lower bound is greater than $UB$ can never be the most limiting element, so its constraints can
+never be active at the optimum: it is omitted. With the `MIN_COST` objective function, CNECs whose lower bound is
+above the shifted-violation threshold are omitted too, since they can never be penalized. With relative margins, only
+CNECs whose absolute margin is guaranteed to stay positive can be omitted.
+
+The following CNECs are always kept:
+- [MNECs](linear-problem/special-features/mnec-filler.md) and [loop-flow CNECs](linear-problem/special-features/max-loop-flow-filler.md), whose flow variables are used by other constraints,
+- in curative perimeters, CNECs of [operators not to optimize](linear-problem/special-features/unoptimized-cnec-filler-cra.md), whose minimum margin constraint can be relaxed,
+- CNECs for which a bound cannot be computed (e.g. range actions with an infinite allowed range, or undefined values).
+
+The filtering is done again at each iteration, around the new reference point. It only applies to the linear problem:
+sensitivity computations and the evaluation of the objective function after each optimization still use all the CNECs.
+The optimal value of the linear problem is unchanged, but the set-points it returns may differ when several optima are
+equally good, or within the solver's [relative MIP gap](../../parameters/implementation-specific-parameters.md#linear-optimization-solver).
