@@ -32,12 +32,6 @@ public class FastRaoParameters extends AbstractExtension<RaoParameters> {
     public FastRaoParameters() {
     }
 
-    public FastRaoParameters(final FastRaoParameters other) {
-        this.getNumberOfCnecsToAdd = other.getNumberOfCnecsToAdd;
-        this.addUnsecureCnecs = other.addUnsecureCnecs;
-        this.marginLimit = other.marginLimit;
-    }
-
     public int getNumberOfCnecsToAdd() {
         return getNumberOfCnecsToAdd;
     }

@@ -28,11 +28,6 @@ public class SearchTreeRaoCostlyMinMarginParameters {
     public SearchTreeRaoCostlyMinMarginParameters() {
     }
 
-    public SearchTreeRaoCostlyMinMarginParameters(final SearchTreeRaoCostlyMinMarginParameters other) {
-        this.shiftedViolationPenalty = other.shiftedViolationPenalty;
-        this.shiftedViolationThreshold = other.shiftedViolationThreshold;
-    }
-
     public double getShiftedViolationPenalty() {
         return shiftedViolationPenalty;
     }

@@ -35,11 +35,6 @@ public class LoopFlowParameters {
     public LoopFlowParameters() {
     }
 
-    public LoopFlowParameters(final LoopFlowParameters other) {
-        this.acceptableIncrease = other.acceptableIncrease;
-        this.countries = new HashSet<>(other.countries);
-    }
-
     // Getters and setters
     public double getAcceptableIncrease() {
         return acceptableIncrease;

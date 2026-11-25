@@ -28,10 +28,6 @@ public class SearchTreeRaoObjectiveFunctionParameters {
     public SearchTreeRaoObjectiveFunctionParameters() {
     }
 
-    public SearchTreeRaoObjectiveFunctionParameters(final SearchTreeRaoObjectiveFunctionParameters other) {
-        this.curativeMinObjImprovement = other.curativeMinObjImprovement;
-    }
-
     public double getCurativeMinObjImprovement() {
         return curativeMinObjImprovement;
     }

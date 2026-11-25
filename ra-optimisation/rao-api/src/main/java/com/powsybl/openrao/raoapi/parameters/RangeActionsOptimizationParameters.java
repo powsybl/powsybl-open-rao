@@ -35,12 +35,6 @@ public class RangeActionsOptimizationParameters {
     public RangeActionsOptimizationParameters() {
     }
 
-    public RangeActionsOptimizationParameters(final RangeActionsOptimizationParameters other) {
-        this.pstRAMinImpactThreshold = other.pstRAMinImpactThreshold;
-        this.hvdcRAMinImpactThreshold = other.hvdcRAMinImpactThreshold;
-        this.injectionRAMinImpactThreshold = other.injectionRAMinImpactThreshold;
-    }
-
     // Getters and setters
     public double getPstRAMinImpactThreshold() {
         return pstRAMinImpactThreshold;

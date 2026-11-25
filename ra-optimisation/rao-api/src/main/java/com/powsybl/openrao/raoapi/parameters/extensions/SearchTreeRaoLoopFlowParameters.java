@@ -34,12 +34,6 @@ public class SearchTreeRaoLoopFlowParameters {
     public SearchTreeRaoLoopFlowParameters() {
     }
 
-    public SearchTreeRaoLoopFlowParameters(final SearchTreeRaoLoopFlowParameters other) {
-        this.ptdfApproximation = other.ptdfApproximation;
-        this.constraintAdjustmentCoefficient = other.constraintAdjustmentCoefficient;
-        this.violationCost = other.violationCost;
-    }
-
     // Getters and setters
 
     public PtdfApproximation getPtdfApproximation() {

@@ -41,16 +41,6 @@ public class MarmotParameters extends AbstractExtension<RaoParameters> {
     public MarmotParameters() {
     }
 
-    public MarmotParameters(final MarmotParameters other) {
-        this.numberOfCnecsToAddPerVirtualCostName = other.numberOfCnecsToAddPerVirtualCostName;
-        this.minRelativeImprovementOnMargin = other.minRelativeImprovementOnMargin;
-        this.marginWindowToConsider = other.marginWindowToConsider;
-        this.maxMipIterations = other.maxMipIterations;
-        this.numberOfThreads = other.numberOfThreads;
-        this.curativeRangeActionsSynchronization = other.curativeRangeActionsSynchronization;
-        this.curativeTopologicalActionsSynchronization = other.curativeTopologicalActionsSynchronization;
-    }
-
     public int getNumberOfCnecsToAddPerVirtualCostName() {
         return numberOfCnecsToAddPerVirtualCostName;
     }

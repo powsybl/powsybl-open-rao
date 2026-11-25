@@ -16,13 +16,15 @@ import com.powsybl.commons.extensions.ExtensionConfigLoader;
 import com.powsybl.commons.extensions.ExtensionProviders;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.raoapi.json.JsonRaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoLoopFlowParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoMnecParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRelativeMarginsParameters;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -51,40 +53,19 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
     }
 
     /**
-     * Deep copy constructor: mutating a nested parameter object, list or extension on one of the two
-     * instances afterward never affects the other.
-     * <p>Each extension is deep-copied via its own copy constructor, found by reflection; an extension
-     * whose type has no such constructor throws, since it cannot be deep-copied nor safely shared with
-     * the original.
+     * Returns a deep copy of this parameters object: mutating a nested parameter object, list or
+     * extension on one of the two instances afterward never affects the other.
+     * <p>The copy is obtained through a JSON round trip with {@link JsonRaoParameters}, so an extension
+     * type that has no JSON serializer is dropped from the copy, not shared with the original.
      */
-    public RaoParameters(final RaoParameters other) {
-        this.objectiveFunctionParameters = new ObjectiveFunctionParameters(other.objectiveFunctionParameters);
-        this.rangeActionsOptimizationParameters = new RangeActionsOptimizationParameters(other.rangeActionsOptimizationParameters);
-        this.topoOptimizationParameters = new TopoOptimizationParameters(other.topoOptimizationParameters);
-        this.notOptimizedCnecsParameters = new NotOptimizedCnecsParameters(other.notOptimizedCnecsParameters);
-        this.mnecParameters = other.mnecParameters.map(MnecParameters::new);
-        this.relativeMarginsParameters = other.relativeMarginsParameters.map(RelativeMarginsParameters::new);
-        this.loopFlowParameters = other.loopFlowParameters.map(LoopFlowParameters::new);
-        this.reportNode = other.reportNode;
-        for (Extension<RaoParameters> extension : other.getExtensions()) {
-            addExtensionCopy(extension);
-        }
-    }
-
-    private <E extends Extension<RaoParameters>> void addExtensionCopy(final E extension) {
-        @SuppressWarnings("unchecked")
-        Class<E> extensionClass = (Class<E>) extension.getClass();
-        this.addExtension(extensionClass, copyExtension(extensionClass, extension));
-    }
-
-    private static <E extends Extension<RaoParameters>> E copyExtension(final Class<E> extensionClass, final E extension) {
-        try {
-            Constructor<E> copyConstructor = extensionClass.getConstructor(extensionClass);
-            return copyConstructor.newInstance(extension);
-        } catch (NoSuchMethodException e) {
-            throw new OpenRaoException("Cannot deep copy RaoParameters: extension type " + extensionClass.getName() + " has no copy constructor", e);
-        } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
-            throw new OpenRaoException("Cannot deep copy RaoParameters: failed to copy extension of type " + extensionClass.getName(), e);
+    public RaoParameters copy() {
+        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+            JsonRaoParameters.write(this, outputStream, this.reportNode);
+            try (InputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray())) {
+                return JsonRaoParameters.read(inputStream, this.reportNode);
+            }
+        } catch (Exception e) {
+            throw new OpenRaoException("Cannot deep copy RaoParameters: the JSON round trip failed", e);
         }
     }
 

@@ -32,11 +32,6 @@ public class SearchTreeRaoRelativeMarginsParameters {
     public SearchTreeRaoRelativeMarginsParameters() {
     }
 
-    public SearchTreeRaoRelativeMarginsParameters(final SearchTreeRaoRelativeMarginsParameters other) {
-        this.ptdfSumLowerBound = other.ptdfSumLowerBound;
-        this.ptdfApproximation = other.ptdfApproximation;
-    }
-
     public double getPtdfSumLowerBound() {
         return ptdfSumLowerBound;
     }

@@ -28,10 +28,6 @@ public class MnecParameters {
     public MnecParameters() {
     }
 
-    public MnecParameters(final MnecParameters other) {
-        this.acceptableMarginDecrease = other.acceptableMarginDecrease;
-    }
-
     public double getAcceptableMarginDecrease() {
         return acceptableMarginDecrease;
     }

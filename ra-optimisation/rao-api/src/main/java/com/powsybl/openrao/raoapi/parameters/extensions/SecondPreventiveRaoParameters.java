@@ -32,11 +32,6 @@ public class SecondPreventiveRaoParameters {
     public SecondPreventiveRaoParameters() {
     }
 
-    public SecondPreventiveRaoParameters(final SecondPreventiveRaoParameters other) {
-        this.executionCondition = other.executionCondition;
-        this.hintFromFirstPreventiveRao = other.hintFromFirstPreventiveRao;
-    }
-
     public enum ExecutionCondition {
         // do not run 2nd preventive RAO
         DISABLED,

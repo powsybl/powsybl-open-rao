@@ -31,11 +31,6 @@ public class ObjectiveFunctionParameters {
     public ObjectiveFunctionParameters() {
     }
 
-    public ObjectiveFunctionParameters(final ObjectiveFunctionParameters other) {
-        this.type = other.type;
-        this.enforceCurativeSecurity = other.enforceCurativeSecurity;
-    }
-
     // Enum
     public enum ObjectiveFunctionType {
         SECURE_FLOW,

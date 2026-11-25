@@ -32,10 +32,6 @@ public class RelativeMarginsParameters {
     public RelativeMarginsParameters() {
     }
 
-    public RelativeMarginsParameters(final RelativeMarginsParameters other) {
-        this.ptdfBoundaries = new ArrayList<>(other.ptdfBoundaries);
-    }
-
     public List<ZoneToZonePtdfDefinition> getPtdfBoundaries() {
         return ptdfBoundaries;
     }

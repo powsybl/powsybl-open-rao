@@ -27,10 +27,6 @@ public class NotOptimizedCnecsParameters {
     public NotOptimizedCnecsParameters() {
     }
 
-    public NotOptimizedCnecsParameters(final NotOptimizedCnecsParameters other) {
-        this.doNotOptimizeCurativeCnecsForTsosWithoutCras = other.doNotOptimizeCurativeCnecsForTsosWithoutCras;
-    }
-
     public boolean getDoNotOptimizeCurativeCnecsForTsosWithoutCras() {
         return doNotOptimizeCurativeCnecsForTsosWithoutCras;
     }

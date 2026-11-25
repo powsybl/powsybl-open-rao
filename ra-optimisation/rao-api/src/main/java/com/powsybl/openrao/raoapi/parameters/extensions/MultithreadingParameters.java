@@ -28,10 +28,6 @@ public class MultithreadingParameters {
     public MultithreadingParameters() {
     }
 
-    public MultithreadingParameters(final MultithreadingParameters other) {
-        this.availableCPUs = other.availableCPUs;
-    }
-
     public int getAvailableCPUs() {
         return availableCPUs;
     }

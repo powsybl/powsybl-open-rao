@@ -31,11 +31,6 @@ public class SearchTreeRaoMnecParameters {
     public SearchTreeRaoMnecParameters() {
     }
 
-    public SearchTreeRaoMnecParameters(final SearchTreeRaoMnecParameters other) {
-        this.violationCost = other.violationCost;
-        this.constraintAdjustmentCoefficient = other.constraintAdjustmentCoefficient;
-    }
-
     public double getViolationCost() {
         return violationCost;
     }
