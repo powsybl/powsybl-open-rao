@@ -1,0 +1,55 @@
+{
+  "type": "CRAC",
+  "version": "1.3",
+  "id": "1_2_4_8",
+  "name": "preventive-resolves-initial-divergence",
+  "networkElementsNamePerId": {},
+  "contingencies": [
+    {
+      "id": "CO_N4042_N4043",
+      "networkElementsIds": ["N4042___-N4043___-1_AC"]
+    }
+  ],
+  "flowCnecs": [
+    {
+      "id": "preventive",
+      "networkElementId": "N4042___-N4043___-1_AC",
+      "instant": "preventive",
+      "optimized": true,
+      "monitored": false,
+      "thresholds": [{"unit": "ampere", "min": -1100.0, "max": 1100.0, "rule": "onLeftSide"}]
+    },
+    {
+      "id": "auto",
+      "networkElementId": "N1011___-N1013___-1_AC",
+      "instant": "auto",
+      "contingencyId": "CO_N4042_N4043",
+      "optimized": true,
+      "monitored": false,
+      "thresholds": [{"unit": "ampere", "min": -1000.0, "max": 1000.0, "rule": "onLeftSide"}]
+    },
+    {
+      "id": "curative",
+      "networkElementId": "N1011___-N1013___-1_AC",
+      "instant": "curative",
+      "contingencyId": "CO_N4042_N4043",
+      "optimized": true,
+      "monitored": false,
+      "thresholds": [{"unit": "ampere", "min": -1000.0, "max": 1000.0, "rule": "onLeftSide"}]
+    }
+  ],
+  "networkActions": [
+    {
+      "id": "preventive-open-line",
+      "operator": "FR",
+      "freeToUseUsageRules": [{"instant": "preventive", "usageMethod": "available"}],
+      "topologicalActions": [{"networkElementId": "N4043___-N4044___-1_AC", "actionType": "open"}]
+    },
+    {
+      "id": "reclose-failed-line",
+      "operator": "FR",
+      "onStateUsageRules": [{"instant": "auto", "contingencyId": "CO_N4042_N4043", "usageMethod": "forced"}],
+      "topologicalActions": [{"networkElementId": "N4042___-N4043___-1_AC", "actionType": "close"}]
+    }
+  ]
+}

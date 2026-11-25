@@ -251,6 +251,27 @@ public class RaoSteps {
         assertEquals(expectedValue, costResult.getCost(null), flowAmpereTolerance(expectedValue));
     }
 
+    @Then("the sensitivity failure cost initially should be {double}")
+    public void initialSensitivityFailureCostShouldBe(double expectedValue) {
+        CostResult costResult = CommonTestData.getRaoResult().getExtension(CostResult.class);
+        assertNotNull(costResult);
+        assertEquals(expectedValue, costResult.getVirtualCost(null, "sensitivity-failure-cost"), 1e-6);
+    }
+
+    @Then("the sensitivity failure cost after {string} should be {double}")
+    public void sensitivityFailureCostShouldBe(String instant, double expectedValue) {
+        CostResult costResult = CommonTestData.getRaoResult().getExtension(CostResult.class);
+        assertNotNull(costResult);
+        assertEquals(expectedValue, costResult.getVirtualCost(crac.getInstant(instant), "sensitivity-failure-cost"), 1e-6);
+    }
+
+    @Then("the computation after {string} at {string} should be {string}")
+    public void stateComputationStatusShouldBe(String contingencyId, String instant, String expectedStatus) {
+        Metadata metadata = CommonTestData.getRaoResult().getExtension(Metadata.class);
+        assertNotNull(metadata);
+        assertEquals(ComputationStatus.valueOf(expectedStatus), metadata.getComputationStatus(getState(contingencyId, instant)));
+    }
+
     @Then("the value of the objective function after PRA should be {double}")
     public void objectiveFunctionValueAfterPraShouldBe(double expectedValue) {
         CostResult costResult = CommonTestData.getRaoResult().getExtension(CostResult.class);
