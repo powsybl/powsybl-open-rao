@@ -1391,20 +1391,25 @@ border with optional ranges of admissible power flows.
 If border ranges are provided, the optimizer would consider them, otherwise it won't. The optimizer would try to find a solution which won't violate the
 exchange limits we have defined on a particular border.
 
-It is a costly remedial action which is currently not handled by the RAO.
+It is a costly remedial action which is currently handled by the RAO for the preventive perimeter.
 
-The set-point of the counter-trade range action is the net position of its area, i.e. the sum of its exchanges through
-all its borders (positive when the area exports), and its initial set-point is the net position of the area in the
-initial network. As for other range actions, the variation of the net position with respect to the initial network can
-be bounded with ranges of type RELATIVE_TO_INITIAL_NETWORK. For instance, if France exports 100 MW to Spain in the base
-case and the counter-trade increases this exchange by 100 MW, the initial set-point is +100 MW and the set-point is
-+200 MW.
+The set-point of the counter-trade range action is the value of the counter-trade exchanges.  
+The initial value of the counter-trade action is supposed to be 0 at the beginning of the optimization.
+Nevertheless, a different value can be chosen when the crac is created.
+Instead, the net position of the area is the sum of its exchanges through
+all its borders (positive when the area exports), and its initial set-point.
+When the initial set point of a counter-trade action is 0, the variation of set point will always be considered
+as relative to the initial net position of the area.
+For instance, if France exports 100 MW to Spain in the base
+case and the counter-trade increases this exchange by 100 MW, the initial net position of France is +100 MW
+but the initial set point of the counter-trade action is 0 and the value of the set-point is + 100 MW;
+only the final net-position of the area is +200 MW.
 
-Whereas the set-point is the net position of the area, a border range bounds the power exchanged between the area and a
+A border range bounds the power exchanged between the area and a
 connected area. For instance, if France exports 200 MW more to Spain and 200 MW less to Belgium, the exchanges on both
 borders change but the net position of France, and thus the set-point, does not.
 
-When importing a JSON CRAC, the initial set-point is not yet computed from the network and is set to 0.
+When importing a JSON CRAC, the initial set-point is supposed to be 0.
 
 ::::{tabs}
 :::{group-tab} JAVA creation API
@@ -1441,8 +1446,9 @@ network: with the Java API, the connected areas are not checked against the netw
 none is defined (unlike the JSON import, see below). The areas sharing a border with the counter-trade area in the
 network can be computed with `IidmCounterTradeHelper`, which can also check that the connected areas of a counter-trade
 range action share a border with its area.  
+If one of the connected areas does not define a counter-trade action, then there cannot be any counter-trade exchange on that border.  
 An area cannot be defined more than once as a connected area, and the area of the counter-trade range action cannot be
-one of its connected areas.  
+one of its connected areas.
 A border range must define at least one of its min and max, whatever its range type. An undefined limit is not constrained.
 :::
 :::{group-tab} JSON file

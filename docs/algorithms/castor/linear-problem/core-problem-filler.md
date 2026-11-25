@@ -25,10 +25,10 @@ This page gathers core constraints, i.e constraints that need to be defined at t
 
 ## Used parameters
 
-| Name                 | Symbol             | Details                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          | Source                                                                                                                                                                                                                                                                                                                                                                                                                               |
-|----------------------|--------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| sensitivityThreshold |                    | Set to zero the sensitivities of RangeActions below this threshold; thus avoiding the activation of RangeActions which have too small an impact on the flows (can also be achieved with penaltyCost). This simplifies & speeds up the resolution of the optimization problem (can be necessary when the problem contains integer variables). However, it also adds an approximation in the computation of the flows within the MILP, which can be tricky to handle when the MILP contains hard constraints on loop-flows or monitored FlowCnecs. | Equal to [pst-sensitivity-threshold](../../../parameters/implementation-specific-parameters.md#pst-sensitivity-threshold) for PSTs, [hvdc-sensitivity-threshold](../../../parameters/implementation-specific-parameters.md#hvdc-sensitivity-threshold) for HVDCs, and [injection-ra-sensitivity-threshold](../../../parameters/implementation-specific-parameters.md#injection-ra-sensitivity-threshold) for injection range actions |
-| penaltyCost          | $c^{penalty}_{ra}$ | Supposedly a small penalization, in the use of the RangeActions. When several solutions are equivalent, this favours the one with the least change in the RangeActions' set-points (compared to the initial situation). It also avoids the activation of RangeActions which have to small an impact on the objective function.                                                                                                                                                                                                                   | Equal to [pst-penalty-cost](../../../parameters/business-parameters.md#pst-ra-min-impact-threshold) for PSTs, [hvdc-penalty-cost](../../../parameters/business-parameters.md#hvdc-ra-min-impact-threshold) for HVDCs, and [injection-ra-penalty-cost](../../../parameters/business-parameters.md#injection-ra-min-impact-threshold) for injection range actions                                                                      |
+| Name                 | Symbol             | Details                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          | Source                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
+|----------------------|--------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| sensitivityThreshold |                    | Set to zero the sensitivities of RangeActions below this threshold; thus avoiding the activation of RangeActions which have too small an impact on the flows (can also be achieved with penaltyCost). This simplifies & speeds up the resolution of the optimization problem (can be necessary when the problem contains integer variables). However, it also adds an approximation in the computation of the flows within the MILP, which can be tricky to handle when the MILP contains hard constraints on loop-flows or monitored FlowCnecs. | Equal to [pst-sensitivity-threshold](../../../parameters/implementation-specific-parameters.md#pst-sensitivity-threshold) for PSTs, [hvdc-sensitivity-threshold](../../../parameters/implementation-specific-parameters.md#hvdc-sensitivity-threshold) for HVDCs, and [injection-ra-sensitivity-threshold](../../../parameters/implementation-specific-parameters.md#injection-ra-sensitivity-threshold) for injection range actions, and [counter-trade-ra-sensitivity-threshold](../../../parameters/implementation-specific-parameters.md#counter-trade-ra-sensitivity-threshold) for counter-trade actions |
+| penaltyCost          | $c^{penalty}_{ra}$ | Supposedly a small penalization, in the use of the RangeActions. When several solutions are equivalent, this favours the one with the least change in the RangeActions' set-points (compared to the initial situation). It also avoids the activation of RangeActions which have to small an impact on the objective function.                                                                                                                                                                                                                   | Equal to [pst-penalty-cost](../../../parameters/business-parameters.md#pst-ra-min-impact-threshold) for PSTs, [hvdc-penalty-cost](../../../parameters/business-parameters.md#hvdc-ra-min-impact-threshold) for HVDCs, and [injection-ra-penalty-cost](../../../parameters/business-parameters.md#injection-ra-min-impact-threshold) for injection range actions                                                                                                                                                                                                                                   |
 
 ## Defined optimization variables
 
@@ -57,7 +57,51 @@ F(c) = f_{n}(c) + \sum_{r \in \mathcal{RA(s)}} \sigma_n (r,c,s) * [A(r,s) - \alp
 \end{equation}
 $$
 
-with $s$ the state on $c$ which is evaluated
+with $s$ the state on $c$ which is evaluated.
+
+#### Counter-trade range actions
+
+Unlike other linear range actions such as injection range actions, the sensitivity coefficient of a counter trading remedial
+action depends on the variables $X_k$ and on the saturation of generators: the sensitivity value of a cnec on a
+generator $i$ will only be relevant for the share of CT which is dispatched to generator $i$, and not considered if the
+generator is saturated.
+
+For a CNEC $c$, the flow variation due to the CT action of the current area is $\sum_{i} \sigma_n(c,i)\, \Delta A(i)$,
+where $\sigma_n(c,i)$ is the sensitivity of CNEC $c$ to generator $i$ and $\Delta A(i)$ the variation of the quantity
+dispatched to generator $i$ with respect to the previous iteration. Using the notation introduced [here](counter-trade-actions.md):
+
+$$
+\begin{equation}
+\sum_{i=1}^{n} \sigma_n(c,i) \sum_{k=1}^{L} \lambda_i^k X_k = \sum_{k=1}^{L} \underbrace{\left(\sum_{i=1}^{n} \lambda_i^k \sigma_n(c,i)\right)}_{=: \rho(c,k)} X_k,\label{sigma_layer_general}
+\end{equation}
+$$
+
+i.e. the vector of layer sensitivities is $\Lambda^\top$ applied to the vector of generator sensitivities.
+Each layer sensitivity is a convex combination of generator sensitivities, since the columns of $\Lambda$ are
+non-negative and sum to 1.
+
+*Proportional GLSKs.*
+With $\lambda_i^k$ as previously defined and $S_k := \sum_{h=k}^n \lambda_h$, the layer sensitivity averages the sensitivities of the generators of the layer:
+
+$$
+\begin{equation}
+\rho(c,k) = \frac{1}{S_k}\sum_{i= k}^n\lambda_i\,\sigma_n(c,i), \qquad k = 1,\dots,K.\label{sigma_h}
+\end{equation}
+$$
+For $k = K$, this is the weighted sensitivity of the tail.
+
+The flow constraints read:
+
+$$
+\begin{equation}
+F(c) = f_c + \sum_{d \in \{+,-\}} s_d \sum_{k=1}^{K}\rho(c,k)\,(X_k - x_k^c), \qquad s_+ = 1,\ s_- = -1, \label{flow_constraint}
+\end{equation}
+$$
+
+where $f_c$ is the flow on CNEC $c$, and, within the sum over $d$, $K$, $\rho(c,k)$, $X_k$ and $x_k^c$ are those of direction
+$d$. The downward term has a negative sign since downward layers decrease the set-points of the generators.
+In the model, $\rho(c,k)$ is dropped if $|\rho(c,k)|$ is below the sensitivityThreshold for counter-trade actions,
+as for the other range actions.
 
 <br>
 

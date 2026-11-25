@@ -75,6 +75,12 @@ These parameters (`range-actions-optimization`) tune the [linear optimizer](../a
 - **Usage**: the `injection-ra-min-impact-threshold` represents the cost of changing the injection set-points, it is used within the linear
   optimization problem of the RAO, in the same way as the two types of RangeAction above.
 
+#### counter-trade-ra-min-impact-threshold
+- **Expected value**: numeric value, unit: unit of the objective function / MW
+- **Default value**: 0.001
+- **Usage**: the `counter-trade-ra-min-impact-threshold` represents the cost of changing the set-point on an injection, it is used within the linear
+  optimization problem of the RAO, in the same way as the other types of RangeAction above.
+
 ### Network actions optimization parameters
 These parameters (`topological-actions-optimization`) tune the [search-tree algorithm](../algorithms/castor.md#search-tree-algorithm) 
 when searching for the best network actions.
