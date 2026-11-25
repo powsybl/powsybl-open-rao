@@ -35,7 +35,7 @@ public final class CostResultExtensionHelper {
         String costName = SensitivityFailureOvercostEvaluator.getEvaluatorName();
         double initialCost = costResult.getVirtualCost(null, costName);
         double preventiveCost = costResult.getVirtualCost(preventiveInstant, costName);
-        if (Double.isNaN(initialCost) || initialCost <= 0 || (!Double.isNaN(preventiveCost) && preventiveCost >= initialCost)) {
+        if (Double.isNaN(initialCost) || initialCost <= 0 || !Double.isNaN(preventiveCost) && preventiveCost >= initialCost) {
             return costResult;
         }
         return CostResult.builder(costResult).addVirtualCostResult(preventiveInstant, costName, initialCost).build();
