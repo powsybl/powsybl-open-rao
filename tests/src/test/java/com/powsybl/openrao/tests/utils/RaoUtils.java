@@ -78,6 +78,14 @@ public final class RaoUtils {
                                    Integer timeLimitInSeconds, final ReportNode reportNode,
                                    boolean forceFastRao) throws IOException {
         RaoParameters raoParameters = CommonTestData.getRaoParameters();
+        SearchTreeRaoRangeActionsOptimizationParameters.PstModel pstModel = getPstModel(raoParameters);
+        if (pstModel.equals(SearchTreeRaoRangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS)) {
+            if (!raoParameters.getObjectiveFunctionParameters().getType().equals(ObjectiveFunctionParameters.ObjectiveFunctionType.MIN_COST) &&
+                CommonTestData.getCrac().getRaUsageLimitsPerInstant().values().stream().allMatch(rl -> rl.getMaxElementaryActionsPerTso().isEmpty())
+            ) {
+                raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getRangeActionsOptimizationParameters().setPstModel(SearchTreeRaoRangeActionsOptimizationParameters.PstModel.HYBRID);
+            }
+        }
 
         ZonalData<SensitivityVariableSet> glsks = CommonTestData.getLoopflowGlsks();
         // Rao with loop-flows
