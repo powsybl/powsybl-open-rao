@@ -48,7 +48,7 @@ public final class FillersUtil {
      * @param sensitivityResult the sensitivity result containing computation statuses for the flow CNECs' states
      * @return a set of filtered CNECs, containing only flow CNECs with a state that succeeded sensitivity computation
      */
-    static Set<FlowCnec> getFlowCnecsComputationStatusOk(Set<FlowCnec> flowCnecs, SensitivityResult sensitivityResult) {
+    public static Set<FlowCnec> getFlowCnecsComputationStatusOk(Set<FlowCnec> flowCnecs, SensitivityResult sensitivityResult) {
         Set<State> skippedStates = flowCnecs.stream().map(Cnec::getState).distinct()
             .filter(state -> sensitivityResult.getSensitivityStatus(state).equals(ComputationStatus.FAILURE)).collect(Collectors.toSet());
         return flowCnecs.stream().filter(cnec -> !skippedStates.contains(cnec.getState()))
