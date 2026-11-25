@@ -23,7 +23,6 @@ import com.powsybl.openrao.data.crac.api.rangeaction.HvdcRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
-import com.powsybl.openrao.sensitivityanalysis.rasensihandler.CounterTradeRangeActionSensiHandler;
 import com.powsybl.openrao.sensitivityanalysis.rasensihandler.InjectionRangeActionSensiHandler;
 import com.powsybl.sensitivity.SensitivityFactor;
 import com.powsybl.sensitivity.SensitivityFunctionType;
@@ -37,7 +36,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -111,7 +109,7 @@ public class RangeActionSensitivityProvider extends LoadflowProvider {
             } else if (ra instanceof InjectionRangeAction injectionRangeAction) {
                 createPositiveAndNegativeGlsks(injectionRangeAction, sensitivityVariables, glskIds);
             } else if (ra instanceof CounterTradeRangeAction counterTradeRangeAction) {
-                createCounterTradeGlsks(network, counterTradeRangeAction, sensitivityVariables, glskIds);
+                createCounterTradeGlsks(counterTradeRangeAction, sensitivityVariables, glskIds);
             } else {
                 throw new OpenRaoException(String.format("Range action type of %s not implemented yet", ra.getId()));
             }
@@ -123,26 +121,11 @@ public class RangeActionSensitivityProvider extends LoadflowProvider {
         }
     }
 
-    private Map<String, Float> getPositiveGlskMap(Map<String, Double> glsk) {
-        return glsk.entrySet()
-                .stream().filter(e -> e.getValue() > 0)
-                .collect(Collectors.toMap(Entry::getKey, e -> e.getValue().floatValue()));
-    }
-
-    private Map<String, Float> getNegativeGlskMap(Map<String, Double> glsk) {
-        return glsk.entrySet()
-                .stream().filter(e -> e.getValue() < 0)
-                .collect(Collectors.toMap(Entry::getKey, e -> -e.getValue().floatValue()));
-    }
-
-    private void createCounterTradeGlsks(Network network, CounterTradeRangeAction counterTradeRangeAction,
+    private void createCounterTradeGlsks(CounterTradeRangeAction counterTradeRangeAction,
                                          Map<String, SensitivityVariableType> sensitivityVariables,
                                          Set<String> glskIds) {
-        CounterTradeRangeActionSensiHandler handler = new CounterTradeRangeActionSensiHandler(counterTradeRangeAction); // maybe remove it ?
-        Map<String, Map<String, Double>> glsk = counterTradeRangeAction.getGlsk();
-        Map<String, Double> area = glsk.get(counterTradeRangeAction.getAreaId());
         if (counterTradeRangeAction.getGeneratorOrdering() == null) {
-            counterTradeRangeAction.computeGeneratorOrdering(network, 1e-10);
+            throw new OpenRaoException("Generator ordering of " + counterTradeRangeAction.getId() + " has not been computed");
         }
         CounterTradeGeneratorOrdering counterTradeGeneratorOrdering = counterTradeRangeAction.getGeneratorOrdering();
 

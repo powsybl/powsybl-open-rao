@@ -84,9 +84,15 @@ public final class RaoUtil {
         checkCurativeRaUsageLimit(raoInput.getCrac());
         if (raoInput.getGlskProvider() == null) {
             updateCounterTradeRangeActionGlsks(raoInput.getCrac(), raoInput.getNetwork()); // proportional to generators
-        } else {
+        } else { // to be updated when proportional scalables can be read
             updateCounterTradeRangeActionGlsks(raoInput.getCrac(), raoInput.getGlskProvider());
         }
+        // create here the ordering for the glsks.
+        raoInput.getCrac().getRangeActions().stream()
+                .filter(CounterTradeRangeAction.class::isInstance)
+                .map(CounterTradeRangeAction.class::cast)
+                .forEach(ra -> ra.computeGeneratorOrdering(raoInput.getNetwork(), 1e-10));
+
         // needs the GLSKs filled above
         checkCounterTradingInjectionOverlap(raoInput.getCrac());
 
