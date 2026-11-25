@@ -79,6 +79,13 @@ These parameters (`range-actions-optimization`) tune the [linear optimizer](../a
   considered equal to zero by the linear optimization problem.  
   The perks are the same as the two parameters above.
 
+##### counter-trade-ra-sensitivity-threshold
+- **Expected value**: numeric value, unit: [flow unit](business-parameters.md#objective-function-parameters) / MW
+- **Default value**: 1e-6
+- **Usage**: the injection sensitivity coefficients which are below the `counter-trade-ra-sensitivity-threshold` will be
+  considered equal to zero by the linear optimization problem when handling counter-trade range actions.  
+  The perks are the same as the parameters above.
+
 ##### ra-range-shrinking
 - **Expected value**: one of the following:
   - "DISABLED"

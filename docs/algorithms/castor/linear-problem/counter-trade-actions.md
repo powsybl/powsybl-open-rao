@@ -37,6 +37,7 @@ $$
 A(r) = \sum_{b \in Imp(r)} A(b) - \sum_{b \in Exp(r)} A(b).
 \end{equation}
 $$
+
 where $Imp(r)$ and $Exp(r)$ respectively indicate the range actions on the neighbouring zones from which there are imports or exports of counter-trade.
 As a consequence, the set-point increases sum to zero over all zones, which serves as a balance constraint for the countertrading actions.
 
@@ -50,11 +51,17 @@ A(r) = \Delta^+(r) - \Delta^-(r)
 $$
 
 A condition ensuring that at most one of the two variables is non-zero must be added, as follows:
+
 $$
-\begin{gather}
-\Delta^+(r) \leq \delta(r)\, M^{r,+}\\
+\begin{equation}
+\Delta^+(r) \leq \delta(r)\, M^{r,+}
+\end{equation}
+$$
+
+$$
+\begin{equation}
 \Delta^-(r) \leq (1-\delta(r) )\, M^{r,-}
-\end{gather}
+\end{equation}
 $$
 
 The two directions of the CT action are modelled in the same way and only differ by their data.
@@ -62,7 +69,8 @@ The two directions of the CT action are modelled in the same way and only differ
 
 *Generators.* 
 
-The maximal upward and downward variations of generator $i$ from its initial set-point are
+The maximal upward and downward variations of generator $i$ from its initial set-point are:
+
 $$
 \begin{equation}
 v_i^+ := max_P^i - g_{init}^i, \qquad v_i^- := g_{init}^i - min_P^i.
@@ -72,10 +80,15 @@ $$
 Let $A(i) \geq 0$ be the volume dispatched to generator $i$ in direction $d$: an increase of its set-point for $d = +$, a decrease for $d = -$. Then:
 
 $$
-\begin{gather}
-\Delta^d(r) = \sum_{i \in \mathcal{G}(z)} A^d(i),\\
+\begin{equation}
+\Delta^d(r) = \sum_{i \in \mathcal{G}(z)} A^d(i),
+\end{equation}
+$$
+
+$$
+\begin{equation}
 0 \leq A^d(i) \leq v^d_i.
-\end{gather}
+\end{equation}
 $$
 
 Generator $i$ is **saturated** when $A^d(i) = v^d_i$.
@@ -88,7 +101,7 @@ and in the few equations where both directions appear.
 
 In the layered model below, $A(i)$ is not a decision variable: it is a linear expression of the layer variables, and the bound on the generator's minimal and maximal variations is implied by the bounds of the layers.
 
-#### Proportional GLSKs
+### Proportional GLSKs
 
 The GLSK consists of a list of proportional coefficients $\lambda_i$ for the generators of the zone, such that $\sum_i \lambda_i = 1$.
 Generators with $\lambda_i = 0$ receive no CT volume and are removed from $\mathcal{G}(z)$ beforehand, so that $\lambda_i > 0$ for all $i \in \mathcal{G}(z)$.
@@ -108,19 +121,24 @@ the (renormalized) GLSK coefficient of generator $i$ given that generator $k-1$ 
 
 
 The value $m_1$ is the largest CT volume that can be dispatched in the zone before generator 1 saturates, hence $v_1 = \lambda_1 m_1$. For the subsequent generators, both the volume already dispatched and the renormalization must be taken into account. The following formula thus must hold for all $k=1,\dots, n$:
+
 $$
 \begin{equation}
 v_k = \sum_{h=1}^k m_h \lambda_k^h,
 \end{equation}
 $$
+
 from which the values $m_k$ are computed iteratively:
+
 $$
 \begin{equation}
 m_k =  \frac{v_k - \sum_{h=1}^{k-1} m_h \lambda_k^h}{\lambda_k^k}.
 \end{equation}
 $$
+
 The last equation is the requirement $\sum_k \lambda_i^k m_k \leq v_i$ mentioned above, satisfied with equality.
 The total available capacity equals the sum of the maximal volumes:
+
 $$
 \begin{align}
 \sum_{k=1}^n v_k &= \sum_{k=1}^n \sum_{h=1}^k m_h \lambda_k^h
@@ -130,34 +148,62 @@ $$
 $$
 
 
-### Layered dispatch
+## Layered dispatch
 For each zone and each direction, the GLSK is turned into an ordered list of $L$ layers. Layer $k$ has a capacity $m_k \geq 0$ and spreads its volume over the generators with coefficients $\lambda_i^k \geq 0$ such that $\sum_{i} \lambda_i^k = 1$. Let $\Lambda := (\lambda_i^k) \in \mathbb{R}_+^{n \times L}$. The layers are ordered so that a layer can only be used once all the previous ones are full.
 
 Let $X_k \geq 0$ be the CT volume of layer $k$, and $Y_k$ a binary variable equal to 1 when layer $k$ is full. The zonal CT volume and the dispatch to the generators read:
+
 $$
-\begin{gather}
-\Delta^d(r) = \sum_{k=1}^{L} X_k,\label{zone_x_link}\\
+\begin{equation}
+\Delta^d(r) = \sum_{k=1}^{L} X_k,
+\end{equation}
+$$
+
+$$
+\begin{equation}
 A(i) = \sum_{k=1}^{L} \lambda_i^k X_k, \quad\text{i.e.}\quad A = \Lambda X.
-\end{gather}
+\end{equation}
 $$
 
 The order of the layers is enforced by:
+
 $$
-\begin{align}
-0 \leq X_k & \leq m_k, & \forall k&=1,\dots,L \label{x_bounds}\\
-Y_k & \quad \text{is binary}, & \forall k&=1,\dots,L \label{y_binary}\\
-Y_k & \geq Y_{k+1}, & \forall k&=1,\dots,L-1 \label{y_nonincreasing}\\
-X_{k+1} & \leq Y_k\, m_{k+1}, & \forall k&=1,\dots,L-1 \label{x_saturation_order}\\
-X_k & \geq Y_k\, m_k, & \forall k&=1,\dots,L. \label{x_saturation}
-\end{align}
+\begin{equation}
+0 \leq X_k \leq m_k, \forall k=1,\dots,L 
+\end{equation}
 $$
+
+$$
+\begin{equation}
+Y_k \quad \text{is binary}, \forall k=1,\dots,L 
+\end{equation}
+$$
+
+$$
+\begin{equation}
+Y_k \geq Y_{k+1}, \forall k=1,\dots,L-1 
+\end{equation}
+$$
+
+$$
+\begin{equation}
+X_{k+1} \leq Y_k\, m_{k+1}, \forall k=1,\dots,L-1 
+\end{equation}
+$$
+
+$$
+\begin{equation}
+X_k \geq Y_k\, m_k, \forall k=1,\dots,L.
+\end{equation}
+$$
+
 These constraints force the $Y$ variables to be non-increasing, $X_{k+1}$ to 0 whenever layer $k$ is not full, and $X_k$ to its maximal value whenever $Y_k = 1$.
 
 Each GLSK type must provide the layers such that $\sum_{k} \lambda_i^k m_k \leq v_i$ for every generator $i$.
 The bounds on the X variables then imply the generator bounds, which do not need to be written in the model.
 Since the columns of $\Lambda$ sum up to 1, $\sum_i A(i) = \sum_k X_k$, and the CT volume reachable in a direction is bounded by $\min\left(\alpha_{MAX}^{z,d}, \sum_{k=1}^{L} m_k\right)$.
 
-#### Reachable layers
+### Reachable layers
 
 With many layers and a limited CT volume, some layers can never be filled inside the allowed range.
 For each direction, let $K$ be the first index such that
