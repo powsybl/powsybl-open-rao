@@ -59,12 +59,6 @@ class NcCracCreator {
             return creationContext;
         }
 
-        if (ncParameters.getCapacityCalculationRegion() == null) {
-            creationContext.getCreationReport().error("No Capacity Calculation region provided for the NC CRAC importer.");
-            creationContext.creationFailure();
-            return creationContext;
-        }
-
         if (ncParameters.getCurativeInstants() == null || ncParameters.getCurativeInstants().isEmpty()) {
             creationContext.getCreationReport().error("No curative instants defined for the NC CRAC importer.");
             creationContext.creationFailure();

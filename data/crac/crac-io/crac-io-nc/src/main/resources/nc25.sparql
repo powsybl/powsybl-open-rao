@@ -945,7 +945,7 @@ GRAPH <%s> {
 }
 
 # query: tapChanger
-PREFIX cim: <http://iec.ch/TC57/2013/CIM-schema-cim16#>
+PREFIX cim: <http://iec.ch/TC57/CIM100#>
 SELECT *
 {
 VALUES ?type { cim:PhaseTapChangerSymmetrical cim:PhaseTapChangerAsymmetrical cim:PhaseTapChangerLinear cim:PhaseTapChangerTabular cim:RatioTapChanger }

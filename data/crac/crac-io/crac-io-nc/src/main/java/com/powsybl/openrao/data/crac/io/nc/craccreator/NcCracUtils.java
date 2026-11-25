@@ -85,7 +85,7 @@ public final class NcCracUtils {
     }
 
     public static void checkPropertyReference(String remedialActionId, String gridStateAlterationType, PropertyReference expectedPropertyReference, String actualPropertyReference) {
-        if (!expectedPropertyReference.toString().equals(actualPropertyReference)) {
+        if (!expectedPropertyReference.matches(actualPropertyReference)) {
             throw new OpenRaoImportException(
                 ImportStatus.INCONSISTENCY_IN_DATA,
                 String.format("Remedial action %s will not be imported because %s must have a property reference with %s value, but it was: %s",

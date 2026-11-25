@@ -9,13 +9,14 @@ package com.powsybl.openrao.data.crac.io.nc.craccreator;
 
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.data.crac.api.Crac;
+import com.powsybl.openrao.data.crac.api.parameters.CracCreationParameters;
 import com.powsybl.openrao.data.crac.io.nc.parameters.NcCracCreationParameters;
 import org.junit.jupiter.api.Test;
 
 import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
 import java.util.Map;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
@@ -24,19 +25,27 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 public class ReliCapGridDatasetTest {
     private static final String NETWORK_PATH = "/networks/ReliCapGrid.zip";
     private static final String NC_PATH = "/profiles/ReliCapGrid_CGMES_NC.zip";
+    private static final OffsetDateTime TIMESTAMP = OffsetDateTime.parse("2022-06-15T22:30:00Z");
 
-    private final NcCracCreationParameters cracCreationParameters = new NcCracCreationParameters();
+    private final CracCreationParameters cracCreationParameters = new CracCreationParameters();
+    private final NcCracCreationParameters ncCracCreationParameters = new NcCracCreationParameters();
 
     {
-        cracCreationParameters.setCurativeInstants(Map.of("curative", 60));
+        ncCracCreationParameters.setCurativeInstants(Map.of("curative", 60));
+        ncCracCreationParameters.setCapacityCalculationRegion(null);
+        cracCreationParameters.addExtension(NcCracCreationParameters.class, ncCracCreationParameters);
     }
 
     @Test
     void testImportReliCapGridDatasetTest() {
         Network network = NcCracCreationTestUtil.getNetworkFromResource(NETWORK_PATH);
-        OffsetDateTime timestamp = OffsetDateTime.of(2023, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC);
-        NcCracCreationContext cracCreationContext = NcCracCreationTestUtil.getNcCracCreationContext(NC_PATH, network, timestamp);
+        NcCracCreationContext cracCreationContext = NcCracCreationTestUtil.getNcCracCreationContext(NC_PATH, network, TIMESTAMP, cracCreationParameters);
         Crac crac = cracCreationContext.getCrac();
         assertNotNull(crac);
+
+        assertEquals(16, crac.getContingencies().size()); // as expected
+        assertEquals(12, crac.getPstRangeActions().size()); // as expected
+        // TODO: implement and check -> assertEquals(32, crac.getInjectionRangeActions().size());
+        // TODO: allow curative CT + FIXME why 0? -> assertEquals(8, crac.getCounterTradeRangeActions().size());
     }
 }

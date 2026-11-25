@@ -22,10 +22,15 @@ public enum PropertyReference {
     }
 
     private final String name;
-    private static final String URL = "http://energy.referencedata.eu/PropertyReference/";
+    private static final String HTTP_URL = "http://energy.referencedata.eu/PropertyReference/";
+    private static final String HTTPS_URL = "https://energy.referencedata.eu/PropertyReference/";
 
     @Override
     public String toString() {
-        return URL + this.name;
+        return HTTP_URL + this.name;
+    }
+
+    public boolean matches(String string) {
+        return (HTTP_URL + this.name).equals(string) || (HTTPS_URL + this.name).equals(string);
     }
 }

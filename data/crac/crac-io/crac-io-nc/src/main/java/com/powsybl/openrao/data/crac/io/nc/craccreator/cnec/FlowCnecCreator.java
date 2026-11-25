@@ -18,7 +18,9 @@ import com.powsybl.iidm.network.TieLine;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
+import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.openrao.data.crac.api.Crac;
+import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnecAdder;
 import com.powsybl.openrao.data.crac.api.parameters.CracCreationParameters;
 import com.powsybl.openrao.data.crac.api.threshold.BranchThresholdAdder;
@@ -221,7 +223,8 @@ public class FlowCnecCreator extends AbstractCnecCreator {
         thresholdPerSide.forEach((twoSides, threshold) -> addFlowCnecThreshold(cnecAdder, twoSides, threshold, useMaxAndMinThresholds));
         cnecAdder.withNetworkElement(networkElement.getId());
         setNominalVoltage(cnecAdder, networkElement);
-        cnecAdder.add();
+        FlowCnec flowCnec = cnecAdder.add();
+        OpenRaoLoggerProvider.BUSINESS_LOGS.info(">>> FlowCnec {} successfully imported", flowCnec.getId());
     }
 
     private void addAllFlowCnecsFromBranchAndOperationalLimits(Branch<?> networkElement, Map<Integer, Map<TwoSides, Double>> thresholds, boolean useMaxAndMinThresholds) {
