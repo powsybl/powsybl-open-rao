@@ -12,6 +12,7 @@ import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
+import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
@@ -19,6 +20,7 @@ import com.powsybl.sensitivity.SensitivityVariableSet;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
@@ -36,6 +38,7 @@ class SkippedOptimizationResultImplTest {
         SensitivityVariableSet sensitivityVariableSet = mock(SensitivityVariableSet.class);
         State state = mock(State.class);
         PstRangeAction pstRangeAction = mock(PstRangeAction.class);
+        NetworkAction networkAction = mock(NetworkAction.class);
         RangeAction<?> rangeAction = mock(RangeAction.class);
 
         // DEFAULT_SENSITIVITY_FAILURE_OVERCOST value
@@ -68,5 +71,7 @@ class SkippedOptimizationResultImplTest {
         assertTrue(skippedOptimizationResult.getRangeActions().isEmpty());
         assertTrue(skippedOptimizationResult.getActivatedNetworkActionsPerState().isEmpty());
         assertTrue(skippedOptimizationResult.getActivatedRangeActionsPerState().isEmpty());
+        assertTrue(skippedOptimizationResult.getOptimizedTapsOnState(state).isEmpty());
+        assertFalse(skippedOptimizationResult.isActivated(networkAction));
     }
 }
