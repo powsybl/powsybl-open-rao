@@ -42,10 +42,6 @@ public class ContinuousRangeActionGroupFiller implements ProblemFiller {
         // nothing to do
     }
 
-    public void remove(LinearProblem linearProblem) {
-        linearProblem.removeRangeActionGroups(rangeActionsPerState);
-    }
-
     private void buildRangeActionGroupConstraint(LinearProblem linearProblem) {
 
         rangeActionsPerState.forEach((state, rangeActions) -> rangeActions.forEach(ra -> {

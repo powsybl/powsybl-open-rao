@@ -8,8 +8,6 @@
 package com.powsybl.openrao.raoimpl.algorithms.linearoptimisation.algorithms.linearproblem;
 
 import com.google.ortools.Loader;
-import com.google.ortools.linearsolver.MPConstraintProto;
-import com.google.ortools.linearsolver.MPModelProto;
 import com.google.ortools.linearsolver.MPSolver;
 import com.google.ortools.linearsolver.MPSolverParameters;
 import com.powsybl.openrao.commons.OpenRaoException;
@@ -17,11 +15,8 @@ import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters;
 import com.powsybl.openrao.raoimpl.result.api.LinearProblemStatus;
 
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 import java.util.TreeMap;
 
 /**
@@ -80,51 +75,6 @@ public class OpenRaoMPSolver {
 
     public SearchTreeRaoRangeActionsOptimizationParameters.Solver getSolver() {
         return solver;
-    }
-
-    //another solution: make the variables free and make the constraints irrelevant (set all the coefficients to 0 to have 0=0 for example)
-    void removeVariablesAndConstraints(Set<String> variableNames, Set<String> constraintNames) {
-        if (Collections.disjoint(variableNames, variables.keySet()) && Collections.disjoint(constraintNames, constraints.keySet())) {
-            return;
-        }
-        // MPSolver cannot delete individual elements. Reload the retained model without refilling it,
-        // so flow references, bounds, objective coefficients and filler iteration counters stay unchanged.
-        MPModelProto model = mpSolver.exportModelToProto();
-        MPModelProto.Builder retainedModel = model.toBuilder().clearVariable().clearConstraint().clearSolutionHint();
-        int[] retainedIndices = new int[model.getVariableCount()];
-        Arrays.fill(retainedIndices, -1);
-        for (int i = 0; i < model.getVariableCount(); i++) {
-            if (!variableNames.contains(model.getVariable(i).getName())) {
-                retainedIndices[i] = retainedModel.getVariableCount();
-                retainedModel.addVariable(model.getVariable(i));
-            }
-        }
-        for (MPConstraintProto constraint : model.getConstraintList()) {
-            if (!constraintNames.contains(constraint.getName())) {
-                MPConstraintProto.Builder retainedConstraint = constraint.toBuilder().clearVarIndex().clearCoefficient();
-                for (int i = 0; i < constraint.getVarIndexCount(); i++) {
-                    int retainedIndex = retainedIndices[constraint.getVarIndex(i)];
-                    if (retainedIndex >= 0) {
-                        retainedConstraint.addVarIndex(retainedIndex).addCoefficient(constraint.getCoefficient(i));
-                    }
-                }
-                retainedModel.addConstraint(retainedConstraint);
-            }
-        }
-        MPSolver retainedSolver = new MPSolver(optProblemName, getOrToolsProblemType(solver));
-        String error = retainedSolver.loadModelFromProtoKeepNames(retainedModel.build());
-        if (!error.isEmpty()) {
-            retainedSolver.delete();
-            throw new OpenRaoException("Could not remove linear problem elements: " + error);
-        }
-        mpSolver = retainedSolver;
-        setSolverSpecificParametersAsString(solverSpecificParameters);
-        variables.keySet().removeAll(variableNames);
-        constraints.keySet().removeAll(constraintNames);
-        // Keep existing wrappers usable by callers after the native model has been replaced.
-        variables.forEach((name, variable) -> variable.setMPVariable(mpSolver.lookupVariableOrNull(name)));
-        constraints.forEach((name, constraint) -> constraint.setMPConstraint(mpSolver.lookupConstraintOrNull(name)));
-        objective.setMPObjective(mpSolver.objective());
     }
 
     static MPSolver.OptimizationProblemType getOrToolsProblemType(SearchTreeRaoRangeActionsOptimizationParameters.Solver solver) {

@@ -13,41 +13,31 @@ import com.powsybl.openrao.raoimpl.result.api.RangeActionActivationResult;
 import com.powsybl.openrao.raoimpl.result.api.SensitivityResult;
 
 public class HybridPstProblemFiller implements ProblemFiller {
-    private final ContinuousRangeActionGroupFiller continuousFiller;
+    private final ContinuousRangeActionGroupFiller continuousRangeActionGroupFiller;
     private final DiscretePstTapFiller discreteFiller;
     private final DiscretePstGroupFiller discretePstGroupFiller;
-    private boolean discretePhaseFilled;
-    private FlowResult flowResult;
-    private SensitivityResult sensitivityResult;
+    private int iteration = 0;
 
-    public HybridPstProblemFiller(ContinuousRangeActionGroupFiller continuousFiller, DiscretePstTapFiller discreteFiller, DiscretePstGroupFiller discretePstGroupFiller) {
-        this.continuousFiller = continuousFiller;
+    public HybridPstProblemFiller(ContinuousRangeActionGroupFiller continuousRangeActionGroupFiller, DiscretePstTapFiller discreteFiller, DiscretePstGroupFiller discretePstGroupFiller) {
+        this.continuousRangeActionGroupFiller = continuousRangeActionGroupFiller;
         this.discreteFiller = discreteFiller;
         this.discretePstGroupFiller = discretePstGroupFiller;
     }
 
     @Override
     public void fill(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult, RangeActionActivationResult rangeActionActivationResult) {
-        this.flowResult = flowResult;
-        this.sensitivityResult = sensitivityResult;
-        if (discretePhaseFilled) {
+        this.iteration += 1;
+        if (iteration > 1) {
             discreteFiller.fill(linearProblem, flowResult, sensitivityResult, rangeActionActivationResult);
             discretePstGroupFiller.fill(linearProblem, flowResult, sensitivityResult, rangeActionActivationResult);
         } else {
-            continuousFiller.fill(linearProblem, flowResult, sensitivityResult, rangeActionActivationResult);
+            // fill with continuous pst model only during first iteration
+            continuousRangeActionGroupFiller.fill(linearProblem, flowResult, sensitivityResult, rangeActionActivationResult);
         }
     }
 
     @Override
     public void updateBetweenMipIteration(LinearProblem linearProblem, RangeActionActivationResult rangeActionActivationResult) {
-        // Remove continuous PST groups variable and constraint before the first discrete solve
-        // Setpoint variables and constraint remain
-        if (!discretePhaseFilled) {
-            continuousFiller.remove(linearProblem);
-            discreteFiller.fill(linearProblem, flowResult, sensitivityResult, rangeActionActivationResult);
-            discretePstGroupFiller.fill(linearProblem, flowResult, sensitivityResult, rangeActionActivationResult);
-            discretePhaseFilled = true;
-        }
         discreteFiller.updateBetweenMipIteration(linearProblem, rangeActionActivationResult);
         discretePstGroupFiller.updateBetweenMipIteration(linearProblem, rangeActionActivationResult);
     }

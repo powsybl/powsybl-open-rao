@@ -130,7 +130,7 @@ public final class TimeCoupledIteratingLinearOptimizer {
 
             rangeActionActivationPerTimestamp = new TemporalDataImpl<>(roundedResults);
             rangeActionActivationPerTimestamp = reSolveIfApproximatedIntegerOrHybridPstModel(
-                bestResult, linearProblem, iteration, rangeActionActivationPerTimestamp, input, parameters, problemFillers, parallelism);
+                bestResult, linearProblem, iteration, rangeActionActivationPerTimestamp, input, parameters, problemFillers, timeCoupledProblemFillers, parallelism);
 
             // d. Check if set-points have changed; if no, return the best result
             if (!hasAnyRangeActionChanged(
@@ -445,6 +445,7 @@ public final class TimeCoupledIteratingLinearOptimizer {
                                                                                                   TimeCoupledIteratingLinearOptimizerInput input,
                                                                                                   IteratingLinearOptimizerParameters parameters,
                                                                                                   TemporalData<List<ProblemFiller>> problemFillers,
+                                                                                                  List<ProblemFiller> timeCoupledProblemFillers,
                                                                                                   int parallelism) {
         SearchTreeRaoRangeActionsOptimizationParameters.PstModel pstModel = getPstModel(parameters.getRangeActionParametersExtension());
 
@@ -463,6 +464,12 @@ public final class TimeCoupledIteratingLinearOptimizer {
             // be more accurate in the neighboring of the previous solution
 
             // (idea: if too long, we could relax the first MIP, but no so straightforward to do with or-tools)
+            if (pstModel.equals(SearchTreeRaoRangeActionsOptimizationParameters.PstModel.HYBRID)) {
+                // reset and refill the problem
+                updateLinearProblemBetweenSensiComputations(linearProblem, problemFillers, timeCoupledProblemFillers, bestResult);
+            }
+
+            // update the bound of the discrete pst constraint
             updateLinearProblemBetweenMipIterations(linearProblem, problemFillers, currentRangeActionActivationResults);
 
             LinearProblemStatus solveStatus = solveLinearProblem(linearProblem, iteration);

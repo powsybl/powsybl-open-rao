@@ -21,16 +21,16 @@ import com.powsybl.openrao.raoimpl.algorithms.linearoptimisation.algorithms.Best
 import com.powsybl.openrao.raoimpl.algorithms.linearoptimisation.algorithms.fillers.ProblemFiller;
 import com.powsybl.openrao.raoimpl.algorithms.linearoptimisation.algorithms.fillers.RangeActionsSynchronizationFiller;
 import com.powsybl.openrao.raoimpl.algorithms.linearoptimisation.algorithms.linearproblem.LinearProblem;
+import com.powsybl.openrao.raoimpl.algorithms.linearoptimisation.algorithms.linearproblem.OpenRaoMPVariable;
 import com.powsybl.openrao.raoimpl.algorithms.linearoptimisation.inputs.IteratingLinearOptimizerInput;
 import com.powsybl.openrao.raoimpl.algorithms.linearoptimisation.parameters.IteratingLinearOptimizerParameters;
 import com.powsybl.openrao.raoimpl.commons.objectivefunction.ObjectiveFunction;
 import com.powsybl.openrao.raoimpl.commons.optimizationperimeters.OptimizationPerimeter;
-import com.powsybl.openrao.raoimpl.result.api.LinearProblemStatus;
-import com.powsybl.openrao.raoimpl.result.api.RangeActionActivationResult;
-import com.powsybl.openrao.raoimpl.result.api.RangeActionSetpointResult;
+import com.powsybl.openrao.raoimpl.result.api.*;
 import com.powsybl.openrao.raoimpl.result.impl.GlobalLinearOptimizationResult;
 import com.powsybl.openrao.raoimpl.result.impl.RangeActionActivationResultImpl;
 import com.powsybl.openrao.raoimpl.result.impl.RangeActionSetpointResultImpl;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InOrder;
 import org.mockito.MockedStatic;
@@ -40,6 +40,7 @@ import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -52,6 +53,53 @@ import static org.mockito.Mockito.when;
 class TimeCoupledIteratingLinearOptimizerTest {
     private static final OffsetDateTime TIMESTAMP_1 = OffsetDateTime.of(2026, 1, 9, 0, 0, 0, 0, ZoneOffset.UTC);
     private static final OffsetDateTime TIMESTAMP_2 = OffsetDateTime.of(2026, 1, 9, 1, 0, 0, 0, ZoneOffset.UTC);
+
+    private IteratingLinearOptimizerParameters parameters;
+    private PstRangeAction pstRangeAction;
+    private State state;
+    private OptimizationPerimeter optimizationPerimeter;
+    private IteratingLinearOptimizerInput iteratingInput;
+    private TimeCoupledIteratingLinearOptimizerInput input;
+    private Network network;
+    private RangeActionSetpointResult prePerimeterSetpoints;
+    private RangeActionActivationResult firstRoundedResult;
+    private TemporalData<RangeActionActivationResult> firstRoundedResults;
+    private ProblemFiller timestampFiller;
+    private ProblemFiller timeCoupledFiller;
+    private TemporalData<List<ProblemFiller>> timestampFillers;
+    private List<ProblemFiller> timeCoupledFillers;
+    private LinearProblem linearProblem;
+
+    @BeforeEach
+    void setUp() {
+        parameters = mockParameters(SearchTreeRaoRangeActionsOptimizationParameters.PstModel.HYBRID);
+        when(parameters.getFlowUnit()).thenReturn(Unit.MEGAWATT);
+
+        pstRangeAction = Mockito.mock(PstRangeAction.class);
+        when(pstRangeAction.getId()).thenReturn("hybrid-pst");
+        when(pstRangeAction.getTapToAngleConversionMap()).thenReturn(Map.of(0, 0., 1, 1.));
+        state = Mockito.mock(State.class);
+        when(state.getTimestamp()).thenReturn(Optional.of(TIMESTAMP_1));
+        optimizationPerimeter = Mockito.mock(OptimizationPerimeter.class);
+        when(optimizationPerimeter.getMainOptimizationState()).thenReturn(state);
+        when(optimizationPerimeter.getRangeActionOptimizationStates()).thenReturn(Set.of(state));
+        when(optimizationPerimeter.getRangeActionsPerState()).thenReturn(Map.of(state, Set.of(pstRangeAction)));
+
+        iteratingInput = mockIteratingInput(optimizationPerimeter);
+        network = Mockito.mock(Network.class);
+        when(iteratingInput.network()).thenReturn(network);
+        prePerimeterSetpoints = new RangeActionSetpointResultImpl(Map.of(pstRangeAction, 1.));
+        when(iteratingInput.prePerimeterSetpoints()).thenReturn(prePerimeterSetpoints);
+        input = createSingleTimestampInput(iteratingInput);
+
+        firstRoundedResult = new RangeActionActivationResultImpl(prePerimeterSetpoints);
+        firstRoundedResults = new TemporalDataImpl<>(Map.of(TIMESTAMP_1, firstRoundedResult));
+        timestampFiller = Mockito.mock(ProblemFiller.class);
+        timeCoupledFiller = Mockito.mock(ProblemFiller.class);
+        timestampFillers = new TemporalDataImpl<>(Map.of(TIMESTAMP_1, List.of(timestampFiller)));
+        timeCoupledFillers = List.of(timeCoupledFiller);
+        linearProblem = Mockito.mock(LinearProblem.class);
+    }
 
     @Test
     void testCurativeMipCreatesSynchronizationFiller() {
@@ -70,11 +118,10 @@ class TimeCoupledIteratingLinearOptimizerTest {
     }
 
     @Test
-    void hybridMipTransitionResetsOnceAndRefillsTimeCoupledConstraintsAfterTimestampModels() {
+    void mipIterationUpdateAppliesRoundedResultsToEachTimestampFiller() {
         LinearProblem linearProblem = Mockito.mock(LinearProblem.class);
         ProblemFiller firstTimestampFiller = Mockito.mock(ProblemFiller.class);
         ProblemFiller secondTimestampFiller = Mockito.mock(ProblemFiller.class);
-        ProblemFiller timeCoupledFiller = Mockito.mock(ProblemFiller.class);
         RangeActionActivationResult firstActivationResult = Mockito.mock(RangeActionActivationResult.class);
         RangeActionActivationResult secondActivationResult = Mockito.mock(RangeActionActivationResult.class);
         TemporalData<List<ProblemFiller>> timestampFillers = new TemporalDataImpl<>(Map.of(
@@ -89,24 +136,14 @@ class TimeCoupledIteratingLinearOptimizerTest {
         TimeCoupledIteratingLinearOptimizer.updateLinearProblemBetweenMipIterations(
             linearProblem, timestampFillers, activationResults);
 
-        InOrder inOrder = Mockito.inOrder(linearProblem, firstTimestampFiller, secondTimestampFiller, timeCoupledFiller);
+        InOrder inOrder = Mockito.inOrder(firstTimestampFiller, secondTimestampFiller);
         inOrder.verify(firstTimestampFiller).updateBetweenMipIteration(linearProblem, firstActivationResult);
         inOrder.verify(secondTimestampFiller).updateBetweenMipIteration(linearProblem, secondActivationResult);
-        verifyNoMoreInteractions(timeCoupledFiller, firstTimestampFiller, secondTimestampFiller);
+        verifyNoMoreInteractions(firstTimestampFiller, secondTimestampFiller);
     }
 
     @Test
     void hybridRoundingUsesBestTapFinderFirstIterationOnlyWhenHybridPst() {
-        IteratingLinearOptimizerParameters parameters = mockParameters(SearchTreeRaoRangeActionsOptimizationParameters.PstModel.HYBRID);
-        when(parameters.getFlowUnit()).thenReturn(Unit.MEGAWATT);
-        IteratingLinearOptimizerInput input = Mockito.mock(IteratingLinearOptimizerInput.class);
-        OptimizationPerimeter optimizationPerimeter = Mockito.mock(OptimizationPerimeter.class);
-        when(optimizationPerimeter.getRangeActionsPerState()).thenReturn(Map.of());
-        when(input.optimizationPerimeter()).thenReturn(optimizationPerimeter);
-        Network network = Mockito.mock(Network.class);
-        when(input.network()).thenReturn(network);
-        RangeActionSetpointResult prePerimeterSetpoints = new RangeActionSetpointResultImpl(Map.of());
-        when(input.prePerimeterSetpoints()).thenReturn(prePerimeterSetpoints);
         RangeActionActivationResult linearProblemResult = Mockito.mock(RangeActionActivationResult.class);
         GlobalLinearOptimizationResult previousResult = Mockito.mock(GlobalLinearOptimizationResult.class);
         RangeActionActivationResultImpl roundedResult = new RangeActionActivationResultImpl(prePerimeterSetpoints);
@@ -116,8 +153,8 @@ class TimeCoupledIteratingLinearOptimizerTest {
                 linearProblemResult, network, optimizationPerimeter, prePerimeterSetpoints, previousResult, Unit.MEGAWATT
             )).thenReturn(roundedResult);
 
-            assertSame(roundedResult, TimeCoupledIteratingLinearOptimizer.roundResult(linearProblemResult, previousResult, input, parameters, 1));
-            assertNotSame(roundedResult, TimeCoupledIteratingLinearOptimizer.roundResult(linearProblemResult, previousResult, input, parameters, 2));
+            assertSame(roundedResult, TimeCoupledIteratingLinearOptimizer.roundResult(linearProblemResult, previousResult, iteratingInput, parameters, 1));
+            assertNotSame(roundedResult, TimeCoupledIteratingLinearOptimizer.roundResult(linearProblemResult, previousResult, iteratingInput, parameters, 2));
 
             bestTapFinder.verify(() -> BestTapFinder.round(
                 linearProblemResult, network, optimizationPerimeter, prePerimeterSetpoints, previousResult, Unit.MEGAWATT
@@ -126,46 +163,58 @@ class TimeCoupledIteratingLinearOptimizerTest {
     }
 
     @Test
+    void hybridRefinementKeepsRoundedSetpointsAfterOptimalSolve() {
+        when(linearProblem.solve()).thenReturn(LinearProblemStatus.OPTIMAL);
+        OpenRaoMPVariable variationVariable = Mockito.mock(OpenRaoMPVariable.class);
+        when(variationVariable.solutionValue()).thenReturn(0.);
+        when(linearProblem.getRangeActionVariationVariable(pstRangeAction, state, LinearProblem.VariationDirectionExtension.UPWARD)).thenReturn(variationVariable);
+        when(linearProblem.getRangeActionVariationVariable(pstRangeAction, state, LinearProblem.VariationDirectionExtension.DOWNWARD)).thenReturn(variationVariable);
+
+        GlobalLinearOptimizationResult bestResult = Mockito.mock(GlobalLinearOptimizationResult.class);
+        TemporalData<RangeActionActivationResult> results = TimeCoupledIteratingLinearOptimizer.reSolveIfApproximatedIntegerOrHybridPstModel(
+            bestResult, linearProblem, 1, firstRoundedResults, input, parameters, timestampFillers, timeCoupledFillers, 1
+        );
+
+        RangeActionActivationResult result = results.getData(TIMESTAMP_1).orElseThrow();
+
+        assertNotSame(firstRoundedResult, result);
+        assertEquals(1., firstRoundedResult.getOptimizedSetpoint(pstRangeAction, state), 1e-6);
+        assertEquals(firstRoundedResult.getOptimizedSetpoint(pstRangeAction, state), result.getOptimizedSetpoint(pstRangeAction, state), 1e-6);
+        InOrder inOrder = Mockito.inOrder(linearProblem, timestampFiller, timeCoupledFiller);
+        inOrder.verify(linearProblem).reset();
+        inOrder.verify(timestampFiller).fill(linearProblem, bestResult, bestResult, bestResult);
+        inOrder.verify(timeCoupledFiller).fill(linearProblem, null, null, null);
+        inOrder.verify(timestampFiller).updateBetweenMipIteration(linearProblem, firstRoundedResult);
+        inOrder.verify(linearProblem).solve();
+        verifyNoMoreInteractions(timestampFiller, timeCoupledFiller);
+    }
+
+    @Test
     void failedHybridRefinementKeepsFirstRoundedResults() {
-        IteratingLinearOptimizerParameters parameters = mockParameters(SearchTreeRaoRangeActionsOptimizationParameters.PstModel.HYBRID);
-        PstRangeAction pstRangeAction = Mockito.mock(PstRangeAction.class);
-        State state = Mockito.mock(State.class);
-        OptimizationPerimeter optimizationPerimeter = Mockito.mock(OptimizationPerimeter.class);
-        when(optimizationPerimeter.getRangeActionsPerState()).thenReturn(Map.of(state, Set.of(pstRangeAction)));
-        IteratingLinearOptimizerInput iteratingInput = mockIteratingInput(optimizationPerimeter);
-        when(iteratingInput.prePerimeterSetpoints()).thenReturn(new RangeActionSetpointResultImpl(Map.of()));
-        TimeCoupledIteratingLinearOptimizerInput input = createSingleTimestampInput(iteratingInput);
-        RangeActionActivationResult firstRoundedResult = Mockito.mock(RangeActionActivationResult.class);
-        TemporalData<RangeActionActivationResult> firstRoundedResults = new TemporalDataImpl<>(Map.of(TIMESTAMP_1, firstRoundedResult));
-        TemporalData<List<ProblemFiller>> timestampFillers = new TemporalDataImpl<>(Map.of(TIMESTAMP_1, List.of()));
-        LinearProblem linearProblem = Mockito.mock(LinearProblem.class);
         when(linearProblem.solve()).thenReturn(LinearProblemStatus.INFEASIBLE);
 
+        GlobalLinearOptimizationResult bestResult = Mockito.mock(GlobalLinearOptimizationResult.class);
         TemporalData<RangeActionActivationResult> result = TimeCoupledIteratingLinearOptimizer.reSolveIfApproximatedIntegerOrHybridPstModel(
-            Mockito.mock(GlobalLinearOptimizationResult.class), linearProblem, 1, firstRoundedResults, input, parameters, timestampFillers, 1
+            bestResult, linearProblem, 1, firstRoundedResults, input, parameters, timestampFillers, timeCoupledFillers, 1
         );
 
         assertSame(firstRoundedResult, result.getData(TIMESTAMP_1).orElseThrow());
-        Mockito.verify(linearProblem).solve();
+        InOrder inOrder = Mockito.inOrder(linearProblem, timestampFiller, timeCoupledFiller);
+        inOrder.verify(linearProblem).reset();
+        inOrder.verify(timestampFiller).fill(linearProblem, bestResult, bestResult, bestResult);
+        inOrder.verify(timeCoupledFiller).fill(linearProblem, null, null, null);
+        inOrder.verify(timestampFiller).updateBetweenMipIteration(linearProblem, firstRoundedResult);
+        inOrder.verify(linearProblem).solve();
+        verifyNoMoreInteractions(linearProblem, timestampFiller, timeCoupledFiller);
     }
 
     @Test
     void noPstInAnyOptimizationPerimeter() {
-        IteratingLinearOptimizerParameters parameters = mockParameters(SearchTreeRaoRangeActionsOptimizationParameters.PstModel.HYBRID);
-
-        OptimizationPerimeter optimizationPerimeter = Mockito.mock(OptimizationPerimeter.class);
         // No PST to optimize
         when(optimizationPerimeter.getRangeActionsPerState()).thenReturn(Map.of());
-        IteratingLinearOptimizerInput iteratingInput = mockIteratingInput(optimizationPerimeter);
-        when(iteratingInput.prePerimeterSetpoints()).thenReturn(new RangeActionSetpointResultImpl(Map.of()));
-        TimeCoupledIteratingLinearOptimizerInput input = createSingleTimestampInput(iteratingInput);
-        RangeActionActivationResult firstRoundedResult = Mockito.mock(RangeActionActivationResult.class);
-        TemporalData<RangeActionActivationResult> firstRoundedResults = new TemporalDataImpl<>(Map.of(TIMESTAMP_1, firstRoundedResult));
-        TemporalData<List<ProblemFiller>> timestampFillers = new TemporalDataImpl<>(Map.of(TIMESTAMP_1, List.of()));
-        LinearProblem linearProblem = Mockito.mock(LinearProblem.class);
 
         TemporalData<RangeActionActivationResult> result = TimeCoupledIteratingLinearOptimizer.reSolveIfApproximatedIntegerOrHybridPstModel(
-            Mockito.mock(GlobalLinearOptimizationResult.class), linearProblem, 1, firstRoundedResults, input, parameters, timestampFillers, 1
+            Mockito.mock(GlobalLinearOptimizationResult.class), linearProblem, 1, firstRoundedResults, input, parameters, timestampFillers, timeCoupledFillers, 1
         );
 
         assertSame(firstRoundedResult, result.getData(TIMESTAMP_1).orElseThrow());
