@@ -192,7 +192,8 @@ public class CounterTradingRangeActionCreator {
      * @param alterations                       List to store alteration messages
      * @return the maximum range value
      */
-    private double getMaxRange(CountertradeRemedialAction countertradeRemedialAction, String remedialActionId, String area, double initialNetPosition, double maxRegulatingUp, List<String> alterations) {
+    private double getMaxRange(CountertradeRemedialAction countertradeRemedialAction, String remedialActionId, String area,
+                               double initialNetPosition, double maxRegulatingUp, List<String> alterations) {
         double maxEconomicP = countertradeRemedialAction.maxEconomicP();
         // NaN if maxEconomicP or the initial net position is not available
         double economicMaxRange = maxEconomicP - initialNetPosition;
@@ -239,7 +240,8 @@ public class CounterTradingRangeActionCreator {
      * @param alterations                       List to store alteration messages
      * @return the minimum range value
      */
-    private double getMinRange(CountertradeRemedialAction countertradeRemedialAction, String remedialActionId, String area, double initialNetPosition, double maxRegulatingDown, List<String> alterations) {
+    private double getMinRange(CountertradeRemedialAction countertradeRemedialAction, String remedialActionId, String area,
+                               double initialNetPosition, double maxRegulatingDown, List<String> alterations) {
         double minEconomicP = countertradeRemedialAction.minEconomicP();
         double regulatingMinRange = -maxRegulatingDown;
         // NaN if minEconomicP or the initial net position is not available
