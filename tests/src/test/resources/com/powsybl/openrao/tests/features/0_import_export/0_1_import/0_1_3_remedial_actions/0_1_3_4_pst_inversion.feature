@@ -7,7 +7,7 @@ Feature: 0.1.3.4: Inversion of PSTs in remedial actions
   # This feature covers
 
   @fast @rao @ac @preventive-only @max-min-margin
-  Scenario: 0.1.3.4.1: Inverted PstRangeAction in Security Limit
+  Scenario: 0.1.3.4.1: Inverted PstRangeAction in json
     Given network file is "common/network_12nodes.uct"
     Given crac file is "0_import_export/0_1_import/0_1_3_remedial_actions/crac_0_1_3_4_1.json"
     Given configuration file is "common/rao_parameters_max_margin_ampere.json"
@@ -18,9 +18,8 @@ Feature: 0.1.3.4: Inversion of PSTs in remedial actions
     Then the margin on cnec "BBE2AA1  BBE3AA1  1 - preventive" after PRA should be 26.0 A
     Then the tap of PstRangeAction "PRA_PST_BE" should be 3 in preventive
 
-    ## TODO: is this relevant as security limits are not used anymore?
   @fast @rao @ac @preventive-only @max-min-margin
-  Scenario: 0.1.3.4.2: Inverted PstSetpoint in Security Limit
+  Scenario: 0.1.3.4.2: Inverted PstSetpoint in json
     Given network file is "common/network_12nodes.uct"
     Given crac file is "common/crac_2_1_2_2_selectionTopoRA_variant1.json"
     Given configuration file is "common/rao_parameters_max_margin_ampere.json"

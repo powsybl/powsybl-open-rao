@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Locale;
+import java.util.stream.Stream;
 
 /**
  * @author Vincent Bochet {@literal <vincent.bochet at rte-france.com>}
@@ -37,6 +38,16 @@ public final class ReportsTestUtils {
     public static List<ReportNode> getReportsWithSeverity(final ReportNode reportNode, final TypedValue traceSeverity) {
         return reportNode.getChildren().stream()
             .filter(r -> traceSeverity.equals(r.getValue("reportSeverity").orElse(null)))
+            .toList();
+    }
+
+    /**
+     * The report node itself and all its descendants having the given message key, in depth-first order.
+     */
+    public static List<ReportNode> findReportNodes(final ReportNode reportNode, final String messageKey) {
+        return Stream.concat(
+                Stream.of(reportNode).filter(r -> messageKey.equals(r.getMessageKey())),
+                reportNode.getChildren().stream().flatMap(child -> findReportNodes(child, messageKey).stream()))
             .toList();
     }
 

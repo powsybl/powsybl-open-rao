@@ -129,22 +129,12 @@ public class CastorContingencyScenarios {
         String newVariant = RandomizedString.getRandomizedString(CONTINGENCY_SCENARIO, network.getVariantManager().getVariantIds(), 10);
         network.getVariantManager().cloneVariant(network.getVariantManager().getWorkingVariantId(), newVariant);
         network.getVariantManager().setWorkingVariant(newVariant);
-        // Create an automaton simulator
-        AutomatonSimulator automatonSimulator = new AutomatonSimulator(
-            crac,
-            raoParameters,
-            toolProvider,
-            initialSensitivityOutput,
-            prePerimeterSensitivityOutput,
-            stateTree.getOperatorsNotSharingCras(),
-            NUMBER_LOGGED_ELEMENTS_DURING_RAO,
-            reportNode
-        );
         // Go through all contingency scenarios
         try (AbstractNetworkPool networkPool = AbstractNetworkPool.create(network, newVariant, getAvailableCPUs(raoParameters), true)) {
             AtomicInteger remainingScenarios = new AtomicInteger(stateTree.getContingencyScenarios().size());
             List<ForkJoinTask<Object>> tasks = stateTree.getContingencyScenarios().stream().map(optimizedScenario -> {
                     final ReportNode scenarioOptimizationReportNode = CastorReports.reportOptimizingScenarioForContingency(reportNode, optimizedScenario.getContingency().getId());
+                    AutomatonSimulator automatonSimulator = createAutomatonSimulator(prePerimeterSensitivityOutput, scenarioOptimizationReportNode);
                     return networkPool.submit(() ->
                         runScenario(prePerimeterSensitivityOutput,
                             automatonsOnly,
@@ -170,6 +160,19 @@ public class CastorContingencyScenarios {
             Thread.currentThread().interrupt();
         }
         return contingencyScenarioResults;
+    }
+
+    private AutomatonSimulator createAutomatonSimulator(PrePerimeterResult prePerimeterSensitivityOutput, ReportNode reportNode) {
+        return new AutomatonSimulator(
+            crac,
+            raoParameters,
+            toolProvider,
+            initialSensitivityOutput,
+            prePerimeterSensitivityOutput,
+            stateTree.getOperatorsNotSharingCras(),
+            NUMBER_LOGGED_ELEMENTS_DURING_RAO,
+            reportNode
+        );
     }
 
     private Object runScenario(final PrePerimeterResult prePerimeterSensitivityOutput,
