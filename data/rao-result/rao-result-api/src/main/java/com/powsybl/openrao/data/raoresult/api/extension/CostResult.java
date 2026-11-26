@@ -89,6 +89,17 @@ public final class CostResult extends AbstractExtension<RaoResult> {
     }
 
     /**
+     * Returns the names of virtual costs in the result used for the given instant, including any
+     * explicitly stored {@code NaN} costs. If no result exists at that instant, the previous result is used.
+     *
+     * @param optimizedInstant The optimized instant (null for the initial result)
+     * @return The virtual cost names for the effective result
+     */
+    public Set<String> getVirtualCostNames(Instant optimizedInstant) {
+        return Set.copyOf(getAppropriateResult(optimizedInstant).getVirtualCostNames());
+    }
+
+    /**
      * It gives the specified virtual cost of the situation at a given {@link Instant}. It represents the
      * secondary parts of the objective. If the specified name is not part of the virtual costs defined in the
      * objective function, this method will return {@code Double.NaN} values.

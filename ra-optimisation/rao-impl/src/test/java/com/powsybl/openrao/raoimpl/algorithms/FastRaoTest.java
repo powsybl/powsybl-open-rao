@@ -11,6 +11,7 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.Crac;
+import com.powsybl.openrao.data.crac.api.CracFactory;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.crac.api.State;
@@ -24,6 +25,7 @@ import com.powsybl.openrao.raoapi.json.JsonRaoParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.FastRaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
+import com.powsybl.openrao.raoimpl.result.api.ObjectiveFunctionResult;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import java.io.IOException;
@@ -36,6 +38,209 @@ import static org.mockito.Mockito.when;
  * @author Roxane Chen {@literal <roxane.chen at rte-france.com>}
  */
 class FastRaoTest {
+
+    @Test
+    void testRetainInitialSensitivityFailureCost() {
+        String failureCost = "sensitivity-failure-cost";
+        Instant preventive = Mockito.mock(Instant.class);
+        Instant auto = Mockito.mock(Instant.class);
+        Instant curative = Mockito.mock(Instant.class);
+        Instant missing = Mockito.mock(Instant.class);
+        when(preventive.comesBefore(missing)).thenReturn(true);
+
+        CostResult filtered = CostResult.builder()
+            .addFunctionalCostResult(null, 100)
+            .addVirtualCostResult(null, failureCost, 500)
+            .addVirtualCostResult(null, "other", 1)
+            .addFunctionalCostResult(preventive, 80)
+            .addVirtualCostResult(preventive, failureCost, 10)
+            .addVirtualCostResult(preventive, "other", 2)
+            .addFunctionalCostResult(auto, 60)
+            .addVirtualCostResult(auto, "other", 3)
+            .addFunctionalCostResult(curative, 40)
+            .addVirtualCostResult(curative, failureCost, 300)
+            .addVirtualCostResult(curative, "other", 4)
+            .build();
+        ObjectiveFunctionResult fullInitial = Mockito.mock(ObjectiveFunctionResult.class);
+        when(fullInitial.getVirtualCostNames()).thenReturn(Set.of(failureCost));
+        when(fullInitial.getVirtualCost(failureCost)).thenReturn(200.0);
+        Crac crac = Mockito.mock(Crac.class);
+        when(crac.getSortedInstants()).thenReturn(List.of(preventive, auto, curative, missing));
+
+        CostResult result = FastRao.retainInitialSensitivityFailureCost(filtered, fullInitial, crac);
+
+        assertNotSame(filtered, result);
+        assertEquals(200, result.getVirtualCost(null, failureCost));
+        assertEquals(200, result.getVirtualCost(preventive, failureCost));
+        assertEquals(200, result.getVirtualCost(auto, failureCost));
+        assertEquals(300, result.getVirtualCost(curative, failureCost));
+        assertEquals(100, result.getFunctionalCost(null));
+        assertEquals(80, result.getFunctionalCost(preventive));
+        assertEquals(60, result.getFunctionalCost(auto));
+        assertEquals(40, result.getFunctionalCost(curative));
+        assertEquals(1, result.getVirtualCost(null, "other"));
+        assertEquals(2, result.getVirtualCost(preventive, "other"));
+        assertEquals(3, result.getVirtualCost(auto, "other"));
+        assertEquals(4, result.getVirtualCost(curative, "other"));
+        assertEquals(Set.of(failureCost, "other"), result.getVirtualCostNames());
+
+        assertEquals(500, filtered.getVirtualCost(null, failureCost));
+        assertEquals(10, filtered.getVirtualCost(preventive, failureCost));
+        assertTrue(Double.isNaN(filtered.getVirtualCost(auto, failureCost)));
+        assertEquals(300, filtered.getVirtualCost(curative, failureCost));
+        assertEquals(100, filtered.getFunctionalCost(null));
+        assertEquals(80, filtered.getFunctionalCost(preventive));
+        assertEquals(60, filtered.getFunctionalCost(auto));
+        assertEquals(40, filtered.getFunctionalCost(curative));
+        assertEquals(1, filtered.getVirtualCost(null, "other"));
+        assertEquals(2, filtered.getVirtualCost(preventive, "other"));
+        assertEquals(3, filtered.getVirtualCost(auto, "other"));
+        assertEquals(4, filtered.getVirtualCost(curative, "other"));
+
+        assertEquals(80, result.getFunctionalCost(missing));
+        assertEquals(200, result.getVirtualCost(missing, failureCost));
+        Mockito.verify(preventive, Mockito.atLeastOnce()).comesBefore(missing);
+    }
+
+    @Test
+    void testRetainInitialSensitivityFailureCostWhenFilteredPenaltyIsMissing() {
+        String failureCost = "sensitivity-failure-cost";
+        Instant preventive = Mockito.mock(Instant.class);
+        CostResult filtered = CostResult.builder()
+            .addFunctionalCostResult(null, 100)
+            .addVirtualCostResult(null, "other", 1)
+            .addFunctionalCostResult(preventive, 80)
+            .addVirtualCostResult(preventive, "other", 2)
+            .build();
+        ObjectiveFunctionResult fullInitial = Mockito.mock(ObjectiveFunctionResult.class);
+        when(fullInitial.getVirtualCostNames()).thenReturn(Set.of(failureCost));
+        when(fullInitial.getVirtualCost(failureCost)).thenReturn(200.0);
+        Crac crac = Mockito.mock(Crac.class);
+        when(crac.getSortedInstants()).thenReturn(List.of(preventive));
+
+        CostResult result = FastRao.retainInitialSensitivityFailureCost(filtered, fullInitial, crac);
+
+        assertEquals(200, result.getVirtualCost(null, failureCost));
+        assertEquals(200, result.getVirtualCost(preventive, failureCost));
+        assertEquals(100, result.getFunctionalCost(null));
+        assertEquals(80, result.getFunctionalCost(preventive));
+        assertEquals(1, result.getVirtualCost(null, "other"));
+        assertEquals(2, result.getVirtualCost(preventive, "other"));
+        assertEquals(Set.of(failureCost, "other"), result.getVirtualCostNames());
+        assertEquals(Set.of("other"), filtered.getVirtualCostNames());
+        assertTrue(Double.isNaN(filtered.getVirtualCost(null, failureCost)));
+        assertTrue(Double.isNaN(filtered.getVirtualCost(preventive, failureCost)));
+    }
+
+    @Test
+    void testRetainInitialSensitivityFailureCostWithDisabledOrMissingPenalty() {
+        String failureCost = "sensitivity-failure-cost";
+        Instant preventive = Mockito.mock(Instant.class);
+        CostResult filtered = CostResult.builder()
+            .addFunctionalCostResult(null, 100)
+            .addVirtualCostResult(null, failureCost, 50)
+            .addVirtualCostResult(null, "other", 1)
+            .addFunctionalCostResult(preventive, 80)
+            .addVirtualCostResult(preventive, failureCost, 10)
+            .addVirtualCostResult(preventive, "other", 2)
+            .build();
+        Crac crac = Mockito.mock(Crac.class);
+
+        for (double initialPenalty : new double[] {Double.NaN, 0, -10}) {
+            ObjectiveFunctionResult fullInitial = Mockito.mock(ObjectiveFunctionResult.class);
+            when(fullInitial.getVirtualCostNames()).thenReturn(Set.of(failureCost));
+            when(fullInitial.getVirtualCost(failureCost)).thenReturn(initialPenalty);
+            CostResult result = FastRao.retainInitialSensitivityFailureCost(filtered, fullInitial, crac);
+
+            assertEquals(100, result.getFunctionalCost(null));
+            assertEquals(80, result.getFunctionalCost(preventive));
+            assertEquals(50, result.getVirtualCost(null, failureCost));
+            assertEquals(10, result.getVirtualCost(preventive, failureCost));
+            assertEquals(1, result.getVirtualCost(null, "other"));
+            assertEquals(2, result.getVirtualCost(preventive, "other"));
+            assertEquals(Set.of(failureCost, "other"), result.getVirtualCostNames());
+        }
+
+        ObjectiveFunctionResult missingPenalty = Mockito.mock(ObjectiveFunctionResult.class);
+        when(missingPenalty.getVirtualCostNames()).thenReturn(Set.of());
+        when(missingPenalty.getVirtualCost(failureCost)).thenReturn(Double.NaN);
+        CostResult result = FastRao.retainInitialSensitivityFailureCost(filtered, missingPenalty, crac);
+        assertEquals(100, result.getFunctionalCost(null));
+        assertEquals(80, result.getFunctionalCost(preventive));
+        assertEquals(50, result.getVirtualCost(null, failureCost));
+        assertEquals(10, result.getVirtualCost(preventive, failureCost));
+        assertEquals(1, result.getVirtualCost(null, "other"));
+        assertEquals(2, result.getVirtualCost(preventive, "other"));
+        assertEquals(Set.of(failureCost, "other"), result.getVirtualCostNames());
+    }
+
+    @Test
+    void testRetainInitialSensitivityFailureCostDoesNotInventDisabledPenalty() {
+        String failureCost = "sensitivity-failure-cost";
+        Instant preventive = Mockito.mock(Instant.class);
+        CostResult filtered = CostResult.builder()
+            .addFunctionalCostResult(null, 100)
+            .addVirtualCostResult(null, "other", 1)
+            .addFunctionalCostResult(preventive, 80)
+            .addVirtualCostResult(preventive, "other", 2)
+            .build();
+        Crac crac = Mockito.mock(Crac.class);
+
+        for (double initialPenalty : new double[] {Double.NaN, 0, -10}) {
+            ObjectiveFunctionResult fullInitial = Mockito.mock(ObjectiveFunctionResult.class);
+            when(fullInitial.getVirtualCost(failureCost)).thenReturn(initialPenalty);
+            CostResult result = FastRao.retainInitialSensitivityFailureCost(filtered, fullInitial, crac);
+
+            assertEquals(Set.of("other"), result.getVirtualCostNames());
+            assertTrue(Double.isNaN(result.getVirtualCost(null, failureCost)));
+            assertTrue(Double.isNaN(result.getVirtualCost(preventive, failureCost)));
+            assertEquals(100, result.getFunctionalCost(null));
+            assertEquals(80, result.getFunctionalCost(preventive));
+            assertEquals(1, result.getVirtualCost(null, "other"));
+            assertEquals(2, result.getVirtualCost(preventive, "other"));
+        }
+    }
+
+    @Test
+    void testRetainInitialSensitivityFailureCostPreservesFallbacks() {
+        Crac crac = CracFactory.findDefault().create("crac")
+            .newInstant("preventive", InstantKind.PREVENTIVE)
+            .newInstant("outage", InstantKind.OUTAGE)
+            .newInstant("auto", InstantKind.AUTO)
+            .newInstant("curative", InstantKind.CURATIVE);
+        Instant preventive = crac.getInstant("preventive");
+        Instant outage = crac.getInstant("outage");
+        Instant auto = crac.getInstant("auto");
+        Instant curative = crac.getInstant("curative");
+        String failureCost = "sensitivity-failure-cost";
+        CostResult filtered = CostResult.builder()
+            .addFunctionalCostResult(null, 100)
+            .addVirtualCostResult(null, "initial-only", 7)
+            .addVirtualCostResult(null, "initial-nan", Double.NaN)
+            .addFunctionalCostResult(outage, 80)
+            .addVirtualCostResult(outage, "outage-only", 9)
+            .addFunctionalCostResult(curative, 60)
+            .addVirtualCostResult(curative, failureCost, 300)
+            .build();
+        ObjectiveFunctionResult fullInitial = Mockito.mock(ObjectiveFunctionResult.class);
+        when(fullInitial.getVirtualCost(failureCost)).thenReturn(200.0);
+
+        CostResult result = FastRao.retainInitialSensitivityFailureCost(filtered, fullInitial, crac);
+
+        assertEquals(100, result.getFunctionalCost(preventive));
+        assertEquals(7, result.getVirtualCost(preventive, "initial-only"));
+        assertTrue(Double.isNaN(filtered.getVirtualCost(preventive)));
+        assertTrue(Double.isNaN(result.getVirtualCost(preventive)));
+        assertEquals(80, result.getFunctionalCost(auto));
+        assertEquals(9, result.getVirtualCost(auto, "outage-only"));
+        assertTrue(Double.isNaN(result.getVirtualCost(auto, "initial-only")));
+        assertEquals(200, result.getVirtualCost(preventive, failureCost));
+        assertEquals(200, result.getVirtualCost(auto, failureCost));
+        assertEquals(300, result.getVirtualCost(curative, failureCost));
+        assertEquals(209, result.getVirtualCost(auto));
+        assertEquals(100, filtered.getFunctionalCost(preventive));
+        assertTrue(Double.isNaN(filtered.getVirtualCost(auto, failureCost)));
+    }
 
     @Test
     void testRunFilteredRaoOnPreventiveOnlyCase() throws IOException {

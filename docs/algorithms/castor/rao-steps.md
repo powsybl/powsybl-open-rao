@@ -117,8 +117,8 @@ curative states are reported as `FAILURE` with the
 The skip is not triggered by `PARTIAL_FAILURE` alone. Preventive actions on the shared base case may still restore
 convergence for the contingency, but the final preventive cost retains at least the initial failure cost. Divergence may
 be caused by a modeling problem unrelated to RAO, such as a badly modeled voltage control or an unusual starting point.
-FastRAO runs CASTOR on a filtered CRAC. If an initially failed contingency is excluded by this filter, the returned
-initial sensitivity failure cost can be lost, and final status can indicate convergence after preventive actions.
+FastRAO runs CASTOR on a filtered CRAC. Its final cost retains the full initial sensitivity failure cost even if a failed
+contingency is excluded by this filter, but its final status can indicate convergence after preventive actions.
 
 Overloads potentially reached on this perimeter are to be solved with curative actions.
 Preventive and automatic actions already selected in the “after automatons” situation by the first two steps are applied

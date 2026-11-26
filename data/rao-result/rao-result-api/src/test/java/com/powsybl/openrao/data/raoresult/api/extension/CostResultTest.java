@@ -15,6 +15,7 @@ import org.mockito.Mockito;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
@@ -99,6 +100,24 @@ class CostResultTest {
         Set<String> names = costResult.getVirtualCostNames();
         assertEquals(3, names.size());
         assertTrue(names.containsAll(Set.of("v1", "v2", "v3")));
+    }
+
+    @Test
+    void testVirtualCostNamesAtInstant() {
+        Instant missing = Mockito.mock(Instant.class);
+        when(preventive.comesBefore(missing)).thenReturn(true);
+        costResult = costResultBuilder
+            .addVirtualCostResult(null, "initial", Double.NaN)
+            .addVirtualCostResult(preventive, "preventive", Double.NaN)
+            .addVirtualCostResult(curative, "curative", 10)
+            .build();
+
+        assertEquals(Set.of("initial"), costResult.getVirtualCostNames(null));
+        assertEquals(Set.of("preventive"), costResult.getVirtualCostNames(preventive));
+        assertEquals(Set.of("preventive"), costResult.getVirtualCostNames(missing));
+        assertEquals(Set.of("curative"), costResult.getVirtualCostNames(curative));
+        assertThrows(UnsupportedOperationException.class, () -> costResult.getVirtualCostNames(preventive).clear());
+        assertTrue(Double.isNaN(costResult.getVirtualCost(missing)));
     }
 
     @Test
