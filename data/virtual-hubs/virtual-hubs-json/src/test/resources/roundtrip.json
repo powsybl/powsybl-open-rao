@@ -1,0 +1,192 @@
+{
+  "region": {
+    "code": "RegionalCode",
+    "eic": "RegionalEic"
+  },
+  "synchronousAreas": [
+    {
+      "code": "SA_Code",
+      "eic": "Synchronous--EIC",
+      "isLive": true,
+      "isMainArea": false,
+      "localLOT3Parameters": {
+        "BooleanParameter": "true",
+        "FloatParameter": "0.001",
+        "IntegerParameter": "19",
+        "StringParameter": "Something"
+      },
+      "initialVoltages": [
+        {
+          "nominal": 3.14159265358979323846264338327950,
+          "initial": 123.45,
+          "slackSearchPriority": 42
+        }
+      ]
+    }
+  ],
+  "controlAreas": [
+    {
+      "code": "FR",
+      "eic": "10YFR-----------",
+      "isMcParticipant": true,
+      "isTechCounterparty": false,
+      "isSdac": false
+    },
+    {
+      "code": "IT",
+      "eic": "10YIT-----------",
+      "isMcParticipant": false,
+      "isTechCounterparty": false,
+      "isSdac": false
+    }
+  ],
+  "marketAreas": [
+    {
+      "code": "FR",
+      "eic": "10YFR-----------",
+      "isMcParticipant": true,
+      "isAhc": false,
+      "isTechCounterparty": false,
+      "isSdac": false,
+      "synchronousArea": "SA_Code",
+      "relatedCa": "FR",
+      "isItcp": false,
+      "isIgnoreECs": false
+    },
+    {
+      "code": "IE",
+      "eic": "10YIE-----------",
+      "isMcParticipant": false,
+      "isAhc": false,
+      "isTechCounterparty": false,
+      "isSdac": false,
+      "isItcp": false,
+      "isIgnoreECs": false
+    },
+    {
+      "code": "IT",
+      "eic": "10YIT-----------",
+      "isMcParticipant": false,
+      "isAhc": false,
+      "isTechCounterparty": false,
+      "isSdac": false,
+      "synchronousArea": "SA_Code",
+      "relatedCa": "IT",
+      "isItcp": false,
+      "isIgnoreECs": false
+    }
+  ],
+  "virtualHubs": [
+    {
+      "code": "FR_FrIt",
+      "eic": "17YXXXXXXXXXXXX1",
+      "isMcParticipant": false,
+      "isAhc": false,
+      "nodeName": "XFABC123",
+      "relatedMa": "IT",
+      "oppositeHub": "IT_FrIt",
+      "isSdac": false
+    },
+    {
+      "code": "IT_FrIt",
+      "eic": "17YXXXXXXXXXXXX2",
+      "isMcParticipant": false,
+      "isAhc": false,
+      "nodeName": "XIABC123",
+      "relatedMa": "FR",
+      "oppositeHub": "FR_FrIt",
+      "isSdac": false
+    }
+  ],
+  "borderDirections": [
+    {
+      "from": "FR",
+      "to": "IT",
+      "isAhc": false,
+      "isSdac": false
+    },
+    {
+      "from": "FR",
+      "to": "IT_FrIt",
+      "isAhc": false,
+      "isSdac": false
+    },
+    {
+      "from": "FR_FrIt",
+      "to": "IT",
+      "isAhc": false,
+      "isSdac": false
+    },
+    {
+      "from": "IT",
+      "to": "FR",
+      "isAhc": false,
+      "isSdac": false
+    },
+    {
+      "from": "IT",
+      "to": "FR_FrIt",
+      "isAhc": false,
+      "isSdac": false
+    },
+    {
+      "from": "IT_FrIt",
+      "to": "FR",
+      "isAhc": false,
+      "isSdac": false
+    }
+  ],
+  "internalHvdcs": [
+    {
+      "code": "FR_HVDC",
+      "eic": "11TFR----------1",
+      "poles": [
+        {
+          "id": "1",
+          "eic": "11TFR----------2",
+          "converters": [
+            {
+              "node": "FRAAAA11",
+              "station": "Abcd"
+            },
+            {
+              "node": "FRBBBB11",
+              "station": "Efgh"
+            }
+          ],
+          "lines": [
+            {
+              "id": "Pole1_FR_HVDC",
+              "from": "FRAAAA11",
+              "to": "FRBBBB11"
+            }
+          ]
+        },
+        {
+          "id": "2",
+          "eic": "11TFR----------3",
+          "converters": [
+            {
+              "node": "FRAAAA12",
+              "station": "Abcd"
+            },
+            {
+              "node": "FRBBBB12",
+              "station": "Efgh"
+            }
+          ],
+          "lines": [
+            {
+              "id": "Pole2_FR_HVDC",
+              "from": "FRAAAA12",
+              "to": "FRBBBB12"
+            }
+          ]
+        }
+      ],
+      "relatedMa": "FR",
+      "isMthvdc": false,
+      "isBipolar": true
+    }
+  ]
+}

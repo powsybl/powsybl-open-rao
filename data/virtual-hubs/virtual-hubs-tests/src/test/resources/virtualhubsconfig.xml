@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Created="2026-11-06T10:22:38Z"
+               xsi:noNamespaceSchemaLocation="configuration-33.xsd">
+    <DocumentIdentification v="17XTSO-CS------W-20261125F327v1"/>
+    <Sender Code="CORE" Eic="17XTSO-CS------W" Type="CCO"/>
+    <Receiver Code="CORESO" Eic="22XCORESO------S" Type="RSC"/>
+    <Region Code="RegionalCode" Eic="RegionalEic"/>
+
+    <SynchronousAreas>
+        <SynchronousArea Eic="Synchronous--EIC" Code="SA_Code" Live="true">
+            <LocalLOT3Parameters>
+                <LocalLOT3Parameter Key="IntegerParameter" Value="19"/>
+                <LocalLOT3Parameter Key="FloatParameter" Value="0.001"/>
+                <LocalLOT3Parameter Key="StringParameter" Value="Something"/>
+                <LocalLOT3Parameter Key="BooleanParameter" Value="true"/>
+            </LocalLOT3Parameters>
+            <InitialVoltages>
+                <Voltage Nominal="3.14159265358979323846264338327950" Initial="123.45" SlackSearchPriority="42"/>
+            </InitialVoltages>
+        </SynchronousArea>
+    </SynchronousAreas>
+
+    <ControlAreas>
+        <ControlArea Code="FR" Eic="10YFR-----------" MCParticipant="true" techCounterparty="false" SDAC="false"/>
+        <ControlArea Code="IT" Eic="10YIT-----------" MCParticipant="false" techCounterparty="false" SDAC="false"/>
+    </ControlAreas>
+
+    <MarketAreas>
+        <MarketArea Code="FR" Eic="10YFR-----------" MCParticipant="true" AHC="false" techCounterparty="false" SDAC="false" SynchronousArea="SA_Code" relatedCA="FR"/>
+        <MarketArea Code="IE" Eic="10YIE-----------" MCParticipant="false" AHC="false" techCounterparty="false" SDAC="false"/>
+        <MarketArea Code="IT" Eic="10YIT-----------" MCParticipant="false" AHC="false" techCounterparty="false" SDAC="false" SynchronousArea="SA_Code" relatedCA="IT"/>
+    </MarketAreas>
+
+    <VirtualHubs>
+        <VirtualHub Eic="17YXXXXXXXXXXXX1" Code="FR_FrIt" RelatedMA="IT" MCParticipant="false" OppositeHub="IT_FrIt" NodeName="XFABC123" AHC="false" SDAC="false"/>
+        <VirtualHub Eic="17YXXXXXXXXXXXX2" Code="IT_FrIt" RelatedMA="FR" MCParticipant="false" OppositeHub="FR_FrIt" NodeName="XIABC123" AHC="false" SDAC="false"/>
+    </VirtualHubs>
+
+    <BorderDirections>
+        <BorderDirection From="FR" To="IT" AHC="false" SDAC="false"/>
+        <BorderDirection From="FR" To="IT_FrIt" AHC="false" SDAC="false"/>
+        <BorderDirection From="FR_FrIt" To="IT" AHC="false" SDAC="false"/>
+        <BorderDirection From="IT" To="FR" AHC="false" SDAC="false"/>
+        <BorderDirection From="IT" To="FR_FrIt" AHC="false" SDAC="false"/>
+        <BorderDirection From="IT_FrIt" To="FR" AHC="false" SDAC="false"/>
+    </BorderDirections>
+
+    <InternalHVDCs>
+        <HVDC Eic="11TFR----------1" Code="FR_HVDC" RelatedMA="FR" MTHVDC="false" Bipolar="true">
+            <pole id="1" Eic="11TFR----------2">
+                <converterList>
+                    <converter node="FRAAAA11" station="Abcd"/>
+                    <converter node="FRBBBB11" station="Efgh"/>
+                </converterList>
+                <lineList>
+                    <line id="Pole1_FR_HVDC" from="FRAAAA11" to="FRBBBB11"/>
+                </lineList>
+            </pole>
+            <pole id="2" Eic="11TFR----------3">
+                <converterList>
+                    <converter node="FRAAAA12" station="Abcd"/>
+                    <converter node="FRBBBB12" station="Efgh"/>
+                </converterList>
+                <lineList>
+                    <line id="Pole2_FR_HVDC" from="FRAAAA12" to="FRBBBB12"/>
+                </lineList>
+            </pole>
+        </HVDC>
+    </InternalHVDCs>
+</Configuration>
