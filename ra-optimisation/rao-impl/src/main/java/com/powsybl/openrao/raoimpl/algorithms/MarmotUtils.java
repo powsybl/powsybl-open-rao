@@ -54,6 +54,16 @@ public final class MarmotUtils {
     private MarmotUtils() {
     }
 
+    public static PrePerimeterResult runInitialSensitivityAnalysis(final RaoInput raoInput, boolean withRangeActions, final RaoParameters raoParameters, final ReportNode reportNode) {
+        Crac crac = raoInput.getCrac();
+        Network network = raoInput.getNetwork();
+        ToolProvider toolProvider = ToolProvider.buildFromRaoInputAndParameters(raoInput, raoParameters);
+        // do not use range actions for speed purposes
+        Set<RangeAction<?>> rangeActions = withRangeActions ? crac.getRangeActions() : new HashSet<>();
+        return new PrePerimeterSensitivityAnalysis(crac, crac.getFlowCnecs(), rangeActions, raoParameters, toolProvider, false)
+            .runInitialSensitivityAnalysis(network, reportNode);
+    }
+
     public record LoggingAddedCnecs(OffsetDateTime offsetDateTime,
                                     String vcName,
                                     List<String> addedCnecs,
@@ -66,15 +76,6 @@ public final class MarmotUtils {
             addedCnecs.add(cnec);
             margins.put(cnec, margin);
         }
-    }
-
-    public static PrePerimeterResult runInitialSensitivityAnalysis(final RaoInput raoInput, final RaoParameters raoParameters, final ReportNode reportNode) {
-        Crac crac = raoInput.getCrac();
-        Network network = raoInput.getNetwork();
-        ToolProvider toolProvider = ToolProvider.buildFromRaoInputAndParameters(raoInput, raoParameters);
-        // do not use range actions for speed purposes
-        return new PrePerimeterSensitivityAnalysis(crac, crac.getFlowCnecs(), new HashSet<>(), raoParameters, toolProvider, false)
-            .runInitialSensitivityAnalysis(network, reportNode);
     }
 
     public static PrePerimeterResult runInitialPrePerimeterSensitivityAnalysisWithoutRangeActions(final RaoInput raoInput,
@@ -229,6 +230,17 @@ public final class MarmotUtils {
             .stream()
             .filter(instant -> !instant.isOutage())
             .forEach(instant -> addCostsForInstant(costResultBuilder, singleTimestampObjectiveFunctionResult, instant));
+        return costResultBuilder.build();
+    }
+
+    public static CostResult createCastorCostResultExtension(ObjectiveFunctionResult initialOptimizationResult,
+                                                              ObjectiveFunctionResult finalLinearOptimizationResult,
+                                                              List<Instant> instants) {
+        CostResult.CostResultBuilder costResultBuilder = CostResult.builder();
+        addCostsForInstant(costResultBuilder, initialOptimizationResult, null);
+        instants.stream()
+            .filter(instant -> !instant.isOutage())
+            .forEach(instant -> addCostsForInstant(costResultBuilder, finalLinearOptimizationResult, instant));
         return costResultBuilder.build();
     }
 
@@ -397,4 +409,35 @@ public final class MarmotUtils {
             availableRangeActions.put(state, rangeActions);
         }
     }
+
+    public static ObjectiveFunction buildGlobalObjectiveFunction(TemporalData<Crac> cracs, FlowResult globalInitialFlowResult, RaoParameters raoParameters) {
+        Set<FlowCnec> allFlowCnecs = new HashSet<>();
+        cracs.map(Crac::getFlowCnecs).getDataPerTimestamp().values().forEach(allFlowCnecs::addAll);
+        Set<State> allOptimizedStates = new HashSet<>();
+        cracs.map(Crac::getStates).getDataPerTimestamp().values().forEach(allOptimizedStates::addAll);
+        return ObjectiveFunction.build(allFlowCnecs,
+            new HashSet<>(), // no loop flows for now
+            globalInitialFlowResult,
+            globalInitialFlowResult, // always building from preventive so prePerimeter = initial
+            Collections.emptySet(),
+            raoParameters,
+            allOptimizedStates);
+    }
+
+    public static LinearOptimizationResult getInitialObjectiveFunctionResult(final TemporalData<PrePerimeterResult> prePerimeterResults,
+                                                                             final ObjectiveFunction objectiveFunction,
+                                                                             final ReportNode reportNode) {
+        TemporalData<RangeActionActivationResult> rangeActionActivationResults = prePerimeterResults.map(RangeActionActivationResultImpl::new);
+        TemporalData<NetworkActionsResult> networkActionsResults = new TemporalDataImpl<>();
+        return new GlobalLinearOptimizationResult(
+            prePerimeterResults.map(PrePerimeterResult::getFlowResult),
+            prePerimeterResults.map(PrePerimeterResult::getSensitivityResult),
+            rangeActionActivationResults,
+            networkActionsResults,
+            objectiveFunction,
+            LinearProblemStatus.OPTIMAL,
+            reportNode
+        );
+    }
+
 }

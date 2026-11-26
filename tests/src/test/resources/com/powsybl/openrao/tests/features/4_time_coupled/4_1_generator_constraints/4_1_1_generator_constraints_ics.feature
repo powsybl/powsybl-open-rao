@@ -3,7 +3,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-Feature: 4.1: Time-coupled generator constraints with MARMOT with ICS files
+Feature: 4.1.1: Time-coupled generator constraints with MARMOT with ICS files
   Presentation of the US
   ----------------------
 
