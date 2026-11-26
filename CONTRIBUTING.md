@@ -77,7 +77,7 @@ Here is a set of rules your pull request must follow:
 - the PR must pass a few **automatic checks** before it can be merged: build & unit tests (including the powsybl-parent **Checkstyle** checks), functional tests, sonar quality, sign-off check, doc build check
 - if the PR changes a part of the code that is [documented](https://powsybl.readthedocs.io/projects/openrao/en/latest), 
   then [**documentation**](docs) must be updated before it can be merged
-- if the PR takes a structural or hard-to-reverse decision (public API, MIP model, module separation, a convention that will recur), the decision must be recorded as an [**ADR**](docs/adr.md) in the same pull request; `docs/adr.md` explains the criteria and the template
+- if the PR takes a structural or hard-to-reverse decision (public API, MIP model, module separation, a convention that will recur), the decision must be recorded as an **ADR** in the same pull request; `docs/adr.md` explains the criteria and the template
 - **label**[^1] the PR as much as possible, this makes addressing it much more efficient 
 - Final commit message should start with `xxxx(subject): text #yy` with `xxxx` equal to `feat`, `test`, `doc`, `fix` or `chore` and `yy`is the PR number.
 - Before merging by "squash and merge", edit the commit message to only keep relevant PR info.

@@ -30,7 +30,7 @@ If the rationale of a choice is one sentence that the PR description already car
 ## Conventions
 
 - **Location and numbering**: one file per ADR in `docs/adr/`, named `NNNN-slug.md` where `NNNN` is the next free four-digit number and the slug names the decision in kebab-case, at most five words (e.g. `0001-json-roundtrip-parameters-copy.md`).
-- **Index**: the toctree of this page lists the files of `docs/adr/` automatically (Sphinx `:glob:` option), so a new ADR needs no toctree edit; add one line to the Records list at the bottom of this page in the same pull request.
+- **Index**: the toctree of this page lists the files of `docs/adr/` automatically (Sphinx `:glob:` option); a new ADR needs no edit of this page.
 - **Status**: `Accepted` from the moment the ADR is drafted (the ADR is opened in the same pull request as the decision, so it lands with the merge and no status change is needed afterwards), `Superseded by #NNNN` when a later ADR replaces it, `Deprecated` when the decision is no longer recommended but has no direct successor, `Rejected` when a real proposal was explicitly ruled out (see below).
 
 ### The `Rejected` status (rare)
