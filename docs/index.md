@@ -12,6 +12,7 @@ output-data.md
 algorithms.md
 parameters.md
 applications.md
+adr.md
 faq.md
 ```
 
