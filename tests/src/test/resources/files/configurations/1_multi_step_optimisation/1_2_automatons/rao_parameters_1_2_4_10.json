@@ -1,0 +1,48 @@
+{
+  "version" : "3.5",
+  "objective-function" : { "type" : "SECURE_FLOW" },
+  "topological-actions-optimization" : {
+    "relative-minimum-impact-threshold" : 0.0,
+    "absolute-minimum-impact-threshold" : 1.0
+  },
+  "extensions" : {
+    "fast-rao-parameters" : {
+      "number-of-cnecs-to-add" : 1,
+      "add-unsecure-cnecs" : false,
+      "margin-limit" : 5.0
+    },
+    "open-rao-search-tree-parameters" : {
+      "second-preventive-rao" : { "execution-condition" : "DISABLED" },
+      "load-flow-and-sensitivity-computation" : {
+        "load-flow-provider" : "OpenLoadFlow",
+        "sensitivity-provider" : "OpenLoadFlow",
+        "sensitivity-failure-overcost" : 10000.0,
+        "sensitivity-parameters" : {
+          "version" : "1.0",
+          "load-flow-parameters" : {
+            "version" : "1.10",
+            "voltageInitMode" : "UNIFORM_VALUES",
+            "transformerVoltageControlOn" : false,
+            "phaseShifterRegulationOn" : false,
+            "useReactiveLimits" : true,
+            "twtSplitShuntAdmittance" : false,
+            "shuntCompensatorVoltageControlOn" : false,
+            "readSlackBus" : true,
+            "writeSlackBus" : true,
+            "dc" : false,
+            "distributedSlack" : true,
+            "balanceType" : "PROPORTIONAL_TO_GENERATION_P",
+            "dcUseTransformerRatio" : true,
+            "countriesToBalance" : [ ],
+            "componentMode" : "MAIN_CONNECTED",
+            "hvdcAcEmulation" : true,
+            "extensions" : {
+              "open-load-flow-parameters" : { "slackDistributionFailureBehavior" : "THROW" }
+            }
+          }
+        }
+      },
+      "multi-threading" : { "available-cpus" : 1 }
+    }
+  }
+}
