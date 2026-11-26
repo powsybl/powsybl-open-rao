@@ -20,14 +20,27 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
+ * Regression on the NCP 2.5 read contract (issue #2057): the same topological actions, published
+ * with the NCP 2.5 vocabulary, must be imported exactly as in NCP 2.4.
+ *
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
+ * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 class TopologicalActionCreationTest {
 
     @Test
     void importTopologicalActions() {
+        importTopologicalActions("/profiles/remedialactions/TopologicalActions.zip", "http://entsoe.eu/ns/nc#");
+    }
+
+    @Test
+    void importNcp25TopologicalActions() {
+        importTopologicalActions("/profiles/ncp25/TopologicalActionsV25.zip", "https://cim4.eu/ns/nc#");
+    }
+
+    private static void importTopologicalActions(String zipPath, String ncNamespace) {
         NcCracCreationContext cracCreationContext = NcCracCreationTestUtil.getNcCracCreationContext(
-            "/profiles/remedialactions/TopologicalActions.zip",
+            zipPath,
             NcCracCreationTestUtil.NETWORK
         );
 
@@ -95,14 +108,14 @@ class TopologicalActionCreationTest {
             "remedial-action-7",
             ImportStatus.INCONSISTENCY_IN_DATA,
             "Remedial action remedial-action-7 will not be imported because the RelativeDirectionKind is " +
-                "http://entsoe.eu/ns/nc#RelativeDirectionKind.up but should be none"
+                ncNamespace + "RelativeDirectionKind.up but should be none"
         );
         NcCracCreationTestUtil.assertRaNotImported(
             cracCreationContext,
             "remedial-action-8",
             ImportStatus.INCONSISTENCY_IN_DATA,
             "Remedial action remedial-action-8 will not be imported because the ValueOffsetKind is " +
-                "http://entsoe.eu/ns/nc#ValueOffsetKind.incrementalPercentage but should be absolute"
+                ncNamespace + "ValueOffsetKind.incrementalPercentage but should be absolute"
         );
         NcCracCreationTestUtil.assertRaNotImported(
             cracCreationContext,

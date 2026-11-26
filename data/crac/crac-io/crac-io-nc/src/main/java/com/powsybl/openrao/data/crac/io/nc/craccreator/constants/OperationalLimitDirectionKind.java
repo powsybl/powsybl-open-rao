@@ -22,9 +22,17 @@ public enum OperationalLimitDirectionKind {
 
     private final String direction;
     private static final String URL = NcConstants.IEC_URL + "CIM100#OperationalLimitDirectionKind.";
+    private static final String URL_25 = NcConstants.NC25_CIM_URL + "#OperationalLimitDirectionKind.";
 
     @Override
     public String toString() {
         return URL + this.direction;
+    }
+
+    /**
+     * Matches a SPARQL result value against this kind, for both the NCP 2.4 and the NCP 2.5 vocabularies.
+     */
+    public boolean matches(String url) {
+        return toString().equals(url) || (URL_25 + direction).equals(url);
     }
 }

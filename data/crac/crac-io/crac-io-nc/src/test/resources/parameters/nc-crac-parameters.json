@@ -3,6 +3,7 @@
   "extensions": {
     "NcCracCreatorParameters": {
       "capacity-calculation-region": "10Y1001C--00095L",
+      "create-auto-instant": true,
       "curative-instants": [
         {
           "name": "curative 1",

@@ -67,13 +67,19 @@ public abstract class AbstractCnecCreator {
     }
 
     private boolean isAeSecuredForRegion(CapacityCalculationRegion capacityCalculationRegion) {
-        String region = nativeAssessedElement.securedForRegion() == null ? null : NcCracUtils.getEicFromUrl(nativeAssessedElement.securedForRegion());
-        return region != null && region.equals(capacityCalculationRegion.getEIC());
+        if (nativeAssessedElement.securedForRegion() == null) {
+            return false;
+        }
+        String region = NcCracUtils.getEicFromUrl(nativeAssessedElement.securedForRegion());
+        return capacityCalculationRegion == null || region != null && region.equals(capacityCalculationRegion.getEIC());
     }
 
     private boolean isAeScannedForRegion(CapacityCalculationRegion capacityCalculationRegion) {
-        String region = nativeAssessedElement.scannedForRegion() == null ? null : NcCracUtils.getEicFromUrl(nativeAssessedElement.scannedForRegion());
-        return region != null && region.equals(capacityCalculationRegion.getEIC());
+        if (nativeAssessedElement.scannedForRegion() == null) {
+            return false;
+        }
+        String region = NcCracUtils.getEicFromUrl(nativeAssessedElement.scannedForRegion());
+        return capacityCalculationRegion == null || region != null && region.equals(capacityCalculationRegion.getEIC());
     }
 
     private static String getBorderEIC(String overlappingZone) {
@@ -107,7 +113,7 @@ public abstract class AbstractCnecCreator {
         return "%s (%s) - %s%s".formatted(
             nativeAssessedElement.getUniqueName(),
             nativeAssessedElement.mrid(),
-            contingency == null ? "" : contingency.getName().orElse(contingency.getId()) + " - ",
+            contingency == null ? "" : contingency.getName().orElse(contingency.getId()) + " (" + contingency.getId() + ") - ",
             instantId
         );
     }

@@ -137,42 +137,42 @@ class GroupRemedialActionTest {
         NcCracCreationTestUtil.assertHasOnConstraintUsageRule(
             cracCreationContext,
             "7d2833e4-c5a8-4d79-b936-c735a58f1774",
-            "RTE_AE1 (f7708112-b880-4674-98a1-b005a01a61d5) - RTE_CO1 - curative 1 - PATL",
+            "RTE_AE1 (f7708112-b880-4674-98a1-b005a01a61d5) - RTE_CO1 (co1_fr2_fr3_1) - curative 1 - PATL",
             cracCreationContext.getCrac().getInstant(NcCracCreationTestUtil.CURATIVE_1_INSTANT_ID),
             FlowCnec.class
         );
         NcCracCreationTestUtil.assertHasOnConstraintUsageRule(
             cracCreationContext,
             "7d2833e4-c5a8-4d79-b936-c735a58f1774",
-            "RTE_AE1 (f7708112-b880-4674-98a1-b005a01a61d5) - RTE_CO1 - curative 2 - PATL",
+            "RTE_AE1 (f7708112-b880-4674-98a1-b005a01a61d5) - RTE_CO1 (co1_fr2_fr3_1) - curative 2 - PATL",
             cracCreationContext.getCrac().getInstant(NcCracCreationTestUtil.CURATIVE_2_INSTANT_ID),
             FlowCnec.class
         );
         NcCracCreationTestUtil.assertHasOnConstraintUsageRule(
             cracCreationContext,
             "7d2833e4-c5a8-4d79-b936-c735a58f1774",
-            "RTE_AE1 (f7708112-b880-4674-98a1-b005a01a61d5) - RTE_CO1 - curative 2 - PATL",
+            "RTE_AE1 (f7708112-b880-4674-98a1-b005a01a61d5) - RTE_CO1 (co1_fr2_fr3_1) - curative 2 - PATL",
             cracCreationContext.getCrac().getInstant(NcCracCreationTestUtil.CURATIVE_2_INSTANT_ID),
             FlowCnec.class
         );
         NcCracCreationTestUtil.assertHasOnConstraintUsageRule(
             cracCreationContext,
             "7d2833e4-c5a8-4d79-b936-c735a58f1774",
-            "RTE_AE1 (f7708112-b880-4674-98a1-b005a01a61d5) - RTE_CO1 - curative 3 - PATL",
+            "RTE_AE1 (f7708112-b880-4674-98a1-b005a01a61d5) - RTE_CO1 (co1_fr2_fr3_1) - curative 3 - PATL",
             cracCreationContext.getCrac().getInstant(NcCracCreationTestUtil.CURATIVE_1_INSTANT_ID),
             FlowCnec.class
         );
         NcCracCreationTestUtil.assertHasOnConstraintUsageRule(
             cracCreationContext,
             "7d2833e4-c5a8-4d79-b936-c735a58f1774",
-            "RTE_AE1 (f7708112-b880-4674-98a1-b005a01a61d5) - RTE_CO1 - curative 3 - PATL",
+            "RTE_AE1 (f7708112-b880-4674-98a1-b005a01a61d5) - RTE_CO1 (co1_fr2_fr3_1) - curative 3 - PATL",
             cracCreationContext.getCrac().getInstant(NcCracCreationTestUtil.CURATIVE_2_INSTANT_ID),
             FlowCnec.class
         );
         NcCracCreationTestUtil.assertHasOnConstraintUsageRule(
             cracCreationContext,
             "7d2833e4-c5a8-4d79-b936-c735a58f1774",
-            "RTE_AE1 (f7708112-b880-4674-98a1-b005a01a61d5) - RTE_CO1 - curative 3 - PATL",
+            "RTE_AE1 (f7708112-b880-4674-98a1-b005a01a61d5) - RTE_CO1 (co1_fr2_fr3_1) - curative 3 - PATL",
             cracCreationContext.getCrac().getInstant(NcCracCreationTestUtil.CURATIVE_3_INSTANT_ID),
             FlowCnec.class
         );

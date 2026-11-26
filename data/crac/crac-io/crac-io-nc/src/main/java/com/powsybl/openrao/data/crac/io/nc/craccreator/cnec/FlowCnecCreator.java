@@ -18,7 +18,9 @@ import com.powsybl.iidm.network.TieLine;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
+import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.openrao.data.crac.api.Crac;
+import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnecAdder;
 import com.powsybl.openrao.data.crac.api.parameters.CracCreationParameters;
 import com.powsybl.openrao.data.crac.api.threshold.BranchThresholdAdder;
@@ -110,9 +112,9 @@ public class FlowCnecCreator extends AbstractCnecCreator {
         // If the AssessedElement is defined with a conducting equipment, we use both max and min thresholds.
         boolean useMaxAndMinThresholds = true;
         if (nativeAssessedElement.conductingEquipment() == null) {
-            if (OperationalLimitDirectionKind.HIGH.toString().equals(nativeCurrentLimit.direction())) {
+            if (OperationalLimitDirectionKind.HIGH.matches(nativeCurrentLimit.direction())) {
                 useMaxAndMinThresholds = false;
-            } else if (!OperationalLimitDirectionKind.ABSOLUTE.toString().equals(nativeCurrentLimit.direction())) {
+            } else if (!OperationalLimitDirectionKind.ABSOLUTE.matches(nativeCurrentLimit.direction())) {
                 throw new OpenRaoImportException(
                     ImportStatus.NOT_FOR_RAO,
                     writeAssessedElementIgnoredReasonMessage("OperationalLimitType.direction is neither 'absoluteValue' nor 'high'")
@@ -221,7 +223,8 @@ public class FlowCnecCreator extends AbstractCnecCreator {
         thresholdPerSide.forEach((twoSides, threshold) -> addFlowCnecThreshold(cnecAdder, twoSides, threshold, useMaxAndMinThresholds));
         cnecAdder.withNetworkElement(networkElement.getId());
         setNominalVoltage(cnecAdder, networkElement);
-        cnecAdder.add();
+        FlowCnec flowCnec = cnecAdder.add();
+        OpenRaoLoggerProvider.BUSINESS_LOGS.info(">>> FlowCnec {} successfully imported", flowCnec.getId());
     }
 
     private void addAllFlowCnecsFromBranchAndOperationalLimits(Branch<?> networkElement, Map<Integer, Map<TwoSides, Double>> thresholds, boolean useMaxAndMinThresholds) {
@@ -312,9 +315,9 @@ public class FlowCnecCreator extends AbstractCnecCreator {
 
         if (side != null) {
             int acceptableDuration;
-            if (LimitTypeKind.PATL.toString().equals(nativeCurrentLimit.limitType())) {
+            if (LimitTypeKind.PATL.matches(nativeCurrentLimit.limitType())) {
                 acceptableDuration = Integer.MAX_VALUE;
-            } else if (LimitTypeKind.TATL.toString().equals(nativeCurrentLimit.limitType())) {
+            } else if (LimitTypeKind.TATL.matches(nativeCurrentLimit.limitType())) {
                 acceptableDuration = Integer.parseInt(nativeCurrentLimit.acceptableDuration());
             } else {
                 return thresholds;
