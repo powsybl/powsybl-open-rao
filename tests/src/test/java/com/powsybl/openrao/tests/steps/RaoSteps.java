@@ -37,6 +37,7 @@ import com.powsybl.openrao.data.icsimporter.IcsDataImporter;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.raoresult.api.extension.CostResult;
+import com.powsybl.openrao.data.raoresult.api.extension.CriticalCnecsResult;
 import com.powsybl.openrao.data.raoresult.api.extension.FlowResult;
 import com.powsybl.openrao.data.raoresult.api.extension.Metadata;
 import com.powsybl.openrao.data.refprog.referenceprogram.ReferenceProgram;
@@ -51,6 +52,9 @@ import com.powsybl.openrao.raoapi.Rao;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.TimeCoupledRaoInput;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
+import com.powsybl.openrao.raoimpl.algorithms.PrePerimeterSensitivityAnalysis;
+import com.powsybl.openrao.raoimpl.commons.ToolProvider;
+import com.powsybl.openrao.raoimpl.result.api.PrePerimeterResult;
 import com.powsybl.openrao.raoimpl.result.extension.PreTimeCouplingOverloadedCnecs;
 import com.powsybl.openrao.raoimpl.result.extension.TimeCoupledCostResult;
 import com.powsybl.openrao.tests.utils.CoreCcPreprocessor;
@@ -263,6 +267,31 @@ public class RaoSteps {
         CostResult costResult = CommonTestData.getRaoResult().getExtension(CostResult.class);
         assertNotNull(costResult);
         assertEquals(expectedValue, costResult.getVirtualCost(crac.getInstant(instant), "sensitivity-failure-cost"), 1e-6);
+    }
+
+    @Given("the full initial sensitivity analysis fails after {string} at {string} with cost {double}")
+    public void fullInitialSensitivityFails(String contingencyId, String instant, double expectedCost) throws IOException {
+        CommonTestData.loadData(null);
+        Crac initialCrac = CommonTestData.getCrac();
+        Network initialNetwork = CommonTestData.getNetwork();
+        RaoParameters parameters = CommonTestData.getRaoParameters();
+        RaoInput input = RaoInput.build(initialNetwork, initialCrac).build();
+        ToolProvider tools = ToolProvider.buildFromRaoInputAndParameters(input, parameters);
+        PrePerimeterResult result = new PrePerimeterSensitivityAnalysis(initialCrac, initialCrac.getFlowCnecs(), Set.of(), parameters, tools, false)
+            .runInitialSensitivityAnalysis(initialNetwork, ReportNode.NO_OP);
+        assertEquals(ComputationStatus.PARTIAL_FAILURE, result.getSensitivityStatus());
+        assertEquals(ComputationStatus.DEFAULT, result.getSensitivityStatus(initialCrac.getPreventiveState()));
+        assertEquals(ComputationStatus.FAILURE, result.getSensitivityStatus(getState(initialCrac, contingencyId, instant)));
+        assertEquals(expectedCost, result.getVirtualCost("sensitivity-failure-cost"), 1e-6);
+    }
+
+    @Then("cnec {string} is {word} by fast rao")
+    public void cnecIsSelectedByFastRao(String cnecId, String selection) {
+        CriticalCnecsResult criticalCnecs = CommonTestData.getRaoResult().getExtension(CriticalCnecsResult.class);
+        assertNotNull(criticalCnecs);
+        assertTrue(crac.getFlowCnec(cnecId) != null);
+        assertTrue(Set.of("selected", "excluded").contains(selection));
+        assertEquals("selected".equals(selection), criticalCnecs.getCriticalCnecIds().contains(cnecId));
     }
 
     @Then("the computation after {string} at {string} should be {string}")

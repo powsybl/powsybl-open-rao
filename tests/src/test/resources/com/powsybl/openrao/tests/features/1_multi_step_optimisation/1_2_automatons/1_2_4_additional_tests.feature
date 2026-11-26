@@ -178,3 +178,29 @@ Feature: 1.2.4: Additional tests to check various fixes concerning automaton sta
     Then the remedial action "healthy-open-line" is used after "CO_N1012_N4012" at "auto"
     Then the margin on cnec "healthy-auto" after ARA should be 100.0 A
     Then the margin on cnec "healthy-curative" after CRA should be 100.0 A
+
+  @fast @rao @ac @contingency-scenarios @secure-flow @fast-rao
+  Scenario: 1.2.4.10: FastRAO with an initially divergent contingency outside the filtered CRAC
+  The base case converges while the N4042-N4043 outage diverges initially. FastRAO selects only
+  the overloaded preventive CNEC; its preventive action opens N4043-N4044 and restores convergence
+  for the initially failed outage, whose CNECs are not included in the filtered CASTOR run. The
+  failure cost should still be retained in the returned result.
+    Given network file is "0_import_export/0_2_export/0_2_3_swe_cne/nordic32.xiidm"
+    Given crac file is "1_multi_step_optimisation/1_2_automatons/crac_1_2_4_8.json"
+    Given configuration file is "1_multi_step_optimisation/1_2_automatons/rao_parameters_1_2_4_10.json"
+    Given the full initial sensitivity analysis fails after "CO_N4042_N4043" at "curative" with cost 10000.0
+    When I launch rao
+    Then cnec "preventive" is selected by fast rao
+    Then cnec "auto" is excluded by fast rao
+    Then cnec "curative" is excluded by fast rao
+    Then the initial margin on cnec "preventive" should be -126.85 A
+    Then the remedial action "preventive-open-line" is used in preventive
+    Then the margin on cnec "auto" after PRA should be 60.12 A
+    Then the computation after "CO_N4042_N4043" at "auto" should be "DEFAULT"
+    Then the computation after "CO_N4042_N4043" at "curative" should be "DEFAULT"
+    Then 0 remedial actions are used after "CO_N4042_N4043" at "auto"
+    Then 0 remedial actions are used after "CO_N4042_N4043" at "curative"
+    Then the sensitivity failure cost initially should be 10000.0
+    Then the sensitivity failure cost after "preventive" should be 10000.0
+    Then the sensitivity failure cost after "auto" should be 10000.0
+    Then the sensitivity failure cost after "curative" should be 10000.0
