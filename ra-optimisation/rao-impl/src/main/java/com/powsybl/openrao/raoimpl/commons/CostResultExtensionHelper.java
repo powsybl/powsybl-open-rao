@@ -31,6 +31,15 @@ public final class CostResultExtensionHelper {
     private CostResultExtensionHelper() {
     }
 
+    /**
+     * Floors the final CASTOR preventive failure cost at the initial cost stored in the same result.
+     * Later instant costs are handled by the skipped contingency scenarios; FastRAO separately retains
+     * the full CRAC's initial cost at all instants because its filtered optimization can omit those scenarios.
+     *
+     * @param costResult final cost result selected by CASTOR
+     * @param preventiveInstant preventive instant to update
+     * @return the original result if no update is needed, otherwise a copy with the retained cost
+     */
     public static CostResult retainInitialSensitivityFailureCost(CostResult costResult, Instant preventiveInstant) {
         String costName = SensitivityFailureOvercostEvaluator.getEvaluatorName();
         double initialCost = costResult.getVirtualCost(null, costName);

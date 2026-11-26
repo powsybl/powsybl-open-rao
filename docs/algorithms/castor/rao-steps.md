@@ -118,7 +118,8 @@ The skip is not triggered by `PARTIAL_FAILURE` alone. Preventive actions on the 
 convergence for the contingency, but the final preventive cost retains at least the initial failure cost. Divergence may
 be caused by a modeling problem unrelated to RAO, such as a badly modeled voltage control or an unusual starting point.
 FastRAO runs CASTOR on a filtered CRAC. Its final cost retains the full initial sensitivity failure cost even if a failed
-contingency is excluded by this filter, but its final status can indicate convergence after preventive actions.
+contingency is excluded by this filter. FastRAO then recomputes sensitivities and reports statuses on the full CRAC, so a
+previously failed state can be reported as converged if preventive actions restore convergence.
 
 Overloads potentially reached on this perimeter are to be solved with curative actions.
 Preventive and automatic actions already selected in the “after automatons” situation by the first two steps are applied

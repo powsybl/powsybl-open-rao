@@ -189,6 +189,11 @@ class FastRao {
         }
     }
 
+    /**
+     * Restores the full CRAC's initial failure cost and floors costs at every CRAC instant in the final result.
+     * Unlike CASTOR's preventive-only retention, this also covers later instants because the failed contingency
+     * may have been excluded from the filtered optimization. This is applied after optimization decisions.
+     */
     static CostResult retainInitialSensitivityFailureCost(CostResult costResult, ObjectiveFunctionResult initialResult, Crac crac) {
         String costName = SensitivityFailureOvercostEvaluator.getEvaluatorName();
         double initialCost = initialResult.getVirtualCost(costName);
