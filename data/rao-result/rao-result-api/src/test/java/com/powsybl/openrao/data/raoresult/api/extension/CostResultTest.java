@@ -110,4 +110,36 @@ class CostResultTest {
 
         assertEquals(275.0, costResult.getCost(preventive));
     }
+
+    @Test
+    void testCopyBuilderPreservesAndIsolatesCosts() {
+        CostResult original = CostResult.builder()
+            .addFunctionalCostResult(null, 100)
+            .addVirtualCostResult(null, "initial", 10)
+            .addFunctionalCostResult(preventive, 200)
+            .addVirtualCostResult(preventive, "preventive", 20)
+            .addFunctionalCostResult(curative, 300)
+            .addVirtualCostResult(curative, "curative", 30)
+            .build();
+
+        CostResult.CostResultBuilder copyBuilder = CostResult.builder(original);
+        CostResult unchangedCopy = copyBuilder.build();
+        CostResult modifiedCopy = copyBuilder
+            .addFunctionalCostResult(null, 101)
+            .addVirtualCostResult(null, "initial", 11)
+            .addFunctionalCostResult(preventive, 201)
+            .addVirtualCostResult(preventive, "preventive", 21)
+            .build();
+
+        assertEquals(110, original.getCost(null));
+        assertEquals(220, original.getCost(preventive));
+        assertEquals(330, original.getCost(curative));
+        assertEquals(110, unchangedCopy.getCost(null));
+        assertEquals(220, unchangedCopy.getCost(preventive));
+        assertEquals(330, unchangedCopy.getCost(curative));
+        assertEquals(112, modifiedCopy.getCost(null));
+        assertEquals(222, modifiedCopy.getCost(preventive));
+        assertEquals(330, modifiedCopy.getCost(curative));
+        assertEquals(Set.of("initial", "preventive", "curative"), modifiedCopy.getVirtualCostNames());
+    }
 }

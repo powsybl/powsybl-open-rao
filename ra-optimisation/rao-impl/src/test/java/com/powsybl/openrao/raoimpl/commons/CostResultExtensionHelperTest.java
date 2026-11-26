@@ -100,6 +100,46 @@ class CostResultExtensionHelperTest {
     }
 
     @Test
+    void retainInitialSensitivityFailureCostForMissingOrSmallerPreventivePenalty() {
+        String failureCost = "sensitivity-failure-cost";
+        CostResult missingPreventivePenalty = CostResult.builder()
+            .addVirtualCostResult(null, failureCost, 10000)
+            .addFunctionalCostResult(preventiveInstant, 80)
+            .addVirtualCostResult(preventiveInstant, "other", 5)
+            .build();
+
+        CostResult result = CostResultExtensionHelper.retainInitialSensitivityFailureCost(missingPreventivePenalty, preventiveInstant);
+        assertEquals(10000, result.getVirtualCost(preventiveInstant, failureCost));
+        assertEquals(10085, result.getCost(preventiveInstant));
+        assertEquals(Double.NaN, missingPreventivePenalty.getVirtualCost(preventiveInstant, failureCost));
+
+        CostResult smallerPreventivePenalty = CostResult.builder(missingPreventivePenalty)
+            .addVirtualCostResult(preventiveInstant, failureCost, 5000)
+            .build();
+        result = CostResultExtensionHelper.retainInitialSensitivityFailureCost(smallerPreventivePenalty, preventiveInstant);
+        assertEquals(10000, result.getVirtualCost(preventiveInstant, failureCost));
+        assertEquals(5000, smallerPreventivePenalty.getVirtualCost(preventiveInstant, failureCost));
+    }
+
+    @Test
+    void retainInitialSensitivityFailureCostLeavesNonPositiveAndEqualPenaltiesUnchanged() {
+        String failureCost = "sensitivity-failure-cost";
+        for (double initialCost : List.of(0.0, -1.0)) {
+            CostResult original = CostResult.builder()
+                .addVirtualCostResult(null, failureCost, initialCost)
+                .addFunctionalCostResult(preventiveInstant, 80)
+                .build();
+            assertSame(original, CostResultExtensionHelper.retainInitialSensitivityFailureCost(original, preventiveInstant));
+        }
+
+        CostResult equalPenalty = CostResult.builder()
+            .addVirtualCostResult(null, failureCost, 10000)
+            .addVirtualCostResult(preventiveInstant, failureCost, 10000)
+            .build();
+        assertSame(equalPenalty, CostResultExtensionHelper.retainInitialSensitivityFailureCost(equalPenalty, preventiveInstant));
+    }
+
+    @Test
     void testConvertToExtensionSimple() {
         ObjectiveFunctionResult initialResult = mock(ObjectiveFunctionResult.class);
         when(initialResult.getFunctionalCost()).thenReturn(100.0);

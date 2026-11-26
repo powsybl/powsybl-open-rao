@@ -16,32 +16,29 @@ import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
+import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
+import com.powsybl.openrao.data.raoresult.impl.RaoResultImpl;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
-import com.powsybl.openrao.raoimpl.result.api.FlowResult;
-import com.powsybl.openrao.raoimpl.result.api.LinearOptimizationResult;
-import com.powsybl.openrao.raoimpl.result.api.PrePerimeterResult;
-import com.powsybl.openrao.raoimpl.result.api.RangeActionSetpointResult;
-import com.powsybl.openrao.raoimpl.result.api.SensitivityResult;
+import com.powsybl.openrao.raoimpl.result.api.*;
+import com.powsybl.openrao.raoimpl.result.impl.GlobalLinearOptimizationResult;
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.Map;
 import java.util.Set;
-
 import static com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters.getSensitivityWithLoadFlowParameters;
 import static com.powsybl.openrao.raoimpl.algorithms.MarmotUtils.runInitialSensitivityAnalysis;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
@@ -170,6 +167,78 @@ class MarmotUtilsTest {
         AppliedRemedialActions noActions = Marmot.buildCurativeActionsToApply(crac1, topoCurativeActions, filteredResult, initialResult);
         assertTrue(noActions.getAppliedRangeActions(curativeState).isEmpty());
         assertTrue(noActions.getAppliedNetworkActions(curativeState).isEmpty());
+    }
+
+    @Test
+    void testBuildCurativeActionsWithMixedSensitivityStatuses() {
+        State healthy = crac1.getStates().stream().filter(state -> state.getInstant().isCurative()).findFirst().orElseThrow();
+        State failed = crac2.getStates().stream().filter(state -> state.getInstant().isCurative()).findFirst().orElseThrow();
+        State preventive = crac1.getPreventiveState();
+        Crac crac = Mockito.mock(Crac.class);
+        when(crac.getStates()).thenReturn(Set.of(healthy, failed, preventive));
+        NetworkAction networkAction = Mockito.mock(NetworkAction.class);
+        RangeAction<?> rangeAction = crac1.getRangeAction("pstDe - 1600");
+        AppliedRemedialActions topologicalActions = new AppliedRemedialActions();
+        topologicalActions.addAppliedNetworkAction(healthy, networkAction);
+        topologicalActions.addAppliedNetworkAction(failed, networkAction);
+        LinearOptimizationResult filteredResult = Mockito.mock(LinearOptimizationResult.class);
+        when(filteredResult.getActivatedRangeActions(healthy)).thenReturn(Set.of(rangeAction));
+        when(filteredResult.getActivatedRangeActions(failed)).thenReturn(Set.of(rangeAction));
+        when(filteredResult.getOptimizedSetpoint(rangeAction, healthy)).thenReturn(7.5);
+        when(filteredResult.getOptimizedSetpoint(rangeAction, failed)).thenReturn(8.5);
+        PrePerimeterResult initialResult = Mockito.mock(PrePerimeterResult.class);
+        when(initialResult.getSensitivityStatus(healthy)).thenReturn(ComputationStatus.DEFAULT);
+        when(initialResult.getSensitivityStatus(failed)).thenReturn(ComputationStatus.FAILURE);
+
+        AppliedRemedialActions actions = Marmot.buildCurativeActionsToApply(crac, topologicalActions, filteredResult, initialResult);
+
+        assertEquals(Set.of(networkAction), actions.getAppliedNetworkActions(healthy));
+        assertEquals(Map.of(rangeAction, 7.5), actions.getAppliedRangeActions(healthy));
+        assertTrue(actions.getAppliedNetworkActions(failed).isEmpty());
+        assertTrue(actions.getAppliedRangeActions(failed).isEmpty());
+        verify(filteredResult, never()).getActivatedRangeActions(failed);
+        verify(initialResult, never()).getSensitivityStatus(preventive);
+    }
+
+    @Test
+    void testReportingActionsSkipsOnlyFailedStates() throws Exception {
+        State healthy = crac1.getStates().stream().filter(state -> state.getInstant().isCurative()).findFirst().orElseThrow();
+        State failed = crac2.getStates().stream().filter(state -> state.getInstant().isCurative()).findFirst().orElseThrow();
+        State preventive = crac1.getPreventiveState();
+        Crac crac = Mockito.mock(Crac.class);
+        when(crac.getStates()).thenReturn(Set.of(healthy, failed, preventive));
+        NetworkAction networkAction = Mockito.mock(NetworkAction.class);
+        RangeAction<?> rangeAction = crac1.getRangeAction("pstDe - 1600");
+        NetworkActionsResult networkActions = Mockito.mock(NetworkActionsResult.class);
+        when(networkActions.getActivatedNetworkActionsPerState()).thenReturn(Map.of(
+            healthy, Set.of(networkAction), failed, Set.of(networkAction), preventive, Set.of(networkAction)));
+        GlobalLinearOptimizationResult linearResult = Mockito.mock(GlobalLinearOptimizationResult.class);
+        when(linearResult.getActivatedRangeActions(healthy)).thenReturn(Set.of(rangeAction));
+        when(linearResult.getActivatedRangeActions(failed)).thenReturn(Set.of(rangeAction));
+        when(linearResult.getActivatedRangeActions(preventive)).thenReturn(Set.of(rangeAction));
+        when(linearResult.getOptimizedSetpoint(rangeAction, healthy)).thenReturn(7.5);
+        when(linearResult.getOptimizedSetpoint(rangeAction, preventive)).thenReturn(2.5);
+        PrePerimeterResult initialResult = Mockito.mock(PrePerimeterResult.class);
+        when(initialResult.getSensitivityStatus(healthy)).thenReturn(ComputationStatus.DEFAULT);
+        when(initialResult.getSensitivityStatus(preventive)).thenReturn(ComputationStatus.DEFAULT);
+        when(initialResult.getSensitivityStatus(failed)).thenReturn(ComputationStatus.FAILURE);
+        RaoResultImpl.RaoResultImplBuilder builder = RaoResultImpl.builder(crac1);
+
+        Method method = MarmotUtils.class.getDeclaredMethod("fillWithActivatedRemedialActions", GlobalLinearOptimizationResult.class,
+            NetworkActionsResult.class, RaoResultImpl.RaoResultImplBuilder.class, Crac.class, PrePerimeterResult.class);
+        method.setAccessible(true);
+        method.invoke(null, linearResult, networkActions, builder, crac, initialResult);
+        RaoResultImpl result = builder.build();
+
+        assertTrue(result.isActivatedDuringState(healthy, networkAction));
+        assertTrue(result.isActivatedDuringState(healthy, rangeAction));
+        assertEquals(7.5, result.getOptimizedSetPointOnState(healthy, rangeAction), DOUBLE_TOLERANCE);
+        assertTrue(result.isActivatedDuringState(preventive, networkAction));
+        assertTrue(result.isActivatedDuringState(preventive, rangeAction));
+        assertEquals(2.5, result.getOptimizedSetPointOnState(preventive, rangeAction), DOUBLE_TOLERANCE);
+        assertFalse(result.isActivatedDuringState(failed, networkAction));
+        assertFalse(result.isActivatedDuringState(failed, rangeAction));
+        verify(linearResult, never()).getActivatedRangeActions(failed);
     }
 
     private static void assertFlowValueMw(FlowResult flowResult, FlowCnec flowCnec, double expectedFlowMw) {
