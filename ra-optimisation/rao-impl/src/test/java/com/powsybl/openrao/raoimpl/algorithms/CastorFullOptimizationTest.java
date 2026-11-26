@@ -510,6 +510,22 @@ class CastorFullOptimizationTest {
     }
 
     @Test
+    void testAutomatonReportsAreNestedInTheirContingencyScenario() throws IOException {
+        setup("2Nodes8ParallelLines5LinesClosed.uct", "small-crac-costly-auto-and-curative-4-scenarios.json");
+        RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_2P_v2.json"), ReportNode.NO_OP);
+        ReportNode rootReportNode = ReportsTestUtils.getTestRootNode();
+
+        new CastorFullOptimization(raoInput, raoParameters, null, rootReportNode).run().join();
+
+        List<ReportNode> automatonReportNodes = ReportsTestUtils.findReportNodes(rootReportNode, "openrao.searchtreerao.reportOptimizingAutomatonState");
+        List<ReportNode> automatonReportNodesInScenarios = ReportsTestUtils.findReportNodes(rootReportNode, "openrao.searchtreerao.reportOptimizingScenarioForContingency").stream()
+            .flatMap(scenarioReportNode -> ReportsTestUtils.findReportNodes(scenarioReportNode, "openrao.searchtreerao.reportOptimizingAutomatonState").stream())
+            .toList();
+        assertEquals(2, automatonReportNodes.size());
+        assertEquals(automatonReportNodes, automatonReportNodesInScenarios);
+    }
+
+    @Test
     void threeCurativeInstantsWithCumulativeMaximumNumberOfApplicableRemedialActions() throws IOException {
         setup("12Nodes_4ParallelLines.uct", "small-crac-ra-limits-per-instant.json");
         RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_DC.json"), ReportNode.NO_OP);
