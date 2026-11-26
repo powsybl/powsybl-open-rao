@@ -15,11 +15,16 @@ import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionConfigLoader;
 import com.powsybl.commons.extensions.ExtensionProviders;
 import com.powsybl.commons.report.ReportNode;
+import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.raoapi.json.JsonRaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoLoopFlowParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoMnecParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRelativeMarginsParameters;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -45,6 +50,23 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
         this.relativeMarginsParameters = Optional.empty();
         this.loopFlowParameters = Optional.empty();
         this.reportNode = reportNode;
+    }
+
+    /**
+     * Returns a deep copy of this parameters object: mutating a nested parameter object, list or
+     * extension on one of the two instances afterward never affects the other.
+     * <p>The copy is obtained through a JSON round trip with {@link JsonRaoParameters}, so an extension
+     * type that has no JSON serializer is dropped from the copy, not shared with the original.
+     */
+    public RaoParameters copy() {
+        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+            JsonRaoParameters.write(this, outputStream, this.reportNode);
+            try (InputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray())) {
+                return JsonRaoParameters.read(inputStream, this.reportNode);
+            }
+        } catch (Exception e) {
+            throw new OpenRaoException("Cannot deep copy RaoParameters: the JSON round trip failed", e);
+        }
     }
 
     // Getters and setters

@@ -28,7 +28,6 @@ import com.powsybl.openrao.data.raoresult.api.extension.CostResult;
 import com.powsybl.openrao.data.raoresult.impl.RaoResultImpl;
 import com.powsybl.openrao.raoapi.LazyNetwork;
 import com.powsybl.openrao.raoapi.RaoInput;
-import com.powsybl.openrao.raoapi.json.JsonRaoParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoimpl.commons.RaoUtil;
 import com.powsybl.openrao.raoimpl.commons.ToolProvider;
@@ -41,9 +40,6 @@ import com.powsybl.openrao.raoimpl.result.impl.NetworkActionsResultImpl;
 import com.powsybl.openrao.raoimpl.result.impl.RangeActionActivationResultImpl;
 import com.powsybl.openrao.raoimpl.result.impl.RemedialActionActivationResultImpl;
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
 import java.time.OffsetDateTime;
 import java.util.*;
 import java.util.function.Function;
@@ -349,17 +345,6 @@ public final class MarmotUtils {
 
     public static OffsetDateTime getTimestamp(RaoInput raoInput) {
         return raoInput.getCrac().getTimestamp().orElseThrow();
-    }
-
-    public static RaoParameters cloneParameters(final RaoParameters raoParameters, final ReportNode reportNode) {
-        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
-            JsonRaoParameters.write(raoParameters, outputStream, reportNode);
-            try (InputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray())) {
-                return JsonRaoParameters.read(inputStream, reportNode);
-            }
-        } catch (Exception e) {
-            throw new OpenRaoException(e);
-        }
     }
 
     /**
