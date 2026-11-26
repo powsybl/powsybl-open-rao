@@ -20,7 +20,6 @@ import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.raoresult.api.extension.CostResult;
 import com.powsybl.openrao.data.raoresult.api.extension.Metadata;
 import com.powsybl.openrao.raoapi.RaoInput;
-import com.powsybl.openrao.raoapi.json.JsonRaoParameters;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters;
@@ -40,8 +39,6 @@ import com.powsybl.openrao.raoimpl.result.impl.*;
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 import org.jspecify.annotations.NonNull;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -242,10 +239,7 @@ class CastorFullOptimization {
     }
 
     private void buildPreSolveToolProvider(final RaoRunContext context) {
-        // Copy RaoParameters through Json. Should use com.powsybl.commons.json.JsonUtil.copyThroughJson() once available
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        JsonRaoParameters.write(raoParameters, baos, reportNode);
-        RaoParameters preSolveRaoParameters = JsonRaoParameters.read(new ByteArrayInputStream(baos.toByteArray()), reportNode);
+        RaoParameters preSolveRaoParameters = raoParameters.copy();
         LoadFlowAndSensitivityParameters.getSensitivityWithLoadFlowParameters(preSolveRaoParameters).getLoadFlowParameters().setDc(true);
         context.setPresolve(new SearchTreeRunContext(ToolProvider.buildFromRaoInputAndParameters(raoInput, preSolveRaoParameters), preSolveRaoParameters));
     }
@@ -370,8 +364,8 @@ class CastorFullOptimization {
 
         boolean secondPreventiveRan = false;
         String executionDetails = OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY;
-        RaoResult secondPreventiveRaoResults = mergedRaoResults;
         if (castorSecondPreventive.shouldRunSecondPreventiveRao(context.getPreventiveResult(), postContingencyResults.values(), mergedRaoResults, context.getPreventiveRaoTime())) {
+            RaoResult secondPreventiveRaoResults = mergedRaoResults;
             CastorSecondPreventive.SecondPreventiveRaoResultsHolder secondPreventiveRaoResultsHolder = castorSecondPreventive.runSecondPreventiveAndAutoRao(
                 context.getCastorContingencyScenarios(), context.getPrePerimeterSensitivityAnalysis(), initialOutput, postPreventiveResult, postContingencyResults);
             secondPreventiveRan = true;
@@ -407,17 +401,13 @@ class CastorFullOptimization {
             if (context.isLogFinalResultsOutsideOfSecondPreventive()) {
                 logFinalResults(optimizationReportNode, stateTree, finalSecondPreventiveResult, finalPostContingencyResults);
             }
+        }
 
-            Metadata metadata = mergedRaoResults.getExtension(Metadata.class);
-            if (metadata != null) {
-                mergedRaoResults.removeExtension(Metadata.class);
-                metadata = new Metadata(metadata, executionDetails);
-                mergedRaoResults.addExtension(Metadata.class, metadata);
-            }
-
-            context.setMergedRaoResults(mergedRaoResults);
-            context.setFinalSecondPreventiveResult(finalSecondPreventiveResult);
-            context.setFinalPostContingencyResults(finalPostContingencyResults);
+        Metadata metadata = mergedRaoResults.getExtension(Metadata.class);
+        if (metadata != null) {
+            mergedRaoResults.removeExtension(Metadata.class);
+            metadata = new Metadata(metadata, executionDetails);
+            mergedRaoResults.addExtension(Metadata.class, metadata);
         }
 
         context.setFinalSecondPreventiveResult(finalSecondPreventiveResult);
@@ -507,16 +497,6 @@ class CastorFullOptimization {
         CastorReports.reportIfMostLimitingElementIsFictional(curativePerimeterOptimReportNode, preCurativeSensitivityAnalysisOutput);
         return postCheckResults(mergedRaoResults, initialOutput, raoParameters.getObjectiveFunctionParameters(),
             true, optimizationReportNode, flowUnit, false);
-    }
-
-    private PostPerimeterResult computePostPreventiveResult(final ToolProvider toolProvider,
-                                                            final PrePerimeterResult initialOutput,
-                                                            final OptimizationResult preventiveResult,
-                                                            final ReportNode reportNode) {
-        PostPerimeterResult postPreventiveResult;
-        postPreventiveResult = new PostPerimeterSensitivityAnalysis(crac, crac.getFlowCnecs(), crac.getRangeActions(), raoParameters, toolProvider, true)
-            .runBasedOnInitialPreviousAndOptimizationResults(network, initialOutput, initialOutput, Collections.emptySet(), preventiveResult, null, reportNode);
-        return postPreventiveResult;
     }
 
     private boolean shouldStopOptimisationIfPreventiveUnsecure(double preventiveOptimalCost) {
