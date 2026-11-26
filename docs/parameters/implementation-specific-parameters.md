@@ -257,9 +257,10 @@ from inside the RAO.
   analysis didn't converge. The RAO might therefore put aside the solution with the best objective-function if it has
   lead to a sensitivity failure, and instead propose a solution whose objective-function is worse, but whose associated
   network is converging for all contingency scenarios.  
-  Besides, when a contingency diverges during the initial sensitivity computation, no remedial action is applied on
-  this case: the divergence is kept (its causes may be unrelated to RAO, e.g. a badly modelled voltage control or a
-  weird starting point), and this overcost is reported at all its instants.
+  For initially failed contingencies, the handling of remedial actions and this overcost depends on the algorithm. See
+  the [CASTOR](../algorithms/castor/rao-steps.md#curative-perimeters) and
+  [MARMOT](../algorithms/marmot.md#limitations) documentation. The cause of divergence can be unrelated to RAO,
+  such as a badly modeled voltage control or an unusual starting point.
 
 ##### sensitivity-parameters
 - **Expected value**: SensitivityComputationParameters ([PowSyBl](inv:powsyblcore:std:doc#simulation/sensitivity/configuration) configuration)

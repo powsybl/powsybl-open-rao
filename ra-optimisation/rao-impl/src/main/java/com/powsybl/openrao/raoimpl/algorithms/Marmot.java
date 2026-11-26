@@ -227,9 +227,9 @@ class Marmot {
      * Gathers the curative remedial actions to apply before the final (full) sensitivity analysis:
      * the curative topological actions selected by the independent topological optimizations, and the
      * curative range actions set-points optimized by the global time-coupled linear optimization.
-     * No remedial action is applied on a state that diverged during the initial sensitivity computation:
-     * the divergence is kept rather than masked by RAs, whose reasons may be unrelated to RAO
-     * (e.g. a badly modelled voltage control, or a weird starting point) (issue #1893).
+     * No curative remedial action is applied on a state that diverged during the initial sensitivity computation
+     * (issue #1893). Preventive actions still affect the network used by the final sensitivity analysis,
+     * so the state may converge in that recomputation.
      */
     static AppliedRemedialActions buildCurativeActionsToApply(final Crac crac,
                                                               final AppliedRemedialActions topoCurativeActions,

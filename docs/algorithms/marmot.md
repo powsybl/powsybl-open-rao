@@ -89,10 +89,10 @@ PTDF zonal sums, which MARMOT does not compute nor report. Running MARMOT with
 `loop-flow-parameters` set fails fast with an `OpenRaoException`. Use
 [CASTOR](castor.md) or [FastRAO](castor.md) for now.
 
-**Diverging contingencies**: when the sensitivity computation of a contingency diverges during the initial sensitivity
-computation, the divergence is kept rather than masked by remedial actions (whose effects may be unrelated to RAO,
-e.g. a badly modelled voltage control or a weird starting point). No curative remedial action is applied on the case
-during the final full sensitivity analysis, and none is reported as applied for it. The contingency's states are
-reported as `FAILURE` in the [computation status](../output-data/rao-result.md#per-state), and the
-[sensitivity-failure-overcost](../parameters/implementation-specific-parameters.md#sensitivity-failure-overcost) is
-propagated to all instants of the cost results.
+**Diverging contingencies**: for a state whose initial sensitivity computation has status `FAILURE`, no curative
+remedial action is applied during the final full sensitivity analysis, and no remedial action is reported for that state.
+Preventive set-points are still applied to the shared base case and can restore convergence for the contingency. In that
+case, the final [computation status](../output-data/rao-result.md#per-state) can indicate convergence and the
+[sensitivity-failure-overcost](../parameters/implementation-specific-parameters.md#sensitivity-failure-overcost) can be
+lost at later instants. The divergence may have causes unrelated to RAO, such as a badly modeled voltage control or an
+unusual starting point.

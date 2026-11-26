@@ -19,12 +19,21 @@ import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
+import com.powsybl.openrao.data.raoresult.api.RaoResult;
+import com.powsybl.openrao.data.raoresult.api.extension.CostResult;
+import com.powsybl.openrao.data.raoresult.api.extension.Metadata;
 import com.powsybl.openrao.data.raoresult.impl.RaoResultImpl;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
+import com.powsybl.openrao.raoimpl.commons.objectivefunction.ObjectiveFunction;
+import com.powsybl.openrao.raoimpl.commons.objectivefunctionevaluator.SensitivityFailureOvercostEvaluator;
 import com.powsybl.openrao.raoimpl.result.api.*;
+import com.powsybl.openrao.raoimpl.result.extension.TimeCoupledCostResult;
 import com.powsybl.openrao.raoimpl.result.impl.GlobalLinearOptimizationResult;
+import com.powsybl.openrao.raoimpl.result.impl.NetworkActionsResultImpl;
+import com.powsybl.openrao.raoimpl.result.impl.RangeActionActivationResultImpl;
+import com.powsybl.openrao.raoimpl.result.impl.RemedialActionActivationResultImpl;
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -141,7 +150,7 @@ class MarmotUtilsTest {
 
     @Test
     void testBuildCurativeActionsToApply() {
-        // issue #1893: no remedial action should be applied on a state that diverged during the initial sensitivity computation
+        // issue #1893: no curative remedial action should be applied on a state that diverged initially
         State curativeState = crac1.getStates().stream()
             .filter(state -> state.getInstant().isCurative())
             .findFirst()
@@ -162,7 +171,7 @@ class MarmotUtilsTest {
         AppliedRemedialActions appliedActions = Marmot.buildCurativeActionsToApply(crac1, topoCurativeActions, filteredResult, initialResult);
         assertEquals(Map.of(pstDe, 5.0), appliedActions.getAppliedRangeActions(curativeState));
 
-        // state diverged in the initial sensitivity computation: no RA is applied, the divergence is kept
+        // state diverged in the initial sensitivity computation: no curative RA is applied
         when(initialResult.getSensitivityStatus(curativeState)).thenReturn(ComputationStatus.FAILURE);
         AppliedRemedialActions noActions = Marmot.buildCurativeActionsToApply(crac1, topoCurativeActions, filteredResult, initialResult);
         assertTrue(noActions.getAppliedRangeActions(curativeState).isEmpty());
@@ -239,6 +248,65 @@ class MarmotUtilsTest {
         assertFalse(result.isActivatedDuringState(failed, networkAction));
         assertFalse(result.isActivatedDuringState(failed, rangeAction));
         verify(linearResult, never()).getActivatedRangeActions(failed);
+    }
+
+    @Test
+    void testInitiallyFailedStateWithSuccessfulFinalResult() throws Exception {
+        OffsetDateTime timestamp = crac1.getTimestamp().orElseThrow();
+        State preventive = crac1.getPreventiveState();
+        State failed = crac1.getStates().stream().filter(state -> state.getInstant().isCurative()).findFirst().orElseThrow();
+        RangeAction<?> rangeAction = crac1.getRangeAction("pstBe - 1600");
+        String failureCost = SensitivityFailureOvercostEvaluator.getEvaluatorName();
+        double overcost = 23456.0;
+        parameters.getExtension(OpenRaoSearchTreeParameters.class).getLoadFlowAndSensitivityParameters().setSensitivityFailureOvercost(overcost);
+
+        // Model the two sensitivity outcomes independently; this does not simulate a physical convergence recovery.
+        PrePerimeterResult finalResult = runInitialSensitivityAnalysis(inputs.getData(timestamp1).orElseThrow(), parameters, ReportNode.NO_OP);
+        assertEquals(ComputationStatus.DEFAULT, finalResult.getComputationStatus(failed));
+        PrePerimeterResult initialResult = spy(finalResult);
+        doReturn(ComputationStatus.FAILURE).when(initialResult).getSensitivityStatus(failed);
+        doReturn(ComputationStatus.FAILURE).when(initialResult).getComputationStatus(failed);
+        doReturn(Set.of(failureCost)).when(initialResult).getVirtualCostNames();
+        doReturn(overcost).when(initialResult).getVirtualCost(failureCost);
+
+        RangeActionActivationResultImpl activations = new RangeActionActivationResultImpl(initialResult);
+        double setpoint = MarmotUtils.getInitialSetPoint(rangeAction) + 2.5;
+        activations.putResult(rangeAction, preventive, setpoint);
+        assertTrue(activations.getActivatedRangeActions(preventive).contains(rangeAction));
+        assertFalse(activations.getActivatedRangeActions(failed).contains(rangeAction));
+        assertEquals(setpoint, activations.getOptimizedSetpoint(rangeAction, failed), DOUBLE_TOLERANCE);
+
+        TemporalData<Crac> cracs = new TemporalDataImpl<>(Map.of(timestamp, crac1));
+        TemporalData<PrePerimeterResult> initialResults = new TemporalDataImpl<>(Map.of(timestamp, initialResult));
+        NetworkActionsResult networkActions = new NetworkActionsResultImpl(Map.of());
+        ObjectiveFunction objective = ObjectiveFunction.build(crac1.getFlowCnecs(), Set.of(), initialResult, initialResult, Set.of(), parameters, crac1.getStates());
+        ObjectiveFunctionResult initialGlobalCost = objective.evaluate(initialResult, RemedialActionActivationResultImpl.empty(initialResult), ReportNode.NO_OP);
+        assertEquals(overcost, initialGlobalCost.getVirtualCost(failureCost), DOUBLE_TOLERANCE);
+        GlobalLinearOptimizationResult globalResult = new GlobalLinearOptimizationResult(
+            new TemporalDataImpl<>(Map.of(timestamp, finalResult)),
+            new TemporalDataImpl<>(Map.of(timestamp, finalResult.getSensitivityResult())),
+            new TemporalDataImpl<>(Map.of(timestamp, activations)),
+            new TemporalDataImpl<>(Map.of(timestamp, networkActions)), objective, LinearProblemStatus.OPTIMAL, ReportNode.NO_OP);
+
+        Method merge = Marmot.class.getDeclaredMethod("mergeTopologicalAndLinearOptimizationResults", TemporalData.class,
+            TemporalData.class, ObjectiveFunctionResult.class, GlobalLinearOptimizationResult.class, TemporalData.class,
+            TemporalData.class, TemporalData.class, Set.class, RaoParameters.class, ReportNode.class);
+        merge.setAccessible(true);
+        RaoResult result = (RaoResult) merge.invoke(null, cracs, initialResults, initialGlobalCost, globalResult,
+            new TemporalDataImpl<>(Map.of(timestamp, Set.of())),
+            new TemporalDataImpl<>(Map.of(timestamp, new AppliedRemedialActions())),
+            new TemporalDataImpl<>(Map.of(timestamp, Set.of())), Set.of(), parameters, ReportNode.NO_OP);
+
+        assertEquals(ComputationStatus.DEFAULT, result.getExtension(Metadata.class).getComputationStatus(failed));
+        assertTrue(result.isActivatedDuringState(preventive, rangeAction));
+        assertFalse(result.isActivatedDuringState(failed, rangeAction));
+        assertEquals(setpoint, result.getOptimizedSetPointOnState(failed, rangeAction), DOUBLE_TOLERANCE);
+        CostResult costs = result.getExtension(CostResult.class);
+        assertEquals(overcost, costs.getVirtualCost(null, failureCost), DOUBLE_TOLERANCE);
+        assertEquals(0.0, costs.getVirtualCost(crac1.getPreventiveInstant(), failureCost), DOUBLE_TOLERANCE);
+        TimeCoupledCostResult timestampCosts = result.getExtension(TimeCoupledCostResult.class);
+        assertEquals(overcost, timestampCosts.getVirtualCost(null, failureCost, timestamp), DOUBLE_TOLERANCE);
+        assertEquals(0.0, timestampCosts.getVirtualCost(crac1.getLastInstant(), failureCost, timestamp), DOUBLE_TOLERANCE);
     }
 
     private static void assertFlowValueMw(FlowResult flowResult, FlowCnec flowCnec, double expectedFlowMw) {

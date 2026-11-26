@@ -171,8 +171,8 @@ public final class MarmotUtils {
                                                          Crac crac,
                                                          PrePerimeterResult initialResult) {
         for (State state : crac.getStates()) {
-            // No remedial action was applied on a state that diverged during the initial sensitivity computation
-            // (the divergence is kept, see buildCurativeActionsToApply), so none is reported for it (issue #1893)
+            // Report no activations during a state that failed initially (issue #1893). Curative actions are
+            // filtered, but preventive actions can still affect the final recomputation and its status.
             if (initialResult.getSensitivityStatus(state) == ComputationStatus.FAILURE) {
                 continue;
             }

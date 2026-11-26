@@ -175,9 +175,9 @@ public class CastorContingencyScenarios {
         double sensitivityFailureOvercost = getSensitivityFailureOvercost(raoParameters);
 
         // If the contingency diverged during the initial sensitivity computation, keep the divergence:
-        // no remedial action is simulated nor applied on this case, and it is reported as failed at all its instants.
-        // The reasons for a load-flow divergence may be unrelated to RAO (e.g. a badly modelled voltage control,
-        // or a weird starting point), and applying RAs on the case would hide the modelization problem (issue #1893).
+        // no automatic action is simulated or curative action applied, and the scenario states are reported as failed.
+        // The reasons for a load-flow divergence may be unrelated to RAO (e.g. a badly modeled voltage control,
+        // or a weird starting point), and applying RAs on the case would hide the modeling problem (issue #1893).
         if (hasFailedInitialSensitivity(initialSensitivityOutput, scenarioStates)) {
             scenarioStates.forEach(state -> contingencyScenarioResults.put(state, generateSkippedPostPerimeterResult(state, sensitivityFailureOvercost)));
             TECHNICAL_LOGS.debug("Remaining post-contingency scenarios to optimize: {}", remainingScenarios.decrementAndGet());

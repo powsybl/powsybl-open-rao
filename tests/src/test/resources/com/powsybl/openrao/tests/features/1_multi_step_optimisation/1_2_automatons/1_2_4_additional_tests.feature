@@ -154,3 +154,27 @@ Feature: 1.2.4: Additional tests to check various fixes concerning automaton sta
     Then the computation after "CO_N4042_N4043" at "curative" should be "FAILURE"
     Then 0 remedial actions are used after "CO_N4042_N4043" at "auto"
     Then 0 remedial actions are used after "CO_N4042_N4043" at "curative"
+
+  @fast @rao @ac @contingency-scenarios @secure-flow
+  Scenario: 1.2.4.9: An initially divergent contingency does not prevent another automaton from running
+    Given network file is "0_import_export/0_2_export/0_2_3_swe_cne/nordic32.xiidm"
+    Given crac file is "1_multi_step_optimisation/1_2_automatons/crac_1_2_4_9.json"
+    Given configuration file is "common/rao_parameters_pos_margin_ampere.json"
+    When I launch rao
+    Then the calculation partially fails
+    Then the sensitivity failure cost initially should be 10000.0
+    Then the sensitivity failure cost after "preventive" should be 10000.0
+    Then the sensitivity failure cost after "auto" should be 10000.0
+    Then the sensitivity failure cost after "curative" should be 10000.0
+    Then the computation after "CO_N4011_N4021" at "auto" should be "FAILURE"
+    Then the computation after "CO_N4011_N4021" at "curative" should be "FAILURE"
+    Then 0 remedial actions are used after "CO_N4011_N4021" at "auto"
+    Then the remedial action "failed-open-line" is not used after "CO_N4011_N4021" at "auto"
+    Then 0 remedial actions are used after "CO_N4011_N4021" at "curative"
+    Then the computation after "CO_N1012_N4012" at "auto" should be "DEFAULT"
+    Then the computation after "CO_N1012_N4012" at "curative" should be "DEFAULT"
+    Then the margin on cnec "healthy-auto" after PRA should be -123.6 A
+    Then 1 remedial actions are used after "CO_N1012_N4012" at "auto"
+    Then the remedial action "healthy-open-line" is used after "CO_N1012_N4012" at "auto"
+    Then the margin on cnec "healthy-auto" after ARA should be 100.0 A
+    Then the margin on cnec "healthy-curative" after CRA should be 100.0 A
