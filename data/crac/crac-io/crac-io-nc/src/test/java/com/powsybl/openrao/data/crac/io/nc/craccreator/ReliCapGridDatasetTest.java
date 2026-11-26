@@ -87,7 +87,45 @@ public class ReliCapGridDatasetTest {
         assertPstRangeAction(pstRangeAction, "64817939-33a6-5ce0-a754-8f84768d72b3", "PRA_PST_Aac", "2c9a0753-421a-489b-9761-9452f60b3157", 0, null, 1);
         assetHasOnInstantUsageRule(pstRangeAction, "preventive");
 
-        // TODO: check other PST range actions
+        pstRangeAction = pstRangeActions.get(3);
+        assertPstRangeAction(pstRangeAction, "6fb7ac93-287a-56aa-93f1-a6c22a1c19f9", "PRA_PST_GA_TR2_1", "e8a7eaec-51d6-4571-b3d9-c36d52073c33", 3, null, 1);
+        assetHasOnInstantUsageRule(pstRangeAction, "preventive");
+
+        pstRangeAction = pstRangeActions.get(4);
+        assertPstRangeAction(pstRangeAction, "8cb4ebb9-7ede-5bb6-b45c-47445b87fb68", "CRA_PST_BO_TR2_2", "b94318f6-6d24-4f56-96b9-df2531ad6543", 10, 300, 1);
+        assertHasOnContingencyStateUsageRule(pstRangeAction, "curative", "37997e71-cb7d-4a8c-baa6-2a1594956da9");
+
+        pstRangeAction = pstRangeActions.get(5);
+        assertPstRangeAction(pstRangeAction, "a3169960-996a-5838-8372-307036b7cf0f", "CRA_PST_BO_TR2_1", "a708c3bc-465d-4fe7-b6ef-6fa6408a62b0", 10, 300, 1);
+        assertHasOnContingencyStateUsageRule(pstRangeAction, "curative", "37997e71-cb7d-4a8c-baa6-2a1594956da9");
+
+        pstRangeAction = pstRangeActions.get(6);
+        assertPstRangeAction(pstRangeAction, "c4029f66-0349-5b2f-afbd-3c6219a0f4fd", "CRA_PST_GA_TR2_1", "e8a7eaec-51d6-4571-b3d9-c36d52073c33", 3, 300, 1);
+        assertHasOnContingencyStateUsageRule(pstRangeAction, "curative", "bd7bb012-f7b9-45e0-9e15-4e2aa3592829");
+
+        pstRangeAction = pstRangeActions.get(7);
+        assertPstRangeAction(pstRangeAction, "ca0064b9-f037-58e5-96e2-4e3d632b3f22", "PRA_PST_BO_TR2_1", "a708c3bc-465d-4fe7-b6ef-6fa6408a62b0", 10, null, 1);
+        assetHasOnInstantUsageRule(pstRangeAction, "preventive");
+
+        pstRangeAction = pstRangeActions.get(8);
+        assertPstRangeAction(pstRangeAction, "e7438a6e-89f6-51a6-88f6-f44b1cdd5490", "PRA_PST_BO_TR2_2", "b94318f6-6d24-4f56-96b9-df2531ad6543", 10, null, 1);
+        assetHasOnInstantUsageRule(pstRangeAction, "preventive");
+
+        pstRangeAction = pstRangeActions.get(9);
+        assertPstRangeAction(pstRangeAction, "ea8a628a-97c6-5d5a-acfc-707d6a653e25", "CRA_PST_GA_TR2_2", "2184f365-8cd5-4b5d-8a28-9d68603bb6a4", 17, 300, 1);
+        assertHasOnContingencyStateUsageRule(pstRangeAction, "curative", "bd7bb012-f7b9-45e0-9e15-4e2aa3592829");
+
+        pstRangeAction = pstRangeActions.get(10);
+        assertPstRangeAction(pstRangeAction, "f313478c-6b71-595c-8e52-16c5892d540d", "PRA_PST_GA_TR2_2", "2184f365-8cd5-4b5d-8a28-9d68603bb6a4", 17, null, 1);
+        assetHasOnInstantUsageRule(pstRangeAction, "preventive");
+
+        pstRangeAction = pstRangeActions.get(11);
+        assertPstRangeAction(pstRangeAction, "f7693938-7a8a-5e31-a8d7-64c45487dde9", "CRA_PST_Aaa1", "703f5b86-b6c6-4c47-8f6b-55d7d93838c9", 6, 300, 5);
+        assertHasOnContingencyStateUsageRule(pstRangeAction, "curative", "9d17b84c-33b5-4a68-b8b9-ed5b31038d40");
+        assertHasOnContingencyStateUsageRule(pstRangeAction, "curative", "13334fdf-9cc2-4341-adb6-1281269040b4");
+        assertHasOnContingencyStateUsageRule(pstRangeAction, "curative", "62eac668-82a1-4739-8cfc-de929b78ef7e");
+        assertHasOnContingencyStateUsageRule(pstRangeAction, "curative", "b6b780cb-9fe5-4c45-989d-447a927c3874");
+        assertHasOnContingencyStateUsageRule(pstRangeAction, "curative", "ce19dd34-429e-4b72-8813-7615cc57b4a4");
     }
 
     private static void assertInstant(Instant instant, InstantKind expectedInstantKind, String expectedId) {
