@@ -41,9 +41,10 @@ public class ReliCapGridDatasetTest {
 
     {
         ncCracCreationParameters.setCreateAutoInstant(false);
-        ncCracCreationParameters.setCurativeInstants(Map.of("curative", 60));
+        ncCracCreationParameters.setCurativeInstants(Map.of("curative", 300));
         ncCracCreationParameters.setCapacityCalculationRegion(null);
         cracCreationParameters.addExtension(NcCracCreationParameters.class, ncCracCreationParameters);
+        cracCreationParameters.setDefaultMonitoredLineSide(CracCreationParameters.MonitoredLineSide.MONITOR_LINES_ON_BOTH_SIDES);
     }
 
     // TODO: add test to check network content

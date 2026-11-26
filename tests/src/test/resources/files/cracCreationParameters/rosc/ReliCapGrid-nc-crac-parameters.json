@@ -1,5 +1,6 @@
 {
   "crac-factory": "CracImplFactory",
+  "default-monitored-line-side": "monitor-lines-on-both-sides",
   "extensions": {
     "NcCracCreatorParameters": {
       "timestamp": "2022-06-15T22:30:00Z",
@@ -7,7 +8,7 @@
       "curative-instants": [
         {
           "name": "curative",
-          "application-time": 60
+          "application-time": 300
         }
       ]
     }
