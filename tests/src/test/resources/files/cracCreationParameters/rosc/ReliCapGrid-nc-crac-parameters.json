@@ -1,0 +1,15 @@
+{
+  "crac-factory": "CracImplFactory",
+  "extensions": {
+    "NcCracCreatorParameters": {
+      "timestamp": "2022-06-15T22:30:00Z",
+      "create-auto-instant": false,
+      "curative-instants": [
+        {
+          "name": "curative",
+          "application-time": 60
+        }
+      ]
+    }
+  }
+}
