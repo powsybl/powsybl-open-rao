@@ -79,11 +79,9 @@ html_context = {
 }
 
 html_theme_options = {
-    # the following 3 lines enable edit button
-    # always "main": only the main branch is editable, so the button must not follow
-    # the published version (tags / PR branches are not editable on GitHub)
+    # the following 3 lines enable the edit / "view this page" buttons
+    # (source_branch is set below, once github_ref is known)
     "source_repository": "https://github.com/powsybl/powsybl-open-rao/",
-    "source_branch": "main",
     "source_directory": "docs/"
 }
 
@@ -128,6 +126,11 @@ elif release_version in ("latest", "stable") or release_version.startswith("pr/"
 else:
     # tag build: the readthedocs version slug is the exact tag name
     github_ref = release_version
+
+# source_branch follows the ref being built, so the edit / "view this page" buttons
+# point at files that exist for the built version (a PR adding doc pages would
+# otherwise 404 in the CI link checker)
+html_theme_options["source_branch"] = github_ref
 
 def _github_source_role(name, rawtext, text, lineno, inliner, options=None, content=None):
     """Build a link to a source file or directory of this repo at the published version.
