@@ -29,10 +29,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 class GeneratorOrderingComputerTest {
 
-
     private static final double EPS = 1e-6;
     private static final double DOUBLE_TOLERANCE = 1e-3;
     // Mocks allow generator states (NaN or out-of-range targetP) that an IIDM network would reject.
+
     private static void addGenerator(Network network, String id, double minP, double maxP, double targetP) {
         Generator generator = Mockito.mock(Generator.class);
         Mockito.when(generator.getId()).thenReturn(id);
@@ -41,7 +41,6 @@ class GeneratorOrderingComputerTest {
         Mockito.when(generator.getTargetP()).thenReturn(targetP);
         Mockito.when(network.getGenerator(id)).thenReturn(generator);
     }
-
 
     // Tests common settings
 
@@ -64,7 +63,6 @@ class GeneratorOrderingComputerTest {
     private static List<String> ids(List<GlskGeneratorAllocation> order) {
         return order.stream().map(GlskGeneratorAllocation::generatorId).toList();
     }
-
 
     // ----------  Layer and generator capacity tests ----------
 
