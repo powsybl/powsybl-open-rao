@@ -503,7 +503,7 @@ class CastorFullOptimization {
 
         double firstPreventiveCost = mergedRaoResults.getExtension(CostResult.class).getCost(curativeInstant);
         double secondPreventiveCost = secondPreventiveRaoResults.getExtension(CostResult.class).getCost(curativeInstant);
-        if (secondPreventiveCost > firstPreventiveCost) {
+        if (secondPreventiveCost > firstPreventiveCost + EPSILON) {
             CastorReports.reportSecondPreventiveIncreasedOverallCost(
                 secondPreventiveReportNode, firstPreventiveCost, secondPreventiveCost, curativeInstant, mergedRaoResults, secondPreventiveRaoResults
             );

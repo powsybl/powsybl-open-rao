@@ -7,18 +7,25 @@
 
 package com.powsybl.openrao.sensitivityanalysis;
 
+import com.powsybl.action.Action;
+import com.powsybl.action.SwitchActionBuilder;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
+import com.powsybl.openrao.data.crac.api.networkaction.SwitchPair;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -30,6 +37,44 @@ public class AppliedRemedialActions {
     private static final class AppliedRemedialActionsPerState {
         private final Set<NetworkAction> networkActions = new HashSet<>();
         private final Map<RangeAction<?>, Double> rangeActions = new HashMap<>();
+
+        private List<Action> toActions(Network network) {
+            List<Action> actions = new ArrayList<>(networkActions.size() + rangeActions.size());
+            actions.addAll(networkActions.stream().flatMap(a -> a.getElementaryActions().stream()).flatMap(AppliedRemedialActionsPerState::toPowsyblActions).toList());
+            actions.addAll(rangeActions.entrySet().stream().flatMap(e -> e.getKey().toActions(e.getValue(), network).stream()).toList());
+            return actions;
+        }
+
+        /**
+         * {@link SwitchPair} is an OpenRAO action, unknown to sensitivity providers: it is replaced by its two switch actions.
+         */
+        private static Stream<Action> toPowsyblActions(Action elementaryAction) {
+            if (elementaryAction instanceof SwitchPair switchPair) {
+                return Stream.of(
+                    new SwitchActionBuilder()
+                        .withId(switchPair.getId() + "_open")
+                        .withNetworkElementId(switchPair.getSwitchToOpenId())
+                        .withOpen(true)
+                        .build(),
+                    new SwitchActionBuilder()
+                        .withId(switchPair.getId() + "_close")
+                        .withNetworkElementId(switchPair.getSwitchToCloseId())
+                        .withOpen(false)
+                        .build());
+            }
+            return Stream.of(elementaryAction);
+        }
+    }
+
+    /**
+     * The remedial actions applied on the state, as powsybl actions.
+     */
+    List<Action> toActions(State state, Network network) {
+        AppliedRemedialActionsPerState appliedRemedialActionsForThisState = appliedRa.get(state);
+        if (appliedRemedialActionsForThisState == null) {
+            return Collections.emptyList();
+        }
+        return appliedRemedialActionsForThisState.toActions(network);
     }
 
     public void addAppliedNetworkAction(State state, NetworkAction networkAction) {
