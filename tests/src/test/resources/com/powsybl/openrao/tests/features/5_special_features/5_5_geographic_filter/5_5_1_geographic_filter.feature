@@ -84,6 +84,7 @@ Feature: 5.5.1: Geographic filter
     Then 0 remedial actions are used in preventive
 
   # Rejecting the sensitivity analysis NO_CALCULATION status penalized the action that already opened the contingency line.
+  # In Open Load Flow, this status can indicate that the contingency has no impact, so no specific load flow is computed.
   @fast @rao @ac @preventive-only @secure-flow
   Scenario: 5.5.1.6: Another simple case, one boundary can be passed, positive margin
   Same as 5.5.1.5, but more permissive: "max-number-of-boundaries-for-skipping-actions" is set to 1 instead of 0.

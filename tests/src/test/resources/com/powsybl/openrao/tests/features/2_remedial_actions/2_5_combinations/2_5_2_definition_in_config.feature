@@ -29,6 +29,7 @@ Feature: 2.5.2: Handle combined RAs by configuration
     Then the margin on cnec "fr2_de3_co1 - FFR2AA1 ->DDE3AA1   - co1_fr2_fr3_1 - curative" after CRA should be 392 A
 
   # Treating sensitivity analysis NO_CALCULATION statuses as failures caused the RAO to fall back.
+  # In Open Load Flow, this status can indicate that the contingency has no impact, so no specific load flow is computed.
   @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: 2.5.2.2: Optimal combination in curative, at first depth
     Given network file is "2_remedial_actions/2_5_combinations/network_2_5_2_2.uct"
@@ -46,6 +47,7 @@ Feature: 2.5.2: Handle combined RAs by configuration
     Then the margin on cnec "fr2_de3_co1 - FFR2AA1 ->DDE3AA1   - co1_fr2_fr3_1 - curative" after CRA should be -19 A
 
   # Treating sensitivity analysis NO_CALCULATION statuses as failures caused the RAO to fall back.
+  # In Open Load Flow, this status can indicate that the contingency has no impact, so no specific load flow is computed.
   @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: 2.5.2.3: Optimal combination in curative, but not available as only 2 CRA are allowed
     Given network file is "2_remedial_actions/2_5_combinations/network_2_5_2_2.uct"

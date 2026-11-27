@@ -7,11 +7,7 @@
 
 package com.powsybl.openrao.sensitivityanalysis;
 
-import com.powsybl.contingency.BranchContingency;
-import com.powsybl.contingency.Contingency;
-import com.powsybl.contingency.ContingencyContext;
-import com.powsybl.contingency.ContingencyContextType;
-import com.powsybl.contingency.ContingencyElementType;
+import com.powsybl.contingency.*;
 import com.powsybl.glsk.commons.ZonalData;
 import com.powsybl.glsk.ucte.UcteGlskDocument;
 import com.powsybl.iidm.network.HvdcLine;
@@ -33,20 +29,11 @@ import com.powsybl.openrao.data.crac.impl.utils.NetworkImportsUtil;
 import com.powsybl.sensitivity.*;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
@@ -268,8 +255,8 @@ class SystematicSensitivityResultTest {
     }
 
     @Test
-    // Test case where N succeeds and all N-1 fail
     void testPartialContingencyFailures() {
+        // Test case where N succeeds and all N-1 fail
         setUpWith12Nodes();
 
         // The contingency points to an element that does not exist in the network => n-1 status should be set to failure
@@ -522,7 +509,8 @@ class SystematicSensitivityResultTest {
         SensitivityStateStatus.ComponentStatus diverged = new SensitivityStateStatus.ComponentStatus(1, 1, LoadFlowResult.ComponentResult.Status.MAX_ITERATION_REACHED, "");
         SensitivityStateStatus.ComponentStatus noCalculation = new SensitivityStateStatus.ComponentStatus(-1, -1, LoadFlowResult.ComponentResult.Status.NO_CALCULATION, "");
 
-        for (List<SensitivityStateStatus.ComponentStatus> components : List.of(List.of(converged), List.of(converged, converged), List.<SensitivityStateStatus.ComponentStatus>of(), List.of(noCalculation), List.of(noCalculation, noCalculation))) {
+        for (List<SensitivityStateStatus.ComponentStatus> components : List.of(List.of(converged), List.of(converged, converged), List.<SensitivityStateStatus.ComponentStatus>of(),
+            List.of(noCalculation), List.of(noCalculation, noCalculation))) {
             SensitivityAnalysisResult input = new SensitivityAnalysisResult(List.of(factor), List.of(new SensitivityStateStatus(postContingency, components)),
                 List.of(contingencyId), List.of(), List.of(baseValue, contingencyValue), true);
             SystematicSensitivityResult result = new SystematicSensitivityResult().completeData(input, outageInstantOrder);
@@ -533,7 +521,7 @@ class SystematicSensitivityResultTest {
             assertEquals(3, result.getSensitivityOnFlow("pst", contingencyCnec, TwoSides.ONE));
         }
         for (List<SensitivityStateStatus.ComponentStatus> components : List.of(List.of(converged, failed), List.of(converged, diverged),
-                List.of(converged, noCalculation), List.of(noCalculation, failed), List.of(noCalculation, diverged))) {
+            List.of(converged, noCalculation), List.of(noCalculation, failed), List.of(noCalculation, diverged))) {
             SensitivityAnalysisResult input = new SensitivityAnalysisResult(List.of(factor), List.of(new SensitivityStateStatus(postContingency, components)),
                 List.of(contingencyId), List.of(), List.of(baseValue, contingencyValue), true);
             SystematicSensitivityResult result = new SystematicSensitivityResult().completeData(input, outageInstantOrder);
