@@ -26,6 +26,7 @@ import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParamet
 import com.powsybl.openrao.raoimpl.algorithms.searchtree.algorithms.SearchTree;
 import com.powsybl.openrao.raoimpl.algorithms.searchtree.inputs.SearchTreeInput;
 import com.powsybl.openrao.raoimpl.algorithms.searchtree.parameters.SearchTreeParameters;
+import com.powsybl.openrao.raoimpl.commons.CostResultExtensionHelper;
 import com.powsybl.openrao.raoimpl.commons.RaoUtil;
 import com.powsybl.openrao.raoimpl.commons.ToolProvider;
 import com.powsybl.openrao.raoimpl.commons.objectivefunction.ObjectiveFunction;
@@ -552,6 +553,16 @@ class CastorFullOptimization {
             finalCost = initialCost;
             finalFunctionalCost = initialFunctionalCost;
             finalVirtualCost = initialVirtualCost;
+        }
+
+        CostResult costResult = finalRaoResult.getExtension(CostResult.class);
+        CostResult retainedCostResult = CostResultExtensionHelper.retainInitialSensitivityFailureCost(costResult, crac.getPreventiveInstant());
+        if (retainedCostResult != costResult) {
+            finalRaoResult.removeExtension(CostResult.class);
+            finalRaoResult.addExtension(CostResult.class, retainedCostResult);
+            finalCost = retainedCostResult.getCost(lastInstant);
+            finalFunctionalCost = retainedCostResult.getFunctionalCost(lastInstant);
+            finalVirtualCost = retainedCostResult.getVirtualCost(lastInstant);
         }
 
         // Log costs before and after RAO

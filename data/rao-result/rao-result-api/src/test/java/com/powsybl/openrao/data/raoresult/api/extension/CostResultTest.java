@@ -15,6 +15,7 @@ import org.mockito.Mockito;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
@@ -102,6 +103,24 @@ class CostResultTest {
     }
 
     @Test
+    void testVirtualCostNamesAtInstant() {
+        Instant missing = Mockito.mock(Instant.class);
+        when(preventive.comesBefore(missing)).thenReturn(true);
+        costResult = costResultBuilder
+            .addVirtualCostResult(null, "initial", Double.NaN)
+            .addVirtualCostResult(preventive, "preventive", Double.NaN)
+            .addVirtualCostResult(curative, "curative", 10)
+            .build();
+
+        assertEquals(Set.of("initial"), costResult.getVirtualCostNames(null));
+        assertEquals(Set.of("preventive"), costResult.getVirtualCostNames(preventive));
+        assertEquals(Set.of("preventive"), costResult.getVirtualCostNames(missing));
+        assertEquals(Set.of("curative"), costResult.getVirtualCostNames(curative));
+        assertThrows(UnsupportedOperationException.class, () -> costResult.getVirtualCostNames(preventive).clear());
+        assertTrue(Double.isNaN(costResult.getVirtualCost(missing)));
+    }
+
+    @Test
     void testGetCost() {
         costResultBuilder.addFunctionalCostResult(preventive, 200.0)
             .addVirtualCostResult(preventive, "v1", 50.0)
@@ -109,5 +128,37 @@ class CostResultTest {
         costResult = costResultBuilder.build();
 
         assertEquals(275.0, costResult.getCost(preventive));
+    }
+
+    @Test
+    void testCopyBuilderPreservesAndIsolatesCosts() {
+        CostResult original = CostResult.builder()
+            .addFunctionalCostResult(null, 100)
+            .addVirtualCostResult(null, "initial", 10)
+            .addFunctionalCostResult(preventive, 200)
+            .addVirtualCostResult(preventive, "preventive", 20)
+            .addFunctionalCostResult(curative, 300)
+            .addVirtualCostResult(curative, "curative", 30)
+            .build();
+
+        CostResult.CostResultBuilder copyBuilder = CostResult.builder(original);
+        CostResult unchangedCopy = copyBuilder.build();
+        CostResult modifiedCopy = copyBuilder
+            .addFunctionalCostResult(null, 101)
+            .addVirtualCostResult(null, "initial", 11)
+            .addFunctionalCostResult(preventive, 201)
+            .addVirtualCostResult(preventive, "preventive", 21)
+            .build();
+
+        assertEquals(110, original.getCost(null));
+        assertEquals(220, original.getCost(preventive));
+        assertEquals(330, original.getCost(curative));
+        assertEquals(110, unchangedCopy.getCost(null));
+        assertEquals(220, unchangedCopy.getCost(preventive));
+        assertEquals(330, unchangedCopy.getCost(curative));
+        assertEquals(112, modifiedCopy.getCost(null));
+        assertEquals(222, modifiedCopy.getCost(preventive));
+        assertEquals(330, modifiedCopy.getCost(curative));
+        assertEquals(Set.of("initial", "preventive", "curative"), modifiedCopy.getVirtualCostNames());
     }
 }

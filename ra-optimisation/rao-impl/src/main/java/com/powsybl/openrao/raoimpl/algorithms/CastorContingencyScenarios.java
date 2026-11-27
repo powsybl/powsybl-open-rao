@@ -190,8 +190,21 @@ public class CastorContingencyScenarios {
         Optional<State> automatonState = optimizedScenario.getAutomatonState();
         Set<State> curativeStates = new HashSet<>();
         optimizedScenario.getCurativePerimeters().forEach(perimeter -> curativeStates.addAll(perimeter.getAllStates()));
+        Set<State> scenarioStates = new HashSet<>(curativeStates);
+        automatonState.ifPresent(scenarioStates::add);
         PrePerimeterResult preCurativeResult = prePerimeterSensitivityOutput;
         double sensitivityFailureOvercost = getSensitivityFailureOvercost(raoParameters);
+
+        // If the contingency diverged during the initial sensitivity computation, keep the divergence:
+        // no automatic action is simulated or curative action applied, and the scenario states are reported as failed.
+        // The reasons for a load-flow divergence may be unrelated to RAO (e.g. a badly modeled voltage control,
+        // or a weird starting point), and applying RAs on the case would hide the modeling problem (issue #1893).
+        if (hasFailedInitialSensitivity(initialSensitivityOutput, scenarioStates)) {
+            scenarioStates.forEach(state -> contingencyScenarioResults.put(state, generateSkippedPostPerimeterResult(state, sensitivityFailureOvercost)));
+            TECHNICAL_LOGS.debug("Remaining post-contingency scenarios to optimize: {}", remainingScenarios.decrementAndGet());
+            networkPool.releaseUsedNetwork(networkClone, false);
+            return null;
+        }
 
         // Simulate automaton instant
         boolean autoStateSensiFailed = false;
@@ -274,6 +287,14 @@ public class CastorContingencyScenarios {
         boolean anyNetworkActionApplied = !postPerimeterResult.optimizationResult().getActivatedNetworkActions().isEmpty();
         return anyRangeActionApplied || anyNetworkActionApplied;
 
+    }
+
+    /**
+     * Returns true if the initial sensitivity computation diverged on at least one state of the scenario.
+     */
+    static boolean hasFailedInitialSensitivity(PrePerimeterResult initialSensitivityOutput, Set<State> scenarioStates) {
+        return scenarioStates.stream()
+            .anyMatch(state -> initialSensitivityOutput.getSensitivityStatus(state) == ComputationStatus.FAILURE);
     }
 
     private PostPerimeterResult generateSkippedPostPerimeterResult(State state, double sensitivityFailureOvercost) {

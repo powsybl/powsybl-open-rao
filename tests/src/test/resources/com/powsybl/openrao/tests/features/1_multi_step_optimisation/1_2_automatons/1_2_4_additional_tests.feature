@@ -108,3 +108,99 @@ Feature: 1.2.4: Additional tests to check various fixes concerning automaton sta
     Then the margin on cnec "NL3-DE2 - curative" after CRA should be 1385 MW
     Then the execution details should be "Second preventive improved first preventive results"
     Then its security status should be "SECURED"
+
+  @fast @rao @ac @contingency-scenarios @secure-flow
+  Scenario: 1.2.4.7: An initially divergent contingency is not recovered by remedial actions
+  The outage of N4011-N4021 causes an initial sensitivity failure. The preventive action opens
+  N1013-N1014 but does not restore convergence. Although a forced automaton could reconnect the
+  outaged line, the failed contingency is not optimized: no automatic or curative action is used,
+  both states remain in failure, and the sensitivity failure cost persists at every instant.
+    Given network file is "0_import_export/0_2_export/0_2_3_swe_cne/nordic32.xiidm"
+    Given crac file is "1_multi_step_optimisation/1_2_automatons/crac_1_2_4_7.json"
+    Given configuration file is "common/rao_parameters_pos_margin_ampere.json"
+    When I launch rao
+    Then the calculation partially fails
+    Then 1 remedial actions are used in preventive
+    Then the remedial action "preventive-open-line" is used in preventive
+    Then the sensitivity failure cost initially should be 10000.0
+    Then the sensitivity failure cost after "preventive" should be 10000.0
+    Then the sensitivity failure cost after "auto" should be 10000.0
+    Then the sensitivity failure cost after "curative" should be 10000.0
+    Then the computation after "CO_N4011_N4021" at "auto" should be "FAILURE"
+    Then the computation after "CO_N4011_N4021" at "curative" should be "FAILURE"
+    Then 0 remedial actions are used after "CO_N4011_N4021" at "auto"
+    Then 0 remedial actions are used after "CO_N4011_N4021" at "curative"
+
+  @fast @rao @ac @contingency-scenarios @secure-flow
+  Scenario: 1.2.4.8: Preventive remedial action resolves an initially divergent contingency
+  The base case converges, but the outage of N4042-N4043 causes an initial sensitivity failure.
+  Preventive optimization opens N4043-N4044, restoring convergence for this N-1. Nevertheless,
+  the initial failure is retained: no automatic or curative action is used, both states remain in
+  failure, and the sensitivity failure cost persists at every instant.
+    Given network file is "0_import_export/0_2_export/0_2_3_swe_cne/nordic32.xiidm"
+    Given crac file is "1_multi_step_optimisation/1_2_automatons/crac_1_2_4_8.json"
+    Given configuration file is "common/rao_parameters_pos_margin_ampere.json"
+    When I launch rao
+    Then the calculation partially fails
+    Then the sensitivity failure cost initially should be 10000.0
+    Then the initial margin on cnec "preventive" should be -126.85 A
+    Then 1 remedial actions are used in preventive
+    Then the remedial action "preventive-open-line" is used in preventive
+    Then the margin on cnec "auto" after PRA should be 60.12 A
+    Then the sensitivity failure cost after "preventive" should be 10000.0
+    Then the sensitivity failure cost after "auto" should be 10000.0
+    Then the sensitivity failure cost after "curative" should be 10000.0
+    Then the computation after "CO_N4042_N4043" at "auto" should be "FAILURE"
+    Then the computation after "CO_N4042_N4043" at "curative" should be "FAILURE"
+    Then 0 remedial actions are used after "CO_N4042_N4043" at "auto"
+    Then 0 remedial actions are used after "CO_N4042_N4043" at "curative"
+
+  @fast @rao @ac @contingency-scenarios @secure-flow
+  Scenario: 1.2.4.9: An initially divergent contingency does not prevent another automaton from running
+    Given network file is "0_import_export/0_2_export/0_2_3_swe_cne/nordic32.xiidm"
+    Given crac file is "1_multi_step_optimisation/1_2_automatons/crac_1_2_4_9.json"
+    Given configuration file is "common/rao_parameters_pos_margin_ampere.json"
+    When I launch rao
+    Then the calculation partially fails
+    Then the sensitivity failure cost initially should be 10000.0
+    Then the sensitivity failure cost after "preventive" should be 10000.0
+    Then the sensitivity failure cost after "auto" should be 10000.0
+    Then the sensitivity failure cost after "curative" should be 10000.0
+    Then the computation after "CO_N4011_N4021" at "auto" should be "FAILURE"
+    Then the computation after "CO_N4011_N4021" at "curative" should be "FAILURE"
+    Then 0 remedial actions are used after "CO_N4011_N4021" at "auto"
+    Then the remedial action "failed-open-line" is not used after "CO_N4011_N4021" at "auto"
+    Then 0 remedial actions are used after "CO_N4011_N4021" at "curative"
+    Then the computation after "CO_N1012_N4012" at "auto" should be "DEFAULT"
+    Then the computation after "CO_N1012_N4012" at "curative" should be "DEFAULT"
+    Then the margin on cnec "healthy-auto" after PRA should be -123.6 A
+    Then 1 remedial actions are used after "CO_N1012_N4012" at "auto"
+    Then the remedial action "healthy-open-line" is used after "CO_N1012_N4012" at "auto"
+    Then the margin on cnec "healthy-auto" after ARA should be 100.0 A
+    Then the margin on cnec "healthy-curative" after CRA should be 100.0 A
+
+  @fast @rao @ac @contingency-scenarios @secure-flow @fast-rao
+  Scenario: 1.2.4.10: FastRAO with an initially divergent contingency outside the filtered CRAC
+  The base case converges while the N4042-N4043 outage diverges initially. FastRAO selects only
+  the overloaded preventive CNEC; its preventive action opens N4043-N4044 and restores convergence
+  for the initially failed outage, whose CNECs are not included in the filtered CASTOR run. The
+  failure cost should still be retained in the returned result.
+    Given network file is "0_import_export/0_2_export/0_2_3_swe_cne/nordic32.xiidm"
+    Given crac file is "1_multi_step_optimisation/1_2_automatons/crac_1_2_4_8.json"
+    Given configuration file is "1_multi_step_optimisation/1_2_automatons/rao_parameters_1_2_4_10.json"
+    Given the full initial sensitivity analysis fails after "CO_N4042_N4043" at "curative" with cost 10000.0
+    When I launch rao
+    Then cnec "preventive" is selected by fast rao
+    Then cnec "auto" is excluded by fast rao
+    Then cnec "curative" is excluded by fast rao
+    Then the initial margin on cnec "preventive" should be -126.85 A
+    Then the remedial action "preventive-open-line" is used in preventive
+    Then the margin on cnec "auto" after PRA should be 60.12 A
+    Then the computation after "CO_N4042_N4043" at "auto" should be "DEFAULT"
+    Then the computation after "CO_N4042_N4043" at "curative" should be "DEFAULT"
+    Then 0 remedial actions are used after "CO_N4042_N4043" at "auto"
+    Then 0 remedial actions are used after "CO_N4042_N4043" at "curative"
+    Then the sensitivity failure cost initially should be 10000.0
+    Then the sensitivity failure cost after "preventive" should be 10000.0
+    Then the sensitivity failure cost after "auto" should be 10000.0
+    Then the sensitivity failure cost after "curative" should be 10000.0

@@ -147,7 +147,7 @@ public final class MarmotUtils {
 
             // merge preventive and curative network actions into one networkActionsResult before entering the postOptimizationResult constructor
             NetworkActionsResult networkActionsResult = getNetworkActionsResult(crac, preventiveActions, curativeActions);
-            fillWithActivatedRemedialActions(globalLinearOptimizationResult, networkActionsResult, raoResultBuilder, crac);
+            fillWithActivatedRemedialActions(globalLinearOptimizationResult, networkActionsResult, raoResultBuilder, crac, initialResult);
             fillSecurityStatus(cracs, globalLinearOptimizationResult, raoResultBuilder, raoParameters);
             CostResult individualCostResult = computeCastorCostResultsExtension(
                 crac,
@@ -164,8 +164,14 @@ public final class MarmotUtils {
     private static void fillWithActivatedRemedialActions(GlobalLinearOptimizationResult globalLinearOptimizationResult,
                                                          NetworkActionsResult networkActionsResult,
                                                          RaoResultImpl.RaoResultImplBuilder raoResultBuilder,
-                                                         Crac crac) {
+                                                         Crac crac,
+                                                         PrePerimeterResult initialResult) {
         for (State state : crac.getStates()) {
+            // Report no activations during a state that failed initially (issue #1893). Curative actions are
+            // filtered, but preventive actions can still affect the final recomputation and its status.
+            if (initialResult.getSensitivityStatus(state) == ComputationStatus.FAILURE) {
+                continue;
+            }
             networkActionsResult.getActivatedNetworkActionsPerState()
                 .getOrDefault(state, new HashSet<>())
                 .forEach(networkAction -> raoResultBuilder.addNetworkActionActivation(networkAction, state));

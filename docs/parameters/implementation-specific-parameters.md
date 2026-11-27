@@ -256,7 +256,11 @@ from inside the RAO.
   If this parameter is strictly positive, the RAO will discriminate the combinations of RA for which the systematic
   analysis didn't converge. The RAO might therefore put aside the solution with the best objective-function if it has
   lead to a sensitivity failure, and instead propose a solution whose objective-function is worse, but whose associated
-  network is converging for all contingency scenarios.
+  network is converging for all contingency scenarios.  
+  For initially failed contingencies, the handling of remedial actions and this overcost depends on the algorithm. See
+  the [CASTOR](../algorithms/castor/rao-steps.md#curative-perimeters) and
+  [MARMOT](../algorithms/marmot.md#limitations) documentation. The cause of divergence can be unrelated to RAO,
+  such as a badly modeled voltage control or an unusual starting point.
 
 ##### sensitivity-parameters
 - **Expected value**: SensitivityComputationParameters ([PowSyBl](inv:powsyblcore:std:doc#simulation/sensitivity/configuration) configuration)

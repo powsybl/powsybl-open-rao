@@ -89,6 +89,17 @@ public final class CostResult extends AbstractExtension<RaoResult> {
     }
 
     /**
+     * Returns the names of virtual costs in the result used for the given instant, including any
+     * explicitly stored {@code NaN} costs. If no result exists at that instant, the previous result is used.
+     *
+     * @param optimizedInstant The optimized instant (null for the initial result)
+     * @return The virtual cost names for the effective result
+     */
+    public Set<String> getVirtualCostNames(Instant optimizedInstant) {
+        return Set.copyOf(getAppropriateResult(optimizedInstant).getVirtualCostNames());
+    }
+
+    /**
      * It gives the specified virtual cost of the situation at a given {@link Instant}. It represents the
      * secondary parts of the objective. If the specified name is not part of the virtual costs defined in the
      * objective function, this method will return {@code Double.NaN} values.
@@ -172,6 +183,10 @@ public final class CostResult extends AbstractExtension<RaoResult> {
         return new CostResultBuilder();
     }
 
+    public static CostResultBuilder builder(CostResult costResult) {
+        return new CostResultBuilder(costResult);
+    }
+
     public static final class CostResultBuilder {
         private final ElementaryCostResult initialCostResult;
         private final Map<Instant, ElementaryCostResult> costResultPerInstant;
@@ -179,6 +194,12 @@ public final class CostResult extends AbstractExtension<RaoResult> {
         private CostResultBuilder() {
             initialCostResult = new ElementaryCostResult();
             costResultPerInstant = new HashMap<>();
+        }
+
+        private CostResultBuilder(CostResult costResult) {
+            initialCostResult = new ElementaryCostResult(costResult.initialCostResult);
+            costResultPerInstant = new HashMap<>();
+            costResult.costResultPerInstant.forEach((instant, result) -> costResultPerInstant.put(instant, new ElementaryCostResult(result)));
         }
 
         public CostResultBuilder addFunctionalCostResult(Instant optimizedInstant, double functionalCost) {

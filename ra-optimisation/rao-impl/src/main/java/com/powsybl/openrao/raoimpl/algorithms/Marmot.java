@@ -205,16 +205,12 @@ class Marmot {
             rangeAction.apply(raoInput.getNetwork(), filteredResult.getOptimizedSetpoint(rangeAction, preventiveState))
         );
 
-        AppliedRemedialActions allCurativeActions = new AppliedRemedialActions();
-        AppliedRemedialActions topoCurativeActions = curativeTopologicalActions.getData(timestamp).orElseThrow();
-        raoInput.getCrac().getStates().stream()
-            .filter(state -> state.getInstant().isCurative())
-            .forEach(state -> {
-                topoCurativeActions.getAppliedNetworkActions(state)
-                    .forEach(networkAction -> allCurativeActions.addAppliedNetworkAction(state, networkAction));
-                filteredResult.getActivatedRangeActions(state).forEach(rangeAction ->
-                    allCurativeActions.addAppliedRangeAction(state, rangeAction, filteredResult.getOptimizedSetpoint(rangeAction, state)));
-            });
+        AppliedRemedialActions allCurativeActions = buildCurativeActionsToApply(
+            raoInput.getCrac(),
+            curativeTopologicalActions.getData(timestamp).orElseThrow(),
+            filteredResult,
+            initialResults.getData(timestamp).orElseThrow()
+        );
 
         PrePerimeterResult sensitivityAnalysisResults = runInitialPrePerimeterSensitivityAnalysisWithoutRangeActions(
             postTopoInputs.getData(timestamp).orElseThrow(),
@@ -225,6 +221,31 @@ class Marmot {
         );
         MarmotUtils.releaseNetworkWithoutOverwrite(raoInput.getNetwork());
         return sensitivityAnalysisResults;
+    }
+
+    /**
+     * Gathers the curative remedial actions to apply before the final (full) sensitivity analysis:
+     * the curative topological actions selected by the independent topological optimizations, and the
+     * curative range actions set-points optimized by the global time-coupled linear optimization.
+     * No curative remedial action is applied on a state that diverged during the initial sensitivity computation
+     * (issue #1893). Preventive actions still affect the network used by the final sensitivity analysis,
+     * so the state may converge in that recomputation.
+     */
+    static AppliedRemedialActions buildCurativeActionsToApply(final Crac crac,
+                                                              final AppliedRemedialActions topoCurativeActions,
+                                                              final LinearOptimizationResult filteredResult,
+                                                              final PrePerimeterResult initialResult) {
+        AppliedRemedialActions allCurativeActions = new AppliedRemedialActions();
+        crac.getStates().stream()
+            .filter(state -> state.getInstant().isCurative())
+            .filter(state -> initialResult.getSensitivityStatus(state) != ComputationStatus.FAILURE)
+            .forEach(state -> {
+                topoCurativeActions.getAppliedNetworkActions(state)
+                    .forEach(networkAction -> allCurativeActions.addAppliedNetworkAction(state, networkAction));
+                filteredResult.getActivatedRangeActions(state).forEach(rangeAction ->
+                    allCurativeActions.addAppliedRangeAction(state, rangeAction, filteredResult.getOptimizedSetpoint(rangeAction, state)));
+            });
+        return allCurativeActions;
     }
 
     private static TemporalData<RaoResult> runTopologicalOptimization(final TemporalData<RaoInput> raoInputs,

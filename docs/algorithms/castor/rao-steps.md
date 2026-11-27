@@ -110,6 +110,17 @@ Finally, a curative perimeter can be defined for each defined contingency. Each 
 - CNECs of the “after curative situation” defined with a limit of type PATL. All CNECs defined upon the same
   contingency.
 
+If an automaton or curative state of a contingency scenario has status `FAILURE` in the initial sensitivity computation,
+CASTOR skips the scenario: automatic actions are not simulated and curative actions are not applied. Its automaton and
+curative states are reported as `FAILURE` with the
+[sensitivity-failure-overcost](../../parameters/implementation-specific-parameters.md#sensitivity-failure-overcost).
+The skip is not triggered by `PARTIAL_FAILURE` alone. Preventive actions on the shared base case may still restore
+convergence for the contingency, but the final preventive cost retains at least the initial failure cost. Divergence may
+be caused by a modeling problem unrelated to RAO, such as a badly modeled voltage control or an unusual starting point.
+FastRAO runs CASTOR on a filtered CRAC. Its final cost retains the full initial sensitivity failure cost even if a failed
+contingency is excluded by this filter. FastRAO then recomputes sensitivities and reports statuses on the full CRAC, so a
+previously failed state can be reported as converged if preventive actions restore convergence.
+
 Overloads potentially reached on this perimeter are to be solved with curative actions.
 Preventive and automatic actions already selected in the “after automatons” situation by the first two steps are applied
 in this perimeter.

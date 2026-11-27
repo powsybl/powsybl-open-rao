@@ -36,6 +36,7 @@ import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParamet
 import com.powsybl.openrao.raoimpl.commons.FlowResultExtensionHelper;
 import com.powsybl.openrao.raoimpl.commons.RaoUtil;
 import com.powsybl.openrao.raoimpl.commons.ToolProvider;
+import com.powsybl.openrao.raoimpl.commons.objectivefunctionevaluator.SensitivityFailureOvercostEvaluator;
 import com.powsybl.openrao.raoimpl.networkpool.AbstractNetworkPool;
 import com.powsybl.openrao.raoimpl.reports.CommonReports;
 import com.powsybl.openrao.raoimpl.reports.FastRaoReports;
@@ -169,6 +170,14 @@ class FastRao {
 
             FastRaoReports.reportFastRaoFinalResult(reportNode, stepResult, parameters, NUMBER_LOGGED_ELEMENTS_DURING_RAO);
 
+            CostResult costResult = raoResult.getExtension(CostResult.class);
+            if (costResult != null) {
+                CostResult retainedCostResult = retainInitialSensitivityFailureCost(costResult, initialResult, crac);
+                if (retainedCostResult != costResult) {
+                    raoResult.removeExtension(CostResult.class);
+                    raoResult.addExtension(CostResult.class, retainedCostResult);
+                }
+            }
             raoResult.addExtension(
                 CriticalCnecsResult.class,
                 new CriticalCnecsResult(consideredCnecs.stream().map(FlowCnec::getId).collect(Collectors.toSet()))
@@ -178,6 +187,31 @@ class FastRao {
             Thread.currentThread().interrupt();
             throw new OpenRaoException("Error while running full FAST RAO loop", e);
         }
+    }
+
+    /**
+     * Restores the full CRAC's initial failure cost and floors costs at every CRAC instant in the final result.
+     * Unlike CASTOR's preventive-only retention, this also covers later instants because the failed contingency
+     * may have been excluded from the filtered optimization. This is applied after optimization decisions.
+     */
+    static CostResult retainInitialSensitivityFailureCost(CostResult costResult, ObjectiveFunctionResult initialResult, Crac crac) {
+        String costName = SensitivityFailureOvercostEvaluator.getEvaluatorName();
+        double initialCost = initialResult.getVirtualCost(costName);
+        if (Double.isNaN(initialCost) || initialCost <= 0) {
+            return costResult;
+        }
+        CostResult.CostResultBuilder builder = CostResult.builder(costResult)
+            .addVirtualCostResult(null, costName, initialCost);
+        crac.getSortedInstants().forEach(instant -> {
+            double cost = costResult.getVirtualCost(instant, costName);
+            if (Double.isNaN(cost) || cost < initialCost) {
+                builder.addFunctionalCostResult(instant, costResult.getFunctionalCost(instant));
+                costResult.getVirtualCostNames(instant).stream().filter(name -> !name.equals(costName))
+                    .forEach(name -> builder.addVirtualCostResult(instant, name, costResult.getVirtualCost(instant, name)));
+                builder.addVirtualCostResult(instant, costName, initialCost);
+            }
+        });
+        return builder.build();
     }
 
     private static void addWorstCnecs(Set<FlowCnec> consideredCnecs, int numberOfCnecsToAdd, PrePerimeterResult ofResult) {
