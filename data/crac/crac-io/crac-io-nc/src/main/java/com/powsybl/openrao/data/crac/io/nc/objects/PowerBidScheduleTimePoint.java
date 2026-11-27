@@ -24,7 +24,7 @@ public record PowerBidScheduleTimePoint(String mrid, OffsetDateTime atTime, Stri
             propertyBag.get(NcConstants.P) == null ? null : OffsetDateTime.parse(propertyBag.get(NcConstants.AT_TIME), DateTimeFormatter.ISO_DATE_TIME),
             propertyBag.getId(NcConstants.POWER_BID_SCHEDULE),
             propertyBag.get(NcConstants.P) == null ? null : Double.parseDouble(propertyBag.get(NcConstants.P)),
-            propertyBag.get(NcConstants.P) == null ? null :Double.parseDouble(propertyBag.get(NcConstants.PRICE))
+            propertyBag.get(NcConstants.P) == null ? null : Double.parseDouble(propertyBag.get(NcConstants.PRICE))
         );
     }
 }

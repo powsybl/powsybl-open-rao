@@ -25,20 +25,6 @@ import java.util.Set;
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
 public class RedispatchingActionCreator {
-    /**
-     * TODO: implement importer
-     * Steps:
-     * 1. Get the RedispatchRemedialAction in the RA profile
-     * 2. Find the associated PowerShiftKeyStrategy objects in the RA profile (link on nc:PowerShiftKeyStrategy.PowerRemedialAction)
-     * 3. For each PowerShiftKeyStrategy:
-     * 3.1. Find the associated PowerShiftKeyDistribution in the SSI profile (link on nc:PowerShiftKeyDistribution.PowerShiftKeyStrategy)
-     * 3.2. Find the PowerShiftKeySchedule associated to the PowerShiftKeyDistribution in the SSI profile (link on nc:PowerShiftKeyDistribution.PowerShiftKeySchedule)
-     * 3.3. Retrieve the generating unit from nc:PowerShiftKeySchedule.GeneratingUnit
-     * 3.4. Find the ParticipationFactorTimePoint associated to the PowerShiftKeySchedule in the SSI profile (link on nc:ParticipationFactorTimePoint.PowerShiftKeySchedule)
-     * 3.5. Retrieve the distribution key from nc:ParticipationFactorTimePoint.participationFactor
-     * 3.6. Retrieve the bid validity from nc:ParticipationFactorTimePoint.atTime (must fit the import timestamp, otherwise throw exception)
-     * 3.7. (optional) Ensure that nc:BaseTimeSeries.interpolationKind (from PowerShiftKeySchedule) is "next" or "none" -> to confirm, skip this at the moment but keep it as a TODO
-     */
 
     private final Crac crac;
     private final Network network;
@@ -59,7 +45,6 @@ public class RedispatchingActionCreator {
                                                                  Set<PowerBidSchedule> powerBidSchedules,
                                                                  Map<String, Set<PowerBidScheduleTimePoint>> linkedPowerBidScheduleTimePointWithPowerBidSchedule) {
 
-
         InjectionRangeActionAdder injectionRangeActionAdder = crac.newInjectionRangeAction().withId(remedialActionId).withName(redispatchRemedialAction.name());
 
         addNetworkElementAndDistributionKey(remedialActionId,
@@ -76,8 +61,6 @@ public class RedispatchingActionCreator {
             linkedPowerBidScheduleTimePointWithPowerBidSchedule,
             ncCracCreationParameters.getTimestamp());
 
-        // TODO: what can I do for initial setpoint
-            /*.withInitialSetpoint(p0)*/
         return injectionRangeActionAdder;
     }
 
@@ -87,10 +70,10 @@ public class RedispatchingActionCreator {
                                         Map<String, Set<PowerBidScheduleTimePoint>> linkedPowerBidScheduleTimePointWithPowerBidSchedule,
                                         OffsetDateTime dateTime) {
 
-        if ( powerBidSchedules == null || powerBidSchedules.isEmpty()) {
+        if (powerBidSchedules == null || powerBidSchedules.isEmpty()) {
             throw new OpenRaoImportException(
                 ImportStatus.INCONSISTENCY_IN_DATA,
-                String.format("Remedial action %s will not be imported because it has no power bid schedule", remedialActionId)
+                String.format("Redispatching action %s will not be imported because it has no power bid schedule", remedialActionId)
             );
         }
 
@@ -106,22 +89,22 @@ public class RedispatchingActionCreator {
         } else {
             throw new OpenRaoImportException(
                 ImportStatus.INCONSISTENCY_IN_DATA,
-                String.format("Remedial action %s will not be imported because it has not supported market regulation direction %s", remedialActionId, powerBidSchedule.direction().toString())
+                String.format("Redispatching action %s will not be imported because its market regulation direction %s is not supported", remedialActionId, powerBidSchedule.direction().toString())
             );
         }
         // TODO: check that currency is euros ? convert if not the case ? check that all the actions' cost are given in same currency ?
 
-        if (!linkedPowerBidScheduleTimePointWithPowerBidSchedule.containsKey(powerBidSchedule.mrid())) {
+        if (linkedPowerBidScheduleTimePointWithPowerBidSchedule == null || !linkedPowerBidScheduleTimePointWithPowerBidSchedule.containsKey(powerBidSchedule.mrid())) {
             throw new OpenRaoImportException(
                 ImportStatus.INCONSISTENCY_IN_DATA,
-                String.format("Remedial action %s will not be imported because it has no power bid schedule time point", remedialActionId)
+                String.format("Redispatching action %s will not be imported because it has no power bid schedule time point", remedialActionId)
             );
         }
         // TODO: intertemporal not supported for now, could also just filter to get the correct one...
         if (linkedPowerBidScheduleTimePointWithPowerBidSchedule.get(powerBidSchedule.mrid()).size() > 1) {
             throw new OpenRaoImportException(
                 ImportStatus.INCONSISTENCY_IN_DATA,
-                String.format("Remedial action %s will not be imported because it has multiple power bid schedule time points", remedialActionId)
+                String.format("Redispatching action %s will not be imported because it has multiple power bid schedule time points", remedialActionId)
             );
         }
 
@@ -131,7 +114,7 @@ public class RedispatchingActionCreator {
         if (powerBidScheduleTimePoint.atTime().equals(dateTime)) {
             throw new OpenRaoImportException(
                 ImportStatus.INCONSISTENCY_IN_DATA,
-                String.format("Remedial action %s will not be imported because powerBidScheduleTimePoint %s is not valid for dateTime %s",
+                String.format("Redispatching action %s will not be imported because powerBidScheduleTimePoint %s is not valid for dateTime %s",
                     remedialActionId, powerBidScheduleTimePoint.mrid(), dateTime)
             );
         }
@@ -164,7 +147,7 @@ public class RedispatchingActionCreator {
         if (linkedPowerShiftKeyStrategies == null || linkedPowerShiftKeyStrategies.isEmpty()) {
             throw new OpenRaoImportException(
                 ImportStatus.INCONSISTENCY_IN_DATA,
-                String.format("Remedial action %s will not be imported because no power shift strategy were found",
+                String.format("Redispatching action %s will not be imported because no power shift strategy were found",
                     remedialActionId)
             );
         }
@@ -177,10 +160,10 @@ public class RedispatchingActionCreator {
             for (PowerShiftKeyDistribution powerShiftKeyDistribution : powerShiftKeyDistributionSet) {
                 String powerShiftKeyScheduleId = powerShiftKeyDistribution.powerShiftKeySchedule();
 
-                if (!linkedPowerShiftKeySchedulesWithMrid.containsKey(powerShiftKeyScheduleId)) {
+                if (linkedPowerShiftKeySchedulesWithMrid == null || !linkedPowerShiftKeySchedulesWithMrid.containsKey(powerShiftKeyScheduleId)) {
                     throw new OpenRaoImportException(
                         ImportStatus.INCONSISTENCY_IN_DATA,
-                        String.format("Remedial action %s will not be imported because no power shift key schedule found for power shift key strategy %s",
+                        String.format("Redispatching action %s will not be imported because no power shift key schedule found for power shift key strategy %s",
                             remedialActionId, powerShiftKeyStrategyId)
                     );
                 }
@@ -188,7 +171,7 @@ public class RedispatchingActionCreator {
                 if (linkedPowerShiftKeySchedulesWithMrid.get(powerShiftKeyScheduleId).size() > 1) {
                     throw new OpenRaoImportException(
                         ImportStatus.INCONSISTENCY_IN_DATA,
-                        String.format("Remedial action %s will not be imported because more than one power shift key schedule found with id %s",
+                        String.format("Redispatching action %s will not be imported because more than one power shift key schedule found with id %s",
                             remedialActionId, powerShiftKeyScheduleId)
                     );
                 }
@@ -198,7 +181,7 @@ public class RedispatchingActionCreator {
                 if (!linkedParticipationFactorTimePointsWithPskSchedule.containsKey(powerShiftKeySchedule.mrid())) {
                     throw new OpenRaoImportException(
                         ImportStatus.INCONSISTENCY_IN_DATA,
-                        String.format("Remedial action %s will not be imported because no participationFactorTimePoint found for powerShiftKeySchedule %s",
+                        String.format("Redispatching action %s will not be imported because no participationFactorTimePoint found for powerShiftKeySchedule %s",
                             remedialActionId, powerShiftKeySchedule.mrid())
                     );
                 }
@@ -209,7 +192,7 @@ public class RedispatchingActionCreator {
                 if (participationFactorTimePoints.size() > 1) {
                     throw new OpenRaoImportException(
                         ImportStatus.INCONSISTENCY_IN_DATA,
-                        String.format("Remedial action %s will not be imported because more than one participationFactorTimePoint found for powerShiftKeySchedule %s",
+                        String.format("Redispatching action %s will not be imported because more than one participationFactorTimePoint found for powerShiftKeySchedule %s",
                             remedialActionId, powerShiftKeySchedule.mrid())
                     );
                 }
@@ -221,7 +204,7 @@ public class RedispatchingActionCreator {
                 if (participationFactorTimePoint.atTime().equals(dateTime)) {
                     throw new OpenRaoImportException(
                         ImportStatus.INCONSISTENCY_IN_DATA,
-                        String.format("Remedial action %s will not be imported because powerShiftKeySchedule %s is not valid for dateTime %s",
+                        String.format("Redispatching action %s will not be imported because powerShiftKeySchedule %s is not valid for dateTime %s",
                             remedialActionId, powerShiftKeySchedule.mrid(), dateTime)
                     );
                 }
