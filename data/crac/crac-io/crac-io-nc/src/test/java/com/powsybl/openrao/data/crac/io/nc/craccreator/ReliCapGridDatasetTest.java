@@ -13,6 +13,7 @@ import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.crac.api.RemedialAction;
 import com.powsybl.openrao.data.crac.api.parameters.CracCreationParameters;
+import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.usagerule.OnContingencyState;
 import com.powsybl.openrao.data.crac.api.usagerule.OnInstant;
@@ -127,6 +128,9 @@ public class ReliCapGridDatasetTest {
         assertHasOnContingencyStateUsageRule(pstRangeAction, "curative", "62eac668-82a1-4739-8cfc-de929b78ef7e");
         assertHasOnContingencyStateUsageRule(pstRangeAction, "curative", "b6b780cb-9fe5-4c45-989d-447a927c3874");
         assertHasOnContingencyStateUsageRule(pstRangeAction, "curative", "ce19dd34-429e-4b72-8813-7615cc57b4a4");
+
+        List<InjectionRangeAction> equivalentHvdcRangeActions = crac.getInjectionRangeActions().stream().sorted(Comparator.comparing(InjectionRangeAction::getId)).toList();
+        assertEquals(2, equivalentHvdcRangeActions.size());
     }
 
     private static void assertInstant(Instant instant, InstantKind expectedInstantKind, String expectedId) {

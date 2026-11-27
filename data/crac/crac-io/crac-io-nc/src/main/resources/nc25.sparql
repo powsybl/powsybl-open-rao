@@ -466,6 +466,30 @@ GRAPH <%s> {
 }
 }
 
+# query: equivalentInjectionAction
+PREFIX nc: <https://cim4.eu/ns/nc#>
+PREFIX cim: <https://cim.ucaiug.io/ns#>
+SELECT *
+{
+GRAPH <%s> {
+    ?equivalentInjectionAction
+        rdf:type nc:EquivalentInjectionAction ;
+        cim:IdentifiedObject.mRID ?mRID ;
+        nc:EquivalentInjectionAction.EquivalentInjection ?equivalentInjectionId ;
+        nc:GridStateAlteration.PropertyReference ?propertyReference ;
+
+        OPTIONAL {
+            ?equivalentInjectionAction nc:GridStateAlteration.normalEnabled ?normalEnabled .
+        }
+        OPTIONAL {
+            ?equivalentInjectionAction nc:GridStateAlteration.GridStateAlterationRemedialAction ?gridStateAlterationRemedialAction .
+        }
+        OPTIONAL {
+            ?equivalentInjectionAction nc:GridStateAlteration.GridStateAlterationCollection ?gridStateAlterationCollection .
+        }
+    }
+}
+
 # query: remedialActionSchedule
 PREFIX cim: <https://cim.ucaiug.io/ns#>
 PREFIX nc: <https://cim4.eu/ns/nc#>
@@ -749,71 +773,7 @@ GRAPH <%s> {
     ?gridStateAlteration
         rdf:type nc:GridStateAlteration ;
         nc:GridStateAlteration.enabled ?enabled .
-}
-}
-
-# query: topologyActionOverriding
-PREFIX nc: <https://cim4.eu/ns/nc#>
-PREFIX dcat: <http://www.w3.org/ns/dcat#>
-SELECT *
-{
-GRAPH <%s> {
-    ?fullModel
-        dcat:startDate ?startDate ;
-        dcat:endDate ?endDate ;
-        dcat:keyword ?keyword .
-    ?topologyAction
-        rdf:type nc:GridStateAlteration ;
-        nc:GridStateAlteration.enabled ?enabled .
-}
-}
-
-# query: rotatingMachineActionOverriding
-PREFIX nc: <https://cim4.eu/ns/nc#>
-PREFIX dcat: <http://www.w3.org/ns/dcat#>
-SELECT *
-{
-GRAPH <%s> {
-    ?fullModel
-        dcat:startDate ?startDate ;
-        dcat:endDate ?endDate ;
-        dcat:keyword ?keyword .
-    ?rotatingMachineAction
-        rdf:type nc:GridStateAlteration ;
-        nc:GridStateAlteration.enabled ?enabled .
-}
-}
-
-# query: shuntCompensatorModificationOverriding
-PREFIX nc: <https://cim4.eu/ns/nc#>
-PREFIX dcat: <http://www.w3.org/ns/dcat#>
-SELECT *
-{
-GRAPH <%s> {
-    ?fullModel
-        dcat:startDate ?startDate ;
-        dcat:endDate ?endDate ;
-        dcat:keyword ?keyword .
-    ?shuntCompensatorModification
-        rdf:type nc:GridStateAlteration ;
-        nc:GridStateAlteration.enabled ?enabled .
-}
-}
-
-# query: tapPositionActionOverriding
-PREFIX nc: <https://cim4.eu/ns/nc#>
-PREFIX dcat: <http://www.w3.org/ns/dcat#>
-SELECT *
-{
-GRAPH <%s> {
-    ?fullModel
-        dcat:startDate ?startDate ;
-        dcat:endDate ?endDate ;
-        dcat:keyword ?keyword .
-    ?tapPositionAction
-        rdf:type nc:GridStateAlteration ;
-        nc:GridStateAlteration.enabled ?enabled .
-}
+    }
 }
 
 # query: staticPropertyRangeOverriding
@@ -918,13 +878,17 @@ GRAPH <%s> {
     ?remedialActionDependency
         rdf:type nc:RemedialActionDependency ;
         nc:RemedialActionDependency.kind ?kind ;
-        nc:RemedialActionDependency.mRID ?mRID ;
-        nc:RemedialActionDependency.RemedialAction ?remedialAction ;
-        nc:RemedialActionDependency.DependingRemedialActionGroup ?dependingRemedialActionGroup ;
+        cim:IdentifiedObject.mRID ?mRID ;
+        OPTIONAL {
+            ?remedialActionDependency nc:RemedialActionDependency.RemedialAction ?remedialAction .
+        }
+        OPTIONAL {
+            ?remedialActionDependency nc:RemedialActionDependency.DependingRemedialActionGroup ?dependingRemedialActionGroup .
+        }
         OPTIONAL {
             ?remedialActionDependency nc:RemedialActionDependency.normalEnabled ?normalEnabled .
         }
-}
+    }
 }
 
 

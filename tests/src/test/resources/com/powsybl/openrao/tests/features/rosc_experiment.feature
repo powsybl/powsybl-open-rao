@@ -13,7 +13,7 @@ Feature: ROSC experiment
     When I import crac
     Then it should have 16 contingencies
     Then it should have 660 cnecs
-    Then it should have 12 range actions
+    Then it should have 14 range actions
 
   @fast @dc @rosc
   Scenario: ENTSO-E's ReliCapGrid - RAO DC

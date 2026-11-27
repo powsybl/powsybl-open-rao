@@ -12,6 +12,7 @@ package com.powsybl.openrao.data.crac.io.nc.craccreator.constants;
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
 public enum PropertyReference {
+    EQUIVALENT_INJECTION("EquivalentInjection.p"),
     SWITCH("Switch.open"),
     ROTATING_MACHINE("RotatingMachine.p"),
     TAP_CHANGER("TapChanger.step"),
