@@ -26,6 +26,7 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Mohamed Ben-rejeb {@literal <mohamed.ben-rejeb at rte-france.com>}
@@ -46,6 +47,7 @@ class JsonNcCracCreationParametersTest {
         NcCracCreationParameters ncCracCreationParameters = importedParameters.getExtension(NcCracCreationParameters.class);
         assertNotNull(ncCracCreationParameters);
         assertEquals(CapacityCalculationRegion.SOUTH_WESTERN_EUROPE, ncCracCreationParameters.getCapacityCalculationRegion());
+        assertTrue(ncCracCreationParameters.getCreateAutoInstant());
         assertEquals(Map.of("curative 1", 300, "curative 2", 600, "curative 3", 1200), ncCracCreationParameters.getCurativeInstants());
         assertEquals(-1500.0, ncCracCreationParameters.getCounterTradingMinRange());
         assertEquals(2500.0, ncCracCreationParameters.getCounterTradingMaxRange());
@@ -87,13 +89,14 @@ class JsonNcCracCreationParametersTest {
     @Test
     void serializeDefaultParameters() {
         CracCreationParameters parameters = new CracCreationParameters();
-        NcCracCreationParameters csaParameters = new NcCracCreationParameters();
-        csaParameters.setCapacityCalculationRegion(CapacityCalculationRegion.SOUTH_WESTERN_EUROPE);
-        csaParameters.setTimestamp(OffsetDateTime.of(2026, 4, 23, 11, 51, 0, 0, ZoneOffset.UTC));
-        csaParameters.setCurativeInstants(Map.of("curative 1", 300, "curative 2", 600, "curative 3", 1200));
-        csaParameters.setCounterTradingMinRange(-1000.0);
-        csaParameters.setCounterTradingMaxRange(1000.0);
-        parameters.addExtension(NcCracCreationParameters.class, csaParameters);
+        NcCracCreationParameters ncParameters = new NcCracCreationParameters();
+        ncParameters.setCapacityCalculationRegion(CapacityCalculationRegion.SOUTH_WESTERN_EUROPE);
+        ncParameters.setTimestamp(OffsetDateTime.of(2026, 4, 23, 11, 51, 0, 0, ZoneOffset.UTC));
+        ncParameters.setCreateAutoInstant(true);
+        ncParameters.setCurativeInstants(Map.of("curative 1", 300, "curative 2", 600, "curative 3", 1200));
+        ncParameters.setCounterTradingMinRange(-1000.0);
+        ncParameters.setCounterTradingMaxRange(1000.0);
+        parameters.addExtension(NcCracCreationParameters.class, ncParameters);
 
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         JsonCracCreationParameters.write(parameters, outputStream);

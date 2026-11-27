@@ -72,10 +72,12 @@ class FlowCnecInstantHelper {
                 .max(Integer::compareTo)
                 .orElse(getShortestTatlWithDurationGreaterThanOrReturn(tatlDurations, 0, longestDuration))
         );
-        instantToLimit.put(
-            crac.getInstant(InstantKind.AUTO).getId(),
-            getShortestTatlWithDurationGreaterThanOrReturn(tatlDurations, curativeInstantsMap.get(sortedCurativeInstants.get(0)), longestDuration)
-        );
+        if (ncCracCreationParameters.getCreateAutoInstant()) {
+            instantToLimit.put(
+                crac.getInstant(InstantKind.AUTO).getId(),
+                getShortestTatlWithDurationGreaterThanOrReturn(tatlDurations, curativeInstantsMap.get(sortedCurativeInstants.get(0)), longestDuration)
+            );
+        }
         for (int instantIndex = 0; instantIndex < sortedCurativeInstants.size() - 1; instantIndex++) {
             instantToLimit.put(
                 sortedCurativeInstants.get(instantIndex),
@@ -97,9 +99,9 @@ class FlowCnecInstantHelper {
         int durationThreshold = mapInstantsAndLimits.containsValue(limitDuration)
             ? limitDuration
             : mapInstantsAndLimits.values().stream()
-                .filter(duration -> duration > limitDuration)
-                .min(Integer::compareTo)
-                .orElse(Integer.MAX_VALUE);
+            .filter(duration -> duration > limitDuration)
+            .min(Integer::compareTo)
+            .orElse(Integer.MAX_VALUE);
         return mapInstantsAndLimits.entrySet().stream()
             .filter(entry -> entry.getValue() == durationThreshold)
             .map(Map.Entry::getKey)

@@ -488,7 +488,7 @@ public class NcRemedialActionsCreator {
         if (RemedialActionKind.PREVENTIVE.matches(nativeRemedialAction.kind())) {
             return InstantKind.PREVENTIVE;
         }
-        if (!nativeRemedialAction.isManual()) {
+        if (!nativeRemedialAction.isManual() && !crac.getInstants(InstantKind.AUTO).isEmpty()) {
             return InstantKind.AUTO;
         }
         return InstantKind.CURATIVE;
