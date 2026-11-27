@@ -10,10 +10,7 @@ package com.powsybl.openrao.sensitivityanalysis;
 import com.powsybl.contingency.*;
 import com.powsybl.glsk.commons.ZonalData;
 import com.powsybl.glsk.ucte.UcteGlskDocument;
-import com.powsybl.iidm.network.HvdcLine;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.TopologyKind;
-import com.powsybl.iidm.network.TwoSides;
+import com.powsybl.iidm.network.*;
 import com.powsybl.loadflow.LoadFlowResult;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
@@ -452,23 +449,23 @@ class SystematicSensitivityResultTest {
     @Test
     void testUnrelatedBaseComponentFailure() {
         setUpWith12Nodes();
-        var isolatedVoltageLevel = network.getSubstation("BBE1AA").newVoltageLevel().setId("isolated-vl")
+        VoltageLevel isolatedVoltageLevel = network.getSubstation("BBE1AA").newVoltageLevel().setId("isolated-vl")
             .setNominalV(400).setTopologyKind(TopologyKind.BUS_BREAKER).add();
         isolatedVoltageLevel.getBusBreakerView().newBus().setId("isolated-bus").add();
-        var isolatedLoad = isolatedVoltageLevel.newLoad().setId("isolated-load").setBus("isolated-bus")
+        Load isolatedLoad = isolatedVoltageLevel.newLoad().setId("isolated-load").setBus("isolated-bus")
             .setConnectableBus("isolated-bus").setP0(1).setQ0(0).add();
-        var terminal = network.getBranch(nStateCnec.getNetworkElementId()).getTerminal1();
-        var bus = terminal.getBusView().getBus();
+        Terminal terminal = network.getBranch(nStateCnec.getNetworkElementId()).getTerminal1();
+        Bus bus = terminal.getBusView().getBus();
         int cc = bus.getConnectedComponent().getNum();
         int sc = bus.getSynchronousComponent().getNum();
-        var generator = network.getGeneratorStream().filter(g -> g.getTerminal().getBusView().getBus() != null)
+        Generator generator = network.getGeneratorStream().filter(g -> g.getTerminal().getBusView().getBus() != null)
             .filter(g -> g.getTerminal().getBusView().getBus().getConnectedComponent().getNum() == cc
                 && g.getTerminal().getBusView().getBus().getSynchronousComponent().getNum() == sc).findFirst().orElseThrow();
         SensitivityFactor factor = new SensitivityFactor(SensitivityFunctionType.BRANCH_ACTIVE_POWER_1, nStateCnec.getNetworkElementId(),
             SensitivityVariableType.INJECTION_ACTIVE_POWER, generator.getId(), false, ContingencyContext.none());
-        var converged = new SensitivityStateStatus.ComponentStatus(cc, sc, LoadFlowResult.ComponentResult.Status.CONVERGED, "");
-        var isolatedBus = isolatedLoad.getTerminal().getBusView().getBus();
-        var unrelatedFailure = new SensitivityStateStatus.ComponentStatus(isolatedBus.getConnectedComponent().getNum(),
+        SensitivityStateStatus.ComponentStatus converged = new SensitivityStateStatus.ComponentStatus(cc, sc, LoadFlowResult.ComponentResult.Status.CONVERGED, "");
+        Bus isolatedBus = isolatedLoad.getTerminal().getBusView().getBus();
+        SensitivityStateStatus.ComponentStatus unrelatedFailure = new SensitivityStateStatus.ComponentStatus(isolatedBus.getConnectedComponent().getNum(),
             isolatedBus.getSynchronousComponent().getNum(), LoadFlowResult.ComponentResult.Status.FAILED, "");
         SensitivityAnalysisResult input = new SensitivityAnalysisResult(List.of(factor),
             List.of(new SensitivityStateStatus(SensitivityState.PRE_CONTINGENCY, List.of(converged, unrelatedFailure))),
