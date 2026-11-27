@@ -153,7 +153,7 @@ public final class NcConstants {
     public static final String OVERRIDE_AVAILABLE = "available";
     public static final String KIND = "kind";
     public static final String COMBINATION_CONSTRAINT_KIND = "combinationConstraintKind";
-    public static final String SWITCH = "equivalentInjectionId";
+    public static final String SWITCH = "switchId";
     public static final String EQUIVALENT_INJECTION = "equivalentInjectionId";
     public static final String NORMAL_ENABLED = "normalEnabled";
     public static final String OVERRIDE_ENABLED = "enabled";

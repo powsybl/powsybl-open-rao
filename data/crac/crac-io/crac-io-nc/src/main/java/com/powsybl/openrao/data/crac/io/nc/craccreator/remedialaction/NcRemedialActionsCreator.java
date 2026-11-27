@@ -527,10 +527,9 @@ public class NcRemedialActionsCreator {
         Set<String> standaloneRasImplicatedIntoAGroup = new HashSet<>();
         Map<String, Set<RemedialActionDependency>> remedialActionDependenciesByGroup = elementaryActionsHelper.getNativeRemedialActionDependencyPerNativeRemedialActionGroup();
         // CountertradeRemedialActions only use RemedialActionGroups to retrieve their SSI limits, they are not merged into network actions
-        // TODO: remove use of groups for HVDC
         Set<String> countertradeRemedialActionIds = countertradeRemedialActions.stream().map(CountertradeRemedialAction::mrid).collect(Collectors.toSet());
         for (RemedialActionGroup remedialActionGroup : elementaryActionsHelper.getRemedialActionGroupsPropertyBags()) {
-            if (groupPerEquivalentHvdcInjection.containsKey(remedialActionGroup.mrid())) {
+            if (!groupPerEquivalentHvdcInjection.containsValue(remedialActionGroup.mrid())) {
                 String groupName = remedialActionGroup.name() == null ? remedialActionGroup.mrid() : remedialActionGroup.name();
                 try {
                     Set<RemedialActionDependency> dependingEnabledRemedialActions = remedialActionDependenciesByGroup
