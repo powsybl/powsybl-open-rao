@@ -97,8 +97,8 @@ class CastorFullOptimization {
             }
 
             context.setStateTree(new StateTree(crac, optimizationReportNode));
-            context.setPreSolveEnabled(isPreSolveUsable());
-            if (context.isPreSolveEnabled()) {
+            if (isPreSolveUsable()) {
+                context.setPreSolveEnabled(true);
                 buildPreSolveToolProvider(context);
             }
 
