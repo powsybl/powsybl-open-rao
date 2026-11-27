@@ -314,7 +314,7 @@ loop-flows, ...).
     [predefined combination](#predefined-combinations). It is evaluated first, and the AC search-tree is otherwise
     unchanged.
   - **FORCED**: the combination is the only one tested at the first search depth. The following depths are explored
-    as usual, starting from the best of the root leaf and this combination.
+    as usual, starting from this combination.
 
   Applies to the preventive RAO and to the second preventive RAO.  
   This parameter has no effect if [max-preventive-search-tree-depth](#max-preventive-search-tree-depth-1) is 0.

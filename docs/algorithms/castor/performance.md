@@ -158,14 +158,14 @@ When the DC pre-solve is enabled for an instant, each perimeter of this instant 
      [predefined combination](../../parameters/implementation-specific-parameters.md#predefined-combinations), and is
      evaluated first. If it satisfies the stop criterion in AC, the search can stop early.
    - **FORCED**: the DC solution is the only combination tested at the first depth. The next depths are explored as
-     usual, starting from the best of the root leaf and the DC solution. This is faster, since the first depth only
+     usual, starting from the DC solution. This is faster, since the first depth only
      contains one leaf, but other combinations of the first depth are never tested.
 
 The root leaf always remains a candidate: if the DC solution is worse than the initial situation in AC, or if its load
 flow does not converge, it is discarded. If the DC solution contains no network action, the AC search-tree runs as
 without DC pre-solve.
 
-The table below shows how to configure the main behaviours, for preventive and curative instants independently:
+The table below shows how to configure the main behaviors, for preventive and curative instants independently:
 
 | Behaviour                                      | DC depth | DC solution usage | AC depth |
 |------------------------------------------------|----------|-------------------|----------|
