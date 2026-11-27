@@ -275,11 +275,13 @@ class SystematicSensitivityAdapterTest {
             LocalComputationManager.getDefault()
         );
         assertEquals(SystematicSensitivityResult.SensitivityComputationStatus.PARTIAL_FAILURE, result.getStatus());
+        // A curative exception must not discard the previously computed preventive and outage results.
         assertEquals(SystematicSensitivityResult.SensitivityComputationStatus.SUCCESS, result.getStatus(crac.getPreventiveState()));
         assertEquals(SystematicSensitivityResult.SensitivityComputationStatus.SUCCESS, result.getStatus(crac.getState("Contingency FR1 FR3", crac.getOutageInstant())));
         assertEquals(SystematicSensitivityResult.SensitivityComputationStatus.FAILURE, result.getStatus(crac.getState("Contingency FR1 FR3", curativeInstant)));
         assertEquals(10, result.getReferenceFlow(crac.getFlowCnec("cnec2basecase"), ONE), DOUBLE_TOLERANCE);
         assertEquals(-20, result.getReferenceFlow(crac.getFlowCnec("cnec2stateOutageContingency1"), ONE), DOUBLE_TOLERANCE);
+        // No curative value was stored; the getter returns zero by default, not a computed zero flow.
         assertEquals(0, result.getReferenceFlow(crac.getFlowCnec("cnec2stateCurativeContingency1"), ONE), DOUBLE_TOLERANCE);
     }
 }
