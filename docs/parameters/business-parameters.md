@@ -78,7 +78,7 @@ These parameters (`range-actions-optimization`) tune the [linear optimizer](../a
 #### counter-trade-ra-min-impact-threshold
 - **Expected value**: numeric value, unit: unit of the objective function / MW
 - **Default value**: 0.001
-- **Usage**: the `counter-trade-ra-min-impact-threshold` represents the cost of changing the set-point on an injection, it is used within the linear
+- **Usage**: the `counter-trade-ra-min-impact-threshold` represents the cost of changing the set-point on a counter-trading action, it is used within the linear
   optimization problem of the RAO, in the same way as the other types of RangeAction above.
 
 ### Network actions optimization parameters

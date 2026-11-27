@@ -59,7 +59,7 @@ $$
 
 with $s$ the state on $c$ which is evaluated.
 
-#### Counter-trade range actions
+### Counter-trade range actions
 
 Unlike other linear range actions such as injection range actions, the sensitivity coefficient of a counter trading remedial
 action depends on the variables $X_k$ and on the saturation of generators: the sensitivity value of a cnec on a

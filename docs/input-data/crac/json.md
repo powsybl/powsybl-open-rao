@@ -1391,14 +1391,14 @@ border with optional ranges of admissible power flows.
 If border ranges are provided, the optimizer would consider them, otherwise it won't. The optimizer would try to find a solution which won't violate the
 exchange limits we have defined on a particular border.
 
-It is a costly remedial action which is currently handled by the RAO for the preventive perimeter.
+It is a costly remedial action which is currently handled by the RAO, **only for the preventive perimeter**.
 
 The set-point of the counter-trade range action is the value of the counter-trade exchanges.  
 The initial value of the counter-trade action is supposed to be 0 at the beginning of the optimization.
 Nevertheless, a different value can be chosen when the crac is created.
 Instead, the net position of the area is the sum of its exchanges through
 all its borders (positive when the area exports), and its initial set-point.
-When the initial set point of a counter-trade action is 0, the variation of set point will always be considered
+When the initial set-point of a counter-trade action is 0, the variation of set-point will always be considered
 as relative to the initial net position of the area.
 For instance, if France exports 100 MW to Spain in the base
 case and the counter-trade increases this exchange by 100 MW, the initial net position of France is +100 MW
