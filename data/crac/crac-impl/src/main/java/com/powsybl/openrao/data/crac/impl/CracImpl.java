@@ -67,7 +67,9 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
     private final Map<String, Instant> instants = new HashMap<>();
     private final Map<String, State> states = new HashMap<>();
     private final Map<String, FlowCnec> flowCnecs = new HashMap<>();
-    private Map<State, Set<FlowCnec>> flowCnecsPerState; // Per-state index, built lazily; MUST be reset to null whenever flowCnecs is mutated (addFlowCnec / removeFlowCnecs). Beware that this makes CracImpl thread-unsafe (reading it on one thread and editing on another is dangerous).
+    // Per-state index, built lazily; MUST be reset to null whenever flowCnecs is mutated (addFlowCnec / removeFlowCnecs).
+    // Beware that this makes CracImpl thread-unsafe (reading it on one thread and editing on another is dangerous).
+    private Map<State, Set<FlowCnec>> flowCnecsPerState;
     private final Map<String, AngleCnec> angleCnecs = new HashMap<>();
     private final Map<String, VoltageCnec> voltageCnecs = new HashMap<>();
     private final Map<String, PstRangeAction> pstRangeActions = new HashMap<>();
