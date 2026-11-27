@@ -45,6 +45,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -1328,5 +1329,40 @@ class CracImplTest {
         crac = new CracImpl("test-crac")
             .newInstant(PREVENTIVE_INSTANT_ID, InstantKind.PREVENTIVE);
         assertNotNull(crac.getPreventiveState());
+    }
+
+    @Test
+    void getFlowCnecsOfStateFollowsAdditionsAndRemovals() {
+        crac.newContingency().withId("co").withContingencyElement("co-ne", ContingencyElementType.LINE).add();
+        addCurativeFlowCnec("cnec-1", "ne-1");
+        State curativeState = crac.getState("co", curativeInstant);
+        // first call builds the per-state index
+        assertEquals(Set.of("cnec-1"), flowCnecIds(crac.getFlowCnecs(curativeState)));
+
+        addCurativeFlowCnec("cnec-2", "ne-2");
+        assertEquals(Set.of("cnec-1", "cnec-2"), flowCnecIds(crac.getFlowCnecs(curativeState)));
+
+        crac.removeFlowCnec("cnec-1");
+        assertEquals(Set.of("cnec-2"), flowCnecIds(crac.getFlowCnecs(curativeState)));
+        assertTrue(crac.getFlowCnecs(crac.getPreventiveState()).isEmpty());
+
+        // the returned set is a copy
+        crac.getFlowCnecs(curativeState).clear();
+        assertEquals(Set.of("cnec-2"), flowCnecIds(crac.getFlowCnecs(curativeState)));
+    }
+
+    private void addCurativeFlowCnec(String id, String networkElementId) {
+        crac.newFlowCnec()
+            .withId(id)
+            .withNetworkElement(networkElementId)
+            .withOperator("operator")
+            .withInstant(CURATIVE_INSTANT_ID)
+            .withContingency("co")
+            .newThreshold().withMin(-1000.).withUnit(Unit.MEGAWATT).withSide(TwoSides.ONE).add()
+            .add();
+    }
+
+    private static Set<String> flowCnecIds(Set<FlowCnec> flowCnecs) {
+        return flowCnecs.stream().map(FlowCnec::getId).collect(Collectors.toSet());
     }
 }

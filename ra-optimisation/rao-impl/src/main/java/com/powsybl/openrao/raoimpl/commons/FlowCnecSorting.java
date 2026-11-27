@@ -14,7 +14,9 @@ import com.powsybl.openrao.raoimpl.commons.marginevaluator.MarginEvaluator;
 import com.powsybl.openrao.raoimpl.result.api.FlowResult;
 
 import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -26,17 +28,23 @@ public final class FlowCnecSorting {
     }
 
     public static List<FlowCnec> sortByMargin(Set<FlowCnec> flowCnecs, Unit unit, MarginEvaluator marginEvaluator, FlowResult flowResult) {
-        return flowCnecs.stream()
-            .filter(Cnec::isOptimized)
-            .sorted(Comparator.comparingDouble(flowCnec -> marginEvaluator.getMargin(flowResult, flowCnec, unit)))
+        Map<FlowCnec, Double> margins = new LinkedHashMap<>();
+        flowCnecs.stream().filter(Cnec::isOptimized).forEach(flowCnec -> margins.put(flowCnec, marginEvaluator.getMargin(flowResult, flowCnec, unit)));
+        return margins.keySet().stream()
+            .sorted(Comparator.comparingDouble(margins::get))
             .toList();
     }
 
     public static List<FlowCnec> sortByNegativeMargin(Set<FlowCnec> flowCnecs, Unit unit, MarginEvaluator marginEvaluator, FlowResult flowResult) {
-        return flowCnecs.stream()
-            .filter(Cnec::isOptimized)
-            .filter(flowCnec -> marginEvaluator.getMargin(flowResult, flowCnec, unit) < 0)
-            .sorted(Comparator.comparingDouble(flowCnec -> marginEvaluator.getMargin(flowResult, flowCnec, unit)))
+        Map<FlowCnec, Double> margins = new LinkedHashMap<>();
+        flowCnecs.stream().filter(Cnec::isOptimized).forEach(flowCnec -> {
+            double margin = marginEvaluator.getMargin(flowResult, flowCnec, unit);
+            if (margin < 0) {
+                margins.put(flowCnec, margin);
+            }
+        });
+        return margins.keySet().stream()
+            .sorted(Comparator.comparingDouble(margins::get))
             .toList();
     }
 }
