@@ -8,6 +8,7 @@
 package com.powsybl.openrao.data.crac.io.nc.craccreator.remedialaction;
 
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.range.RangeType;
 import com.powsybl.openrao.data.crac.api.range.TapRangeAdder;
@@ -33,12 +34,10 @@ import java.util.Set;
 public class PstRangeActionCreator {
     private final Crac crac;
     private final Network network;
-    private final Map<String, String> pstPerTapChanger;
 
-    public PstRangeActionCreator(Crac crac, Network network, Map<String, String> pstPerTapChanger) {
+    public PstRangeActionCreator(Crac crac, Network network) {
         this.crac = crac;
         this.network = network;
-        this.pstPerTapChanger = pstPerTapChanger;
     }
 
     public PstRangeActionAdder getPstRangeActionAdder(boolean isGroup,
@@ -78,18 +77,9 @@ public class PstRangeActionCreator {
             );
         }
         NcCracUtils.checkPropertyReference(remedialActionId, "TapPositionAction", PropertyReference.TAP_CHANGER, nativeTapPositionAction.propertyReference());
-        if (!pstPerTapChanger.containsKey(nativeTapPositionAction.tapChangerId())) {
-            throw new OpenRaoImportException(
-                ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK,
-                String.format(
-                    "Remedial action %s will not be imported because no PowerTransformer was found in the network for TapChanger %s",
-                    remedialActionId,
-                    nativeTapPositionAction.tapChangerId()
-                )
-            );
-        }
-        String pstId = pstPerTapChanger.get(nativeTapPositionAction.tapChangerId());
+        String pstId = nativeTapPositionAction.tapChangerId();
         IidmPstHelper iidmPstHelper = new IidmPstHelper(pstId, network);
+        TwoWindingsTransformer pst = network.getTwoWindingsTransformer(pstId);
         if (!iidmPstHelper.isValid()) {
             throw new OpenRaoImportException(
                 ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK,
@@ -101,7 +91,7 @@ public class PstRangeActionCreator {
             pstRangeActionAdder.withGroupId(elementaryActionsAggregatorId);
         }
         pstRangeActionAdder
-            .withNetworkElement(pstId)
+            .withNetworkElement(pst.getId())
             .withInitialTap(iidmPstHelper.getInitialTap())
             .withTapToAngleConversionMap(iidmPstHelper.getTapToAngleConversionMap());
 

@@ -349,10 +349,6 @@ public class NcCrac {
             .convert(getPropertyBags(NcKeyword.REMEDIAL_ACTION, OverridingObjectsFields.SCHEME_REMEDIAL_ACTION_DEPENDENCY, NcConstants.REQUEST_REMEDIAL_ACTION_DEPENDENCY));
     }
 
-    public Set<TapChanger> getTapChangers() {
-        return new NcPropertyBagsConverter<>(TapChanger::fromPropertyBag).convert(getPropertyBags(NcKeyword.CGMES, NcConstants.REQUEST_TAP_CHANGER));
-    }
-
     private void setOverridingData(OffsetDateTime importTimestamp) {
         overridingData = new HashMap<>();
         for (OverridingObjectsFields overridingObject : OverridingObjectsFields.values()) {

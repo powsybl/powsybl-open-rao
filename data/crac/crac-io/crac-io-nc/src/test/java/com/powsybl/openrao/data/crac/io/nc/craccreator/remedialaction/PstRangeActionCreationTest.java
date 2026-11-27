@@ -112,7 +112,7 @@ class PstRangeActionCreationTest {
             "remedial-action-5",
             ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK,
             "Remedial action remedial-action-5 will not be imported because " +
-                "no PowerTransformer was found in the network for TapChanger unknown-tap-changer"
+                "transformer with id unknown-tap-changer was not found in network"
         );
         NcCracCreationTestUtil.assertRaNotImported(
             cracCreationContext,

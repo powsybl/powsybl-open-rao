@@ -66,10 +66,7 @@ public class NcRemedialActionsCreator {
         this.elementaryActionsHelper = new ElementaryActionsHelper(nativeCrac);
         this.networkActionCreator = new NetworkActionCreator(this.crac, network);
 
-        Map<String, String> pstPerTapChanger = new NcAggregator<>(TapChanger::powerTransformer).aggregate(nativeCrac.getTapChangers()).entrySet().stream()
-                .collect(Collectors.toMap(entry -> entry.getValue().iterator().next().mrid(), Map.Entry::getKey));
-
-        this.pstRangeActionCreator = new PstRangeActionCreator(this.crac, network, pstPerTapChanger);
+        this.pstRangeActionCreator = new PstRangeActionCreator(this.crac, network);
 
         this.linkedAeWithRa = new NcAggregator<>(AssessedElementWithRemedialAction::remedialAction)
                 .aggregate(nativeCrac.getAssessedElementWithRemedialActions());
