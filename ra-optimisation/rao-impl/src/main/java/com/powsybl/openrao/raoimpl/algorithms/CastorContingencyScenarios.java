@@ -31,16 +31,37 @@ import com.powsybl.openrao.raoimpl.commons.parameters.TreeParameters;
 import com.powsybl.openrao.raoimpl.commons.parameters.UnoptimizedCnecParameters;
 import com.powsybl.openrao.raoimpl.networkpool.AbstractNetworkPool;
 import com.powsybl.openrao.raoimpl.reports.CastorReports;
-import com.powsybl.openrao.raoimpl.result.api.*;
-import com.powsybl.openrao.raoimpl.result.impl.*;
+import com.powsybl.openrao.raoimpl.result.api.NetworkActionsResult;
+import com.powsybl.openrao.raoimpl.result.api.ObjectiveFunctionResult;
+import com.powsybl.openrao.raoimpl.result.api.OptimizationResult;
+import com.powsybl.openrao.raoimpl.result.api.PrePerimeterResult;
+import com.powsybl.openrao.raoimpl.result.api.RangeActionActivationResult;
+import com.powsybl.openrao.raoimpl.result.api.RangeActionSetpointResult;
+import com.powsybl.openrao.raoimpl.result.api.RemedialActionActivationResult;
+import com.powsybl.openrao.raoimpl.result.impl.AutomatonPerimeterResultImpl;
+import com.powsybl.openrao.raoimpl.result.impl.NetworkActionsResultImpl;
+import com.powsybl.openrao.raoimpl.result.impl.OptimizationResultImpl;
+import com.powsybl.openrao.raoimpl.result.impl.PostPerimeterResult;
+import com.powsybl.openrao.raoimpl.result.impl.PrePerimeterSensitivityResultImpl;
+import com.powsybl.openrao.raoimpl.result.impl.RangeActionActivationResultImpl;
+import com.powsybl.openrao.raoimpl.result.impl.RangeActionSetpointResultImpl;
+import com.powsybl.openrao.raoimpl.result.impl.RemedialActionActivationResultImpl;
+import com.powsybl.openrao.raoimpl.result.impl.SkippedOptimizationResultImpl;
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
-import java.util.*;
+
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ForkJoinTask;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
+
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
 import static com.powsybl.openrao.data.raoresult.api.ComputationStatus.DEFAULT;
 import static com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters.getSensitivityFailureOvercost;
@@ -256,7 +277,7 @@ public class CastorContingencyScenarios {
     }
 
     private PostPerimeterResult generateSkippedPostPerimeterResult(State state, double sensitivityFailureOvercost) {
-        OptimizationResult skippedOptimizationResult = new SkippedOptimizationResultImpl(state, new HashSet<>(), new HashSet<>(), ComputationStatus.FAILURE, sensitivityFailureOvercost);
+        OptimizationResult skippedOptimizationResult = new SkippedOptimizationResultImpl(state, sensitivityFailureOvercost);
         PrePerimeterResult prePerimeterResult = new PrePerimeterSensitivityResultImpl(skippedOptimizationResult, skippedOptimizationResult, null, skippedOptimizationResult);
         return new PostPerimeterResult(skippedOptimizationResult, prePerimeterResult);
     }
