@@ -203,8 +203,8 @@ class CastorReportsTest {
 
         CastorReports.reportDcPreSolveCombinationRetained(reportNode, true);
 
-        final List<ReportNode> traceReports = ReportsTestUtils.getReportsWithSeverity(reportNode, TypedValue.TRACE_SEVERITY);
-        assertEquals("DC pre-solve combination retained in the AC search result: true", traceReports.getFirst().getMessage());
+        final List<ReportNode> infoReports = ReportsTestUtils.getReportsWithSeverity(reportNode, TypedValue.INFO_SEVERITY);
+        assertEquals("DC pre-solve combination retained in the AC search result: true", infoReports.getFirst().getMessage());
         assertEquals("[INFO] DC pre-solve combination retained in the AC search result: true", technicalLogs.getFirst().toString());
     }
 
@@ -214,8 +214,8 @@ class CastorReportsTest {
 
         CastorReports.reportDcPreSolveCombinationRetained(reportNode, false);
 
-        final List<ReportNode> traceReports = ReportsTestUtils.getReportsWithSeverity(reportNode, TypedValue.TRACE_SEVERITY);
-        assertEquals("DC pre-solve combination retained in the AC search result: false", traceReports.getFirst().getMessage());
+        final List<ReportNode> infoReports = ReportsTestUtils.getReportsWithSeverity(reportNode, TypedValue.INFO_SEVERITY);
+        assertEquals("DC pre-solve combination retained in the AC search result: false", infoReports.getFirst().getMessage());
         assertEquals("[INFO] DC pre-solve combination retained in the AC search result: false", technicalLogs.getFirst().toString());
     }
 }
