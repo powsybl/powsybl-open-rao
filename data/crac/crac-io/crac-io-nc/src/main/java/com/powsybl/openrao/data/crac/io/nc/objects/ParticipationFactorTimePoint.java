@@ -16,12 +16,13 @@ import java.time.format.DateTimeFormatter;
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public record ParticipationFactorTimePoint(String powerShiftKeySchedule, OffsetDateTime atTime,
-                                           Double participationFactor) {
+public record ParticipationFactorTimePoint(String mrid, String powerShiftKeySchedule, OffsetDateTime atTime,
+                                           Double participationFactor) implements NCObject {
     public static ParticipationFactorTimePoint fromPropertyBag(PropertyBag propertyBag) {
         String atTime = propertyBag.get(NcConstants.AT_TIME);
         String participationFactor = propertyBag.get(NcConstants.PARTICIPATION_FACTOR);
         return new ParticipationFactorTimePoint(
+            propertyBag.getId(NcConstants.PARTICIPATION_FACTOR_TIME_POINT),
             propertyBag.getId(NcConstants.POWER_SHIFT_KEY_SCHEDULE),
             atTime == null ? null : OffsetDateTime.parse(atTime, DateTimeFormatter.ISO_DATE_TIME),
             participationFactor == null ? null : Double.parseDouble(participationFactor)
