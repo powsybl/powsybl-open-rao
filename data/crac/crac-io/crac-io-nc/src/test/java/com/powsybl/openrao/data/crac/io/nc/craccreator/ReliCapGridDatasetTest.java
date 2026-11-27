@@ -12,10 +12,12 @@ import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.crac.api.parameters.CracCreationParameters;
+import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeAction;
 import com.powsybl.openrao.data.crac.io.nc.parameters.NcCracCreationParameters;
 import org.junit.jupiter.api.Test;
 
 import java.time.OffsetDateTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
@@ -60,6 +62,9 @@ public class ReliCapGridDatasetTest {
         assertEquals(12, crac.getPstRangeActions().size()); // as expected
         // TODO: implement and check -> assertEquals(32, crac.getInjectionRangeActions().size());
         // TODO: allow curative CT + FIXME why 0? -> assertEquals(8, crac.getCounterTradeRangeActions().size());
+
+        List<InjectionRangeAction> equivalentHvdcRangeActions = crac.getInjectionRangeActions().stream().sorted(Comparator.comparing(InjectionRangeAction::getId)).toList();
+        assertEquals(2, equivalentHvdcRangeActions.size());
     }
 
     private static void assertInstant(Instant instant, InstantKind expectedInstantKind, String expectedId) {

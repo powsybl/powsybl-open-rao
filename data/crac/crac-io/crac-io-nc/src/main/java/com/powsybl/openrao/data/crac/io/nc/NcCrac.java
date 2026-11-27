@@ -328,6 +328,11 @@ public class NcCrac {
             .convert(getPropertyBags(NcKeyword.REMEDIAL_ACTION, OverridingObjectsFields.TAP_POSITION_ACTION, NcConstants.TAP_POSITION_ACTION));
     }
 
+    public Set<EquivalentInjectionAction> getEquivalentInjectionActions() {
+        return new NcPropertyBagsConverter<>(EquivalentInjectionAction::fromPropertyBag)
+            .convert(getPropertyBags(NcKeyword.REMEDIAL_ACTION, OverridingObjectsFields.EQUIVALENT_INJECTION_ACTION, NcConstants.EQUIVALENT_INJECTION_ACTION));
+    }
+
     public Set<StaticPropertyRange> getStaticPropertyRanges() {
         return new NcPropertyBagsConverter<>(StaticPropertyRange::fromPropertyBag)
             .convert(getPropertyBags(NcKeyword.REMEDIAL_ACTION, OverridingObjectsFields.STATIC_PROPERTY_RANGE, NcConstants.STATIC_PROPERTY_RANGE));

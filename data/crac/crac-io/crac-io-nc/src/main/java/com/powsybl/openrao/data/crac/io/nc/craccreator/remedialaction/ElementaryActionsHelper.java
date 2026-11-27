@@ -10,6 +10,7 @@ package com.powsybl.openrao.data.crac.io.nc.craccreator.remedialaction;
 import com.powsybl.openrao.data.crac.io.nc.NcCrac;
 import com.powsybl.openrao.data.crac.io.nc.craccreator.NcAggregator;
 import com.powsybl.openrao.data.crac.io.nc.objects.ContingencyWithRemedialAction;
+import com.powsybl.openrao.data.crac.io.nc.objects.EquivalentInjectionAction;
 import com.powsybl.openrao.data.crac.io.nc.objects.RemedialActionDependency;
 import com.powsybl.openrao.data.crac.io.nc.objects.RemedialActionGroup;
 import com.powsybl.openrao.data.crac.io.nc.objects.RotatingMachineAction;
@@ -31,6 +32,7 @@ public class ElementaryActionsHelper {
     private final Map<String, Set<RotatingMachineAction>> nativeRotatingMachineActionsPerNativeRemedialAction;
     private final Map<String, Set<ShuntCompensatorModification>> nativeShuntCompensatorModificationsPerNativeRemedialAction;
     private final Map<String, Set<TapPositionAction>> nativeTapPositionActionsPerNativeRemedialAction;
+    private final Map<String, Set<EquivalentInjectionAction>> nativeEquivalentInjectionActionPerNativeRemedialAction;
     private final Map<String, Set<StaticPropertyRange>> nativeStaticPropertyRangesPerNativeGridStateAlteration;
     final Map<String, Set<ContingencyWithRemedialAction>> nativeContingencyWithRemedialActionPerNativeRemedialAction;
 
@@ -53,6 +55,8 @@ public class ElementaryActionsHelper {
             .aggregate(nativeCrac.getShuntCompensatorModifications());
         this.nativeTapPositionActionsPerNativeRemedialAction = new NcAggregator<>(TapPositionAction::gridStateAlterationRemedialAction)
             .aggregate(nativeCrac.getTapPositionActions());
+        this.nativeEquivalentInjectionActionPerNativeRemedialAction = new NcAggregator<>(EquivalentInjectionAction::gridStateAlterationRemedialAction)
+            .aggregate(nativeCrac.getEquivalentInjectionActions());
     }
 
     public Map<String, Set<RemedialActionDependency>> getNativeRemedialActionDependencyPerNativeRemedialActionGroup() {
@@ -81,5 +85,9 @@ public class ElementaryActionsHelper {
 
     public Map<String, Set<TapPositionAction>> getTapPositionActions() {
         return nativeTapPositionActionsPerNativeRemedialAction;
+    }
+
+    public Map<String, Set<EquivalentInjectionAction>> getEquivalentInjectionActions() {
+        return nativeEquivalentInjectionActionPerNativeRemedialAction;
     }
 }

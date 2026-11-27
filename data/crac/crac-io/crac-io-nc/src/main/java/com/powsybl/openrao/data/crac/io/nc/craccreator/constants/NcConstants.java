@@ -144,6 +144,7 @@ public final class NcConstants {
     public static final String TOPOLOGY_ACTION = "topologyAction";
     public static final String ROTATING_MACHINE_ACTION = "rotatingMachineAction";
     public static final String TAP_POSITION_ACTION = "tapPositionAction";
+    public static final String EQUIVALENT_INJECTION_ACTION = "equivalentInjectionAction";
     public static final String STATIC_PROPERTY_RANGE = "staticPropertyRange";
     public static final String REQUEST_CONTINGENCY_WITH_REMEDIAL_ACTION = "contingencyWithRemedialAction";
     public static final String TIME_TO_IMPLEMENT = "timeToImplement";
@@ -152,7 +153,8 @@ public final class NcConstants {
     public static final String OVERRIDE_AVAILABLE = "available";
     public static final String KIND = "kind";
     public static final String COMBINATION_CONSTRAINT_KIND = "combinationConstraintKind";
-    public static final String SWITCH = "switchId";
+    public static final String SWITCH = "equivalentInjectionId";
+    public static final String EQUIVALENT_INJECTION = "equivalentInjectionId";
     public static final String NORMAL_ENABLED = "normalEnabled";
     public static final String OVERRIDE_ENABLED = "enabled";
     public static final String GRID_ALTERATION_PROPERTY_REFERENCE = "propertyReference";

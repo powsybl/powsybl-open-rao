@@ -133,6 +133,6 @@ public final class NcCracUtils {
     }
 
     public static String safeGetOperator(String url) {
-        return getTsoNameFromUrl(url).orElse(getEicFromUrl(url));
+        return url == null ? null : getTsoNameFromUrl(url).orElse(getEicFromUrl(url));
     }
 }
