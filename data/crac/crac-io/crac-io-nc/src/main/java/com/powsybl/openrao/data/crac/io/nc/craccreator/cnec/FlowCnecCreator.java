@@ -224,7 +224,6 @@ public class FlowCnecCreator extends AbstractCnecCreator {
         cnecAdder.withNetworkElement(networkElement.getId());
         setNominalVoltage(cnecAdder, networkElement);
         FlowCnec flowCnec = cnecAdder.add();
-        OpenRaoLoggerProvider.BUSINESS_LOGS.info(">>> FlowCnec {} successfully imported", flowCnec.getId());
     }
 
     private void addAllFlowCnecsFromBranchAndOperationalLimits(Branch<?> networkElement, Map<Integer, Map<TwoSides, Double>> thresholds, boolean useMaxAndMinThresholds) {
