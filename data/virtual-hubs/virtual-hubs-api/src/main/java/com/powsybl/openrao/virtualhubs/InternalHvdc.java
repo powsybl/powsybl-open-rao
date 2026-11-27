@@ -13,10 +13,25 @@ import java.util.Objects;
 /**
  * @author Vincent Bochet {@literal <vincent.bochet at rte-france.com>}
  */
-public record InternalHvdc(String eic, String code, List<HvdcPole> poles) {
-    public InternalHvdc(final String eic, final String code, final List<HvdcPole> poles) {
-        this.code = Objects.requireNonNull(code);
-        this.eic = Objects.requireNonNull(eic);
-        this.poles = Objects.requireNonNull(poles);
+public record InternalHvdc(String eic,
+                           String code,
+                           List<HvdcPole> poles,
+                           MarketArea relatedMa,
+                           boolean isMthvdc,
+                           boolean isBipolar) {
+    public InternalHvdc(final String eic,
+                        final String code,
+                        final List<HvdcPole> poles,
+                        final MarketArea relatedMa,
+                        final boolean isMthvdc,
+                        final boolean isBipolar) {
+        this.code = Objects.requireNonNull(code, "InternalHvdc creation does not allow null attribute 'code'");
+        this.eic = Objects.requireNonNull(eic, "InternalHvdc creation does not allow null attribute 'eic'");
+        this.poles = Objects.requireNonNull(poles, "InternalHvdc creation does not allow null attribute 'poles'");
+        this.relatedMa = relatedMa;
+        // TODO Make it mandatory after fixing JsonFbConstraintCracCreationParameters
+        // this.relatedMa = Objects.requireNonNull(relatedMa, "InternalHvdc creation does not allow null attribute 'relatedMa'");
+        this.isMthvdc = isMthvdc;
+        this.isBipolar = isBipolar;
     }
 }

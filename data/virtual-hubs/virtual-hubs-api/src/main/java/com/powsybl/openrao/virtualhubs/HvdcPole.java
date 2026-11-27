@@ -10,14 +10,11 @@ package com.powsybl.openrao.virtualhubs;
 import java.util.List;
 import java.util.Objects;
 
-public record HvdcPole(String id, List<HvdcConverter> converters, List<HvdcLine> lines) {
-    public HvdcPole(final String id, final List<HvdcConverter> converters, final List<HvdcLine> lines) {
-        this.id = Objects.requireNonNull(id);
-        this.converters = Objects.requireNonNull(
-            converters, "Virtual hubs configuration does not allow adding null hvdc converters"
-        );
-        this.lines = Objects.requireNonNull(
-            lines, "Virtual hubs configuration does not allow adding null hvdc lines"
-        );
+public record HvdcPole(String id, String eic, List<HvdcConverter> converters, List<HvdcLine> lines) {
+    public HvdcPole(final String id, final String eic, final List<HvdcConverter> converters, final List<HvdcLine> lines) {
+        this.id = Objects.requireNonNull(id, "HvdcPole configuration does not allow adding null attribute 'id'");
+        this.eic = Objects.requireNonNull(eic, "HvdcPole configuration does not allow adding null attribute 'eic'");
+        this.converters = Objects.requireNonNull(converters, "HvdcPole configuration does not allow adding null attribute 'converters'");
+        this.lines = Objects.requireNonNull(lines, "HvdcPole configuration does not allow adding null attribute 'lines'");
     }
 }

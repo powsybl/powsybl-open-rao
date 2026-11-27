@@ -19,6 +19,7 @@
 		<module>virtual-hubs-json</module>
 		<module>virtual-hubs-network-assigner</module>
 		<module>virtual-hubs-network-extension</module>
+		<module>virtual-hubs-tests</module>
 		<module>virtual-hubs-xml</module>
 	</modules>
 

@@ -17,10 +17,25 @@ import java.util.Objects;
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
 public class VirtualHubsConfiguration {
+    private Region region = null;
+    private final List<SynchronousArea> synchronousAreas = new ArrayList<>();
+    private final List<ControlArea> controlAreas = new ArrayList<>();
     private final List<MarketArea> marketAreas = new ArrayList<>();
     private final List<VirtualHub> virtualHubs = new ArrayList<>();
     private final List<BorderDirection> borderDirections = new ArrayList<>();
     private final List<InternalHvdc> internalHvdcs = new ArrayList<>();
+
+    public void setRegion(final Region region) {
+        this.region = region;
+    }
+
+    public void addSynchronousArea(SynchronousArea synchronousArea) {
+        synchronousAreas.add(Objects.requireNonNull(synchronousArea, "Virtual hubs configuration does not allow adding null synchronous area"));
+    }
+
+    public void addControlArea(ControlArea controlArea) {
+        controlAreas.add(Objects.requireNonNull(controlArea, "Virtual hubs configuration does not allow adding null control area"));
+    }
 
     public void addMarketArea(MarketArea marketArea) {
         marketAreas.add(Objects.requireNonNull(marketArea, "Virtual hubs configuration does not allow adding null market area"));
@@ -36,6 +51,18 @@ public class VirtualHubsConfiguration {
 
     public void addInternalHvdc(InternalHvdc internalHvdc) {
         internalHvdcs.add(Objects.requireNonNull(internalHvdc, "Virtual hubs configuration does not allow adding null internal hvdc"));
+    }
+
+    public Region getRegion() {
+        return region;
+    }
+
+    public List<SynchronousArea> getSynchronousAreas() {
+        return synchronousAreas;
+    }
+
+    public List<ControlArea> getControlAreas() {
+        return controlAreas;
     }
 
     public List<MarketArea> getMarketAreas() {

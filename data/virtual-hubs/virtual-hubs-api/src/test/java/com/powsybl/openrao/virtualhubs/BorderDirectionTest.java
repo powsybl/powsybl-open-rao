@@ -16,23 +16,24 @@ import org.junit.jupiter.api.Test;
 class BorderDirectionTest {
     @Test
     void checkThatBorderDirectionIsCorrectlyCreated() {
-        final BorderDirection borderDirection = new BorderDirection("Paris", "Berlin", true);
+        final BorderDirection borderDirection = new BorderDirection("Paris", "Berlin", true, true);
         Assertions.assertThat(borderDirection.from()).isEqualTo("Paris");
         Assertions.assertThat(borderDirection.to()).isEqualTo("Berlin");
         Assertions.assertThat(borderDirection.isAhc()).isTrue();
+        Assertions.assertThat(borderDirection.isSdac()).isTrue();
     }
 
     @Test
     void checkThatBorderDirectionCreationThrowsWhenFromIsNull() {
         Assertions.assertThatExceptionOfType(NullPointerException.class)
-            .isThrownBy(() -> new BorderDirection(null, "To", false))
+            .isThrownBy(() -> new BorderDirection(null, "To", false, false))
             .withMessage("BorderDirection creation does not allow null attribute 'from'");
     }
 
     @Test
     void checkThatBorderDirectionCreationThrowsWhenToIsNull() {
         Assertions.assertThatExceptionOfType(NullPointerException.class)
-            .isThrownBy(() -> new BorderDirection("From", null, false))
+            .isThrownBy(() -> new BorderDirection("From", null, false, false))
             .withMessage("BorderDirection creation does not allow null attribute 'to'");
     }
 }

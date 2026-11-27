@@ -123,6 +123,7 @@ public class JsonFbConstraintCracCreationParameters implements JsonCracCreationP
         for (final HvdcPole pole : poles) {
             jsonGenerator.writeStartObject();
             jsonGenerator.writeStringField("id", pole.id());
+            jsonGenerator.writeStringField("eic", pole.eic());
             jsonGenerator.writeObjectField("converters", pole.converters());
             jsonGenerator.writeObjectField("lines", pole.lines());
             jsonGenerator.writeEndObject();
