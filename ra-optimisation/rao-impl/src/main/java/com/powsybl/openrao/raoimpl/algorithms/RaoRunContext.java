@@ -32,8 +32,7 @@ final class RaoRunContext {
     private final SearchTreeRunContext mainSolve;
     @Nullable
     private SearchTreeRunContext presolve;
-    @Nullable
-    private Boolean preSolveEnabled;
+    private boolean preSolveEnabled = false;
     @Nullable
     private StateTree stateTree;
     @Nullable
@@ -80,7 +79,7 @@ final class RaoRunContext {
     }
 
     boolean isPreSolveEnabled() {
-        return Objects.requireNonNull(preSolveEnabled, "preSolveEnabled has not been set yet");
+        return preSolveEnabled;
     }
 
     @NonNull StateTree getStateTree() {
