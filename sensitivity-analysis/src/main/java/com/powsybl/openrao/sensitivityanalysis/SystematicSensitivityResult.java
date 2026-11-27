@@ -11,6 +11,7 @@ import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TwoSides;
+import com.powsybl.loadflow.LoadFlowResult;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.Cnec;
@@ -21,6 +22,7 @@ import com.powsybl.openrao.sensitivityanalysis.rasensihandler.RangeActionSensiHa
 import com.powsybl.sensitivity.SensitivityAnalysisResult;
 import com.powsybl.sensitivity.SensitivityFactor;
 import com.powsybl.sensitivity.SensitivityFunctionType;
+import com.powsybl.sensitivity.SensitivityStateStatus;
 import com.powsybl.sensitivity.SensitivityValue;
 import com.powsybl.sensitivity.SensitivityVariableSet;
 
@@ -98,38 +100,54 @@ public class SystematicSensitivityResult {
         boolean anyContingencyFailure = this.status == SensitivityComputationStatus.PARTIAL_FAILURE;
         // status set to failure initially, and set to success if we find at least one non NaN value, or at least one contingencyStatus is SUCCESS
         this.status = SensitivityComputationStatus.FAILURE;
-        if (results == null) {
+        if (results == null || !results.isComputationComplete()) {
             return this;
         }
 
+        boolean baseCaseFailure = results.getStateStatuses().stream()
+            .filter(stateStatus -> stateStatus.getState().contingencyId() == null)
+            .anyMatch(SystematicSensitivityResult::isFailure);
         results.getPreContingencyValues().forEach(sensitivityValue -> fillIndividualValue(
             sensitivityValue,
             nStateResult,
             results.getFactors(),
-            SensitivityAnalysisResult.Status.SUCCESS
+            baseCaseFailure
         ));
-        for (SensitivityAnalysisResult.SensitivityStateStatus contingencyStatus : results.getStateStatuses()) {
-            if (contingencyStatus.getStatus() == SensitivityAnalysisResult.Status.FAILURE) {
+        for (SensitivityStateStatus contingencyStatus : results.getStateStatuses()) {
+            if (contingencyStatus.getState().contingencyId() == null) {
+                continue;
+            }
+            boolean failure = isFailure(contingencyStatus);
+            if (failure) {
                 anyContingencyFailure = true;
             }
             StateResult contingencyStateResult = new StateResult();
-            contingencyStateResult.status = contingencyStatus.getStatus().equals(SensitivityAnalysisResult.Status.FAILURE) ?
+            contingencyStateResult.status = failure ?
                 SensitivityComputationStatus.FAILURE : SensitivityComputationStatus.SUCCESS;
             if (contingencyStateResult.status.equals(SensitivityComputationStatus.SUCCESS)) {
                 this.status = SensitivityComputationStatus.SUCCESS;
             }
             results.getValues(contingencyStatus.getState()).forEach(sensitivityValue ->
-                fillIndividualValue(sensitivityValue, contingencyStateResult, results.getFactors(), contingencyStatus.getStatus())
+                fillIndividualValue(sensitivityValue, contingencyStateResult, results.getFactors(), failure)
             );
             postContingencyResults.get(instantOrder).put(contingencyStatus.getState().contingencyId(), contingencyStateResult);
         }
-        if (!results.getPreContingencyValues().isEmpty()) {
+        if (baseCaseFailure) {
+            nStateResult.status = SensitivityComputationStatus.FAILURE;
+            this.status = SensitivityComputationStatus.FAILURE;
+        } else if (!results.getPreContingencyValues().isEmpty()) {
             nStateResult.status = this.status;
         }
         if (nStateResult.status != SensitivityComputationStatus.FAILURE && anyContingencyFailure && !nStateResult.isEmpty()) {
             this.status = SensitivityComputationStatus.PARTIAL_FAILURE;
         }
         return this;
+    }
+
+    private static boolean isFailure(SensitivityStateStatus stateStatus) {
+        List<SensitivityStateStatus.ComponentStatus> components = stateStatus.getComponentsLoadFlowStatusList();
+        return components.isEmpty() || !(components.stream().allMatch(component -> component.status() == LoadFlowResult.ComponentResult.Status.CONVERGED)
+            || components.stream().allMatch(component -> component.status() == LoadFlowResult.ComponentResult.Status.NO_CALCULATION));
     }
 
     public SystematicSensitivityResult postTreatIntensities() {
@@ -195,15 +213,15 @@ public class SystematicSensitivityResult {
         return invertedMap;
     }
 
-    private void fillIndividualValue(SensitivityValue value, StateResult stateResult, List<SensitivityFactor> factors, SensitivityAnalysisResult.Status status) {
-        double reference = status.equals(SensitivityAnalysisResult.Status.FAILURE) ? Double.NaN : value.getFunctionReference();
-        double sensitivity = status.equals(SensitivityAnalysisResult.Status.FAILURE) ? Double.NaN : value.getValue();
+    private void fillIndividualValue(SensitivityValue value, StateResult stateResult, List<SensitivityFactor> factors, boolean failure) {
+        double reference = failure ? Double.NaN : value.getFunctionReference();
+        double sensitivity = failure ? Double.NaN : value.getValue();
         SensitivityFactor factor = factors.get(value.getFactorIndex());
 
         if (!Double.isNaN(reference) && !Double.isNaN(sensitivity)) {
             this.status = SensitivityComputationStatus.SUCCESS;
         }
-        if (Double.isNaN(reference) && status != SensitivityAnalysisResult.Status.FAILURE) {
+        if (Double.isNaN(reference) && !failure) {
             reference = 0;
             sensitivity = 0;
         }

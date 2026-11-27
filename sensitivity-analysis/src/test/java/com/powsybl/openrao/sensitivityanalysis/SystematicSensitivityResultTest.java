@@ -17,6 +17,7 @@ import com.powsybl.glsk.ucte.UcteGlskDocument;
 import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TwoSides;
+import com.powsybl.loadflow.LoadFlowResult;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.CracFactory;
@@ -415,10 +416,12 @@ class SystematicSensitivityResultTest {
 
         sensitivityAnalysisResult = new SensitivityAnalysisResult(
             List.of(sensitivityFactor1),
-            List.of(new SensitivityAnalysisResult.SensitivityStateStatus(SensitivityState.postContingency(contingency.getId()), SensitivityAnalysisResult.Status.FAILURE)),
+            List.of(new SensitivityStateStatus(SensitivityState.postContingency(contingency.getId()),
+                List.of(new SensitivityStateStatus.ComponentStatus(0, 0, LoadFlowResult.ComponentResult.Status.FAILED, "")))),
             List.of(contingency.getId()),
             List.of(),
-            List.of()
+            List.of(),
+            true
         );
 
         result.completeData(sensitivityAnalysisResult, outageInstantOrder);
@@ -444,16 +447,48 @@ class SystematicSensitivityResultTest {
 
         SensitivityAnalysisResult sensitivityAnalysisResult = new SensitivityAnalysisResult(
             List.of(sensitivityFactor1),
-            List.of(new SensitivityAnalysisResult.SensitivityStateStatus(SensitivityState.postContingency(contingency.getId()), SensitivityAnalysisResult.Status.FAILURE)),
+            List.of(new SensitivityStateStatus(SensitivityState.postContingency(contingency.getId()),
+                List.of(new SensitivityStateStatus.ComponentStatus(0, 0, LoadFlowResult.ComponentResult.Status.FAILED, "")))),
             List.of(contingency.getId()),
             List.of(),
-            List.of()
+            List.of(),
+            true
         );
 
         SystematicSensitivityResult result = new SystematicSensitivityResult();
         result.completeData(sensitivityAnalysisResult, outageInstantOrder);
 
         assertEquals(SystematicSensitivityResult.SensitivityComputationStatus.FAILURE, result.getStatus());
+    }
+
+    @Test
+    void testComponentStatusesAndIncompleteResults() {
+        SensitivityFactor factor = new SensitivityFactor(SensitivityFunctionType.BRANCH_ACTIVE_POWER_1, "branch",
+            SensitivityVariableType.TRANSFORMER_PHASE, "pst", false, ContingencyContext.all());
+        SensitivityValue baseValue = new SensitivityValue(0, -1, -1, 1, 2);
+        SensitivityValue contingencyValue = new SensitivityValue(0, 0, -1, 3, 4);
+        SensitivityState postContingency = SensitivityState.postContingency("contingency");
+        SensitivityStateStatus.ComponentStatus converged = new SensitivityStateStatus.ComponentStatus(0, 0, LoadFlowResult.ComponentResult.Status.CONVERGED, "");
+        SensitivityStateStatus.ComponentStatus failed = new SensitivityStateStatus.ComponentStatus(1, 1, LoadFlowResult.ComponentResult.Status.FAILED, "failed");
+        SensitivityStateStatus.ComponentStatus noCalculation = new SensitivityStateStatus.ComponentStatus(-1, -1, LoadFlowResult.ComponentResult.Status.NO_CALCULATION, "");
+
+        for (List<SensitivityStateStatus.ComponentStatus> components : List.of(List.of(converged, converged), List.of(noCalculation))) {
+            SensitivityAnalysisResult input = new SensitivityAnalysisResult(List.of(factor), List.of(new SensitivityStateStatus(postContingency, components)),
+                List.of("contingency"), List.of(), List.of(baseValue, contingencyValue), true);
+            assertEquals(SystematicSensitivityResult.SensitivityComputationStatus.SUCCESS, new SystematicSensitivityResult().completeData(input, 1).getStatus());
+        }
+        for (List<SensitivityStateStatus.ComponentStatus> components : List.of(List.of(converged, failed), List.of(converged, noCalculation), List.<SensitivityStateStatus.ComponentStatus>of())) {
+            SensitivityAnalysisResult input = new SensitivityAnalysisResult(List.of(factor), List.of(new SensitivityStateStatus(postContingency, components)),
+                List.of("contingency"), List.of(), List.of(baseValue, contingencyValue), true);
+            assertEquals(SystematicSensitivityResult.SensitivityComputationStatus.PARTIAL_FAILURE, new SystematicSensitivityResult().completeData(input, 1).getStatus());
+        }
+        SensitivityAnalysisResult failedBase = new SensitivityAnalysisResult(List.of(factor),
+            List.of(new SensitivityStateStatus(SensitivityState.PRE_CONTINGENCY, List.of(failed)), new SensitivityStateStatus(postContingency, List.of(converged))),
+            List.of("contingency"), List.of(), List.of(baseValue, contingencyValue), true);
+        assertEquals(SystematicSensitivityResult.SensitivityComputationStatus.FAILURE, new SystematicSensitivityResult().completeData(failedBase, 1).getStatus());
+        SensitivityAnalysisResult incomplete = new SensitivityAnalysisResult(List.of(factor), List.of(new SensitivityStateStatus(postContingency, List.of(converged))),
+            List.of("contingency"), List.of(), List.of(baseValue, contingencyValue), false);
+        assertEquals(SystematicSensitivityResult.SensitivityComputationStatus.FAILURE, new SystematicSensitivityResult().completeData(incomplete, 1).getStatus());
     }
 
 }
