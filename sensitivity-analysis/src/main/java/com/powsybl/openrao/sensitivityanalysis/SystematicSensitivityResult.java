@@ -8,6 +8,7 @@
 package com.powsybl.openrao.sensitivityanalysis;
 
 import com.powsybl.contingency.Contingency;
+import com.powsybl.contingency.ContingencyContextType;
 import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TwoSides;
@@ -108,6 +109,7 @@ public class SystematicSensitivityResult {
             results.getFactors(),
             SensitivityAnalysisResult.Status.SUCCESS
         ));
+        List<SensitivityValue> allContextPreContingencyValues = getAllContextPreContingencyValuesIfAnyNoImpact(results);
         for (SensitivityAnalysisResult.SensitivityStateStatus contingencyStatus : results.getStateStatuses()) {
             if (contingencyStatus.getStatus() == SensitivityAnalysisResult.Status.FAILURE) {
                 anyContingencyFailure = true;
@@ -118,9 +120,17 @@ public class SystematicSensitivityResult {
             if (contingencyStateResult.status.equals(SensitivityComputationStatus.SUCCESS)) {
                 this.status = SensitivityComputationStatus.SUCCESS;
             }
-            results.getValues(contingencyStatus.getState()).forEach(sensitivityValue ->
-                fillIndividualValue(sensitivityValue, contingencyStateResult, results.getFactors(), contingencyStatus.getStatus())
-            );
+            boolean noImpact = contingencyStatus.getStatus() == SensitivityAnalysisResult.Status.NO_IMPACT;
+            results.getValues(contingencyStatus.getState()).forEach(sensitivityValue -> {
+                if (!noImpact || !hasAllContingencyContext(sensitivityValue, results.getFactors())) {
+                    fillIndividualValue(sensitivityValue, contingencyStateResult, results.getFactors(), contingencyStatus.getStatus());
+                }
+            });
+            if (noImpact) {
+                allContextPreContingencyValues.forEach(sensitivityValue ->
+                    fillIndividualValue(sensitivityValue, contingencyStateResult, results.getFactors(), contingencyStatus.getStatus())
+                );
+            }
             postContingencyResults.get(instantOrder).put(contingencyStatus.getState().contingencyId(), contingencyStateResult);
         }
         if (!results.getPreContingencyValues().isEmpty()) {
@@ -130,6 +140,27 @@ public class SystematicSensitivityResult {
             this.status = SensitivityComputationStatus.PARTIAL_FAILURE;
         }
         return this;
+    }
+
+    /**
+     * A contingency with no impact (e.g. its branches are already open) gives the pre-contingency results. OpenLoadFlow
+     * (up to 2.4.0 at least) returns, for a factor with an ALL contingency context on such a contingency, the function
+     * reference of the last simulated contingency, as the factor is shared by every contingency. The pre-contingency
+     * values of these factors are used instead. Factors with a SPECIFIC context are not affected.
+     */
+    private static List<SensitivityValue> getAllContextPreContingencyValuesIfAnyNoImpact(SensitivityAnalysisResult results) {
+        boolean anyNoImpact = results.getStateStatuses().stream()
+            .anyMatch(stateStatus -> stateStatus.getStatus() == SensitivityAnalysisResult.Status.NO_IMPACT);
+        if (!anyNoImpact) {
+            return List.of();
+        }
+        return results.getPreContingencyValues().stream()
+            .filter(sensitivityValue -> hasAllContingencyContext(sensitivityValue, results.getFactors()))
+            .toList();
+    }
+
+    private static boolean hasAllContingencyContext(SensitivityValue sensitivityValue, List<SensitivityFactor> factors) {
+        return factors.get(sensitivityValue.getFactorIndex()).getContingencyContext().getContextType() == ContingencyContextType.ALL;
     }
 
     public SystematicSensitivityResult postTreatIntensities() {

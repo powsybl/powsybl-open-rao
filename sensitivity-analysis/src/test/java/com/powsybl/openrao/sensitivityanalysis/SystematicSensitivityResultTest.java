@@ -456,4 +456,49 @@ class SystematicSensitivityResultTest {
         assertEquals(SystematicSensitivityResult.SensitivityComputationStatus.FAILURE, result.getStatus());
     }
 
+    @Test
+    void testNoImpactContingencyUsesPreContingencyValuesOfAllContextFactors() {
+        setUpWith12Nodes();
+        String noImpactContingencyId = "Contingency FR1 FR3";
+        String impactingContingencyId = "Contingency FR1 FR2";
+        String pstId = "BBE2AA1  BBE3AA1  1";
+
+        // monitored after every contingency: one factor with an ALL context
+        SensitivityFactor allContextFactor = new SensitivityFactor(SensitivityFunctionType.BRANCH_ACTIVE_POWER_1, "BBE2AA1  FFR3AA1  1",
+            SensitivityVariableType.TRANSFORMER_PHASE, pstId, false, ContingencyContext.all());
+        // monitored after the no-impact contingency only: one factor with a SPECIFIC context
+        SensitivityFactor specificContextFactor = new SensitivityFactor(SensitivityFunctionType.BRANCH_ACTIVE_POWER_1, "FFR2AA1  DDE3AA1  1",
+            SensitivityVariableType.TRANSFORMER_PHASE, pstId, false, ContingencyContext.specificContingency(noImpactContingencyId));
+
+        // As OpenLoadFlow 2.4.0 does, the ALL context factor gets on the no-impact contingency (index 0) the values of the
+        // last simulated contingency (index 1) instead of its pre-contingency values
+        SensitivityAnalysisResult sensitivityAnalysisResult = new SensitivityAnalysisResult(
+            List.of(allContextFactor, specificContextFactor),
+            List.of(
+                new SensitivityAnalysisResult.SensitivityStateStatus(SensitivityState.postContingency(noImpactContingencyId), SensitivityAnalysisResult.Status.NO_IMPACT),
+                new SensitivityAnalysisResult.SensitivityStateStatus(SensitivityState.postContingency(impactingContingencyId), SensitivityAnalysisResult.Status.SUCCESS)),
+            List.of(noImpactContingencyId, impactingContingencyId),
+            List.of(),
+            List.of(
+                new SensitivityValue(0, -1, -1, 1., 10.),
+                new SensitivityValue(0, 0, -1, 3., 30.),
+                new SensitivityValue(0, 1, -1, 3., 30.),
+                new SensitivityValue(1, 0, -1, 2., 20.))
+        );
+
+        SystematicSensitivityResult result = new SystematicSensitivityResult().completeData(sensitivityAnalysisResult, outageInstantOrder);
+
+        // the no-impact contingency gets the pre-contingency values of the ALL context factor
+        FlowCnec noImpactCnec = crac.getFlowCnec("cnec1stateCurativeContingency1");
+        assertEquals(10., result.getReferenceFlow(noImpactCnec, TwoSides.ONE), EPSILON);
+        assertEquals(1., result.getSensitivityOnFlow(rangeAction, noImpactCnec, TwoSides.ONE), EPSILON);
+        // the values of a SPECIFIC context factor are kept
+        assertEquals(20., result.getReferenceFlow(crac.getFlowCnec("cnec2stateCurativeContingency1"), TwoSides.ONE), EPSILON);
+        assertEquals(2., result.getSensitivityOnFlow(rangeAction, crac.getFlowCnec("cnec2stateCurativeContingency1"), TwoSides.ONE), EPSILON);
+        // the impacting contingency is not affected
+        FlowCnec impactingCnec = crac.getFlowCnec("cnec1stateCurativeContingency2");
+        assertEquals(30., result.getReferenceFlow(impactingCnec, TwoSides.ONE), EPSILON);
+        assertEquals(3., result.getSensitivityOnFlow(rangeAction, impactingCnec, TwoSides.ONE), EPSILON);
+    }
+
 }
