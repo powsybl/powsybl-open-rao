@@ -291,6 +291,16 @@ public final class RaoUtil {
                 throw new OpenRaoException(format(
                     "Several counter trading actions target area %s: only one counter trading action per area is supported", entry.getKey()));
             });
+        raoInput.getCrac().getCounterTradeRangeActions().forEach(action ->
+                action.getUsageRules().stream()
+                        .map(UsageRule::getInstant)
+                        .filter(instant -> !instant.isPreventive())
+                        .findFirst()
+                        .ifPresent(instant -> {
+                            throw new OpenRaoException(format(
+                                    "Counter trading action %s is available at instant %s: only preventive counter trading actions are supported",
+                                    action.getId(), instant.getId()));
+                        }));
     }
 
     // a generator redispatched by an injection range action must not belong to a counter-trading GLSK: composing the two
