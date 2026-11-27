@@ -12,9 +12,9 @@ import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.ContingencyContextType;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
+import com.powsybl.loadflow.LoadFlowResult;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.sensitivity.SensitivityAnalysisProvider;
-import com.powsybl.sensitivity.SensitivityAnalysisResult;
 import com.powsybl.sensitivity.SensitivityAnalysisRunParameters;
 import com.powsybl.sensitivity.SensitivityFactorReader;
 import com.powsybl.sensitivity.SensitivityFunctionType;
@@ -56,6 +56,7 @@ public final class MockSensiProvider implements SensitivityAnalysisProvider {
                 // used for tests with already applied RangeActions in Curative states
                 writeResultsIfPstIsNotAtNeutralTap(sensitivityFactorReader, sensitivityResultWriter, sensitivityAnalysisRunParameters.getContingencies());
             }
+            sensitivityResultWriter.computationComplete();
         }, sensitivityAnalysisRunParameters.getComputationManager().getExecutor());
     }
 
@@ -70,13 +71,14 @@ public final class MockSensiProvider implements SensitivityAnalysisProvider {
 
         for (int contingencyIndex = 0; contingencyIndex < contingencies.size(); contingencyIndex++) {
             int finalContingencyIndex = contingencyIndex;
+            LoadFlowResult.ComponentResult.Status status = contingencies.get(contingencyIndex).getElements().stream().anyMatch(e -> network.getIdentifiable(e.getId()) == null)
+                ? LoadFlowResult.ComponentResult.Status.FAILED : LoadFlowResult.ComponentResult.Status.CONVERGED;
+            sensitivityResultWriter.writeStateStatus(contingencyIndex, -1, 0, 0, status, "");
             AtomicReference<Integer> factorIndexContingency = new AtomicReference<>(0);
             factorReader.read((functionType, functionId, variableType, variableId, variableSet, contingencyContext) -> {
                 if (contingencyContext.getContextType() == ContingencyContextType.SPECIFIC && contingencyContext.getContingencyId().equals(contingencies.get(finalContingencyIndex).getId())) {
                     handleSpecificConditionContextAtNeutralTap(
                         sensitivityResultWriter,
-                        contingencies,
-                        network,
                         functionType,
                         variableType,
                         factorIndexContingency,
@@ -89,8 +91,6 @@ public final class MockSensiProvider implements SensitivityAnalysisProvider {
     }
 
     private static void handleSpecificConditionContextAtNeutralTap(SensitivityResultWriter sensitivityResultWriter,
-                                  List<Contingency> contingencies,
-                                  Network network,
                                   SensitivityFunctionType functionType,
                                   SensitivityVariableType variableType,
                                   AtomicReference<Integer> factorIndexContingency,
@@ -148,11 +148,6 @@ public final class MockSensiProvider implements SensitivityAnalysisProvider {
             }
         } else {
             throw new AssertionError();
-        }
-        if (contingencies.get(finalContingencyIndex).getElements().stream().anyMatch(e -> network.getIdentifiable(e.getId()) == null)) {
-            sensitivityResultWriter.writeStateStatus(finalContingencyIndex, -1, SensitivityAnalysisResult.Status.FAILURE);
-        } else {
-            sensitivityResultWriter.writeStateStatus(finalContingencyIndex, -1, SensitivityAnalysisResult.Status.SUCCESS);
         }
     }
 
@@ -227,6 +222,7 @@ public final class MockSensiProvider implements SensitivityAnalysisProvider {
 
         for (int contingencyIndex = 0; contingencyIndex < contingencies.size(); contingencyIndex++) {
             int finalContingencyIndex = contingencyIndex;
+            resultWriter.writeStateStatus(contingencyIndex, -1, 0, 0, LoadFlowResult.ComponentResult.Status.CONVERGED, "");
             AtomicReference<Integer> factorIndexContingency = new AtomicReference<>(0);
             factorReader.read((functionType, functionId, variableType, variableId, variableSet, contingencyContext) -> {
                 if (contingencyContext.getContextType() == ContingencyContextType.SPECIFIC && contingencyContext.getContingencyId().equals(contingencies.get(finalContingencyIndex).getId())) {
@@ -277,7 +273,6 @@ public final class MockSensiProvider implements SensitivityAnalysisProvider {
                     throw new AssertionError();
             }
         }
-        resultWriter.writeStateStatus(finalContingencyIndex, -1, SensitivityAnalysisResult.Status.SUCCESS);
     }
 
     private static void handleNoneAndAllContingencyContextNotAtNeutralTap(SensitivityResultWriter resultWriter,
