@@ -10,4 +10,4 @@ package com.powsybl.openrao.commons;
 /**
  * @author Enrico Bettiol {@literal <enrico.bettiol at artelys.com>}
  */
-public record GlskGeneratorAllocation(String generatorId, double weight, double availableCapacity, double saturationRatio, double cumulativeAllocation) { }
+public record GlskGeneratorAllocation(String generatorId, double weight, double availableCapacity, double saturationRatio, double layerCapacity) { }

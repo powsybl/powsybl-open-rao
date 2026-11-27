@@ -137,7 +137,7 @@ public class CounterTradeAreaBalanceFiller implements ProblemFiller {
         boolean up = direction == LinearProblem.VariationDirectionExtension.UPWARD;
         double totalM = 0.0; // sum of m_h over the stages that can be reached
         for (int h = 0; h <= lastStage; h++) {
-            totalM += order.get(h).cumulativeAllocation();
+            totalM += order.get(h).layerCapacity();
         }
         // UP:   sum(x_up)   - M_up * delta       <= 0
         // DOWN: sum(x_down) + M_down * delta     <= M_down
@@ -150,7 +150,7 @@ public class CounterTradeAreaBalanceFiller implements ProblemFiller {
         for (int h = 0; h <= lastStage; h++) {
             GlskGeneratorAllocation allocation = order.get(h);
             String generatorId = allocation.generatorId();
-            double bound = Math.min(allocation.cumulativeAllocation(), maxMagnitude);
+            double bound = Math.min(allocation.layerCapacity(), maxMagnitude);
 
             OpenRaoMPVariable x = linearProblem.addCounterTradeGeneratorDispatchVariable(bound, generatorId, areaId, state, direction);
 

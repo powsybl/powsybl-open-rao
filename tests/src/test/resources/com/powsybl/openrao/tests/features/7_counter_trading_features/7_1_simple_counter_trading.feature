@@ -1,7 +1,7 @@
 Feature: 7.1: Simple CT Actions
   This features covers preventive CT Actions defined per area (proportional GLSK).
   7.1.1 to 7.1.9: nominal cases on 2 and 3 areas, with and without generator saturation.
-  7.1.10 to 7.1.26: robustness and edge cases (multi-area, generators, GLSK, CRAC definition, other remedial actions).
+  7.1.10 to 7.1.24: robustness and edge cases (multi-area, generators, GLSK, CRAC definition, other remedial actions).
   Reading the expected values:
   - a positive CT setpoint means the area produces more, a negative one that it produces less;
   - CT cost = activation cost + variation cost (up or down) x |setpoint|;
@@ -238,7 +238,7 @@ Feature: 7.1: Simple CT Actions
     Then the value of the objective function after PRA should be 60020.0
 
   @rao @counter-trading
-  Scenario: 7.1.16: Proportional GLSK on an area with special generators
+  Scenario: 7.1.15: Proportional GLSK on an area with special generators
     Covers: GLSK split on FR with four special generators, one per edge case.
     Situation: FR must produce 400 MW less. FR1_disconnected is left out of the GLSK; FR1_zero has targetP 0; FR1_fixed has Pmin = Pmax.
     Given network file is "counter-trading/2Nodes_FRSeveralGenerators.xiidm"
@@ -255,7 +255,7 @@ Feature: 7.1: Simple CT Actions
     Then the value of the objective function after PRA should be 20010.0
 
   @rao @counter-trading
-  Scenario: 7.1.17: GLSK referring to a node absent from the network
+  Scenario: 7.1.16: GLSK referring to a node absent from the network
     Covers: a GLSK file that lists a node (FFR9AA1) which does not exist in the network.
     Situation: same case as 7.1.4 with the extra unknown node in the GLSK.
     Given network file is "counter-trading/2NodesFR1NodeBE.uct"
@@ -269,7 +269,7 @@ Feature: 7.1: Simple CT Actions
     Then the value of the objective function after PRA should be 20010.0
 
   @rao @counter-trading
-  Scenario: 7.1.18: CT range too small in the needed direction
+  Scenario: 7.1.17: CT range too small in the needed direction
     Covers: a CT range that is too narrow in the direction needed to relieve the overload.
     Situation: 400 MW are needed, but FR's range is [-200, 1000], so FR can only go down by 200 MW.
     Given network file is "counter-trading/2Nodes.uct"
@@ -285,7 +285,7 @@ Feature: 7.1: Simple CT Actions
     Then the setpoint of RangeAction "counterTradingActionBE" should be 200 MW in preventive
 
   @rao @counter-trading
-  Scenario: 7.1.19: CT range relative to the initial network
+  Scenario: 7.1.18: CT range relative to the initial network
     Covers: a CT range defined relative to the initial network, with no initialNetPosition given.
     Situation: the relative range is +/-300 MW, and the overload needs 400 MW.
     Given network file is "counter-trading/2Nodes.uct"
@@ -302,7 +302,7 @@ Feature: 7.1: Simple CT Actions
     Then the value of the objective function after PRA should be 115010.0
 
   @rao @counter-trading
-  Scenario: 7.1.21: CT combined with a topological action
+  Scenario: 7.1.19: CT combined with a topological action
     Covers: a topological remedial action (closing line 3, cost 100) combined with CT.
     Situation: closing line 3 leaves 3/4 of the exchange on the remaining line after an N-1, so the limit becomes 800 MW.
     Given network file is "counter-trading/2Nodes_openLine3.uct"
@@ -319,7 +319,7 @@ Feature: 7.1: Simple CT Actions
     Then the value of the objective function after PRA should be 10110.0
 
   @rao @counter-trading
-  Scenario: 7.1.22: CT with the MAX_MIN_MARGIN objective
+  Scenario: 7.1.20: CT with the MAX_MIN_MARGIN objective
     Covers: CT under the MAX_MIN_MARGIN objective, where costs are ignored.
     Situation: the 2-node overload of 7.1.2, with the margin as the only criterion.
     Given network file is "counter-trading/2Nodes.uct"
@@ -334,7 +334,7 @@ Feature: 7.1: Simple CT Actions
     Then the setpoint of RangeAction "counterTradingActionBE" should be 1000 MW in preventive
 
   @rao @counter-trading
-  Scenario: 7.1.23: Downward saturation of one generator, the two others keep their 2:1 proportion
+  Scenario: 7.1.21: Downward saturation of one generator, the two others keep their 2:1 proportion
     Covers: downward saturation of one FR generator among three, with a 2:1 ratio between the two others.
     Situation: FR must go down by 400 MW; one of the three generators hits its lower limit.
     Given network file is "counter-trading/2Nodes_FR3Generators_down.xiidm"
@@ -351,7 +351,7 @@ Feature: 7.1: Simple CT Actions
     Then the value of the objective function after PRA should be 20010.0
 
   @rao @counter-trading
-  Scenario: 7.1.24: The whole area saturates downwards before reaching its range
+  Scenario: 7.1.22: The whole area saturates downwards before reaching its range
     Covers: the whole FR area saturating downwards before the CT range is reached.
     Situation: FR generators can only go down by 200 + 80 + 20 = 300 MW, while 400 MW are needed.
     Given network file is "counter-trading/2Nodes_FR3Generators_down_areaSaturated.xiidm"
@@ -369,7 +369,7 @@ Feature: 7.1: Simple CT Actions
     Then the value of the objective function after PRA should be 115010.0
 
   @rao @counter-trading
-  Scenario: 7.1.25: Upward saturation of one generator
+  Scenario: 7.1.23: Upward saturation of one generator
     Covers: upward saturation of one FR generator, and a generator at its Pmin that must still be able to go up.
     Situation: FR imports 1000 MW from BE and consumes 2000 MW, so FR must produce 400 MW more. FR1_c can only go up by 10 MW; FR1_a is at its Pmin.
     Given network file is "counter-trading/2Nodes_FR3Generators_up.xiidm"
@@ -386,7 +386,7 @@ Feature: 7.1: Simple CT Actions
     Then the value of the objective function after PRA should be 20010.0
 
   @rao @counter-trading
-  Scenario: 7.1.26: The cheapest counterpart saturates at its Pmin before reaching its range, mirror of 7.1.13
+  Scenario: 7.1.24: The cheapest counterpart saturates at its Pmin before reaching its range, mirror of 7.1.13
     Covers: mirror of 7.1.13 with reversed flows: the cheapest counterpart is limited by its Pmin.
     Situation: FR produces 1800 MW, BE imports 1000 MW and ES 800 MW; BE must produce 400 MW more. ES is the cheapest (range +/-100 MW) but its Pmin is 750 MW.
     Given network file is "counter-trading/3Nodes_mirror_ESPmin750.uct"

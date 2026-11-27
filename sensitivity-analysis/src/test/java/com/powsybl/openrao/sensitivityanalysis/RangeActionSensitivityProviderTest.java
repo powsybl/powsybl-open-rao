@@ -375,7 +375,7 @@ class RangeActionSensitivityProviderTest {
         // preconditions
         GlskGeneratorAllocation first = ordering.upwardOrder().get(0);
         assertEquals(saturatingId, first.generatorId());
-        assertEquals(16250., first.cumulativeAllocation(), 1e-3);
+        assertEquals(16250., first.layerCapacity(), 1e-3);
         int k = ordering.upwardLastStage();
         assertTrue(k >= 1);
         assertEquals(0, ordering.downwardLastStage());

@@ -410,7 +410,7 @@ public final class RaoUtil {
     }
 
     // CT actions have no network element: two of them act on the same lever when they share the same area.
-    private static boolean sameLever(RangeAction<?> ra1, RangeAction<?> ra2) {
+    public static boolean sameLever(RangeAction<?> ra1, RangeAction<?> ra2) {
         if (ra1 instanceof CounterTradeRangeAction ct1 && ra2 instanceof CounterTradeRangeAction ct2) {
             return Objects.equals(ct1.getAreaId(), ct2.getAreaId());
         }
