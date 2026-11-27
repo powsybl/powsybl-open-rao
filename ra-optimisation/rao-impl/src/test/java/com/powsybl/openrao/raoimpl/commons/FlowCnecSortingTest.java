@@ -15,6 +15,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -24,6 +25,8 @@ import static org.ejml.UtilEjml.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
@@ -101,5 +104,29 @@ class FlowCnecSortingTest {
     private void mockCnecThresholds(FlowCnec cnec, double threshold) {
         when(cnec.getRawUpperBound(any(), any())).thenReturn(Optional.of(threshold));
         when(cnec.getRawLowerBound(any(), any())).thenReturn(Optional.of(-threshold));
+    }
+
+    @Test
+    void sortByNegativeMarginKeepsOnlyNegativeOptimizedCnecs() {
+        List<FlowCnec> sorted = FlowCnecSorting.sortByNegativeMargin(new LinkedHashSet<>(List.of(cnec1, cnec2, cnec3, pureMnec)), MEGAWATT, marginEvaluator, flowResult);
+        assertEquals(List.of(cnec3, cnec1), sorted);
+    }
+
+    @Test
+    void tiedMarginsKeepTheInputOrder() {
+        when(marginEvaluator.getMargin(flowResult, cnec1, MEGAWATT)).thenReturn(-100.);
+        when(marginEvaluator.getMargin(flowResult, cnec2, MEGAWATT)).thenReturn(-100.);
+        when(marginEvaluator.getMargin(flowResult, cnec3, MEGAWATT)).thenReturn(-100.);
+        Set<FlowCnec> inputOrder = new LinkedHashSet<>(List.of(cnec2, cnec3, cnec1));
+        assertEquals(List.of(cnec2, cnec3, cnec1), FlowCnecSorting.sortByMargin(inputOrder, MEGAWATT, marginEvaluator, flowResult));
+        assertEquals(List.of(cnec2, cnec3, cnec1), FlowCnecSorting.sortByNegativeMargin(inputOrder, MEGAWATT, marginEvaluator, flowResult));
+    }
+
+    @Test
+    void eachMarginIsComputedOnce() {
+        FlowCnecSorting.sortByMargin(new LinkedHashSet<>(List.of(cnec1, cnec2, cnec3)), MEGAWATT, marginEvaluator, flowResult);
+        verify(marginEvaluator, times(1)).getMargin(flowResult, cnec1, MEGAWATT);
+        verify(marginEvaluator, times(1)).getMargin(flowResult, cnec2, MEGAWATT);
+        verify(marginEvaluator, times(1)).getMargin(flowResult, cnec3, MEGAWATT);
     }
 }

@@ -40,14 +40,28 @@ import com.powsybl.openrao.raoimpl.reports.CommonReports;
 import com.powsybl.openrao.raoimpl.reports.MostLimitingElementsReports;
 import com.powsybl.openrao.raoimpl.result.api.OptimizationResult;
 import com.powsybl.openrao.raoimpl.result.api.PrePerimeterResult;
-import com.powsybl.openrao.raoimpl.result.impl.*;
+import com.powsybl.openrao.raoimpl.result.impl.CurativeWithSecondPraoResult;
+import com.powsybl.openrao.raoimpl.result.impl.NetworkActionsResultImpl;
+import com.powsybl.openrao.raoimpl.result.impl.PostPerimeterResult;
+import com.powsybl.openrao.raoimpl.result.impl.PrePerimeterSensitivityResultImpl;
+import com.powsybl.openrao.raoimpl.result.impl.RangeActionActivationResultImpl;
+import com.powsybl.openrao.raoimpl.result.impl.RangeActionSetpointResultImpl;
+import com.powsybl.openrao.raoimpl.result.impl.RemedialActionActivationResultImpl;
+import com.powsybl.openrao.raoimpl.result.impl.SkippedOptimizationResultImpl;
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
+
 import java.time.temporal.ChronoUnit;
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
 import static com.powsybl.openrao.data.raoresult.api.ComputationStatus.FAILURE;
-import static com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters.getSensitivityFailureOvercost;
 import static com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoObjectiveFunctionParameters.getCurativeMinObjImprovement;
 import static com.powsybl.openrao.raoapi.parameters.extensions.SecondPreventiveRaoParameters.getSecondPreventiveExecutionCondition;
 import static com.powsybl.openrao.raoapi.parameters.extensions.SecondPreventiveRaoParameters.getSecondPreventiveHintFromFirstPreventiveRao;
@@ -217,16 +231,7 @@ public class CastorSecondPreventive {
             if (!state.getInstant().isCurative()) {
                 continue;
             }
-            // Specific case : curative state was previously skipped because it led to a sensitivity analysis failure.
-            // Curative state is still a SkippedOptimizationResultImpl, but its computation status must be updated
-            if (entry.getValue().optimizationResult() instanceof SkippedOptimizationResultImpl) {
-                OptimizationResult skippedResult = new SkippedOptimizationResultImpl(
-                    state,
-                    new HashSet<>(),
-                    new HashSet<>(),
-                    postCraSensitivityAnalysisOutput.getSensitivityStatus(entry.getKey()),
-                    getSensitivityFailureOvercost(raoParameters)
-                );
+            if (entry.getValue().optimizationResult() instanceof SkippedOptimizationResultImpl skippedResult) {
                 PrePerimeterResult prePerimeterResult = new PrePerimeterSensitivityResultImpl(skippedResult, skippedResult, null, skippedResult);
                 newPostContingencyResults.put(state, new PostPerimeterResult(skippedResult, prePerimeterResult));
             } else {
