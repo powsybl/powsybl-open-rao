@@ -9,6 +9,8 @@ Feature: 7.1: Simple CT Actions
 
   @rao @counter-trading
   Scenario: 7.1.1: Preventive search tree RAO REDISPATCH
+    Covers: reference case with a redispatching (injection) remedial action instead of CT, on 2 nodes.
+    Situation: one overloaded border, a redispatching action available on an FR generator, preventive only.
     Given network file is "counter-trading/2Nodes.uct"
     Given crac file is "counter-trading/crac-2-nodes-redispatch.json"
     Given configuration file is "counter-trading/rao-parameters-ct.json"
@@ -21,6 +23,8 @@ Feature: 7.1: Simple CT Actions
 
   @rao @counter-trading
   Scenario: 7.1.2: Preventive search tree RAO with 2 areas of 1 node
+    Covers: CT actions on 2 areas (FR, BE), each with a single node, proportional GLSK.
+    Situation: the same overload as 7.1.1, now solved by counter trading instead of redispatch.
     Given network file is "counter-trading/2Nodes.uct"
     Given crac file is "counter-trading/crac-2-nodes.json"
     Given configuration file is "counter-trading/rao-parameters-ct.json"
@@ -34,6 +38,8 @@ Feature: 7.1: Simple CT Actions
 
   @rao @counter-trading
   Scenario: 7.1.3: Preventive search tree RAO with 3 areas of 1 node
+    Covers: CT actions on 3 areas, each with a single node, proportional GLSK.
+    Situation: the same overload as 7.1.2, now balanced by three counterparts instead of two.
     Given network file is "counter-trading/3Nodes.uct"
     Given crac file is "counter-trading/crac-3-nodes.json"
     Given configuration file is "counter-trading/rao-parameters-ct.json"
@@ -50,6 +56,8 @@ Feature: 7.1: Simple CT Actions
 
   @rao @counter-trading
   Scenario: 7.1.4: Preventive search tree RAO with 2 areas and 2 generators in an area
+    Covers: CT on an area with two generators (FFR1, FFR2) and a second area with one node (BE).
+    Situation: the same 400 MW exchange as 7.1.2, but FR's reduction must be split between two generators.
     Given network file is "counter-trading/2NodesFR1NodeBE.uct"
     Given crac file is "counter-trading/crac-2-nodes-fr-1-node-be.json"
     Given configuration file is "counter-trading/rao-parameters-ct.json"
@@ -65,6 +73,8 @@ Feature: 7.1: Simple CT Actions
 
   @rao @counter-trading
   Scenario: 7.1.5: Preventive search tree RAO with 2 areas and 2 generators in an area with equal proportions
+    Covers: same as 7.1.4, with equal GLSK weights on the two FR generators.
+    Situation: FFR1 and FFR2 have the same weight, so the FR setpoint should be split evenly.
     Given network file is "counter-trading/2NodesFR1NodeBE.uct"
     Given crac file is "counter-trading/crac-2-nodes-fr-1-node-be.json"
     Given configuration file is "counter-trading/rao-parameters-ct.json"
@@ -81,6 +91,8 @@ Feature: 7.1: Simple CT Actions
 
   @rao @counter-trading
   Scenario: 7.1.6: Preventive search tree RAO with 2 areas and 2 generators in an area with different proportions
+    Covers: same as 7.1.4, with the GLSK weights taken from the generators' initial targetP (different sizes).
+    Situation: FFR1 is larger than FFR2, so it must carry a larger share of the FR setpoint.
     Given network file is "counter-trading/2NodesFR1NodeBE_differentProportions.uct"
     Given crac file is "counter-trading/crac-2-nodes-fr-1-node-be.json"
     Given configuration file is "counter-trading/rao-parameters-ct.json"
@@ -96,6 +108,8 @@ Feature: 7.1: Simple CT Actions
 
   @rao @counter-trading
   Scenario: 7.1.7: Preventive search tree RAO with 2 areas and 2 generators in an area, one of them reaches saturation
+    Covers: saturation of one FR generator at its lower limit, with the GLSK split of 7.1.4.
+    Situation: FFR2 would have to go down to 0 MW or below to follow its GLSK share, which is not allowed.
     Given network file is "counter-trading/2NodesFR1NodeBE_saturationFR2.uct"
     Given crac file is "counter-trading/crac-2-nodes-fr-1-node-be.json"
     Given configuration file is "counter-trading/rao-parameters-ct.json"
@@ -112,6 +126,8 @@ Feature: 7.1: Simple CT Actions
 
   @rao @counter-trading
   Scenario: 7.1.8: Preventive search tree RAO with 2 areas and 2 generators in an area, one of them reaches saturation
+    Covers: saturation of FFR2 at a non-zero limit (250 MW), with the same GLSK split as 7.1.6.
+    Situation: FFR2 cannot go below 250 MW, so its proportional share cannot be fully applied.
     Given network file is "counter-trading/2NodesFR1NodeBE_saturationFR2_0.uct"
     Given crac file is "counter-trading/crac-2-nodes-fr-1-node-be.json"
     Given configuration file is "counter-trading/rao-parameters-ct.json"
@@ -127,6 +143,8 @@ Feature: 7.1: Simple CT Actions
 
   @rao @counter-trading
   Scenario: 7.1.9: CT action on one area only, its neighbour has none
+    Covers: a CT action defined on FR only, with no counterpart on BE.
+    Situation: the 2-node overload of 7.1.2, with only FR having a CT action (1 iteration).
     Given network file is "counter-trading/2Nodes.uct"
     Given crac file is "counter-trading/crac-2-nodes-fr-only.json"
     Given configuration file is "counter-trading/rao-parameters-ct-1-iteration.json"
@@ -137,7 +155,8 @@ Feature: 7.1: Simple CT Actions
 
   @rao @counter-trading
   Scenario: 7.1.10: Two areas exchange through a third area which has no CT action
-    FR has no CT action, so its balance must stay at 0: the 400 MW BE must not come from ES, through FR.
+    Covers: exchange between BE and ES on 3 areas, where FR (in between) has no CT action.
+    Situation: 400 MW must come from ES to BE, but the path would cross FR.
     Given network file is "counter-trading/3Nodes.uct"
     Given crac file is "counter-trading/crac-3-nodes-no-ct-fr.json"
     Given configuration file is "counter-trading/rao-parameters-ct.json"
@@ -149,8 +168,8 @@ Feature: 7.1: Simple CT Actions
 
   @rao @counter-trading
   Scenario: 7.1.11: A border area without CT action is left untouched
-    ES has no CT action: it keeps producing 800 MW and FR is the only counterpart of BE.
-    FR only has an activation cost (variation cost 0): 10 + 0 x 400 + 5 + 50 x 400 = 20015.
+    Covers: 3 areas where ES has no CT action; FR is the only counterpart of BE.
+    Situation: BE needs 400 MW of counter trading, ES keeps producing its initial 800 MW.
     Given network file is "counter-trading/3Nodes.uct"
     Given crac file is "counter-trading/crac-3-nodes-no-ct-es.json"
     Given configuration file is "counter-trading/rao-parameters-ct.json"
@@ -166,7 +185,8 @@ Feature: 7.1: Simple CT Actions
 
   @rao @counter-trading
   Scenario: 7.1.12: The cheapest counterpart is used up to its range, the next one takes the rest
-    ES costs 10 per MW but its range is limited to +/-100 MW, FR costs 50 per MW: ES takes 100 MW, FR the 300 MW left.
+    Covers: merit order between counterparts: the cheapest one is limited by its range.
+    Situation: BE needs 400 MW; ES costs 10/MW but its range is +/-100 MW; FR costs 50/MW with a wider range.
     Given network file is "counter-trading/3Nodes.uct"
     Given crac file is "counter-trading/crac-3-nodes-es-cheap-limited.json"
     Given configuration file is "counter-trading/rao-parameters-ct.json"
@@ -183,7 +203,8 @@ Feature: 7.1: Simple CT Actions
 
   @rao @counter-trading
   Scenario: 7.1.13: The cheapest counterpart saturates at its Pmax before reaching its range
-    Same CRAC as 7.1.12, but the ES generator has Pmax = 850 MW: only 50 MW of the 100 MW range can be used.
+    Covers: same as 7.1.12, but the cheapest counterpart's generator is limited by its Pmax.
+    Situation: ES Pmax is 850 MW, so ES can add only 50 MW of its 100 MW range.
     Given network file is "counter-trading/3Nodes_ESPmax850.uct"
     Given crac file is "counter-trading/crac-3-nodes-es-cheap-limited.json"
     Given configuration file is "counter-trading/rao-parameters-ct.json"
@@ -200,8 +221,8 @@ Feature: 7.1: Simple CT Actions
 
   @rao @counter-trading
   Scenario: 7.1.14: Three areas connected in a triangle
-    Same case as 7.1.3 with an extra BE-ES line (x = 25): the border exchanges form a loop.
-    After an N-1, a remaining FR-BE line carries 3/4 of BE's production + 1/8 of ES's, and symmetrically for FR-ES.
+    Covers: 3 areas with an extra BE-ES line (x = 25), so the border exchanges form a loop.
+    Situation: after an N-1, the remaining FR-BE line carries 3/4 of BE's production and 1/8 of ES's, symmetrically for FR-ES.
     Given network file is "counter-trading/3Nodes_triangle.uct"
     Given crac file is "counter-trading/crac-3-nodes.json"
     Given configuration file is "counter-trading/rao-parameters-ct.json"
@@ -218,9 +239,8 @@ Feature: 7.1: Simple CT Actions
 
   @rao @counter-trading
   Scenario: 7.1.16: Proportional GLSK on an area with special generators
-    Checks that, without GLSK file, the CT effort only goes to generators able to move. FR must produce 400 MW less.
-    Each FR generator tests one case: FR1_disconnected is left out of the GLSK, FR1_zero (targetP 0) gets a negligible share,
-    FR1_fixed (Pmin = Pmax) saturates at once and its share goes to the others.
+    Covers: GLSK split on FR with four special generators, one per edge case.
+    Situation: FR must produce 400 MW less. FR1_disconnected is left out of the GLSK; FR1_zero has targetP 0; FR1_fixed has Pmin = Pmax.
     Given network file is "counter-trading/2Nodes_FRSeveralGenerators.xiidm"
     Given crac file is "counter-trading/crac-2-nodes.json"
     Given configuration file is "counter-trading/rao-parameters-ct.json"
@@ -236,7 +256,8 @@ Feature: 7.1: Simple CT Actions
 
   @rao @counter-trading
   Scenario: 7.1.17: GLSK referring to a node absent from the network
-    Same case as 7.1.4 with an extra FR node FFR9AA1 that does not exist: it is ignored and the result is the one of 7.1.4.
+    Covers: a GLSK file that lists a node (FFR9AA1) which does not exist in the network.
+    Situation: same case as 7.1.4 with the extra unknown node in the GLSK.
     Given network file is "counter-trading/2NodesFR1NodeBE.uct"
     Given crac file is "counter-trading/crac-2-nodes-fr-1-node-be.json"
     Given configuration file is "counter-trading/rao-parameters-ct.json"
@@ -249,7 +270,8 @@ Feature: 7.1: Simple CT Actions
 
   @rao @counter-trading
   Scenario: 7.1.18: CT range too small in the needed direction
-    The FR range is [-200, 1000]: FR can only go down by 200 MW, the remaining 200 MW overload cannot be solved.
+    Covers: a CT range that is too narrow in the direction needed to relieve the overload.
+    Situation: 400 MW are needed, but FR's range is [-200, 1000], so FR can only go down by 200 MW.
     Given network file is "counter-trading/2Nodes.uct"
     Given crac file is "counter-trading/crac-2-nodes-fr-range-too-small.json"
     Given configuration file is "counter-trading/rao-parameters-ct.json"
@@ -264,8 +286,8 @@ Feature: 7.1: Simple CT Actions
 
   @rao @counter-trading
   Scenario: 7.1.19: CT range relative to the initial network
-    Checks that a CT range relative to the initial network is centred on 0: the CT initial setpoint is always 0 when initialNetPosition is not specified.
-    The relative range +/-300 therefore behaves as the absolute range [-300, 300]: FR uses its full range and the border stays 100 MW overloaded.
+    Covers: a CT range defined relative to the initial network, with no initialNetPosition given.
+    Situation: the relative range is +/-300 MW, and the overload needs 400 MW.
     Given network file is "counter-trading/2Nodes.uct"
     Given crac file is "counter-trading/crac-2-nodes-relative-range.json"
     Given configuration file is "counter-trading/rao-parameters-ct.json"
@@ -281,8 +303,8 @@ Feature: 7.1: Simple CT Actions
 
   @rao @counter-trading
   Scenario: 7.1.21: CT combined with a topological action
-    Closing line 3 (x = 30, cost 100) leaves 3/4 of the exchange on the remaining line after an N-1: the limit becomes 800 MW.
-    CT covers the last 200 MW. Cost: 100 + 2 x (5 + 25 x 200) = 10110, cheaper than CT alone (20010).
+    Covers: a topological remedial action (closing line 3, cost 100) combined with CT.
+    Situation: closing line 3 leaves 3/4 of the exchange on the remaining line after an N-1, so the limit becomes 800 MW.
     Given network file is "counter-trading/2Nodes_openLine3.uct"
     Given crac file is "counter-trading/crac-2-nodes-ct-and-topo.json"
     Given configuration file is "counter-trading/rao-parameters-ct.json"
@@ -298,7 +320,8 @@ Feature: 7.1: Simple CT Actions
 
   @rao @counter-trading
   Scenario: 7.1.22: CT with the MAX_MIN_MARGIN objective
-    Costs are ignored: the margin is maximal when no power flows between FR and BE, i.e. CT of 1000 MW (full range).
+    Covers: CT under the MAX_MIN_MARGIN objective, where costs are ignored.
+    Situation: the 2-node overload of 7.1.2, with the margin as the only criterion.
     Given network file is "counter-trading/2Nodes.uct"
     Given crac file is "counter-trading/crac-2-nodes.json"
     Given configuration file is "counter-trading/rao-parameters-ct-max-min-margin.json"
@@ -312,6 +335,8 @@ Feature: 7.1: Simple CT Actions
 
   @rao @counter-trading
   Scenario: 7.1.23: Downward saturation of one generator, the two others keep their 2:1 proportion
+    Covers: downward saturation of one FR generator among three, with a 2:1 ratio between the two others.
+    Situation: FR must go down by 400 MW; one of the three generators hits its lower limit.
     Given network file is "counter-trading/2Nodes_FR3Generators_down.xiidm"
     Given crac file is "counter-trading/crac-2-nodes.json"
     Given configuration file is "counter-trading/rao-parameters-ct.json"
@@ -327,7 +352,8 @@ Feature: 7.1: Simple CT Actions
 
   @rao @counter-trading
   Scenario: 7.1.24: The whole area saturates downwards before reaching its range
-    FR generators can only go down 200 + 80 + 20 = 300 MW while 400 MW are needed: CT is limited by the Pmin, not by the range.
+    Covers: the whole FR area saturating downwards before the CT range is reached.
+    Situation: FR generators can only go down by 200 + 80 + 20 = 300 MW, while 400 MW are needed.
     Given network file is "counter-trading/2Nodes_FR3Generators_down_areaSaturated.xiidm"
     Given crac file is "counter-trading/crac-2-nodes.json"
     Given configuration file is "counter-trading/rao-parameters-ct.json"
@@ -344,9 +370,8 @@ Feature: 7.1: Simple CT Actions
 
   @rao @counter-trading
   Scenario: 7.1.25: Upward saturation of one generator
-    FR consumes 2000 MW and imports 1000 MW from BE: FR must produce 400 MW more.
-    FR1_c can only go up 10 MW, the 300 MW left are shared 2:1. FR1_a is at its Pmin, which must not prevent it from going up.
-    Cost: 5 + 25 x 400 + 5 + 25 x 400 = 20010.
+    Covers: upward saturation of one FR generator, and a generator at its Pmin that must still be able to go up.
+    Situation: FR imports 1000 MW from BE and consumes 2000 MW, so FR must produce 400 MW more. FR1_c can only go up by 10 MW; FR1_a is at its Pmin.
     Given network file is "counter-trading/2Nodes_FR3Generators_up.xiidm"
     Given crac file is "counter-trading/crac-2-nodes.json"
     Given configuration file is "counter-trading/rao-parameters-ct.json"
@@ -362,9 +387,8 @@ Feature: 7.1: Simple CT Actions
 
   @rao @counter-trading
   Scenario: 7.1.26: The cheapest counterpart saturates at its Pmin before reaching its range, mirror of 7.1.13
-    Exchanges of 3Nodes.uct are reversed: FR produces 1800 MW, BE imports 1000 MW and ES 800 MW. BE must produce 400 MW more.
-    ES is the cheapest counterpart (range +/-100 MW) but its Pmin = 750 MW: only 50 MW can be used, FR takes the 350 MW left.
-    Cost: BE 5 + 50 x 400, ES 5 + 10 x 50, FR 10 + 50 x 350 = 38020.
+    Covers: mirror of 7.1.13 with reversed flows: the cheapest counterpart is limited by its Pmin.
+    Situation: FR produces 1800 MW, BE imports 1000 MW and ES 800 MW; BE must produce 400 MW more. ES is the cheapest (range +/-100 MW) but its Pmin is 750 MW.
     Given network file is "counter-trading/3Nodes_mirror_ESPmin750.uct"
     Given crac file is "counter-trading/crac-3-nodes-es-cheap-limited.json"
     Given configuration file is "counter-trading/rao-parameters-ct.json"
