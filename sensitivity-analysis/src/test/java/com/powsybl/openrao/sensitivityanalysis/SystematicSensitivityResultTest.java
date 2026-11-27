@@ -7,16 +7,14 @@
 
 package com.powsybl.openrao.sensitivityanalysis;
 
-import com.powsybl.contingency.BranchContingency;
-import com.powsybl.contingency.Contingency;
-import com.powsybl.contingency.ContingencyContext;
-import com.powsybl.contingency.ContingencyContextType;
-import com.powsybl.contingency.ContingencyElementType;
+import com.powsybl.contingency.*;
 import com.powsybl.glsk.commons.ZonalData;
 import com.powsybl.glsk.ucte.UcteGlskDocument;
 import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.TopologyKind;
 import com.powsybl.iidm.network.TwoSides;
+import com.powsybl.loadflow.LoadFlowResult;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.CracFactory;
@@ -31,20 +29,11 @@ import com.powsybl.openrao.data.crac.impl.utils.NetworkImportsUtil;
 import com.powsybl.sensitivity.*;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
@@ -266,8 +255,8 @@ class SystematicSensitivityResultTest {
     }
 
     @Test
-    // Test case where N succeeds and all N-1 fail
     void testPartialContingencyFailures() {
+        // Test case where N succeeds and all N-1 fail
         setUpWith12Nodes();
 
         // The contingency points to an element that does not exist in the network => n-1 status should be set to failure
@@ -415,10 +404,12 @@ class SystematicSensitivityResultTest {
 
         sensitivityAnalysisResult = new SensitivityAnalysisResult(
             List.of(sensitivityFactor1),
-            List.of(new SensitivityAnalysisResult.SensitivityStateStatus(SensitivityState.postContingency(contingency.getId()), SensitivityAnalysisResult.Status.FAILURE)),
+            List.of(new SensitivityStateStatus(SensitivityState.postContingency(contingency.getId()),
+                List.of(new SensitivityStateStatus.ComponentStatus(0, 0, LoadFlowResult.ComponentResult.Status.FAILED, "")))),
             List.of(contingency.getId()),
             List.of(),
-            List.of()
+            List.of(),
+            true
         );
 
         result.completeData(sensitivityAnalysisResult, outageInstantOrder);
@@ -444,16 +435,217 @@ class SystematicSensitivityResultTest {
 
         SensitivityAnalysisResult sensitivityAnalysisResult = new SensitivityAnalysisResult(
             List.of(sensitivityFactor1),
-            List.of(new SensitivityAnalysisResult.SensitivityStateStatus(SensitivityState.postContingency(contingency.getId()), SensitivityAnalysisResult.Status.FAILURE)),
+            List.of(new SensitivityStateStatus(SensitivityState.postContingency(contingency.getId()),
+                List.of(new SensitivityStateStatus.ComponentStatus(0, 0, LoadFlowResult.ComponentResult.Status.FAILED, "")))),
             List.of(contingency.getId()),
             List.of(),
-            List.of()
+            List.of(),
+            true
         );
 
         SystematicSensitivityResult result = new SystematicSensitivityResult();
         result.completeData(sensitivityAnalysisResult, outageInstantOrder);
 
         assertEquals(SystematicSensitivityResult.SensitivityComputationStatus.FAILURE, result.getStatus());
+    }
+
+    @Test
+    void testUnrelatedBaseComponentFailure() {
+        setUpWith12Nodes();
+        var isolatedVoltageLevel = network.getSubstation("BBE1AA").newVoltageLevel().setId("isolated-vl")
+            .setNominalV(400).setTopologyKind(TopologyKind.BUS_BREAKER).add();
+        isolatedVoltageLevel.getBusBreakerView().newBus().setId("isolated-bus").add();
+        var isolatedLoad = isolatedVoltageLevel.newLoad().setId("isolated-load").setBus("isolated-bus")
+            .setConnectableBus("isolated-bus").setP0(1).setQ0(0).add();
+        var terminal = network.getBranch(nStateCnec.getNetworkElementId()).getTerminal1();
+        var bus = terminal.getBusView().getBus();
+        int cc = bus.getConnectedComponent().getNum();
+        int sc = bus.getSynchronousComponent().getNum();
+        var generator = network.getGeneratorStream().filter(g -> g.getTerminal().getBusView().getBus() != null)
+            .filter(g -> g.getTerminal().getBusView().getBus().getConnectedComponent().getNum() == cc
+                && g.getTerminal().getBusView().getBus().getSynchronousComponent().getNum() == sc).findFirst().orElseThrow();
+        SensitivityFactor factor = new SensitivityFactor(SensitivityFunctionType.BRANCH_ACTIVE_POWER_1, nStateCnec.getNetworkElementId(),
+            SensitivityVariableType.INJECTION_ACTIVE_POWER, generator.getId(), false, ContingencyContext.none());
+        var converged = new SensitivityStateStatus.ComponentStatus(cc, sc, LoadFlowResult.ComponentResult.Status.CONVERGED, "");
+        var isolatedBus = isolatedLoad.getTerminal().getBusView().getBus();
+        var unrelatedFailure = new SensitivityStateStatus.ComponentStatus(isolatedBus.getConnectedComponent().getNum(),
+            isolatedBus.getSynchronousComponent().getNum(), LoadFlowResult.ComponentResult.Status.FAILED, "");
+        SensitivityAnalysisResult input = new SensitivityAnalysisResult(List.of(factor),
+            List.of(new SensitivityStateStatus(SensitivityState.PRE_CONTINGENCY, List.of(converged, unrelatedFailure))),
+            List.of(), List.of(), List.of(new SensitivityValue(0, -1, -1, 1, 2)), true);
+
+        SystematicSensitivityResult result = new SystematicSensitivityResult().completeData(input, outageInstantOrder);
+        assertEquals(SystematicSensitivityResult.SensitivityComputationStatus.FAILURE, result.getStatus());
+        assertEquals(SystematicSensitivityResult.SensitivityComputationStatus.FAILURE, result.getStatus(crac.getPreventiveState()));
+        assertTrue(Double.isNaN(result.getReferenceFlow(nStateCnec, TwoSides.ONE)));
+        assertTrue(Double.isNaN(result.getSensitivityOnFlow(generator.getId(), nStateCnec, TwoSides.ONE)));
+
+        String contingencyId = contingencyCnec.getState().getContingency().orElseThrow().getId();
+        SensitivityFactor contingencyFactor = new SensitivityFactor(SensitivityFunctionType.BRANCH_ACTIVE_POWER_1,
+            contingencyCnec.getNetworkElementId(), SensitivityVariableType.INJECTION_ACTIVE_POWER, generator.getId(), false, ContingencyContext.all());
+        SensitivityAnalysisResult contingencyInput = new SensitivityAnalysisResult(List.of(contingencyFactor),
+            List.of(new SensitivityStateStatus(SensitivityState.PRE_CONTINGENCY, List.of(converged)),
+                new SensitivityStateStatus(SensitivityState.postContingency(contingencyId), List.of(converged, unrelatedFailure))),
+            List.of(contingencyId), List.of(), List.of(new SensitivityValue(0, -1, -1, 1, 2), new SensitivityValue(0, 0, -1, 3, 4)), true);
+        SystematicSensitivityResult contingencyResult = new SystematicSensitivityResult().completeData(contingencyInput, outageInstantOrder);
+        assertEquals(SystematicSensitivityResult.SensitivityComputationStatus.PARTIAL_FAILURE, contingencyResult.getStatus());
+        assertEquals(SystematicSensitivityResult.SensitivityComputationStatus.SUCCESS, contingencyResult.getStatus(crac.getPreventiveState()));
+        assertEquals(SystematicSensitivityResult.SensitivityComputationStatus.FAILURE, contingencyResult.getStatus(contingencyCnec.getState()));
+        assertTrue(Double.isNaN(contingencyResult.getReferenceFlow(contingencyCnec, TwoSides.ONE)));
+        assertTrue(Double.isNaN(contingencyResult.getSensitivityOnFlow(generator.getId(), contingencyCnec, TwoSides.ONE)));
+    }
+
+    @Test
+    void testComponentStatusAggregation() {
+        setUpWith12Nodes();
+        String contingencyId = contingencyCnec.getState().getContingency().orElseThrow().getId();
+        SensitivityFactor factor = new SensitivityFactor(SensitivityFunctionType.BRANCH_ACTIVE_POWER_1, nStateCnec.getNetworkElementId(),
+            SensitivityVariableType.TRANSFORMER_PHASE, "pst", false, ContingencyContext.all());
+        SensitivityValue baseValue = new SensitivityValue(0, -1, -1, 1, 2);
+        SensitivityValue contingencyValue = new SensitivityValue(0, 0, -1, 3, 4);
+        SensitivityState postContingency = SensitivityState.postContingency(contingencyId);
+        SensitivityStateStatus.ComponentStatus converged = new SensitivityStateStatus.ComponentStatus(0, 0, LoadFlowResult.ComponentResult.Status.CONVERGED, "");
+        SensitivityStateStatus.ComponentStatus failed = new SensitivityStateStatus.ComponentStatus(1, 1, LoadFlowResult.ComponentResult.Status.FAILED, "failed");
+        SensitivityStateStatus.ComponentStatus diverged = new SensitivityStateStatus.ComponentStatus(1, 1, LoadFlowResult.ComponentResult.Status.MAX_ITERATION_REACHED, "");
+        SensitivityStateStatus.ComponentStatus noCalculation = new SensitivityStateStatus.ComponentStatus(-1, -1, LoadFlowResult.ComponentResult.Status.NO_CALCULATION, "");
+
+        for (List<SensitivityStateStatus.ComponentStatus> components : List.of(List.of(converged), List.of(converged, converged), List.<SensitivityStateStatus.ComponentStatus>of(),
+            List.of(noCalculation), List.of(noCalculation, noCalculation))) {
+            SensitivityAnalysisResult input = new SensitivityAnalysisResult(List.of(factor), List.of(new SensitivityStateStatus(postContingency, components)),
+                List.of(contingencyId), List.of(), List.of(baseValue, contingencyValue), true);
+            SystematicSensitivityResult result = new SystematicSensitivityResult().completeData(input, outageInstantOrder);
+            assertEquals(SystematicSensitivityResult.SensitivityComputationStatus.SUCCESS, result.getStatus());
+            assertEquals(SystematicSensitivityResult.SensitivityComputationStatus.SUCCESS, result.getStatus(contingencyCnec.getState()));
+            assertEquals(2, result.getReferenceFlow(nStateCnec, TwoSides.ONE));
+            assertEquals(4, result.getReferenceFlow(contingencyCnec, TwoSides.ONE));
+            assertEquals(3, result.getSensitivityOnFlow("pst", contingencyCnec, TwoSides.ONE));
+        }
+        for (List<SensitivityStateStatus.ComponentStatus> components : List.of(List.of(converged, failed), List.of(converged, diverged),
+            List.of(converged, noCalculation), List.of(noCalculation, failed), List.of(noCalculation, diverged))) {
+            SensitivityAnalysisResult input = new SensitivityAnalysisResult(List.of(factor), List.of(new SensitivityStateStatus(postContingency, components)),
+                List.of(contingencyId), List.of(), List.of(baseValue, contingencyValue), true);
+            SystematicSensitivityResult result = new SystematicSensitivityResult().completeData(input, outageInstantOrder);
+            assertEquals(SystematicSensitivityResult.SensitivityComputationStatus.PARTIAL_FAILURE, result.getStatus());
+            assertEquals(SystematicSensitivityResult.SensitivityComputationStatus.SUCCESS, result.getStatus(crac.getPreventiveState()));
+            assertEquals(SystematicSensitivityResult.SensitivityComputationStatus.FAILURE, result.getStatus(contingencyCnec.getState()));
+            assertEquals(2, result.getReferenceFlow(nStateCnec, TwoSides.ONE));
+            assertTrue(Double.isNaN(result.getReferenceFlow(contingencyCnec, TwoSides.ONE)));
+            assertTrue(Double.isNaN(result.getSensitivityOnFlow("pst", contingencyCnec, TwoSides.ONE)));
+        }
+    }
+
+    @Test
+    void testNoImpactContingencyRetainsValues() {
+        setUpWith12Nodes();
+        String contingencyId = contingencyCnec.getState().getContingency().orElseThrow().getId();
+        SensitivityFactor factor = new SensitivityFactor(SensitivityFunctionType.BRANCH_ACTIVE_POWER_1, nStateCnec.getNetworkElementId(),
+            SensitivityVariableType.TRANSFORMER_PHASE, "pst", false, ContingencyContext.all());
+        SensitivityStateStatus.ComponentStatus noCalculation = new SensitivityStateStatus.ComponentStatus(0, 0, LoadFlowResult.ComponentResult.Status.NO_CALCULATION, "");
+        SensitivityAnalysisResult input = new SensitivityAnalysisResult(List.of(factor), List.of(
+            new SensitivityStateStatus(SensitivityState.postContingency(contingencyId), List.of(noCalculation))),
+            List.of(contingencyId), List.of(), List.of(new SensitivityValue(0, -1, -1, 1, 2), new SensitivityValue(0, 0, -1, 3, 4)), true);
+
+        SystematicSensitivityResult result = new SystematicSensitivityResult().completeData(input, outageInstantOrder);
+        assertEquals(SystematicSensitivityResult.SensitivityComputationStatus.SUCCESS, result.getStatus());
+        assertEquals(SystematicSensitivityResult.SensitivityComputationStatus.SUCCESS, result.getStatus(contingencyCnec.getState()));
+        assertEquals(4, result.getReferenceFlow(contingencyCnec, TwoSides.ONE));
+        assertEquals(3, result.getSensitivityOnFlow("pst", contingencyCnec, TwoSides.ONE));
+    }
+
+    @Test
+    void testEmptyBaseComponentStatuses() {
+        setUpWith12Nodes();
+        String contingencyId = contingencyCnec.getState().getContingency().orElseThrow().getId();
+        SensitivityFactor factor = new SensitivityFactor(SensitivityFunctionType.BRANCH_ACTIVE_POWER_1, nStateCnec.getNetworkElementId(),
+            SensitivityVariableType.TRANSFORMER_PHASE, "pst", false, ContingencyContext.all());
+        SensitivityAnalysisResult input = new SensitivityAnalysisResult(List.of(factor), List.of(
+            new SensitivityStateStatus(SensitivityState.PRE_CONTINGENCY, List.of()),
+            new SensitivityStateStatus(SensitivityState.postContingency(contingencyId), List.of())),
+            List.of(contingencyId), List.of(), List.of(new SensitivityValue(0, -1, -1, 1, 2), new SensitivityValue(0, 0, -1, 3, 4)), true);
+
+        SystematicSensitivityResult result = new SystematicSensitivityResult().completeData(input, outageInstantOrder);
+        assertEquals(SystematicSensitivityResult.SensitivityComputationStatus.SUCCESS, result.getStatus());
+        assertEquals(SystematicSensitivityResult.SensitivityComputationStatus.SUCCESS, result.getStatus(crac.getPreventiveState()));
+        assertEquals(SystematicSensitivityResult.SensitivityComputationStatus.SUCCESS, result.getStatus(contingencyCnec.getState()));
+        assertEquals(2, result.getReferenceFlow(nStateCnec, TwoSides.ONE));
+        assertEquals(1, result.getSensitivityOnFlow("pst", nStateCnec, TwoSides.ONE));
+        assertEquals(4, result.getReferenceFlow(contingencyCnec, TwoSides.ONE));
+        assertEquals(3, result.getSensitivityOnFlow("pst", contingencyCnec, TwoSides.ONE));
+    }
+
+    @Test
+    void testFailedBaseCaseStatus() {
+        setUpWith12Nodes();
+        String contingencyId = contingencyCnec.getState().getContingency().orElseThrow().getId();
+        SensitivityFactor factor = new SensitivityFactor(SensitivityFunctionType.BRANCH_ACTIVE_POWER_1, nStateCnec.getNetworkElementId(),
+            SensitivityVariableType.TRANSFORMER_PHASE, "pst", false, ContingencyContext.all());
+        SensitivityValue baseValue = new SensitivityValue(0, -1, -1, 1, 2);
+        SensitivityValue contingencyValue = new SensitivityValue(0, 0, -1, 3, 4);
+        SensitivityState postContingency = SensitivityState.postContingency(contingencyId);
+        SensitivityStateStatus.ComponentStatus converged = new SensitivityStateStatus.ComponentStatus(0, 0, LoadFlowResult.ComponentResult.Status.CONVERGED, "");
+        SensitivityStateStatus.ComponentStatus failed = new SensitivityStateStatus.ComponentStatus(1, 1, LoadFlowResult.ComponentResult.Status.FAILED, "failed");
+        SensitivityAnalysisResult failedBase = new SensitivityAnalysisResult(List.of(factor),
+            List.of(new SensitivityStateStatus(SensitivityState.PRE_CONTINGENCY, List.of(failed)), new SensitivityStateStatus(postContingency, List.of(converged))),
+            List.of(contingencyId), List.of(), List.of(baseValue, contingencyValue), true);
+        SystematicSensitivityResult result = new SystematicSensitivityResult().completeData(failedBase, outageInstantOrder);
+        assertEquals(SystematicSensitivityResult.SensitivityComputationStatus.FAILURE, result.getStatus());
+        assertEquals(SystematicSensitivityResult.SensitivityComputationStatus.FAILURE, result.getStatus(crac.getPreventiveState()));
+        assertTrue(Double.isNaN(result.getReferenceFlow(nStateCnec, TwoSides.ONE)));
+        assertTrue(Double.isNaN(result.getSensitivityOnFlow("pst", nStateCnec, TwoSides.ONE)));
+    }
+
+    @Test
+    void testIncompleteResultIsRejected() {
+        SensitivityFactor factor = new SensitivityFactor(SensitivityFunctionType.BRANCH_ACTIVE_POWER_1, "branch",
+            SensitivityVariableType.TRANSFORMER_PHASE, "pst", false, ContingencyContext.all());
+        SensitivityValue baseValue = new SensitivityValue(0, -1, -1, 1, 2);
+        SensitivityValue contingencyValue = new SensitivityValue(0, 0, -1, 3, 4);
+        SensitivityState postContingency = SensitivityState.postContingency("contingency");
+        SensitivityStateStatus.ComponentStatus converged = new SensitivityStateStatus.ComponentStatus(0, 0, LoadFlowResult.ComponentResult.Status.CONVERGED, "");
+        SensitivityAnalysisResult incomplete = new SensitivityAnalysisResult(List.of(factor), List.of(new SensitivityStateStatus(postContingency, List.of(converged))),
+            List.of("contingency"), List.of(), List.of(baseValue, contingencyValue), false);
+        SystematicSensitivityResult result = new SystematicSensitivityResult().completeData(incomplete, 1);
+        assertEquals(SystematicSensitivityResult.SensitivityComputationStatus.FAILURE, result.getStatus());
+        assertTrue(result.getContingencies().isEmpty());
+    }
+
+    @Test
+    void testNoCalculationBaseStatus() {
+        setUpWith12Nodes();
+        String contingencyId = contingencyCnec.getState().getContingency().orElseThrow().getId();
+        SensitivityFactor factor = new SensitivityFactor(SensitivityFunctionType.BRANCH_ACTIVE_POWER_1, nStateCnec.getNetworkElementId(),
+            SensitivityVariableType.TRANSFORMER_PHASE, "pst", false, ContingencyContext.all());
+        SensitivityStateStatus.ComponentStatus noCalculation = new SensitivityStateStatus.ComponentStatus(-1, -1, LoadFlowResult.ComponentResult.Status.NO_CALCULATION, "");
+        SensitivityStateStatus.ComponentStatus converged = new SensitivityStateStatus.ComponentStatus(0, 0, LoadFlowResult.ComponentResult.Status.CONVERGED, "");
+        for (List<SensitivityStateStatus.ComponentStatus> components : List.of(List.of(noCalculation), List.of(converged, noCalculation))) {
+            SensitivityAnalysisResult input = new SensitivityAnalysisResult(List.of(factor), List.of(
+                new SensitivityStateStatus(SensitivityState.PRE_CONTINGENCY, components),
+                new SensitivityStateStatus(SensitivityState.postContingency(contingencyId), List.of(converged))),
+                List.of(contingencyId), List.of(), List.of(new SensitivityValue(0, -1, -1, 1, 2)), true);
+
+            SystematicSensitivityResult result = new SystematicSensitivityResult().completeData(input, outageInstantOrder);
+            assertEquals(SystematicSensitivityResult.SensitivityComputationStatus.FAILURE, result.getStatus());
+            assertEquals(SystematicSensitivityResult.SensitivityComputationStatus.FAILURE, result.getStatus(crac.getPreventiveState()));
+            assertEquals(SystematicSensitivityResult.SensitivityComputationStatus.FAILURE, result.getStatus(contingencyCnec.getState()));
+            assertTrue(Double.isNaN(result.getReferenceFlow(nStateCnec, TwoSides.ONE)));
+            assertTrue(Double.isNaN(result.getSensitivityOnFlow("pst", nStateCnec, TwoSides.ONE)));
+        }
+    }
+
+    @Test
+    void testRecordedContingencyFailureSurvivesLaterSuccessfulCalculation() {
+        setUpWith12Nodes();
+        SystematicSensitivityResult result = new SystematicSensitivityResult();
+        result.recordFailedContingency(contingencyCnec.getState().getContingency().orElseThrow().getId(), outageInstantOrder);
+        assertEquals(SystematicSensitivityResult.SensitivityComputationStatus.FAILURE, result.getStatus());
+
+        SensitivityAnalysisResult input = SensitivityAnalysis.find("MockSensi").run(network,
+            rangeActionSensitivityProvider.getBasecaseFactors(network), List.of(), new ArrayList<>(), SensitivityAnalysisParameters.load());
+        result.completeData(input, crac.getOutageInstant().getOrder());
+
+        assertEquals(SystematicSensitivityResult.SensitivityComputationStatus.PARTIAL_FAILURE, result.getStatus());
+        assertEquals(SystematicSensitivityResult.SensitivityComputationStatus.FAILURE, result.getStatus(contingencyCnec.getState()));
+        assertEquals(SystematicSensitivityResult.SensitivityComputationStatus.SUCCESS, result.getStatus(crac.getPreventiveState()));
     }
 
 }

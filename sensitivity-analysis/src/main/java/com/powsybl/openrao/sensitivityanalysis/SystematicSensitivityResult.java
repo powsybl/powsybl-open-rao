@@ -11,6 +11,7 @@ import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TwoSides;
+import com.powsybl.loadflow.LoadFlowResult;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.Cnec;
@@ -21,6 +22,7 @@ import com.powsybl.openrao.sensitivityanalysis.rasensihandler.RangeActionSensiHa
 import com.powsybl.sensitivity.SensitivityAnalysisResult;
 import com.powsybl.sensitivity.SensitivityFactor;
 import com.powsybl.sensitivity.SensitivityFunctionType;
+import com.powsybl.sensitivity.SensitivityStateStatus;
 import com.powsybl.sensitivity.SensitivityValue;
 import com.powsybl.sensitivity.SensitivityVariableSet;
 
@@ -93,43 +95,75 @@ public class SystematicSensitivityResult {
 
     public SystematicSensitivityResult completeData(SensitivityAnalysisResult results, Integer instantOrder) {
         postContingencyResults.putIfAbsent(instantOrder, new HashMap<>());
-        // if a failing perimeter was already run, then the status would be set to PARTIAL_FAILURE
-        // This boolean will be reused to set the global status to PARITAL_FAILURE if required
-        boolean anyContingencyFailure = this.status == SensitivityComputationStatus.PARTIAL_FAILURE;
+        // Preserve previously recorded failures even if no base-case data was available at the time.
+        boolean anyContingencyFailure = this.status == SensitivityComputationStatus.PARTIAL_FAILURE
+            || postContingencyResults.values().stream().flatMap(states -> states.values().stream())
+                .anyMatch(state -> state.status == SensitivityComputationStatus.FAILURE);
         // status set to failure initially, and set to success if we find at least one non NaN value, or at least one contingencyStatus is SUCCESS
         this.status = SensitivityComputationStatus.FAILURE;
-        if (results == null) {
+        if (results == null || !results.isComputationComplete()) {
             return this;
         }
 
+        boolean baseCaseFailure = results.getStateStatuses().stream()
+            .filter(stateStatus -> stateStatus.getState().contingencyId() == null)
+            .anyMatch(SystematicSensitivityResult::isFailure);
         results.getPreContingencyValues().forEach(sensitivityValue -> fillIndividualValue(
             sensitivityValue,
             nStateResult,
             results.getFactors(),
-            SensitivityAnalysisResult.Status.SUCCESS
+            baseCaseFailure
         ));
-        for (SensitivityAnalysisResult.SensitivityStateStatus contingencyStatus : results.getStateStatuses()) {
-            if (contingencyStatus.getStatus() == SensitivityAnalysisResult.Status.FAILURE) {
+        for (SensitivityStateStatus contingencyStatus : results.getStateStatuses()) {
+            if (contingencyStatus.getState().contingencyId() == null) {
+                continue;
+            }
+            boolean failure = isFailure(contingencyStatus);
+            if (failure) {
                 anyContingencyFailure = true;
             }
             StateResult contingencyStateResult = new StateResult();
-            contingencyStateResult.status = contingencyStatus.getStatus().equals(SensitivityAnalysisResult.Status.FAILURE) ?
+            contingencyStateResult.status = failure ?
                 SensitivityComputationStatus.FAILURE : SensitivityComputationStatus.SUCCESS;
             if (contingencyStateResult.status.equals(SensitivityComputationStatus.SUCCESS)) {
                 this.status = SensitivityComputationStatus.SUCCESS;
             }
             results.getValues(contingencyStatus.getState()).forEach(sensitivityValue ->
-                fillIndividualValue(sensitivityValue, contingencyStateResult, results.getFactors(), contingencyStatus.getStatus())
+                fillIndividualValue(sensitivityValue, contingencyStateResult, results.getFactors(), failure)
             );
             postContingencyResults.get(instantOrder).put(contingencyStatus.getState().contingencyId(), contingencyStateResult);
         }
-        if (!results.getPreContingencyValues().isEmpty()) {
+        if (baseCaseFailure) {
+            nStateResult.status = SensitivityComputationStatus.FAILURE;
+            this.status = SensitivityComputationStatus.FAILURE;
+        } else if (!results.getPreContingencyValues().isEmpty()) {
             nStateResult.status = this.status;
         }
         if (nStateResult.status != SensitivityComputationStatus.FAILURE && anyContingencyFailure && !nStateResult.isEmpty()) {
             this.status = SensitivityComputationStatus.PARTIAL_FAILURE;
         }
         return this;
+    }
+
+    void recordFailedContingency(String contingencyId, int instantOrder) {
+        StateResult failedState = new StateResult();
+        failedState.status = SensitivityComputationStatus.FAILURE;
+        postContingencyResults.computeIfAbsent(instantOrder, ignored -> new HashMap<>()).put(contingencyId, failedState);
+        status = nStateResult.status != SensitivityComputationStatus.FAILURE && !nStateResult.isEmpty()
+            ? SensitivityComputationStatus.PARTIAL_FAILURE : SensitivityComputationStatus.FAILURE;
+    }
+
+    private static boolean isFailure(SensitivityStateStatus stateStatus) {
+        List<SensitivityStateStatus.ComponentStatus> components = stateStatus.getComponentsLoadFlowStatusList();
+        // A contingency with only NO_CALCULATION statuses is treated as having no impact. Open Load Flow can
+        // return NO_CALCULATION with valid values when a remedial action has already opened the contingency line.
+        // Other providers may use NO_CALCULATION differently; this does not prove that unreported components converged.
+        if (stateStatus.getState().contingencyId() != null && !components.isEmpty()
+            && components.stream().allMatch(component -> component.status() == LoadFlowResult.ComponentResult.Status.NO_CALCULATION)) {
+            return false;
+        }
+        // Empty lists succeed by default. A mixed status, a divergence, or NO_CALCULATION in the base case fails.
+        return components.stream().anyMatch(component -> component.status() != LoadFlowResult.ComponentResult.Status.CONVERGED);
     }
 
     public SystematicSensitivityResult postTreatIntensities() {
@@ -195,15 +229,15 @@ public class SystematicSensitivityResult {
         return invertedMap;
     }
 
-    private void fillIndividualValue(SensitivityValue value, StateResult stateResult, List<SensitivityFactor> factors, SensitivityAnalysisResult.Status status) {
-        double reference = status.equals(SensitivityAnalysisResult.Status.FAILURE) ? Double.NaN : value.getFunctionReference();
-        double sensitivity = status.equals(SensitivityAnalysisResult.Status.FAILURE) ? Double.NaN : value.getValue();
+    private void fillIndividualValue(SensitivityValue value, StateResult stateResult, List<SensitivityFactor> factors, boolean failure) {
+        double reference = failure ? Double.NaN : value.getFunctionReference();
+        double sensitivity = failure ? Double.NaN : value.getValue();
         SensitivityFactor factor = factors.get(value.getFactorIndex());
 
         if (!Double.isNaN(reference) && !Double.isNaN(sensitivity)) {
             this.status = SensitivityComputationStatus.SUCCESS;
         }
-        if (Double.isNaN(reference) && status != SensitivityAnalysisResult.Status.FAILURE) {
+        if (Double.isNaN(reference) && !failure) {
             reference = 0;
             sensitivity = 0;
         }
