@@ -22,6 +22,7 @@ import com.powsybl.openrao.data.crac.api.networkaction.ActionType;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkActionAdder;
 import com.powsybl.openrao.data.crac.api.rangeaction.CounterTradeRangeActionAdder;
+import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeActionAdder;
 import com.powsybl.openrao.data.crac.api.usagerule.OnConstraint;
 import com.powsybl.openrao.data.crac.api.usagerule.OnContingencyState;
 import com.powsybl.openrao.data.crac.api.usagerule.OnInstant;
@@ -52,10 +53,18 @@ public class NcRemedialActionsCreator {
     private final NetworkActionCreator networkActionCreator;
     private final PstRangeActionCreator pstRangeActionCreator;
     private final CounterTradingRangeActionCreator counterTradingRangeActionCreator;
+    private final RedispatchingActionCreator redispatchingActionCreator;
     private final Set<GridStateAlterationRemedialAction> gridStateAlterationRemedialActions;
     private final Set<CountertradeRemedialAction> countertradeRemedialActions;
+    private final Set<RedispatchRemedialAction> redispatchRemedialActions;
     private final Map<String, Set<AssessedElementWithRemedialAction>> linkedAeWithRa;
     private final Map<String, Set<ContingencyWithRemedialAction>> linkedCoWithRa;
+    private final Map<String, Set<PowerShiftKeyStrategy>> linkedPowerShiftKeyStrategiesWithRa;
+    private final Map<String, Set<PowerShiftKeyDistribution>> linkedPskDistributionWithPskStrategies;
+    private final Map<String, Set<PowerShiftKeySchedule>> linkedPowerShiftKeySchedulesWithMrid;
+    private final Map<String, Set<ParticipationFactorTimePoint>> linkedParticipationFactorTimePointsWithPskSchedule;
+    private final Map<String, Set<PowerBidSchedule>> linkedPowerBidSchedulesWithRa;
+    private final Map<String, Set<PowerBidScheduleTimePoint>> linkedPowerBidScheduleTimePointWithPowerBidSchedule;
 
     public NcRemedialActionsCreator(Crac crac,
                                     Network network,
@@ -80,8 +89,25 @@ public class NcRemedialActionsCreator {
         this.counterTradingRangeActionCreator = new CounterTradingRangeActionCreator(this.crac, network, ncParameters);
         this.countertradeRemedialActions = new HashSet<>(nativeCrac.getCountertradeRemedialActions());
 
+        this.redispatchingActionCreator = new RedispatchingActionCreator(this.crac, network, ncParameters);
+        this.redispatchRemedialActions = new HashSet<>(nativeCrac.getRedispatchRemedialActions());
+        this.linkedPowerShiftKeyStrategiesWithRa = new NcAggregator<>(PowerShiftKeyStrategy::powerRemedialAction)
+            .aggregate(nativeCrac.getPowerShiftKeyStrategies());
+        this.linkedPskDistributionWithPskStrategies = new NcAggregator<>(PowerShiftKeyDistribution::powerShiftKeyStrategy)
+            .aggregate(nativeCrac.getPowerShiftKeyDistributions());
+        this.linkedPowerShiftKeySchedulesWithMrid = new NcAggregator<>(PowerShiftKeySchedule::mrid)
+            .aggregate(nativeCrac.getPowerShiftKeySchedules());
+        this.linkedParticipationFactorTimePointsWithPskSchedule = new NcAggregator<>(ParticipationFactorTimePoint::powerShiftKeySchedule)
+            .aggregate(nativeCrac.getParticipationFactorTimePoints());
+        this.linkedPowerBidSchedulesWithRa = new NcAggregator<>(PowerBidSchedule::powerRemedialAction)
+            .aggregate(nativeCrac.getPowerBidSchedules());
+        this.linkedPowerBidScheduleTimePointWithPowerBidSchedule = new NcAggregator<>(PowerBidScheduleTimePoint::powerBidSchedule)
+            .aggregate(nativeCrac.getPowerBidScheduleTimePoints());
+
         this.gridStateAlterationRemedialActions = new HashSet<>(nativeCrac.getGridStateAlterationRemedialActions());
+
         createRemedialActions(cracCreationContext);
+
         // standaloneRaIdsImplicatedIntoAGroup contain ids of Ra's depending on a group whether the group is imported or not
         Set<String> standaloneRaIdsImplicatedIntoAGroup = createRemedialActionGroups();
         standaloneRaIdsImplicatedIntoAGroup.forEach(crac::removeRemedialAction);
@@ -99,6 +125,11 @@ public class NcRemedialActionsCreator {
         if (countertradeRemedialActions != null) {
             countertradeRemedialActions
                     .forEach(this::addCountertradeRangeAction);
+        }
+
+        if (redispatchRemedialActions != null) {
+            redispatchRemedialActions
+                    .forEach(redispatchingRangeActionAdder -> addRedispatchRemedialAction(redispatchingRangeActionAdder, cracCreationContext.getCnecCreationContexts()));
         }
 
     }
@@ -147,6 +178,60 @@ public class NcRemedialActionsCreator {
         } catch (OpenRaoImportException e) {
             saveNotImportedContext(countertradeRemedialAction.mrid(), e);
         }
+    }
+
+    private void addRedispatchRemedialAction(RedispatchRemedialAction redispatchRemedialAction, Set<ElementaryCreationContext> cnecCreationContexts) {
+        String raId = redispatchRemedialAction.mrid();
+        List<String> alterations = new ArrayList<>();
+
+        try {
+            if (raId == null) {
+                throw new OpenRaoImportException(ImportStatus.INCOMPLETE_DATA,
+                    String.format("Redispatching action %s will not be imported because its mRID is missing",
+                        redispatchRemedialAction.name()
+                    ));
+            }
+            if (!redispatchRemedialAction.isManual()) {
+                throw new OpenRaoImportException(ImportStatus.NOT_FOR_RAO,
+                    String.format("Redispatching action %s will not be imported because it cannot be automatic.",
+                        raId)
+                );
+            }
+            InjectionRangeActionAdder redispatchingRangeActionAdder = redispatchingActionCreator.getRedispatchingActionAdder(
+                redispatchRemedialAction,
+                raId,
+                linkedPowerShiftKeyStrategiesWithRa.get(raId),
+                linkedPskDistributionWithPskStrategies,
+                linkedPowerShiftKeySchedulesWithMrid,
+                linkedParticipationFactorTimePointsWithPskSchedule,
+                linkedPowerBidSchedulesWithRa.get(raId),
+                linkedPowerBidScheduleTimePointWithPowerBidSchedule);
+
+            if (redispatchRemedialAction.name() != null) {
+                redispatchingRangeActionAdder.withName(redispatchRemedialAction.name());
+            }
+
+            addAllUsageRule(redispatchRemedialAction, cnecCreationContexts, redispatchingRangeActionAdder, alterations);
+
+            redispatchingRangeActionAdder.add();
+
+        } catch (OpenRaoImportException e) {
+            saveNotImportedContext(redispatchRemedialAction.mrid(), e);
+        }
+    }
+
+    private void addAllUsageRule(NativeRemedialAction remedialAction, Set<ElementaryCreationContext> cnecCreationContexts, RemedialActionAdder<?> remedialActionAdder, List<String> alterations) {
+        InstantKind instantKind = getInstantKind(remedialAction);
+        Set<Instant> instants = crac.getInstants(instantKind);
+        instants.forEach(instant -> addUsageRules(
+            remedialAction.mrid(),
+            linkedAeWithRa.getOrDefault(remedialAction.mrid(), Set.of()),
+            linkedCoWithRa.getOrDefault(remedialAction.mrid(), Set.of()),
+            cnecCreationContexts,
+            remedialActionAdder,
+            alterations,
+            instant
+        ));
     }
 
     private void addGridStateRemedialAction(GridStateAlterationRemedialAction gridStateAlterationRemedialAction,
@@ -274,17 +359,7 @@ public class NcRemedialActionsCreator {
                             gridStateAlterationRemedialAction.mrid())
             );
         }
-        InstantKind instantKind = getInstantKind(gridStateAlterationRemedialAction);
-        Set<Instant> instants = crac.getInstants(instantKind);
-        instants.forEach(instant -> addUsageRules(
-                gridStateAlterationRemedialAction.mrid(),
-                linkedAeWithRa.getOrDefault(gridStateAlterationRemedialAction.mrid(), Set.of()),
-                linkedCoWithRa.getOrDefault(gridStateAlterationRemedialAction.mrid(), Set.of()),
-                cnecCreationContexts,
-                remedialActionAdder,
-                alterations,
-                instant
-        ));
+        addAllUsageRule(gridStateAlterationRemedialAction, cnecCreationContexts, remedialActionAdder, alterations);
         remedialActionAdder.add();
         saveImportedContext(gridStateAlterationRemedialAction, alterations);
 
