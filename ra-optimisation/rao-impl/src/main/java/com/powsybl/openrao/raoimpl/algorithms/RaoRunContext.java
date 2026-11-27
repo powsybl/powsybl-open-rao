@@ -27,7 +27,7 @@ import java.util.Objects;
  * <p>
  * * @author Maxence Fleury {@literal <maxence.fleury at artelys.com>}
  */
-public final class RaoRunContext {
+final class RaoRunContext {
     @NonNull
     private final SearchTreeRunContext mainSolve;
     @Nullable
