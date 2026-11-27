@@ -19,7 +19,7 @@ public record PowerShiftKeySchedule(String mrid, String interpolationKind, Strin
         return new PowerShiftKeySchedule(
             propertyBag.getId(NcConstants.POWER_SHIFT_KEY_SCHEDULE),
             propertyBag.get(NcConstants.INTERPOLATION_KIND),
-            propertyBag.get(NcConstants.GENERATING_UNIT)
+            propertyBag.getId(NcConstants.GENERATING_UNIT)
         );
     }
 }

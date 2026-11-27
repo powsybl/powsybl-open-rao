@@ -17,7 +17,7 @@ public record PowerShiftKeyStrategy(String mrid, String powerRemedialAction) imp
     public static PowerShiftKeyStrategy fromPropertyBag(PropertyBag propertyBag) {
         return new PowerShiftKeyStrategy(
             propertyBag.getId(NcConstants.POWER_SHIFT_KEY_STRATEGY),
-            propertyBag.get(NcConstants.POWER_REMEDIAL_ACTION)
+            propertyBag.getId(NcConstants.POWER_REMEDIAL_ACTION)
         );
     }
 }

@@ -17,8 +17,8 @@ public record PowerShiftKeyDistribution(String mrid, String powerShiftKeySchedul
     public static PowerShiftKeyDistribution fromPropertyBag(PropertyBag propertyBag) {
         return new PowerShiftKeyDistribution(
             propertyBag.getId(NcConstants.POWER_SHIFT_KEY_DISTRIBUTION),
-            propertyBag.get(NcConstants.POWER_SHIFT_KEY_SCHEDULE),
-            propertyBag.get(NcConstants.POWER_SHIFT_KEY_STRATEGY)
+            propertyBag.getId(NcConstants.POWER_SHIFT_KEY_SCHEDULE),
+            propertyBag.getId(NcConstants.POWER_SHIFT_KEY_STRATEGY)
         );
     }
 }
