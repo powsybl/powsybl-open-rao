@@ -410,6 +410,7 @@ public class CastorSecondPreventive {
             crac, crac.getFlowCnecs(), crac.getRangeActions(), preSolveRaoParameters, presolve.getToolProvider(), true)
             .runBasedOnInitialResults(network, presolve.getInitialOutput(), stateTree.getOperatorsNotSharingCras(), appliedCras, reportNode);
         if (preSolvePrePerimeterResult.getSensitivityStatus() == ComputationStatus.FAILURE) {
+            CastorReports.reportSecondPreventivePreSolveSensitivityAnalysisFailed(reportNode);
             return Set.of();
         }
 

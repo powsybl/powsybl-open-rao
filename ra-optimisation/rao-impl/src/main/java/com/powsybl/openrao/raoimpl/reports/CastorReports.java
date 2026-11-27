@@ -121,10 +121,19 @@ public final class CastorReports {
         parentNode.newReportNode()
             .withMessageTemplate("openrao.searchtreerao.reportDcPreSolveCombinationRetained")
             .withUntypedValue("retained", retained)
-            .withSeverity(TRACE_SEVERITY)
+            .withSeverity(INFO_SEVERITY)
             .add();
 
         TECHNICAL_LOGS.info("DC pre-solve combination retained in the AC search result: {}", retained);
+    }
+
+    public static void reportCurativePreSolveSensitivityAnalysisFailed(final ReportNode parentNode) {
+        parentNode.newReportNode()
+                .withMessageTemplate("openrao.searchtreerao.reportCurativePreSolveSensitivityAnalysisFailed")
+                .withSeverity(WARN_SEVERITY)
+                .add();
+
+        BUSINESS_WARNS.warn("DC pre-solve sensitivity analysis failed for curative perimeter; falling back to a direct AC search.");
     }
 
     public static void reportCastorSystematicSensitivityAnalysisAfterPraResults(final ReportNode parentNode,
@@ -378,6 +387,15 @@ public final class CastorReports {
             .add();
 
         BUSINESS_LOGS.info("Second preventive failed. Falling back to previous solution:");
+    }
+
+    public static void reportSecondPreventivePreSolveSensitivityAnalysisFailed(ReportNode parentNode) {
+        parentNode.newReportNode()
+                .withMessageTemplate("openrao.searchtreerao.reportSecondPreventivePreSolveSensitivityAnalysisFailed")
+                .withSeverity(WARN_SEVERITY)
+                .add();
+
+        BUSINESS_WARNS.warn("DC pre-solve sensitivity analysis failed for seconde preventive perimeter; falling back to a direct AC search.");
     }
 
     public static void reportSecondPreventiveMadeRaoSucceed(final ReportNode parentNode) {

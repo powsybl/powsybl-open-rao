@@ -403,6 +403,7 @@ public class CastorContingencyScenarios {
             crac, flowCnecs, crac.getRangeActions(curativeState), preSolveRaoParameters, presolve.getToolProvider(), false)
             .runBasedOnInitialResults(network, presolve.getInitialOutput(), stateTree.getOperatorsNotSharingCras(), new AppliedRemedialActions(), reportNode);
         if (preSolvePrePerimeterResult.getSensitivityStatus() == ComputationStatus.FAILURE) {
+            CastorReports.reportCurativePreSolveSensitivityAnalysisFailed(reportNode);
             return Set.of();
         }
 
