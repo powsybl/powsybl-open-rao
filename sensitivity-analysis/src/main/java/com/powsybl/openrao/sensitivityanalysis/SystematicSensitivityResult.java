@@ -94,10 +94,15 @@ public class SystematicSensitivityResult {
     }
 
     public SystematicSensitivityResult completeData(SensitivityAnalysisResult results, Integer instantOrder) {
+        return completeData(results, instantOrder, null, List.of());
+    }
+
+    SystematicSensitivityResult completeData(SensitivityAnalysisResult results, Integer instantOrder, Network network, List<SensitivityVariableSet> variableSets) {
         postContingencyResults.putIfAbsent(instantOrder, new HashMap<>());
-        // if a failing perimeter was already run, then the status would be set to PARTIAL_FAILURE
-        // This boolean will be reused to set the global status to PARITAL_FAILURE if required
-        boolean anyContingencyFailure = this.status == SensitivityComputationStatus.PARTIAL_FAILURE;
+        // Preserve previously recorded failures even if no base-case data was available at the time.
+        boolean anyContingencyFailure = this.status == SensitivityComputationStatus.PARTIAL_FAILURE
+            || postContingencyResults.values().stream().flatMap(states -> states.values().stream())
+                .anyMatch(state -> state.status == SensitivityComputationStatus.FAILURE);
         // status set to failure initially, and set to success if we find at least one non NaN value, or at least one contingencyStatus is SUCCESS
         this.status = SensitivityComputationStatus.FAILURE;
         if (results == null || !results.isComputationComplete()) {
@@ -106,7 +111,8 @@ public class SystematicSensitivityResult {
 
         boolean baseCaseFailure = results.getStateStatuses().stream()
             .filter(stateStatus -> stateStatus.getState().contingencyId() == null)
-            .anyMatch(SystematicSensitivityResult::isFailure);
+            .anyMatch(stateStatus -> isFailure(stateStatus)
+                && !RelevantBaseComponents.areSuccessful(network, results, stateStatus, variableSets));
         results.getPreContingencyValues().forEach(sensitivityValue -> fillIndividualValue(
             sensitivityValue,
             nStateResult,
@@ -144,7 +150,16 @@ public class SystematicSensitivityResult {
         return this;
     }
 
+    void recordFailedContingency(String contingencyId, int instantOrder) {
+        StateResult failedState = new StateResult();
+        failedState.status = SensitivityComputationStatus.FAILURE;
+        postContingencyResults.computeIfAbsent(instantOrder, ignored -> new HashMap<>()).put(contingencyId, failedState);
+        status = nStateResult.status != SensitivityComputationStatus.FAILURE && !nStateResult.isEmpty()
+            ? SensitivityComputationStatus.PARTIAL_FAILURE : SensitivityComputationStatus.FAILURE;
+    }
+
     private static boolean isFailure(SensitivityStateStatus stateStatus) {
+        // TODO: Define empty and mixed CONVERGED/NO_CALCULATION statuses and map post-contingency components safely.
         List<SensitivityStateStatus.ComponentStatus> components = stateStatus.getComponentsLoadFlowStatusList();
         return components.isEmpty() || !(components.stream().allMatch(component -> component.status() == LoadFlowResult.ComponentResult.Status.CONVERGED)
             || components.stream().allMatch(component -> component.status() == LoadFlowResult.ComponentResult.Status.NO_CALCULATION));

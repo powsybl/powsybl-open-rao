@@ -11,7 +11,6 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.loadflow.LoadFlowResult;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.RandomizedString;
 import com.powsybl.openrao.data.crac.api.Instant;
@@ -44,11 +43,13 @@ final class SystematicSensitivityAdapter {
                                                       ComputationManager computationManager) {
         TECHNICAL_LOGS.debug("Systematic sensitivity analysis [start]");
         SensitivityAnalysisResult result;
+        List<SensitivityVariableSet> variableSets;
         try {
             final List<SensitivityFactor> allFactors = cnecSensitivityProvider.getAllFactors(network); // This must be done before getting variable sets
+            variableSets = cnecSensitivityProvider.getVariableSets();
             final SensitivityAnalysisRunParameters sensitivityAnalysisRunParameters = new SensitivityAnalysisRunParameters()
                 .setContingencies(cnecSensitivityProvider.getContingencies(network))
-                .setVariableSets(cnecSensitivityProvider.getVariableSets())
+                .setVariableSets(variableSets)
                 .setParameters(sensitivityComputationParameters)
                 .setComputationManager(computationManager);
             result = SensitivityAnalysis.find(sensitivityProvider).run(
@@ -62,7 +63,8 @@ final class SystematicSensitivityAdapter {
             return new SystematicSensitivityResult(SystematicSensitivityResult.SensitivityComputationStatus.FAILURE);
         }
         TECHNICAL_LOGS.debug("Systematic sensitivity analysis [end]");
-        return new SystematicSensitivityResult().completeData(result, outageInstant.getOrder()).postTreatIntensities().postTreatHvdcs(network, cnecSensitivityProvider.getHvdcs());
+        return new SystematicSensitivityResult().completeData(result, outageInstant.getOrder(), network, variableSets)
+            .postTreatIntensities().postTreatHvdcs(network, cnecSensitivityProvider.getHvdcs());
     }
 
     static SystematicSensitivityResult runSensitivity(Network network,
@@ -110,7 +112,7 @@ final class SystematicSensitivityAdapter {
                     allFactorsWithoutRa,
                     sensitivityAnalysisRunParameters
                 ),
-                outageInstant.getOrder()
+                outageInstant.getOrder(), network, sensitivityAnalysisRunParameters.getVariableSets()
             );
         } catch (PowsyblException | OpenRaoException | CompletionException e) {
             TECHNICAL_LOGS.error(String.format("Systematic sensitivity analysis failed: %s", e.getMessage()));
@@ -155,20 +157,11 @@ final class SystematicSensitivityAdapter {
                         network.getVariantManager().getWorkingVariantId(),
                         cnecSensitivityProvider.getContingencyFactors(network, contingencyList),
                         sensitivityAnalysisRunParameters
-                    ), state.getInstant().getOrder()
+                    ), state.getInstant().getOrder(), network, sensitivityAnalysisRunParameters.getVariableSets()
                 );
             } catch (PowsyblException | OpenRaoException | CompletionException e) {
                 TECHNICAL_LOGS.error(String.format("Systematic sensitivity analysis failed for state %s : %s", state.getId(), e.getMessage()));
-                SensitivityAnalysisResult failedResult = new SensitivityAnalysisResult(
-                    cnecSensitivityProvider.getContingencyFactors(network, contingencyList),
-                    List.of(new SensitivityStateStatus(SensitivityState.postContingency(optContingency.get().getId()),
-                        List.of(new SensitivityStateStatus.ComponentStatus(0, 0, LoadFlowResult.ComponentResult.Status.FAILED, e.getMessage() == null ? "" : e.getMessage())))),
-                    contingencyList.stream().map(Contingency::getId).toList(),
-                    List.of(),
-                    List.of(),
-                    true
-                );
-                result.completeData(failedResult, state.getInstant().getOrder());
+                result.recordFailedContingency(optContingency.get().getId(), state.getInstant().getOrder());
             }
             counterForLogs++;
         }
