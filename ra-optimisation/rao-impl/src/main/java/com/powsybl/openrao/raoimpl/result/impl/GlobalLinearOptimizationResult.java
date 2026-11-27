@@ -237,4 +237,9 @@ public class GlobalLinearOptimizationResult implements LinearOptimizationResult 
     public double getSensitivityValue(FlowCnec flowCnec, TwoSides side, SensitivityVariableSet linearGlsk, Unit unit) {
         return globalSensitivityResult.getSensitivityValue(flowCnec, side, linearGlsk, unit);
     }
+
+    @Override
+    public double getSensitivityValue(FlowCnec flowCnec, TwoSides side, String variableId, Unit unit) {
+        return globalSensitivityResult.getSensitivityValue(flowCnec, side, variableId, unit);
+    }
 }

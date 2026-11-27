@@ -31,4 +31,6 @@ public interface SensitivityResult {
     double getSensitivityValue(FlowCnec flowCnec, TwoSides side, RangeAction<?> rangeAction, Unit unit);
 
     double getSensitivityValue(FlowCnec flowCnec, TwoSides side, SensitivityVariableSet linearGlsk, Unit unit);
+
+    double getSensitivityValue(FlowCnec flowCnec, TwoSides side, String variableId, Unit unit);
 }

@@ -3,6 +3,7 @@
 ```{toctree}
 :hidden:
 linear-problem/core-problem-filler.md
+linear-problem/counter-trade-actions.md
 linear-problem/objective-function-types.md
 linear-problem/special-features.md
 linear-problem/time-coupled-constraints.md

@@ -92,6 +92,9 @@ And:
 - $\Delta\alpha_j$ variation of setpoint of LRA $j$ (between initial situation and final situation)
 - $\Delta F_i$ impact of a set of applied non-linear RAs on CNEC $i$
 
+It is worth noticing that counter-trade remedial actions require a special tratment for the calculation of the
+sensitivities, as presented [here](castor/linear-problem/core-problem-filler.md#defined-constraints).
+
 Optimization will try to maximize the objective function value, formulated as such:
 
 $$\begin{equation}

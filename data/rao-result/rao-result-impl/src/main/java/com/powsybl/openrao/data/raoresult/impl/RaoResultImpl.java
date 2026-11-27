@@ -17,6 +17,7 @@ import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
+import com.powsybl.openrao.data.crac.api.rangeaction.CounterTradeRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.StandardRangeAction;
@@ -134,8 +135,9 @@ public final class RaoResultImpl extends AbstractExtendable<RaoResult> implement
         while (Objects.nonNull(stateBefore)) {
             final State finalStateBefore = stateBefore;
             Optional<Map.Entry<RangeAction<?>, RangeActionResult>> activatedRangeAction =
-                    rangeActionResults.entrySet().stream().filter(entry ->
-                    entry.getKey().getNetworkElementsIds().equals(rangeAction.getNetworkElementsIds())
+                    rangeActionResults.entrySet().stream().filter(entry -> (rangeAction instanceof CounterTradeRangeAction
+                            ? entry.getKey().equals(rangeAction)
+                            : entry.getKey().getNetworkElementsIds().equals(rangeAction.getNetworkElementsIds()))
                             && entry.getValue().isActivatedDuringState(finalStateBefore)).findAny();
             if (activatedRangeAction.isPresent()) {
                 return activatedRangeAction.get().getValue().getOptimizedSetpointOnState(stateBefore);

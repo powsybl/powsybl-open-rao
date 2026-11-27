@@ -7,6 +7,8 @@
 
 package com.powsybl.openrao.data.crac.impl;
 
+import com.powsybl.glsk.commons.ZonalData;
+import com.powsybl.glsk.commons.ZonalDataImpl;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.ConnectedArea;
@@ -15,10 +17,13 @@ import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.crac.api.range.RangeType;
 import com.powsybl.openrao.data.crac.api.rangeaction.CounterTradeRangeAction;
 import com.powsybl.openrao.data.crac.impl.utils.NetworkImportsUtil;
+import com.powsybl.sensitivity.SensitivityVariableSet;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -56,15 +61,21 @@ class CounterTradeRangeActionImplTest {
 
     @Test
     void applyTest() {
-        CounterTradeRangeAction counterTradeRangeAction = crac.newCounterTradeRangeAction()
-                .withId("counterTradeRangeAction")
-                .newRange().withMin(-1000).withMax(1000).add()
-                .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add()
+        CounterTradeRangeActionImpl ra = (CounterTradeRangeActionImpl) crac.newCounterTradeRangeAction()
+                .withId("counterTradeFr")
                 .withAreaId("FR")
                 .withInitialSetpoint(0d)
+                .newRange().withMin(-1000).withMax(1000).add()
+                .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add()
                 .add();
-        Exception e = assertThrows(OpenRaoException.class, () -> counterTradeRangeAction.apply(network, 100.));
-        assertEquals("Can't apply a counter trade range action on a network", e.getMessage());
+        ra.setGlsk(network);
+        ra.computeGeneratorOrdering(network, 1e-10);
+        Set<String> frGenerators = ra.getGlsk().get("FR").keySet();
+        double initialProduction = frGenerators.stream().mapToDouble(id -> network.getGenerator(id).getTargetP()).sum();
+
+        ra.apply(network, 100.);
+        double production = frGenerators.stream().mapToDouble(id -> network.getGenerator(id).getTargetP()).sum();
+        assertEquals(initialProduction + 100., production, 1e-6);
     }
 
     @Test
@@ -186,5 +197,57 @@ class CounterTradeRangeActionImplTest {
         assertNotEquals(ctFrEs1, ctFrEs3);
         assertNotEquals(ctFrEs1, ctPtEs);
         assertNotEquals(ctFrEs1, ctFrNl);
+    }
+
+    @Test
+    void reapplyingSetpointDoesNotAccumulateTest() {
+        CounterTradeRangeActionImpl ra = (CounterTradeRangeActionImpl) crac.newCounterTradeRangeAction()
+                .withId("counterTradeFr")
+                .withAreaId("FR")
+                .newRange().withMin(-1000).withMax(1000).add()
+                .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add()
+                .add();
+        ra.setGlsk(network);
+        ra.computeGeneratorOrdering(network, 1e-10);
+        Set<String> frGenerators = ra.getGlsk().get("FR").keySet();
+
+        Map<String, Double> initialTargetP = new HashMap<>();
+        for (String id : frGenerators) {
+            initialTargetP.put(id, network.getGenerator(id).getTargetP());
+        }
+
+        ra.apply(network, 100.);
+        Map<String, Double> targetPAfterFirstApply = new HashMap<>();
+        for (String id : frGenerators) {
+            targetPAfterFirstApply.put(id, network.getGenerator(id).getTargetP());
+        }
+        assertNotEquals(initialTargetP, targetPAfterFirstApply);
+
+        ra.apply(network, 100.);
+        for (String id : frGenerators) {
+            assertEquals(targetPAfterFirstApply.get(id), network.getGenerator(id).getTargetP(), 1e-6);
+        }
+
+        ra.apply(network, 0.);
+        for (String id : frGenerators) {
+            assertEquals(initialTargetP.get(id), network.getGenerator(id).getTargetP(), 1e-6);
+        }
+    }
+
+    @Test
+    void setGlskFromFileWithoutAreaTest() {
+        CounterTradeRangeActionImpl ra = addCounterTradeActionOnPt();
+        ZonalData<SensitivityVariableSet> glskWithoutPt = new ZonalDataImpl<>(Map.of());
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> ra.setGlsk(glskWithoutPt));
+        assertEquals("No GLSK found for area PT of counter-trading action counterTradePt", exception.getMessage());
+    }
+
+    private CounterTradeRangeActionImpl addCounterTradeActionOnPt() {
+        return (CounterTradeRangeActionImpl) crac.newCounterTradeRangeAction()
+            .withId("counterTradePt")
+            .withAreaId("PT")
+            .newRange().withMin(-1000).withMax(1000).add()
+            .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add()
+            .add();
     }
 }

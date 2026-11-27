@@ -138,7 +138,7 @@ params.setRaRangeProvider((injection, instant) -> (injection.getType() == Identi
 
 ## Counter-trading range actions
 The NetworkCracCreationParameters' "Counter-trading range actions" section allows you to set rules for the automatic generation of remedial actions representing counter-trading.
-These will take the form of [injection range actions](json.md#injection-range-action) in the generated CRAC. Every country is represented by one injection range action, inside 
+These will take the form of [injection range actions](json.md#injection-range-action) in the generated CRAC. Every country is represented by one counter trade range action, inside 
 which all generators of that country are listed.  
 Generators previously included in redispatching range actions are not considered in counter-trading.  
 You can set the following parameters:  

@@ -99,7 +99,6 @@ class CounterTradeRangeActionAdderImplTest {
         assertEquals(1, counterTradeRangeAction.getUsageRules().size());
         assertEquals("BE", counterTradeRangeAction.getAreaId());
         assertEquals(1000d, counterTradeRangeAction.getInitialSetpoint());
-
         assertEquals(1, crac.getRangeActions().size());
     }
 
@@ -221,6 +220,7 @@ class CounterTradeRangeActionAdderImplTest {
         ConnectedAreaAdder connectedAreaAdder = crac.newCounterTradeRangeAction()
                 .withId("id1")
                 .withAreaId("BE")
+                .withInitialSetpoint(1000d)
                 .newConnectedArea();
         Exception e = assertThrows(OpenRaoException.class, connectedAreaAdder::add);
         assertEquals("Cannot add ConnectedArea without a area. Please use withAreaId() with a non null value", e.getMessage());
@@ -266,6 +266,7 @@ class CounterTradeRangeActionAdderImplTest {
         ConnectedAreaBorderRangeAdder borderRangeAdder = crac.newCounterTradeRangeAction()
                 .withId("id1")
                 .withAreaId("BE")
+                .withInitialSetpoint(1000d)
                 .newConnectedArea().withAreaId("FR")
                     .newBorderRange().withMin(500).withMax(-500).withRangeType(RangeType.ABSOLUTE);
         Exception e = assertThrows(OpenRaoException.class, borderRangeAdder::add);

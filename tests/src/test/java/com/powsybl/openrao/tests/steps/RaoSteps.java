@@ -420,6 +420,12 @@ public class RaoSteps {
         assertEquals(expectedTargetP, targetPAfterPRA);
     }
 
+    @Then("the generator {string} should have a targetP of {double} MW after PRA with a tolerance")
+    public void theGeneratorShouldHaveATargetPOfAfterPraWithTolerance(String generatorId, Double expectedTargetP) {
+        final double targetPAfterPRA = getTargetPFromVariant(generatorId, "PreventiveScenario");
+        assertEquals(expectedTargetP, targetPAfterPRA, 1e-4);
+    }
+
     @Then("the generator {string} should have a targetP of {double} MW after 2PRA")
     public void theGeneratorShouldHaveATargetPOfAfter2Pra(String generatorId, Double expectedTargetP) {
         final double targetPAfterPRA = getTargetPFromVariant(generatorId, "SecondPreventiveScenario");

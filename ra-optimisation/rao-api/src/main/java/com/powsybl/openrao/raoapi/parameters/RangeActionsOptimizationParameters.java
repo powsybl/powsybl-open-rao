@@ -27,10 +27,12 @@ public class RangeActionsOptimizationParameters {
     private static final double DEFAULT_PST_RA_MIN_IMPACT_THRESHOLD = 0.01;
     private static final double DEFAULT_HVDC_RA_MIN_IMPACT_THRESHOLD = 0.001;
     private static final double DEFAULT_INJECTION_RA_MIN_IMPACT_THRESHOLD = 0.001;
+    private static final double DEFAULT_COUNTER_TRADE_RA_SENSITIVITY_THRESHOLD = 0.001;
     // Attributes
     private double pstRAMinImpactThreshold = DEFAULT_PST_RA_MIN_IMPACT_THRESHOLD;
     private double hvdcRAMinImpactThreshold = DEFAULT_HVDC_RA_MIN_IMPACT_THRESHOLD;
     private double injectionRAMinImpactThreshold = DEFAULT_INJECTION_RA_MIN_IMPACT_THRESHOLD;
+    private double counterTradeRAMinImpactThreshold = DEFAULT_COUNTER_TRADE_RA_SENSITIVITY_THRESHOLD;
 
     // Getters and setters
     public double getPstRAMinImpactThreshold() {
@@ -55,6 +57,14 @@ public class RangeActionsOptimizationParameters {
 
     public void setInjectionRAMinImpactThreshold(double injectionRAMinImpactThreshold) {
         this.injectionRAMinImpactThreshold = injectionRAMinImpactThreshold;
+    }
+
+    public double getCounterTradeRAMinImpactThreshold() {
+        return counterTradeRAMinImpactThreshold;
+    }
+
+    public void setCounterTradeRAMinImpactThreshold(double injectionRAMinImpactThreshold) {
+        this.counterTradeRAMinImpactThreshold = injectionRAMinImpactThreshold;
     }
 
     public static RangeActionsOptimizationParameters load(PlatformConfig platformConfig) {

@@ -68,6 +68,13 @@ public class SensitivityResultImpl implements SensitivityResult {
         return multiplier * sensitivityValue;
     }
 
+    @Override
+    public double getSensitivityValue(FlowCnec flowCnec, TwoSides side, String variableId, Unit unit) {
+        double multiplier = getSensitivityMultiplier(flowCnec, side, unit, "variable id");
+        double sensitivityValue = systematicSensitivityResult.getSensitivityOnFlow(variableId, flowCnec, side);
+        return multiplier * sensitivityValue;
+    }
+
     double getSensitivityMultiplier(FlowCnec flowCnec, TwoSides side, Unit targetUnit, String sensitivityType) {
         if (targetUnit == Unit.MEGAWATT) {
             return 1.0;
