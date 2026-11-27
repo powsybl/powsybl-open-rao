@@ -154,11 +154,16 @@ public class SystematicSensitivityResult {
     }
 
     private static boolean isFailure(SensitivityStateStatus stateStatus) {
-        // Until further notice, NO_CALCULATION is treated as a failure, even when other components converged.
-        // A divergent component also fails the entire state, even when other components converged.
-        // An empty list is considered successful by default; it does not prove that all components converged.
-        return stateStatus.getComponentsLoadFlowStatusList().stream()
-            .anyMatch(component -> component.status() != LoadFlowResult.ComponentResult.Status.CONVERGED);
+        List<SensitivityStateStatus.ComponentStatus> components = stateStatus.getComponentsLoadFlowStatusList();
+        // A contingency with only NO_CALCULATION statuses is treated as having no impact. Open Load Flow can
+        // return NO_CALCULATION with valid values when a remedial action has already opened the contingency line.
+        // Other providers may use NO_CALCULATION differently; this does not prove that unreported components converged.
+        if (stateStatus.getState().contingencyId() != null && !components.isEmpty()
+            && components.stream().allMatch(component -> component.status() == LoadFlowResult.ComponentResult.Status.NO_CALCULATION)) {
+            return false;
+        }
+        // Empty lists succeed by default. A mixed status, a divergence, or NO_CALCULATION in the base case fails.
+        return components.stream().anyMatch(component -> component.status() != LoadFlowResult.ComponentResult.Status.CONVERGED);
     }
 
     public SystematicSensitivityResult postTreatIntensities() {
