@@ -94,10 +94,6 @@ public class SystematicSensitivityResult {
     }
 
     public SystematicSensitivityResult completeData(SensitivityAnalysisResult results, Integer instantOrder) {
-        return completeData(results, instantOrder, null, List.of());
-    }
-
-    SystematicSensitivityResult completeData(SensitivityAnalysisResult results, Integer instantOrder, Network network, List<SensitivityVariableSet> variableSets) {
         postContingencyResults.putIfAbsent(instantOrder, new HashMap<>());
         // Preserve previously recorded failures even if no base-case data was available at the time.
         boolean anyContingencyFailure = this.status == SensitivityComputationStatus.PARTIAL_FAILURE
@@ -111,8 +107,7 @@ public class SystematicSensitivityResult {
 
         boolean baseCaseFailure = results.getStateStatuses().stream()
             .filter(stateStatus -> stateStatus.getState().contingencyId() == null)
-            .anyMatch(stateStatus -> isFailure(stateStatus)
-                && !RelevantBaseComponents.areSuccessful(network, results, stateStatus, variableSets));
+            .anyMatch(SystematicSensitivityResult::isFailure);
         results.getPreContingencyValues().forEach(sensitivityValue -> fillIndividualValue(
             sensitivityValue,
             nStateResult,
@@ -159,7 +154,7 @@ public class SystematicSensitivityResult {
     }
 
     private static boolean isFailure(SensitivityStateStatus stateStatus) {
-        // TODO: Define empty and mixed CONVERGED/NO_CALCULATION statuses and map post-contingency components safely.
+        // TODO: Define how to handle empty and mixed CONVERGED/NO_CALCULATION statuses.
         List<SensitivityStateStatus.ComponentStatus> components = stateStatus.getComponentsLoadFlowStatusList();
         return components.isEmpty() || !(components.stream().allMatch(component -> component.status() == LoadFlowResult.ComponentResult.Status.CONVERGED)
             || components.stream().allMatch(component -> component.status() == LoadFlowResult.ComponentResult.Status.NO_CALCULATION));
