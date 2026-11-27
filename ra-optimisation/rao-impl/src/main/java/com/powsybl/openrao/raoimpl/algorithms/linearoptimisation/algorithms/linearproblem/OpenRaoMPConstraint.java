@@ -7,47 +7,52 @@
 
 package com.powsybl.openrao.raoimpl.algorithms.linearoptimisation.algorithms.linearproblem;
 
-import com.google.ortools.linearsolver.MPConstraint;
+import com.google.ortools.mathopt.LinearConstraint;
 
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-international.com>}
  */
 public class OpenRaoMPConstraint {
-    private final MPConstraint mpConstraint;
+    private final LinearConstraint linearConstraint;
 
-    protected OpenRaoMPConstraint(MPConstraint mpConstraint) {
-        this.mpConstraint = mpConstraint;
+    protected OpenRaoMPConstraint(LinearConstraint linearConstraint) {
+        this.linearConstraint = linearConstraint;
     }
 
     public String name() {
-        return mpConstraint.name();
+        return linearConstraint.getName();
     }
 
     public double getCoefficient(OpenRaoMPVariable variable) {
-        return mpConstraint.getCoefficient(variable.getMPVariable());
+        return linearConstraint.getTerm(variable.getVariable());
     }
 
     public void setCoefficient(OpenRaoMPVariable variable, double coeff) {
-        mpConstraint.setCoefficient(variable.getMPVariable(), OpenRaoMPSolver.roundDouble(coeff));
+        linearConstraint.setTerm(variable.getVariable(), OpenRaoMPSolver.roundDouble(coeff));
     }
 
     public double lb() {
-        return mpConstraint.lb();
+        return linearConstraint.getLowerBound();
     }
 
     public double ub() {
-        return mpConstraint.ub();
+        return linearConstraint.getUpperBound();
     }
 
     public void setLb(double lb) {
-        mpConstraint.setLb(OpenRaoMPSolver.roundDouble(lb));
+        linearConstraint.setLowerBound(OpenRaoMPSolver.roundDouble(lb));
     }
 
     public void setUb(double ub) {
-        mpConstraint.setUb(OpenRaoMPSolver.roundDouble(ub));
+        linearConstraint.setUpperBound(OpenRaoMPSolver.roundDouble(ub));
     }
 
     public void setBounds(double lb, double ub) {
-        mpConstraint.setBounds(OpenRaoMPSolver.roundDouble(lb), OpenRaoMPSolver.roundDouble(ub));
+        linearConstraint.setLowerBound(OpenRaoMPSolver.roundDouble(lb));
+        linearConstraint.setUpperBound(OpenRaoMPSolver.roundDouble(ub));
+    }
+
+    LinearConstraint getLinearConstraint() {
+        return linearConstraint;
     }
 }

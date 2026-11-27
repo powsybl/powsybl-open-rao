@@ -107,16 +107,16 @@ These are parameters that tune the solver used to solve the MIP problem.
 
 ###### solver
 - **Expected value**: one of the following:
-  - "CBC"
   - "SCIP"
   - "XPRESS"
   - "GUROBI"
-- **Default value**: "CBC"
+  - "HIGHS"
+- **Default value**: "SCIP"
 - **Usage**: the solver called for optimizing the linear problem.  
-  Note that theoretically all solvers supported by OR-Tools can be called, but the OpenRAO interface only allows CBC
-  (open-source, Eclipse Public License 2.0), SCIP (open-source, Apache License 2.0), XPRESS and GUROBI (commercial) for the moment.  
+  Note that theoretically all solvers supported by OR-Tools can be called, but the OpenRAO interface only allows SCIP
+  (open-source, Apache License 2.0), HiGHS (open-source, MIT license), XPRESS and GUROBI (commercial) for the moment.  
   XPRESS and GUROBI require their respective native libraries to be installed and a valid license to be available.  
-  If needed, other solvers can be easily added.
+  If needed, other solvers can be easily added.  
 
 ###### relative-mip-gap
 - **Expected value**: double
@@ -490,9 +490,9 @@ This extension (`marmot-parameters`) is used to configure Marmot specific parame
         "hvdc-sensitivity-threshold" : 0.01,
         "injection-ra-sensitivity-threshold" : 0.01,
         "linear-optimization-solver" : {
-          "solver" : "CBC",
+          "solver" : "SCIP",
           "relative-mip-gap" : 0.001,
-          "solver-specific-parameters" : "THREADS 10 MAXTIME 3000"
+          "solver-specific-parameters" : "parallel/maxnthreads 10"
         }
       },
       "topological-actions-optimization" : {
@@ -592,7 +592,7 @@ search-tree-range-actions-optimization:
   pst-model: APPROXIMATED_INTEGERS
 
 search-tree-linear-optimization-solver:
-  solver: CBC
+  solver: SCIP
 
 search-tree-topological-actions-optimization:
   max-preventive-search-tree-depth: 3

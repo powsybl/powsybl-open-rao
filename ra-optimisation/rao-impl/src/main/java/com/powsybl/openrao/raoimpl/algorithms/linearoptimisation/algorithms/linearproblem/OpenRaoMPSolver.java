@@ -7,20 +7,32 @@
 
 package com.powsybl.openrao.raoimpl.algorithms.linearoptimisation.algorithms.linearproblem;
 
+import com.google.ortools.GScipParameters;
 import com.google.ortools.Loader;
-import com.google.ortools.linearsolver.MPSolver;
-import com.google.ortools.linearsolver.MPSolverParameters;
+import com.google.ortools.mathopt.GurobiParametersProto;
+import com.google.ortools.mathopt.HighsOptionsProto;
+import com.google.ortools.mathopt.LinearConstraint;
+import com.google.ortools.mathopt.MathOptInternalException;
+import com.google.ortools.mathopt.Model;
+import com.google.ortools.mathopt.Solve;
+import com.google.ortools.mathopt.SolveParametersProto;
+import com.google.ortools.mathopt.SolveResult;
+import com.google.ortools.mathopt.SolverType;
+import com.google.ortools.mathopt.Variable;
+import com.google.ortools.mathopt.XpressParametersProto;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters;
 import com.powsybl.openrao.raoimpl.result.api.LinearProblemStatus;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.TreeMap;
 
 /**
- * Encapsulates OR-Tools' MPSolver objects in order to round up doubles
+ * Encapsulates OR-Tools' MathOpt objects in order to round up doubles
  *
  * @author Philippe Edwards {@literal <philippe.edwards at rte-international.com>}
  * @author Peter Mitri {@literal <peter.mitri at rte-international.com>}
@@ -36,35 +48,40 @@ public class OpenRaoMPSolver {
 
     private static final int NUMBER_OF_BITS_TO_ROUND_OFF = 30;
     private static final double MIN_DOUBLE = 1e-6;
-    private static final Map<SearchTreeRaoRangeActionsOptimizationParameters.Solver, Double> SOLVER_INFINITY = Map.of(
-        SearchTreeRaoRangeActionsOptimizationParameters.Solver.CBC, Double.POSITIVE_INFINITY,
-        SearchTreeRaoRangeActionsOptimizationParameters.Solver.SCIP, 1E20,
-        SearchTreeRaoRangeActionsOptimizationParameters.Solver.XPRESS, 1E20,
-        SearchTreeRaoRangeActionsOptimizationParameters.Solver.GUROBI, 1E30 // actually 1E30 for var bounds, 1e20 for ct RHS
-    );
 
     private final SearchTreeRaoRangeActionsOptimizationParameters.Solver solver;
     private final String optProblemName;
-    private MPSolver mpSolver;
-    private final MPSolverParameters solveConfiguration;
+    private Model model;
+    private Double relativeMipGap;
     private String solverSpecificParameters;
+    private GScipParameters gscipParameters;
+    private GurobiParametersProto gurobiParameters;
+    private XpressParametersProto xpressParameters;
+    private HighsOptionsProto highsParameters;
     Map<String, OpenRaoMPConstraint> constraints = new TreeMap<>();
     Map<String, OpenRaoMPVariable> variables = new TreeMap<>();
     OpenRaoMPObjective objective;
     private boolean objectiveMinimization = true;
+    /** Values of the variables after the last solve (empty if no feasible solution was found). */
+    private Map<Variable, Double> lastSolution = Map.of();
 
     public OpenRaoMPSolver(String optProblemName, SearchTreeRaoRangeActionsOptimizationParameters.Solver solver) {
         this.solver = solver;
         this.optProblemName = optProblemName;
-        solveConfiguration = new MPSolverParameters();
+        // fail fast if the solver is not supported by OR-Tools MathOpt
+        getOrToolsSolverType(this.solver);
+        if (this.solver == SearchTreeRaoRangeActionsOptimizationParameters.Solver.GUROBI) {
+            ensureGurobiLibraryLoaded();
+        }
         resetModel();
     }
 
     public void resetModel() {
-        this.mpSolver = new MPSolver(optProblemName, getOrToolsProblemType(solver));
+        this.model = new Model(optProblemName);
         constraints = new TreeMap<>();
         variables = new TreeMap<>();
-        this.objective = new OpenRaoMPObjective(mpSolver.objective());
+        this.objective = new OpenRaoMPObjective(model.getObjective());
+        lastSolution = Map.of();
         setSolverSpecificParametersAsString(solverSpecificParameters);
         if (objectiveMinimization) {
             setMinimization();
@@ -77,20 +94,91 @@ public class OpenRaoMPSolver {
         return solver;
     }
 
-    static MPSolver.OptimizationProblemType getOrToolsProblemType(SearchTreeRaoRangeActionsOptimizationParameters.Solver solver) {
+    static SolverType getOrToolsSolverType(SearchTreeRaoRangeActionsOptimizationParameters.Solver solver) {
         Objects.requireNonNull(solver);
         return switch (solver) {
-            case CBC -> MPSolver.OptimizationProblemType.CBC_MIXED_INTEGER_PROGRAMMING;
-            case SCIP -> MPSolver.OptimizationProblemType.SCIP_MIXED_INTEGER_PROGRAMMING;
-            case XPRESS -> MPSolver.OptimizationProblemType.XPRESS_MIXED_INTEGER_PROGRAMMING;
-            case GUROBI -> MPSolver.OptimizationProblemType.GUROBI_MIXED_INTEGER_PROGRAMMING;
+            case SCIP -> SolverType.GSCIP;
+            case XPRESS -> SolverType.XPRESS;
+            case GUROBI -> SolverType.GUROBI;
+            case HIGHS -> SolverType.HIGHS;
+            case CBC -> throw new OpenRaoException("CBC is no longer supported by OR-Tools MathOpt. Please use SCIP, XPRESS, GUROBI or HIGHS in the RAO parameters.");
             default -> throw new OpenRaoException(String.format("unknown solver %s in RAO parameters", solver));
         };
     }
 
+    private static volatile boolean gurobiLibraryLoaded = false;
+
+    /**
+     * Loads the Gurobi shared library into the OR-Tools native layer, if needed.
+     *
+     * OR-Tools does not link Gurobi: it is dlopen'ed at runtime, and only when
+     * {@code com.google.ortools.init.CppBridge.loadGurobiSharedLibrary} is called.
+     * Nothing in the OR-Tools Java flow calls it (see google/or-tools#5079), so
+     * without this call the first GUROBI solve aborts the JVM with a C++
+     * {@code std::bad_function_call}.
+     *
+     * Note: OR-Tools caches the load result for the whole process, so the first
+     * call must already point to a valid library, later calls do not retry.
+     */
+    static void ensureGurobiLibraryLoaded() {
+        if (gurobiLibraryLoaded) {
+            return;
+        }
+        String path = resolveGurobiLibraryPath();
+        if (path == null) {
+            throw new OpenRaoException("Could not find the Gurobi shared library (libgurobi<version>.so). "
+                + "Set the GUROBI_LIB_PATH environment variable to its full path, or GUROBI_HOME to the "
+                + "Gurobi installation directory (the one containing lib/libgurobi<version>.so). "
+                + "Note: OR-Tools 10.0-rc1 requires a Gurobi version exposing the GRBcopyparams C API (11.x and 12.x; removed in 13.x).");
+        }
+        if (!com.google.ortools.init.CppBridge.loadGurobiSharedLibrary(path)) {
+            throw new OpenRaoException(String.format(
+                "Found the Gurobi shared library at %s, but OR-Tools could not load it "
+                    + "(incompatible Gurobi version? OR-Tools 10.0-rc1 needs GRBcopyparams: use 11.x or 12.x, not 13.x).", path));
+        }
+        gurobiLibraryLoaded = true;
+        OpenRaoLoggerProvider.TECHNICAL_LOGS.info("Loaded Gurobi shared library from {}", path);
+    }
+
+    /** @return the first existing Gurobi library candidate path, or null. */
+    static String resolveGurobiLibraryPath() {
+        for (String candidate : gurobiLibraryCandidates()) {
+            if (java.nio.file.Files.isRegularFile(java.nio.file.Path.of(candidate))) {
+                return candidate;
+            }
+        }
+        return null;
+    }
+
+    private static List<String> gurobiLibraryCandidates() {
+        List<String> libDirectories = new ArrayList<>();
+        String gurobiHome = System.getenv("GUROBI_HOME");
+        if (gurobiHome != null && !gurobiHome.isBlank()) {
+            libDirectories.add(gurobiHome + "/lib");
+            libDirectories.add(gurobiHome + "/lib64");
+        }
+        for (String version : new String[] {"1203", "1202", "1201", "1200",
+            "1103", "1102", "1101", "1100"}) {
+            libDirectories.add("/opt/gurobi" + version + "/linux64/lib");
+            libDirectories.add("/opt/gurobi" + version + "/linux64/lib64");
+        }
+        List<String> candidates = new ArrayList<>();
+        String explicitPath = System.getenv("GUROBI_LIB_PATH");
+        if (explicitPath != null && !explicitPath.isBlank()) {
+            candidates.add(explicitPath);
+        }
+        String[] libraries = {"libgurobi120.so", "libgurobi110.so"};
+        for (String libDirectory : libDirectories) {
+            for (String library : libraries) {
+                candidates.add(libDirectory + "/" + library);
+            }
+        }
+        return candidates;
+    }
+
     // Only for this class' tests
-    MPSolver getMpSolver() {
-        return mpSolver;
+    Model getModel() {
+        return model;
     }
 
     public boolean hasConstraint(String name) {
@@ -139,7 +227,7 @@ public class OpenRaoMPSolver {
         }
         double roundedLb = roundDouble(lb);
         double roundedUb = roundDouble(ub);
-        OpenRaoMPVariable variable = new OpenRaoMPVariable(mpSolver.makeVar(roundedLb, roundedUb, integer, name));
+        OpenRaoMPVariable variable = new OpenRaoMPVariable(this, model.addVariable(roundedLb, roundedUb, integer, name));
         variables.put(name, variable);
         return variable;
     }
@@ -150,9 +238,10 @@ public class OpenRaoMPSolver {
         } else {
             double roundedLb = roundDouble(lb);
             double roundedUb = roundDouble(ub);
-            OpenRaoMPConstraint constraint = new OpenRaoMPConstraint(mpSolver.makeConstraint(roundedLb, roundedUb, name));
-            constraints.put(name, constraint);
-            return constraint;
+            LinearConstraint constraint = model.addLinearConstraint(roundedLb, roundedUb, name);
+            OpenRaoMPConstraint openRaoConstraint = new OpenRaoMPConstraint(constraint);
+            constraints.put(name, openRaoConstraint);
+            return openRaoConstraint;
         }
     }
 
@@ -160,35 +249,191 @@ public class OpenRaoMPSolver {
         return makeConstraint(-infinity(), infinity(), name);
     }
 
+    /**
+     * Parses a solver-specific parameter string of the form {@code "name1 value1, name2 value2"}
+     * into the OR-Tools MathOpt parameters of the configured solver.
+     *
+     * @return true if the string is null or was parsed, false if it cannot be parsed
+     */
     public boolean setSolverSpecificParametersAsString(String solverSpecificParameters) {
         this.solverSpecificParameters = solverSpecificParameters;
+        gscipParameters = null;
+        gurobiParameters = null;
+        xpressParameters = null;
+        highsParameters = null;
         if (solverSpecificParameters != null) {
-            return mpSolver.setSolverSpecificParametersAsString(solverSpecificParameters);
-        } else {
+            List<String[]> parsedParameters = parseParameters(solverSpecificParameters);
+            if (parsedParameters == null) {
+                return false;
+            }
+            switch (solver) {
+                case SCIP -> {
+                    GScipParameters.Builder builder = GScipParameters.newBuilder();
+                    for (String[] parameter : parsedParameters) {
+                        String name = parameter[0];
+                        String value = parameter[1];
+                        if ("TRUE".equalsIgnoreCase(value)) {
+                            builder.putBoolParams(name, true);
+                        } else if ("FALSE".equalsIgnoreCase(value)) {
+                            builder.putBoolParams(name, false);
+                        } else if (isLong(value)) {
+                            builder.putIntParams(name, Integer.parseInt(value));
+                        } else if (isDouble(value)) {
+                            builder.putRealParams(name, Double.parseDouble(value));
+                        } else {
+                            builder.putCharParams(name, value);
+                        }
+                    }
+                    gscipParameters = builder.build();
+                }
+                case GUROBI -> {
+                    GurobiParametersProto.Builder builder = GurobiParametersProto.newBuilder();
+                    for (String[] parameter : parsedParameters) {
+                        builder.addParameters(GurobiParametersProto.Parameter.newBuilder()
+                            .setName(parameter[0])
+                            .setValue(parameter[1]));
+                    }
+                    gurobiParameters = builder.build();
+                }
+                case XPRESS -> {
+                    XpressParametersProto.Builder builder = XpressParametersProto.newBuilder();
+                    for (String[] parameter : parsedParameters) {
+                        builder.addParameters(XpressParametersProto.Parameter.newBuilder()
+                            .setName(parameter[0])
+                            .setValue(parameter[1]));
+                    }
+                    xpressParameters = builder.build();
+                }
+                case HIGHS -> {
+                    HighsOptionsProto.Builder builder = HighsOptionsProto.newBuilder();
+                    for (String[] parameter : parsedParameters) {
+                        String name = parameter[0];
+                        String value = parameter[1];
+                        if ("TRUE".equalsIgnoreCase(value)) {
+                            builder.putBoolOptions(name, true);
+                        } else if ("FALSE".equalsIgnoreCase(value)) {
+                            builder.putBoolOptions(name, false);
+                        } else if (isLong(value)) {
+                            builder.putIntOptions(name, Integer.parseInt(value));
+                        } else if (isDouble(value)) {
+                            builder.putDoubleOptions(name, Double.parseDouble(value));
+                        } else {
+                            builder.putStringOptions(name, value);
+                        }
+                    }
+                    highsParameters = builder.build();
+                }
+                default -> throw new OpenRaoException(String.format("unknown solver %s in RAO parameters", solver));
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Splits {@code "name1 value1, name2 value2"} into {@code {name, value}} pairs.
+     * A value may contain spaces (the split is done at the first space of each pair).
+     *
+     * @return the list of {name, value} pairs, or null if the string cannot be parsed
+     */
+    private static List<String[]> parseParameters(String solverSpecificParameters) {
+        List<String[]> parameters = new ArrayList<>();
+        for (String chunk : solverSpecificParameters.split(",")) {
+            String trimmed = chunk.trim();
+            if (trimmed.isEmpty()) {
+                continue;
+            }
+            int separator = trimmed.indexOf(' ');
+            int separator2 = trimmed.indexOf('\t');
+            int splitPosition = separator == -1 ? separator2 : (separator2 == -1 ? separator : Math.min(separator, separator2));
+            if (splitPosition <= 0) {
+                return null; // a parameter without a value
+            }
+            String name = trimmed.substring(0, splitPosition);
+            String value = trimmed.substring(splitPosition + 1).trim();
+            if (value.isEmpty()) {
+                return null; // a parameter without a value
+            }
+            parameters.add(new String[] {name, value});
+        }
+        if (parameters.isEmpty()) {
+            return null;
+        }
+        return parameters;
+    }
+
+    private static boolean isLong(String value) {
+        try {
+            Integer.parseInt(value);
             return true;
+        } catch (NumberFormatException e) {
+            return false;
+        }
+    }
+
+    private static boolean isDouble(String value) {
+        try {
+            double d = Double.parseDouble(value);
+            return Double.isFinite(d);
+        } catch (NumberFormatException e) {
+            return false;
         }
     }
 
     public void setRelativeMipGap(double relativeMipGap) {
-        solveConfiguration.setDoubleParam(MPSolverParameters.DoubleParam.RELATIVE_MIP_GAP, relativeMipGap);
+        this.relativeMipGap = relativeMipGap;
     }
 
     public LinearProblemStatus solve() {
-        if (OpenRaoLoggerProvider.TECHNICAL_LOGS.isTraceEnabled()) {
-            mpSolver.enableOutput();
+        SolveParametersProto.Builder solveParameters = SolveParametersProto.newBuilder();
+        if (relativeMipGap != null) {
+            if (solver == SearchTreeRaoRangeActionsOptimizationParameters.Solver.SCIP) {
+                // GSCIP: solve to exact optimality. With a non-zero gap, the incumbent returned can differ
+                // from the one returned by the legacy SCIP backend, which breaks results depending on ties
+                // (e.g. min-on time scenarios). OpenRAO models are small enough for this to be free.
+                solveParameters.setRelativeGapTolerance(0.0);
+            } else {
+                solveParameters.setRelativeGapTolerance(relativeMipGap);
+            }
         }
-        return convertResultStatus(mpSolver.solve(solveConfiguration));
+        if (OpenRaoLoggerProvider.TECHNICAL_LOGS.isTraceEnabled()) {
+            solveParameters.setEnableOutput(true);
+        }
+        if (gscipParameters != null) {
+            solveParameters.setGscip(gscipParameters);
+        }
+        if (gurobiParameters != null) {
+            solveParameters.setGurobi(gurobiParameters);
+        }
+        if (xpressParameters != null) {
+            solveParameters.setXpress(xpressParameters);
+        }
+        if (highsParameters != null) {
+            solveParameters.setHighs(highsParameters);
+        }
+
+        SolveResult result;
+        try {
+            result = Solve.solve(model, getOrToolsSolverType(solver), new Solve.Args().setSolveParams(solveParameters.build()));
+        } catch (IllegalArgumentException | MathOptInternalException e) {
+            OpenRaoLoggerProvider.TECHNICAL_LOGS.error("Error while solving linear problem {}: {}", optProblemName, e.getMessage());
+            return LinearProblemStatus.ABNORMAL;
+        }
+
+        lastSolution = result.hasPrimalFeasibleSolution() ? result.getVariableValues() : Map.of();
+        return convertResultStatus(result.getTermination().getReason(), result.getTermination().getProblemStatus());
     }
 
-    static LinearProblemStatus convertResultStatus(MPSolver.ResultStatus status) {
-        return switch (status) {
+    static LinearProblemStatus convertResultStatus(SolveResult.TerminationReason reason, SolveResult.ProblemStatus problemStatus) {
+        return switch (reason) {
             case OPTIMAL -> LinearProblemStatus.OPTIMAL;
-            case ABNORMAL -> LinearProblemStatus.ABNORMAL;
-            case FEASIBLE -> LinearProblemStatus.FEASIBLE;
-            case UNBOUNDED -> LinearProblemStatus.UNBOUNDED;
+            case FEASIBLE, IMPRECISE -> LinearProblemStatus.FEASIBLE;
             case INFEASIBLE -> LinearProblemStatus.INFEASIBLE;
-            case NOT_SOLVED -> LinearProblemStatus.NOT_SOLVED;
-            default -> throw new OpenRaoException(String.format("Status %s not handled.", status));
+            case UNBOUNDED -> LinearProblemStatus.UNBOUNDED;
+            case INFEASIBLE_OR_UNBOUNDED -> problemStatus.getPrimalStatus() == SolveResult.FeasibilityStatus.INFEASIBLE
+                ? LinearProblemStatus.INFEASIBLE
+                : LinearProblemStatus.UNBOUNDED;
+            case NO_SOLUTION_FOUND -> LinearProblemStatus.NOT_SOLVED;
+            case NUMERICAL_ERROR, OTHER_ERROR -> LinearProblemStatus.ABNORMAL;
         };
     }
 
@@ -205,7 +450,7 @@ public class OpenRaoMPSolver {
     }
 
     public void setMinimization() {
-        mpSolver.objective().setMinimization();
+        model.getObjective().setToMinimize();
         objectiveMinimization = true;
     }
 
@@ -214,7 +459,7 @@ public class OpenRaoMPSolver {
     }
 
     public void setMaximization() {
-        mpSolver.objective().setMaximization();
+        model.getObjective().setToMaximize();
         objectiveMinimization = false;
     }
 
@@ -223,13 +468,13 @@ public class OpenRaoMPSolver {
      We take an initial double:
        .............//////////.....
      To which we add a "bigger" double :
-       .........\\\\\\\\\\..........
+       .........\\\\\\\\.......
       =>
-       .........\\\\||||||..........
-       (we "lose" the least significant bits of the first double because the sum double doesn't have enough precision to show them)
+       .........\\\\||||||...........
+     (we "lose" the least significant bits of the first double because the sum double doesn't have enough precision to show them)
      Then we subtract the same "bigger" double:
-       .............//////..........
-       We get back our original bits for the most significant part, but the least significant bits are still gone.
+       .............//////...........
+     We get back our original bits for the most significant part, but the least significant bits are still gone.
      */
     static double roundDouble(double value) {
         if (Double.isNaN(value)) {
@@ -245,15 +490,19 @@ public class OpenRaoMPSolver {
         return value;
     }
 
+    /**
+     * Double used as "infinity" for variables and constraints.
+     * OR-Tools MathOpt handles infinite bounds natively, so a true double infinity can be used.
+     */
     public double infinity() {
-        return getSolverInfinity(solver) * 1000;
-        // we must use something greater than the solver's infinity, in case we subtract things from it, it should
-        // stay greater than infinity
-        // TODO: replace with mpsSolver.solverInfinity() * 1000 when made available
+        return Double.POSITIVE_INFINITY;
     }
 
-    static double getSolverInfinity(SearchTreeRaoRangeActionsOptimizationParameters.Solver solver) {
-        // method required for testing without having to instantiate the mpSolver (impossible for commercial solvers)
-        return SOLVER_INFINITY.get(Objects.requireNonNull(solver));
+    /**
+     * Returns the value of a variable in the last solution (0 if the variable has no value,
+     * e.g. before the first solve or when no feasible solution was found).
+     */
+    double solutionValueOf(Variable variable) {
+        return lastSolution.getOrDefault(variable, 0.);
     }
 }

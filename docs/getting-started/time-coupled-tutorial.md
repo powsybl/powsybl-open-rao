@@ -274,7 +274,7 @@ expenses for the remedial actions among all timestamps.
         "hvdc-sensitivity-threshold": 1.0E-6,
         "injection-ra-sensitivity-threshold": 1.0E-6,
         "linear-optimization-solver": {
-          "solver": "CBC",
+          "solver": "SCIP",
           "relative-mip-gap": 0.001,
           "solver-specific-parameters": null
         }

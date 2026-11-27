@@ -7,23 +7,23 @@
 
 package com.powsybl.openrao.raoimpl.algorithms.linearoptimisation.algorithms.linearproblem;
 
-import com.google.ortools.linearsolver.MPObjective;
+import com.google.ortools.mathopt.Objective;
 
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-international.com>}
  */
 public class OpenRaoMPObjective {
-    private final MPObjective mpObjective;
+    private final Objective objective;
 
-    protected OpenRaoMPObjective(MPObjective mpObjective) {
-        this.mpObjective = mpObjective;
+    protected OpenRaoMPObjective(Objective objective) {
+        this.objective = objective;
     }
 
     public double getCoefficient(OpenRaoMPVariable variable) {
-        return mpObjective.getCoefficient(variable.getMPVariable());
+        return objective.getLinearTerm(variable.getVariable());
     }
 
     public void setCoefficient(OpenRaoMPVariable variable, double coeff) {
-        mpObjective.setCoefficient(variable.getMPVariable(), OpenRaoMPSolver.roundDouble(coeff));
+        objective.setLinearTerm(variable.getVariable(), OpenRaoMPSolver.roundDouble(coeff));
     }
 }

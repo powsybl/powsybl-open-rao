@@ -109,7 +109,8 @@ public class SearchTreeRaoRangeActionsOptimizationParameters {
         CBC,
         SCIP,
         XPRESS,
-        GUROBI
+        GUROBI,
+        HIGHS
     }
 
     // Getters and setters
