@@ -32,6 +32,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -110,6 +111,7 @@ class CostCoreProblemFillerTest extends AbstractFillerTest {
         OpenRaoSearchTreeParameters searchTreeParameters = new OpenRaoSearchTreeParameters(ReportNode.NO_OP);
         raoParameters.addExtension(OpenRaoSearchTreeParameters.class, searchTreeParameters);
         searchTreeParameters.getRangeActionsOptimizationParameters().setPstSensitivityThreshold(pstSensitivityThreshold);
+        searchTreeParameters.getRangeActionsOptimizationParameters().setPstModel(pstModel);
         searchTreeParameters.getRangeActionsOptimizationParameters().setHvdcSensitivityThreshold(hvdcSensitivityThreshold);
         searchTreeParameters.getRangeActionsOptimizationParameters().setInjectionRaSensitivityThreshold(injectionSensitivityThreshold);
         RangeActionsOptimizationParameters rangeActionParameters = raoParameters.getRangeActionsOptimizationParameters();
@@ -377,8 +379,29 @@ class CostCoreProblemFillerTest extends AbstractFillerTest {
 
     @Test
     void testContinuousPstMode() {
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> initializeForGlobal(SearchTreeRaoRangeActionsOptimizationParameters.PstModel.CONTINUOUS));
-        assertEquals("Costly remedial action optimization is only available for the APPROXIMATED_INTEGERS mode of PST range actions.", exception.getMessage());
+        initializeForGlobal(SearchTreeRaoRangeActionsOptimizationParameters.PstModel.CONTINUOUS);
+
+        double tapRange = Collections.max(pstRangeAction.getTapToAngleConversionMap().keySet())
+            - Collections.min(pstRangeAction.getTapToAngleConversionMap().keySet());
+        double angleRange = Collections.max(pstRangeAction.getTapToAngleConversionMap().values())
+            - Collections.min(pstRangeAction.getTapToAngleConversionMap().values());
+        double expectedVariationCost = 10.0 * tapRange / angleRange;
+
+        State prevState = cnec1.getState();
+        State curState = cnec2.getState();
+        OpenRaoMPVariable prevUpwardVariationVariable = linearProblem.getRangeActionVariationVariable(pstRangeAction, prevState, LinearProblem.VariationDirectionExtension.UPWARD);
+        OpenRaoMPVariable prevDownwardVariationVariable = linearProblem.getRangeActionVariationVariable(pstRangeAction, prevState, LinearProblem.VariationDirectionExtension.DOWNWARD);
+        OpenRaoMPVariable prevActivationVariable = linearProblem.getRangeActionVariationBinary(pstRangeAction, prevState);
+        OpenRaoMPVariable curUpwardVariationVariable = linearProblem.getRangeActionVariationVariable(pstRangeAction, curState, LinearProblem.VariationDirectionExtension.UPWARD);
+        OpenRaoMPVariable curDownwardVariationVariable = linearProblem.getRangeActionVariationVariable(pstRangeAction, curState, LinearProblem.VariationDirectionExtension.DOWNWARD);
+        OpenRaoMPVariable curActivationVariable = linearProblem.getRangeActionVariationBinary(pstRangeAction, curState);
+
+        assertEquals(expectedVariationCost, linearProblem.getObjective().getCoefficient(prevUpwardVariationVariable), DOUBLE_TOLERANCE);
+        assertEquals(expectedVariationCost, linearProblem.getObjective().getCoefficient(prevDownwardVariationVariable), DOUBLE_TOLERANCE);
+        assertEquals(15.0, linearProblem.getObjective().getCoefficient(prevActivationVariable), DOUBLE_TOLERANCE);
+        assertEquals(expectedVariationCost, linearProblem.getObjective().getCoefficient(curUpwardVariationVariable), DOUBLE_TOLERANCE);
+        assertEquals(expectedVariationCost, linearProblem.getObjective().getCoefficient(curDownwardVariationVariable), DOUBLE_TOLERANCE);
+        assertEquals(15.0, linearProblem.getObjective().getCoefficient(curActivationVariable), DOUBLE_TOLERANCE);
     }
 
     @Test
