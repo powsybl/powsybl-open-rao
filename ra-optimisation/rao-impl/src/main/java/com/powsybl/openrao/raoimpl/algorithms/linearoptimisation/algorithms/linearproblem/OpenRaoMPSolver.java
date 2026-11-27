@@ -40,7 +40,9 @@ public class OpenRaoMPSolver {
         SearchTreeRaoRangeActionsOptimizationParameters.Solver.CBC, Double.POSITIVE_INFINITY,
         SearchTreeRaoRangeActionsOptimizationParameters.Solver.SCIP, 1E20,
         SearchTreeRaoRangeActionsOptimizationParameters.Solver.XPRESS, 1E20,
-        SearchTreeRaoRangeActionsOptimizationParameters.Solver.GUROBI, 1E30 // actually 1E30 for var bounds, 1e20 for ct RHS
+        // OR-Tools turns a constraint with two finite bounds into a Gurobi range constraint, then fails when reading
+        // the solution (Gurobi error 10006). Unbounded sides must be passed as real infinity.
+        SearchTreeRaoRangeActionsOptimizationParameters.Solver.GUROBI, Double.POSITIVE_INFINITY
     );
 
     private final SearchTreeRaoRangeActionsOptimizationParameters.Solver solver;
