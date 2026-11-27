@@ -89,11 +89,11 @@ public class VoltageCnecCreator extends AbstractCnecCreator {
     }
 
     private void addVoltageLimitThreshold(VoltageCnecAdder voltageCnecAdder) {
-        if (LimitTypeKind.HIGH_VOLTAGE.toString().equals(nativeVoltageLimit.limitType())) {
+        if (LimitTypeKind.HIGH_VOLTAGE.matches(nativeVoltageLimit.limitType())) {
             voltageCnecAdder.newThreshold()
                 .withUnit(Unit.KILOVOLT)
                 .withMax(nativeVoltageLimit.value()).add();
-        } else if (LimitTypeKind.LOW_VOLTAGE.toString().equals(nativeVoltageLimit.limitType())) {
+        } else if (LimitTypeKind.LOW_VOLTAGE.matches(nativeVoltageLimit.limitType())) {
             voltageCnecAdder.newThreshold()
                 .withUnit(Unit.KILOVOLT)
                 .withMin(nativeVoltageLimit.value()).add();

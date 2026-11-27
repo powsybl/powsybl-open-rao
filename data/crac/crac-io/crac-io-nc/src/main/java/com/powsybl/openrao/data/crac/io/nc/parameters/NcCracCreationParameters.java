@@ -22,6 +22,7 @@ public class NcCracCreationParameters extends AbstractExtension<CracCreationPara
 
     private CapacityCalculationRegion capacityCalculationRegionCode = null;
     private OffsetDateTime timestamp = null;
+    private boolean createAutoInstant = true;
     private Map<String, Integer> curativeInstants = Map.of("curative 1", 300, "curative 2", 600, "curative 3", 1200);
     private Double counterTradingMinRange = null;
     private Double counterTradingMaxRange = null;
@@ -39,6 +40,10 @@ public class NcCracCreationParameters extends AbstractExtension<CracCreationPara
         return timestamp;
     }
 
+    public boolean getCreateAutoInstant() {
+        return createAutoInstant;
+    }
+
     public Map<String, Integer> getCurativeInstants() {
         return curativeInstants;
     }
@@ -53,6 +58,10 @@ public class NcCracCreationParameters extends AbstractExtension<CracCreationPara
 
     public void setCapacityCalculationRegion(CapacityCalculationRegion capacityCalculationRegionCode) {
         this.capacityCalculationRegionCode = capacityCalculationRegionCode;
+    }
+
+    public void setCreateAutoInstant(boolean createAutoInstant) {
+        this.createAutoInstant = createAutoInstant;
     }
 
     public void setCurativeInstants(Map<String, Integer> curativeInstants) {

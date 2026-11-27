@@ -30,6 +30,7 @@ import java.util.Map;
 public class JsonNcCracCreationParameters implements JsonCracCreationParameters.ExtensionSerializer<NcCracCreationParameters> {
 
     private static final String CAPACITY_CALCULATION_REGION = "capacity-calculation-region";
+    private static final String CREATE_AUTO_INSTANT = "create-auto-instant";
     private static final String CURATIVE_INSTANTS = "curative-instants";
     private static final String NAME = "name";
     private static final String APPLICATION_TIME = "application-time";
@@ -42,6 +43,7 @@ public class JsonNcCracCreationParameters implements JsonCracCreationParameters.
         jsonGenerator.writeStartObject();
         serializeTimestamp(ncParameters.getTimestamp(), jsonGenerator);
         serializeCapacityCalculationRegion(ncParameters.getCapacityCalculationRegion(), jsonGenerator);
+        serializeCreateAutoInstant(ncParameters.getCreateAutoInstant(), jsonGenerator);
         serializeCurativeInstants(ncParameters.getCurativeInstants(), jsonGenerator);
         serializeCounterTradingRange(ncParameters.getCounterTradingMinRange(), ncParameters.getCounterTradingMaxRange(), jsonGenerator);
         jsonGenerator.writeEndObject();
@@ -58,6 +60,10 @@ public class JsonNcCracCreationParameters implements JsonCracCreationParameters.
                 case CAPACITY_CALCULATION_REGION:
                     jsonParser.nextToken();
                     parameters.setCapacityCalculationRegion(CapacityCalculationRegion.fromEIC(jsonParser.readValueAs(String.class)));
+                    break;
+                case CREATE_AUTO_INSTANT:
+                    jsonParser.nextToken();
+                    parameters.setCreateAutoInstant(jsonParser.readValueAs(Boolean.class));
                     break;
                 case CURATIVE_INSTANTS:
                     jsonParser.nextToken();
@@ -98,6 +104,10 @@ public class JsonNcCracCreationParameters implements JsonCracCreationParameters.
         if (capacityCalculationRegion != null) {
             jsonGenerator.writeStringField(CAPACITY_CALCULATION_REGION, capacityCalculationRegion.getEIC());
         }
+    }
+
+    private void serializeCreateAutoInstant(boolean createAutoInstant, JsonGenerator jsonGenerator) throws IOException {
+        jsonGenerator.writeBooleanField(CREATE_AUTO_INSTANT, createAutoInstant);
     }
 
     private void serializeCurativeInstants(Map<String, Integer> curativeInstants, JsonGenerator jsonGenerator) throws IOException {

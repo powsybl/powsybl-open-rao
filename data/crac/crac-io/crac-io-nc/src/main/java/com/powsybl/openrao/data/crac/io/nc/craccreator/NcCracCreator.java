@@ -59,12 +59,6 @@ class NcCracCreator {
             return creationContext;
         }
 
-        if (ncParameters.getCapacityCalculationRegion() == null) {
-            creationContext.getCreationReport().error("No Capacity Calculation region provided for the NC CRAC importer.");
-            creationContext.creationFailure();
-            return creationContext;
-        }
-
         if (ncParameters.getCurativeInstants() == null || ncParameters.getCurativeInstants().isEmpty()) {
             creationContext.getCreationReport().error("No curative instants defined for the NC CRAC importer.");
             creationContext.creationFailure();
@@ -86,8 +80,10 @@ class NcCracCreator {
 
     private void addCsaInstants(NcCracCreationParameters ncCracCreationParameters) {
         crac.newInstant(PREVENTIVE_INSTANT, InstantKind.PREVENTIVE)
-            .newInstant(OUTAGE_INSTANT, InstantKind.OUTAGE)
-            .newInstant(AUTO_INSTANT, InstantKind.AUTO);
+            .newInstant(OUTAGE_INSTANT, InstantKind.OUTAGE);
+        if (ncCracCreationParameters.getCreateAutoInstant()) {
+            crac.newInstant(AUTO_INSTANT, InstantKind.AUTO);
+        }
         List<String> sortedCurativeInstants = ncCracCreationParameters.getCurativeInstants().entrySet().stream()
             .sorted(Comparator.comparingDouble(Map.Entry::getValue))
             .map(Map.Entry::getKey)

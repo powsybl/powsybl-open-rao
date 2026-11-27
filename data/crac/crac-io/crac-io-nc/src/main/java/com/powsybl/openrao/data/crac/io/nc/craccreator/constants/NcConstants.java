@@ -29,19 +29,56 @@ public final class NcConstants {
 
     /**
      * Regular expression of the namespaces published with NCP version 2.5. Finding one of them in an input file
-     * means that the file uses the NCP 2.5 vocabulary, which is not supported by the importer (only NCP 2.4 is).
+     * is a signal that the package uses the NCP 2.5 vocabulary (see {@link NcVersion}).
      */
     public static final String NCP25_NAMESPACE_PATTERN = "https://cim4\\.eu/|https://cim\\.ucaiug\\.io/ns";
+
+    /**
+     * Regular expression matching a {@code dcterms:conformsTo} (or {@code dct:conformsTo}) header value that
+     * references the NCP 2.5 NC vocabulary, e.g. {@code https://cim4.eu/ns/nc/2.4#}.
+     */
+    public static final String NCP25_CONFORMS_TO_PATTERN = "conformsTo[^>]{0,120}?https://cim4\\.eu/ns/nc";
+
+    /**
+     * Regular expression matching a {@code dcterms:conformsTo} (or {@code dct:conformsTo}) header value that
+     * references the NCP 2.4 NC vocabulary, e.g. {@code http://entsoe.eu/ns/nc#}.
+     */
+    public static final String NCP24_CONFORMS_TO_PATTERN = "conformsTo[^>]{0,120}?http://entsoe\\.eu/ns/nc";
 
     public static final String RDF_BASE_URL = "http://entsoe.eu";
 
     public static final String TRIPLESTORE_RDF4J_NAME = "rdf4j";
 
     /**
+     * NCP 2.5 vocabulary namespace roots, published with the NCP 2.5 profiles:
+     * {@code nc = https://cim4.eu/ns/nc#} and {@code cim = https://cim.ucaiug.io/ns#}.
+     * The NCP 2.4 counterparts are {@link #ENTSOE_NS_NC_URL} and {@link #IEC_URL}.
+     */
+    public static final String NC25_NS_NC_URL = "https://cim4.eu/ns/nc";
+    public static final String NC25_CIM_URL = "https://cim.ucaiug.io/ns";
+    /**
+     * NCP 2.5 CGMES EQ limit type vocabulary. The NCP 2.5 profile RDFS do not pin the CGMES
+     * Schema Extension namespace; the official ReliCapGrid NCP 2.5 test data (tag
+     * {@code cgmes-3.0_ncp-2.5_tc-2.0}) declares {@code http://entsoe.eu/CIM/SchemaExtension/3/2#},
+     * hence {@code 3/2}. To be confirmed on real production NCP 2.5 packages.
+     */
+    public static final String NC25_ENTSOE_URL = "http://entsoe.eu/CIM/SchemaExtension/3/2#";
+
+    /**
      * constants to access triplestore data
      */
 
     public static final String SPARQL_FILE_NC_PROFILE = "nc.sparql";
+
+    public static final String SPARQL_FILE_NC_PROFILE_25 = "nc25.sparql";
+
+    /**
+     * Gate on the SPARQL read contract: one query set per detected NCP version.
+     * The NCP 2.4 set stays byte-identical to the historical {@code nc.sparql}.
+     */
+    public static String getSparqlFile(NcVersion version) {
+        return version == NcVersion.V25 ? SPARQL_FILE_NC_PROFILE_25 : SPARQL_FILE_NC_PROFILE;
+    }
 
     /**
      * constants to request file headers
@@ -82,6 +119,12 @@ public final class NcConstants {
     public static final String REQUEST_CONTINGENCIES_CONTINGENT_STATUS = "contingentStatus";
 
     public static final String OUT_OF_SERVICE_CONTINGENT_STATUS = "http://iec.ch/TC57/CIM100#ContingencyEquipmentStatusKind.outOfService";
+
+    public static final String OUT_OF_SERVICE_CONTINGENT_STATUS_25 = NC25_CIM_URL + "#ContingencyEquipmentStatusKind.outOfService";
+
+    public static boolean isOutOfServiceContingentStatus(String status) {
+        return OUT_OF_SERVICE_CONTINGENT_STATUS.equals(status) || OUT_OF_SERVICE_CONTINGENT_STATUS_25.equals(status);
+    }
 
     /**
      * remedial actions
@@ -141,7 +184,13 @@ public final class NcConstants {
     public static final String AVAILABILITY_TIME_POINT = "availabilityTimePoint";
     public static final String INTERPOLATION_KIND = "interpolationKind";
     public static final String NEXT_INTERPOLATION_KIND = "http://entsoe.eu/ns/nc#TimeSeriesInterpolationKind.next";
+
+    public static final String NEXT_INTERPOLATION_KIND_25 = NC25_NS_NC_URL + "#TimeSeriesInterpolationKind.next";
     public static final String AT_TIME = "atTime";
+
+    public static boolean isNextInterpolationKind(String interpolationKind) {
+        return NEXT_INTERPOLATION_KIND.equals(interpolationKind) || NEXT_INTERPOLATION_KIND_25.equals(interpolationKind);
+    }
 
     /**
      * requests for flow cnec
@@ -180,6 +229,7 @@ public final class NcConstants {
     public static final String REQUEST_OPERATIONAL_LIMIT_ACCEPTABLE_DURATION = "acceptableDuration";
     public static final String REQUEST_VOLTAGE_LIMIT_IS_INFINITE_DURATION = "isInfiniteDuration";
     public static final String ENTSOE_NS_NC_URL = "http://entsoe.eu/ns/nc";
+    public static final String ENTSOE_NS_NC_V25_URL = "https://cim4.eu/ns/nc";
     public static final List<String> CURRENT_LIMIT_POSSIBLE_ALIASES_BY_TYPE_LEFT = List.of("CGMES.Terminal1", "CGMES.Terminal_Boundary_1");
     public static final List<String> CURRENT_LIMIT_POSSIBLE_ALIASES_BY_TYPE_RIGHT = List.of("CGMES.Terminal2", "CGMES.Terminal_Boundary_2");
     public static final List<String> CURRENT_LIMIT_POSSIBLE_ALIASES_BY_TYPE_TIE_LINE = List.of("CGMES.Terminal1", "CGMES.Terminal_Boundary");

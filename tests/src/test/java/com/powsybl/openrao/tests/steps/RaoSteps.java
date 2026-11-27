@@ -1128,7 +1128,7 @@ public class RaoSteps {
         List<Map<String, String>> inputs = arg1.asMaps(String.class, String.class);
         for (Map<String, String> tsInput : inputs) {
             OffsetDateTime offsetDateTime = getOffsetDateTimeFromBrusselsTimestamp(tsInput.get("Timestamp"));
-            LazyNetwork lazyNetwork = new LazyNetwork(importNetwork(getFile(networkFolderPath.concat(tsInput.get("Network"))), false));
+            LazyNetwork lazyNetwork = new LazyNetwork(importNetwork(getFile(networkFolderPath.concat(tsInput.get("Network"))), null));
             Crac crac = importCrac(getFile(cracFolderPath.concat(tsInput.get("CRAC"))), lazyNetwork, null).getLeft();
             raoInputs.put(offsetDateTime, RaoInput.build(lazyNetwork, crac).build());
             lazyNetwork.release();
@@ -1165,7 +1165,7 @@ public class RaoSteps {
         for (Map<String, String> tsInput : inputs) {
             OffsetDateTime offsetDateTime = getOffsetDateTimeFromBrusselsTimestamp(tsInput.get("Timestamp"));
             TECHNICAL_LOGS.info("**** Loading data for TS {} ****", offsetDateTime);
-            Network network = importNetwork(getFile(networkFolderPath.concat(tsInput.get("Network"))), false);
+            Network network = importNetwork(getFile(networkFolderPath.concat(tsInput.get("Network"))), null);
             CoreCcPreprocessor.applyCoreCcNetworkPreprocessing(network);
             LazyNetwork lazyNetwork = new LazyNetwork(network);
             // Crac

@@ -34,7 +34,7 @@ class VoltageCnecCreationTest {
 
         NcCracCreationTestUtil.assertVoltageCnecEquality(
             importedVoltageCnecs.get(0),
-            "RTE_AE1 (assessed-element-1) - RTE_CO1 - curative 3",
+            "RTE_AE1 (assessed-element-1) - RTE_CO1 (contingency-1) - curative 3",
             "BBE1AA1",
             NcCracCreationTestUtil.CURATIVE_3_INSTANT_ID,
             "contingency-1",
@@ -44,7 +44,7 @@ class VoltageCnecCreationTest {
 
         NcCracCreationTestUtil.assertVoltageCnecEquality(
             importedVoltageCnecs.get(1),
-            "RTE_AE2 (assessed-element-2) - RTE_CO1 - curative 3",
+            "RTE_AE2 (assessed-element-2) - RTE_CO1 (contingency-1) - curative 3",
             "BBE1AA1",
             NcCracCreationTestUtil.CURATIVE_3_INSTANT_ID,
             "contingency-1",
@@ -54,7 +54,7 @@ class VoltageCnecCreationTest {
 
         NcCracCreationTestUtil.assertVoltageCnecEquality(
             importedVoltageCnecs.get(2),
-            "RTE_AE2 (assessed-element-2) - RTE_CO2 - curative 3",
+            "RTE_AE2 (assessed-element-2) - RTE_CO2 (contingency-2) - curative 3",
             "BBE1AA1",
             NcCracCreationTestUtil.CURATIVE_3_INSTANT_ID,
             "contingency-2",
@@ -120,14 +120,14 @@ class VoltageCnecCreationTest {
         NcCracCreationTestUtil.assertHasOnConstraintUsageRule(
             cracCreationContext,
             "remedial-action-1",
-            "RTE_AE2 (assessed-element-2) - RTE_CO1 - curative 3",
+            "RTE_AE2 (assessed-element-2) - RTE_CO1 (contingency-1) - curative 3",
             cracCreationContext.getCrac().getInstant(NcCracCreationTestUtil.CURATIVE_3_INSTANT_ID),
             VoltageCnec.class
         );
         NcCracCreationTestUtil.assertHasOnConstraintUsageRule(
             cracCreationContext,
             "remedial-action-1",
-            "RTE_AE2 (assessed-element-2) - RTE_CO2 - curative 3",
+            "RTE_AE2 (assessed-element-2) - RTE_CO2 (contingency-2) - curative 3",
             cracCreationContext.getCrac().getInstant(NcCracCreationTestUtil.CURATIVE_3_INSTANT_ID),
             VoltageCnec.class
         );

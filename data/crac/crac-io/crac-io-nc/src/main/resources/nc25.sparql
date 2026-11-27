@@ -1,0 +1,945 @@
+#
+# Copyright (c) 2026, RTE (http://www.rte-france.com)
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+#
+# NCP 2.5 read contract. Generated from nc.sparql (the NCP 2.4 read contract, which stays
+# byte-identical) with the NCP 2.5 vocabulary namespaces:
+#   nc  = https://cim4.eu/ns/nc#   (was http://entsoe.eu/ns/nc#)
+#   cim = https://cim.ucaiug.io/ns# (was http://iec.ch/TC57/CIM100#)
+# The CGMES EQ limit vocabularies (cim16 / entsoe SchemaExtension) are kept as in the NCP 2.4
+# set, to be confirmed on real production NCP 2.5 packages (see issue #2057, open question 2).
+# In the remedialActionScheme query, RemedialActionScheme.ArmedRemedialAction was renamed
+# SchemeRemedialAction in RA 2.5.0, so both property names are accepted.
+#
+
+# query: contingencyEquipment
+PREFIX cim: <https://cim.ucaiug.io/ns#>
+SELECT *
+{
+GRAPH <%s> {
+    ?contingencyEquipment
+        rdf:type cim:ContingencyEquipment ;
+        cim:ContingencyEquipment.Equipment ?contingencyEquipmentId ;
+        cim:ContingencyElement.Contingency ?contingency ;
+        cim:ContingencyEquipment.contingentStatus ?contingentStatus ;
+}
+}
+
+# query: header
+PREFIX dcat: <http://www.w3.org/ns/dcat#>
+SELECT *
+{
+GRAPH <%s> {
+    ?fullModel
+        dcat:keyword ?keyword ;
+    OPTIONAL {
+        ?fullModel
+            dcat:startDate ?startDate ;
+            dcat:endDate ?endDate ;
+        }
+}
+}
+
+# query: ordinaryContingency
+# NCP 2.5: normalMustStudy is RDFS M:1..1 but unconstrained by SHACL and absent in the
+# official ReliCapGrid NCP 2.5 test data (tag cgmes-3.0_ncp-2.5_tc-2.0). Absent means the
+# contingency is studied (a contingency listed in a CO profile is to be assessed). To be
+# confirmed with the NCP working group.
+PREFIX cim: <https://cim.ucaiug.io/ns#>
+PREFIX nc: <https://cim4.eu/ns/nc#>
+PREFIX dcat: <http://www.w3.org/ns/dcat#>
+SELECT *
+{
+GRAPH <%s> {
+    ?contingency
+        rdf:type nc:OrdinaryContingency .
+    OPTIONAL {
+            ?contingency nc:Contingency.normalMustStudy ?mustStudy .
+    }
+    BIND(COALESCE(?mustStudy, true) AS ?normalMustStudy)
+    OPTIONAL {
+            ?contingency cim:IdentifiedObject.name ?name .
+    }
+    OPTIONAL {
+            ?contingency nc:Contingency.EquipmentOperator ?idEquipmentOperator .
+    }
+}
+}
+
+# query: exceptionalContingency
+PREFIX cim: <https://cim.ucaiug.io/ns#>
+PREFIX nc: <https://cim4.eu/ns/nc#>
+PREFIX dcat: <http://www.w3.org/ns/dcat#>
+SELECT *
+{
+GRAPH <%s> {
+    ?contingency
+        rdf:type nc:ExceptionalContingency .
+    OPTIONAL {
+            ?contingency nc:Contingency.normalMustStudy ?mustStudy .
+    }
+    BIND(COALESCE(?mustStudy, true) AS ?normalMustStudy)
+    OPTIONAL {
+            ?contingency cim:IdentifiedObject.name ?name .
+            }
+    OPTIONAL {
+            ?contingency nc:Contingency.EquipmentOperator ?idEquipmentOperator .
+            }
+}
+}
+
+# query: outOfRangeContingency
+PREFIX cim: <https://cim.ucaiug.io/ns#>
+PREFIX nc: <https://cim4.eu/ns/nc#>
+PREFIX dcat: <http://www.w3.org/ns/dcat#>
+SELECT *
+{
+GRAPH <%s> {
+    ?contingency
+        rdf:type nc:OutOfRangeContingency .
+    OPTIONAL {
+            ?contingency nc:Contingency.normalMustStudy ?mustStudy .
+    }
+    BIND(COALESCE(?mustStudy, true) AS ?normalMustStudy)
+    OPTIONAL {
+            ?contingency cim:IdentifiedObject.name ?name .
+            }
+    OPTIONAL {
+            ?contingency nc:Contingency.EquipmentOperator ?idEquipmentOperator .
+            }
+}
+}
+
+# query: assessedElement
+PREFIX cim: <https://cim.ucaiug.io/ns#>
+PREFIX nc: <https://cim4.eu/ns/nc#>
+PREFIX dcat: <http://www.w3.org/ns/dcat#>
+SELECT *
+{
+GRAPH <%s> {
+    ?assessedElement
+        rdf:type nc:AssessedElement ;
+        nc:AssessedElement.inBaseCase ?inBaseCase ;
+        nc:AssessedElement.AssessedSystemOperator ?assessedSystemOperator .
+    # NCP 2.5: IdentifiedObject.name is M:0..1 (AssessedElement AP RDFS v2.4.1)
+    OPTIONAL {
+            ?assessedElement cim:IdentifiedObject.name ?name .
+    }
+    OPTIONAL {
+                ?assessedElement nc:AssessedElement.ConductingEquipment ?conductingEquipment .
+                }
+    OPTIONAL {
+                ?assessedElement nc:AssessedElement.OperationalLimit ?operationalLimit .
+                }
+    OPTIONAL {
+                ?assessedElement nc:AssessedElement.isCombinableWithContingency ?isCombinableWithContingency .
+            }
+    OPTIONAL {
+               ?assessedElement nc:AssessedElement.normalEnabled ?normalEnabled .
+            }
+    OPTIONAL {
+                ?assessedElement nc:AssessedElement.SecuredForRegion ?securedForRegion .
+            }
+    OPTIONAL {
+                ?assessedElement nc:AssessedElement.ScannedForRegion ?scannedForRegion .
+            }
+    OPTIONAL {
+                ?assessedElement nc:AssessedElement.flowReliabilityMargin ?flowReliabilityMargin .
+            }
+    OPTIONAL {
+                ?assessedElement nc:AssessedElement.OverlappingZone ?overlappingZone .
+            }
+}
+}
+
+# query: assessedElementWithRemedialAction
+PREFIX nc: <https://cim4.eu/ns/nc#>
+SELECT *
+{
+GRAPH <%s> {
+    ?assessedElementWithRemedialAction
+        rdf:type nc:AssessedElementWithRemedialAction ;
+        nc:AssessedElementWithRemedialAction.RemedialAction ?remedialAction ;
+        nc:AssessedElementWithRemedialAction.AssessedElement ?assessedElement ;
+        nc:AssessedElementWithRemedialAction.combinationConstraintKind ?combinationConstraintKind .
+    OPTIONAL {
+        ?assessedElementWithRemedialAction
+            nc:AssessedElementWithRemedialAction.normalEnabled ?normalEnabled .
+    }
+}
+}
+
+# query: assessedElementWithContingency
+PREFIX nc: <https://cim4.eu/ns/nc#>
+SELECT *
+{
+GRAPH <%s> {
+    ?assessedElementWithContingency
+        rdf:type nc:AssessedElementWithContingency ;
+        nc:AssessedElementWithContingency.Contingency ?contingency ;
+        nc:AssessedElementWithContingency.AssessedElement ?assessedElement ;
+        nc:AssessedElementWithContingency.combinationConstraintKind ?combinationConstraintKind .
+    OPTIONAL {
+        ?assessedElementWithContingency
+            nc:AssessedElementWithContingency.normalEnabled ?normalEnabled .
+    }
+}
+}
+
+# query: currentLimit
+PREFIX cim: <http://iec.ch/TC57/2013/CIM-schema-cim16#>
+PREFIX entsoe: <http://entsoe.eu/CIM/SchemaExtension/3/1#>
+SELECT *
+{
+    GRAPH <%s> {
+        ?currentLimit
+            rdf:type cim:CurrentLimit ;
+            cim:CurrentLimit.value ?value ;
+            cim:OperationalLimit.OperationalLimitSet ?operationalLimitSet ;
+            cim:OperationalLimit.OperationalLimitType ?operationalLimitType .
+        ?operationalLimitSet
+            rdf:type cim:OperationalLimitSet ;
+            cim:OperationalLimitSet.Terminal ?terminal .
+        ?operationalLimitType
+            rdf:type cim:OperationalLimitType ;
+            entsoe:OperationalLimitType.limitType ?limitType ;
+            cim:OperationalLimitType.direction ?direction .
+        OPTIONAL {
+            ?operationalLimitType
+                cim:OperationalLimitType.acceptableDuration ?acceptableDuration .
+        }
+    }
+}
+
+# query: voltageLimit
+PREFIX cim: <http://iec.ch/TC57/2013/CIM-schema-cim16#>
+PREFIX entsoe: <http://entsoe.eu/CIM/SchemaExtension/3/1#>
+SELECT *
+{
+GRAPH <%s> {
+    ?voltageLimit
+        rdf:type cim:VoltageLimit ;
+        cim:VoltageLimit.value ?value ;
+        cim:OperationalLimit.OperationalLimitSet ?operationalLimitSet ;
+        cim:OperationalLimit.OperationalLimitType ?operationalLimitType .
+    ?operationalLimitSet
+        rdf:type cim:OperationalLimitSet ;
+        cim:OperationalLimitSet.Equipment ?equipment .
+    ?operationalLimitType
+        rdf:type cim:OperationalLimitType ;
+        entsoe:OperationalLimitType.limitType ?limitType .
+    OPTIONAL {
+        ?operationalLimitType
+            cim:OperationalLimitType.isInfiniteDuration ?isInfiniteDuration .
+    }
+}
+}
+
+# query: voltageAngleLimit
+PREFIX cim: <https://cim.ucaiug.io/ns#>
+PREFIX nc: <https://cim4.eu/ns/nc#>
+PREFIX dcat: <http://www.w3.org/ns/dcat#>
+
+SELECT *
+{
+    GRAPH <%s> {
+        ?voltageAngleLimit
+            rdf:type nc:VoltageAngleLimit ;
+            nc:VoltageAngleLimit.normalValue ?normalValue ;
+            nc:VoltageAngleLimit.AngleReferenceTerminal ?terminal1 ;
+            cim:OperationalLimit.OperationalLimitSet ?operationalLimitSet ;
+            cim:OperationalLimit.OperationalLimitType ?operationalLimitType .
+        ?operationalLimitSet
+            rdf:type cim:OperationalLimitSet ;
+            cim:OperationalLimitSet.Terminal ?terminal2 .
+        ?operationalLimitType
+            rdf:type cim:OperationalLimitType ;
+            cim:OperationalLimitType.direction ?direction .
+
+        OPTIONAL {
+                ?voltageAngleLimit
+                    nc:VoltageAngleLimit.isFlowToRefTerminal ?isFlowToRefTerminal .
+            }
+    }
+}
+
+# query: gridStateAlterationRemedialAction
+PREFIX cim: <https://cim.ucaiug.io/ns#>
+PREFIX nc: <https://cim4.eu/ns/nc#>
+PREFIX dcat: <http://www.w3.org/ns/dcat#>
+
+SELECT *
+{
+    GRAPH <%s> {
+        ?gridStateAlterationRemedialAction
+            rdf:type nc:GridStateAlterationRemedialAction ;
+            cim:IdentifiedObject.mRID ?mRID ;
+            nc:RemedialAction.normalAvailable ?normalAvailable ;
+            nc:RemedialAction.kind ?kind .
+
+        OPTIONAL {
+            ?gridStateAlterationRemedialAction cim:IdentifiedObject.name ?name .
+        }
+        OPTIONAL {
+            ?gridStateAlterationRemedialAction nc:RemedialAction.timeToImplement ?timeToImplement .
+        }
+        OPTIONAL {
+            ?gridStateAlterationRemedialAction nc:RemedialAction.RemedialActionSystemOperator ?tso .
+        }
+        OPTIONAL {
+            ?gridStateAlterationRemedialAction nc:RemedialAction.isManual ?isManual .
+        }
+    }
+}
+
+# query: countertradeRemedialAction
+PREFIX cim: <https://cim.ucaiug.io/ns#>
+PREFIX nc: <https://cim4.eu/ns/nc#>
+PREFIX dcterms: <http://purl.org/dc/terms/#>
+PREFIX dcat: <http://www.w3.org/ns/dcat#>
+
+SELECT *
+{
+    GRAPH <%s> {
+        ?countertradeRemedialAction
+            rdf:type nc:CountertradeRemedialAction ;
+            cim:IdentifiedObject.mRID ?mRID ;
+            nc:RemedialAction.normalAvailable ?normalAvailable ;
+            nc:RemedialAction.kind ?kind .
+        OPTIONAL {
+            ?countertradeRemedialAction nc:PowerRemedialAction.BiddingZone ?biddingZone .
+        }
+        OPTIONAL {
+            ?fullModel dcterms:creator ?creator .
+        }
+        OPTIONAL {
+            ?countertradeRemedialAction nc:RemedialAction.RemedialActionSystemOperator ?remedialActionSystemOperator .
+        }
+        OPTIONAL {
+            ?countertradeRemedialAction cim:IdentifiedObject.name ?name .
+        }
+        OPTIONAL {
+            ?countertradeRemedialAction nc:RemedialAction.timeToImplement ?timeToImplement .
+        }
+        OPTIONAL {
+            ?countertradeRemedialAction nc:RemedialAction.isManual ?isManual .
+        }
+        OPTIONAL {
+            ?countertradeRemedialAction nc:CountertradeRemedialAction.maxEconomicP ?maxEconomicP .
+        }
+        OPTIONAL {
+            ?countertradeRemedialAction nc:CountertradeRemedialAction.minEconomicP ?minEconomicP .
+        }
+    }
+}
+
+# query: contingencyWithRemedialAction
+PREFIX nc: <https://cim4.eu/ns/nc#>
+SELECT *
+{
+GRAPH <%s> {
+    ?contingencyWithRemedialAction
+        rdf:type nc:ContingencyWithRemedialAction ;
+        nc:ContingencyWithRemedialAction.mRID ?mRID ;
+        nc:ContingencyWithRemedialAction.RemedialAction ?remedialAction ;
+        nc:ContingencyWithRemedialAction.Contingency ?contingency ;
+        nc:ContingencyWithRemedialAction.combinationConstraintKind ?combinationConstraintKind ;
+
+        OPTIONAL {
+                ?contingencyWithRemedialAction nc:ContingencyWithRemedialAction.normalEnabled ?normalEnabled .
+            }
+}
+}
+
+# query: topologyAction
+PREFIX nc: <https://cim4.eu/ns/nc#>
+PREFIX cim: <https://cim.ucaiug.io/ns#>
+SELECT *
+{
+GRAPH <%s> {
+    ?topologyAction
+        rdf:type nc:TopologyAction ;
+        cim:IdentifiedObject.mRID ?mRID ;
+        nc:TopologyAction.Switch ?switchId ;
+        nc:GridStateAlteration.PropertyReference ?propertyReference ;
+
+        OPTIONAL {
+            ?topologyAction nc:GridStateAlteration.normalEnabled ?normalEnabled .
+        }
+        OPTIONAL {
+            ?topologyAction nc:GridStateAlteration.GridStateAlterationRemedialAction ?gridStateAlterationRemedialAction .
+        }
+        OPTIONAL {
+            ?topologyAction nc:GridStateAlteration.GridStateAlterationCollection ?gridStateAlterationCollection .
+        }
+}
+}
+
+# query: rotatingMachineAction
+PREFIX nc: <https://cim4.eu/ns/nc#>
+PREFIX cim: <https://cim.ucaiug.io/ns#>
+SELECT *
+{
+    GRAPH <%s> {
+        ?rotatingMachineAction
+            rdf:type nc:RotatingMachineAction ;
+            cim:IdentifiedObject.mRID ?mRID ;
+            nc:GridStateAlteration.PropertyReference ?propertyReference ;
+            nc:RotatingMachineAction.RotatingMachine ?rotatingMachineId ;
+
+            OPTIONAL {
+                ?rotatingMachineAction nc:GridStateAlteration.normalEnabled ?normalEnabled .
+            }
+            OPTIONAL {
+                ?rotatingMachineAction nc:GridStateAlteration.GridStateAlterationRemedialAction ?gridStateAlterationRemedialAction .
+            }
+            OPTIONAL {
+                ?rotatingMachineAction nc:GridStateAlteration.GridStateAlterationCollection ?gridStateAlterationCollection .
+            }
+    }
+}
+
+# query: shuntCompensatorModification
+PREFIX nc: <https://cim4.eu/ns/nc#>
+PREFIX cim: <https://cim.ucaiug.io/ns#>
+SELECT *
+{
+    GRAPH <%s> {
+        ?shuntCompensatorModification
+            rdf:type nc:ShuntCompensatorModification ;
+            cim:IdentifiedObject.mRID ?mRID ;
+            nc:GridStateAlteration.PropertyReference ?propertyReference ;
+            nc:ShuntCompensatorModification.ShuntCompensator ?shuntCompensatorId ;
+
+        OPTIONAL {
+            ?shuntCompensatorModification nc:GridStateAlteration.normalEnabled ?normalEnabled .
+        }
+        OPTIONAL {
+            ?shuntCompensatorModification nc:GridStateAlteration.GridStateAlterationRemedialAction ?gridStateAlterationRemedialAction .
+        }
+        OPTIONAL {
+            ?shuntCompensatorModification nc:GridStateAlteration.GridStateAlterationCollection ?gridStateAlterationCollection .
+        }
+    }
+}
+
+# query: staticPropertyRange
+PREFIX nc: <https://cim4.eu/ns/nc#>
+PREFIX cim: <https://cim.ucaiug.io/ns#>
+SELECT *
+{
+GRAPH <%s> {
+    ?staticPropertyRange
+        rdf:type nc:StaticPropertyRange ;
+        cim:IdentifiedObject.mRID ?mRID ;
+        nc:RangeConstraint.normalValue ?normalValue ;
+        nc:RangeConstraint.valueKind ?valueKind ;
+        nc:RangeConstraint.direction ?direction ;
+        nc:RangeConstraint.GridStateAlteration ?gridStateAlteration ;
+        nc:StaticPropertyRange.PropertyReference ?propertyReference;
+}
+}
+
+# query: tapPositionAction
+PREFIX nc: <https://cim4.eu/ns/nc#>
+PREFIX cim: <https://cim.ucaiug.io/ns#>
+SELECT *
+{
+GRAPH <%s> {
+    ?tapPositionAction
+        rdf:type nc:TapPositionAction ;
+        cim:IdentifiedObject.mRID ?mRID ;
+        nc:GridStateAlteration.PropertyReference ?propertyReference;
+        nc:TapPositionAction.TapChanger ?tapChangerId ;
+
+        OPTIONAL {
+            ?tapPositionAction nc:GridStateAlteration.normalEnabled ?normalEnabled .
+        }
+        OPTIONAL {
+            ?tapPositionAction nc:GridStateAlteration.GridStateAlterationRemedialAction ?gridStateAlterationRemedialAction .
+        }
+        OPTIONAL {
+            ?tapPositionAction nc:GridStateAlteration.GridStateAlterationCollection ?gridStateAlterationCollection .
+        }
+}
+}
+
+# query: remedialActionSchedule
+PREFIX cim: <https://cim.ucaiug.io/ns#>
+PREFIX nc: <https://cim4.eu/ns/nc#>
+PREFIX dcat: <http://www.w3.org/ns/dcat#>
+
+SELECT *
+{
+    GRAPH <%s> {
+        ?remedialActionSchedule
+            rdf:type nc:RemedialActionSchedule ;
+            cim:IdentifiedObject.mRID ?mRID ;
+    }
+}
+
+# query: schemeRemedialAction
+PREFIX nc: <https://cim4.eu/ns/nc#>
+PREFIX cim: <https://cim.ucaiug.io/ns#>
+SELECT *
+{
+    GRAPH <%s> {
+    ?schemeRemedialAction
+        rdf:type nc:SchemeRemedialAction ;
+        cim:IdentifiedObject.mRID ?mRID ;
+        nc:RemedialAction.kind ?kind ;
+        nc:RemedialAction.normalAvailable ?normalAvailable .
+        OPTIONAL {
+            ?schemeRemedialAction cim:IdentifiedObject.name ?name .
+        }
+        OPTIONAL {
+            ?schemeRemedialAction nc:RemedialAction.timeToImplement ?timeToImplement .
+        }
+        OPTIONAL {
+            ?schemeRemedialAction nc:RemedialAction.RemedialActionSystemOperator ?tso .
+        }
+}
+}
+
+# query: remedialActionScheme
+PREFIX nc: <https://cim4.eu/ns/nc#>
+PREFIX cim: <https://cim.ucaiug.io/ns#>
+SELECT *
+{
+    GRAPH <%s> {
+            ?remedialActionScheme
+                rdf:type nc:RemedialActionScheme ;
+                cim:IdentifiedObject.mRID ?mRID ;
+                nc:RemedialActionScheme.kind ?kind ;
+                nc:RemedialActionScheme.normalArmed ?normalArmed ;
+                { nc:RemedialActionScheme.ArmedRemedialAction ?schemeRemedialAction } UNION { nc:RemedialActionScheme.SchemeRemedialAction ?schemeRemedialAction } .
+    }
+}
+
+# query: stage
+PREFIX nc: <https://cim4.eu/ns/nc#>
+PREFIX cim: <https://cim.ucaiug.io/ns#>
+SELECT *
+{
+GRAPH <%s> {
+        ?stage
+            rdf:type nc:Stage ;
+            cim:IdentifiedObject.mRID ?mRID ;
+            nc:Stage.GridStateAlterationCollection ?gridStateAlterationCollection;
+            nc:Stage.RemedialActionScheme ?remedialActionScheme;
+}
+}
+
+# query: gridStateAlterationCollection
+PREFIX nc: <https://cim4.eu/ns/nc#>
+PREFIX cim: <https://cim.ucaiug.io/ns#>
+SELECT *
+{
+GRAPH <%s> {
+    ?gridStateAlterationCollection
+        rdf:type nc:GridStateAlterationCollection ;
+        cim:IdentifiedObject.mRID ?mRID ;
+
+}
+}
+
+# query: contingencyOverriding
+PREFIX nc: <https://cim4.eu/ns/nc#>
+PREFIX cim: <https://cim.ucaiug.io/ns#>
+PREFIX dcat: <http://www.w3.org/ns/dcat#>
+SELECT *
+{
+GRAPH <%s> {
+    ?fullModel
+        dcat:startDate ?startDate ;
+        dcat:endDate ?endDate ;
+        dcat:keyword ?keyword .
+    {
+    # SSI profile: Contingency and mustStudy are in the cim namespace
+    ?contingency
+        rdf:type cim:Contingency ;
+        cim:Contingency.mustStudy ?mustStudy ;
+    } UNION {
+    # Legacy: nc namespace
+    ?contingency
+        rdf:type nc:Contingency ;
+        nc:Contingency.mustStudy ?mustStudy ;
+    }
+}
+}
+
+# query: assessedElementOverriding
+PREFIX nc: <https://cim4.eu/ns/nc#>
+PREFIX dcat: <http://www.w3.org/ns/dcat#>
+SELECT *
+{
+GRAPH <%s> {
+    ?fullModel
+        dcat:startDate ?startDate ;
+        dcat:endDate ?endDate ;
+        dcat:keyword ?keyword .
+    ?assessedElement
+        rdf:type nc:AssessedElement ;
+        nc:AssessedElement.enabled ?enabled .
+}
+}
+
+# query: assessedElementWithContingencyOverriding
+PREFIX nc: <https://cim4.eu/ns/nc#>
+PREFIX dcat: <http://www.w3.org/ns/dcat#>
+SELECT *
+{
+GRAPH <%s> {
+    ?fullModel
+        dcat:startDate ?startDate ;
+        dcat:endDate ?endDate ;
+        dcat:keyword ?keyword .
+    ?assessedElementWithContingency
+        rdf:type nc:AssessedElementWithContingency;
+        nc:AssessedElementWithContingency.enabled ?enabled .
+}
+}
+
+# query: assessedElementWithRemedialActionOverriding
+PREFIX nc: <https://cim4.eu/ns/nc#>
+PREFIX dcat: <http://www.w3.org/ns/dcat#>
+SELECT *
+{
+GRAPH <%s> {
+    ?fullModel
+        dcat:startDate ?startDate ;
+        dcat:endDate ?endDate ;
+        dcat:keyword ?keyword .
+    ?assessedElementWithRemedialAction
+        rdf:type nc:AssessedElementWithRemedialAction ;
+        nc:AssessedElementWithRemedialAction.enabled ?enabled .
+}
+}
+
+# query: contingencyWithRemedialActionOverriding
+PREFIX nc: <https://cim4.eu/ns/nc#>
+PREFIX dcat: <http://www.w3.org/ns/dcat#>
+SELECT *
+{
+GRAPH <%s> {
+    ?fullModel
+        dcat:startDate ?startDate ;
+        dcat:endDate ?endDate ;
+        dcat:keyword ?keyword .
+    ?contingencyWithRemedialAction
+        rdf:type nc:ContingencyWithRemedialAction ;
+        nc:ContingencyWithRemedialAction.enabled ?enabled .
+}
+}
+
+# query: gridStateAlterationRemedialActionOverriding
+PREFIX nc: <https://cim4.eu/ns/nc#>
+PREFIX dcat: <http://www.w3.org/ns/dcat#>
+SELECT *
+{
+GRAPH <%s> {
+    ?fullModel
+        dcat:startDate ?startDate ;
+        dcat:endDate ?endDate ;
+        dcat:keyword ?keyword .
+    ?gridStateAlterationRemedialAction
+        rdf:type nc:GridStateAlterationRemedialAction ;
+        nc:RemedialAction.available ?available .
+}
+}
+
+# query: schemeRemedialActionOverriding
+PREFIX nc: <https://cim4.eu/ns/nc#>
+PREFIX dcat: <http://www.w3.org/ns/dcat#>
+SELECT *
+{
+GRAPH <%s> {
+    ?fullModel
+        dcat:startDate ?startDate ;
+        dcat:endDate ?endDate ;
+        dcat:keyword ?keyword .
+    ?schemeRemedialAction
+        rdf:type nc:SchemeRemedialAction ;
+        nc:RemedialAction.available ?available .
+}
+}
+
+# query: countertradeRemedialActionOverriding
+PREFIX nc: <https://cim4.eu/ns/nc#>
+PREFIX dcat: <http://www.w3.org/ns/dcat#>
+SELECT *
+{
+    GRAPH <%s> {
+        ?fullModel
+            dcat:startDate ?startDate ;
+            dcat:endDate ?endDate ;
+            dcat:keyword ?keyword .
+        ?countertradeRemedialAction
+            rdf:type nc:CountertradeRemedialAction ;
+            nc:RemedialAction.available ?available .
+        OPTIONAL {
+            ?countertradeRemedialAction nc:PowerRemedialAction.maxRegulatingUp ?countertradeRemedialActionMaxRegulatingUp .
+        }
+        OPTIONAL {
+            ?countertradeRemedialAction nc:PowerRemedialAction.maxRegulatingDown ?countertradeRemedialActionMaxRegulatingDown .
+        }
+    }
+}
+
+# query: remedialActionGroupOverriding
+PREFIX nc: <https://cim4.eu/ns/nc#>
+PREFIX dcat: <http://www.w3.org/ns/dcat#>
+SELECT *
+{
+    GRAPH <%s> {
+        ?fullModel
+            dcat:startDate ?startDate ;
+            dcat:endDate ?endDate ;
+            dcat:keyword ?keyword .
+        ?remedialActionGroup
+            rdf:type nc:RemedialActionGroup .
+        OPTIONAL {
+            ?remedialActionGroup nc:RemedialActionGroup.maxRegulatingUp ?remedialActionGroupMaxRegulatingUp .
+        }
+        OPTIONAL {
+            ?remedialActionGroup nc:RemedialActionGroup.maxRegulatingDown ?remedialActionGroupMaxRegulatingDown .
+        }
+    }
+}
+
+# query: genericAvailableSchedule
+PREFIX nc: <https://cim4.eu/ns/nc#>
+SELECT *
+{
+    GRAPH <%s> {
+        ?genericAvailableSchedule
+            rdf:type nc:GenericAvailableSchedule ;
+            nc:BaseTimeSeries.interpolationKind ?interpolationKind ;
+            nc:GenericAvailableSchedule.RemedialAction ?remedialAction .
+    }
+}
+
+# query: availabilityTimePoint
+PREFIX nc: <https://cim4.eu/ns/nc#>
+SELECT *
+{
+    GRAPH <%s> {
+        ?availabilityTimePoint
+            rdf:type nc:AvailabilityTimePoint ;
+            nc:AvailabilityTimePoint.GenericAvailableSchedule ?genericAvailableSchedule ;
+            nc:AvailabilityTimePoint.atTime ?atTime .
+        OPTIONAL {
+            ?availabilityTimePoint nc:AvailabilityTimePoint.available ?available .
+        }
+    }
+}
+
+# query: gridStateAlterationOverriding
+PREFIX nc: <https://cim4.eu/ns/nc#>
+PREFIX dcat: <http://www.w3.org/ns/dcat#>
+SELECT *
+{
+GRAPH <%s> {
+    ?fullModel
+        dcat:startDate ?startDate ;
+        dcat:endDate ?endDate ;
+        dcat:keyword ?keyword .
+    ?gridStateAlteration
+        rdf:type nc:GridStateAlteration ;
+        nc:GridStateAlteration.enabled ?enabled .
+}
+}
+
+# query: topologyActionOverriding
+PREFIX nc: <https://cim4.eu/ns/nc#>
+PREFIX dcat: <http://www.w3.org/ns/dcat#>
+SELECT *
+{
+GRAPH <%s> {
+    ?fullModel
+        dcat:startDate ?startDate ;
+        dcat:endDate ?endDate ;
+        dcat:keyword ?keyword .
+    ?topologyAction
+        rdf:type nc:GridStateAlteration ;
+        nc:GridStateAlteration.enabled ?enabled .
+}
+}
+
+# query: rotatingMachineActionOverriding
+PREFIX nc: <https://cim4.eu/ns/nc#>
+PREFIX dcat: <http://www.w3.org/ns/dcat#>
+SELECT *
+{
+GRAPH <%s> {
+    ?fullModel
+        dcat:startDate ?startDate ;
+        dcat:endDate ?endDate ;
+        dcat:keyword ?keyword .
+    ?rotatingMachineAction
+        rdf:type nc:GridStateAlteration ;
+        nc:GridStateAlteration.enabled ?enabled .
+}
+}
+
+# query: shuntCompensatorModificationOverriding
+PREFIX nc: <https://cim4.eu/ns/nc#>
+PREFIX dcat: <http://www.w3.org/ns/dcat#>
+SELECT *
+{
+GRAPH <%s> {
+    ?fullModel
+        dcat:startDate ?startDate ;
+        dcat:endDate ?endDate ;
+        dcat:keyword ?keyword .
+    ?shuntCompensatorModification
+        rdf:type nc:GridStateAlteration ;
+        nc:GridStateAlteration.enabled ?enabled .
+}
+}
+
+# query: tapPositionActionOverriding
+PREFIX nc: <https://cim4.eu/ns/nc#>
+PREFIX dcat: <http://www.w3.org/ns/dcat#>
+SELECT *
+{
+GRAPH <%s> {
+    ?fullModel
+        dcat:startDate ?startDate ;
+        dcat:endDate ?endDate ;
+        dcat:keyword ?keyword .
+    ?tapPositionAction
+        rdf:type nc:GridStateAlteration ;
+        nc:GridStateAlteration.enabled ?enabled .
+}
+}
+
+# query: staticPropertyRangeOverriding
+PREFIX nc: <https://cim4.eu/ns/nc#>
+PREFIX dcat: <http://www.w3.org/ns/dcat#>
+SELECT *
+{
+GRAPH <%s> {
+    ?fullModel
+        dcat:startDate ?startDate ;
+        dcat:endDate ?endDate ;
+        dcat:keyword ?keyword .
+    ?staticPropertyRange
+        rdf:type nc:RangeConstraint ;
+        nc:RangeConstraint.value ?value .
+}
+}
+
+# query: remedialActionSchemeOverriding
+PREFIX nc: <https://cim4.eu/ns/nc#>
+PREFIX dcat: <http://www.w3.org/ns/dcat#>
+SELECT *
+{
+GRAPH <%s> {
+    ?fullModel
+        dcat:startDate ?startDate ;
+        dcat:endDate ?endDate ;
+        dcat:keyword ?keyword .
+    ?remedialActionScheme
+        rdf:type nc:RemedialActionScheme ;
+        nc:RemedialActionScheme.armed ?armed .
+}
+}
+
+# query: voltageAngleLimitOverriding
+PREFIX nc: <https://cim4.eu/ns/nc#>
+PREFIX dcat: <http://www.w3.org/ns/dcat#>
+SELECT *
+{
+GRAPH <%s> {
+    ?fullModel
+        dcat:startDate ?startDate ;
+        dcat:endDate ?endDate ;
+        dcat:keyword ?keyword .
+    ?voltageAngleLimit
+        rdf:type nc:VoltageAngleLimit ;
+        nc:VoltageAngleLimit.value ?value .
+}
+}
+
+# query: currentLimitOverriding
+PREFIX nc: <https://cim4.eu/ns/nc#>
+PREFIX md: <http://iec.ch/TC57/61970-552/ModelDescription/1#>
+SELECT *
+{
+GRAPH <%s> {
+    ?fullModel
+        md:Model.scenarioTime ?scenarioTime ;
+        md:Model.profile ?profile .
+    ?currentLimit
+        rdf:type nc:CurrentLimit ;
+        nc:CurrentLimit.value ?value .
+}
+}
+
+# query: voltageLimitOverriding
+PREFIX nc: <https://cim4.eu/ns/nc#>
+PREFIX md: <http://iec.ch/TC57/61970-552/ModelDescription/1#>
+SELECT *
+{
+GRAPH <%s> {
+    ?fullModel
+        md:Model.scenarioTime ?scenarioTime ;
+        md:Model.profile ?profile .
+    ?voltageLimit
+        rdf:type nc:VoltageLimit ;
+        nc:VoltageLimit.value ?value .
+}
+}
+
+# query: remedialActionGroup
+PREFIX nc: <https://cim4.eu/ns/nc#>
+PREFIX cim: <https://cim.ucaiug.io/ns#>
+SELECT *
+{
+GRAPH <%s> {
+    ?remedialActionGroup
+        rdf:type nc:RemedialActionGroup ;
+        cim:IdentifiedObject.mRID ?mRID ;
+    OPTIONAL {
+        ?remedialActionGroup cim:IdentifiedObject.name ?name .
+    }
+}
+}
+
+# query: remedialActionDependency
+PREFIX nc: <https://cim4.eu/ns/nc#>
+PREFIX cim: <https://cim.ucaiug.io/ns#>
+SELECT *
+{
+GRAPH <%s> {
+    ?remedialActionDependency
+        rdf:type nc:RemedialActionDependency ;
+        nc:RemedialActionDependency.kind ?kind ;
+        nc:RemedialActionDependency.mRID ?mRID ;
+        nc:RemedialActionDependency.RemedialAction ?remedialAction ;
+        nc:RemedialActionDependency.DependingRemedialActionGroup ?dependingRemedialActionGroup ;
+        OPTIONAL {
+            ?remedialActionDependency nc:RemedialActionDependency.normalEnabled ?normalEnabled .
+        }
+}
+}
+
+
+# query: remedialActionDependencyOverriding
+PREFIX nc: <https://cim4.eu/ns/nc#>
+PREFIX dcat: <http://www.w3.org/ns/dcat#>
+SELECT *
+{
+GRAPH <%s> {
+    ?fullModel
+        dcat:startDate ?startDate ;
+        dcat:endDate ?endDate ;
+        dcat:keyword ?keyword .
+    ?remedialActionDependency
+        rdf:type nc:RemedialActionDependency ;
+        nc:RemedialActionDependency.enabled ?enabled .
+}
+}

@@ -23,9 +23,18 @@ public enum LimitTypeKind {
 
     private final String name;
     private static final String URL = NcConstants.ENTSOE_URL + "LimitTypeKind.";
+    private static final String URL_25 = NcConstants.NC25_ENTSOE_URL + "LimitTypeKind.";
 
     @Override
     public String toString() {
         return URL + this.name;
+    }
+
+    /**
+     * Matches a SPARQL result value against this kind, for both the NCP 2.4 (CGMES EQ 3.1) and the
+     * NCP 2.5 (CGMES EQ 3.2) vocabularies.
+     */
+    public boolean matches(String url) {
+        return toString().equals(url) || (URL_25 + name).equals(url);
     }
 }

@@ -21,14 +21,27 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
+ * Regression on the NCP 2.5 read contract (issue #2057): the same contingencies, published
+ * with the NCP 2.5 vocabulary, must be imported exactly as in NCP 2.4.
+ *
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
+ * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 class ContingenciesCreationTest {
 
     @Test
     void importContingencies() {
+        importContingencies("/profiles/contingencies/Contingencies.zip");
+    }
+
+    @Test
+    void importNcp25Contingencies() {
+        importContingencies("/profiles/ncp25/ContingenciesV25.zip");
+    }
+
+    private static void importContingencies(String zipPath) {
         NcCracCreationContext cracCreationContext = NcCracCreationTestUtil.getNcCracCreationContext(
-            "/profiles/contingencies/Contingencies.zip",
+            zipPath,
             NcCracCreationTestUtil.NETWORK
         );
 

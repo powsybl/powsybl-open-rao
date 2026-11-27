@@ -86,17 +86,17 @@ public class AngleCnecCreator extends AbstractCnecCreator {
         if (nativeVoltageAngleLimit.normalValue() < 0) {
             throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, writeAssessedElementIgnoredReasonMessage("the angle limit's normal value is negative"));
         }
-        if (OperationalLimitDirectionKind.HIGH.toString().equals(nativeVoltageAngleLimit.direction())) {
+        if (OperationalLimitDirectionKind.HIGH.matches(nativeVoltageAngleLimit.direction())) {
             handleMissingIsFlowToRefTerminalForNotAbsoluteDirection(OperationalLimitDirectionKind.HIGH);
             angleCnecAdder.newThreshold()
                 .withUnit(Unit.DEGREE)
                 .withMax(nativeVoltageAngleLimit.normalValue()).add();
-        } else if (OperationalLimitDirectionKind.LOW.toString().equals(nativeVoltageAngleLimit.direction())) {
+        } else if (OperationalLimitDirectionKind.LOW.matches(nativeVoltageAngleLimit.direction())) {
             handleMissingIsFlowToRefTerminalForNotAbsoluteDirection(OperationalLimitDirectionKind.LOW);
             angleCnecAdder.newThreshold()
                 .withUnit(Unit.DEGREE)
                 .withMin(-nativeVoltageAngleLimit.normalValue()).add();
-        } else if (OperationalLimitDirectionKind.ABSOLUTE.toString().equals(nativeVoltageAngleLimit.direction())) {
+        } else if (OperationalLimitDirectionKind.ABSOLUTE.matches(nativeVoltageAngleLimit.direction())) {
             angleCnecAdder.newThreshold()
                 .withUnit(Unit.DEGREE)
                 .withMin(-nativeVoltageAngleLimit.normalValue())
