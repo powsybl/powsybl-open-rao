@@ -154,10 +154,11 @@ public class SystematicSensitivityResult {
     }
 
     private static boolean isFailure(SensitivityStateStatus stateStatus) {
-        // TODO: Define how to handle empty and mixed CONVERGED/NO_CALCULATION statuses.
-        List<SensitivityStateStatus.ComponentStatus> components = stateStatus.getComponentsLoadFlowStatusList();
-        return components.isEmpty() || !(components.stream().allMatch(component -> component.status() == LoadFlowResult.ComponentResult.Status.CONVERGED)
-            || components.stream().allMatch(component -> component.status() == LoadFlowResult.ComponentResult.Status.NO_CALCULATION));
+        // Until further notice, NO_CALCULATION is treated as a failure, even when other components converged.
+        // A divergent component also fails the entire state, even when other components converged.
+        // An empty list is considered successful by default; it does not prove that all components converged.
+        return stateStatus.getComponentsLoadFlowStatusList().stream()
+            .anyMatch(component -> component.status() != LoadFlowResult.ComponentResult.Status.CONVERGED);
     }
 
     public SystematicSensitivityResult postTreatIntensities() {
