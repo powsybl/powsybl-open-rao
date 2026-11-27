@@ -45,5 +45,6 @@ public class ReliCapGridDatasetTest {
 
         assertEquals(16, crac.getContingencies().size());
         assertEquals(12, crac.getPstRangeActions().size());
+        assertEquals(32, crac.getInjectionRangeActions().size());
     }
 }
