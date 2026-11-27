@@ -229,6 +229,41 @@ public class NcCrac {
         return new NcPropertyBagsConverter<>(CountertradeRemedialAction::fromPropertyBag).convert(raProps);
     }
 
+    public Set<RedispatchRemedialAction> getRedispatchRemedialActions() {
+        PropertyBags raProps = getPropertyBags(NcKeyword.REMEDIAL_ACTION, NcConstants.REDISPATCH_REMEDIAL_ACTION);
+        return new NcPropertyBagsConverter<>(RedispatchRemedialAction::fromPropertyBag).convert(raProps);
+    }
+
+    public Set<PowerShiftKeyStrategy> getPowerShiftKeyStrategies() {
+        PropertyBags raProps = getPropertyBags(NcKeyword.REMEDIAL_ACTION, NcConstants.POWER_SHIFT_KEY_STRATEGY);
+        return new NcPropertyBagsConverter<>(PowerShiftKeyStrategy::fromPropertyBag).convert(raProps);
+    }
+
+    public Set<PowerShiftKeyDistribution> getPowerShiftKeyDistributions() {
+        PropertyBags raProps = getPropertyBags(NcKeyword.STATE_INSTRUCTION_SCHEDULE, NcConstants.POWER_SHIFT_KEY_DISTRIBUTION);
+        return new NcPropertyBagsConverter<>(PowerShiftKeyDistribution::fromPropertyBag).convert(raProps);
+    }
+
+    public Set<PowerShiftKeySchedule> getPowerShiftKeySchedules() {
+        PropertyBags raProps = getPropertyBags(NcKeyword.STATE_INSTRUCTION_SCHEDULE, NcConstants.POWER_SHIFT_KEY_SCHEDULE);
+        return new NcPropertyBagsConverter<>(PowerShiftKeySchedule::fromPropertyBag).convert(raProps);
+    }
+
+    public Set<ParticipationFactorTimePoint> getParticipationFactorTimePoints() {
+        PropertyBags raProps = getPropertyBags(NcKeyword.STATE_INSTRUCTION_SCHEDULE, NcConstants.PARTICIPATION_FACTOR_TIME_POINT);
+        return new NcPropertyBagsConverter<>(ParticipationFactorTimePoint::fromPropertyBag).convert(raProps);
+    }
+
+    public Set<PowerBidSchedule> getPowerBidSchedules() {
+        PropertyBags raProps = getPropertyBags(NcKeyword.STATE_INSTRUCTION_SCHEDULE, NcConstants.POWER_BID_SCHEDULE);
+        return new NcPropertyBagsConverter<>(PowerBidSchedule::fromPropertyBag).convert(raProps);
+    }
+
+    public Set<PowerBidScheduleTimePoint> getPowerBidScheduleTimePoints() {
+        PropertyBags raProps = getPropertyBags(NcKeyword.STATE_INSTRUCTION_SCHEDULE, NcConstants.POWER_BID_SCHEDULE_TIME_POINT);
+        return new NcPropertyBagsConverter<>(PowerBidScheduleTimePoint::fromPropertyBag).convert(raProps);
+    }
+
     private static void copyIfPresent(PropertyBag source, PropertyBag target, String sourceField, String targetField) {
         String value = source.get(sourceField);
         if (value != null) {
