@@ -155,9 +155,8 @@ public class SystematicSensitivityResult {
 
     private static boolean isFailure(SensitivityStateStatus stateStatus) {
         List<SensitivityStateStatus.ComponentStatus> components = stateStatus.getComponentsLoadFlowStatusList();
-        // A contingency with only NO_CALCULATION statuses is treated as having no impact. Open Load Flow can
+        // A contingency with only NO_CALCULATION statuses is treated as having no impact. Sensitivity provider can
         // return NO_CALCULATION with valid values when a remedial action has already opened the contingency line.
-        // Other providers may use NO_CALCULATION differently; this does not prove that unreported components converged.
         if (stateStatus.getState().contingencyId() != null && !components.isEmpty()
             && components.stream().allMatch(component -> component.status() == LoadFlowResult.ComponentResult.Status.NO_CALCULATION)) {
             return false;
