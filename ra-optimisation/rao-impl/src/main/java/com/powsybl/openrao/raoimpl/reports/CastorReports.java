@@ -395,7 +395,7 @@ public final class CastorReports {
                 .withSeverity(WARN_SEVERITY)
                 .add();
 
-        BUSINESS_WARNS.warn("DC pre-solve sensitivity analysis failed for seconde preventive perimeter; falling back to a direct AC search.");
+        BUSINESS_WARNS.warn("DC pre-solve sensitivity analysis failed for second preventive perimeter; falling back to a direct AC search.");
     }
 
     public static void reportSecondPreventiveMadeRaoSucceed(final ReportNode parentNode) {
