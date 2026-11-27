@@ -223,7 +223,7 @@ public class FlowCnecCreator extends AbstractCnecCreator {
         thresholdPerSide.forEach((twoSides, threshold) -> addFlowCnecThreshold(cnecAdder, twoSides, threshold, useMaxAndMinThresholds));
         cnecAdder.withNetworkElement(networkElement.getId());
         setNominalVoltage(cnecAdder, networkElement);
-        FlowCnec flowCnec = cnecAdder.add();
+        cnecAdder.add();
     }
 
     private void addAllFlowCnecsFromBranchAndOperationalLimits(Branch<?> networkElement, Map<Integer, Map<TwoSides, Double>> thresholds, boolean useMaxAndMinThresholds) {
