@@ -61,7 +61,8 @@ final class SystematicSensitivityAdapter {
             return new SystematicSensitivityResult(SystematicSensitivityResult.SensitivityComputationStatus.FAILURE);
         }
         TECHNICAL_LOGS.debug("Systematic sensitivity analysis [end]");
-        return new SystematicSensitivityResult().completeData(result, outageInstant.getOrder()).postTreatIntensities().postTreatHvdcs(network, cnecSensitivityProvider.getHvdcs());
+        return new SystematicSensitivityResult().completeData(result, outageInstant.getOrder())
+            .postTreatIntensities().postTreatHvdcs(network, cnecSensitivityProvider.getHvdcs());
     }
 
     static SystematicSensitivityResult runSensitivity(Network network,
@@ -158,14 +159,7 @@ final class SystematicSensitivityAdapter {
                 );
             } catch (PowsyblException | OpenRaoException | CompletionException e) {
                 TECHNICAL_LOGS.error(String.format("Systematic sensitivity analysis failed for state %s : %s", state.getId(), e.getMessage()));
-                SensitivityAnalysisResult failedResult = new SensitivityAnalysisResult(
-                    cnecSensitivityProvider.getContingencyFactors(network, contingencyList),
-                    List.of(new SensitivityAnalysisResult.SensitivityStateStatus(SensitivityState.postContingency(optContingency.get().getId()), SensitivityAnalysisResult.Status.FAILURE)),
-                    contingencyList.stream().map(Contingency::getId).toList(),
-                    List.of(),
-                    List.of()
-                );
-                result.completeData(failedResult, state.getInstant().getOrder());
+                result.recordFailedContingency(optContingency.get().getId(), state.getInstant().getOrder());
             }
             counterForLogs++;
         }
