@@ -298,7 +298,7 @@ public final class CommonTestData {
 
         // Network
         if (networkPath != null) {
-            network = importNetwork(getFile(networkPath), "CimCrac".equals(cracFormat));
+            network = importNetwork(getFile(networkPath), cracFormat);
         } else {
             throw new OpenRaoException("You have not defined a network file. All tests need a network file.");
         }

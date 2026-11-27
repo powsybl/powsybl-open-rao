@@ -8,6 +8,7 @@
 package com.powsybl.openrao.tests.utils;
 
 import com.google.common.base.Suppliers;
+import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.glsk.cim.CimGlskDocument;
 import com.powsybl.glsk.commons.ZonalData;
@@ -63,10 +64,12 @@ public final class Helpers {
         // must nor be used
     }
 
-    public static Network importNetwork(File networkFile, boolean useRdfId) {
+    public static Network importNetwork(File networkFile, String cracFormat) {
         Properties importParams = new Properties();
-        if (useRdfId) {
+        if ("CimCrac".equals(cracFormat)) {
             importParams.put("iidm.import.cgmes.source-for-iidm-id", "rdfID");
+        } else if ("NC".equals(cracFormat)) {
+            importParams.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, false);
         }
         return Network.read(Paths.get(networkFile.toString()), LocalComputationManager.getDefault(), Suppliers.memoize(ImportConfig::load).get(), importParams);
     }
