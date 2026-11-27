@@ -93,19 +93,22 @@ public class NetworkActionParameters {
     public void addHintedNetworkActionCombination(NetworkActionCombination networkActionCombination) {
         // It may happen that the 1st preventive RAO finds an optimal combination that was already defined
         // In this case, remove the old combination and add the new one (marked "detected during RAO")
-        Optional<NetworkActionCombination> alreadyExistingNetworkActionCombination = this.hintedCombinations
-                .stream().filter(naCombination -> naCombination.getNetworkActionSet().equals(networkActionCombination.getNetworkActionSet()))
-                .findAny();
-        alreadyExistingNetworkActionCombination.ifPresent(this.hintedCombinations::remove);
+        removeMatchingCombination(this.hintedCombinations, networkActionCombination);
+        removeMatchingCombination(this.forcedCombinations, networkActionCombination);
         this.hintedCombinations.add(networkActionCombination);
     }
 
     public void addForcedNetworkActionCombination(NetworkActionCombination forcedCombination) {
-        Optional<NetworkActionCombination> alreadyExistingNetworkActionCombination = this.hintedCombinations
-                .stream().filter(naCombination -> naCombination.getNetworkActionSet().equals(forcedCombination.getNetworkActionSet()))
-                .findAny();
-        alreadyExistingNetworkActionCombination.ifPresent(this.forcedCombinations::remove);
+        removeMatchingCombination(this.forcedCombinations, forcedCombination);
+        removeMatchingCombination(this.hintedCombinations, forcedCombination);
         this.forcedCombinations.add(forcedCombination);
+    }
+
+    private static void removeMatchingCombination(List<NetworkActionCombination> combinations, NetworkActionCombination combination) {
+        combinations.stream()
+                .filter(naCombination -> naCombination.getNetworkActionSet().equals(combination.getNetworkActionSet()))
+                .findAny()
+                .ifPresent(combinations::remove);
     }
 
     public List<NetworkActionCombination> getForcedCombinations() {

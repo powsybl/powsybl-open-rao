@@ -93,6 +93,36 @@ class NetworkActionParametersTest {
         otherNap.addForcedNetworkActionCombination(naCombination);
         assertEquals(nap, otherNap);
         assertEquals(nap.hashCode(), otherNap.hashCode());
+
+        // Test unicity: adding a combination over the same network-action set replaces the existing forced entry
+        NetworkActionCombination naCombinationDetectedInRao = new NetworkActionCombination(naCombination.getNetworkActionSet(), true);
+        nap.addForcedNetworkActionCombination(naCombinationDetectedInRao);
+        assertEquals(1, nap.getForcedCombinations().size());
+        assertTrue(nap.getForcedCombinations().contains(naCombinationDetectedInRao));
+        assertFalse(nap.getForcedCombinations().contains(naCombination));
+    }
+
+    @Test
+    void testHintedAndForcedCombinationsAreMutuallyExclusive() {
+        NetworkActionParameters nap = new NetworkActionParameters(new ArrayList<>(), 0., 0., false, 0, true);
+        Set<NetworkAction> naSet = Set.of(Mockito.mock(NetworkAction.class));
+
+        NetworkActionCombination hinted = new NetworkActionCombination(naSet);
+        nap.addHintedNetworkActionCombination(hinted);
+        assertTrue(nap.getNetworkActionCombinations().contains(hinted));
+        assertTrue(nap.getForcedCombinations().isEmpty());
+
+        // forcing a combination over the same network-action set moves it out of the hinted list
+        NetworkActionCombination forced = new NetworkActionCombination(naSet, true);
+        nap.addForcedNetworkActionCombination(forced);
+        assertTrue(nap.getNetworkActionCombinations().isEmpty());
+        assertEquals(List.of(forced), nap.getForcedCombinations());
+
+        // hinting a combination over the same network-action set moves it back out of the forced list
+        NetworkActionCombination hintedAgain = new NetworkActionCombination(naSet);
+        nap.addHintedNetworkActionCombination(hintedAgain);
+        assertEquals(List.of(hintedAgain), nap.getNetworkActionCombinations());
+        assertTrue(nap.getForcedCombinations().isEmpty());
     }
 
     @Test
