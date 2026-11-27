@@ -31,6 +31,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -75,20 +76,40 @@ public class LoadflowProvider extends AbstractSimpleSensitivityProvider {
 
     @Override
     public List<SensitivityFactor> getContingencyFactors(Network network, List<Contingency> contingencies) {
-        List<SensitivityFactor> factors = new ArrayList<>();
-        for (Contingency contingency : contingencies) {
-            String contingencyId = contingency.getId();
-            Map<String, SensitivityVariableType> sensitivityVariables = new LinkedHashMap<>();
-            addDefaultSensitivityVariable(network, sensitivityVariables);
+        Map<String, SensitivityVariableType> sensitivityVariables = new LinkedHashMap<>();
+        addDefaultSensitivityVariable(network, sensitivityVariables);
+        return getContingencyFactors(network, contingencies, sensitivityVariables, Set.of());
+    }
 
-            List<Pair<String, SensitivityFunctionType>> sensitivityFunctions = getSensitivityFunctions(network, contingencyId);
-
-            ContingencyContext contingencyContext = new ContingencyContext(contingencyId, ContingencyContextType.SPECIFIC);
-            sensitivityFunctions.forEach(function ->
-                sensitivityVariables.forEach((key, value) -> factors.add(new SensitivityFactor(function.getValue(), function.getKey(), value, key, false, contingencyContext)))
-            );
+    /**
+     * Creates the factors of the functions monitored after the given contingencies, for every given variable.
+     */
+    List<SensitivityFactor> getContingencyFactors(Network network, List<Contingency> contingencies,
+                                                  Map<String, SensitivityVariableType> sensitivityVariables, Set<String> variableSetIds) {
+        Set<String> contingencyIds = new LinkedHashSet<>();
+        contingencies.forEach(contingency -> contingencyIds.add(contingency.getId()));
+        Map<Pair<String, SensitivityFunctionType>, Set<String>> contingenciesPerFunction = new LinkedHashMap<>();
+        for (String contingencyId : contingencyIds) {
+            getSensitivityFunctions(network, contingencyId).forEach(function ->
+                contingenciesPerFunction.computeIfAbsent(function, k -> new LinkedHashSet<>()).add(contingencyId));
         }
+
+        // A function monitored after more than half of the contingencies is declared once with an ALL context instead of
+        // once per contingency.
+        List<SensitivityFactor> factors = new ArrayList<>();
+        contingenciesPerFunction.forEach((function, functionContingencies) -> {
+            List<ContingencyContext> contexts = useAllContingencyContext(functionContingencies.size(), contingencyIds.size())
+                ? List.of(ContingencyContext.all())
+                : functionContingencies.stream().map(ContingencyContext::specificContingency).toList();
+            contexts.forEach(context -> sensitivityVariables.forEach((variableId, variableType) ->
+                factors.add(new SensitivityFactor(function.getValue(), function.getKey(), variableType, variableId,
+                    variableSetIds.contains(variableId), context))));
+        });
         return factors;
+    }
+
+    private boolean useAllContingencyContext(int monitoredContingencies, int totalContingencies) {
+        return !afterContingencyOnly && totalContingencies > 1 && monitoredContingencies > totalContingencies / 2;
     }
 
     @Override

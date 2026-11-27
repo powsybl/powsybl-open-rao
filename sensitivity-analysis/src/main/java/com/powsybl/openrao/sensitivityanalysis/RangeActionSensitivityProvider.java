@@ -77,23 +77,10 @@ public class RangeActionSensitivityProvider extends LoadflowProvider {
 
     @Override
     public List<SensitivityFactor> getContingencyFactors(Network network, List<Contingency> contingencies) {
-        List<SensitivityFactor> factors = new ArrayList<>();
-        for (Contingency contingency : contingencies) {
-            String contingencyId = contingency.getId();
-            Map<String, SensitivityVariableType> sensitivityVariables = new HashMap<>();
-            Set<String> glskIds = new HashSet<>();
-            fillSensitivityVariablesAndGlskIds(network, sensitivityVariables, glskIds);
-
-            List<Pair<String, SensitivityFunctionType>> sensitivityFunctions = getSensitivityFunctions(network, contingencyId);
-
-            //According to ContingencyContext doc, contingencyId should be null for preContingency context
-            ContingencyContext contingencyContext = new ContingencyContext(contingencyId, ContingencyContextType.SPECIFIC);
-            sensitivityFunctions.forEach(function ->
-                sensitivityVariables.forEach((key, value) -> factors.add(new SensitivityFactor(function.getValue(), function.getKey(), value, key,
-                    glskIds.contains(key), contingencyContext)))
-            );
-        }
-        return factors;
+        Map<String, SensitivityVariableType> sensitivityVariables = new HashMap<>();
+        Set<String> glskIds = new HashSet<>();
+        fillSensitivityVariablesAndGlskIds(network, sensitivityVariables, glskIds);
+        return getContingencyFactors(network, contingencies, sensitivityVariables, glskIds);
     }
 
     private void fillSensitivityVariablesAndGlskIds(Network network, Map<String, SensitivityVariableType> sensitivityVariables, Set<String> glskIds) {

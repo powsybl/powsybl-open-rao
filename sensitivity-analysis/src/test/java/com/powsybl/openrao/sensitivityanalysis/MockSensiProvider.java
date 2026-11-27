@@ -72,7 +72,7 @@ public final class MockSensiProvider implements SensitivityAnalysisProvider {
             int finalContingencyIndex = contingencyIndex;
             AtomicReference<Integer> factorIndexContingency = new AtomicReference<>(0);
             factorReader.read((functionType, functionId, variableType, variableId, variableSet, contingencyContext) -> {
-                if (contingencyContext.getContextType() == ContingencyContextType.SPECIFIC && contingencyContext.getContingencyId().equals(contingencies.get(finalContingencyIndex).getId())) {
+                if (appliesToContingency(contingencyContext, contingencies.get(finalContingencyIndex).getId())) {
                     handleSpecificConditionContextAtNeutralTap(
                         sensitivityResultWriter,
                         contingencies,
@@ -229,7 +229,7 @@ public final class MockSensiProvider implements SensitivityAnalysisProvider {
             int finalContingencyIndex = contingencyIndex;
             AtomicReference<Integer> factorIndexContingency = new AtomicReference<>(0);
             factorReader.read((functionType, functionId, variableType, variableId, variableSet, contingencyContext) -> {
-                if (contingencyContext.getContextType() == ContingencyContextType.SPECIFIC && contingencyContext.getContingencyId().equals(contingencies.get(finalContingencyIndex).getId())) {
+                if (appliesToContingency(contingencyContext, contingencies.get(finalContingencyIndex).getId())) {
                     handleSpecificContingencyContextNotAtNeutralTap(resultWriter, functionType, variableType, factorIndexContingency, finalContingencyIndex);
                 }
                 factorIndexContingency.set(factorIndexContingency.get() + 1);
@@ -331,5 +331,13 @@ public final class MockSensiProvider implements SensitivityAnalysisProvider {
     @Override
     public String getVersion() {
         return "1.0";
+    }
+
+    private static boolean appliesToContingency(com.powsybl.contingency.ContingencyContext contingencyContext, String contingencyId) {
+        return switch (contingencyContext.getContextType()) {
+            case ALL, ONLY_CONTINGENCIES -> true;
+            case SPECIFIC -> contingencyContext.getContingencyId().equals(contingencyId);
+            default -> false;
+        };
     }
 }
