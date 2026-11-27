@@ -83,7 +83,7 @@ public class OpenRaoSearchTreeParameters extends AbstractExtension<RaoParameters
     }
 
     public void setPreSolveParameters(SearchTreeRaoPreSolveParameters preSolveParameters) {
-        this.preSolveParameters = Optional.of(preSolveParameters);
+        this.preSolveParameters = Optional.ofNullable(preSolveParameters);
     }
 
     public void setMinMarginsParameters(SearchTreeRaoCostlyMinMarginParameters minMarginsParameters) {
