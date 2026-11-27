@@ -30,6 +30,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import static com.powsybl.openrao.virtualhubs.json.VirtualHubsConfigurationJsonFieldNames.*;
+
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
@@ -43,14 +45,14 @@ class VirtualHubsConfigurationDeserializer extends JsonDeserializer<VirtualHubsC
 
         while (!jsonParser.nextToken().isStructEnd()) {
             switch (jsonParser.currentName()) {
-                case "region" -> deserializeRegion(jsonParser, configuration);
-                case "synchronousAreas" -> deserializeSynchronousAreas(jsonParser, configuration, synchronousAreas);
-                case "controlAreas" -> deserializeControlAreas(jsonParser, configuration, controlAreas);
-                case "marketAreas" ->
+                case REGION -> deserializeRegion(jsonParser, configuration);
+                case SYNCHRONOUS_AREAS -> deserializeSynchronousAreas(jsonParser, configuration, synchronousAreas);
+                case CONTROL_AREAS -> deserializeControlAreas(jsonParser, configuration, controlAreas);
+                case MARKET_AREAS ->
                     deserializeMarketAreas(jsonParser, configuration, synchronousAreas, controlAreas, marketAreas);
-                case "virtualHubs" -> deserializeVirtualHubs(jsonParser, configuration, marketAreas);
-                case "borderDirections" -> deserializeBorderDirections(jsonParser, configuration);
-                case "internalHvdcs" -> deserializeInternalHvdcs(jsonParser, configuration, marketAreas);
+                case VIRTUAL_HUBS -> deserializeVirtualHubs(jsonParser, configuration, marketAreas);
+                case BORDER_DIRECTIONS -> deserializeBorderDirections(jsonParser, configuration);
+                case INTERNAL_HVDCS -> deserializeInternalHvdcs(jsonParser, configuration, marketAreas);
                 default ->
                     throw new VirtualHubsConfigurationDeserializationException(String.format("Attribute '%s' invalid for configuration", jsonParser.currentName()));
             }
@@ -64,8 +66,8 @@ class VirtualHubsConfigurationDeserializer extends JsonDeserializer<VirtualHubsC
         String eic = null;
         while (!jsonParser.nextToken().isStructEnd()) {
             switch (jsonParser.currentName()) {
-                case "code" -> code = jsonParser.nextTextValue();
-                case "eic" -> eic = jsonParser.nextTextValue();
+                case CODE -> code = jsonParser.nextTextValue();
+                case EIC -> eic = jsonParser.nextTextValue();
                 default ->
                     throw new VirtualHubsConfigurationDeserializationException(String.format("Attribute '%s' invalid for region", jsonParser.currentName()));
             }
@@ -179,15 +181,15 @@ class VirtualHubsConfigurationDeserializer extends JsonDeserializer<VirtualHubsC
         List<Voltage> initialVoltages = null;
         while (!jsonParser.nextToken().isStructEnd()) {
             switch (jsonParser.currentName()) {
-                case "code" -> code = jsonParser.nextTextValue();
-                case "eic" -> eic = jsonParser.nextTextValue();
-                case "isLive" -> isLive = jsonParser.nextBooleanValue();
-                case "isMainArea" -> isMainArea = jsonParser.nextBooleanValue();
-                case "localLOT3Parameters" -> {
+                case CODE -> code = jsonParser.nextTextValue();
+                case EIC -> eic = jsonParser.nextTextValue();
+                case IS_LIVE -> isLive = jsonParser.nextBooleanValue();
+                case IS_MAIN_AREA -> isMainArea = jsonParser.nextBooleanValue();
+                case LOCAL_LOT_3_PARAMETERS -> {
                     localLOT3Parameters = new TreeMap<>();
                     deserializeParameters(jsonParser, localLOT3Parameters);
                 }
-                case "initialVoltages" -> {
+                case INITIAL_VOLTAGES -> {
                     initialVoltages = new ArrayList<>();
                     deserializeVoltages(jsonParser, initialVoltages);
                 }
@@ -207,15 +209,15 @@ class VirtualHubsConfigurationDeserializer extends JsonDeserializer<VirtualHubsC
         int slackSearchPriority = 0;
         while (!jsonParser.nextToken().isStructEnd()) {
             switch (jsonParser.currentName()) {
-                case "nominal" -> {
+                case NOMINAL -> {
                     jsonParser.nextToken();
                     nominal = jsonParser.getDecimalValue();
                 }
-                case "initial" -> {
+                case INITIAL -> {
                     jsonParser.nextToken();
                     initial = jsonParser.getDecimalValue();
                 }
-                case "slackSearchPriority" -> slackSearchPriority = jsonParser.nextIntValue(0);
+                case SLACK_SEARCH_PRIORITY -> slackSearchPriority = jsonParser.nextIntValue(0);
                 default ->
                     throw new VirtualHubsConfigurationDeserializationException(String.format("Attribute '%s' invalid for voltage", jsonParser.currentName()));
             }
@@ -234,11 +236,11 @@ class VirtualHubsConfigurationDeserializer extends JsonDeserializer<VirtualHubsC
         Boolean isSdac = false;
         while (!jsonParser.nextToken().isStructEnd()) {
             switch (jsonParser.currentName()) {
-                case "code" -> code = jsonParser.nextTextValue();
-                case "eic" -> eic = jsonParser.nextTextValue();
-                case "isMcParticipant" -> isMcParticipant = jsonParser.nextBooleanValue();
-                case "isTechCounterparty" -> isTechCounterparty = jsonParser.nextBooleanValue();
-                case "isSdac" -> isSdac = jsonParser.nextBooleanValue();
+                case CODE -> code = jsonParser.nextTextValue();
+                case EIC -> eic = jsonParser.nextTextValue();
+                case IS_MC_PARTICIPANT -> isMcParticipant = jsonParser.nextBooleanValue();
+                case IS_TECH_COUNTERPARTY -> isTechCounterparty = jsonParser.nextBooleanValue();
+                case IS_SDAC -> isSdac = jsonParser.nextBooleanValue();
                 default ->
                     throw new VirtualHubsConfigurationDeserializationException(String.format("Attribute '%s' invalid for control area", jsonParser.currentName()));
             }
@@ -265,16 +267,16 @@ class VirtualHubsConfigurationDeserializer extends JsonDeserializer<VirtualHubsC
         Boolean isIgnoreECs = false;
         while (!jsonParser.nextToken().isStructEnd()) {
             switch (jsonParser.currentName()) {
-                case "code" -> code = jsonParser.nextTextValue();
-                case "eic" -> eic = jsonParser.nextTextValue();
-                case "isMcParticipant" -> isMcParticipant = jsonParser.nextBooleanValue();
-                case "isAhc" -> isAhc = jsonParser.nextBooleanValue();
-                case "isTechCounterparty" -> isTechCounterparty = jsonParser.nextBooleanValue();
-                case "isSdac" -> isSdac = jsonParser.nextBooleanValue();
-                case "synchronousArea" -> synchronousArea = synchronousAreas.get(jsonParser.nextTextValue());
-                case "relatedCa" -> relatedCa = controlAreas.get(jsonParser.nextTextValue());
-                case "isItcp" -> isItcp = jsonParser.nextBooleanValue();
-                case "isIgnoreECs" -> isIgnoreECs = jsonParser.nextBooleanValue();
+                case CODE -> code = jsonParser.nextTextValue();
+                case EIC -> eic = jsonParser.nextTextValue();
+                case IS_MC_PARTICIPANT -> isMcParticipant = jsonParser.nextBooleanValue();
+                case IS_AHC -> isAhc = jsonParser.nextBooleanValue();
+                case IS_TECH_COUNTERPARTY -> isTechCounterparty = jsonParser.nextBooleanValue();
+                case IS_SDAC -> isSdac = jsonParser.nextBooleanValue();
+                case SYNCHRONOUS_AREA -> synchronousArea = synchronousAreas.get(jsonParser.nextTextValue());
+                case RELATED_CA -> relatedCa = controlAreas.get(jsonParser.nextTextValue());
+                case IS_ITCP -> isItcp = jsonParser.nextBooleanValue();
+                case IS_IGNORE_ECS -> isIgnoreECs = jsonParser.nextBooleanValue();
                 default ->
                     throw new VirtualHubsConfigurationDeserializationException(String.format("Attribute '%s' invalid for market area", jsonParser.currentName()));
             }
@@ -300,23 +302,23 @@ class VirtualHubsConfigurationDeserializer extends JsonDeserializer<VirtualHubsC
         BigDecimal rlf = null;
         while (!jsonParser.nextToken().isStructEnd()) {
             switch (jsonParser.currentName()) {
-                case "code" -> code = jsonParser.nextTextValue();
-                case "eic" -> eic = jsonParser.nextTextValue();
-                case "isMcParticipant" -> isMcParticipant = jsonParser.nextBooleanValue();
-                case "isAhc" -> isAhc = jsonParser.nextBooleanValue();
-                case "nodeName" -> nodeName = jsonParser.nextTextValue();
-                case "relatedMa" -> relatedMa = marketAreas.get(jsonParser.nextTextValue());
-                case "oppositeHub" -> oppositeHub = jsonParser.nextTextValue();
-                case "isSdac" -> isSdac = jsonParser.nextBooleanValue();
-                case "splittingFactor" -> {
+                case CODE -> code = jsonParser.nextTextValue();
+                case EIC -> eic = jsonParser.nextTextValue();
+                case IS_MC_PARTICIPANT -> isMcParticipant = jsonParser.nextBooleanValue();
+                case IS_AHC -> isAhc = jsonParser.nextBooleanValue();
+                case NODE_NAME -> nodeName = jsonParser.nextTextValue();
+                case RELATED_MA -> relatedMa = marketAreas.get(jsonParser.nextTextValue());
+                case OPPOSITE_HUB -> oppositeHub = jsonParser.nextTextValue();
+                case IS_SDAC -> isSdac = jsonParser.nextBooleanValue();
+                case SPLITTING_FACTOR -> {
                     jsonParser.nextToken();
                     splittingFactor = jsonParser.getDecimalValue();
                 }
-                case "lf" -> {
+                case LF -> {
                     jsonParser.nextToken();
                     lf = jsonParser.getDecimalValue();
                 }
-                case "rlf" -> {
+                case RLF -> {
                     jsonParser.nextToken();
                     rlf = jsonParser.getDecimalValue();
                 }
@@ -335,10 +337,10 @@ class VirtualHubsConfigurationDeserializer extends JsonDeserializer<VirtualHubsC
         Boolean isSdac = false;
         while (!jsonParser.nextToken().isStructEnd()) {
             switch (jsonParser.currentName()) {
-                case "from" -> from = jsonParser.nextTextValue();
-                case "to" -> to = jsonParser.nextTextValue();
-                case "isAhc" -> isAhc = jsonParser.nextBooleanValue();
-                case "isSdac" -> isSdac = jsonParser.nextBooleanValue();
+                case FROM -> from = jsonParser.nextTextValue();
+                case TO -> to = jsonParser.nextTextValue();
+                case IS_AHC -> isAhc = jsonParser.nextBooleanValue();
+                case IS_SDAC -> isSdac = jsonParser.nextBooleanValue();
                 default ->
                     throw new VirtualHubsConfigurationDeserializationException(String.format("Attribute '%s' invalid for border direction", jsonParser.currentName()));
             }
@@ -358,15 +360,15 @@ class VirtualHubsConfigurationDeserializer extends JsonDeserializer<VirtualHubsC
         List<HvdcPole> poles = null;
         while (!jsonParser.nextToken().isStructEnd()) {
             switch (jsonParser.currentName()) {
-                case "code" -> code = jsonParser.nextTextValue();
-                case "eic" -> eic = jsonParser.nextTextValue();
-                case "poles" -> {
+                case CODE -> code = jsonParser.nextTextValue();
+                case EIC -> eic = jsonParser.nextTextValue();
+                case POLES -> {
                     poles = new ArrayList<>();
                     deserializeHvdcPoles(jsonParser, poles);
                 }
-                case "relatedMa" -> relatedMa = marketAreas.get(jsonParser.nextTextValue());
-                case "isMthvdc" -> isMthvdc = jsonParser.nextBooleanValue();
-                case "isBipolar" -> isBipolar = jsonParser.nextBooleanValue();
+                case RELATED_MA -> relatedMa = marketAreas.get(jsonParser.nextTextValue());
+                case IS_MTHVDC -> isMthvdc = jsonParser.nextBooleanValue();
+                case IS_BIPOLAR -> isBipolar = jsonParser.nextBooleanValue();
                 default ->
                     throw new VirtualHubsConfigurationDeserializationException(String.format("Attribute '%s' invalid for internal HVDC", jsonParser.currentName()));
             }
@@ -383,13 +385,13 @@ class VirtualHubsConfigurationDeserializer extends JsonDeserializer<VirtualHubsC
         List<HvdcLine> lines = null;
         while (!jsonParser.nextToken().isStructEnd()) {
             switch (jsonParser.currentName()) {
-                case "id" -> id = jsonParser.nextTextValue();
-                case "eic" -> eic = jsonParser.nextTextValue();
-                case "converters" -> {
+                case ID -> id = jsonParser.nextTextValue();
+                case EIC -> eic = jsonParser.nextTextValue();
+                case CONVERTERS -> {
                     converters = new ArrayList<>();
                     deserializeHvdcConverters(jsonParser, converters);
                 }
-                case "lines" -> {
+                case LINES -> {
                     lines = new ArrayList<>();
                     deserializeHvdcLines(jsonParser, lines);
                 }
@@ -407,8 +409,8 @@ class VirtualHubsConfigurationDeserializer extends JsonDeserializer<VirtualHubsC
         String station = null;
         while (!jsonParser.nextToken().isStructEnd()) {
             switch (jsonParser.currentName()) {
-                case "node" -> node = jsonParser.nextTextValue();
-                case "station" -> station = jsonParser.nextTextValue();
+                case NODE -> node = jsonParser.nextTextValue();
+                case STATION -> station = jsonParser.nextTextValue();
                 default ->
                     throw new VirtualHubsConfigurationDeserializationException(String.format("Attribute '%s' invalid for HVDC converter", jsonParser.currentName()));
             }
@@ -424,9 +426,9 @@ class VirtualHubsConfigurationDeserializer extends JsonDeserializer<VirtualHubsC
         String to = null;
         while (!jsonParser.nextToken().isStructEnd()) {
             switch (jsonParser.currentName()) {
-                case "id" -> id = jsonParser.nextTextValue();
-                case "from" -> from = jsonParser.nextTextValue();
-                case "to" -> to = jsonParser.nextTextValue();
+                case ID -> id = jsonParser.nextTextValue();
+                case FROM -> from = jsonParser.nextTextValue();
+                case TO -> to = jsonParser.nextTextValue();
                 default ->
                     throw new VirtualHubsConfigurationDeserializationException(String.format("Attribute '%s' invalid for HVDC line", jsonParser.currentName()));
             }

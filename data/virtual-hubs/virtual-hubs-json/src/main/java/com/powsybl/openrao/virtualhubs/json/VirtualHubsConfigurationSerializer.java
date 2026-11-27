@@ -28,6 +28,8 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
+import static com.powsybl.openrao.virtualhubs.json.VirtualHubsConfigurationJsonFieldNames.*;
+
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
@@ -50,10 +52,10 @@ class VirtualHubsConfigurationSerializer extends JsonSerializer<VirtualHubsConfi
     private void serializeRegion(final VirtualHubsConfiguration virtualHubsConfiguration, final JsonGenerator jsonGenerator) throws IOException {
         final Region region = virtualHubsConfiguration.getRegion();
         if (region != null) {
-            jsonGenerator.writeFieldName("region");
+            jsonGenerator.writeFieldName(REGION);
             jsonGenerator.writeStartObject();
-            jsonGenerator.writeStringField("code", region.code());
-            jsonGenerator.writeStringField("eic", region.eic());
+            jsonGenerator.writeStringField(CODE, region.code());
+            jsonGenerator.writeStringField(EIC, region.eic());
             jsonGenerator.writeEndObject();
         }
     }
@@ -61,7 +63,7 @@ class VirtualHubsConfigurationSerializer extends JsonSerializer<VirtualHubsConfi
     private void serializeSynchronousAreas(final VirtualHubsConfiguration virtualHubsConfiguration, final JsonGenerator jsonGenerator) throws IOException {
         final List<SynchronousArea> synchronousAreas = virtualHubsConfiguration.getSynchronousAreas();
         if (!synchronousAreas.isEmpty()) {
-            jsonGenerator.writeFieldName("synchronousAreas");
+            jsonGenerator.writeFieldName(SYNCHRONOUS_AREAS);
             jsonGenerator.writeStartArray();
             for (final SynchronousArea synchronousArea : synchronousAreas) {
                 serializeSynchronousArea(synchronousArea, jsonGenerator);
@@ -72,10 +74,10 @@ class VirtualHubsConfigurationSerializer extends JsonSerializer<VirtualHubsConfi
 
     private void serializeSynchronousArea(final SynchronousArea synchronousArea, final JsonGenerator jsonGenerator) throws IOException {
         jsonGenerator.writeStartObject();
-        jsonGenerator.writeStringField("code", synchronousArea.code());
-        jsonGenerator.writeStringField("eic", synchronousArea.eic());
-        jsonGenerator.writeBooleanField("isLive", synchronousArea.isLive());
-        jsonGenerator.writeBooleanField("isMainArea", synchronousArea.isMainArea());
+        jsonGenerator.writeStringField(CODE, synchronousArea.code());
+        jsonGenerator.writeStringField(EIC, synchronousArea.eic());
+        jsonGenerator.writeBooleanField(IS_LIVE, synchronousArea.isLive());
+        jsonGenerator.writeBooleanField(IS_MAIN_AREA, synchronousArea.isMainArea());
         final Map<String, String> localLOT3Parameters = synchronousArea.localLOT3Parameters();
         if (localLOT3Parameters != null) {
             serializeLocalLOT3Parameters(localLOT3Parameters, jsonGenerator);
@@ -89,7 +91,7 @@ class VirtualHubsConfigurationSerializer extends JsonSerializer<VirtualHubsConfi
 
     private static void serializeLocalLOT3Parameters(final Map<String, String> localLOT3Parameters,
                                                      final JsonGenerator jsonGenerator) throws IOException {
-        jsonGenerator.writeFieldName("localLOT3Parameters");
+        jsonGenerator.writeFieldName(LOCAL_LOT_3_PARAMETERS);
         jsonGenerator.writeStartObject();
         for (final Map.Entry<String, String> parameter : localLOT3Parameters.entrySet()) {
             jsonGenerator.writeStringField(parameter.getKey(), parameter.getValue());
@@ -99,13 +101,13 @@ class VirtualHubsConfigurationSerializer extends JsonSerializer<VirtualHubsConfi
 
     private static void serializeInitialVoltages(final List<Voltage> initialVoltages,
                                                  final JsonGenerator jsonGenerator) throws IOException {
-        jsonGenerator.writeFieldName("initialVoltages");
+        jsonGenerator.writeFieldName(INITIAL_VOLTAGES);
         jsonGenerator.writeStartArray();
         for (final Voltage voltage : initialVoltages) {
             jsonGenerator.writeStartObject();
-            jsonGenerator.writeNumberField("nominal", voltage.nominal());
-            jsonGenerator.writeNumberField("initial", voltage.initial());
-            jsonGenerator.writeNumberField("slackSearchPriority", voltage.slackSearchPriority());
+            jsonGenerator.writeNumberField(NOMINAL, voltage.nominal());
+            jsonGenerator.writeNumberField(INITIAL, voltage.initial());
+            jsonGenerator.writeNumberField(SLACK_SEARCH_PRIORITY, voltage.slackSearchPriority());
             jsonGenerator.writeEndObject();
         }
         jsonGenerator.writeEndArray();
@@ -114,7 +116,7 @@ class VirtualHubsConfigurationSerializer extends JsonSerializer<VirtualHubsConfi
     private void serializeControlAreas(final VirtualHubsConfiguration virtualHubsConfiguration, final JsonGenerator jsonGenerator) throws IOException {
         final List<ControlArea> controlAreas = virtualHubsConfiguration.getControlAreas();
         if (!controlAreas.isEmpty()) {
-            jsonGenerator.writeFieldName("controlAreas");
+            jsonGenerator.writeFieldName(CONTROL_AREAS);
             jsonGenerator.writeStartArray();
             for (ControlArea controlArea : controlAreas) {
                 serializeControlArea(controlArea, jsonGenerator);
@@ -125,18 +127,18 @@ class VirtualHubsConfigurationSerializer extends JsonSerializer<VirtualHubsConfi
 
     private void serializeControlArea(final ControlArea controlArea, final JsonGenerator jsonGenerator) throws IOException {
         jsonGenerator.writeStartObject();
-        jsonGenerator.writeStringField("code", controlArea.code());
-        jsonGenerator.writeStringField("eic", controlArea.eic());
-        jsonGenerator.writeBooleanField("isMcParticipant", controlArea.isMcParticipant());
-        jsonGenerator.writeBooleanField("isTechCounterparty", controlArea.isTechCounterparty());
-        jsonGenerator.writeBooleanField("isSdac", controlArea.isSdac());
+        jsonGenerator.writeStringField(CODE, controlArea.code());
+        jsonGenerator.writeStringField(EIC, controlArea.eic());
+        jsonGenerator.writeBooleanField(IS_MC_PARTICIPANT, controlArea.isMcParticipant());
+        jsonGenerator.writeBooleanField(IS_TECH_COUNTERPARTY, controlArea.isTechCounterparty());
+        jsonGenerator.writeBooleanField(IS_SDAC, controlArea.isSdac());
         jsonGenerator.writeEndObject();
     }
 
     private void serializeMarketAreas(VirtualHubsConfiguration virtualHubsConfiguration, JsonGenerator jsonGenerator) throws IOException {
         final List<MarketArea> marketAreas = virtualHubsConfiguration.getMarketAreas();
         if (!marketAreas.isEmpty()) {
-            jsonGenerator.writeFieldName("marketAreas");
+            jsonGenerator.writeFieldName(MARKET_AREAS);
             jsonGenerator.writeStartArray();
             for (MarketArea marketArea : marketAreas) {
                 serializeMarketArea(marketArea, jsonGenerator);
@@ -147,27 +149,27 @@ class VirtualHubsConfigurationSerializer extends JsonSerializer<VirtualHubsConfi
 
     private void serializeMarketArea(MarketArea marketArea, JsonGenerator jsonGenerator) throws IOException {
         jsonGenerator.writeStartObject();
-        jsonGenerator.writeStringField("code", marketArea.code());
-        jsonGenerator.writeStringField("eic", marketArea.eic());
-        jsonGenerator.writeBooleanField("isMcParticipant", marketArea.isMcParticipant());
-        jsonGenerator.writeBooleanField("isAhc", marketArea.isAhc());
-        jsonGenerator.writeBooleanField("isTechCounterparty", marketArea.isTechCounterparty());
-        jsonGenerator.writeBooleanField("isSdac", marketArea.isSdac());
+        jsonGenerator.writeStringField(CODE, marketArea.code());
+        jsonGenerator.writeStringField(EIC, marketArea.eic());
+        jsonGenerator.writeBooleanField(IS_MC_PARTICIPANT, marketArea.isMcParticipant());
+        jsonGenerator.writeBooleanField(IS_AHC, marketArea.isAhc());
+        jsonGenerator.writeBooleanField(IS_TECH_COUNTERPARTY, marketArea.isTechCounterparty());
+        jsonGenerator.writeBooleanField(IS_SDAC, marketArea.isSdac());
         if (marketArea.synchronousArea() != null) {
-            jsonGenerator.writeStringField("synchronousArea", marketArea.synchronousArea().code());
+            jsonGenerator.writeStringField(SYNCHRONOUS_AREA, marketArea.synchronousArea().code());
         }
         if (marketArea.relatedCa() != null) {
-            jsonGenerator.writeStringField("relatedCa", marketArea.relatedCa().code());
+            jsonGenerator.writeStringField(RELATED_CA, marketArea.relatedCa().code());
         }
-        jsonGenerator.writeBooleanField("isItcp", marketArea.isItcp());
-        jsonGenerator.writeBooleanField("isIgnoreECs", marketArea.isIgnoreECs());
+        jsonGenerator.writeBooleanField(IS_ITCP, marketArea.isItcp());
+        jsonGenerator.writeBooleanField(IS_IGNORE_ECS, marketArea.isIgnoreECs());
         jsonGenerator.writeEndObject();
     }
 
     private void serializeVirtualHubs(VirtualHubsConfiguration virtualHubsConfiguration, JsonGenerator jsonGenerator) throws IOException {
         final List<VirtualHub> virtualHubs = virtualHubsConfiguration.getVirtualHubs();
         if (!virtualHubs.isEmpty()) {
-            jsonGenerator.writeFieldName("virtualHubs");
+            jsonGenerator.writeFieldName(VIRTUAL_HUBS);
             jsonGenerator.writeStartArray();
             for (VirtualHub virtualHub : virtualHubs) {
                 serializeVirtualHub(virtualHub, jsonGenerator);
@@ -178,31 +180,31 @@ class VirtualHubsConfigurationSerializer extends JsonSerializer<VirtualHubsConfi
 
     private void serializeVirtualHub(VirtualHub virtualHub, JsonGenerator jsonGenerator) throws IOException {
         jsonGenerator.writeStartObject();
-        jsonGenerator.writeStringField("code", virtualHub.code());
-        jsonGenerator.writeStringField("eic", virtualHub.eic());
-        jsonGenerator.writeBooleanField("isMcParticipant", virtualHub.isMcParticipant());
-        jsonGenerator.writeBooleanField("isAhc", virtualHub.isAhc());
+        jsonGenerator.writeStringField(CODE, virtualHub.code());
+        jsonGenerator.writeStringField(EIC, virtualHub.eic());
+        jsonGenerator.writeBooleanField(IS_MC_PARTICIPANT, virtualHub.isMcParticipant());
+        jsonGenerator.writeBooleanField(IS_AHC, virtualHub.isAhc());
         final String nodeName = virtualHub.nodeName();
         if (nodeName != null) {
-            jsonGenerator.writeStringField("nodeName", nodeName);
+            jsonGenerator.writeStringField(NODE_NAME, nodeName);
         }
-        jsonGenerator.writeStringField("relatedMa", virtualHub.relatedMa().code());
+        jsonGenerator.writeStringField(RELATED_MA, virtualHub.relatedMa().code());
         final String oppositeHub = virtualHub.oppositeHub();
         if (oppositeHub != null) {
-            jsonGenerator.writeStringField("oppositeHub", oppositeHub);
+            jsonGenerator.writeStringField(OPPOSITE_HUB, oppositeHub);
         }
-        jsonGenerator.writeBooleanField("isSdac", virtualHub.isSdac());
+        jsonGenerator.writeBooleanField(IS_SDAC, virtualHub.isSdac());
         final BigDecimal splittingFactor = virtualHub.splittingFactor();
         if (splittingFactor != null) {
-            jsonGenerator.writeNumberField("splittingFactor", splittingFactor);
+            jsonGenerator.writeNumberField(SPLITTING_FACTOR, splittingFactor);
         }
         final BigDecimal lf = virtualHub.lf();
         if (lf != null) {
-            jsonGenerator.writeNumberField("lf", lf);
+            jsonGenerator.writeNumberField(LF, lf);
         }
         final BigDecimal rlf = virtualHub.rlf();
         if (rlf != null) {
-            jsonGenerator.writeNumberField("rlf", rlf);
+            jsonGenerator.writeNumberField(RLF, rlf);
         }
         jsonGenerator.writeEndObject();
     }
@@ -210,7 +212,7 @@ class VirtualHubsConfigurationSerializer extends JsonSerializer<VirtualHubsConfi
     private void serializeBorderDirections(VirtualHubsConfiguration virtualHubsConfiguration, JsonGenerator jsonGenerator) throws IOException {
         final List<BorderDirection> borderDirections = virtualHubsConfiguration.getBorderDirections();
         if (!borderDirections.isEmpty()) {
-            jsonGenerator.writeFieldName("borderDirections");
+            jsonGenerator.writeFieldName(BORDER_DIRECTIONS);
             jsonGenerator.writeStartArray();
             for (BorderDirection borderDirection : borderDirections) {
                 serializeBorderDirection(borderDirection, jsonGenerator);
@@ -221,17 +223,17 @@ class VirtualHubsConfigurationSerializer extends JsonSerializer<VirtualHubsConfi
 
     private void serializeBorderDirection(BorderDirection borderDirection, JsonGenerator jsonGenerator) throws IOException {
         jsonGenerator.writeStartObject();
-        jsonGenerator.writeStringField("from", borderDirection.from());
-        jsonGenerator.writeStringField("to", borderDirection.to());
-        jsonGenerator.writeBooleanField("isAhc", borderDirection.isAhc());
-        jsonGenerator.writeBooleanField("isSdac", borderDirection.isSdac());
+        jsonGenerator.writeStringField(FROM, borderDirection.from());
+        jsonGenerator.writeStringField(TO, borderDirection.to());
+        jsonGenerator.writeBooleanField(IS_AHC, borderDirection.isAhc());
+        jsonGenerator.writeBooleanField(IS_SDAC, borderDirection.isSdac());
         jsonGenerator.writeEndObject();
     }
 
     private void serializeInternalHvdcs(VirtualHubsConfiguration virtualHubsConfiguration, JsonGenerator jsonGenerator) throws IOException {
         final List<InternalHvdc> internalHvdcs = virtualHubsConfiguration.getInternalHvdcs();
         if (!internalHvdcs.isEmpty()) {
-            jsonGenerator.writeFieldName("internalHvdcs");
+            jsonGenerator.writeFieldName(INTERNAL_HVDCS);
             jsonGenerator.writeStartArray();
             for (InternalHvdc internalHvdc : internalHvdcs) {
                 serializeInternalHvdc(internalHvdc, jsonGenerator);
@@ -242,26 +244,26 @@ class VirtualHubsConfigurationSerializer extends JsonSerializer<VirtualHubsConfi
 
     private void serializeInternalHvdc(InternalHvdc internalHvdc, JsonGenerator jsonGenerator) throws IOException {
         jsonGenerator.writeStartObject();
-        jsonGenerator.writeStringField("code", internalHvdc.code());
-        jsonGenerator.writeStringField("eic", internalHvdc.eic());
+        jsonGenerator.writeStringField(CODE, internalHvdc.code());
+        jsonGenerator.writeStringField(EIC, internalHvdc.eic());
         final List<HvdcPole> poles = internalHvdc.poles();
         if (poles != null) {
             serializeHvdcPoles(poles, jsonGenerator);
         }
-        jsonGenerator.writeStringField("relatedMa", internalHvdc.relatedMa().code());
-        jsonGenerator.writeBooleanField("isMthvdc", internalHvdc.isMthvdc());
-        jsonGenerator.writeBooleanField("isBipolar", internalHvdc.isBipolar());
+        jsonGenerator.writeStringField(RELATED_MA, internalHvdc.relatedMa().code());
+        jsonGenerator.writeBooleanField(IS_MTHVDC, internalHvdc.isMthvdc());
+        jsonGenerator.writeBooleanField(IS_BIPOLAR, internalHvdc.isBipolar());
         jsonGenerator.writeEndObject();
     }
 
     private static void serializeHvdcPoles(final List<HvdcPole> poles,
                                            final JsonGenerator jsonGenerator) throws IOException {
-        jsonGenerator.writeFieldName("poles");
+        jsonGenerator.writeFieldName(POLES);
         jsonGenerator.writeStartArray();
         for (final HvdcPole pole : poles) {
             jsonGenerator.writeStartObject();
-            jsonGenerator.writeStringField("id", pole.id());
-            jsonGenerator.writeStringField("eic", pole.eic());
+            jsonGenerator.writeStringField(ID, pole.id());
+            jsonGenerator.writeStringField(EIC, pole.eic());
             final List<HvdcConverter> converters = pole.converters();
             if (converters != null) {
                 serializeHvdcConverters(converters, jsonGenerator);
@@ -277,12 +279,12 @@ class VirtualHubsConfigurationSerializer extends JsonSerializer<VirtualHubsConfi
 
     private static void serializeHvdcConverters(final List<HvdcConverter> converters,
                                            final JsonGenerator jsonGenerator) throws IOException {
-        jsonGenerator.writeFieldName("converters");
+        jsonGenerator.writeFieldName(CONVERTERS);
         jsonGenerator.writeStartArray();
         for (final HvdcConverter converter : converters) {
             jsonGenerator.writeStartObject();
-            jsonGenerator.writeStringField("node", converter.node());
-            jsonGenerator.writeStringField("station", converter.station());
+            jsonGenerator.writeStringField(NODE, converter.node());
+            jsonGenerator.writeStringField(STATION, converter.station());
             jsonGenerator.writeEndObject();
         }
         jsonGenerator.writeEndArray();
@@ -290,13 +292,13 @@ class VirtualHubsConfigurationSerializer extends JsonSerializer<VirtualHubsConfi
 
     private static void serializeHvdcLines(final List<HvdcLine> lines,
                                            final JsonGenerator jsonGenerator) throws IOException {
-        jsonGenerator.writeFieldName("lines");
+        jsonGenerator.writeFieldName(LINES);
         jsonGenerator.writeStartArray();
         for (final HvdcLine line : lines) {
             jsonGenerator.writeStartObject();
-            jsonGenerator.writeStringField("id", line.id());
-            jsonGenerator.writeStringField("from", line.from());
-            jsonGenerator.writeStringField("to", line.to());
+            jsonGenerator.writeStringField(ID, line.id());
+            jsonGenerator.writeStringField(FROM, line.from());
+            jsonGenerator.writeStringField(TO, line.to());
             jsonGenerator.writeEndObject();
         }
         jsonGenerator.writeEndArray();
