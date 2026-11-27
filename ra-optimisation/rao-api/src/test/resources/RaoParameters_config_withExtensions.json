@@ -1,5 +1,5 @@
 {
-  "version" : "3.5",
+  "version" : "3.6",
   "objective-function" : {
     "type" : "MAX_MIN_MARGIN",
     "enforce-curative-security" : false
@@ -207,6 +207,12 @@
       "costly-min-margin-parameters" : {
         "shifted-violation-penalty" : 1000.0,
         "shifted-violation-threshold" : 0.0
+      },
+      "pre-solve-parameters" : {
+        "max-preventive-search-tree-depth" : 2,
+        "max-curative-search-tree-depth" : 1,
+        "preventive-solution-usage" : "HINT",
+        "curative-solution-usage" : "FORCED"
       }
     }
   }

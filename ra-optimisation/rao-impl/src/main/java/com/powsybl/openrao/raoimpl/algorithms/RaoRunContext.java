@@ -9,7 +9,6 @@ package com.powsybl.openrao.raoimpl.algorithms;
 
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
-import com.powsybl.openrao.raoimpl.commons.ToolProvider;
 import com.powsybl.openrao.raoimpl.result.api.OptimizationResult;
 import com.powsybl.openrao.raoimpl.result.api.PrePerimeterResult;
 import com.powsybl.openrao.raoimpl.result.impl.PostPerimeterResult;
@@ -30,13 +29,14 @@ import java.util.Objects;
  */
 final class RaoRunContext {
     @NonNull
-    private final ToolProvider toolProvider;
+    private final SearchTreeRunContext mainSolve;
+    @Nullable
+    private SearchTreeRunContext presolve;
+    private boolean preSolveEnabled = false;
     @Nullable
     private StateTree stateTree;
     @Nullable
     private PrePerimeterSensitivityAnalysis prePerimeterSensitivityAnalysis;
-    @Nullable
-    private PrePerimeterResult initialOutput;
     @Nullable
     private OptimizationResult preventiveResult;
     @Nullable
@@ -58,12 +58,28 @@ final class RaoRunContext {
     @Nullable
     private Boolean logFinalResultsOutsideOfSecondPreventive;
 
-    RaoRunContext(@NonNull ToolProvider toolProvider) {
-        this.toolProvider = Objects.requireNonNull(toolProvider);
+    RaoRunContext(@NonNull SearchTreeRunContext mainSolve) {
+        this.mainSolve = Objects.requireNonNull(mainSolve);
     }
 
-    @NonNull ToolProvider getToolProvider() {
-        return toolProvider;
+    @NonNull SearchTreeRunContext getMainSolve() {
+        return mainSolve;
+    }
+
+    void setPresolve(@NonNull SearchTreeRunContext presolve) {
+        this.presolve = presolve;
+    }
+
+    @NonNull SearchTreeRunContext getPresolve() {
+        return Objects.requireNonNull(presolve, "presolve has not been set yet");
+    }
+
+    void setPreSolveEnabled(boolean preSolveEnabled) {
+        this.preSolveEnabled = preSolveEnabled;
+    }
+
+    boolean isPreSolveEnabled() {
+        return preSolveEnabled;
     }
 
     @NonNull StateTree getStateTree() {
@@ -80,14 +96,6 @@ final class RaoRunContext {
 
     void setPrePerimeterSensitivityAnalysis(@NonNull PrePerimeterSensitivityAnalysis prePerimeterSensitivityAnalysis) {
         this.prePerimeterSensitivityAnalysis = prePerimeterSensitivityAnalysis;
-    }
-
-    @NonNull PrePerimeterResult getInitialOutput() {
-        return Objects.requireNonNull(initialOutput, "initialOutput has not been computed yet");
-    }
-
-    void setInitialOutput(@NonNull PrePerimeterResult initialOutput) {
-        this.initialOutput = initialOutput;
     }
 
     @NonNull OptimizationResult getPreventiveResult() {

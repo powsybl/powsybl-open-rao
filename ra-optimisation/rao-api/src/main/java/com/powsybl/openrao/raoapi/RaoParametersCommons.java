@@ -26,9 +26,10 @@ public final class RaoParametersCommons {
         3.3: remove objective function unit field
         3.4: add marmot-parameters
         3.5: add curative remedial actions synchronization parameters in marmot parameters && add allow-electrical-island-creation, remove pst-regulation-parameters
+        3.6: add optional pre-solve-parameters block (max-preventive-search-tree-depth, max-curative-search-tree-depth, preventive-solution-usage, curative-solution-usage)
     */
 
-    public static final String RAO_PARAMETERS_VERSION = "3.5";
+    public static final String RAO_PARAMETERS_VERSION = "3.6";
 
     // header
     public static final String VERSION = "version";
@@ -156,4 +157,10 @@ public final class RaoParametersCommons {
     public static final String ST_COSTLY_MIN_MARGIN_SECTION = "search-tree-costly-min-margin-parameters";
     public static final String SHIFTED_VIOLATION_PENALTY = "shifted-violation-penalty";
     public static final String SHIFTED_VIOLATION_THRESHOLD = "shifted-violation-threshold";
+
+    // -- Pre-solve parameters
+    public static final String PRE_SOLVE_PARAMETERS = "pre-solve-parameters";
+    public static final String ST_PRE_SOLVE_PARAMETERS_SECTION = "search-tree-pre-solve-parameters";
+    public static final String PREVENTIVE_SOLUTION_USAGE = "preventive-solution-usage";
+    public static final String CURATIVE_SOLUTION_USAGE = "curative-solution-usage";
 }

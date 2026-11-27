@@ -11,6 +11,7 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoPreSolveParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -175,5 +176,26 @@ class TreeParametersTest {
         assertEquals(0, treeParameters.targetObjectiveValue(), DOUBLE_TOLERANCE);
         assertEquals(8, treeParameters.leavesInParallel());
         assertEquals(15, treeParameters.maximumSearchDepth());
+    }
+
+    @Test
+    void testDcBuildersUseDcDepths() {
+        raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.SECURE_FLOW);
+        SearchTreeRaoPreSolveParameters preSolveParameters = new SearchTreeRaoPreSolveParameters(ReportNode.NO_OP);
+        preSolveParameters.setMaxPreventiveSearchTreeDepth(3);
+        preSolveParameters.setMaxCurativeSearchTreeDepth(2);
+        searchTreeParameters.setPreSolveParameters(preSolveParameters);
+
+        TreeParameters preventive = TreeParameters.buildForPreventivePerimeterPreSolve(raoParameters);
+        assertEquals(new TreeParameters(TreeParameters.StopCriterion.AT_TARGET_OBJECTIVE_VALUE, 0.0, 3, 4, false), preventive);
+        assertEquals(6, TreeParameters.buildForPreventivePerimeter(raoParameters).maximumSearchDepth());
+
+        TreeParameters secondPreventive = TreeParameters.buildForSecondPreventivePerimeterPreSolve(raoParameters);
+        assertEquals(new TreeParameters(TreeParameters.StopCriterion.AT_TARGET_OBJECTIVE_VALUE, 0.0, 3, 4, false), secondPreventive);
+        assertEquals(6, TreeParameters.buildForSecondPreventivePerimeter(raoParameters).maximumSearchDepth());
+
+        TreeParameters curative = TreeParameters.buildForCurativePerimeterPreSolve(raoParameters, 100.0);
+        assertEquals(new TreeParameters(TreeParameters.StopCriterion.AT_TARGET_OBJECTIVE_VALUE, 0.0, 2, 1, false), curative);
+        assertEquals(6, TreeParameters.buildForCurativePerimeter(raoParameters, 100.0).maximumSearchDepth());
     }
 }

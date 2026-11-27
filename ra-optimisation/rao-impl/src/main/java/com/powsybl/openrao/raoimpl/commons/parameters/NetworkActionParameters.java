@@ -30,7 +30,8 @@ import static com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoTopo
  */
 public class NetworkActionParameters {
 
-    private final List<NetworkActionCombination> predefinedCombinations;
+    private final List<NetworkActionCombination> hintedCombinations;
+    private final List<NetworkActionCombination> forcedCombinations;
 
     private final double absoluteNetworkActionMinimumImpactThreshold;
     private final double relativeNetworkActionMinimumImpactThreshold;
@@ -45,7 +46,8 @@ public class NetworkActionParameters {
                                    boolean skipNetworkActionFarFromMostLimitingElements,
                                    int maxNumberOfBoundariesForSkippingNetworkActions,
                                    boolean islandCreationAllowed) {
-        this.predefinedCombinations = predefinedCombinations;
+        this.hintedCombinations = predefinedCombinations;
+        this.forcedCombinations = new ArrayList<>();
         this.absoluteNetworkActionMinimumImpactThreshold = absoluteNetworkActionMinimumImpactThreshold;
         this.relativeNetworkActionMinimumImpactThreshold = relativeNetworkActionMinimumImpactThreshold;
         this.skipNetworkActionFarFromMostLimitingElements = skipNetworkActionFarFromMostLimitingElements;
@@ -54,7 +56,7 @@ public class NetworkActionParameters {
     }
 
     public List<NetworkActionCombination> getNetworkActionCombinations() {
-        return predefinedCombinations;
+        return hintedCombinations;
     }
 
     public double getAbsoluteNetworkActionMinimumImpactThreshold() {
@@ -88,14 +90,29 @@ public class NetworkActionParameters {
         );
     }
 
-    public void addNetworkActionCombination(NetworkActionCombination networkActionCombination) {
+    public void addHintedNetworkActionCombination(NetworkActionCombination networkActionCombination) {
         // It may happen that the 1st preventive RAO finds an optimal combination that was already defined
         // In this case, remove the old combination and add the new one (marked "detected during RAO")
-        Optional<NetworkActionCombination> alreadyExistingNetworkActionCombination = this.predefinedCombinations
-                .stream().filter(naCombination -> naCombination.getNetworkActionSet().equals(networkActionCombination.getNetworkActionSet()))
-                .findAny();
-        alreadyExistingNetworkActionCombination.ifPresent(this.predefinedCombinations::remove);
-        this.predefinedCombinations.add(networkActionCombination);
+        removeMatchingCombination(this.hintedCombinations, networkActionCombination);
+        removeMatchingCombination(this.forcedCombinations, networkActionCombination);
+        this.hintedCombinations.add(networkActionCombination);
+    }
+
+    public void addForcedNetworkActionCombination(NetworkActionCombination forcedCombination) {
+        removeMatchingCombination(this.forcedCombinations, forcedCombination);
+        removeMatchingCombination(this.hintedCombinations, forcedCombination);
+        this.forcedCombinations.add(forcedCombination);
+    }
+
+    private static void removeMatchingCombination(List<NetworkActionCombination> combinations, NetworkActionCombination combination) {
+        combinations.stream()
+                .filter(naCombination -> naCombination.getNetworkActionSet().equals(combination.getNetworkActionSet()))
+                .findAny()
+                .ifPresent(combinations::remove);
+    }
+
+    public List<NetworkActionCombination> getForcedCombinations() {
+        return forcedCombinations;
     }
 
     @Override
@@ -111,13 +128,15 @@ public class NetworkActionParameters {
             && Double.compare(that.relativeNetworkActionMinimumImpactThreshold, relativeNetworkActionMinimumImpactThreshold) == 0
             && skipNetworkActionFarFromMostLimitingElements == that.skipNetworkActionFarFromMostLimitingElements
             && maxNumberOfBoundariesForSkippingNetworkActions == that.maxNumberOfBoundariesForSkippingNetworkActions
-            && Objects.equals(predefinedCombinations, that.predefinedCombinations);
+            && Objects.equals(hintedCombinations, that.hintedCombinations)
+            && Objects.equals(forcedCombinations, that.forcedCombinations);
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(
-            predefinedCombinations,
+            hintedCombinations,
+            forcedCombinations,
             absoluteNetworkActionMinimumImpactThreshold,
             relativeNetworkActionMinimumImpactThreshold,
             skipNetworkActionFarFromMostLimitingElements,

@@ -26,6 +26,8 @@ import com.powsybl.openrao.raoapi.parameters.extensions.PtdfApproximation;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoCostlyMinMarginParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoLoopFlowParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoMnecParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoPreSolveParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoPreSolveParameters.SolutionUsage;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.PstModel;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.RaRangeShrinking;
@@ -140,6 +142,13 @@ class JsonRaoParametersTest extends AbstractSerDeTest {
         minMarginsParameters.setShiftedViolationPenalty(800.0);
         minMarginsParameters.setShiftedViolationThreshold(3.0);
         searchTreeParameters.setMinMarginsParameters(minMarginsParameters);
+        // -- Pre-solve parameters
+        SearchTreeRaoPreSolveParameters preSolveParameters = new SearchTreeRaoPreSolveParameters(ReportNode.NO_OP);
+        preSolveParameters.setMaxPreventiveSearchTreeDepth(3);
+        preSolveParameters.setMaxCurativeSearchTreeDepth(2);
+        preSolveParameters.setPreventiveSolutionUsage(SolutionUsage.FORCED);
+        preSolveParameters.setCurativeSolutionUsage(SolutionUsage.HINT);
+        searchTreeParameters.setPreSolveParameters(preSolveParameters);
         // -- Fast Rao Parameters
         parameters.addExtension(FastRaoParameters.class, new FastRaoParameters());
         FastRaoParameters fastRaoParameters = parameters.getExtension(FastRaoParameters.class);
@@ -194,6 +203,25 @@ class JsonRaoParametersTest extends AbstractSerDeTest {
         InputStream inputStream = new ByteArrayInputStream(json.getBytes(StandardCharsets.UTF_8));
         OpenRaoException e = assertThrows(OpenRaoException.class, () -> JsonRaoParameters.read(inputStream, ReportNode.NO_OP));
         assertEquals("Unknown solver: GUROB", e.getMessage());
+    }
+
+    @Test
+    void readUnknownSolutionUsage() {
+        String json = """
+                {
+                  "version": "%s",
+                  "extensions": {
+                    "open-rao-search-tree-parameters": {
+                      "pre-solve-parameters": {
+                        "preventive-solution-usage": "FORCE"
+                      }
+                    }
+                  }
+                }
+                """.formatted(RAO_PARAMETERS_VERSION);
+        InputStream inputStream = new ByteArrayInputStream(json.getBytes(StandardCharsets.UTF_8));
+        OpenRaoException e = assertThrows(OpenRaoException.class, () -> JsonRaoParameters.read(inputStream, ReportNode.NO_OP));
+        assertEquals("Unknown solution usage: FORCE", e.getMessage());
     }
 
     @Test

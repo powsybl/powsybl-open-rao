@@ -17,6 +17,8 @@ import com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityPa
 import com.powsybl.openrao.raoapi.parameters.extensions.MultithreadingParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.PtdfApproximation;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoPreSolveParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoPreSolveParameters.SolutionUsage;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.PstModel;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.RaRangeShrinking;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.Solver;
@@ -124,6 +126,12 @@ class RaoParametersYamlConfigTest extends AbstractSerDeTest {
 
         assertEquals(1000.0, searchTreeParameters.getMinMarginsParameters().get().getShiftedViolationPenalty());
         assertEquals(0.0, searchTreeParameters.getMinMarginsParameters().get().getShiftedViolationThreshold());
+
+        assertTrue(searchTreeParameters.getPreSolveParameters().isPresent());
+        assertEquals(2, SearchTreeRaoPreSolveParameters.getMaxPreventiveSearchTreeDepth(parameters));
+        assertEquals(1, SearchTreeRaoPreSolveParameters.getMaxCurativeSearchTreeDepth(parameters));
+        assertEquals(SolutionUsage.HINT, SearchTreeRaoPreSolveParameters.getPreventiveSolutionUsage(parameters));
+        assertEquals(SolutionUsage.FORCED, SearchTreeRaoPreSolveParameters.getCurativeSolutionUsage(parameters));
 
         // Compare to json
         roundTripTest(

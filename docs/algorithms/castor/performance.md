@@ -141,3 +141,52 @@ See also [FastRAO parameters section](../../parameters/implementation-specific-p
 
 ---
 
+## DC pre-solve
+
+The search-tree runs a sensitivity analysis for each network action combination it tests, and again at each iteration
+of the [linear optimization](linear-problem.md) of range actions. Sensitivity analysis is much faster in DC than in AC.
+
+The DC pre-solve is an optional feature: it is disabled unless the `pre-solve-parameters` block is added to the
+`open-rao-search-tree-parameters` extension (see [Pre-solve optional parameter](../../parameters/implementation-specific-parameters.md#pre-solve-optional-parameter)).
+When the DC pre-solve is enabled for an instant, each perimeter of this instant is optimized in two steps:
+
+1. **DC search-tree**: a complete search-tree is run with DC sensitivities, with its own maximum depth. It returns a
+   network action combination, called the DC solution.
+2. **AC search-tree**: the usual search-tree is run with the AC sensitivities, using the DC solution in one of
+   two ways:
+   - **HINT**: the DC solution is added to the combinations of the first depth, like a
+     [predefined combination](../../parameters/implementation-specific-parameters.md#predefined-combinations), and is
+     evaluated first. If it satisfies the stop criterion in AC, the search can stop early.
+   - **FORCED**: the DC solution is the only combination tested at the first depth. The next depths are explored as
+     usual, starting from the DC solution. This is faster, since the first depth only
+     contains one leaf, but other combinations of the first depth are never tested.
+
+The root leaf always remains a candidate: if the DC solution is worse than the initial situation in AC, or if its load
+flow does not converge, it is discarded. If the DC solution contains no network action, the AC search-tree runs as
+without DC pre-solve.
+
+The table below shows how to configure the main behaviors, for preventive and curative instants independently:
+
+| Behaviour                                      | DC depth | DC solution usage | AC depth |
+|------------------------------------------------|----------|-------------------|----------|
+| No DC pre-solve                                | 0        | any               | any      |
+| AC search-tree guided by the DC solution       | ≥ 1      | HINT              | ≥ 1      |
+| DC solution compared with the root leaf only   | ≥ 1      | FORCED            | 1        |
+| DC solution as first depth, then AC search     | ≥ 1      | FORCED            | ≥ 2      |
+
+The DC pre-solve has no effect if the sensitivity parameters are already in DC, or if the CRAC contains no network
+action (the search-tree only branches over network actions).
+
+When the DC pre-solve is enabled, an initial sensitivity analysis is also run in DC, to give the DC search-trees their
+reference flows. If it fails, the DC pre-solve is disabled for the whole RAO, which then runs in AC only. A warning is
+logged.
+
+> ⚠️ **Warning**  
+> DC sensitivity analysis does not model HVDC lines in AC emulation mode (see
+> [HVDC](special-features/hvdc.md#additional-warnings)). The DC solution may then be less relevant, but the AC
+> search-tree still evaluates it with the AC model.
+
+---
+See also: [DC pre-solve parameters](../../parameters/implementation-specific-parameters.md#pre-solve-optional-parameter)
+
+---

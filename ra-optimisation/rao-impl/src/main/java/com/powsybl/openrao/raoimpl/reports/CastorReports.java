@@ -13,6 +13,7 @@ import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
+import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.raoresult.api.extension.CostResult;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
@@ -40,7 +41,9 @@ import java.util.stream.Collectors;
 import static com.powsybl.commons.report.TypedValue.ERROR_SEVERITY;
 import static com.powsybl.commons.report.TypedValue.INFO_SEVERITY;
 import static com.powsybl.commons.report.TypedValue.TRACE_SEVERITY;
+import static com.powsybl.commons.report.TypedValue.WARN_SEVERITY;
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_LOGS;
+import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WARNS;
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
 
 /**
@@ -82,6 +85,55 @@ public final class CastorReports {
             raoParameters,
             numberOfLoggedLimitingElements
         );
+    }
+
+    public static void reportInitialDcSensitivityAnalysisFailed(final ReportNode parentNode) {
+        parentNode.newReportNode()
+            .withMessageTemplate("openrao.searchtreerao.reportInitialDcSensitivityAnalysisFailed")
+            .withSeverity(WARN_SEVERITY)
+            .add();
+
+        BUSINESS_WARNS.warn("Initial sensitivity analysis in DC failed. Disabling DC pre-solve.");
+    }
+
+    public static void reportDcPreSolveProposal(final ReportNode parentNode, final Set<NetworkAction> networkActions) {
+        if (networkActions.isEmpty()) {
+            parentNode.newReportNode()
+                .withMessageTemplate("openrao.searchtreerao.reportDcPreSolveNoProposal")
+                .withSeverity(TRACE_SEVERITY)
+                .add();
+
+            TECHNICAL_LOGS.info("DC pre-solve found no network action to propose.");
+            return;
+        }
+
+        final String concatenatedNetworkActions = networkActions.stream().map(NetworkAction::getId).collect(Collectors.joining(" + "));
+        parentNode.newReportNode()
+            .withMessageTemplate("openrao.searchtreerao.reportDcPreSolveProposal")
+            .withUntypedValue("networkActions", concatenatedNetworkActions)
+            .withSeverity(TRACE_SEVERITY)
+            .add();
+
+        TECHNICAL_LOGS.info("DC pre-solve proposes network action(s): {}", concatenatedNetworkActions);
+    }
+
+    public static void reportDcPreSolveCombinationRetained(final ReportNode parentNode, final boolean retained) {
+        parentNode.newReportNode()
+            .withMessageTemplate("openrao.searchtreerao.reportDcPreSolveCombinationRetained")
+            .withUntypedValue("retained", retained)
+            .withSeverity(INFO_SEVERITY)
+            .add();
+
+        TECHNICAL_LOGS.info("DC pre-solve combination retained in the AC search result: {}", retained);
+    }
+
+    public static void reportCurativePreSolveSensitivityAnalysisFailed(final ReportNode parentNode) {
+        parentNode.newReportNode()
+                .withMessageTemplate("openrao.searchtreerao.reportCurativePreSolveSensitivityAnalysisFailed")
+                .withSeverity(WARN_SEVERITY)
+                .add();
+
+        BUSINESS_WARNS.warn("DC pre-solve sensitivity analysis failed for curative perimeter; falling back to a direct AC search.");
     }
 
     public static void reportCastorSystematicSensitivityAnalysisAfterPraResults(final ReportNode parentNode,
@@ -335,6 +387,15 @@ public final class CastorReports {
             .add();
 
         BUSINESS_LOGS.info("Second preventive failed. Falling back to previous solution:");
+    }
+
+    public static void reportSecondPreventivePreSolveSensitivityAnalysisFailed(ReportNode parentNode) {
+        parentNode.newReportNode()
+                .withMessageTemplate("openrao.searchtreerao.reportSecondPreventivePreSolveSensitivityAnalysisFailed")
+                .withSeverity(WARN_SEVERITY)
+                .add();
+
+        BUSINESS_WARNS.warn("DC pre-solve sensitivity analysis failed for second preventive perimeter; falling back to a direct AC search.");
     }
 
     public static void reportSecondPreventiveMadeRaoSucceed(final ReportNode parentNode) {

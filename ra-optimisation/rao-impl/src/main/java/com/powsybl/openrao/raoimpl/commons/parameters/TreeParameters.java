@@ -9,6 +9,7 @@ package com.powsybl.openrao.raoimpl.commons.parameters;
 
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoPreSolveParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters;
 
 import static com.powsybl.openrao.raoapi.parameters.extensions.MultithreadingParameters.getAvailableCPUs;
@@ -33,25 +34,41 @@ public record TreeParameters(StopCriterion stopCriterion, double targetObjective
     }
 
     public static TreeParameters buildForPreventivePerimeter(RaoParameters parameters) {
+        return buildForPreventivePerimeter(parameters, getMaxPreventiveSearchTreeDepth(parameters));
+    }
+
+    public static TreeParameters buildForPreventivePerimeterPreSolve(RaoParameters parameters) {
+        return buildForPreventivePerimeter(parameters, SearchTreeRaoPreSolveParameters.getMaxPreventiveSearchTreeDepth(parameters));
+    }
+
+    private static TreeParameters buildForPreventivePerimeter(RaoParameters parameters, int maximumSearchDepth) {
         SearchTreeRaoRangeActionsOptimizationParameters.RaRangeShrinking raRangeShrinking = getRaRangeShrinking(parameters);
         boolean shouldShrinkRaRange = raRangeShrinking.equals(SearchTreeRaoRangeActionsOptimizationParameters.RaRangeShrinking.ENABLED_IN_FIRST_PRAO_AND_CRAO) ||
             raRangeShrinking.equals(SearchTreeRaoRangeActionsOptimizationParameters.RaRangeShrinking.ENABLED);
         if (parameters.getObjectiveFunctionParameters().getType() == ObjectiveFunctionParameters.ObjectiveFunctionType.SECURE_FLOW) {
             return new TreeParameters(StopCriterion.AT_TARGET_OBJECTIVE_VALUE,
                 0.0, // secure
-                getMaxPreventiveSearchTreeDepth(parameters),
+                maximumSearchDepth,
                 getAvailableCPUs(parameters),
                 shouldShrinkRaRange);
         } else {
             return new TreeParameters(StopCriterion.MIN_OBJECTIVE,
                 0.0, // value does not matter
-                getMaxPreventiveSearchTreeDepth(parameters),
+                maximumSearchDepth,
                 getAvailableCPUs(parameters),
                 shouldShrinkRaRange);
         }
     }
 
     public static TreeParameters buildForCurativePerimeter(RaoParameters parameters, Double preventiveOptimizedCost) {
+        return buildForCurativePerimeter(parameters, preventiveOptimizedCost, getMaxCurativeSearchTreeDepth(parameters));
+    }
+
+    public static TreeParameters buildForCurativePerimeterPreSolve(RaoParameters parameters, Double preventiveOptimizedCost) {
+        return buildForCurativePerimeter(parameters, preventiveOptimizedCost, SearchTreeRaoPreSolveParameters.getMaxCurativeSearchTreeDepth(parameters));
+    }
+
+    private static TreeParameters buildForCurativePerimeter(RaoParameters parameters, Double preventiveOptimizedCost, int maximumSearchDepth) {
         StopCriterion stopCriterion = StopCriterion.AT_TARGET_OBJECTIVE_VALUE;
         double targetObjectiveValue;
         if (parameters.getObjectiveFunctionParameters().getType() == ObjectiveFunctionParameters.ObjectiveFunctionType.SECURE_FLOW) {
@@ -67,23 +84,31 @@ public record TreeParameters(StopCriterion stopCriterion, double targetObjective
             raRangeShrinking.equals(SearchTreeRaoRangeActionsOptimizationParameters.RaRangeShrinking.ENABLED);
         return new TreeParameters(stopCriterion,
             targetObjectiveValue,
-            getMaxCurativeSearchTreeDepth(parameters),
+            maximumSearchDepth,
             1,
             shouldShrinkRaRange);
     }
 
     public static TreeParameters buildForSecondPreventivePerimeter(RaoParameters parameters) {
+        return buildForSecondPreventivePerimeter(parameters, getMaxPreventiveSearchTreeDepth(parameters));
+    }
+
+    public static TreeParameters buildForSecondPreventivePerimeterPreSolve(RaoParameters parameters) {
+        return buildForSecondPreventivePerimeter(parameters, SearchTreeRaoPreSolveParameters.getMaxPreventiveSearchTreeDepth(parameters));
+    }
+
+    private static TreeParameters buildForSecondPreventivePerimeter(RaoParameters parameters, int maximumSearchDepth) {
         boolean raRangeShrinking = getRaRangeShrinking(parameters).equals(SearchTreeRaoRangeActionsOptimizationParameters.RaRangeShrinking.ENABLED);
         if (parameters.getObjectiveFunctionParameters().getType().equals(ObjectiveFunctionParameters.ObjectiveFunctionType.SECURE_FLOW)) {
             return new TreeParameters(StopCriterion.AT_TARGET_OBJECTIVE_VALUE,
                 0.0, // secure
-                getMaxPreventiveSearchTreeDepth(parameters),
+                maximumSearchDepth,
                 getAvailableCPUs(parameters),
                 raRangeShrinking);
         } else {
             return new TreeParameters(StopCriterion.MIN_OBJECTIVE,
                 0.0, // value does not matter
-                getMaxPreventiveSearchTreeDepth(parameters),
+                maximumSearchDepth,
                 getAvailableCPUs(parameters),
                 raRangeShrinking);
         }
