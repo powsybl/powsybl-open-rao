@@ -21,8 +21,11 @@ import com.powsybl.openrao.raoimpl.result.api.RangeActionActivationResult;
 import com.powsybl.openrao.raoimpl.result.api.SensitivityResult;
 
 import java.time.OffsetDateTime;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import static com.powsybl.openrao.raoimpl.algorithms.linearoptimisation.algorithms.linearproblem.LinearProblemIdGenerator.*;
 
@@ -41,6 +44,8 @@ public final class LinearProblem {
     private final RangeActionActivationResult raActivationFromParentLeaf;
     private final double relativeMipGap;
     private final String solverSpecificParameters;
+    private Set<String> variablesToRemove;
+    private Set<String> constraintsToRemove;
 
     public enum AbsExtension {
         POSITIVE,
@@ -102,9 +107,13 @@ public final class LinearProblem {
         this.relativeMipGap = relativeMipGap;
         this.solverSpecificParameters = solverSpecificParameters;
         this.solver.setMinimization();
+        this.variablesToRemove = new HashSet<>();
+        this.constraintsToRemove = new HashSet<>();
     }
 
     public void reset() {
+        this.variablesToRemove = new HashSet<>();
+        this.constraintsToRemove = new HashSet<>();
         solver.resetModel();
     }
 
@@ -129,6 +138,9 @@ public final class LinearProblem {
     public LinearProblemStatus solve() {
         solver.setRelativeMipGap(relativeMipGap);
         solver.setSolverSpecificParametersAsString(solverSpecificParameters);
+        if (!variablesToRemove.isEmpty() || !constraintsToRemove.isEmpty()) {
+            solver.removeVariablesAndConstraints(variablesToRemove, constraintsToRemove);
+        }
         return solver.solve();
     }
 
@@ -271,6 +283,19 @@ public final class LinearProblem {
 
     public OpenRaoMPConstraint getRangeActionGroupSetpointConstraint(RangeAction<?> rangeAction, State state) {
         return solver.getConstraint(rangeActionGroupSetpointConstraintId(rangeAction, state));
+    }
+
+    public void removeRangeActionGroups(Map<State, Set<RangeAction<?>>> rangeActionsPerState) {
+        Set<String> variableNames = new HashSet<>();
+        Set<String> constraintNames = new HashSet<>();
+        rangeActionsPerState.forEach((state, rangeActions) -> rangeActions.forEach(rangeAction ->
+            rangeAction.getGroupId().ifPresent(groupId -> {
+                variableNames.add(rangeActionGroupSetpointVariableId(groupId, state));
+                constraintNames.add(rangeActionGroupSetpointConstraintId(rangeAction, state));
+            })
+        ));
+        this.variablesToRemove.addAll(variableNames);
+        this.constraintsToRemove.addAll(constraintNames);
     }
 
     public OpenRaoMPConstraint addPstGroupTapConstraint(double lb, double ub, PstRangeAction rangeAction, State state) {

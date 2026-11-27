@@ -9,6 +9,7 @@ package com.powsybl.openrao.raoimpl.algorithms.linearoptimisation.algorithms;
 
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.State;
+import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.raoapi.parameters.LoopFlowParameters;
 import com.powsybl.openrao.raoapi.parameters.MnecParameters;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
@@ -18,17 +19,7 @@ import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoLoopFlowPar
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoMnecParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRelativeMarginsParameters;
-import com.powsybl.openrao.raoimpl.algorithms.linearoptimisation.algorithms.fillers.ContinuousRangeActionGroupFiller;
-import com.powsybl.openrao.raoimpl.algorithms.linearoptimisation.algorithms.fillers.DiscretePstGroupFiller;
-import com.powsybl.openrao.raoimpl.algorithms.linearoptimisation.algorithms.fillers.DiscretePstTapFiller;
-import com.powsybl.openrao.raoimpl.algorithms.linearoptimisation.algorithms.fillers.MarginCoreProblemFiller;
-import com.powsybl.openrao.raoimpl.algorithms.linearoptimisation.algorithms.fillers.MaxLoopFlowFiller;
-import com.powsybl.openrao.raoimpl.algorithms.linearoptimisation.algorithms.fillers.MaxMinMarginFiller;
-import com.powsybl.openrao.raoimpl.algorithms.linearoptimisation.algorithms.fillers.MaxMinRelativeMarginFiller;
-import com.powsybl.openrao.raoimpl.algorithms.linearoptimisation.algorithms.fillers.MnecFiller;
-import com.powsybl.openrao.raoimpl.algorithms.linearoptimisation.algorithms.fillers.ProblemFiller;
-import com.powsybl.openrao.raoimpl.algorithms.linearoptimisation.algorithms.fillers.RaUsageLimitsFiller;
-import com.powsybl.openrao.raoimpl.algorithms.linearoptimisation.algorithms.fillers.UnoptimizedCnecFiller;
+import com.powsybl.openrao.raoimpl.algorithms.linearoptimisation.algorithms.fillers.*;
 import com.powsybl.openrao.raoimpl.algorithms.linearoptimisation.algorithms.linearproblem.LinearProblem;
 import com.powsybl.openrao.raoimpl.algorithms.linearoptimisation.algorithms.linearproblem.LinearProblemBuilder;
 import com.powsybl.openrao.raoimpl.algorithms.linearoptimisation.inputs.IteratingLinearOptimizerInput;
@@ -42,6 +33,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -106,6 +98,28 @@ class LinearProblemBuilderTest {
         assertInstanceOf(MarginCoreProblemFiller.class, fillers.getFirst());
         assertInstanceOf(MaxMinMarginFiller.class, fillers.get(1));
         assertInstanceOf(ContinuousRangeActionGroupFiller.class, fillers.get(2));
+    }
+
+    @Test
+    void hybridModelUsesContinuousAndDiscreteFillersWhenPstActionsArePresent() {
+        when(rangeActionParametersExtension.getPstModel()).thenReturn(SearchTreeRaoRangeActionsOptimizationParameters.PstModel.HYBRID);
+        when(parameters.getObjectiveFunction()).thenReturn(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN);
+        when(parameters.getFlowUnit()).thenReturn(Unit.MEGAWATT);
+        PstRangeAction pstRangeAction = Mockito.mock(PstRangeAction.class);
+        when(pstRangeAction.getId()).thenReturn("pst");
+        State state = Mockito.mock(State.class);
+        when(state.getId()).thenReturn("state");
+        when(optimizationPerimeter.getRangeActionsPerState()).thenReturn(Map.of(state, Set.of(pstRangeAction)));
+
+        LinearProblem linearProblem = linearProblemBuilder.buildFromInputsAndParameters(inputs, parameters);
+
+        assertEquals(4, linearProblem.getFillers().size());
+
+        List<ProblemFiller> fillers = linearProblem.getFillers();
+        assertInstanceOf(MarginCoreProblemFiller.class, fillers.getFirst());
+        assertInstanceOf(MaxMinMarginFiller.class, fillers.get(1));
+        assertInstanceOf(HybridPstProblemFiller.class, fillers.get(2));
+        assertInstanceOf(ContinuousRangeActionGroupFiller.class, fillers.get(3));
     }
 
     @Test

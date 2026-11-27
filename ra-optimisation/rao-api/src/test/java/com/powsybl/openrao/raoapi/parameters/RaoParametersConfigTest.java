@@ -29,11 +29,14 @@ import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoCostlyMinMa
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoLoopFlowParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoMnecParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.PstModel;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRelativeMarginsParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoTopoOptimizationParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SecondPreventiveRaoParameters;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.Mockito;
 
 import java.nio.file.FileSystem;
@@ -114,6 +117,24 @@ class RaoParametersConfigTest {
         assertEquals(SearchTreeRaoRangeActionsOptimizationParameters.Solver.XPRESS, paramsExt.getLinearOptimizationSolver().getSolver());
         assertEquals(22, paramsExt.getLinearOptimizationSolver().getRelativeMipGap(), DOUBLE_TOLERANCE);
         assertEquals("blabla", paramsExt.getLinearOptimizationSolver().getSolverSpecificParameters());
+    }
+
+    @ParameterizedTest
+    @EnumSource(PstModel.class)
+    void checkPstModelConfig(PstModel pstModel) {
+        MapModuleConfig rangeActionsOptimizationModuleConfig = platformCfg.createModuleConfig("search-tree-range-actions-optimization");
+        rangeActionsOptimizationModuleConfig.setStringProperty("pst-model", pstModel.name());
+        RaoParameters parameters = RaoParameters.load(platformCfg, ReportNode.NO_OP);
+        SearchTreeRaoRangeActionsOptimizationParameters paramsExt = parameters.getExtension(OpenRaoSearchTreeParameters.class).getRangeActionsOptimizationParameters();
+        assertEquals(pstModel, paramsExt.getPstModel());
+    }
+
+    @Test
+    void checkDefaultPstModelConfig() {
+        platformCfg.createModuleConfig("search-tree-range-actions-optimization");
+        RaoParameters parameters = RaoParameters.load(platformCfg, ReportNode.NO_OP);
+        SearchTreeRaoRangeActionsOptimizationParameters paramsExt = parameters.getExtension(OpenRaoSearchTreeParameters.class).getRangeActionsOptimizationParameters();
+        assertEquals(PstModel.CONTINUOUS, paramsExt.getPstModel());
     }
 
     @Test

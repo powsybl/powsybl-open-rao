@@ -33,6 +33,7 @@ import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRelativeMar
 import com.powsybl.openrao.raoapi.parameters.extensions.SecondPreventiveRaoParameters;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import java.io.ByteArrayInputStream;
@@ -175,6 +176,21 @@ class JsonRaoParametersTest extends AbstractSerDeTest {
         RaoParameters readParameters = JsonRaoParameters.read(new ByteArrayInputStream(outputStream.toByteArray()), ReportNode.NO_OP);
         assertEquals(SearchTreeRaoRangeActionsOptimizationParameters.Solver.GUROBI,
             readParameters.getExtension(OpenRaoSearchTreeParameters.class).getRangeActionsOptimizationParameters().getLinearOptimizationSolver().getSolver());
+    }
+
+    @ParameterizedTest
+    @EnumSource(PstModel.class)
+    void roundTripPstModel(PstModel pstModel) {
+        RaoParameters parameters = new RaoParameters(ReportNode.NO_OP);
+        parameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters(ReportNode.NO_OP));
+        parameters.getExtension(OpenRaoSearchTreeParameters.class).getRangeActionsOptimizationParameters().setPstModel(pstModel);
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        JsonRaoParameters.write(parameters, outputStream, ReportNode.NO_OP);
+        String serializedParameters = outputStream.toString(StandardCharsets.UTF_8);
+        assertTrue(serializedParameters.contains("\"pst-model\""));
+        assertTrue(serializedParameters.contains(pstModel.name()));
+        RaoParameters readParameters = JsonRaoParameters.read(new ByteArrayInputStream(outputStream.toByteArray()), ReportNode.NO_OP);
+        assertEquals(pstModel, readParameters.getExtension(OpenRaoSearchTreeParameters.class).getRangeActionsOptimizationParameters().getPstModel());
     }
 
     @Test

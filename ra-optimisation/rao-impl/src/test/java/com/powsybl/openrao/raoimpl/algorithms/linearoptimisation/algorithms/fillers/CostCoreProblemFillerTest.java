@@ -13,7 +13,9 @@ import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
+import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
+import com.powsybl.openrao.data.crac.api.rangeaction.VariationDirection;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
@@ -32,10 +34,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -49,6 +48,7 @@ class CostCoreProblemFillerTest extends AbstractFillerTest {
     private LinearProblem linearProblem;
     private CostCoreProblemFiller coreProblemFiller;
     private RangeActionSetpointResult initialRangeActionSetpointResult;
+    private OptimizationPerimeter optimizationPerimeter;
     // some additional data
     private double minAlpha;
     private double maxAlpha;
@@ -98,13 +98,14 @@ class CostCoreProblemFillerTest extends AbstractFillerTest {
                             State mainState,
                             boolean raRangeShrinking,
                             SearchTreeRaoRangeActionsOptimizationParameters.PstModel pstModel) {
-        OptimizationPerimeter optimizationPerimeter = Mockito.mock(OptimizationPerimeter.class);
+        optimizationPerimeter = Mockito.mock(OptimizationPerimeter.class);
         Mockito.when(optimizationPerimeter.getFlowCnecs()).thenReturn(cnecs);
         Mockito.when(optimizationPerimeter.getMainOptimizationState()).thenReturn(mainState);
 
         Map<State, Set<RangeAction<?>>> rangeActions = new HashMap<>();
         cnecs.forEach(cnec -> rangeActions.put(cnec.getState(), Set.of(pstRangeAction)));
         Mockito.when(optimizationPerimeter.getRangeActionsPerState()).thenReturn(rangeActions);
+        Mockito.when(optimizationPerimeter.getRangeActions()).thenReturn(Set.of(pstRangeAction));
 
         RaoParameters raoParameters = new RaoParameters(ReportNode.NO_OP);
         OpenRaoSearchTreeParameters searchTreeParameters = new OpenRaoSearchTreeParameters(ReportNode.NO_OP);
@@ -376,9 +377,35 @@ class CostCoreProblemFillerTest extends AbstractFillerTest {
     }
 
     @Test
-    void testContinuousPstMode() {
+    void testContinuousOrHybridPstMode() {
         OpenRaoException exception = assertThrows(OpenRaoException.class, () -> initializeForGlobal(SearchTreeRaoRangeActionsOptimizationParameters.PstModel.CONTINUOUS));
-        assertEquals("Costly remedial action optimization is only available for the APPROXIMATED_INTEGERS mode of PST range actions.", exception.getMessage());
+        assertEquals("Costly remedial action optimization is not available for CONTINUOUS pst model if a PST range action has a variation cost.", exception.getMessage());
+
+        exception = assertThrows(OpenRaoException.class, () -> initializeForGlobal(SearchTreeRaoRangeActionsOptimizationParameters.PstModel.HYBRID));
+        assertEquals("Costly remedial action optimization is not available for HYBRID pst model if a PST range action has a variation cost.", exception.getMessage());
+
+        PstRangeAction nonCosltyPstRangeAction = Mockito.mock(PstRangeAction.class);
+        when(nonCosltyPstRangeAction.getVariationCost(VariationDirection.UP)).thenReturn(Optional.empty());
+        when(nonCosltyPstRangeAction.getVariationCost(VariationDirection.DOWN)).thenReturn(Optional.empty());
+        when(optimizationPerimeter.getRangeActions()).thenReturn(Set.of(nonCosltyPstRangeAction));
+        RaoParameters raoParameters = new RaoParameters(ReportNode.NO_OP);
+        OpenRaoSearchTreeParameters searchTreeParameters = new OpenRaoSearchTreeParameters(ReportNode.NO_OP);
+        raoParameters.addExtension(OpenRaoSearchTreeParameters.class, searchTreeParameters);
+        searchTreeParameters.getRangeActionsOptimizationParameters().setPstSensitivityThreshold(1e-6);
+        searchTreeParameters.getRangeActionsOptimizationParameters().setHvdcSensitivityThreshold(1e-6);
+        searchTreeParameters.getRangeActionsOptimizationParameters().setInjectionRaSensitivityThreshold(1e-6);
+        RangeActionsOptimizationParameters rangeActionParameters = raoParameters.getRangeActionsOptimizationParameters();
+
+        coreProblemFiller = new CostCoreProblemFiller(
+            optimizationPerimeter,
+            initialRangeActionSetpointResult,
+            rangeActionParameters,
+            searchTreeParameters.getRangeActionsOptimizationParameters(),
+            Unit.MEGAWATT,
+            false,
+            SearchTreeRaoRangeActionsOptimizationParameters.PstModel.HYBRID,
+            null);
+        buildLinearProblem();
     }
 
     @Test

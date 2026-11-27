@@ -13,9 +13,13 @@ import com.google.ortools.linearsolver.MPConstraint;
  * @author Philippe Edwards {@literal <philippe.edwards at rte-international.com>}
  */
 public class OpenRaoMPConstraint {
-    private final MPConstraint mpConstraint;
+    private MPConstraint mpConstraint;
 
     protected OpenRaoMPConstraint(MPConstraint mpConstraint) {
+        this.mpConstraint = mpConstraint;
+    }
+
+    void setMPConstraint(MPConstraint mpConstraint) {
         this.mpConstraint = mpConstraint;
     }
 

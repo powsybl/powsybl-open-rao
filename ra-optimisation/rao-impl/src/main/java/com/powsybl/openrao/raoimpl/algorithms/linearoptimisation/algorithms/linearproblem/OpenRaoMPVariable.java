@@ -13,7 +13,7 @@ import com.google.ortools.linearsolver.MPVariable;
  * @author Philippe Edwards {@literal <philippe.edwards at rte-international.com>}
  */
 public class OpenRaoMPVariable {
-    private final MPVariable mpVariable;
+    private MPVariable mpVariable;
 
     protected OpenRaoMPVariable(MPVariable mpVariable) {
         this.mpVariable = mpVariable;
@@ -45,6 +45,10 @@ public class OpenRaoMPVariable {
 
     MPVariable getMPVariable() {
         return mpVariable;
+    }
+
+    void setMPVariable(MPVariable mpVariable) {
+        this.mpVariable = mpVariable;
     }
 
     public double solutionValue() {

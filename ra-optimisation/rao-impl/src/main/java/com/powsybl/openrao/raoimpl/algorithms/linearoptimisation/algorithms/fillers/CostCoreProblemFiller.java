@@ -41,8 +41,15 @@ public class CostCoreProblemFiller extends AbstractCoreProblemFiller {
                                  SearchTreeRaoRangeActionsOptimizationParameters.PstModel pstModel,
                                  OffsetDateTime timestamp) {
         super(optimizationContext, prePerimeterRangeActionSetpoints, rangeActionParameters, rangeActionParametersExtension, unit, raRangeShrinking, pstModel, timestamp);
-        if (SearchTreeRaoRangeActionsOptimizationParameters.PstModel.CONTINUOUS.equals(pstModel)) {
-            throw new OpenRaoException("Costly remedial action optimization is only available for the APPROXIMATED_INTEGERS mode of PST range actions.");
+        if (!SearchTreeRaoRangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS.equals(pstModel) &&
+            optimizationContext.getRangeActions().stream()
+                .filter(PstRangeAction.class::isInstance)
+                .anyMatch(pstRangeAction ->
+                    pstRangeAction.getVariationCost(VariationDirection.UP).isPresent() ||
+                    pstRangeAction.getVariationCost(VariationDirection.DOWN).isPresent()
+                )
+        ) {
+            throw new OpenRaoException(String.format("Costly remedial action optimization is not available for %s pst model if a PST range action has a variation cost.", pstModel));
         }
     }
 

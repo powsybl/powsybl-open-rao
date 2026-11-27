@@ -73,6 +73,7 @@ public final class RaoUtils {
                                    Integer timeLimitInSeconds, final ReportNode reportNode,
                                    boolean forceFastRao) throws IOException {
         RaoParameters raoParameters = CommonTestData.getRaoParameters();
+
         ZonalData<SensitivityVariableSet> glsks = CommonTestData.getLoopflowGlsks();
         // Rao with loop-flows
         if (raoParameters.getLoopFlowParameters().isPresent() && glsks != null) {

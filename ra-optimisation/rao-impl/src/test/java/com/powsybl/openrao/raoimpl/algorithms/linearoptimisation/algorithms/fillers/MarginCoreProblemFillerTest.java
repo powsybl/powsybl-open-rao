@@ -414,15 +414,16 @@ class MarginCoreProblemFillerTest extends AbstractFillerTest {
         assertEquals(-1.0, curSetPointVariationConstraint.getCoefficient(prevSetPointVariable), DOUBLE_TOLERANCE);
 
         // check the number of variables and constraints
-        // total number of variables 10 :
-        //      - 1 per CNEC (flow)
-        //      - 3 per range action (set-point 3 variations [up, down])
-        // total number of constraints 6 or 7 :
-        //      - 1 per CNEC (flow constraint)
-        //      - 1 per range action (set-point variation constraints)
+        // total number of variables 8 :
+        //      - 1 per CNEC (flow) * 2
+        //      - 3 per range action (set-point and variations [up, down]) * 2
+        // total number of constraints 5 or 4 :
+        //      - 1 per CNEC (flow constraint) * 2
+        //      - 1 per range action (set-point variation constraints) * 2
         //      - 0 or 1 for curative range action (relative variation constraint)
         assertEquals(8, linearProblem.numVariables());
-        if (pstModel.equals(SearchTreeRaoRangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS)) {
+        if (pstModel.equals(SearchTreeRaoRangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS) ||
+                pstModel.equals(SearchTreeRaoRangeActionsOptimizationParameters.PstModel.HYBRID)) {
             assertEquals(4, linearProblem.numConstraints());
         } else {
             assertEquals(5, linearProblem.numConstraints());

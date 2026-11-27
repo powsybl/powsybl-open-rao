@@ -65,6 +65,7 @@ final class JsonRangeActionsOptimizationParameters {
                 }
                 case PST_MODEL ->
                     searchTreeParameters.getRangeActionsOptimizationParameters().setPstModel(stringToPstModel(jsonParser.nextTextValue()));
+
                 case HVDC_SENSITIVITY_THRESHOLD -> {
                     jsonParser.nextToken();
                     searchTreeParameters.getRangeActionsOptimizationParameters().setHvdcSensitivityThreshold(jsonParser.getDoubleValue());
