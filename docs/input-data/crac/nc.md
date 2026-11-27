@@ -973,12 +973,15 @@ The `CountertradeRemedialAction` object has specific fields that define the rang
 The range of the counter-trade range action is relative to the initial net position of the bidding zone's area: its 
 initial setpoint is 0, and a setpoint of X means that the net position of the area is shifted by X MW.
 
-The initial net position is computed from the network (which must carry a load flow result). It has no default value: 
-if no net position can be computed for the area, the remedial action is not imported.
+The initial net position is computed from the network (which must carry a load flow result). It has no default value:
+if no net position can be computed for the area (no neighbouring area, or a missing flow on one of its borders), the
+economic limits (`minEconomicP` and `maxEconomicP`) are ignored, since they cannot be converted into variations, and the
+remedial action is flagged as altered, with its import status detail giving the reason. The remedial action is still
+imported.
 
 In the following, `NP0` denotes this initial net position.
 
-Each bound of the range combines two limits, which are not expressed in the same way:
+Each bound of the range is defined from two limits, which are not expressed in the same way:
 
 - the **economic limit** comes from the `minEconomicP` and `maxEconomicP` fields of the `CountertradeRemedialAction` in 
   the RA profile. These are **absolute values**: the minimum and maximum net positions (in MW) of the bidding zone. They 
@@ -1075,51 +1078,60 @@ remedial action is not imported.
 
 ##### Bounds computation
 
-The bounds are:
+Each bound is resolved independently, with the following order of priority:
 
-- **lower bound** = max(`minEconomicP` - `NP0`, -`maxRegulatingDown`)
-- **upper bound** = min(`maxEconomicP` - `NP0`, `maxRegulatingUp`)
+1. the **physical limit** (`-maxRegulatingDown` for the lower bound, `maxRegulatingUp` for the upper bound), if provided;
+2. otherwise, the **economic limit** (`minEconomicP` - `NP0` for the lower bound, `maxEconomicP` - `NP0` for the upper
+   bound), if provided and if the initial net position is available;
+3. otherwise, the `counter-trading-min-range` (resp. `counter-trading-max-range`) creation parameter, used as is. If
+   this parameter is not set either, the remedial action is not imported.
 
-If only one of the two limits is provided for a bound, it is used alone.
+The physical limit therefore always has priority over the economic limit, even if it is wider. The remedial action is
+flagged as altered, with its import status detail giving the following messages (`{RA ID}`, `{area}`, `{X}`, `{Y}`,
+`{E}` and `{D}` are replaced by the remedial action id, its area, the limit used, the economic limit, the initial net
+position `NP0` and the creation parameter respectively; the lower bound messages are the same with `lower bound`,
+`maxRegulatingDown`, `minEconomicP` and `counter-trading-min-range`):
 
-If neither the economic limit nor the physical limit is provided for the lower (resp. upper) bound, the 
-`counter-trading-min-range` (resp. `counter-trading-max-range`) creation parameter is used as is, 
-and the remedial action is flagged as altered, with its import status detail giving the 
-value taken from the parameter. If this parameter is not set either, the remedial action is not imported.
+| Case                                                                          | Message                                                                                                                                                                       |
+|-------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Physical limit wider than the economic margin                                 | `CT RA {RA ID}: upper bound = {X} MW, from maxRegulatingUp. Exceeds the economic margin of {area} (maxEconomicP {Y} MW - NP {E} MW = {Y - E} MW).`                           |
+| No physical limit, economic limit used                                        | `CT RA {RA ID}: upper bound = {Y - E} MW, from maxEconomicP ({Y} MW) and NP of {area} ({E} MW). maxRegulatingUp not provided.`                                               |
+| Neither limit available, creation parameter used                              | `CT RA {RA ID}: upper bound = {D} MW, from counter-trading-max-range. maxRegulatingUp and maxEconomicP not provided.`                                                        |
+| `maxEconomicP` provided but initial net position unavailable, parameter used  | `CT RA {RA ID}: upper bound = {D} MW, from counter-trading-max-range. maxRegulatingUp not provided, maxEconomicP unusable (NP of {area} unavailable).`                       |
+| Initial net position unavailable, with at least one economic limit provided   | `CT RA {RA ID}: NP of {area} unavailable ({reason}). minEconomicP and maxEconomicP ignored.` (once per remedial action)                                                      |
 
-If the resulting lower bound is greater than the upper bound, the remedial action is not imported.
+If the resulting lower bound is greater than the upper bound (for instance if `minEconomicP` is greater than
+`maxEconomicP` and no physical limit is provided), the remedial action is not imported.
 
-Depending on where the physical limit is defined, four cases are possible ("SSI" stands for values defined on the 
-`CountertradeRemedialAction` in the SSI profile, "group" for values defined on its `RemedialActionGroup` in the SSI 
+Depending on where the physical limit is defined, four cases are possible ("SSI" stands for values defined on the
+`CountertradeRemedialAction` in the SSI profile, "group" for values defined on its `RemedialActionGroup` in the SSI
 profile):
 
-| Case             | `maxRegulatingDown` / `maxRegulatingUp` used                                                                                             | Lower bound                                       | Upper bound                                    |
-|------------------|------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------|------------------------------------------------|
-| No SSI, no group | none                                                                                                                                     | `minEconomicP` - `NP0`                            | `maxEconomicP` - `NP0`                         |
-| SSI, no group    | those of the `CountertradeRemedialAction`                                                                                                | max(`minEconomicP` - `NP0`, -`maxRegulatingDown`) | min(`maxEconomicP` - `NP0`, `maxRegulatingUp`) |
-| No SSI, group    | those of the `RemedialActionGroup`                                                                                                       | max(`minEconomicP` - `NP0`, -`maxRegulatingDown`) | min(`maxEconomicP` - `NP0`, `maxRegulatingUp`) |
-| SSI, group       | those of the `CountertradeRemedialAction`, which must be identical to those of the group (otherwise the remedial action is not imported) | max(`minEconomicP` - `NP0`, -`maxRegulatingDown`) | min(`maxEconomicP` - `NP0`, `maxRegulatingUp`) |
+| Case             | `maxRegulatingDown` / `maxRegulatingUp` used                                                                                             | Lower bound                                         | Upper bound                                      |
+|------------------|------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------|--------------------------------------------------|
+| No SSI, no group | none                                                                                                                                     | `minEconomicP` - `NP0`                              | `maxEconomicP` - `NP0`                           |
+| SSI, no group    | those of the `CountertradeRemedialAction`                                                                                                | -`maxRegulatingDown`                                | `maxRegulatingUp`                                |
+| No SSI, group    | those of the `RemedialActionGroup`                                                                                                       | -`maxRegulatingDown`                                | `maxRegulatingUp`                                |
+| SSI, group       | those of the `CountertradeRemedialAction`, which must be identical to those of the group (otherwise the remedial action is not imported) | -`maxRegulatingDown`                                | `maxRegulatingUp`                                |
 
-In all four cases, the rules above (limit used alone if the other one is missing, fallback on the creation parameters, 
-empty range) apply.
+In all four cases, the rules above (priority of the physical limit, fallback on the creation parameters, empty range)
+apply. A bound for which the corresponding physical limit is missing falls back on the economic limit.
 
-> For instance, with an initial net position of 2000 MW, `minEconomicP` = 500 and `maxEconomicP` = 3000, the economic 
+> For instance, with an initial net position of 2000 MW, `minEconomicP` = 500 and `maxEconomicP` = 3000, the economic
 > limits are [500 - 2000, 3000 - 2000] = [-1500, 1000]:
 >
-> | Case             | Physical limit                                                     | Range         |
-> |------------------|--------------------------------------------------------------------|---------------|
-> | No SSI, no group | none                                                               | [-1500, 1000] |
-> | SSI, no group    | SSI: `maxRegulatingDown` = 800, `maxRegulatingUp` = 1500           | [-800, 1000]  |
-> | No SSI, group    | group: `maxRegulatingDown` = 1200, `maxRegulatingUp` = 600         | [-1200, 600]  |
-> | SSI, group       | SSI and group: `maxRegulatingDown` = 800, `maxRegulatingUp` = 1500 | [-800, 1000]  |
-> | SSI, group       | SSI: 800 / 1500, group: 1200 / 600                                 | not imported  |
+> | Case             | Physical limit                                                     | Range         | Alteration messages                                                  |
+> |------------------|--------------------------------------------------------------------|---------------|----------------------------------------------------------------------|
+> | No SSI, no group | none                                                               | [-1500, 1000] | economic limit used for both bounds                                  |
+> | SSI, no group    | SSI: `maxRegulatingDown` = 800, `maxRegulatingUp` = 1500           | [-800, 1500]  | the upper bound (1500) exceeds the economic margin (1000)            |
+> | No SSI, group    | group: `maxRegulatingDown` = 1200, `maxRegulatingUp` = 600         | [-1200, 600]  | the lower bound (-1200) is within the economic margin: none          |
+> | SSI, group       | SSI and group: `maxRegulatingDown` = 800, `maxRegulatingUp` = 1500 | [-800, 1500]  | the upper bound (1500) exceeds the economic margin (1000)            |
+> | SSI, group       | SSI: 800 / 1500, group: 1200 / 600                                 | not imported  |                                                                      |
 
-> For instance, with an initial net position of 500 MW, `minEconomicP` = -1000, `maxEconomicP` = 1000, 
-> `maxRegulatingDown` = 3000 and `maxRegulatingUp` = 2000:
-> - lower bound = max(-1000 - 500, -3000) = -1500, limited to -500 so that the net position does not become negative;
-> - upper bound = min(1000 - 500, 2000) = 500.
->
-> The range of the counter-trade range action is [-500, 500].
+> For instance, with an initial net position of 500 MW, `minEconomicP` = -1000, `maxEconomicP` = 1000,
+> `maxRegulatingDown` = 3000 and `maxRegulatingUp` = 2000, the economic limits are [-1000 - 500, 1000 - 500] =
+> [-1500, 500] and the physical limits are [-3000, 2000]. The physical limits have priority, so the range of the
+> counter-trade range action is [-3000, 2000], and two messages indicate that both bounds exceed the economic margin.
 
 #### Area and connected areas
 
