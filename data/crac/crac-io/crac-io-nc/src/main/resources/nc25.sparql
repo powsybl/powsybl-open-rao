@@ -1062,3 +1062,52 @@ SELECT *
         }
     }
 }
+
+# query: powerBidSchedule
+PREFIX cim: <https://cim.ucaiug.io/ns#>
+PREFIX nc: <https://cim4.eu/ns/nc#>
+
+SELECT *
+{
+    GRAPH <%s> {
+        ?powerBidSchedule
+            rdf:type nc:PowerBidSchedule ;
+            nc:PowerBidSchedule.PowerRemedialAction ?powerRemedialAction ;
+            cim:IdentifiedObject.mRID ?mRID .
+
+        OPTIONAL {
+            ?powerBidSchedule nc:PowerBidSchedule.direction ?direction .
+        }
+
+        OPTIONAL {
+            ?powerBidSchedule nc:PowerBidSchedule.activationCost ?activationCost .
+        }
+
+
+    }
+}
+
+# query: powerBidScheduleTimePoint
+PREFIX cim: <https://cim.ucaiug.io/ns#>
+PREFIX nc: <https://cim4.eu/ns/nc#>
+
+SELECT *
+{
+    GRAPH <%s> {
+        ?powerBidScheduleTimePoint
+            rdf:type nc:PowerBidScheduleTimePoint ;
+            nc:PowerBidScheduleTimePoint.PowerBidSchedule ?powerBidSchedule .
+
+        OPTIONAL {
+            ?powerBidScheduleTimePoint nc:PowerBidScheduleTimePoint.atTime ?atTime .
+        }
+
+        OPTIONAL {
+            ?powerBidScheduleTimePoint nc:PowerBidScheduleTimePoint.price ?price .
+        }
+
+        OPTIONAL {
+            ?powerBidScheduleTimePoint nc:PowerBidScheduleTimePoint.p ?p .
+        }
+    }
+}

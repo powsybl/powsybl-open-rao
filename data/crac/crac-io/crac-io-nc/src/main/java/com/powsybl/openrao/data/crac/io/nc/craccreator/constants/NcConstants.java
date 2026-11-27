@@ -147,6 +147,13 @@ public final class NcConstants {
     public static final String POWER_REMEDIAL_ACTION = "powerRemedialAction";
     public static final String GENERATING_UNIT = "generatingUnit";
     public static final String PARTICIPATION_FACTOR = "participationFactor";
+    public static final String PARTICIPATION_FACTOR_TIME_POINT = "participationFactorTimePoint";
+    public static final String POWER_BID_SCHEDULE = "powerBidSchedule";
+    public static final String POWER_BID_SCHEDULE_TIME_POINT = "powerBidScheduleTimePoint";
+    public static final String DIRECTION = "direction";
+    public static final String ACTIVATION_COST = "activationCost";
+    public static final String P = "p";
+    public static final String PRICE = "price";
     public static final String REMEDIAL_ACTION_GROUP_OVERRIDING = "remedialActionGroupOverriding";
     public static final String GRID_STATE_ALTERATION = "gridStateAlteration";
     public static final String TOPOLOGY_ACTION = "topologyAction";
