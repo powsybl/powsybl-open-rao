@@ -40,15 +40,21 @@ import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoPreSolvePar
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoPreSolveParameters.SolutionUsage;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoTopoOptimizationParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SecondPreventiveRaoParameters;
+import com.powsybl.openrao.raoimpl.commons.ToolProvider;
 import com.powsybl.openrao.raoimpl.reports.ReportsTestUtils;
+import com.powsybl.openrao.sensitivityanalysis.SystematicSensitivityInterface;
+import com.powsybl.openrao.sensitivityanalysis.SystematicSensitivityResult;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.slf4j.LoggerFactory;
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.Mockito.when;
 
 /**
@@ -190,6 +196,38 @@ class CastorFullOptimizationTest {
         assertEquals(Set.of(crac.getNetworkAction("open_fr1_fr3")), raoResult.getActivatedNetworkActionsDuringState(crac.getState(crac.getContingency("co1_fr2_fr3_1"), crac.getLastInstant())));
 
         assertDcPreSolveLogsFiredOncePerPerimeter(technicalLogs, 2);
+    }
+
+    @Test
+    void initialDcSensitivityAnalysisFailureDisablesPreSolve() throws Exception {
+        setup("small-network-2P.uct", "small-crac-2P.json");
+        RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_2P_v2.json"), ReportNode.NO_OP);
+        enableDcPreSolve(raoParameters, SolutionUsage.HINT);
+
+        CastorFullOptimization castorFullOptimization = new CastorFullOptimization(raoInput, raoParameters, null, ReportNode.NO_OP);
+        RaoRunContext context = new RaoRunContext(new SearchTreeRunContext(ToolProvider.buildFromRaoInputAndParameters(raoInput, raoParameters), raoParameters));
+
+        // mock ToolProvider to return FAILURE status
+        ToolProvider failingPreSolveToolProvider = Mockito.mock(ToolProvider.class);
+        SystematicSensitivityInterface failingSensitivityInterface = Mockito.mock(SystematicSensitivityInterface.class);
+        SystematicSensitivityResult failingSensitivityResult = Mockito.mock(SystematicSensitivityResult.class);
+        when(failingSensitivityInterface.run(network)).thenReturn(failingSensitivityResult);
+        when(failingSensitivityResult.getStatus()).thenReturn(SystematicSensitivityResult.SensitivityComputationStatus.FAILURE);
+        when(failingSensitivityResult.getStatus(any())).thenReturn(SystematicSensitivityResult.SensitivityComputationStatus.FAILURE);
+        when(failingPreSolveToolProvider.getSystematicSensitivityInterface(any(), any(), anyBoolean(), anyBoolean(), any(), any(), any(), any()))
+            .thenReturn(failingSensitivityInterface);
+        context.setPresolve(new SearchTreeRunContext(failingPreSolveToolProvider, raoParameters));
+        context.setPreSolveEnabled(true);
+
+        ReportNode rootReportNode = ReportsTestUtils.getTestRootNode();
+        Method runInitialSensitivityAnalysisMethod = CastorFullOptimization.class.getDeclaredMethod(
+            "runInitialSensitivityAnalysis", RaoRunContext.class, ReportNode.class);
+        runInitialSensitivityAnalysisMethod.setAccessible(true);
+        runInitialSensitivityAnalysisMethod.invoke(castorFullOptimization, context, rootReportNode);
+
+        assertEquals(ComputationStatus.DEFAULT, context.getMainSolve().getInitialOutput().getSensitivityStatus());
+        assertFalse(context.isPreSolveEnabled());
+        assertEquals(1, ReportsTestUtils.findReportNodes(rootReportNode, "openrao.searchtreerao.reportInitialDcSensitivityAnalysisFailed").size());
     }
 
     @Test
